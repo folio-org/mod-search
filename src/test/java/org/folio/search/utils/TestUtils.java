@@ -28,7 +28,6 @@ import static org.folio.search.utils.JsonUtils.jsonArray;
 import static org.folio.search.utils.JsonUtils.jsonObject;
 import static org.folio.search.utils.TestConstants.EMPTY_OBJECT;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
-import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.AdditionalAnswers.delegatesTo;
 import static org.mockito.Mockito.mock;
@@ -84,6 +83,7 @@ import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.domain.dto.SubjectBrowseItem;
 import org.folio.search.domain.dto.SubjectBrowseResult;
 import org.folio.search.domain.dto.Tags;
+import org.folio.search.model.BrowseResult;
 import org.folio.search.model.SearchResult;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.FieldDescription;
@@ -95,6 +95,7 @@ import org.folio.search.model.service.CqlFacetRequest;
 import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.model.types.CallNumberType;
 import org.folio.search.model.types.IndexingDataFormat;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.model.types.SearchType;
 import org.marc4j.callnum.AbstractCallNumber;
 import org.marc4j.callnum.DeweyCallNumber;
@@ -118,8 +119,7 @@ import org.springframework.test.web.servlet.ResultActions;
 public class TestUtils {
 
   public static final String KEYWORD_FIELD_TYPE = "keyword";
-  public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
-    .setSerializationInclusion(Include.NON_NULL)
+  public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().setSerializationInclusion(Include.NON_NULL)
     .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
     .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
   public static final SmileMapper SMILE_MAPPER = new SmileMapper();
@@ -127,12 +127,8 @@ public class TestUtils {
   public static final NamedXContentRegistry NAMED_XCONTENT_REGISTRY =
     new NamedXContentRegistry(TestUtils.elasticsearchClientNamedContentRegistryEntries());
 
-  private static final Map<CallNumberType, Function<String, AbstractCallNumber>> SHELVING_ORDER_GENERATORS = Map.of(
-    NLM, NlmCallNumber::new,
-    LC, LCCallNumber::new,
-    DEWEY, DeweyCallNumber::new,
-    SUDOC, SuDocCallNumber::new
-  );
+  private static final Map<CallNumberType, Function<String, AbstractCallNumber>> SHELVING_ORDER_GENERATORS =
+    Map.of(NLM, NlmCallNumber::new, LC, LCCallNumber::new, DEWEY, DeweyCallNumber::new, SUDOC, SuDocCallNumber::new);
 
   @SneakyThrows
   public static String asJsonString(Object value) {
@@ -160,8 +156,7 @@ public class TestUtils {
 
   @SneakyThrows
   public static <T> T parseResponse(ResultActions result, TypeReference<T> type) {
-    return OBJECT_MAPPER.readValue(result.andReturn().getResponse()
-      .getContentAsString(), type);
+    return OBJECT_MAPPER.readValue(result.andReturn().getResponse().getContentAsString(), type);
   }
 
   public static CqlSearchRequest<Instance> searchServiceRequest(String query) {
@@ -190,11 +185,12 @@ public class TestUtils {
     return CqlSearchRequest.of(resourceClass, tenantId, query, limit, 0, expandAll);
   }
 
-  public static CqlFacetRequest defaultFacetServiceRequest(String resource, String query, String... facets) {
+  public static CqlFacetRequest defaultFacetServiceRequest(ResourceType resource, String query, String... facets) {
     return facetServiceRequest(TENANT_ID, resource, query, facets);
   }
 
-  public static CqlFacetRequest facetServiceRequest(String tenantId, String resource, String query, String... facets) {
+  public static CqlFacetRequest facetServiceRequest(String tenantId, ResourceType resource, String query,
+                                                    String... facets) {
     return CqlFacetRequest.of(resource, tenantId, query, asList(facets));
   }
 
@@ -221,20 +217,27 @@ public class TestUtils {
 
   public static CallNumberBrowseItem cnBrowseItem(Instance instance, String callNumber,
                                                   Integer itemNumberForCallNumberType, Boolean isAnchor) {
-    var callNumberType = Optional.ofNullable(instance.getItems().get(itemNumberForCallNumberType))
-      .flatMap(item -> Optional.ofNullable(item.getEffectiveCallNumberComponents())
+    var callNumberType = Optional.ofNullable(instance.getItems().get(itemNumberForCallNumberType)).flatMap(
+      item -> Optional.ofNullable(item.getEffectiveCallNumberComponents())
         .map(ItemEffectiveCallNumberComponents::getTypeId));
     var shelfKey = callNumberType.map(s -> getShelfKeyFromCallNumber(callNumber, s))
       .orElseGet(() -> getShelfKeyFromCallNumber(callNumber));
-    return new CallNumberBrowseItem().fullCallNumber(callNumber).shelfKey(shelfKey)
-      .instance(instance).totalRecords(1).isAnchor(isAnchor);
+    var ins = new Instance().id(instance.getId()).title(instance.getTitle())
+      .tenantId(instance.getTenantId()).shared(instance.getShared())
+      .staffSuppress(instance.getStaffSuppress())
+      .discoverySuppress(instance.getDiscoverySuppress())
+      .isBoundWith(instance.getIsBoundWith())
+      .items(null)
+      .holdings(null);
+    return new CallNumberBrowseItem().fullCallNumber(callNumber).shelfKey(shelfKey).instance(ins).totalRecords(1)
+      .isAnchor(isAnchor);
   }
 
   public static CallNumberBrowseItem cnBrowseItem(CallNumberType callNumberType, String callNumber,
                                                   Integer totalRecords, Boolean isAnchor) {
     var shelfKey = getShelfKeyFromCallNumber(callNumber, callNumberType.getId());
-    return new CallNumberBrowseItem().fullCallNumber(callNumber).shelfKey(shelfKey)
-      .instance(null).totalRecords(totalRecords).isAnchor(isAnchor);
+    return new CallNumberBrowseItem().fullCallNumber(callNumber).shelfKey(shelfKey).instance(null)
+      .totalRecords(totalRecords).isAnchor(isAnchor);
   }
 
   public static CallNumberBrowseItem cnBrowseItem(int totalRecords, String callNumber) {
@@ -244,8 +247,8 @@ public class TestUtils {
 
   public static CallNumberBrowseItem cnBrowseItem(int totalRecords, String callNumber, boolean isAnchor) {
     var shelfKey = getShelfKeyFromCallNumber(callNumber);
-    return new CallNumberBrowseItem().totalRecords(totalRecords)
-      .shelfKey(shelfKey).fullCallNumber(callNumber).isAnchor(isAnchor);
+    return new CallNumberBrowseItem().totalRecords(totalRecords).shelfKey(shelfKey).fullCallNumber(callNumber)
+      .isAnchor(isAnchor);
   }
 
   public static CallNumberBrowseItem cnBrowseItemWithNoType(Instance instance, String callNumber) {
@@ -254,8 +257,8 @@ public class TestUtils {
 
   public static CallNumberBrowseItem cnBrowseItemWithNoType(Instance instance, String callNumber, Boolean isAnchor) {
     var shelfKey = getShelfKeyFromCallNumber(callNumber);
-    return new CallNumberBrowseItem().fullCallNumber(callNumber).shelfKey(shelfKey)
-      .instance(instance).totalRecords(1).isAnchor(isAnchor);
+    return new CallNumberBrowseItem().fullCallNumber(callNumber).shelfKey(shelfKey).instance(instance).totalRecords(1)
+      .isAnchor(isAnchor);
   }
 
   public static String getShelfKeyFromCallNumber(String callNumber) {
@@ -265,10 +268,8 @@ public class TestUtils {
   public static String getShelfKeyFromCallNumber(String callNumber, String typeId) {
     var callNumberType = CallNumberType.fromId(typeId);
     return callNumberType.flatMap(numberType -> Optional.ofNullable(SHELVING_ORDER_GENERATORS.get(numberType))
-        .map(generator -> generator.apply(callNumber))
-        .map(AbstractCallNumber::getShelfKey))
-      .orElse(normalizeEffectiveShelvingOrder(callNumber))
-      .trim();
+        .map(generator -> generator.apply(callNumber)).map(AbstractCallNumber::getShelfKey))
+      .orElse(normalizeEffectiveShelvingOrder(callNumber)).trim();
   }
 
   public static SubjectBrowseResult subjectBrowseResult(int total, List<SubjectBrowseItem> items) {
@@ -289,10 +290,20 @@ public class TestUtils {
 
   public static SubjectBrowseItem subjectBrowseItem(Integer totalRecords, String subject, String authorityId,
                                                     boolean isAnchor) {
-    return new SubjectBrowseItem().value(subject)
-      .authorityId(authorityId)
-      .totalRecords(totalRecords)
+    return new SubjectBrowseItem().value(subject).authorityId(authorityId).totalRecords(totalRecords)
       .isAnchor(isAnchor);
+  }
+
+  public static SubjectBrowseItem subjectBrowseItem(Integer totalRecords, String subject, String authorityId,
+                                                    String sourceId, String typeId) {
+    return new SubjectBrowseItem().value(subject).authorityId(authorityId).sourceId(sourceId).typeId(typeId)
+      .totalRecords(totalRecords);
+  }
+
+  public static SubjectBrowseItem subjectBrowseItem(Integer totalRecords, String subject, String authorityId,
+                                                    String sourceId, String typeId, boolean isAnchor) {
+    return new SubjectBrowseItem().value(subject).authorityId(authorityId).sourceId(sourceId).typeId(typeId)
+      .totalRecords(totalRecords).isAnchor(isAnchor);
   }
 
   public static SubjectBrowseItem subjectBrowseItem(String subject) {
@@ -301,11 +312,7 @@ public class TestUtils {
 
   public static ClassificationNumberBrowseResult classificationBrowseResult(
     String prev, String next, int totalRecords, List<ClassificationNumberBrowseItem> items) {
-    return new ClassificationNumberBrowseResult()
-      .prev(prev)
-      .next(next)
-      .items(items)
-      .totalRecords(totalRecords);
+    return new ClassificationNumberBrowseResult().prev(prev).next(next).items(items).totalRecords(totalRecords);
   }
 
   public static ClassificationNumberBrowseItem classificationBrowseItem(String number, String typeId,
@@ -315,11 +322,8 @@ public class TestUtils {
 
   public static ClassificationNumberBrowseItem classificationBrowseItem(String number, String typeId,
                                                                         Integer totalRecords, Boolean isAnchor) {
-    return new ClassificationNumberBrowseItem()
-      .classificationNumber(number)
-      .classificationTypeId(typeId)
-      .totalRecords(totalRecords)
-      .isAnchor(isAnchor);
+    return new ClassificationNumberBrowseItem().classificationNumber(number).classificationTypeId(typeId)
+      .totalRecords(totalRecords).isAnchor(isAnchor);
   }
 
   public static InstanceContributorBrowseItem contributorBrowseItem(Integer totalRecords, String name,
@@ -333,16 +337,11 @@ public class TestUtils {
     return new InstanceContributorBrowseItem().name(name).totalRecords(totalRecords).isAnchor(isAnchor);
   }
 
-  public static InstanceContributorBrowseItem contributorBrowseItem(Integer totalRecords, boolean isAnchor,
-                                                                    String name, String nameTypeId,
-                                                                    String authorityId, String... typeIds) {
-    return new InstanceContributorBrowseItem()
-      .name(name)
-      .contributorNameTypeId(nameTypeId)
-      .authorityId(authorityId)
-      .contributorTypeId(asList(typeIds))
-      .totalRecords(totalRecords)
-      .isAnchor(isAnchor);
+  public static InstanceContributorBrowseItem contributorBrowseItem(Integer totalRecords, boolean isAnchor, String name,
+                                                                    String nameTypeId, String authorityId,
+                                                                    String... typeIds) {
+    return new InstanceContributorBrowseItem().name(name).contributorNameTypeId(nameTypeId).authorityId(authorityId)
+      .contributorTypeId(asList(typeIds)).totalRecords(totalRecords).isAnchor(isAnchor);
   }
 
   public static AuthorityBrowseItem authorityBrowseItem(String heading, Authority authority) {
@@ -359,18 +358,38 @@ public class TestUtils {
 
   @SneakyThrows
   public static SearchDocumentBody searchDocumentBody() {
-    return SearchDocumentBody.of(new BytesArray(SMILE_MAPPER.writeValueAsBytes(EMPTY_OBJECT)),
-      IndexingDataFormat.SMILE, resourceEvent(), INDEX);
+    return SearchDocumentBody.of(new BytesArray(SMILE_MAPPER.writeValueAsBytes(EMPTY_OBJECT)), IndexingDataFormat.SMILE,
+      resourceEvent(), INDEX);
   }
 
   @SneakyThrows
   public static SearchDocumentBody searchDocumentBody(String rawJson) {
-    return SearchDocumentBody.of(new BytesArray(SMILE_MAPPER.writeValueAsBytes(rawJson)),
-      IndexingDataFormat.SMILE, resourceEvent(), INDEX);
+    return SearchDocumentBody.of(new BytesArray(SMILE_MAPPER.writeValueAsBytes(rawJson)), IndexingDataFormat.SMILE,
+      resourceEvent(), INDEX);
   }
 
   public static SearchDocumentBody searchDocumentBodyToDelete() {
     return SearchDocumentBody.of(null, null, resourceEvent(), DELETE);
+  }
+
+  public static void cleanupActual(CallNumberBrowseResult actual) {
+    for (var item : actual.getItems()) {
+      cleanupCallNumberItem(item);
+    }
+  }
+
+  public static void cleanupActual(BrowseResult<CallNumberBrowseItem> actual) {
+    for (var item : actual.getRecords()) {
+      cleanupCallNumberItem(item);
+    }
+  }
+
+  private static void cleanupCallNumberItem(CallNumberBrowseItem item) {
+    var instance = item.getInstance();
+    if (instance != null) {
+      instance.setItems(null);
+      instance.setHoldings(null);
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -395,22 +414,22 @@ public class TestUtils {
     return values;
   }
 
-  public static ResourceDescription resourceDescription(String name) {
+  public static ResourceDescription resourceDescription(ResourceType name) {
     return resourceDescription(name, emptyMap());
   }
 
   public static ResourceDescription resourceDescription(Map<String, FieldDescription> fields) {
-    return resourceDescription(RESOURCE_NAME, fields);
+    return resourceDescription(ResourceType.INSTANCE, fields);
   }
 
-  public static ResourceDescription resourceDescription(
-    Map<String, FieldDescription> fields, List<String> languageSourcePaths) {
-    var resourceDescription = resourceDescription(RESOURCE_NAME, fields);
+  public static ResourceDescription resourceDescription(Map<String, FieldDescription> fields,
+                                                        List<String> languageSourcePaths) {
+    var resourceDescription = resourceDescription(ResourceType.INSTANCE, fields);
     resourceDescription.setLanguageSourcePaths(languageSourcePaths);
     return resourceDescription;
   }
 
-  public static ResourceDescription resourceDescription(String name, Map<String, FieldDescription> fields) {
+  public static ResourceDescription resourceDescription(ResourceType name, Map<String, FieldDescription> fields) {
     var resourceDescription = new ResourceDescription();
     resourceDescription.setName(name);
     resourceDescription.setFields(fields);
@@ -418,7 +437,7 @@ public class TestUtils {
     return resourceDescription;
   }
 
-  public static ResourceDescription secondaryResourceDescription(String name, String parent) {
+  public static ResourceDescription secondaryResourceDescription(ResourceType name, ResourceType parent) {
     var resourceDescription = resourceDescription(name, emptyMap());
     resourceDescription.setParent(parent);
     resourceDescription.setReindexSupported(false);
@@ -497,23 +516,29 @@ public class TestUtils {
   }
 
   public static ResourceEvent resourceEvent() {
-    return resourceEvent(RESOURCE_ID, RESOURCE_NAME, CREATE, null, null);
+    return resourceEvent(RESOURCE_ID, ResourceType.UNKNOWN, CREATE, null, null);
   }
 
-  public static ResourceEvent resourceEvent(String resource, Object newData) {
+  public static ResourceEvent resourceEvent(ResourceType resource, Object newData) {
     return resourceEvent(RESOURCE_ID, resource, CREATE, newData, null);
   }
 
-  public static ResourceEvent resourceEvent(String id, String resource, Object newData) {
+  public static ResourceEvent resourceEvent(String id, ResourceType resource, Object newData) {
     return resourceEvent(id, resource, CREATE, newData, null);
   }
 
-  public static ResourceEvent resourceEvent(String id, String resource, ResourceEventType type) {
+  public static ResourceEvent resourceEvent(String id, ResourceType resource, ResourceEventType type) {
     return resourceEvent(id, resource, type, null, null);
   }
 
-  public static ResourceEvent resourceEvent(String id, String resource, ResourceEventType type, Object n, Object o) {
-    return new ResourceEvent().id(id).type(type).resourceName(resource).tenant(TENANT_ID)._new(n).old(o);
+  public static ResourceEvent resourceEvent(String id, ResourceType resource, ResourceEventType type, Object n,
+                                            Object o) {
+    return resourceEvent(id, resource.getName(), type, n, o);
+  }
+
+  public static ResourceEvent resourceEvent(String id, String resourceName, ResourceEventType type, Object n,
+                                            Object o) {
+    return new ResourceEvent().id(id).type(type).resourceName(resourceName).tenant(TENANT_ID)._new(n).old(o);
   }
 
   public static ResourceEvent kafkaResourceEvent(ResourceEventType type, Object newData, Object oldData) {
@@ -618,8 +643,7 @@ public class TestUtils {
     map.put("filter", (p, c) -> ParsedFilter.fromXContent(p, (String) c));
     map.put("string_stats", (p, c) -> ParsedStringStats.PARSER.parse(p, (String) c));
     return map.entrySet().stream()
-      .map(v -> new NamedXContentRegistry.Entry(Aggregation.class, new ParseField(v.getKey()), v.getValue()))
-      .toList();
+      .map(v -> new NamedXContentRegistry.Entry(Aggregation.class, new ParseField(v.getKey()), v.getValue())).toList();
   }
 
   @SuppressWarnings("unchecked")
@@ -639,10 +663,8 @@ public class TestUtils {
         }
         """.formatted(typeId));
     }
-    stub.willReturn(aResponse()
-      .withStatus(200)
-      .withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
-      .withBody("""
+    stub.willReturn(
+      aResponse().withStatus(200).withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE).withBody("""
         {
           "classificationTypes": [
              %s
@@ -654,11 +676,9 @@ public class TestUtils {
   }
 
   private static JsonNode searchResponseWithAggregation(JsonNode aggregationValue) {
-    return jsonObject(
-      "took", 0,
-      "timed_out", false,
-      "_shards", jsonObject("total", 1, "successful", 1, "skipped", 0, "failed", 0),
-      "hits", jsonObject("total", jsonObject("value", 0, "relation", "eq"), "max_score", null, "hits", jsonArray()),
+    return jsonObject("took", 0, "timed_out", false, "_shards",
+      jsonObject("total", 1, "successful", 1, "skipped", 0, "failed", 0), "hits",
+      jsonObject("total", jsonObject("value", 0, "relation", "eq"), "max_score", null, "hits", jsonArray()),
       "aggregations", aggregationValue);
   }
 

@@ -1,7 +1,8 @@
 package org.folio.search.service;
 
+import static org.folio.search.model.types.ResourceType.INSTANCE_SUBJECT;
+import static org.folio.search.model.types.ResourceType.UNKNOWN;
 import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
-import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.resourceDescription;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -42,12 +43,21 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 @ExtendWith(MockitoExtension.class)
 class SearchTenantServiceTest {
 
+  private final FolioModuleMetadata metadata = new FolioModuleMetadata() {
+    @Override
+    public String getModuleName() {
+      return null;
+    }
+
+    @Override
+    public String getDBSchemaName(String tenantId) {
+      return null;
+    }
+  };
   @InjectMocks
   private SearchTenantService searchTenantService;
   @Mock
   private IndexService indexService;
-  @Mock
-  private ScriptService scriptService;
   @Mock
   private FolioExecutionContext context;
   @Mock
@@ -67,24 +77,12 @@ class SearchTenantServiceTest {
   @Mock
   private JdbcTemplate jdbcTemplate;
 
-  private final FolioModuleMetadata metadata = new FolioModuleMetadata() {
-    @Override
-    public String getModuleName() {
-      return null;
-    }
-
-    @Override
-    public String getDBSchemaName(String tenantId) {
-      return null;
-    }
-  };
-
   @Test
   void createOrUpdateTenant_positive() {
     when(searchConfigurationProperties.getInitialLanguages()).thenReturn(Set.of("eng"));
     when(context.getTenantId()).thenReturn(TENANT_ID);
     when(context.getFolioModuleMetadata()).thenReturn(metadata);
-    when(resourceDescriptionService.getResourceNames()).thenReturn(List.of(RESOURCE_NAME));
+    when(resourceDescriptionService.getResourceTypes()).thenReturn(List.of(UNKNOWN));
     doNothing().when(prepareSystemUserService).setupSystemUser();
     doNothing().when(kafkaAdminService).createTopics(TENANT_ID);
     doNothing().when(kafkaAdminService).restartEventListeners();
@@ -92,8 +90,7 @@ class SearchTenantServiceTest {
     searchTenantService.createOrUpdateTenant(tenantAttributes());
 
     verify(languageConfigService).create(new LanguageConfig().code("eng"));
-    verify(indexService).createIndexIfNotExist(RESOURCE_NAME, TENANT_ID);
-    verify(scriptService).saveScripts();
+    verify(indexService).createIndexIfNotExist(UNKNOWN, TENANT_ID);
     verify(indexService, never()).reindexInventory(TENANT_ID, null);
     verify(kafkaAdminService).createTopics(TENANT_ID);
     verify(kafkaAdminService).restartEventListeners();
@@ -110,7 +107,6 @@ class SearchTenantServiceTest {
 
     verifyNoInteractions(languageConfigService);
     verifyNoInteractions(indexService);
-    verifyNoInteractions(scriptService);
     verify(kafkaAdminService).createTopics(TENANT_ID);
     verify(kafkaAdminService).restartEventListeners();
     verify(prepareSystemUserService).setupSystemUser();
@@ -120,7 +116,7 @@ class SearchTenantServiceTest {
   void initializeTenant_positive() {
     when(searchConfigurationProperties.getInitialLanguages()).thenReturn(Set.of("eng"));
     when(context.getTenantId()).thenReturn(TENANT_ID);
-    when(resourceDescriptionService.getResourceNames()).thenReturn(List.of(RESOURCE_NAME));
+    when(resourceDescriptionService.getResourceTypes()).thenReturn(List.of(UNKNOWN));
     doNothing().when(prepareSystemUserService).setupSystemUser();
     doNothing().when(kafkaAdminService).createTopics(TENANT_ID);
     doNothing().when(kafkaAdminService).restartEventListeners();
@@ -128,8 +124,7 @@ class SearchTenantServiceTest {
     searchTenantService.afterTenantUpdate(tenantAttributes());
 
     verify(languageConfigService).create(new LanguageConfig().code("eng"));
-    verify(indexService).createIndexIfNotExist(RESOURCE_NAME, TENANT_ID);
-    verify(scriptService).saveScripts();
+    verify(indexService).createIndexIfNotExist(UNKNOWN, TENANT_ID);
     verify(indexService, never()).reindexInventory(TENANT_ID, null);
     verify(kafkaAdminService).createTopics(TENANT_ID);
     verify(kafkaAdminService).restartEventListeners();
@@ -140,7 +135,7 @@ class SearchTenantServiceTest {
     when(context.getTenantId()).thenReturn(TENANT_ID);
     when(searchConfigurationProperties.getInitialLanguages()).thenReturn(Set.of("eng", "fre"));
     when(languageConfigService.getAllLanguageCodes()).thenReturn(Set.of("eng"));
-    when(resourceDescriptionService.getResourceNames()).thenReturn(List.of(RESOURCE_NAME));
+    when(resourceDescriptionService.getResourceTypes()).thenReturn(List.of(UNKNOWN));
     doNothing().when(kafkaAdminService).createTopics(TENANT_ID);
     doNothing().when(kafkaAdminService).restartEventListeners();
 
@@ -148,8 +143,7 @@ class SearchTenantServiceTest {
 
     verify(languageConfigService, never()).create(new LanguageConfig().code("eng"));
     verify(languageConfigService).create(new LanguageConfig().code("fre"));
-    verify(indexService).createIndexIfNotExist(RESOURCE_NAME, TENANT_ID);
-    verify(scriptService).saveScripts();
+    verify(indexService).createIndexIfNotExist(UNKNOWN, TENANT_ID);
     verify(kafkaAdminService).createTopics(TENANT_ID);
     verify(kafkaAdminService).restartEventListeners();
   }
@@ -157,20 +151,20 @@ class SearchTenantServiceTest {
   @Test
   void shouldFailToRunReindexOnSupportsReindexParamPresentButNotSupportedByApi() {
     when(context.getTenantId()).thenReturn(TENANT_ID);
-    when(resourceDescriptionService.getResourceNames()).thenReturn(List.of(RESOURCE_NAME, "secondary"));
-    when(resourceDescriptionService.get(RESOURCE_NAME)).thenReturn(resourceDescription(RESOURCE_NAME));
+    when(resourceDescriptionService.getResourceTypes()).thenReturn(List.of(INSTANCE_SUBJECT, UNKNOWN));
+    when(resourceDescriptionService.get(INSTANCE_SUBJECT)).thenReturn(resourceDescription(INSTANCE_SUBJECT));
     var attributes = tenantAttributes().addParametersItem(new Parameter().key("runReindex").value("true"));
 
     var ex = assertThrows(IllegalArgumentException.class, () -> searchTenantService.afterTenantUpdate(attributes));
 
-    assertEquals("Unexpected value '%s'".formatted(RESOURCE_NAME), ex.getMessage());
+    assertEquals("Unexpected value '%s'".formatted(INSTANCE_SUBJECT.getName()), ex.getMessage());
     verify(indexService, never()).reindexInventory(any(), any());
   }
 
   @Test
   void shouldNotRunReindexOnTenantParamPresentFalse() {
     when(context.getTenantId()).thenReturn(TENANT_ID);
-    when(resourceDescriptionService.getResourceNames()).thenReturn(List.of(RESOURCE_NAME));
+    when(resourceDescriptionService.getResourceTypes()).thenReturn(List.of(UNKNOWN));
     var attributes = tenantAttributes().addParametersItem(new Parameter().key("runReindex").value("false"));
 
     searchTenantService.afterTenantUpdate(attributes);
@@ -181,7 +175,7 @@ class SearchTenantServiceTest {
   @Test
   void shouldNotRunReindexOnTenantParamPresentWrong() {
     when(context.getTenantId()).thenReturn(TENANT_ID);
-    when(resourceDescriptionService.getResourceNames()).thenReturn(List.of(RESOURCE_NAME));
+    when(resourceDescriptionService.getResourceTypes()).thenReturn(List.of(UNKNOWN));
     var attributes = tenantAttributes().addParametersItem(new Parameter().key("runReindexx").value("true"));
 
     searchTenantService.afterTenantUpdate(attributes);
@@ -192,7 +186,7 @@ class SearchTenantServiceTest {
   @Test
   void deleteTenant_positive() {
     when(context.getTenantId()).thenReturn(TENANT_ID);
-    when(resourceDescriptionService.getResourceNames()).thenReturn(List.of(RESOURCE_NAME));
+    when(resourceDescriptionService.getResourceTypes()).thenReturn(List.of(UNKNOWN));
     when(context.getFolioModuleMetadata()).thenReturn(metadata);
     when(jdbcTemplate.query(anyString(), any(ResultSetExtractor.class), any())).thenReturn(true);
 
@@ -200,7 +194,7 @@ class SearchTenantServiceTest {
 
     verify(jdbcTemplate).execute(anyString());
     verify(callNumberBrowseRangeService).evictRangeCache(TENANT_ID);
-    verify(indexService).dropIndex(RESOURCE_NAME, TENANT_ID);
+    verify(indexService).dropIndex(UNKNOWN, TENANT_ID);
     verify(kafkaAdminService).deleteTopics(TENANT_ID);
   }
 
@@ -219,12 +213,12 @@ class SearchTenantServiceTest {
   @Test
   void disableTenant_positive() {
     when(context.getTenantId()).thenReturn(TENANT_ID);
-    when(resourceDescriptionService.getResourceNames()).thenReturn(List.of(RESOURCE_NAME));
+    when(resourceDescriptionService.getResourceTypes()).thenReturn(List.of(UNKNOWN));
     doNothing().when(callNumberBrowseRangeService).evictRangeCache(TENANT_ID);
 
     searchTenantService.afterTenantDeletion(tenantAttributes());
 
-    verify(indexService).dropIndex(RESOURCE_NAME, TENANT_ID);
+    verify(indexService).dropIndex(UNKNOWN, TENANT_ID);
     verify(kafkaAdminService).deleteTopics(TENANT_ID);
     verifyNoMoreInteractions(indexService);
   }

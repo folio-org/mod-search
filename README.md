@@ -25,6 +25,7 @@ Version 2.0. See the file "[LICENSE](LICENSE)" for more information.
 - [Data Indexing](#data-indexing)
   * [Recreating Elasticsearch index](#recreating-elasticsearch-index)
   * [Monitoring reindex process](#monitoring-reindex-process)
+- [Indexing of Instance Records](#indexing-of-instance-records)
 - [API](#api)
   * [CQL support](#cql-support)
     + [CQL query operators](#cql-query-operators)
@@ -234,24 +235,15 @@ and [Cross-cluster replication](https://docs.aws.amazon.com/opensearch-service/l
 | KAFKA_EVENTS_CONCURRENCY                           | 2                                                          | Custom number of kafka concurrent threads for message consuming.                                                                                                                      |
 | KAFKA_AUTHORITIES_CONSUMER_PATTERN                 | (${folio.environment}\.)(.*\.)authorities\.authority       | Custom subscription pattern for Kafka authority message consumers.                                                                                                                    |
 | KAFKA_AUTHORITIES_CONCURRENCY                      | 1                                                          | Custom number of kafka concurrent threads for authority message consuming.                                                                                                            |
-| KAFKA_CONTRIBUTORS_CONCURRENCY                     | 2                                                          | Custom number of kafka concurrent threads for contributor message consuming.                                                                                                          |
-| KAFKA_CONTRIBUTORS_CONSUMER_PATTERN                | (${folio.environment}\.)(.*\.)search\.instance-contributor | Custom subscription pattern for Kafka contributor message consumers.                                                                                                                  |
-| KAFKA_CONTRIBUTORS_TOPIC_PARTITIONS                | 50                                                         | Amount of partitions for `search.instance-contributor` topic.                                                                                                                         |
-| KAFKA_CONTRIBUTORS_TOPIC_REPLICATION_FACTOR        | -                                                          | Replication factor for `search.instance-contributor` topic.                                                                                                                           |
-| KAFKA_CONSORTIUM_INSTANCE_CONCURRENCY              | 2                                                          | Custom number of kafka concurrent threads for consortium.instance message consuming.                                                                                                  |
 | KAFKA_LOCATION_CONCURRENCY                         | 1                                                          | Custom number of kafka concurrent threads for inventory.location, inventory.campus, inventory.institution and inventory.library message consuming.                                    |
 | KAFKA_LINKED_DATA_CONCURRENCY                      | 1                                                          | Custom number of kafka concurrent threads for linked data message consuming.                                                                                                          |
-| KAFKA_CONSORTIUM_INSTANCE_TOPIC_PARTITIONS         | 50                                                         | Amount of partitions for `search.consortium.instance` topic.                                                                                                                          |
-| KAFKA_CONSORTIUM_INSTANCE_TOPIC_REPLICATION_FACTOR | -                                                          | Replication factor for `search.consortium.instance` topic.                                                                                                                            |
-| KAFKA_SUBJECTS_CONCURRENCY                         | 2                                                          | Custom number of kafka concurrent threads for subject message consuming.                                                                                                              |
-| KAFKA_SUBJECTS_CONSUMER_PATTERN                    | (${folio.environment}\.)(.*\.)search\.instance-subject     | Custom subscription pattern for Kafka subject message consumers.                                                                                                                      |
-| KAFKA_SUBJECTS_TOPIC_PARTITIONS                    | 50                                                         | Amount of partitions for `search.instance-subject` topic.                                                                                                                             |
-| KAFKA_SUBJECTS_TOPIC_REPLICATION_FACTOR            | -                                                          | Replication factor for `search.instance-subject` topic.                                                                                                                               |
+| KAFKA_REINDEX_RANGE_INDEX_CONCURRENCY              | 1                                                          | Custom number of kafka concurrent threads for `search.reindex.range-index` message consuming.                                                                                         |
+| KAFKA_REINDEX_RANGE_INDEX_TOPIC_PARTITIONS         | 16                                                         | Amount of partitions for `search.reindex.range-index` topic.                                                                                                                          |
+| KAFKA_REINDEX_RANGE_INDEX_TOPIC_REPLICATION_FACTOR | -                                                          | Replication factor for `search.reindex.range-index` topic.                                                                                                                            |
+| KAFKA_REINDEX_RECORDS_CONCURRENCY                  | 2                                                          | Custom number of kafka concurrent threads for `inventory.reindex-records` message consuming.                                                                                          |
 | KAFKA_CONSUMER_MAX_POLL_RECORDS                    | 200                                                        | Maximum number of records returned in a single call to poll().                                                                                                                        |
 | KAFKA_RETRY_INTERVAL_MS                            | 2000                                                       | Specifies time to wait before reattempting query.                                                                                                                                     |
 | KAFKA_RETRY_DELIVERY_ATTEMPTS                      | 6                                                          | Specifies how many queries attempt to perform after the first one failed.                                                                                                             |
-| INSTANCE_SUBJECTS_INDEXING_RETRY_ATTEMPTS          | 3                                                          | Amount of retry attempts to delete instance subject resources.                                                                                                                        |
-| INSTANCE_CONTRIBUTORS_INDEXING_RETRY_ATTEMPTS      | 3                                                          | Amount of retry attempts to delete instance contributor resources.                                                                                                                    |
 | INDEXING_DATA_FORMAT                               | smile                                                      | Format for passing data to elasticsearch (json/smile)                                                                                                                                 |
 | INITIAL_LANGUAGES                                  | eng                                                        | Comma separated list of languages for multilang fields see [Multi-lang search support](#multi-language-search-support)                                                                |
 | MAX_SUPPORTED_LANGUAGES                            | 5                                                          | Provides the maximum number of supported languages                                                                                                                                    |
@@ -274,7 +266,12 @@ and [Cross-cluster replication](https://docs.aws.amazon.com/opensearch-service/l
 | MAX_BROWSE_REQUEST_OFFSET                          | 500                                                        | The maximum elasticsearch query offset for additional requests on browse around                                                                                                       |
 | SYSTEM_USER_ENABLED                                | true                                                       | Defines if system user must be created at service tenant initialization or used for egress service requests                                                                           |
 | REINDEX_LOCATION_BATCH_SIZE                        | 1_000                                                      | Defines number of locations to retrieve per inventory http request on locations reindex process                                                                                       |
-| MAX_SEARCH_BATCH_REQUEST_IDS_COUNT                  | 20_000                                                        | Defines maximum batch request IDs count for searching consolidated items/holdings in consortium                                                                                       |
+| REINDEX_MERGE_RANGE_SIZE                           | 500                                                        | The range size that represents the number of merge entities to process during the Merge process of reindex                                                                            |
+| REINDEX_UPLOAD_RANGE_SIZE                          | 1_000                                                      | The range size that represents the number of upload entities to process during the Upload process of reindex                                                                          |
+| REINDEX_UPLOAD_RANGE_LEVEL                         | 3                                                          | The level of deepness of upload range generator affecting the number of ranges to be generated                                                                                        |
+| REINDEX_MERGE_RANGE_PUBLISHER_CORE_POOL_SIZE       | 3                                                          | The number of threads for publishing the merge ranges to keep in the pool, even if they are idle.                                                                                     |
+| REINDEX_MERGE_RANGE_PUBLISHER_MAX_POOL_SIZE        | 6                                                          | The maximum number of threads for publishing the merge ranges to allow in the pool.                                                                                                   |
+| MAX_SEARCH_BATCH_REQUEST_IDS_COUNT                 | 20_000                                                     | Defines maximum batch request IDs count for searching consolidated items/holdings in consortium                                                                                       |
 
 The module uses system user to communicate with other modules from Kafka consumers.
 For production deployments you MUST specify the password for this system user via env variable:
@@ -352,6 +349,114 @@ _reindex job id_ - id returned by `/search/index/inventory/reindex` endpoint.
 In order to estimate total records that actually added to the index, you can send a "match all" search query and check
 `totalRecords`, e.g. `GET /search/instances?query=id="*"`. Alternatively you can query Elasticsearch directly,
 see [ES search API](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-all-query.html#query-dsl-match-all-query).
+
+## Indexing of Instance Records
+
+The section below describes the data indexing for ```instance```, ```subject```, ```contribution``` and ```classification``` resource types.
+Since ```subject```, ```contribution``` and ```classification``` are derived or child records of an Instance, in short, we are referring to
+indexing of these and ```instance``` as _Indexing of Instances_ (or _Instances Indexing_) and resources as Instance resources.
+
+This is an improved and recommended version of instances indexing than that which is achieved with
+```POST [OKAPI_URL]/search/index/inventory/reindex``` and documented in [Data Indexing](#data-indexing) section
+
+The whole indexing procedure consist of two steps:
+1. Merge - building the necessary data model and collection of data in accordance with the built model
+2. Upload - querying the data and adding them into OpenSearch index
+
+Merge step can be considered as Data Aggregation or Data Reloading. We need to run this step when there is a breaking change introduced to index structure (mapping).
+Normally, we run Instances indexing with this step rarely, as introducing the breaking changes does not happen that frequently. The step aggregates all instances data
+available for the tenant into specific data models and keeps them there. For Create/Update/Delete operations performed on specific Instances mod-search will
+update or sync the aggregated data of those specific Instances, so that the aggregated data is always actual and represents the latest state of an instance resources.
+
+Upload step queries the aggregated data for the specific Instance resources type and then runs the indexing by populating the data into resource's OpenSearch index.
+
+We can execute both Merge and Upload steps with so called _full reindex_ API:
+```http
+POST /search/index/instance-records/reindex/full
+```
+It runs the async process which performs both steps described above.
+
+If Instances Indexing was performed in the past, we have aggregated data of instances stored in our models, and changes we made do not require
+to perform mapping between the inventory Instance resources and OpenSearch indices then running the Merge Step in this and subsequent times is not
+necessary, and we can run only Upload step. In order to do this we can call the following async API:
+
+```http
+POST /search/index/instance-records/reindex/upload
+
+x-okapi-tenant: [tenant]
+x-okapi-token: [JWT_TOKEN]
+
+{
+  "entityTypes": ["instance", "subject", "contributor", "classification"]
+}
+```
+
+We can call the above API as _upload reindex_ API as it runs only Upload step. So, the assumption for running _upload reindex_ is that Merge step was run before with _full reindex_ API.
+If it is not the case or if our changes require to run the Merge step which means there are breaking changes on the mapping between the inventory Instance resources and OpenSearch indices
+then _full reindex_ API.
+
+We can specify one or many resource types in ```entityTypes``` array depending on our needs and if more than one resource type is given then upload step will run for each one of the
+specified resources.
+
+In order to monitor the async processes initiated by the above two APIs we can execute the endpoint:
+```http
+GET /search/index/instance-records/reindex/status
+```
+
+and it returns a response showing the status details for the latest run operations, merge and upload alike, which may look like the following:
+```json
+[
+  {
+    "entityType": "holding",
+    "status": "MERGE_COMPLETED",
+    "totalMergeRanges": 5,
+    "processedMergeRanges": 5,
+    "totalUploadRanges": 0,
+    "processedUploadRanges": 0,
+    "startTimeMerge": "2024-04-01T00:38:34.15755006Z",
+    "endTimeMerge": "2024-04-01T00:38:35.15755006Z"
+  },
+  {
+    "entityType": "item",
+    "status": "MERGE_COMPLETED",
+    "totalMergeRanges": 3,
+    "processedMergeRanges": 3,
+    "totalUploadRanges": 0,
+    "processedUploadRanges": 0,
+    "startTimeMerge": "2024-04-01T00:37:34.15755006Z",
+    "endTimeMerge": "2024-04-01T00:37:35.15755006Z"
+  },
+  {
+    "entityType": "instance",
+    "status": "UPLOAD_COMPLETED",
+    "totalMergeRanges": 3,
+    "processedMergeRanges": 3,
+    "totalUploadRanges": 2,
+    "processedUploadRanges": 2,
+    "startTimeMerge": "2024-04-01T00:37:34.15755006Z",
+    "endTimeMerge": "2024-04-01T00:37:35.15755006Z",
+    "startTimeUpload": "2024-04-01T00:37:36.15755006Z",
+    "endTimeUpload": "2024-04-01T00:37:37.15755006Z"
+  },
+  {
+    "entityType": "subject",
+    "status": "UPLOAD_COMPLETED",
+    "totalMergeRanges": 0,
+    "processedMergeRanges": 0,
+    "totalUploadRanges": 2,
+    "processedUploadRanges": 2,
+    "startTimeUpload": "2024-04-01T01:37:36.15755006Z",
+    "endTimeUpload": "2024-04-01T01:37:37.15755006Z"
+  }
+]
+```
+
+When ```entityType``` has value of ```item``` or ```holding``` then we have status details of Merge step
+and when ```entityType``` has value of ```subject```, ```contributor``` or ```classification``` then we have status details of Upload step.
+Only for entity type of ```instance``` we can have statuses of both Merge and Upload steps.
+
+```status``` response field can have values of ```"MERGE_IN_PROGRESS"```, ```"MERGE_COMPLETED"``` or ```"MERGE_FAILED"``` for entity types
+representing Merge step and values of ```"UPLOAD_IN_PROGRESS"```, ```"UPLOAD_COMPLETED"``` or ```"UPLOAD_FAILED"``` for the entities of Upload step.
 
 ## API
 
@@ -756,6 +861,8 @@ GET /instances/facets?query=title all book&facet=source:5,discoverySuppress:2
 |:---------------------|:----:|:------------------------------|
 | `instances.tenantId` | term | Requests a tenantId facet     |
 | `instances.shared`   | term | Requests a shared/local facet |
+| `sourceId`           | term | Requests a sourceId facet     |
+| `typeId`             | term | Requests a typeId facet       |
 
 ##### Classifications facets
 

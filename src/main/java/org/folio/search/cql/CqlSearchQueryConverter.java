@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.model.types.SearchType;
 import org.folio.search.service.consortium.ConsortiumSearchHelper;
 import org.folio.search.service.metadata.SearchFieldProvider;
@@ -49,7 +50,7 @@ public class CqlSearchQueryConverter {
    * @param resource resource name
    * @return search source as {@link SearchSourceBuilder} object with query and sorting conditions
    */
-  public SearchSourceBuilder convert(String query, String resource) {
+  public SearchSourceBuilder convert(String query, ResourceType resource) {
     var cqlNode = cqlQueryParser.parseCqlQuery(query, resource);
     var queryBuilder = new SearchSourceBuilder();
 
@@ -70,7 +71,7 @@ public class CqlSearchQueryConverter {
    * @param resource resource name
    * @return search source as {@link SearchSourceBuilder} object with query and sorting conditions
    */
-  public SearchSourceBuilder convertForConsortia(String query, String resource) {
+  public SearchSourceBuilder convertForConsortia(String query, ResourceType resource) {
     return convertForConsortia(query, resource, false);
   }
 
@@ -83,14 +84,14 @@ public class CqlSearchQueryConverter {
    * @param tenantId active affiliation member tenant name
    * @return search source as {@link SearchSourceBuilder} object with query and sorting conditions
    */
-  public SearchSourceBuilder convertForConsortia(String query, String resource, String tenantId) {
+  public SearchSourceBuilder convertForConsortia(String query, ResourceType resource, String tenantId) {
     var sourceBuilder = convert(query, resource);
     var queryBuilder = consortiumSearchHelper
       .filterQueryForActiveAffiliation(sourceBuilder.query(), resource, tenantId);
     return sourceBuilder.query(queryBuilder);
   }
 
-  public SearchSourceBuilder convertForConsortia(String query, String resource, boolean consortiumConsolidated) {
+  public SearchSourceBuilder convertForConsortia(String query, ResourceType resource, boolean consortiumConsolidated) {
     var sourceBuilder = convert(query, resource);
     if (consortiumConsolidated) {
       return sourceBuilder;
@@ -108,7 +109,7 @@ public class CqlSearchQueryConverter {
    * @param resource resource name
    * @return term node as {@link CQLTermNode} object with term value
    */
-  public CQLTermNode convertToTermNode(String query, String resource) {
+  public CQLTermNode convertToTermNode(String query, ResourceType resource) {
     var cqlNode = cqlQueryParser.parseCqlQuery(query, resource);
     return convertToTermNode(cqlNode);
   }
@@ -121,7 +122,7 @@ public class CqlSearchQueryConverter {
     return (CQLTermNode) cqlNode;
   }
 
-  private QueryBuilder convertToQuery(CQLNode node, String resource) {
+  private QueryBuilder convertToQuery(CQLNode node, ResourceType resource) {
     var cqlNode = node;
     if (node instanceof CQLSortNode cqlSortNode) {
       cqlNode = cqlSortNode.getSubtree();
@@ -136,7 +137,7 @@ public class CqlSearchQueryConverter {
       "Failed to parse CQL query. Node with type '%s' is not supported.", node.getClass().getSimpleName()));
   }
 
-  private BoolQueryBuilder convertToBoolQuery(CQLBooleanNode node, String resource) {
+  private BoolQueryBuilder convertToBoolQuery(CQLBooleanNode node, ResourceType resource) {
     var operator = node.getOperator();
     return switch (operator) {
       case OR -> flattenBoolQuery(node, resource, operator, BoolQueryBuilder::should);
@@ -149,7 +150,7 @@ public class CqlSearchQueryConverter {
     };
   }
 
-  private BoolQueryBuilder flattenBoolQuery(CQLBooleanNode node, String resource, CQLBoolean operator,
+  private BoolQueryBuilder flattenBoolQuery(CQLBooleanNode node, ResourceType resource, CQLBoolean operator,
                                             Function<BoolQueryBuilder, List<QueryBuilder>> conditionProvider) {
     var rightOperandQuery = convertToQuery(node.getRightOperand(), resource);
     var leftOperandQuery = convertToQuery(node.getLeftOperand(), resource);
@@ -201,7 +202,7 @@ public class CqlSearchQueryConverter {
     return boolQuery;
   }
 
-  private QueryBuilder enhanceQuery(QueryBuilder query, String resource) {
+  private QueryBuilder enhanceQuery(QueryBuilder query, ResourceType resource) {
     Predicate<String> filterFieldCheck = field -> isFilterField(field, resource);
     if (isDisjunctionFilterQuery(query, filterFieldCheck)) {
       return boolQuery().filter(query);
@@ -232,7 +233,7 @@ public class CqlSearchQueryConverter {
     return isFilterQuery(query, filterFieldPredicate) || isDisjunctionFilterQuery(query, filterFieldPredicate);
   }
 
-  private boolean isFilterField(String fieldName, String resource) {
+  private boolean isFilterField(String fieldName, ResourceType resource) {
     return searchFieldProvider.getPlainFieldByPath(resource, fieldName)
       .filter(fieldDescription -> fieldDescription.hasType(SearchType.FILTER))
       .isPresent();

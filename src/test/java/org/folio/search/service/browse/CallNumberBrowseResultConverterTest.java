@@ -29,6 +29,7 @@ import org.folio.search.model.BrowseResult;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.service.consortium.FeatureConfigServiceDecorator;
 import org.folio.search.service.converter.ElasticsearchDocumentConverter;
+import org.folio.search.utils.TestUtils;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -72,6 +73,7 @@ class CallNumberBrowseResultConverterTest {
     when(featureConfigService.isEnabled(BROWSE_CN_INTERMEDIATE_VALUES)).thenReturn(true);
 
     var actual = resultConverter.convert(searchResponse, ctx, isBrowsingForward);
+    TestUtils.cleanupActual(actual);
 
     assertThat(actual).isEqualTo(BrowseResult.of(100, expected));
     verify(documentConverter)
@@ -116,6 +118,7 @@ class CallNumberBrowseResultConverterTest {
     when(featureConfigService.isEnabled(BROWSE_CN_INTERMEDIATE_VALUES)).thenReturn(false);
 
     var actual = resultConverter.convert(searchResponse, forwardContext(), true);
+    TestUtils.cleanupActual(actual);
 
     assertThat(actual).isEqualTo(BrowseResult.of(10, List.of(
       cnBrowseItem(instance("B1", "B2", "C2"), "B1"),
@@ -136,6 +139,7 @@ class CallNumberBrowseResultConverterTest {
     when(featureConfigService.isEnabled(BROWSE_CN_INTERMEDIATE_VALUES)).thenReturn(false);
 
     var actual = resultConverter.convert(searchResponse, backwardContext(), false);
+    TestUtils.cleanupActual(actual);
 
     assertThat(actual).isEqualTo(BrowseResult.of(10, List.of(
       cnBrowseItem(instance("B1", "B2"), "B2"),

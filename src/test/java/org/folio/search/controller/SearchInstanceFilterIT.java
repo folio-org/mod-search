@@ -12,7 +12,6 @@ import static org.folio.search.utils.TestUtils.facet;
 import static org.folio.search.utils.TestUtils.facetItem;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.parseResponse;
-import static org.folio.search.utils.TestUtils.randomId;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -57,6 +56,26 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
     "62f72eeb-ed5a-4619-b01f-1750d5528d25",
     "6d9ccc82-8142-4fbc-b6ba-8e3429fd9aca");
 
+  private static final String[] ITEM_IDS = array(
+    "fd37e8d3-adf3-44f8-8b10-658ad8ba8319",
+    "712d0875-e57f-43f3-83be-41020ed51ecb",
+    "fae9b380-d48e-4fb8-8a6a-f810449973af",
+    "8b3afe85-0887-4f53-9104-1302e881bf25",
+    "b2895b5d-c1eb-47e8-9402-90119104d765",
+    "d44bc80e-ed6e-4c34-a24b-2cdbbc48b083",
+    "ec4833b1-69c2-465d-8bc2-dcf4cd527d8c"
+  );
+
+  private static final String[] HOLDINGS_IDS = array(
+    "c9ee975f-ea3e-461d-b190-d1f3c11a35b0",
+    "fe11e2b9-3751-48d4-8c2f-faa83f903931",
+    "0cd836aa-4415-40a4-b6fe-35b5a1454669",
+    "2b134022-85f0-4ebf-bc57-58b76b6b8e7a",
+    "91274edf-0a9d-4cf7-82f3-9ee0c36e83e2",
+    "d231a4ac-eac1-4eac-bc6d-baceb64a4984",
+    "8ba03578-5c1f-4dcd-a49f-107882124f99"
+  );
+
   private static final String[] FORMATS = array(
     "89f6d4f0-9cd2-4015-828d-331dc3adb47a",
     "25a81102-a2a9-4576-85ff-133ebcbcef2c",
@@ -97,7 +116,9 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void prepare() {
-    setUpTenant(instances());
+    var holdingsMatcher = jsonPath("sum($.instances..holdings.length())", is((double) HOLDINGS_IDS.length));
+    var itemsMatcher = jsonPath("sum($.instances..items.length())", is((double) ITEM_IDS.length));
+    setUpTenant(List.of(holdingsMatcher, itemsMatcher), instances());
   }
 
   @AfterAll
@@ -159,8 +180,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
   private static Stream<Arguments> filteredSearchQueriesProvider() {
     return Stream.of(
       arguments("(id=*) sortby title", List.of(IDS)),
-      arguments("(id=* and source==\"MARC\") sortby title", List.of(IDS[0], IDS[1])),
-      arguments("(id=* and source==\"FOLIO\") sortby title", List.of(IDS[2])),
+      arguments("(id=* and source==\"FOLIO\") sortby title", List.of(IDS[2], IDS[4])),
 
       arguments("(id=* and languages==\"eng\") sortby title", List.of(IDS[0], IDS[1], IDS[4])),
       arguments("(id=* and languages==\"ger\") sortby title", List.of(IDS[1])),
@@ -170,8 +190,6 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments("(id=* and languages==\"ukr\") sortby title", List.of(IDS[2])),
       arguments("(languages==\"ukr\") sortby title", List.of(IDS[2])),
 
-      arguments("(id=* and source==\"CONSORTIUM-MARC\" and languages==\"ita\") sortby title", List.of(IDS[3])),
-      arguments("(id=* and source==\"CONSORTIUM-FOLIO\" and languages==\"eng\") sortby title", List.of(IDS[4])),
       arguments("(source==\"FOLIO\" and languages==\"ukr\") sortby title", List.of(IDS[2])),
 
       arguments(format("(id=* and instanceTypeId==%s) sortby title", TYPES[0]), List.of(IDS[1], IDS[2])),
@@ -232,10 +250,8 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
         List.of(IDS[1], IDS[3])),
       arguments(format("(holdings.permanentLocationId==%s) sortby title", PERMANENT_LOCATIONS[2]),
         List.of(IDS[3], IDS[4])),
-      arguments(format("(holdings.permanentLocationId==%s and source==CONSORTIUM-MARC) sortby title",
-        PERMANENT_LOCATIONS[2]), List.of(IDS[3])),
 
-      arguments(format("(holdings.discoverySuppress==%s) sortby title", true), List.of(IDS[1])),
+      arguments(format("(holdings.discoverySuppress==%s) sortby title", true), List.of(IDS[1], IDS[2])),
       arguments(format("(holdings.discoverySuppress==%s) sortby title", false), List.of(IDS[0], IDS[3], IDS[4])),
 
       arguments("(itemTags==itag1) sortby title", List.of(IDS[0], IDS[2])),
@@ -362,8 +378,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
           facetItem("ger", 1), facetItem("rus", 1), facetItem("ukr", 1)),
         "instanceTags", facet(facetItem("cooking", 2), facetItem("future", 2), facetItem("science", 2),
           facetItem("casual", 1), facetItem("text", 1)),
-        "source", facet(facetItem("MARC", 2), facetItem("FOLIO", 1),
-          facetItem("CONSORTIUM-FOLIO", 1), facetItem("CONSORTIUM-MARC", 1)),
+        "source", facet(facetItem("MARC", 3), facetItem("FOLIO", 2)),
         "instanceTypeId", facet(facetItem(TYPES[1], 3), facetItem(TYPES[0], 2)),
         "statusId", facet(facetItem(STATUSES[1], 3), facetItem(STATUSES[0], 2)),
         "instanceFormatIds", facet(facetItem(FORMATS[1], 4), facetItem(FORMATS[2], 3), facetItem(FORMATS[0], 1)),
@@ -375,11 +390,10 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
         "holdingsTypeId", facet(facetItem(HOLDINGS_TYPES[0], 2), facetItem(HOLDINGS_TYPES[1], 2)),
         "holdings.permanentLocationId", facet(facetItem(PERMANENT_LOCATIONS[1], 2),
           facetItem(PERMANENT_LOCATIONS[0], 2), facetItem(PERMANENT_LOCATIONS[2], 2)),
-        "holdings.discoverySuppress", facet(facetItem("false", 3), facetItem("true", 1))
+        "holdings.discoverySuppress", facet(facetItem("false", 3), facetItem("true", 2))
       )),
 
-      arguments("id=*", array("source"), mapOf("source", facet(facetItem("MARC", 2), facetItem("FOLIO", 1),
-        facetItem("CONSORTIUM-FOLIO", 1), facetItem("CONSORTIUM-MARC", 1)))),
+      arguments("id=*", array("source"), mapOf("source", facet(facetItem("MARC", 3), facetItem("FOLIO", 2)))),
 
       arguments("id=*", array("languages"), mapOf("languages", facet(facetItem("eng", 3), facetItem("fra", 2),
         facetItem("ita", 2), facetItem("ger", 1), facetItem("rus", 1), facetItem("ukr", 1)))),
@@ -422,15 +436,14 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
         "instanceFormatIds", facet(facetItem(FORMATS[1], 4), facetItem(FORMATS[2], 3), facetItem(FORMATS[0], 1)))),
 
       arguments("source==MARC", array("instanceFormatIds"), mapOf(
-        "instanceFormatIds", facet(facetItem(FORMATS[1], 2), facetItem(FORMATS[2], 1)))),
+        "instanceFormatIds", facet(facetItem(FORMATS[0], 1), facetItem(FORMATS[1], 3), facetItem(FORMATS[2], 2)))),
 
       arguments("id=*", array("items.effectiveLocationId"), mapOf(
         "items.effectiveLocationId", facet(facetItem(LOCATIONS[0], 4), facetItem(LOCATIONS[1], 3)))),
 
       arguments("source==MARC", array("source", "items.effectiveLocationId"), mapOf(
-        "source", facet(facetItem("MARC", 2), facetItem("FOLIO", 1),
-          facetItem("CONSORTIUM-FOLIO", 1), facetItem("CONSORTIUM-MARC", 1)),
-        "items.effectiveLocationId", facet(facetItem(LOCATIONS[0], 1), facetItem(LOCATIONS[1], 1)))),
+        "source", facet(facetItem("MARC", 3), facetItem("FOLIO", 2)),
+        "items.effectiveLocationId", facet(facetItem(LOCATIONS[0], 2), facetItem(LOCATIONS[1], 1)))),
 
       arguments("id=*", array("items.status.name"), mapOf(
         "items.status.name", facet(facetItem("Available", 3), facetItem("Checked out", 2), facetItem("Missing", 2)))),
@@ -462,7 +475,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
 
       arguments("id=*", array("holdings.discoverySuppress"), mapOf(
         "holdings.discoverySuppress", facet(facetItem("false", 3),
-          facetItem("true", 1)))),
+          facetItem("true", 2)))),
 
       arguments("id=*", array("holdingsTags"), mapOf(
         "holdingsTags", facet(facetItem("htag2", 3), facetItem("htag1", 2), facetItem("htag3", 2)))),
@@ -503,14 +516,15 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .metadata(metadata("2021-03-01T00:00:00.000+00:00", "2021-03-05T12:30:00.000+00:00"))
       .dates(new Dates().date1(DATES[0]))
       .items(List.of(
-        new Item().id(randomId())
+        new Item().id(ITEM_IDS[0])
           .effectiveLocationId(LOCATIONS[0]).status(itemStatus(AVAILABLE))
+          .holdingsRecordId(HOLDINGS_IDS[0])
           .discoverySuppress(true)
           .materialTypeId(MATERIAL_TYPES[0])
           .metadata(metadata("2021-03-01T00:00:00.000+00:00", "2021-03-05T12:30:00.000+00:00"))
           .tags(tags("itag1", "itag3"))))
       .holdings(List.of(
-        new Holding().id(randomId())
+        new Holding().id(HOLDINGS_IDS[0])
           .holdingsTypeId(HOLDINGS_TYPES[0])
           .metadata(metadata("2021-03-01T00:00:00.000+00:00", "2021-03-05T12:30:00.000+00:00"))
           .permanentLocationId(PERMANENT_LOCATIONS[0]).tags(tags("htag1", "htag2"))))
@@ -531,14 +545,15 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .metadata(metadata("2021-03-10T01:00:00.000+00:00", "2021-03-12T15:40:00.000+00:00"))
       .dates(new Dates().date1(DATES[1]))
       .items(List.of(
-        new Item().id(randomId())
+        new Item().id(ITEM_IDS[1])
+          .holdingsRecordId(HOLDINGS_IDS[1])
           .effectiveLocationId(LOCATIONS[1]).status(itemStatus(AVAILABLE))
           .discoverySuppress(false)
           .materialTypeId(MATERIAL_TYPES[1])
           .statisticalCodeIds(singletonList("615e9911-edb1-4ab3-a9c3-a461a3de02f8"))
           .metadata(metadata("2021-03-10T01:00:00.000+00:00", "2021-03-12T15:40:00.000+00:00"))
           .tags(tags("itag2", "itag3"))))
-      .holdings(List.of(new Holding().id(randomId()).discoverySuppress(true)
+      .holdings(List.of(new Holding().id(HOLDINGS_IDS[1]).discoverySuppress(true)
         .holdingsTypeId(HOLDINGS_TYPES[1])
         .metadata(metadata("2021-03-10T01:00:00.000+00:00", "2021-03-12T15:40:00.000+00:00"))
         .permanentLocationId(PERMANENT_LOCATIONS[1]).tags(tags("htag2", "htag3"))))
@@ -558,15 +573,20 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .metadata(metadata("2021-03-08T15:00:00.000+00:00", "2021-03-15T22:30:00.000+00:00"))
       .dates(new Dates().date1(DATES[2]))
       .items(List.of(
-        new Item().id(randomId()).effectiveLocationId(LOCATIONS[0]).status(itemStatus(MISSING))
+        new Item().id(ITEM_IDS[2])
+          .holdingsRecordId(HOLDINGS_IDS[2])
+          .effectiveLocationId(LOCATIONS[0]).status(itemStatus(MISSING))
           .metadata(metadata("2021-03-08T15:00:00.000+00:00", "2021-03-15T22:30:00.000+00:00"))
           .discoverySuppress(true).materialTypeId(MATERIAL_TYPES[0]).tags(tags("itag3")),
-        new Item().id(randomId()).effectiveLocationId(LOCATIONS[1]).status(itemStatus(CHECKED_OUT))
-          .tags(tags("itag1", "itag2", "itag3"))));
+        new Item().id(ITEM_IDS[3])
+          .holdingsRecordId(HOLDINGS_IDS[2])
+          .effectiveLocationId(LOCATIONS[1]).status(itemStatus(CHECKED_OUT))
+          .tags(tags("itag1", "itag2", "itag3"))))
+      .holdings(List.of(new Holding().id(HOLDINGS_IDS[2]).discoverySuppress(true)));
 
     instances[3]
       .tenantId(TENANT_ID)
-      .source("CONSORTIUM-MARC")
+      .source("MARC")
       .languages(List.of("ita"))
       .staffSuppress(false)
       .discoverySuppress(false)
@@ -576,7 +596,8 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .tags(tags("casual", "cooking"))
       .metadata(metadata("2021-03-15T12:00:00.000+00:00", "2021-03-15T12:00:00.000+00:00"))
       .dates(new Dates().date1(DATES[3]))
-      .items(List.of(new Item().id(randomId())
+      .items(List.of(new Item().id(ITEM_IDS[4])
+        .holdingsRecordId(HOLDINGS_IDS[3])
         .effectiveLocationId(LOCATIONS[0]).status(itemStatus(MISSING))
         .metadata(metadata("2014-03-15T12:00:00.000+00:00", "2014-03-15T12:00:00.000+00:00"))
         .materialTypeId(MATERIAL_TYPES[1]),
@@ -585,19 +606,19 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
           .metadata(metadata("2024-03-15T12:00:00.000+00:00", "2024-03-15T12:00:00.000+00:00"))
           .materialTypeId(MATERIAL_TYPES[1])))
       .holdings(List.of(
-        new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[0])
+        new Holding().id(HOLDINGS_IDS[3]).permanentLocationId(PERMANENT_LOCATIONS[0])
           .holdingsTypeId(HOLDINGS_TYPES[1])
           .metadata(metadata("2014-03-15T12:00:00.000+00:00", "2014-03-15T12:00:00.000+00:00"))
           .sourceId("FOLIO").statisticalCodeIds(singletonList("a2b01891-c9ab-4d04-8af8-8989af1c6aad")),
-        new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[1])
+        new Holding().id(HOLDINGS_IDS[4]).permanentLocationId(PERMANENT_LOCATIONS[1])
           .holdingsTypeId(HOLDINGS_TYPES[0])
           .metadata(metadata("2024-03-15T12:00:00.000+00:00", "2024-03-15T12:00:00.000+00:00"))
           .tags(tags("htag2")),
-        new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[2]).tags(tags("htag3"))));
+        new Holding().id(HOLDINGS_IDS[5]).permanentLocationId(PERMANENT_LOCATIONS[2]).tags(tags("htag3"))));
 
     instances[4]
       .tenantId(TENANT_ID)
-      .source("CONSORTIUM-FOLIO")
+      .source("FOLIO")
       .languages(List.of("eng", "fra"))
       .instanceTypeId(TYPES[1])
       .statusId(STATUSES[1])
@@ -605,10 +626,13 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .tags(tags("cooking"))
       .dates(new Dates().date1(DATES[4]).date2(DATES[4]))
       .items(List.of(
-        new Item().id(randomId()).effectiveLocationId(LOCATIONS[0]).status(itemStatus(CHECKED_OUT)).tags(tags("itag3")),
-        new Item().id(randomId()).effectiveLocationId(LOCATIONS[1]).status(itemStatus(AVAILABLE))
+        new Item().id(ITEM_IDS[5]).holdingsRecordId(HOLDINGS_IDS[6])
+          .effectiveLocationId(LOCATIONS[0]).status(itemStatus(CHECKED_OUT)).tags(tags("itag3")),
+        new Item().id(ITEM_IDS[6]).holdingsRecordId(HOLDINGS_IDS[6])
+          .effectiveLocationId(LOCATIONS[1]).status(itemStatus(AVAILABLE))
           .materialTypeId(MATERIAL_TYPES[1])))
-      .holdings(List.of(new Holding().id(randomId()).permanentLocationId(PERMANENT_LOCATIONS[2]).tags(tags("htag1"))));
+      .holdings(List.of(new Holding().id(HOLDINGS_IDS[6])
+        .permanentLocationId(PERMANENT_LOCATIONS[2]).tags(tags("htag1"))));
 
     return instances;
   }

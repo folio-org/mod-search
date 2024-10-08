@@ -19,6 +19,7 @@ import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.ResourceIndexingConfiguration;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.consortium.ConsortiumTenantExecutor;
 import org.folio.search.service.converter.preprocessor.EventPreProcessor;
 import org.folio.search.service.metadata.ResourceDescriptionService;
@@ -73,7 +74,7 @@ public class MultiTenantSearchDocumentConverter {
   }
 
   private Stream<ResourceEvent> populateResourceEvents(ResourceEvent event) {
-    var resourceName = event.getResourceName();
+    var resourceName = ResourceType.byName(event.getResourceName());
     return resourceDescriptionService.find(resourceName)
       .map(ResourceDescription::getIndexingConfiguration)
       .map(ResourceIndexingConfiguration::getEventPreProcessor)

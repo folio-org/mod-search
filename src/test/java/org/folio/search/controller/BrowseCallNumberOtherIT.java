@@ -1,24 +1,27 @@
 package org.folio.search.controller;
 
-import static java.util.Collections.emptyList;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CN_INTERMEDIATE_VALUES;
 import static org.folio.search.support.base.ApiEndpoints.instanceCallNumberBrowsePath;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.search.utils.TestUtils.cleanupActual;
 import static org.folio.search.utils.TestUtils.cnBrowseItem;
 import static org.folio.search.utils.TestUtils.cnBrowseItemWithNoType;
 import static org.folio.search.utils.TestUtils.cnBrowseResult;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.folio.search.utils.TestUtils.randomId;
+import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import org.folio.search.domain.dto.CallNumberBrowseResult;
+import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
@@ -38,7 +41,7 @@ class BrowseCallNumberOtherIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void prepare() {
-    setUpTenant(INSTANCES);
+    setUpTenant(List.of(jsonPath("sum($.instances..items.length())", is(12.0))), INSTANCES);
   }
 
   @AfterAll
@@ -52,7 +55,8 @@ class BrowseCallNumberOtherIT extends BaseIntegrationTest {
       .param("query", prepareQuery("callNumber >= {value} or callNumber < {value}", "g"))
       .param("limit", "15").param("expandAll", "true");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
-    assertThat(actual).isEqualTo(cnBrowseResult(12, List.of(
+    cleanupActual(actual);
+    var expected = cnBrowseResult(12, List.of(
       cnBrowseItem(instance("instance #04"), "3350.28"),
       cnBrowseItem(instance("instance #05"), "3362.82 292 220"),
       cnBrowseItem(instance("instance #02"), "DA 3880 O6 M96"),
@@ -66,7 +70,9 @@ class BrowseCallNumberOtherIT extends BaseIntegrationTest {
       cnBrowseItem(instance("instance #08"), "PIRANHA 19 _C 11"),
       cnBrowseItem(instance("instance #06"), "PIROUET JAS 19035 C.1", "Pirouet JAS 19035 c.1"),
       cnBrowseItem(instance("instance #07"), "RAW 22")
-    )));
+    ));
+    cleanupActual(expected);
+    assertThat(actual).isEqualTo(expected);
   }
 
   @Test
@@ -77,7 +83,8 @@ class BrowseCallNumberOtherIT extends BaseIntegrationTest {
       .param("query", prepareQuery("callNumber >= {value} or callNumber < {value}", "g"))
       .param("limit", "15").param("expandAll", "true");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
-    assertThat(actual).isEqualTo(cnBrowseResult(12, List.of(
+    cleanupActual(actual);
+    var expected = cnBrowseResult(12, List.of(
       cnBrowseItem(instance("instance #04"), "3350.28"),
       cnBrowseItem(instance("instance #05"), "3362.82 292 220"),
       cnBrowseItem(instance("instance #02"), "DA 3880 O6 M96"),
@@ -91,7 +98,9 @@ class BrowseCallNumberOtherIT extends BaseIntegrationTest {
       cnBrowseItem(instance("instance #08"), "PIRANHA 19 _C 11"),
       cnBrowseItem(instance("instance #06"), "PIROUET JAS 19035 C.1", "Pirouet JAS 19035 c.1"),
       cnBrowseItem(instance("instance #07"), "RAW 22")
-    )));
+    ));
+    cleanupActual(expected);
+    assertThat(actual).isEqualTo(expected);
 
     disableFeature(BROWSE_CN_INTERMEDIATE_VALUES);
   }
@@ -104,14 +113,17 @@ class BrowseCallNumberOtherIT extends BaseIntegrationTest {
       .param("precedingRecordsCount", "3")
       .param("expandAll", "true");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
-    assertThat(actual).isEqualTo(new CallNumberBrowseResult()
+    cleanupActual(actual);
+    var expected = new CallNumberBrowseResult()
       .totalRecords(13).prev("DA 3880 O6 M96").next("G  SHELF#1").items(List.of(
         cnBrowseItem(instance("instance #02"), "DA 3880 O6 M96"),
         cnBrowseItem(instance("instance #09"), "F  PR1866.S63 V.1 C.1"),
         cnBrowseItem(instance("instance #11"), "F-1,452"),
         cnBrowseItemWithNoType(instance("instance #10"), "FA 42010 3546 256", true),
         cnBrowseItem(instance("instance #12"), "G  SHELF#1", "G (shelf#1)")
-      )));
+      ));
+    cleanupActual(expected);
+    assertThat(actual).isEqualTo(expected);
   }
 
   private static Instance[] instances() {
@@ -125,9 +137,14 @@ class BrowseCallNumberOtherIT extends BaseIntegrationTest {
     var effectiveShelvingOrderFunction = data.size() < 3
       ? (Function<String, String>) TestUtils::getShelfKeyFromCallNumber
       : (Function<String, String>) data.get(2);
+
+    var holdingId = randomId();
+    var holding = new Holding().id(holdingId).discoverySuppress(false).tenantId(TENANT_ID);
     var items = ((List<String>) data.get(1)).stream()
       .map(callNumber -> new Item()
         .id(randomId())
+        .tenantId(TENANT_ID)
+        .holdingsRecordId(holdingId)
         .discoverySuppress(false)
         .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents().callNumber(callNumber))
         .effectiveShelvingOrder(effectiveShelvingOrderFunction.apply(callNumber)))
@@ -142,7 +159,7 @@ class BrowseCallNumberOtherIT extends BaseIntegrationTest {
       .shared(false)
       .tenantId(TENANT_ID)
       .items(items)
-      .holdings(emptyList());
+      .holdings(List.of(holding));
   }
 
   private static Instance instance(String title) {

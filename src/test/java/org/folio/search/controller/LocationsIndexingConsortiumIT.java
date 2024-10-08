@@ -7,7 +7,7 @@ import static org.awaitility.Durations.ONE_SECOND;
 import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.domain.dto.ResourceEventType.DELETE;
 import static org.folio.search.domain.dto.ResourceEventType.DELETE_ALL;
-import static org.folio.search.utils.SearchUtils.LOCATION_RESOURCE;
+import static org.folio.search.model.types.ResourceType.LOCATION;
 import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.search.utils.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.search.utils.TestConstants.inventoryLocationTopic;
@@ -45,7 +45,7 @@ class LocationsIndexingConsortiumIT extends BaseConsortiumIntegrationTest {
 
   @AfterEach
   void tearDown() throws IOException {
-    cleanUpIndex(LOCATION_RESOURCE, CENTRAL_TENANT_ID);
+    cleanUpIndex(LOCATION, CENTRAL_TENANT_ID);
   }
 
   @Test
@@ -84,9 +84,9 @@ class LocationsIndexingConsortiumIT extends BaseConsortiumIntegrationTest {
     awaitAssertLocationCount(1);
   }
 
-  public static  void awaitAssertLocationCount(int expected) {
+  public static void awaitAssertLocationCount(int expected) {
     await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
-      var totalHits = countIndexDocument(LOCATION_RESOURCE, CENTRAL_TENANT_ID);
+      var totalHits = countIndexDocument(LOCATION, CENTRAL_TENANT_ID);
       assertThat(totalHits).isEqualTo(expected);
     });
   }

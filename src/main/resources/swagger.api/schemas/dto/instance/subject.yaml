@@ -8,3 +8,9 @@ properties:
   authorityId:
     type: string
     description: "UUID of authority record that controls a subject heading"
+  sourceId:
+    type: string
+    description: "UUID of subject source"
+  typeId:
+    type: string
+    description: "UUID of subject type"

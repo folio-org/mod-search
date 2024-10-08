@@ -2,7 +2,7 @@ package org.folio.search.service.setter.authority;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIELD_TYPE;
-import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
+import static org.folio.search.model.types.ResourceType.AUTHORITY;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.mockito.Mockito.when;
 
@@ -32,7 +32,7 @@ class HeadingTypeProcessorTest {
     desc.setIndex(STANDARD_FIELD_TYPE);
     desc.setHeadingType(expectedHeadingType);
 
-    when(searchFieldProvider.getPlainFieldByPath(AUTHORITY_RESOURCE, "personalName")).thenReturn(Optional.of(desc));
+    when(searchFieldProvider.getPlainFieldByPath(AUTHORITY, "personalName")).thenReturn(Optional.of(desc));
     var actual = headingTypeProcessor.getFieldValue(mapOf("personalName", "a personal name"));
 
     assertThat(actual).isEqualTo(expectedHeadingType);

@@ -17,9 +17,6 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.folio.search.domain.dto.Authority;
-import org.folio.search.domain.dto.Contributor;
-import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ShelvingOrderAlgorithmType;
 import org.folio.search.exception.SearchOperationException;
@@ -27,33 +24,18 @@ import org.folio.search.model.ResourceRequest;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.service.MultilangValue;
+import org.folio.search.model.types.ResourceType;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SearchUtils {
-
-  public static final String INSTANCE_RESOURCE = getResourceName(Instance.class);
-  public static final String INSTANCE_SUBJECT_RESOURCE = "instance_subject";
-  public static final String INSTANCE_CLASSIFICATION_RESOURCE = "instance_classification";
-  public static final String AUTHORITY_RESOURCE = getResourceName(Authority.class);
-  public static final String CONTRIBUTOR_RESOURCE = getResourceName(Contributor.class);
-  public static final String LOCATION_RESOURCE = "location";
-  public static final String CLASSIFICATION_TYPE_RESOURCE = "classification-type";
-  public static final String LINKED_DATA_INSTANCE_RESOURCE = "linked-data-instance";
-  public static final String LINKED_DATA_WORK_RESOURCE = "linked-data-work";
-  public static final String LINKED_DATA_AUTHORITY_RESOURCE = "linked-data-authority";
-  public static final String CAMPUS_RESOURCE = "campus";
-  public static final String INSTITUTION_RESOURCE = "institution";
-  public static final String LIBRARY_RESOURCE = "library";
 
   public static final String ID_FIELD = "id";
   public static final String SOURCE_FIELD = "source";
   public static final String INSTANCE_ID_FIELD = "instanceId";
   public static final String INSTANCE_ITEM_FIELD_NAME = "items";
   public static final String INSTANCE_HOLDING_FIELD_NAME = "holdings";
-  public static final String INSTANCE_CONTRIBUTORS_FIELD_NAME = "contributors";
   public static final String SHARED_FIELD_NAME = "shared";
   public static final String TENANT_ID_FIELD_NAME = "tenantId";
-  public static final String IS_BOUND_WITH_FIELD_NAME = "isBoundWith";
   public static final String CALL_NUMBER_BROWSING_FIELD = "callNumber";
   public static final String CLASSIFICATION_NUMBER_BROWSING_FIELD = "number";
   public static final String CLASSIFICATION_TYPE_ID_FIELD = "typeId";
@@ -67,11 +49,12 @@ public class SearchUtils {
   public static final String AUTHORITY_BROWSING_FIELD = "headingRef";
   public static final String AUTHORITY_ID_FIELD = "authorityId";
   public static final String CLASSIFICATIONS_FIELD = "classifications";
+  public static final String SUBJECTS_FIELD = "subjects";
+  public static final String CONTRIBUTORS_FIELD = "contributors";
   public static final String CLASSIFICATION_NUMBER_FIELD = "classificationNumber";
   public static final String CLASSIFICATION_TYPE_FIELD = "classificationTypeId";
   public static final String SUBJECT_AGGREGATION_NAME = "subjects.value";
   public static final String SOURCE_CONSORTIUM_PREFIX = "CONSORTIUM-";
-  public static final String SOURCE_FOLIO = "FOLIO";
 
   public static final String CQL_META_FIELD_PREFIX = "cql.";
   public static final String MULTILANG_SOURCE_SUBFIELD = "src";
@@ -81,6 +64,7 @@ public class SearchUtils {
   public static final String DOT = ".";
   public static final String EMPTY_ARRAY = "[]";
   public static final String KEYWORD_FIELD_INDEX = "keyword";
+  public static final String MISSING_LAST_PROP = "_last";
   public static final float CONST_SIZE_LOAD_FACTOR = 1.0f;
 
   public static final Map<ShelvingOrderAlgorithmType, String> BROWSE_FIELDS_MAP = Map.of(
@@ -88,27 +72,6 @@ public class SearchUtils {
     ShelvingOrderAlgorithmType.LC, LC_SHELVING_ORDER_BROWSING_FIELD,
     ShelvingOrderAlgorithmType.DEWEY, DEWEY_SHELVING_ORDER_BROWSING_FIELD
   );
-
-  //CHECKSTYLE.ON: LineLength
-  public static final String INSTANCE_SUBJECT_UPSERT_SCRIPT_ID = "instance_subject_upsert_script";
-  public static final String INSTANCE_SUBJECT_UPSERT_SCRIPT = """
-    {
-      "script": {
-        "lang": "painless",
-        "source": "def instances=new LinkedHashSet(ctx._source.instances);instances.addAll(params.ins);params.del.forEach(instances::remove);if (instances.isEmpty()) {ctx.op = 'delete'; return;}ctx._source.instances=instances;"
-      }
-    }
-    """;
-  public static final String INSTANCE_CONTRIBUTORS_UPSERT_SCRIPT_ID = "instance_contributors_upsert_script";
-  public static final String INSTANCE_CONTRIBUTORS_UPSERT_SCRIPT = """
-    {
-      "script" : {
-        "lang" : "painless",
-        "source" : "def instances=new LinkedHashSet(ctx._source.instances);instances.addAll(params.ins);params.del.forEach(instances::remove);if (instances.isEmpty()) {ctx.op = 'delete'; return;}ctx._source.instances=instances;"
-      }
-    }
-    """;
-  //CHECKSTYLE.OFF: LineLength
 
   private static final Pattern NON_ALPHA_NUMERIC_CHARS_PATTERN = Pattern.compile("[^a-zA-Z0-9]");
 
@@ -148,6 +111,10 @@ public class SearchUtils {
    */
   public static String getIndexName(ResourceEvent event) {
     return getIndexName(event.getResourceName(), event.getTenant());
+  }
+
+  public static String getIndexName(ResourceType resource, String tenantId) {
+    return getIndexName(resource.getName(), tenantId);
   }
 
   /**

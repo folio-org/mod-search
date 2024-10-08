@@ -50,8 +50,7 @@ public class ClassificationBrowseService
     log.debug("getAnchorSearchQuery:: by [request: {}]", req);
     var config = configService.getConfig(BrowseType.INSTANCE_CLASSIFICATION, req.getBrowseOptionType());
     var termQueryBuilder = getQuery(ctx, config, termQuery(req.getTargetField(), ctx.getAnchor()));
-    var query = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(ctx,
-      termQueryBuilder, req.getResource());
+    var query = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(ctx, termQueryBuilder, req.getResource());
     return searchSource().query(query)
       .size(ctx.getLimit(ctx.isBrowsingForward()))
       .from(0);

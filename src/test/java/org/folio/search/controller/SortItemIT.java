@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemStatus;
@@ -32,10 +33,18 @@ class SortItemIT extends BaseIntegrationTest {
     "9e20dd36-e46e-4e12-b35e-f3339a947966",
     "36805693-dd16-400e-be24-7e9a362f79fe",
     "414f663b-b97b-42ed-8a96-3195067126ff");
+  private static final String[] HOLDINGS_IDS = array(
+    "7ac8e203-defb-4bf9-9f87-4ffd67823ad8",
+    "8a3f2f3a-ecf4-49fd-b58f-5129ae5a128d",
+    "1650bee3-1e90-4815-ac12-31d1a12bd7c2",
+    "0646ce7c-efcd-4449-ba29-f5aba3ec7690",
+    "bafb734e-88f4-4fbe-bd78-119630d225bb");
 
   @BeforeAll
   static void prepare() {
-    setUpTenant(instances());
+    var holdingsMatcher = jsonPath("sum($.instances..holdings.length())", is(5.0));
+    var itemsMatcher = jsonPath("sum($.instances..items.length())", is(21.0));
+    setUpTenant(List.of(holdingsMatcher, itemsMatcher), instances());
   }
 
   @AfterAll
@@ -74,25 +83,31 @@ class SortItemIT extends BaseIntegrationTest {
       .mapToObj(i -> new Instance().id(IDS[i]))
       .toArray(Instance[]::new);
 
-    instances[0].title("Death of the Price Jackal").items(List.of(
-      item("Available"), item("Available"), item("Aged to lost"), item("Unknown")));
+    instances[0].title("Death of the Price Jackal").holdings(List.of(new Holding().id(HOLDINGS_IDS[0]))).items(List.of(
+      item("Available", HOLDINGS_IDS[0]), item("Available", HOLDINGS_IDS[0]),
+      item("Aged to lost", HOLDINGS_IDS[0]), item("Unknown", HOLDINGS_IDS[0])));
 
-    instances[1].title("Wild and Wicked").items(List.of(
-      item("Missing"), item("Available"), item("Awaiting pickup"), item("In process")));
+    instances[1].title("Wild and Wicked").holdings(List.of(new Holding().id(HOLDINGS_IDS[1]))).items(List.of(
+      item("Missing", HOLDINGS_IDS[1]), item("Available", HOLDINGS_IDS[1]),
+      item("Awaiting pickup", HOLDINGS_IDS[1]), item("In process", HOLDINGS_IDS[1])));
 
-    instances[2].title("Sword of Gruko").items(List.of(
-      item("In progress"), item("Checked out"), item("In progress"), item("In process"), item("In transit")));
+    instances[2].title("Sword of Gruko").holdings(List.of(new Holding().id(HOLDINGS_IDS[2]))).items(List.of(
+      item("In progress", HOLDINGS_IDS[2]), item("Checked out", HOLDINGS_IDS[2]),
+      item("In progress", HOLDINGS_IDS[2]), item("In process", HOLDINGS_IDS[2]),
+      item("In transit", HOLDINGS_IDS[2])));
 
-    instances[3].title("The Blade in the Ice").items(List.of(
-      item("Awaiting delivery"), item("Checked out"), item("Awaiting pickup"), item("Unavailable")));
+    instances[3].title("The Blade in the Ice").holdings(List.of(new Holding().id(HOLDINGS_IDS[3]))).items(List.of(
+      item("Awaiting delivery", HOLDINGS_IDS[3]), item("Checked out", HOLDINGS_IDS[3]),
+      item("Awaiting pickup", HOLDINGS_IDS[3]), item("Unavailable", HOLDINGS_IDS[3])));
 
-    instances[4].title("The Raven Crystal").items(List.of(
-      item("Unavailable"), item("Unknown"), item("Restricted"), item("On order")));
+    instances[4].title("The Raven Crystal").holdings(List.of(new Holding().id(HOLDINGS_IDS[4]))).items(List.of(
+      item("Unavailable", HOLDINGS_IDS[4]), item("Unknown", HOLDINGS_IDS[4]),
+      item("Restricted", HOLDINGS_IDS[4]), item("On order", HOLDINGS_IDS[4])));
 
     return instances;
   }
 
-  private static Item item(String status) {
-    return new Item().id(randomId()).status(new ItemStatus().name(status));
+  private static Item item(String status, String holdingId) {
+    return new Item().id(randomId()).status(new ItemStatus().name(status)).holdingsRecordId(holdingId);
   }
 }

@@ -4,9 +4,9 @@ import static java.lang.Integer.MAX_VALUE;
 import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.folio.search.model.types.ResourceType.UNKNOWN;
 import static org.folio.search.model.types.SearchType.FACET;
 import static org.folio.search.utils.SearchUtils.SELECTED_AGG_PREFIX;
-import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.array;
 import static org.folio.search.utils.TestUtils.keywordField;
@@ -55,7 +55,7 @@ class FacetQueryBuilderTest {
 
   @Test
   void getFacetAggregations_positive_queryWithoutFilters() {
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(of(keywordField(FACET)));
+    when(searchFieldProvider.getPlainFieldByPath(UNKNOWN, FIELD)).thenReturn(of(keywordField(FACET)));
     var actual = facetQueryBuilder.getFacetAggregations(facetRequest(FIELD), matchAllQuery());
     assertThat(actual).containsExactly(terms(FIELD).field(FIELD).size(MAX_VALUE));
   }
@@ -63,31 +63,31 @@ class FacetQueryBuilderTest {
   @Test
   void getFacetAggregations_positive_modifyFacetName() {
     var modifiedField = "newField";
-    when(searchFieldProvider.getModifiedField(FIELD, RESOURCE_NAME)).thenReturn(modifiedField);
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, modifiedField)).thenReturn(of(keywordField(FACET)));
+    when(searchFieldProvider.getModifiedField(FIELD, UNKNOWN)).thenReturn(modifiedField);
+    when(searchFieldProvider.getPlainFieldByPath(UNKNOWN, modifiedField)).thenReturn(of(keywordField(FACET)));
     var actual = facetQueryBuilder.getFacetAggregations(facetRequest(FIELD), matchAllQuery());
     assertThat(actual).containsExactly(terms(modifiedField).field(modifiedField).size(MAX_VALUE));
   }
 
   @Test
   void getFacetAggregations_positive_searchAlias() {
-    when(searchFieldProvider.getFields(RESOURCE_NAME, FACET_ALIAS)).thenReturn(List.of(FIELD));
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(of(keywordField(FACET)));
+    when(searchFieldProvider.getFields(UNKNOWN, FACET_ALIAS)).thenReturn(List.of(FIELD));
+    when(searchFieldProvider.getPlainFieldByPath(UNKNOWN, FIELD)).thenReturn(of(keywordField(FACET)));
     var actual = facetQueryBuilder.getFacetAggregations(facetRequest(FACET_ALIAS), matchAllQuery());
     assertThat(actual).containsExactly(terms(FACET_ALIAS).field(FIELD).size(MAX_VALUE));
   }
 
   @Test
   void getFacetAggregations_positive_limitedFacetWithQueryWithoutFilters() {
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(of(keywordField(FACET)));
+    when(searchFieldProvider.getPlainFieldByPath(UNKNOWN, FIELD)).thenReturn(of(keywordField(FACET)));
     var actual = facetQueryBuilder.getFacetAggregations(facetRequest(FIELD + ":5"), matchAllQuery());
     assertThat(actual).containsExactly(terms(FIELD).field(FIELD).size(5));
   }
 
   @Test
   void getFacetAggregations_positive_limitedFacetWithQueryWithoutFiltersBySearchAlias() {
-    when(searchFieldProvider.getFields(RESOURCE_NAME, FACET_ALIAS)).thenReturn(List.of(FIELD));
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(of(keywordField(FACET)));
+    when(searchFieldProvider.getFields(UNKNOWN, FACET_ALIAS)).thenReturn(List.of(FIELD));
+    when(searchFieldProvider.getPlainFieldByPath(UNKNOWN, FIELD)).thenReturn(of(keywordField(FACET)));
     var actual = facetQueryBuilder.getFacetAggregations(facetRequest(FACET_ALIAS + ":5"), matchAllQuery());
     assertThat(actual).containsExactly(terms(FACET_ALIAS).field(FIELD).size(5));
   }
@@ -95,7 +95,7 @@ class FacetQueryBuilderTest {
   @Test
   void getFacetAggregations_positive_boolQueryWithoutFilterByFacet() {
     var query = boolQuery().filter(termQuery("f1", "v1")).filter(termQuery("f2", "v2"));
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(of(keywordField(FACET)));
+    when(searchFieldProvider.getPlainFieldByPath(UNKNOWN, FIELD)).thenReturn(of(keywordField(FACET)));
     var actual = facetQueryBuilder.getFacetAggregations(facetRequest(FIELD), query);
     assertThat(actual).containsExactly(filter(FIELD, query)
       .subAggregation(terms("values").field(FIELD).size(MAX_VALUE)));
@@ -107,7 +107,7 @@ class FacetQueryBuilderTest {
     var filterByFacetField = termQuery(FIELD, "v2");
     var query = boolQuery().filter(someFilter).filter(filterByFacetField);
 
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(of(keywordField(FACET)));
+    when(searchFieldProvider.getPlainFieldByPath(UNKNOWN, FIELD)).thenReturn(of(keywordField(FACET)));
 
     var actual = facetQueryBuilder.getFacetAggregations(facetRequest(FIELD), query);
 
@@ -125,8 +125,8 @@ class FacetQueryBuilderTest {
     var filterByFacetField = termQuery(FIELD, "v2");
     var query = boolQuery().filter(someFilter).filter(filterByFacetField);
 
-    when(searchFieldProvider.getFields(RESOURCE_NAME, FACET_ALIAS)).thenReturn(List.of(FIELD));
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(of(keywordField(FACET)));
+    when(searchFieldProvider.getFields(UNKNOWN, FACET_ALIAS)).thenReturn(List.of(FIELD));
+    when(searchFieldProvider.getPlainFieldByPath(UNKNOWN, FIELD)).thenReturn(of(keywordField(FACET)));
 
     var actual = facetQueryBuilder.getFacetAggregations(facetRequest(FACET_ALIAS), query);
 
@@ -142,7 +142,7 @@ class FacetQueryBuilderTest {
   void getFacetAggregations_positive_boolQueryWithFilterByFacetOnly() {
     var filterByFacetField = termQuery(FIELD, "v2");
     var query = boolQuery().filter(filterByFacetField);
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(of(keywordField(FACET)));
+    when(searchFieldProvider.getPlainFieldByPath(UNKNOWN, FIELD)).thenReturn(of(keywordField(FACET)));
 
     var actual = facetQueryBuilder.getFacetAggregations(facetRequest(FIELD), query);
 
@@ -155,8 +155,8 @@ class FacetQueryBuilderTest {
 
   @Test
   void getFacetAggregations_positive_boolQueryWithFilterByFacetAliasOnly() {
-    when(searchFieldProvider.getFields(RESOURCE_NAME, FACET_ALIAS)).thenReturn(List.of(FIELD));
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(of(keywordField(FACET)));
+    when(searchFieldProvider.getFields(UNKNOWN, FACET_ALIAS)).thenReturn(List.of(FIELD));
+    when(searchFieldProvider.getPlainFieldByPath(UNKNOWN, FIELD)).thenReturn(of(keywordField(FACET)));
 
     var filterByFacetField = termQuery(FIELD, "v2");
     var query = boolQuery().filter(filterByFacetField);
@@ -172,7 +172,7 @@ class FacetQueryBuilderTest {
   @Test
   void getFacetAggregations_positive_disjunctionFilterBoolQuery() {
     var query = boolQuery().filter(boolQuery().should(termQuery(FIELD, "v1")).should(termQuery(FIELD, "v2")));
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(of(keywordField(FACET)));
+    when(searchFieldProvider.getPlainFieldByPath(UNKNOWN, FIELD)).thenReturn(of(keywordField(FACET)));
 
     var actual = facetQueryBuilder.getFacetAggregations(facetRequest(FIELD), query);
 
@@ -189,7 +189,7 @@ class FacetQueryBuilderTest {
     var values = array("v1", "v2", "v3", "v4", "v5");
     Arrays.stream(values).map(value -> termQuery(FIELD, value)).forEach(filterQuery::should);
     var query = boolQuery().filter(filterQuery);
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(of(keywordField(FACET)));
+    when(searchFieldProvider.getPlainFieldByPath(UNKNOWN, FIELD)).thenReturn(of(keywordField(FACET)));
 
     var actual = facetQueryBuilder.getFacetAggregations(facetRequest(FIELD + ":5"), query);
 
@@ -200,7 +200,7 @@ class FacetQueryBuilderTest {
   @Test
   void getFacetAggregations_positive_filterWithRangeQuery() {
     var query = boolQuery().filter(rangeQuery(FIELD).lt(0));
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(of(keywordField(FACET)));
+    when(searchFieldProvider.getPlainFieldByPath(UNKNOWN, FIELD)).thenReturn(of(keywordField(FACET)));
     var actual = facetQueryBuilder.getFacetAggregations(facetRequest(FIELD + ":5"), query);
     assertThat(actual).containsExactly(terms(FIELD).field(FIELD).size(5));
   }
@@ -208,7 +208,7 @@ class FacetQueryBuilderTest {
   @Test
   void getFacetAggregation_negative_notRecognizedFilterByFacetField() {
     var query = boolQuery().filter(matchQuery(FIELD, "v2"));
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, FIELD)).thenReturn(of(keywordField(FACET)));
+    when(searchFieldProvider.getPlainFieldByPath(UNKNOWN, FIELD)).thenReturn(of(keywordField(FACET)));
     var actual = facetQueryBuilder.getFacetAggregations(facetRequest(FIELD), query);
     assertThat(actual).containsExactly(filter(FIELD, query)
       .subAggregation(terms("values").field(FIELD).size(MAX_VALUE)));
@@ -242,6 +242,6 @@ class FacetQueryBuilderTest {
   }
 
   private static CqlFacetRequest facetRequest(String... facets) {
-    return TestUtils.defaultFacetServiceRequest(RESOURCE_NAME, TENANT_ID, facets);
+    return TestUtils.defaultFacetServiceRequest(UNKNOWN, TENANT_ID, facets);
   }
 }

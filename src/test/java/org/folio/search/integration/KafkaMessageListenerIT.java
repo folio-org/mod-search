@@ -5,11 +5,11 @@ import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.FIVE_SECONDS;
 import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
 import static org.awaitility.Durations.ONE_MINUTE;
+import static org.folio.search.model.types.ResourceType.BOUND_WITH;
 import static org.folio.search.utils.KafkaConstants.AUTHORITY_LISTENER_ID;
 import static org.folio.search.utils.KafkaConstants.EVENT_LISTENER_ID;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
-import static org.folio.search.utils.TestConstants.consortiumInstanceTopic;
 import static org.folio.search.utils.TestConstants.inventoryAuthorityTopic;
 import static org.folio.search.utils.TestConstants.inventoryBoundWithTopic;
 import static org.folio.search.utils.TestConstants.inventoryInstanceTopic;
@@ -31,13 +31,17 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
 import lombok.extern.log4j.Log4j2;
-import org.folio.search.configuration.KafkaConfiguration;
 import org.folio.search.configuration.RetryTemplateConfiguration;
+import org.folio.search.configuration.kafka.InstanceResourceEventKafkaConfiguration;
+import org.folio.search.configuration.kafka.ResourceEventKafkaConfiguration;
 import org.folio.search.configuration.properties.StreamIdsProperties;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.integration.KafkaMessageListenerIT.KafkaListenerTestConfiguration;
-import org.folio.search.model.event.ConsortiumInstanceEvent;
+import org.folio.search.integration.message.FolioMessageBatchProcessor;
+import org.folio.search.integration.message.KafkaMessageListener;
+import org.folio.search.integration.message.interceptor.ResourceEventBatchInterceptor;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.ResourceService;
 import org.folio.search.service.config.ConfigSynchronizationService;
 import org.folio.search.service.metadata.LocalFileProvider;
@@ -70,18 +74,16 @@ import org.springframework.retry.annotation.EnableRetry;
 @EnableKafka
 @IntegrationTest
 @Import(KafkaListenerTestConfiguration.class)
-@SpringBootTest(classes = {KafkaMessageListener.class, FolioKafkaProperties.class, StreamIdsProperties.class},
+@SpringBootTest(
+  classes = {KafkaMessageListener.class, FolioKafkaProperties.class, StreamIdsProperties.class},
   properties = {
     "ENV=kafka-listener-it",
     "folio.environment=${ENV:folio}",
     "folio.kafka.retry-interval-ms=10",
     "folio.kafka.retry-delivery-attempts=3",
     "folio.kafka.listener.events.concurrency=1",
-    "folio.kafka.listener.contributors.concurrency=1",
     "folio.kafka.listener.events.group-id=${folio.environment}-test-group",
     "folio.kafka.listener.authorities.group-id=${folio.environment}-authority-test-group",
-    "folio.kafka.listener.contributors.group-id=${folio.environment}-contributor-test-group",
-    "folio.kafka.listener.consortium-instance.group-id=${folio.environment}-consortium-instance-test-group",
     "logging.level.org.apache.kafka.clients.consumer=warn"
   })
 class KafkaMessageListenerIT {
@@ -91,8 +93,6 @@ class KafkaMessageListenerIT {
 
   @Autowired
   private KafkaTemplate<String, ResourceEvent> resourceKafkaTemplate;
-  @Autowired
-  private KafkaTemplate<String, ConsortiumInstanceEvent> consortiumKafkaTemplate;
   @Autowired
   private FolioKafkaProperties kafkaProperties;
   @MockBean
@@ -128,18 +128,9 @@ class KafkaMessageListenerIT {
   }
 
   @Test
-  void handleConsortiumInstanceEvents_positive() {
-    var expectedEvent = new ConsortiumInstanceEvent(INSTANCE_ID);
-    expectedEvent.setTenant(TENANT_ID);
-    consortiumKafkaTemplate.send(consortiumInstanceTopic(), INSTANCE_ID, expectedEvent);
-    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
-      verify(resourceService).indexConsortiumInstances(anyList()));
-  }
-
-  @Test
   void handleInstanceEvents_positive_boundWithEvent() {
-    var boundWithEvent = resourceEvent(null, null, mapOf("id", randomId(), "instanceId", INSTANCE_ID));
-    var expectedEvent = instanceEvent()._new(boundWithEvent.getNew());
+    var boundWithEvent = resourceEvent(null, BOUND_WITH, mapOf("id", randomId(), "instanceId", INSTANCE_ID));
+    var expectedEvent = instanceEvent().resourceName(BOUND_WITH.getName())._new(boundWithEvent.getNew());
     resourceKafkaTemplate.send(inventoryBoundWithTopic(), INSTANCE_ID, boundWithEvent);
     await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
       verify(resourceService).indexInstancesById(List.of(expectedEvent)));
@@ -258,19 +249,20 @@ class KafkaMessageListenerIT {
   }
 
   private static ResourceEvent instanceEvent(String instanceId) {
-    return resourceEvent(instanceId, null, mapOf("id", instanceId));
+    return resourceEvent(instanceId, ResourceType.INSTANCE, mapOf("id", instanceId));
   }
 
   private static ResourceEvent authorityEvent(String id) {
-    return resourceEvent(id, null, mapOf("id", id)).id(id);
+    return resourceEvent(id, ResourceType.AUTHORITY, mapOf("id", id)).id(id);
   }
 
   @TestConfiguration
   @EnableRetry(proxyTargetClass = true)
   @Import({
-    KafkaConfiguration.class, KafkaAutoConfiguration.class, FolioMessageBatchProcessor.class,
+    InstanceResourceEventKafkaConfiguration.class, ResourceEventKafkaConfiguration.class,
+    KafkaAutoConfiguration.class, FolioMessageBatchProcessor.class,
     KafkaAdminService.class, LocalFileProvider.class, JsonConverter.class, JacksonAutoConfiguration.class,
-    RetryTemplateConfiguration.class
+    RetryTemplateConfiguration.class, ResourceEventBatchInterceptor.class
   })
   static class KafkaListenerTestConfiguration {
 

@@ -2,11 +2,12 @@ package org.folio.search.controller;
 
 import static org.folio.search.sample.SampleInstances.getSemanticWebAsMap;
 import static org.folio.search.sample.SampleInstances.getSemanticWebId;
+import static org.folio.search.sample.SampleInstances.getSemanticWebMatchers;
 import static org.folio.search.support.base.ApiEndpoints.holdingIdsPath;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-import java.util.List;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.spring.testing.type.IntegrationTest;
@@ -21,7 +22,7 @@ class SearchHoldingsIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void prepare() {
-    setUpTenant(Instance.class, getSemanticWebAsMap());
+    setUpTenant(Instance.class, getSemanticWebMatchers(), getSemanticWebAsMap());
   }
 
   @AfterAll
@@ -94,9 +95,9 @@ class SearchHoldingsIT extends BaseIntegrationTest {
   void streamHoldingIds() throws Exception {
     doGet(holdingIdsPath("id=*"))
       .andExpect(jsonPath("totalRecords", is(3)))
-      .andExpect(jsonPath("ids[*].id", is(List.of(
-        "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19",
-        "9550c935-401a-4a85-875e-4d1fe7678870",
-        "a663dea9-6547-4b2d-9daa-76cadd662272"))));
+      .andExpect(jsonPath("ids[*].id", containsInAnyOrder(
+        is("a663dea9-6547-4b2d-9daa-76cadd662272"),
+        is("e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19"),
+        is("9550c935-401a-4a85-875e-4d1fe7678870"))));
   }
 }

@@ -40,6 +40,7 @@ import org.folio.search.model.Pair;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.SearchFieldType;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.model.types.ResponseGroupType;
 import org.springframework.stereotype.Component;
 
@@ -58,9 +59,9 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
   private final Map<String, SearchFieldModifier> searchFieldModifiers;
 
   private Set<String> supportedLanguages;
-  private Map<String, Map<ResponseGroupType, String[]>> sourceFields;
+  private Map<ResourceType, Map<ResponseGroupType, String[]>> sourceFields;
   private Map<String, SearchFieldType> elasticsearchFieldTypes;
-  private Map<String, Map<String, List<String>>> fieldsBySearchAlias;
+  private Map<ResourceType, Map<String, List<String>>> fieldsBySearchAlias;
 
   /**
    * Loads local defined elasticsearch field type from json.
@@ -73,8 +74,8 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
     elasticsearchFieldTypes = unmodifiableMap(metadataResourceProvider.getSearchFieldTypes());
     sourceFields = collectSourceFields(resourceDescriptions);
     supportedLanguages = getSupportedLanguages();
-    fieldsBySearchAlias = resourceDescriptions.stream().collect(toUnmodifiableMap(
-      ResourceDescription::getName, LocalSearchFieldProvider::collectFieldsBySearchAlias));
+    fieldsBySearchAlias = resourceDescriptions.stream()
+      .collect(toUnmodifiableMap(ResourceDescription::getName, LocalSearchFieldProvider::collectFieldsBySearchAlias));
   }
 
   @Override
@@ -90,20 +91,20 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
   }
 
   @Override
-  public List<String> getFields(String resource, String searchAlias) {
+  public List<String> getFields(ResourceType resource, String searchAlias) {
     return fieldsBySearchAlias.getOrDefault(resource, emptyMap()).getOrDefault(searchAlias, emptyList());
   }
 
   @Override
-  public String[] getSourceFields(String resource, ResponseGroupType groupType) {
-    return sourceFields.getOrDefault(resource, emptyMap()).get(groupType);
-  }
-
-  @Override
-  public Optional<PlainFieldDescription> getPlainFieldByPath(String resource, String path) {
+  public Optional<PlainFieldDescription> getPlainFieldByPath(ResourceType resource, String path) {
     return metadataResourceProvider.getResourceDescription(resource)
       .map(ResourceDescription::getFlattenFields)
       .map(flattenFields -> flattenFields.get(path));
+  }
+
+  @Override
+  public String[] getSourceFields(ResourceType resource, ResponseGroupType groupType) {
+    return sourceFields.getOrDefault(resource, emptyMap()).get(groupType);
   }
 
   @Override
@@ -112,17 +113,17 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
   }
 
   @Override
-  public boolean isMultilangField(String resourceName, String path) {
-    return this.getPlainFieldByPath(resourceName, path).filter(PlainFieldDescription::isMultilang).isPresent();
+  public boolean isMultilangField(ResourceType resourceType, String path) {
+    return this.getPlainFieldByPath(resourceType, path).filter(PlainFieldDescription::isMultilang).isPresent();
   }
 
   @Override
-  public boolean isFullTextField(String resourceName, String path) {
+  public boolean isFullTextField(ResourceType resourceName, String path) {
     return this.getPlainFieldByPath(resourceName, path).filter(PlainFieldDescription::hasFulltextIndex).isPresent();
   }
 
   @Override
-  public String getModifiedField(String field, String resource) {
+  public String getModifiedField(String field, ResourceType resource) {
     var queryWrapper = new Object() {
       String value = field;
     };
@@ -177,7 +178,7 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
 
     if (CollectionUtils.isNotEmpty(errors)) {
       throw new ResourceDescriptionException(String.format(
-        "Failed to create resource description for resource: '%s', errors: %s", desc.getName(), errors));
+        "Failed to create resource description for resource: '%s', errors: %s", desc.getName().getName(), errors));
     }
   }
 
@@ -207,13 +208,13 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
 
   private static List<String> getFieldsForSearchAlias(String searchAlias, String path) {
     return searchAlias.startsWith(CQL_META_FIELD_PREFIX)
-      ? List.of(path, PLAIN_FULLTEXT_PREFIX + path.substring(0, path.length() - 2))
-      : singletonList(path);
+           ? List.of(path, PLAIN_FULLTEXT_PREFIX + path.substring(0, path.length() - 2))
+           : singletonList(path);
   }
 
-  private static Map<String, Map<ResponseGroupType, String[]>> collectSourceFields(
+  private static Map<ResourceType, Map<ResponseGroupType, String[]>> collectSourceFields(
     List<ResourceDescription> descriptions) {
-    var sourceFieldPerResource = new LinkedHashMap<String, Map<ResponseGroupType, String[]>>();
+    var sourceFieldPerResource = new LinkedHashMap<ResourceType, Map<ResponseGroupType, String[]>>();
 
     for (var desc : descriptions) {
       var sourcePaths = desc.getFlattenFields().entrySet().stream()

@@ -4,12 +4,12 @@ import static java.util.Collections.emptyList;
 import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.TestConstants.EMPTY_TERM_MODIFIERS;
-import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestUtils.keywordField;
 import static org.folio.search.utils.TestUtils.standardField;
 import static org.mockito.Mockito.when;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
 
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
@@ -35,10 +35,10 @@ class WildcardTermQueryBuilderTest {
 
   @Test
   void getQuery_positive() {
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME,
+    when(searchFieldProvider.getPlainFieldByPath(ResourceType.UNKNOWN,
       "contributors.name")).thenReturn(of(standardField()));
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "f2")).thenReturn(of(keywordField()));
-    var actual = queryBuilder.getQuery("value*", RESOURCE_NAME,
+    when(searchFieldProvider.getPlainFieldByPath(ResourceType.UNKNOWN, "f2")).thenReturn(of(keywordField()));
+    var actual = queryBuilder.getQuery("value*", ResourceType.UNKNOWN,
       EMPTY_TERM_MODIFIERS, "f1.*", "f2", "contributors.name");
     assertThat(actual).isEqualTo(boolQuery()
       .should(wildcardQuery("plain_f1", "value*"))
@@ -48,26 +48,26 @@ class WildcardTermQueryBuilderTest {
 
   @Test
   void getQuery_positive_singleMultilangFieldInGroup() {
-    var actual = queryBuilder.getQuery("*value*", RESOURCE_NAME, EMPTY_TERM_MODIFIERS, "f1.*");
+    var actual = queryBuilder.getQuery("*value*", ResourceType.UNKNOWN, EMPTY_TERM_MODIFIERS, "f1.*");
     assertThat(actual).isEqualTo(wildcardQuery("plain_f1", "*value*"));
   }
 
   @Test
   void getQuery_positive_singleStandardFieldInGroup() {
-    when(searchFieldProvider.getPlainFieldByPath(RESOURCE_NAME, "field")).thenReturn(of(standardField()));
-    var actual = queryBuilder.getQuery("*value*", RESOURCE_NAME, EMPTY_TERM_MODIFIERS, "field");
+    when(searchFieldProvider.getPlainFieldByPath(ResourceType.UNKNOWN, "field")).thenReturn(of(standardField()));
+    var actual = queryBuilder.getQuery("*value*", ResourceType.UNKNOWN, EMPTY_TERM_MODIFIERS, "field");
     assertThat(actual).isEqualTo(wildcardQuery("plain_field", "*value*"));
   }
 
   @Test
   void getFulltextQuery_positive() {
-    var actual = queryBuilder.getFulltextQuery("val*", "field", RESOURCE_NAME, emptyList());
+    var actual = queryBuilder.getFulltextQuery("val*", "field", ResourceType.UNKNOWN, emptyList());
     assertThat(actual).isEqualTo(wildcardQuery("plain_field", "val*"));
   }
 
   @Test
   void getTermLevelQuery_positive() {
-    var actual = queryBuilder.getTermLevelQuery("termValue*", "field", RESOURCE_NAME, null);
+    var actual = queryBuilder.getTermLevelQuery("termValue*", "field", ResourceType.UNKNOWN, null);
     assertThat(actual).isEqualTo(wildcardQuery("field", "termValue*"));
   }
 

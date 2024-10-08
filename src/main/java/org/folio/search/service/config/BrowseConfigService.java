@@ -17,7 +17,7 @@ import org.folio.search.domain.dto.BrowseConfigCollection;
 import org.folio.search.domain.dto.BrowseOptionType;
 import org.folio.search.domain.dto.BrowseType;
 import org.folio.search.exception.RequestValidationException;
-import org.folio.search.integration.ReferenceDataService;
+import org.folio.search.integration.folio.ReferenceDataService;
 import org.folio.search.model.client.CqlQueryParam;
 import org.folio.search.model.config.BrowseConfigEntity;
 import org.folio.search.model.config.BrowseConfigId;

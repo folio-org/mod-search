@@ -8,8 +8,9 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface ResourceIdsJobMapper {
 
+  @Mapping(target = "temporaryTableName", ignore = true)
   ResourceIdsJobEntity convert(ResourceIdsJob job);
 
-  @Mapping(target = "createdDate", dateFormat = "yyyy-MM-dd HH:mm")
+  @Mapping(target = "createdDate", source = "createdDate", dateFormat = "yyyy-MM-dd HH:mm")
   ResourceIdsJob convert(ResourceIdsJobEntity entity);
 }

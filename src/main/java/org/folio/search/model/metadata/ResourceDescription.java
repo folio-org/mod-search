@@ -9,6 +9,7 @@ import java.util.Map;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
+import org.folio.search.model.types.ResourceType;
 
 /**
  * POJO class for specifying a resource description in local json files or dedicated database.
@@ -20,12 +21,12 @@ public class ResourceDescription {
   /**
    * Resource name.
    */
-  private String name;
+  private ResourceType name;
 
   /**
    * Name of the parent resource description (can be used if the resource is created from the parent for some purposes).
    */
-  private String parent;
+  private ResourceType parent;
 
   /**
    * Indicates if the resource could be reindexed.

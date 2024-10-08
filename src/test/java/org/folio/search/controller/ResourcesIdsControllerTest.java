@@ -2,7 +2,6 @@ package org.folio.search.controller;
 
 import static org.folio.search.model.service.CqlResourceIdsRequest.HOLDINGS_ID_PATH;
 import static org.folio.search.model.service.CqlResourceIdsRequest.INSTANCE_ID_PATH;
-import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.folio.search.utils.TestUtils.randomId;
@@ -26,6 +25,7 @@ import java.util.List;
 import org.folio.search.model.ResourceId;
 import org.folio.search.model.ResourceIds;
 import org.folio.search.model.service.CqlResourceIdsRequest;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.ResourceIdService;
 import org.folio.search.service.ResourceIdsJobService;
 import org.folio.search.service.ResourceIdsStreamHelper;
@@ -58,7 +58,7 @@ class ResourcesIdsControllerTest {
   void getHoldingsIds_positive() throws Exception {
     var cqlQuery = "id=*";
     var holdingId = randomId();
-    var request = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, TENANT_ID, cqlQuery, HOLDINGS_ID_PATH);
+    var request = CqlResourceIdsRequest.of(ResourceType.INSTANCE, TENANT_ID, cqlQuery, HOLDINGS_ID_PATH);
 
     doAnswer(inv -> {
       var out = (OutputStream) inv.getArgument(1);
@@ -83,7 +83,7 @@ class ResourcesIdsControllerTest {
   void getHoldingsIdsTextType_positive() throws Exception {
     var cqlQuery = "id=*";
     var holdingId = randomId();
-    var request = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, TENANT_ID, cqlQuery, HOLDINGS_ID_PATH);
+    var request = CqlResourceIdsRequest.of(ResourceType.INSTANCE, TENANT_ID, cqlQuery, HOLDINGS_ID_PATH);
 
     doAnswer(inv -> {
       var out = (OutputStream) inv.getArgument(1);
@@ -106,7 +106,7 @@ class ResourcesIdsControllerTest {
   void getInstanceIds_positive() throws Exception {
     var cqlQuery = "id=*";
     var instanceId = randomId();
-    var request = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, TENANT_ID, cqlQuery, INSTANCE_ID_PATH);
+    var request = CqlResourceIdsRequest.of(ResourceType.INSTANCE, TENANT_ID, cqlQuery, INSTANCE_ID_PATH);
 
     doAnswer(inv -> {
       var out = (OutputStream) inv.getArgument(1);
@@ -131,7 +131,7 @@ class ResourcesIdsControllerTest {
   void getInstanceIdsTextType_positive() throws Exception {
     var cqlQuery = "id=*";
     var instanceId = randomId();
-    var request = CqlResourceIdsRequest.of(INSTANCE_RESOURCE, TENANT_ID, cqlQuery, INSTANCE_ID_PATH);
+    var request = CqlResourceIdsRequest.of(ResourceType.INSTANCE, TENANT_ID, cqlQuery, INSTANCE_ID_PATH);
 
     doAnswer(inv -> {
       var out = (OutputStream) inv.getArgument(1);

@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
+import org.folio.search.model.types.ResourceType;
 import org.opensearch.index.query.QueryBuilder;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +22,7 @@ public class AllTermQueryBuilder extends FulltextQueryBuilder {
   private static final Pattern SPLITERATOR = Pattern.compile("([^\\s:\\/&]+)");
 
   @Override
-  public QueryBuilder getQuery(Object term, String resource, List<String> modifiers, String... fields) {
+  public QueryBuilder getQuery(Object term, ResourceType resource, List<String> modifiers, String... fields) {
     if (term instanceof String stringTerm) {
 
       List<String> terms = new ArrayList<>();
@@ -43,12 +44,12 @@ public class AllTermQueryBuilder extends FulltextQueryBuilder {
   }
 
   @Override
-  public QueryBuilder getFulltextQuery(Object term, String fieldName, String resource, List<String> modifiers) {
+  public QueryBuilder getFulltextQuery(Object term, String fieldName, ResourceType resource, List<String> modifiers) {
     return getQuery(term, resource, modifiers, updatePathForFulltextQuery(resource, fieldName));
   }
 
   @Override
-  public QueryBuilder getTermLevelQuery(Object term, String fieldName, String resource, String fieldIndex) {
+  public QueryBuilder getTermLevelQuery(Object term, String fieldName, ResourceType resource, String fieldIndex) {
     return matchQuery(fieldName, term).operator(AND);
   }
 

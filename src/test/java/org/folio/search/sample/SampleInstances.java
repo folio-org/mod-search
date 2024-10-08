@@ -3,6 +3,8 @@ package org.folio.search.sample;
 import static org.folio.search.utils.JsonConverter.MAP_TYPE_REFERENCE;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.folio.search.utils.TestUtils.readJsonFromFile;
+import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
@@ -10,6 +12,7 @@ import java.util.Map;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.folio.search.domain.dto.Instance;
+import org.springframework.test.web.servlet.ResultMatcher;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SampleInstances {
@@ -28,6 +31,12 @@ public class SampleInstances {
 
   public static String getSemanticWebId() {
     return SEMANTIC_WEB_ID;
+  }
+
+  public static List<ResultMatcher> getSemanticWebMatchers() {
+    var holdingsMatcher = jsonPath("$.instances.[0].holdings.size()", is(SEMANTIC_WEB.getHoldings().size()));
+    var itemsMatcher = jsonPath("$.instances.[0].items.size()", is(SEMANTIC_WEB.getItems().size()));
+    return List.of(holdingsMatcher, itemsMatcher);
   }
 
   private static Map<String, Object> readSampleInstance(String sampleName) {

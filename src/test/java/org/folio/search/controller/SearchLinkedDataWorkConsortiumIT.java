@@ -23,7 +23,7 @@ class SearchLinkedDataWorkConsortiumIT extends BaseConsortiumIntegrationTest {
   }
 
   @Test
-  void searchByLinkedDataInstanceInCentralTenant_shouldReturnCentralTenantRecord() throws Throwable {
+  void searchByLinkedDataWorkInCentralTenant_shouldReturnCentralTenantRecord() throws Throwable {
     doSearchByLinkedDataWork(CENTRAL_TENANT_ID, "title all \"titleAbc\"")
       .andExpect(jsonPath(toTotalRecords(), is(1)))
       .andExpect(jsonPath(toTitleValue(toRootContent(0), 0), is("titleAbc def")));

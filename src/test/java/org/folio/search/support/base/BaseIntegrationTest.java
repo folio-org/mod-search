@@ -6,9 +6,9 @@ import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
 import static org.awaitility.Durations.ONE_MINUTE;
 import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
 import static org.awaitility.Durations.TWO_MINUTES;
+import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.model.client.CqlQuery.exactMatchAny;
 import static org.folio.search.model.types.ResourceType.AUTHORITY;
-import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.support.base.ApiEndpoints.authoritySearchPath;
 import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.search.support.base.ApiEndpoints.linkedDataAuthoritySearchPath;
@@ -68,7 +68,6 @@ import org.folio.spring.testing.extension.EnableKafka;
 import org.folio.spring.testing.extension.EnableOkapi;
 import org.folio.spring.testing.extension.EnablePostgres;
 import org.folio.spring.testing.extension.impl.OkapiConfiguration;
-import org.folio.spring.testing.extension.impl.OkapiExtension;
 import org.folio.tenant.domain.dto.Parameter;
 import org.folio.tenant.domain.dto.TenantAttributes;
 import org.jetbrains.annotations.NotNull;
@@ -256,6 +255,11 @@ public abstract class BaseIntegrationTest {
   @SneakyThrows
   protected static void setUpTenant(Instance... instances) {
     setUpTenant(emptyList(), instances);
+  }
+
+  @SneakyThrows
+  protected static void setUpTenant(String tenantName, Instance... instances) {
+    setUpTenant(tenantName, emptyList(), instances);
   }
 
   @SneakyThrows

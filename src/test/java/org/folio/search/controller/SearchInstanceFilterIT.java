@@ -12,6 +12,7 @@ import static org.folio.search.utils.TestUtils.facet;
 import static org.folio.search.utils.TestUtils.facetItem;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.parseResponse;
+import static org.folio.search.utils.TestUtils.randomId;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;

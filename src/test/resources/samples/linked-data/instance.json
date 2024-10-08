@@ -1,6 +1,5 @@
 {
   "id": "instance1",
-  "tenantId": "consortium",
   "contributors": [
     {
       "name": "Instance1_Family",
@@ -74,7 +73,6 @@
   ],
   "parentWork": {
     "id": "123456123456",
-    "tenantId": "consortium",
     "classifications": [
       {
         "number": "1234",

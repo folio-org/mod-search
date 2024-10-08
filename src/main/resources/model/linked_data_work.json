@@ -9,9 +9,9 @@
       "searchAliases": [ "keyword" ]
     },
     "tenantId": {
-      "index": "keyword",
-      "searchTypes": [ "facet", "filter" ],
-      "showInResponse": [ "search" ]
+      "index": "keyword_lowercase",
+      "showInResponse": [ "search" ],
+      "isTenant": true
     },
     "classifications": {
       "type": "object",

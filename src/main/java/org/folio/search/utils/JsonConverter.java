@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -22,6 +23,8 @@ import org.springframework.stereotype.Component;
 public class JsonConverter {
 
   public static final TypeReference<Map<String, Object>> MAP_TYPE_REFERENCE = new TypeReference<>() { };
+  public static final TypeReference<List<Map<String, Object>>> LIST_OF_MAP_TYPE_REF = new TypeReference<>() { };
+
   public static final String SERIALIZATION_ERROR_MSG_TEMPLATE = "Failed to serialize value [message: %s]";
   public static final String DESERIALIZATION_ERROR_MSG_TEMPLATE = "Failed to deserialize value [value: {}]";
 
@@ -43,7 +46,6 @@ public class JsonConverter {
     try {
       return objectMapper.readValue(value, type);
     } catch (JsonProcessingException e) {
-      log.warn(DESERIALIZATION_ERROR_MSG_TEMPLATE, value, e);
       throw deserializationException(value, e);
     }
   }
@@ -64,7 +66,6 @@ public class JsonConverter {
     try {
       return objectMapper.readValue(value, type);
     } catch (JsonProcessingException e) {
-      log.warn(DESERIALIZATION_ERROR_MSG_TEMPLATE, value, e);
       throw deserializationException(value, e);
     }
   }
@@ -77,6 +78,16 @@ public class JsonConverter {
    */
   public Map<String, Object> fromJsonToMap(String value) {
     return fromJson(value, MAP_TYPE_REFERENCE);
+  }
+
+  /**
+   * Converts {@link String} value to the {@link Map} .
+   *
+   * @param value object value to convert
+   * @return converted value
+   */
+  public List<Map<String, Object>> fromJsonToListOfMaps(String value) {
+    return fromJson(value, LIST_OF_MAP_TYPE_REF);
   }
 
   /**
@@ -196,7 +207,7 @@ public class JsonConverter {
       return objectMapper.writeValueAsString(value);
     } catch (JsonProcessingException e) {
       throw new SerializationException(String.format(
-        SERIALIZATION_ERROR_MSG_TEMPLATE, e.getMessage()));
+        SERIALIZATION_ERROR_MSG_TEMPLATE, e.getMessage()), e);
     }
   }
 
@@ -257,6 +268,6 @@ public class JsonConverter {
   private static RuntimeException deserializationException(String value, Throwable e) {
     log.warn(DESERIALIZATION_ERROR_MSG_TEMPLATE, value, e);
     return new SerializationException(String.format(
-      "Failed to deserialize value [value: %s, message: %s]", value, e.getMessage()));
+      "Failed to deserialize value [value: %s, message: %s]", value, e.getMessage()), e);
   }
 }

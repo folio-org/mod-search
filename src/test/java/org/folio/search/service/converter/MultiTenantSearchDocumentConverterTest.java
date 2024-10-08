@@ -6,8 +6,8 @@ import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
+import static org.folio.search.model.types.ResourceType.UNKNOWN;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
-import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.SMILE_MAPPER;
 import static org.folio.search.utils.TestUtils.mapOf;
@@ -73,12 +73,12 @@ class MultiTenantSearchDocumentConverterTest {
     var tenant1 = "tenant_one";
     var tenant2 = "tenant_two";
     var events = List.of(
-      resourceEvent(null, RESOURCE_NAME, mapOf("id", randomId())).tenant(tenant1).type(ResourceEventType.UPDATE),
-      resourceEvent(null, RESOURCE_NAME, mapOf("id", randomId())).tenant(tenant1).type(ResourceEventType.DELETE),
-      resourceEvent(null, RESOURCE_NAME, mapOf("id", randomId())).tenant(tenant2).type(ResourceEventType.UPDATE),
-      resourceEvent(null, RESOURCE_NAME, mapOf("id", randomId())).tenant(tenant2).type(ResourceEventType.DELETE));
+      resourceEvent(null, UNKNOWN, mapOf("id", randomId())).tenant(tenant1).type(ResourceEventType.UPDATE),
+      resourceEvent(null, UNKNOWN, mapOf("id", randomId())).tenant(tenant1).type(ResourceEventType.DELETE),
+      resourceEvent(null, UNKNOWN, mapOf("id", randomId())).tenant(tenant2).type(ResourceEventType.UPDATE),
+      resourceEvent(null, UNKNOWN, mapOf("id", randomId())).tenant(tenant2).type(ResourceEventType.DELETE));
 
-    when(resourceDescriptionService.find(RESOURCE_NAME)).thenReturn(of(resourceDescription(RESOURCE_NAME)));
+    when(resourceDescriptionService.find(UNKNOWN)).thenReturn(of(resourceDescription(UNKNOWN)));
     when(searchDocumentConverter.convert(events.get(0))).thenReturn(of(searchDocument(events.get(0), INDEX)));
     when(searchDocumentConverter.convert(events.get(1))).thenReturn(of(searchDocument(events.get(1), DELETE)));
     when(searchDocumentConverter.convert(events.get(2))).thenReturn(of(searchDocument(events.get(2), INDEX)));
@@ -86,7 +86,7 @@ class MultiTenantSearchDocumentConverterTest {
 
     var actual = multiTenantConverter.convert(events);
 
-    assertThat(actual).isEqualTo(Map.of(RESOURCE_NAME, List.of(
+    assertThat(actual).isEqualTo(Map.of(UNKNOWN.getName(), List.of(
       searchDocument(events.get(0), INDEX), searchDocument(events.get(1), DELETE),
       searchDocument(events.get(2), INDEX), searchDocument(events.get(3), DELETE))));
 
@@ -98,17 +98,17 @@ class MultiTenantSearchDocumentConverterTest {
   void convert_positive_noScoped() {
     var tenant1 = "tenant_one";
     var events = List.of(
-      resourceEvent(null, RESOURCE_NAME, mapOf("id", randomId())).tenant(tenant1).type(ResourceEventType.UPDATE),
-      resourceEvent(null, RESOURCE_NAME, mapOf("id", randomId())).tenant(tenant1).type(ResourceEventType.DELETE));
+      resourceEvent(null, UNKNOWN, mapOf("id", randomId())).tenant(tenant1).type(ResourceEventType.UPDATE),
+      resourceEvent(null, UNKNOWN, mapOf("id", randomId())).tenant(tenant1).type(ResourceEventType.DELETE));
 
-    when(resourceDescriptionService.find(RESOURCE_NAME)).thenReturn(of(resourceDescription(RESOURCE_NAME)));
+    when(resourceDescriptionService.find(UNKNOWN)).thenReturn(of(resourceDescription(UNKNOWN)));
     when(searchDocumentConverter.convert(events.get(0))).thenReturn(of(searchDocument(events.get(0), INDEX)));
     when(searchDocumentConverter.convert(events.get(1))).thenReturn(of(searchDocument(events.get(1), DELETE)));
     when(folioExecutionContext.getTenantId()).thenReturn(tenant1);
 
     var actual = multiTenantConverter.convert(events);
 
-    assertThat(actual).isEqualTo(Map.of(RESOURCE_NAME, List.of(
+    assertThat(actual).isEqualTo(Map.of(UNKNOWN.getName(), List.of(
       searchDocument(events.get(0), INDEX), searchDocument(events.get(1), DELETE))));
 
     verifyNoInteractions(executionService);
@@ -116,8 +116,8 @@ class MultiTenantSearchDocumentConverterTest {
 
   @Test
   void convert_positive_singleEventThatIsNotConverted() {
-    var event = resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID));
-    when(resourceDescriptionService.find(RESOURCE_NAME)).thenReturn(of(resourceDescription(RESOURCE_NAME)));
+    var event = resourceEvent(UNKNOWN, mapOf("id", RESOURCE_ID));
+    when(resourceDescriptionService.find(UNKNOWN)).thenReturn(of(resourceDescription(UNKNOWN)));
     when(searchDocumentConverter.convert(event)).thenReturn(Optional.empty());
     when(executionService.execute(eq(TENANT_ID), any())).thenAnswer(invocation ->
       invocation.<Supplier<List<SearchDocumentBody>>>getArgument(1).get());
@@ -128,10 +128,10 @@ class MultiTenantSearchDocumentConverterTest {
 
   @Test
   void convert_positive_eventWithCustomEventPreProcessor() {
-    var event = resourceEvent(RESOURCE_NAME, mapOf("id", RESOURCE_ID));
+    var event = resourceEvent(UNKNOWN, mapOf("id", RESOURCE_ID));
     var searchDocument = searchDocument(event, INDEX);
 
-    when(resourceDescriptionService.find(RESOURCE_NAME)).thenReturn(of(resourceDescriptionWithPreProcessor()));
+    when(resourceDescriptionService.find(UNKNOWN)).thenReturn(of(resourceDescriptionWithPreProcessor()));
     when(searchDocumentConverter.convert(event)).thenReturn(of(searchDocument));
     when(eventPreProcessorBeans.get(CUSTOM_PRE_PROCESSOR)).thenReturn(customEventPreProcessor);
     when(customEventPreProcessor.preProcess(event)).thenReturn(List.of(event));
@@ -139,7 +139,7 @@ class MultiTenantSearchDocumentConverterTest {
       invocation.<Supplier<List<SearchDocumentBody>>>getArgument(1).get());
 
     var actual = multiTenantConverter.convert(List.of(event));
-    assertThat(actual).isEqualTo(mapOf(RESOURCE_NAME, List.of(searchDocument(event, INDEX))));
+    assertThat(actual).isEqualTo(mapOf(UNKNOWN.getName(), List.of(searchDocument(event, INDEX))));
   }
 
   @Test
@@ -164,7 +164,7 @@ class MultiTenantSearchDocumentConverterTest {
     var configuration = new ResourceIndexingConfiguration();
     configuration.setEventPreProcessor(CUSTOM_PRE_PROCESSOR);
 
-    var resourceDescription = resourceDescription(RESOURCE_NAME);
+    var resourceDescription = resourceDescription(UNKNOWN);
     resourceDescription.setIndexingConfiguration(configuration);
     return resourceDescription;
   }

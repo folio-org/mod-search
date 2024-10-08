@@ -6,9 +6,9 @@ import static org.awaitility.Durations.ONE_MINUTE;
 import static org.awaitility.Durations.ONE_SECOND;
 import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.model.Pair.pair;
+import static org.folio.search.model.types.ResourceType.CAMPUS;
 import static org.folio.search.sample.SampleCampuses.getCampusesSampleAsMap;
 import static org.folio.search.support.base.ApiEndpoints.consortiumCampusesSearchPath;
-import static org.folio.search.utils.SearchUtils.CAMPUS_RESOURCE;
 import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.search.utils.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.search.utils.TestConstants.inventoryCampusTopic;
@@ -107,7 +107,7 @@ class ConsortiumSearchCampusesIT extends BaseConsortiumIntegrationTest {
       .forEach(event -> kafkaTemplate.send(inventoryCampusTopic(event.getTenant()), event));
 
     await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
-      var totalHits = countIndexDocument(CAMPUS_RESOURCE, CENTRAL_TENANT_ID);
+      var totalHits = countIndexDocument(CAMPUS, CENTRAL_TENANT_ID);
 
       assertThat(totalHits).isEqualTo(EXPECTED_WITH_TWO_TENANTS);
     });

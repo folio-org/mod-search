@@ -124,6 +124,14 @@
         "authorityId": {
           "index": "keyword_lowercase",
           "searchAliases": [ "authorityId" ]
+        },
+        "sourceId": {
+          "index": "keyword_lowercase",
+          "searchAliases": [ "sourceId" ]
+        },
+        "typeId": {
+          "index": "keyword_lowercase",
+          "searchAliases": [ "typeId" ]
         }
       }
     },

@@ -1,5 +1,7 @@
 package org.folio.search.model;
 
+import org.folio.search.model.types.ResourceType;
+
 public interface ResourceRequest {
 
   /**
@@ -14,5 +16,5 @@ public interface ResourceRequest {
    *
    * @return resource name
    */
-  String getResource();
+  ResourceType getResource();
 }

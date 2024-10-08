@@ -63,7 +63,7 @@ public class SearchService {
       .size(request.getLimit())
       .trackTotalHits(true)
       .timeout(new TimeValue(requestTimeout.toMillis(), MILLISECONDS));
-    var preferenceKey = buildPreferenceKey(request.getTenantId(), resource, request.getQuery());
+    var preferenceKey = buildPreferenceKey(request.getTenantId(), resource.getName(), request.getQuery());
     var preference = searchPreferenceService.getPreferenceForString(preferenceKey);
 
     if (isFalse(request.getExpandAll())) {

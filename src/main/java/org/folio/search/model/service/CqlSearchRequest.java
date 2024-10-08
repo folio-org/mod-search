@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.model.ResourceRequest;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.utils.SearchUtils;
 
 /**
@@ -16,7 +17,7 @@ public class CqlSearchRequest<T> implements ResourceRequest {
   /**
    * Resource name.
    */
-  private final String resource;
+  private final ResourceType resource;
 
   /**
    * Resource class for response.
@@ -75,7 +76,7 @@ public class CqlSearchRequest<T> implements ResourceRequest {
   public static <R> CqlSearchRequest<R> of(Class<R> resourceClass, String tenantId, String query,
                                            Integer limit, Integer offset, Boolean expandAll,
                                            Boolean includeNumberOfTitles, Boolean consortiumConsolidated) {
-    var resource = SearchUtils.getResourceName(resourceClass);
+    var resource = ResourceType.byName(SearchUtils.getResourceName(resourceClass));
     return new CqlSearchRequest<>(resource, resourceClass, tenantId, query, limit, offset, expandAll,
       includeNumberOfTitles, consortiumConsolidated);
   }

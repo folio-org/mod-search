@@ -1,5 +1,6 @@
 package org.folio.search.controller;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.folio.search.sample.SampleAuthorities.getAuthorityNaturalId;
 import static org.folio.search.sample.SampleAuthorities.getAuthoritySampleAsMap;
@@ -57,7 +58,7 @@ class SearchAuthorityIT extends BaseIntegrationTest {
     inventoryApi.createInstance(TENANT_ID, instance2);
     inventoryApi.createInstance(TENANT_ID, instance3);
     inventoryApi.createInstance(TENANT_ID, instance4);
-    checkThatEventsFromKafkaAreIndexed(TENANT_ID, instanceSearchPath(), 4);
+    checkThatEventsFromKafkaAreIndexed(TENANT_ID, instanceSearchPath(), 4, emptyList());
   }
 
   @AfterAll

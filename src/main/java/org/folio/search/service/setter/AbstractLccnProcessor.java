@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.folio.search.domain.dto.Identifier;
-import org.folio.search.integration.ReferenceDataService;
+import org.folio.search.integration.folio.ReferenceDataService;
 import org.folio.search.service.lccn.LccnNormalizer;
 
 public abstract class AbstractLccnProcessor<T> extends AbstractIdentifierProcessor<T> {

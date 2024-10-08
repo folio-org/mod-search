@@ -11,6 +11,7 @@ import static org.opensearch.index.query.QueryBuilders.termQuery;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.utils.SearchUtils;
 import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.index.query.ScriptQueryBuilder;
@@ -25,7 +26,7 @@ public class ExactTermQueryBuilder extends FulltextQueryBuilder {
   private static final String STRING_MODIFIER = "string";
 
   @Override
-  public QueryBuilder getQuery(Object term, String resource, List<String> modifiers, String... fields) {
+  public QueryBuilder getQuery(Object term, ResourceType resource, List<String> modifiers, String... fields) {
     if (modifiers.contains(STRING_MODIFIER)) {
       fields = getUpdatedFields(fields);
     }
@@ -33,7 +34,7 @@ public class ExactTermQueryBuilder extends FulltextQueryBuilder {
   }
 
   @Override
-  public QueryBuilder getFulltextQuery(Object term, String fieldName, String resource, List<String> modifiers) {
+  public QueryBuilder getFulltextQuery(Object term, String fieldName, ResourceType resource, List<String> modifiers) {
     if (SearchUtils.isEmptyString(term) || modifiers.contains(STRING_MODIFIER)) {
       return termQuery(getPathToFulltextPlainValue(fieldName), term);
     }
@@ -44,7 +45,7 @@ public class ExactTermQueryBuilder extends FulltextQueryBuilder {
   }
 
   @Override
-  public QueryBuilder getTermLevelQuery(Object term, String fieldName, String resource, String fieldIndex) {
+  public QueryBuilder getTermLevelQuery(Object term, String fieldName, ResourceType resource, String fieldIndex) {
     return EMPTY_ARRAY.equals(term) && KEYWORD_FIELD_INDEX.equals(fieldIndex)
            ? getEmptyArrayScriptQuery(fieldName)
            : termQuery(fieldName, term);

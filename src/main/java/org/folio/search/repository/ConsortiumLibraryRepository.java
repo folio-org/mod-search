@@ -1,5 +1,6 @@
 package org.folio.search.repository;
 
+import static org.folio.search.model.types.ResourceType.LIBRARY;
 import static org.folio.search.utils.SearchUtils.TENANT_ID_FIELD_NAME;
 import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
 import static org.opensearch.search.sort.SortOrder.ASC;
@@ -27,7 +28,6 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class ConsortiumLibraryRepository {
 
-  public static final String LIBRARY_INDEX = "library";
   private static final String OPERATION_TYPE = "searchApi";
   private final IndexNameProvider indexNameProvider;
   private final ElasticsearchDocumentConverter documentConverter;
@@ -67,7 +67,7 @@ public class ConsortiumLibraryRepository {
   }
 
   private SearchResponse search(SearchSourceBuilder sourceBuilder, String tenantHeader) {
-    var index = indexNameProvider.getIndexName(LIBRARY_INDEX, tenantHeader);
+    var index = indexNameProvider.getIndexName(LIBRARY, tenantHeader);
     var searchRequest = new SearchRequest(index);
 
     searchRequest.source(sourceBuilder);

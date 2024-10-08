@@ -1,8 +1,5 @@
 package org.folio.search.service.consortium;
 
-import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_RESOURCE;
-import static org.folio.search.utils.SearchUtils.INSTANCE_CLASSIFICATION_RESOURCE;
-import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
 import static org.folio.search.utils.SearchUtils.SHARED_FIELD_NAME;
 import static org.folio.search.utils.SearchUtils.TENANT_ID_FIELD_NAME;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
@@ -20,6 +17,7 @@ import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.model.index.InstanceSubResource;
 import org.folio.search.model.service.BrowseContext;
+import org.folio.search.model.types.ResourceType;
 import org.folio.spring.FolioExecutionContext;
 import org.opensearch.index.query.BoolQueryBuilder;
 import org.opensearch.index.query.MatchAllQueryBuilder;
@@ -40,7 +38,7 @@ public class ConsortiumSearchHelper {
   private final FolioExecutionContext folioExecutionContext;
   private final ConsortiumTenantService consortiumTenantService;
 
-  public QueryBuilder filterQueryForActiveAffiliation(QueryBuilder query, String resource) {
+  public QueryBuilder filterQueryForActiveAffiliation(QueryBuilder query, ResourceType resource) {
     var contextTenantId = folioExecutionContext.getTenantId();
     return filterQueryForActiveAffiliation(query, resource, contextTenantId);
   }
@@ -50,7 +48,8 @@ public class ConsortiumSearchHelper {
    * Active Affiliation have precedence over 'shared' filter so in case of member tenant
    * modified query will have member 'tenantId' filter with shared=true).
    */
-  public QueryBuilder filterQueryForActiveAffiliation(QueryBuilder query, String resource, String contextTenantId) {
+  public QueryBuilder filterQueryForActiveAffiliation(QueryBuilder query, ResourceType resource,
+                                                      String contextTenantId) {
     var centralTenantId = consortiumTenantService.getCentralTenant(contextTenantId);
     if (centralTenantId.isEmpty()) {
       return query;
@@ -60,7 +59,7 @@ public class ConsortiumSearchHelper {
   }
 
   public QueryBuilder filterQueryForActiveAffiliation(QueryBuilder query, String tenantId,
-                                                      String centralTenantId, String resource) {
+                                                      String centralTenantId, ResourceType resource) {
     var boolQuery = prepareBoolQueryForActiveAffiliation(query);
     addActiveAffiliationClauses(boolQuery, tenantId, centralTenantId, resource);
 
@@ -73,7 +72,7 @@ public class ConsortiumSearchHelper {
    * will be returned (original query have only 'tenantId' additional filter).
    */
   public QueryBuilder filterBrowseQueryForActiveAffiliation(BrowseContext browseContext, QueryBuilder query,
-                                                            String resource) {
+                                                            ResourceType resource) {
     logger.debug("Filtering browse query for {}", resource);
     var contextTenantId = folioExecutionContext.getTenantId();
     var centralTenantId = consortiumTenantService.getCentralTenant(contextTenantId);
@@ -142,67 +141,6 @@ public class ConsortiumSearchHelper {
       .collect(Collectors.toSet());
   }
 
-  private BoolQueryBuilder prepareBoolQueryForActiveAffiliation(QueryBuilder query) {
-    BoolQueryBuilder boolQuery;
-    if (query instanceof MatchAllQueryBuilder) {
-      boolQuery = boolQuery();
-    } else if (query instanceof BoolQueryBuilder bq) {
-      boolQuery = bq;
-    } else {
-      boolQuery = boolQuery().must(query);
-    }
-    boolQuery.minimumShouldMatch(1);
-    return boolQuery;
-  }
-
-  private void addActiveAffiliationClauses(BoolQueryBuilder boolQuery, String contextTenantId,
-                                           String centralTenantId, String resource) {
-    var affiliationShouldClauses = getAffiliationShouldClauses(contextTenantId, centralTenantId, resource);
-    if (boolQuery.should().isEmpty()) {
-      affiliationShouldClauses.forEach(boolQuery::should);
-    } else {
-      var innerBoolQuery = boolQuery();
-      affiliationShouldClauses.forEach(innerBoolQuery::should);
-      boolQuery.must(innerBoolQuery);
-    }
-  }
-
-  private LinkedList<QueryBuilder> getAffiliationShouldClauses(String contextTenantId, String centralTenantId,
-                                                               String resource) {
-    var affiliationShouldClauses = new LinkedList<QueryBuilder>();
-    addTenantIdAffiliationShouldClause(contextTenantId, centralTenantId, affiliationShouldClauses,
-      resource);
-    addSharedAffiliationShouldClause(affiliationShouldClauses, resource);
-    return affiliationShouldClauses;
-  }
-
-  private void addTenantIdAffiliationShouldClause(String contextTenantId, String centralTenantId,
-                                                  LinkedList<QueryBuilder> affiliationShouldClauses, String resource) {
-    if (!contextTenantId.equals(centralTenantId)) {
-      affiliationShouldClauses.add(termQuery(getFieldForResource(TENANT_ID_FIELD_NAME, resource), contextTenantId));
-    }
-  }
-
-  private void addSharedAffiliationShouldClause(LinkedList<QueryBuilder> affiliationShouldClauses,
-                                                String resource) {
-    affiliationShouldClauses.add(termQuery(getFieldForResource(SHARED_FIELD_NAME, resource), true));
-  }
-
-  private void removeOriginalSharedFilterFromQuery(QueryBuilder queryBuilder) {
-    if (queryBuilder instanceof BoolQueryBuilder bqb) {
-      bqb.filter().removeIf(filter -> filter instanceof TermQueryBuilder tqb
-        && tqb.fieldName().equals(BROWSE_SHARED_FILTER_KEY));
-    }
-  }
-
-  private Optional<TermQueryBuilder> getBrowseSharedFilter(BrowseContext context) {
-    return getBrowseFilter(context, BROWSE_SHARED_FILTER_KEY);
-  }
-
-  private Optional<TermQueryBuilder> getBrowseTenantFilter(BrowseContext context) {
-    return getBrowseFilter(context, BROWSE_TENANT_FILTER_KEY);
-  }
-
   public static Optional<TermQueryBuilder> getBrowseFilter(BrowseContext context, String filterKey) {
     return context.getFilters().stream()
       .map(filter -> getTermFilterForKey(filter, filterKey))
@@ -218,10 +156,72 @@ public class ConsortiumSearchHelper {
       .toList();
   }
 
+  private BoolQueryBuilder prepareBoolQueryForActiveAffiliation(QueryBuilder query) {
+    BoolQueryBuilder boolQuery;
+    if (query instanceof MatchAllQueryBuilder) {
+      boolQuery = boolQuery();
+    } else if (query instanceof BoolQueryBuilder bq) {
+      boolQuery = bq;
+    } else {
+      boolQuery = boolQuery().must(query);
+    }
+    boolQuery.minimumShouldMatch(1);
+    return boolQuery;
+  }
+
+  private void addActiveAffiliationClauses(BoolQueryBuilder boolQuery, String contextTenantId,
+                                           String centralTenantId, ResourceType resource) {
+    var affiliationShouldClauses = getAffiliationShouldClauses(contextTenantId, centralTenantId, resource);
+    if (boolQuery.should().isEmpty()) {
+      affiliationShouldClauses.forEach(boolQuery::should);
+    } else {
+      var innerBoolQuery = boolQuery();
+      affiliationShouldClauses.forEach(innerBoolQuery::should);
+      boolQuery.must(innerBoolQuery);
+    }
+  }
+
+  private LinkedList<QueryBuilder> getAffiliationShouldClauses(String contextTenantId, String centralTenantId,
+                                                               ResourceType resource) {
+    var affiliationShouldClauses = new LinkedList<QueryBuilder>();
+    addTenantIdAffiliationShouldClause(contextTenantId, centralTenantId, affiliationShouldClauses,
+      resource);
+    addSharedAffiliationShouldClause(affiliationShouldClauses, resource);
+    return affiliationShouldClauses;
+  }
+
+  private void addTenantIdAffiliationShouldClause(String contextTenantId, String centralTenantId,
+                                                  LinkedList<QueryBuilder> affiliationShouldClauses,
+                                                  ResourceType resource) {
+    if (!contextTenantId.equals(centralTenantId)) {
+      affiliationShouldClauses.add(termQuery(getFieldForResource(TENANT_ID_FIELD_NAME, resource), contextTenantId));
+    }
+  }
+
+  private void addSharedAffiliationShouldClause(LinkedList<QueryBuilder> affiliationShouldClauses,
+                                                ResourceType resource) {
+    affiliationShouldClauses.add(termQuery(getFieldForResource(SHARED_FIELD_NAME, resource), true));
+  }
+
+  private void removeOriginalSharedFilterFromQuery(QueryBuilder queryBuilder) {
+    if (queryBuilder instanceof BoolQueryBuilder bqb) {
+      bqb.filter().removeIf(filter -> filter instanceof TermQueryBuilder tqb
+                                      && tqb.fieldName().equals(BROWSE_SHARED_FILTER_KEY));
+    }
+  }
+
+  private Optional<TermQueryBuilder> getBrowseSharedFilter(BrowseContext context) {
+    return getBrowseFilter(context, BROWSE_SHARED_FILTER_KEY);
+  }
+
+  private Optional<TermQueryBuilder> getBrowseTenantFilter(BrowseContext context) {
+    return getBrowseFilter(context, BROWSE_TENANT_FILTER_KEY);
+  }
+
   private static TermQueryBuilder getTermFilterForKey(QueryBuilder filter, String filterKey) {
     return filter instanceof TermQueryBuilder termFilter && termFilter.fieldName().equals(filterKey)
-      ? termFilter
-      : null;
+           ? termFilter
+           : null;
   }
 
   private static Stream<TermQueryBuilder> getTermFiltersForKey(QueryBuilder filter, String filterKey) {
@@ -233,16 +233,15 @@ public class ConsortiumSearchHelper {
     return null;
   }
 
-
   private boolean sharedFilterValue(TermQueryBuilder sharedQuery) {
     return sharedQuery.value() instanceof Boolean boolValue && boolValue
-      || sharedQuery.value() instanceof String stringValue && Boolean.parseBoolean(stringValue);
+           || sharedQuery.value() instanceof String stringValue && Boolean.parseBoolean(stringValue);
   }
 
-  private String getFieldForResource(String fieldName, String resourceName) {
-    if (resourceName.equals(CONTRIBUTOR_RESOURCE)
-        || resourceName.equals(INSTANCE_SUBJECT_RESOURCE)
-        || resourceName.equals(INSTANCE_CLASSIFICATION_RESOURCE)) {
+  private String getFieldForResource(String fieldName, ResourceType resourceName) {
+    if (resourceName.equals(ResourceType.INSTANCE_CONTRIBUTOR)
+        || resourceName.equals(ResourceType.INSTANCE_SUBJECT)
+        || resourceName.equals(ResourceType.INSTANCE_CLASSIFICATION)) {
       return "instances." + fieldName;
     }
     return fieldName;

@@ -2,7 +2,6 @@ package org.folio.search.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.folio.search.utils.TestConstants.RESOURCE_NAME;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
@@ -15,6 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.service.CqlResourceIdsRequest;
+import org.folio.search.model.types.ResourceType;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,7 +43,7 @@ class ResourceIdsStreamHelperTest {
     when(servletRequestAttributes.getResponse()).thenReturn(httpServletResponse);
     when(httpServletResponse.getOutputStream()).thenReturn(outputStream);
 
-    var request = CqlResourceIdsRequest.of("id=*", RESOURCE_NAME, TENANT_ID, "id");
+    var request = getCqlResourceIdsRequest();
     doNothing().when(resourceIdService).streamResourceIdsAsJson(request, outputStream);
 
     var actual = resourceIdsStreamHelper.streamResourceIds(request, APPLICATION_JSON_VALUE);
@@ -59,7 +59,7 @@ class ResourceIdsStreamHelperTest {
     when(servletRequestAttributes.getResponse()).thenReturn(httpServletResponse);
     when(httpServletResponse.getOutputStream()).thenReturn(outputStream);
 
-    var request = CqlResourceIdsRequest.of("id=*", RESOURCE_NAME, TENANT_ID, "id");
+    var request = getCqlResourceIdsRequest();
     doNothing().when(resourceIdService).streamResourceIdsAsJson(request, outputStream);
 
     var actual = resourceIdsStreamHelper.streamResourceIds(request, null);
@@ -75,7 +75,7 @@ class ResourceIdsStreamHelperTest {
     when(servletRequestAttributes.getResponse()).thenReturn(httpServletResponse);
     when(httpServletResponse.getOutputStream()).thenReturn(outputStream);
 
-    var request = CqlResourceIdsRequest.of("id=*", RESOURCE_NAME, TENANT_ID, "id");
+    var request = getCqlResourceIdsRequest();
     doNothing().when(resourceIdService).streamResourceIdsAsText(request, outputStream);
 
     var actual = resourceIdsStreamHelper.streamResourceIds(request, TEXT_PLAIN_VALUE);
@@ -86,7 +86,7 @@ class ResourceIdsStreamHelperTest {
   void streamResourceIds_negative_nullRequestAttributes() {
     RequestContextHolder.setRequestAttributes(null);
 
-    var request = CqlResourceIdsRequest.of("id=*", RESOURCE_NAME, TENANT_ID, "id");
+    var request = getCqlResourceIdsRequest();
     assertThatThrownBy(() -> resourceIdsStreamHelper.streamResourceIds(request, APPLICATION_JSON_VALUE))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("Request attributes must be not null");
@@ -98,7 +98,7 @@ class ResourceIdsStreamHelperTest {
     RequestContextHolder.setRequestAttributes(servletRequestAttributes);
     when(servletRequestAttributes.getResponse()).thenReturn(null);
 
-    var request = CqlResourceIdsRequest.of("id=*", RESOURCE_NAME, TENANT_ID, "id");
+    var request = getCqlResourceIdsRequest();
     assertThatThrownBy(() -> resourceIdsStreamHelper.streamResourceIds(request, APPLICATION_JSON_VALUE))
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessage("HttpServletResponse must be not null");
@@ -112,9 +112,13 @@ class ResourceIdsStreamHelperTest {
     when(servletRequestAttributes.getResponse()).thenReturn(httpServletResponse);
     when(httpServletResponse.getOutputStream()).thenThrow(new IOException("error"));
 
-    var request = CqlResourceIdsRequest.of("id=*", RESOURCE_NAME, TENANT_ID, "id");
+    var request = getCqlResourceIdsRequest();
     assertThatThrownBy(() -> resourceIdsStreamHelper.streamResourceIds(request, APPLICATION_JSON_VALUE))
       .isInstanceOf(SearchServiceException.class)
       .hasMessage("Failed to get output stream from response");
+  }
+
+  private CqlResourceIdsRequest getCqlResourceIdsRequest() {
+    return CqlResourceIdsRequest.of(ResourceType.INSTANCE, TENANT_ID, "id=*", "id");
   }
 }

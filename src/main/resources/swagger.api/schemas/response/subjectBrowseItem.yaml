@@ -13,3 +13,9 @@ properties:
   authorityId:
     type: string
     description: ID of authority record that controls the subject
+  sourceId:
+    type: string
+    description: ID of subject source
+  typeId:
+    type: string
+    description: ID of subject type

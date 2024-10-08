@@ -5,8 +5,8 @@ import static java.util.Collections.emptyList;
 import static java.util.function.Function.identity;
 import static java.util.stream.Stream.concat;
 import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
+import static org.folio.search.model.types.ResourceType.INSTANCE;
 import static org.folio.search.utils.CollectionUtils.toLinkedHashMap;
-import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
 import static org.opensearch.index.query.QueryBuilders.existsQuery;
 import static org.opensearch.search.aggregations.AggregationBuilders.range;
 import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
@@ -67,7 +67,7 @@ public class CallNumberBrowseRangeService {
   /**
    * Provides call-number ranges as {@link Map} object.
    *
-   * @param tenantId       - tenant id for call-number ranges retrieval
+   * @param tenantId - tenant id for call-number ranges retrieval
    * @return {@link Map} with call-number ranges, where key is the lower boundary and the value is the amount of
    *   resources after it
    */
@@ -94,7 +94,7 @@ public class CallNumberBrowseRangeService {
   private static boolean isRangeBoundaryCanBeProvided(
     String anchor, boolean isBrowsingForward, List<CallNumberBrowseRangeValue> ranges) {
     return anchor.compareTo(ranges.get(0).getKey()) > 0 && !isBrowsingForward
-      || anchor.compareTo(ranges.get(ranges.size() - 1).getKey()) < 0 && isBrowsingForward;
+           || anchor.compareTo(ranges.get(ranges.size() - 1).getKey()) < 0 && isBrowsingForward;
   }
 
   private List<CallNumberBrowseRangeValue> getCallNumberRanges(String cacheKey) {
@@ -109,7 +109,7 @@ public class CallNumberBrowseRangeService {
     var searchSource = searchSource().from(0).size(0)
       .query(existsQuery(rangeField))
       .aggregation(prepareRangeAggregation(rangeField, callNumbersMap));
-    var searchResponse = searchRepository.search(SimpleResourceRequest.of(INSTANCE_RESOURCE, tenantId), searchSource);
+    var searchResponse = searchRepository.search(SimpleResourceRequest.of(INSTANCE, tenantId), searchSource);
 
     return Optional.ofNullable(searchResponse)
       .map(SearchResponse::getAggregations)

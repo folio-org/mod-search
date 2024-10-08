@@ -2,11 +2,12 @@
 <databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
-                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
 
   <include file="changes/initial_schema.xml" relativeToChangelogFile="true"/>
   <include file="changes/v2.1/change_resource_ids_job_query_type.xml" relativeToChangelogFile="true"/>
   <include file="changes/v3.0/create_consortium_instance.xml" relativeToChangelogFile="true"/>
   <include file="changes/v3.2/create_instance_classification_table.xml" relativeToChangelogFile="true"/>
   <include file="changes/v3.2/create_browse_config_table.xml" relativeToChangelogFile="true"/>
+  <include file="changes/v4.0/create-reindex-entity-tables.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

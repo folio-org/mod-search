@@ -2,6 +2,7 @@ package org.folio.search.service.browse;
 
 import static java.util.Objects.nonNull;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_ID_FIELD;
+import static org.folio.search.utils.SearchUtils.MISSING_LAST_PROP;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
@@ -32,9 +33,8 @@ import org.springframework.stereotype.Service;
 public class ContributorBrowseService extends
   AbstractBrowseServiceBySearchAfter<InstanceContributorBrowseItem, ContributorResource> {
 
-  private static final String MISSING_LAST_PROP = "_last";
   private static final String CONTRIBUTOR_NAME_TYPE_ID_FIELD = "contributorNameTypeId";
-  private static final String CONTRIBUTOR_TYPE_ID_FIELD = "instances.contributorTypeId";
+  private static final String CONTRIBUTOR_TYPE_ID_FIELD = "instances.typeId";
 
   private final ConsortiumSearchHelper consortiumSearchHelper;
 
@@ -88,7 +88,7 @@ public class ContributorBrowseService extends
     return BrowseResult.of(res)
       .map(item -> {
         var filteredInstanceResources = consortiumSearchHelper.filterSubResourcesForConsortium(context, item,
-          ContributorResource::getInstances);
+          ContributorResource::instances);
         var typeIds = filteredInstanceResources.stream()
           .map(InstanceSubResource::getTypeId)
           .filter(typeId -> nonNull(typeId) && !typeId.equals("null"))
@@ -97,10 +97,10 @@ public class ContributorBrowseService extends
           .toList();
 
         return new InstanceContributorBrowseItem()
-          .name(item.getName())
+          .name(item.name())
           .contributorTypeId(typeIds)
-          .contributorNameTypeId(item.getContributorNameTypeId())
-          .authorityId(item.getAuthorityId())
+          .contributorNameTypeId(item.contributorNameTypeId())
+          .authorityId(item.authorityId())
           .isAnchor(isAnchor)
           .totalRecords(getTotalRecords(filteredInstanceResources));
       });

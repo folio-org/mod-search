@@ -1,6 +1,7 @@
 package org.folio.search.cql;
 
 import org.folio.search.exception.SearchServiceException;
+import org.folio.search.model.types.ResourceType;
 import org.springframework.stereotype.Component;
 import org.z3950.zing.cql.CQLNode;
 import org.z3950.zing.cql.CQLParser;
@@ -15,12 +16,12 @@ public class CqlQueryParser {
    * @param resource - resource name to provide meaningful error descriptions.
    * @return parsed query as {@link CQLNode} object
    */
-  public CQLNode parseCqlQuery(String query, String resource) {
+  public CQLNode parseCqlQuery(String query, ResourceType resource) {
     try {
       return new CQLParser().parse(query);
     } catch (Exception e) {
       throw new SearchServiceException(String.format(
-        "Failed to parse cql query [cql: '%s', resource: %s]", query, resource), e);
+        "Failed to parse cql query [cql: '%s', resource: %s]", query, resource.getName()), e);
     }
   }
 }

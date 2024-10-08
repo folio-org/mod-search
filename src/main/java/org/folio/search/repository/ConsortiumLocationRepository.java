@@ -1,5 +1,6 @@
 package org.folio.search.repository;
 
+import static org.folio.search.model.types.ResourceType.LOCATION;
 import static org.folio.search.utils.SearchUtils.TENANT_ID_FIELD_NAME;
 import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
 import static org.opensearch.search.sort.SortOrder.ASC;
@@ -28,7 +29,6 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class ConsortiumLocationRepository {
 
-  public static final String LOCATION_INDEX = "location";
   private static final String OPERATION_TYPE = "searchApi";
   private final IndexNameProvider indexNameProvider;
   private final ElasticsearchDocumentConverter documentConverter;
@@ -68,7 +68,7 @@ public class ConsortiumLocationRepository {
   }
 
   private SearchResponse search(SearchSourceBuilder sourceBuilder, String tenantHeader) {
-    var index = indexNameProvider.getIndexName(LOCATION_INDEX, tenantHeader);
+    var index = indexNameProvider.getIndexName(LOCATION, tenantHeader);
     var searchRequest = new SearchRequest(index);
     searchRequest.source(sourceBuilder);
     return performExceptionalOperation(() -> client.search(searchRequest,

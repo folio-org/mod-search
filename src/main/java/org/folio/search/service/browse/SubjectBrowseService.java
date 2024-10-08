@@ -1,6 +1,8 @@
 package org.folio.search.service.browse;
 
 import static java.util.Objects.nonNull;
+import static org.folio.search.utils.SearchUtils.AUTHORITY_ID_FIELD;
+import static org.folio.search.utils.SearchUtils.MISSING_LAST_PROP;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
@@ -21,6 +23,7 @@ import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.service.consortium.ConsortiumSearchHelper;
 import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.search.builder.SearchSourceBuilder;
+import org.opensearch.search.sort.SortMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +31,9 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<SubjectBrowseItem, SubjectResource> {
+
+  private static final String SUBJECT_SOURCE_ID_FIELD = "sourceId";
+  private static final String SUBJECT_TYPE_ID_FIELD = "typeId";
 
   private ConsortiumSearchHelper consortiumSearchHelper;
 
@@ -39,10 +45,14 @@ public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<Sub
   @Override
   protected SearchSourceBuilder getAnchorSearchQuery(BrowseRequest request, BrowseContext context) {
     log.debug("getAnchorSearchQuery:: by [request: {}]", request);
-    var query = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(context,
-      termQuery(request.getTargetField(), context.getAnchor()), request.getResource());
+    var boolQuery = boolQuery().must(termQuery(request.getTargetField(), context.getAnchor()));
+    context.getFilters().forEach(boolQuery::filter);
+    var query = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(context, boolQuery, request.getResource());
     return searchSource().query(query)
       .sort(fieldSort(request.getTargetField()))
+      .sort(fieldSort(AUTHORITY_ID_FIELD).missing(MISSING_LAST_PROP))
+      .sort(fieldSort(SUBJECT_SOURCE_ID_FIELD).missing(MISSING_LAST_PROP))
+      .sort(fieldSort(SUBJECT_TYPE_ID_FIELD).missing(MISSING_LAST_PROP).sortMode(SortMode.MAX))
       .size(context.getLimit(context.isBrowsingForward()))
       .from(0);
   }
@@ -60,8 +70,11 @@ public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<Sub
     }
     query = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(ctx, query, req.getResource());
     return searchSource().query(query)
-      .searchAfter(new Object[] {getAnchorValue(req, ctx)})
+      .searchAfter(new Object[] {getAnchorValue(req, ctx), null, null, null})
       .sort(fieldSort(req.getTargetField()).order(isBrowsingForward ? ASC : DESC))
+      .sort(fieldSort(AUTHORITY_ID_FIELD).missing(MISSING_LAST_PROP))
+      .sort(fieldSort(SUBJECT_SOURCE_ID_FIELD).missing(MISSING_LAST_PROP))
+      .sort(fieldSort(SUBJECT_TYPE_ID_FIELD).missing(MISSING_LAST_PROP).sortMode(SortMode.MAX))
       .size(ctx.getLimit(isBrowsingForward) + 1)
       .from(0);
   }
@@ -76,8 +89,10 @@ public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<Sub
                                                               boolean isAnchor) {
     return BrowseResult.of(res)
       .map(subjectResource -> new SubjectBrowseItem()
-        .value(subjectResource.getValue())
-        .authorityId(subjectResource.getAuthorityId())
+        .value(subjectResource.value())
+        .authorityId(subjectResource.authorityId())
+        .sourceId(subjectResource.sourceId())
+        .typeId(subjectResource.typeId())
         .isAnchor(isAnchor ? true : null)
         .totalRecords(getTotalRecords(context, subjectResource)));
   }
@@ -89,7 +104,7 @@ public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<Sub
 
   private Integer getTotalRecords(BrowseContext context, SubjectResource subjectResource) {
     return consortiumSearchHelper.filterSubResourcesForConsortium(context, subjectResource,
-        SubjectResource::getInstances).stream()
+        SubjectResource::instances).stream()
       .map(InstanceSubResource::getInstanceId)
       .filter(instanceId -> nonNull(instanceId) && !instanceId.equals("null"))
       .distinct()

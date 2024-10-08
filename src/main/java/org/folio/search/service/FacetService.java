@@ -49,7 +49,7 @@ public class FacetService {
     var query = searchSource.query();
     if (query instanceof BoolQueryBuilder boolQuery) {
       boolQuery.filter().removeIf(filter -> !(filter instanceof TermQueryBuilder termFilter
-        && filterNamesToKeep.contains(termFilter.fieldName())));
+                                              && filterNamesToKeep.contains(termFilter.fieldName())));
     }
 
     if (CollectionUtils.isNotEmpty(searchSource.sorts())) {

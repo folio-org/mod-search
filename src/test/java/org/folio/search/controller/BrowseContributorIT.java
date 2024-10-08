@@ -28,8 +28,8 @@ import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.RecordType;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.support.base.BaseIntegrationTest;
-import org.folio.search.utils.SearchUtils;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -62,7 +62,7 @@ class BrowseContributorIT extends BaseIntegrationTest {
     inventoryApi.updateInstance(TENANT_ID, instanceToUpdate);
 
     await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
-      var counted = countIndexDocument(SearchUtils.CONTRIBUTOR_RESOURCE, TENANT_ID);
+      var counted = countIndexDocument(ResourceType.INSTANCE_CONTRIBUTOR, TENANT_ID);
       assertThat(counted).isEqualTo(12);
     });
   }
@@ -70,6 +70,51 @@ class BrowseContributorIT extends BaseIntegrationTest {
   @AfterAll
   static void cleanUp() {
     removeTenant();
+  }
+
+  @MethodSource("contributorBrowsingDataProvider")
+  @DisplayName("browseByContributor_parameterized")
+  @ParameterizedTest(name = "[{index}] query={0}, value=''{1}'', limit={2}")
+  void browseByContributor_parameterized(String query, String anchor, Integer limit,
+                                         ContributorBrowseResult expected) {
+    var request = get(instanceContributorBrowsePath()).param("query", prepareQuery(query, '"' + anchor + '"'))
+      .param("limit", String.valueOf(limit));
+
+    var actual = parseResponse(doGet(request), ContributorBrowseResult.class);
+    assertThat(actual).isEqualTo(expected);
+  }
+
+  @Test
+  void browseByContributor_withNameTypeFilter() {
+    var request = get(instanceContributorBrowsePath()).param("query",
+      "(" + prepareQuery("name >= {value} or name < {value}", '"' + "John Lennon" + '"') + ") "
+      + "and contributorNameTypeId==" + NAME_TYPE_IDS[0]).param("limit", "5");
+
+    var actual = parseResponse(doGet(request), ContributorBrowseResult.class);
+    var expected = new ContributorBrowseResult().totalRecords(5).prev(null).next("Paul McCartney").items(
+      List.of(
+        contributorBrowseItem(1, "Anthony Kiedis", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[0]),
+        contributorBrowseItem(2, "Bon Jovi", NAME_TYPE_IDS[0], AUTHORITY_IDS[0], TYPE_IDS[0], TYPE_IDS[1], TYPE_IDS[2]),
+        contributorBrowseItem(0, true, "John Lennon"),
+        contributorBrowseItem(2, "Klaus Meine", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[0], TYPE_IDS[1]),
+        contributorBrowseItem(2, "Paul McCartney", NAME_TYPE_IDS[0], AUTHORITY_IDS[0], TYPE_IDS[0], TYPE_IDS[1])));
+
+    assertThat(actual).isEqualTo(expected);
+  }
+
+  @MethodSource("facetQueriesProvider")
+  @ParameterizedTest(name = "[{index}] query={0}, facets={1}")
+  @DisplayName("getFacetsForContributors_parameterized")
+  void getFacetsForContributors_parameterized(String query, String[] facets, Map<String, Facet> expected) {
+    var request = doGet(recordFacetsPath(RecordType.CONTRIBUTORS, query, facets));
+    var actual = parseResponse(request, FacetResult.class);
+
+    expected.forEach((facetName, expectedFacet) -> {
+      var actualFacet = actual.getFacets().get(facetName);
+
+      assertThat(actualFacet).isNotNull();
+      assertThat(actualFacet.getValues()).containsExactlyInAnyOrderElementsOf(expectedFacet.getValues());
+    });
   }
 
   private static Stream<Arguments> contributorBrowsingDataProvider() {
@@ -275,50 +320,5 @@ class BrowseContributorIT extends BaseIntegrationTest {
       arguments("contributorNameTypeId==(\"" + NAME_TYPE_IDS[1] + "\" or \"" + NAME_TYPE_IDS[2] + "\")",
         array("contributorNameTypeId:2"),
         mapOf("contributorNameTypeId", facet(facetItem(NAME_TYPE_IDS[1], 5), facetItem(NAME_TYPE_IDS[2], 2)))));
-  }
-
-  @MethodSource("contributorBrowsingDataProvider")
-  @DisplayName("browseByContributor_parameterized")
-  @ParameterizedTest(name = "[{index}] query={0}, value=''{1}'', limit={2}")
-  void browseByContributor_parameterized(String query, String anchor, Integer limit,
-                                         ContributorBrowseResult expected) {
-    var request = get(instanceContributorBrowsePath()).param("query", prepareQuery(query, '"' + anchor + '"'))
-      .param("limit", String.valueOf(limit));
-
-    var actual = parseResponse(doGet(request), ContributorBrowseResult.class);
-    assertThat(actual).isEqualTo(expected);
-  }
-
-  @Test
-  void browseByContributor_withNameTypeFilter() {
-    var request = get(instanceContributorBrowsePath()).param("query",
-      "(" + prepareQuery("name >= {value} or name < {value}", '"' + "John Lennon" + '"') + ") "
-        + "and contributorNameTypeId==" + NAME_TYPE_IDS[0]).param("limit", "5");
-
-    var actual = parseResponse(doGet(request), ContributorBrowseResult.class);
-    var expected = new ContributorBrowseResult().totalRecords(5).prev(null).next("Paul McCartney").items(
-      List.of(
-        contributorBrowseItem(1, "Anthony Kiedis", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[0]),
-        contributorBrowseItem(2, "Bon Jovi", NAME_TYPE_IDS[0], AUTHORITY_IDS[0], TYPE_IDS[0], TYPE_IDS[1], TYPE_IDS[2]),
-        contributorBrowseItem(0, true, "John Lennon"),
-        contributorBrowseItem(2, "Klaus Meine", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[0], TYPE_IDS[1]),
-        contributorBrowseItem(2, "Paul McCartney", NAME_TYPE_IDS[0], AUTHORITY_IDS[0], TYPE_IDS[0], TYPE_IDS[1])));
-
-    assertThat(actual).isEqualTo(expected);
-  }
-
-  @MethodSource("facetQueriesProvider")
-  @ParameterizedTest(name = "[{index}] query={0}, facets={1}")
-  @DisplayName("getFacetsForContributors_parameterized")
-  void getFacetsForContributors_parameterized(String query, String[] facets, Map<String, Facet> expected) {
-    var request = doGet(recordFacetsPath(RecordType.CONTRIBUTORS, query, facets));
-    var actual = parseResponse(request, FacetResult.class);
-
-    expected.forEach((facetName, expectedFacet) -> {
-      var actualFacet = actual.getFacets().get(facetName);
-
-      assertThat(actualFacet).isNotNull();
-      assertThat(actualFacet.getValues()).containsExactlyInAnyOrderElementsOf(expectedFacet.getValues());
-    });
   }
 }

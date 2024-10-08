@@ -8,7 +8,7 @@ import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.domain.dto.ResourceEventType.DELETE;
 import static org.folio.search.domain.dto.ResourceEventType.DELETE_ALL;
 import static org.folio.search.domain.dto.ResourceEventType.UPDATE;
-import static org.folio.search.utils.SearchUtils.CAMPUS_RESOURCE;
+import static org.folio.search.model.types.ResourceType.CAMPUS;
 import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.search.utils.TestConstants.MEMBER_TENANT_ID;
@@ -52,7 +52,7 @@ class CampusesIndexingConsortiumIT extends BaseConsortiumIntegrationTest {
 
   @AfterEach
   void tearDown() throws IOException {
-    cleanUpIndex(CAMPUS_RESOURCE, CENTRAL_TENANT_ID);
+    cleanUpIndex(CAMPUS, CENTRAL_TENANT_ID);
   }
 
   @Test
@@ -111,16 +111,9 @@ class CampusesIndexingConsortiumIT extends BaseConsortiumIntegrationTest {
     awaitAssertCampusCount(1);
   }
 
-  private static CampusDto campus() {
-    return CampusDto.builder().id(randomId())
-      .name("name")
-      .code("code")
-      .build();
-  }
-
   public static void awaitAssertCampusCount(int expected) {
     await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
-      var totalHits = countIndexDocument(CAMPUS_RESOURCE, CENTRAL_TENANT_ID);
+      var totalHits = countIndexDocument(CAMPUS, CENTRAL_TENANT_ID);
 
       assertThat(totalHits).isEqualTo(expected);
     });
@@ -134,11 +127,18 @@ class CampusesIndexingConsortiumIT extends BaseConsortiumIntegrationTest {
       var searchRequest = new SearchRequest()
         .source(searchSource().query(boolQuery().must(idQuery).must(nameQuery))
           .trackTotalHits(true).from(0).size(1))
-        .indices(getIndexName(CAMPUS_RESOURCE, CENTRAL_TENANT_ID));
+        .indices(getIndexName(CAMPUS, CENTRAL_TENANT_ID));
       var searchResponse = elasticClient.search(searchRequest, RequestOptions.DEFAULT);
       var hitCount = Objects.requireNonNull(searchResponse.getHits().getTotalHits()).value;
 
       assertThat(hitCount).isEqualTo(expected);
     });
+  }
+
+  private static CampusDto campus() {
+    return CampusDto.builder().id(randomId())
+      .name("name")
+      .code("code")
+      .build();
   }
 }

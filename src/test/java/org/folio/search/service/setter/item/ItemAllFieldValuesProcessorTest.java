@@ -2,7 +2,7 @@ package org.folio.search.service.setter.item;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.util.Sets.newLinkedHashSet;
-import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
+import static org.folio.search.model.types.ResourceType.INSTANCE;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.toMap;
@@ -47,7 +47,7 @@ class ItemAllFieldValuesProcessorTest {
 
   @Test
   void getFieldValue_positive() {
-    when(searchFieldProvider.isFullTextField(eq(INSTANCE_RESOURCE), anyString())).thenAnswer(inv ->
+    when(searchFieldProvider.isFullTextField(eq(INSTANCE), anyString())).thenAnswer(inv ->
       MULTILANG_VALUE_PATHS.contains(inv.<String>getArgument(1)));
 
     var actual = processor.getFieldValue(toMap(
@@ -60,8 +60,8 @@ class ItemAllFieldValuesProcessorTest {
 
   @Test
   void getFieldValue_holdingFieldsFromSearchGeneratedValues() {
-    when(searchFieldProvider.isFullTextField(INSTANCE_RESOURCE, "itemPublicNotes")).thenReturn(true);
-    when(searchFieldProvider.isFullTextField(INSTANCE_RESOURCE, "itemFullCallNumbers")).thenReturn(false);
+    when(searchFieldProvider.isFullTextField(INSTANCE, "itemPublicNotes")).thenReturn(true);
+    when(searchFieldProvider.isFullTextField(INSTANCE, "itemFullCallNumbers")).thenReturn(false);
 
     var actual = processor.getFieldValue(mapOf(
       "itemPublicNotes", List.of("note1", "note2"),

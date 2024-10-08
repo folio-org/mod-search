@@ -3,6 +3,7 @@ package org.folio.search.controller;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.SEARCH_ALL_FIELDS;
 import static org.folio.search.sample.SampleInstances.getSemanticWebAsMap;
 import static org.folio.search.sample.SampleInstances.getSemanticWebId;
+import static org.folio.search.sample.SampleInstances.getSemanticWebMatchers;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -19,7 +20,8 @@ class SearchByAllFieldsIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void prepare() {
-    setUpTenant(Instance.class, () -> enableFeature(SEARCH_ALL_FIELDS), getSemanticWebAsMap());
+    setUpTenant(Instance.class, () -> enableFeature(SEARCH_ALL_FIELDS),
+      getSemanticWebMatchers(), getSemanticWebAsMap());
   }
 
   @AfterAll

@@ -19,6 +19,8 @@ spring:
     bootstrap-servers: ${KAFKA_HOST:kafka}:${KAFKA_PORT:9092}
     consumer:
       max-poll-records: ${KAFKA_CONSUMER_MAX_POLL_RECORDS:200}
+      properties:
+        max.poll.interval.ms: 600000
     security:
       protocol: ${KAFKA_SECURITY_PROTOCOL:PLAINTEXT}
     ssl:
@@ -50,6 +52,7 @@ spring:
       - tenant-features
       - search-preference
       - user-tenants
+      - consortium-tenants-cache
     caffeine:
       spec: maximumSize=500,expireAfterWrite=3600s
   main:
@@ -69,13 +72,14 @@ folio:
       browse-cn-intermediate-remove-duplicates: ${BROWSE_CN_INTERMEDIATE_REMOVE_DUPLICATES:true}
       browse-classifications: ${BROWSE_CLASSIFICATIONS_ENABLED:true}
     indexing:
-      instance-subjects:
-        retry-attempts: ${INSTANCE_SUBJECTS_INDEXING_RETRY_ATTEMPTS:3}
-      instance-contributors:
-        retry-attempts: ${INSTANCE_CONTRIBUTORS_INDEXING_RETRY_ATTEMPTS:3}
       data-format: ${INDEXING_DATA_FORMAT:smile}
   reindex:
     location-batch-size: ${REINDEX_LOCATION_BATCH_SIZE:1000}
+    upload-range-size: ${REINDEX_UPLOAD_RANGE_SIZE:1000}
+    upload-range-level: ${REINDEX_UPLOAD_RANGE_LEVEL:3}
+    merge-range-size: ${REINDEX_MERGE_RANGE_SIZE:500}
+    merge-range-publisher-core-pool-size: ${REINDEX_MERGE_RANGE_PUBLISHER_CORE_POOL_SIZE:3}
+    merge-range-publisher-max-pool-size: ${REINDEX_MERGE_RANGE_PUBLISHER_MAX_POOL_SIZE:6}
   query:
     properties:
       request-timeout: ${SEARCH_QUERY_TIMEOUT:25s}
@@ -99,36 +103,22 @@ folio:
     retry-interval-ms: ${KAFKA_RETRY_INTERVAL_MS:2000}
     retry-delivery-attempts: ${KAFKA_RETRY_DELIVERY_ATTEMPTS:6}
     topics:
-      - name: search.instance-contributor
-        numPartitions: ${KAFKA_CONTRIBUTORS_TOPIC_PARTITIONS:50}
-        replicationFactor: ${KAFKA_CONTRIBUTORS_TOPIC_REPLICATION_FACTOR:}
-      - name: search.instance-subject
-        numPartitions: ${KAFKA_SUBJECTS_TOPIC_PARTITIONS:50}
-        replicationFactor: ${KAFKA_SUBJECTS_TOPIC_REPLICATION_FACTOR:}
-      - name: search.consortium.instance
-        numPartitions: ${KAFKA_CONSORTIUM_INSTANCE_TOPIC_PARTITIONS:50}
-        replicationFactor: ${KAFKA_CONSORTIUM_INSTANCE_TOPIC_REPLICATION_FACTOR:}
+      - name: search.reindex.range-index
+        numPartitions: ${KAFKA_REINDEX_RANGE_INDEX_TOPIC_PARTITIONS:16}
+        replicationFactor: ${KAFKA_REINDEX_RANGE_INDEX_TOPIC_REPLICATION_FACTOR:}
     listener:
       events:
         concurrency: ${KAFKA_EVENTS_CONCURRENCY:2}
         topic-pattern: ${KAFKA_EVENTS_CONSUMER_PATTERN:(${folio.environment}\.)(.*\.)inventory\.(instance|holdings-record|item|bound-with)}
         group-id: ${folio.environment}-mod-search-events-group
+      instances:
+        concurrency: ${KAFKA_EVENTS_CONCURRENCY:2}
+        topic-pattern: (${folio.environment}\.)(.*\.)inventory\.instance
+        group-id: ${folio.environment}-mod-search-inventory-group
       authorities:
         concurrency: ${KAFKA_AUTHORITIES_CONCURRENCY:1}
         topic-pattern: ${KAFKA_AUTHORITIES_CONSUMER_PATTERN:(${folio.environment}\.)(.*\.)authorities\.authority}
         group-id: ${folio.environment}-mod-search-authorities-group
-      contributors:
-        concurrency: ${KAFKA_CONTRIBUTORS_CONCURRENCY:2}
-        topic-pattern: ${KAFKA_CONTRIBUTORS_CONSUMER_PATTERN:(${folio.environment}\.)(.*\.)search\.instance-contributor}
-        group-id: ${folio.environment}-mod-search-contributors-group
-      subjects:
-        concurrency: ${KAFKA_SUBJECTS_CONCURRENCY:2}
-        topic-pattern: ${KAFKA_SUBJECTS_CONSUMER_PATTERN:(${folio.environment}\.)(.*\.)search\.instance-subject}
-        group-id: ${folio.environment}-mod-search-subjects-group
-      consortium-instance:
-        concurrency: ${KAFKA_CONSORTIUM_INSTANCE_CONCURRENCY:2}
-        topic-pattern: (${folio.environment}\.)(.*\.)search\.consortium\.instance
-        group-id: ${folio.environment}-mod-search-consortium-instance-group
       classification-type:
         concurrency: ${KAFKA_CLASSIFICATION_TYPE_CONCURRENCY:1}
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.classification-type
@@ -141,6 +131,14 @@ folio:
         concurrency: ${KAFKA_LINKED_DATA_CONCURRENCY:1}
         topic-pattern: (${folio.environment}\.)(.*\.)linked-data\.(instance|work|authority)
         group-id: ${folio.environment}-mod-search-linked-data-group
+      reindex-range-index:
+        concurrency: ${KAFKA_REINDEX_RANGE_INDEX_CONCURRENCY:2}
+        topic-pattern: (${folio.environment}\.)(.*\.)search\.reindex\.range-index
+        group-id: ${folio.environment}-mod-search-reindex-range-index-group
+      reindex-records:
+        concurrency: ${KAFKA_REINDEX_RECORDS_CONCURRENCY:2}
+        topic-pattern: (${folio.environment}\.)(.*\.)inventory\.reindex-records
+        group-id: ${folio.environment}-mod-search-reindex-records-group
   okapiUrl: ${okapi.url}
   logging:
     request:

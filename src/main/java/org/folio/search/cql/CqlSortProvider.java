@@ -11,15 +11,16 @@ import static org.opensearch.search.sort.SortOrder.ASC;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.folio.cql2pgjson.exception.CQLFeatureUnsupportedException;
 import org.folio.cql2pgjson.model.CqlModifiers;
 import org.folio.cql2pgjson.model.CqlSort;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.model.metadata.PlainFieldDescription;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.model.types.SortFieldType;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.opensearch.search.sort.FieldSortBuilder;
@@ -43,14 +44,14 @@ public class CqlSortProvider {
    * @param resource resource name as {@link String} object
    * @return {@link List} of {@link SortBuilder} objects
    */
-  public List<SortBuilder<FieldSortBuilder>> getSort(CQLSortNode sortNode, String resource) {
+  public List<SortBuilder<FieldSortBuilder>> getSort(CQLSortNode sortNode, ResourceType resource) {
     return sortNode.getSortIndexes().stream()
       .map(sortIndex -> buildSortForField(sortIndex, resource))
       .flatMap(Collection::stream)
       .toList();
   }
 
-  private List<SortBuilder<FieldSortBuilder>> buildSortForField(ModifierSet sortIndex, String resource) {
+  private List<SortBuilder<FieldSortBuilder>> buildSortForField(ModifierSet sortIndex, ResourceType resource) {
     var sortField = searchFieldProvider.getModifiedField(sortIndex.getBase(), resource);
     var sortFieldDesc = getValidSortField(resource, sortField);
     var esSortOrder = getSortOrder(getCqlModifiers(sortIndex).getCqlSort());
@@ -61,7 +62,7 @@ public class CqlSortProvider {
     }
 
     var sortType = sortDescription.getSortType();
-    var fieldName = StringUtils.defaultString(sortDescription.getFieldName(), DEFAULT_SORT_FIELD_PREFIX + sortField);
+    var fieldName = Objects.toString(sortDescription.getFieldName(), DEFAULT_SORT_FIELD_PREFIX + sortField);
     return sortType == SortFieldType.COLLECTION
            ? buildSortForCollection(esSortOrder, fieldName, sortDescription.getSecondarySort())
            : singletonList(fieldSort(fieldName).order(esSortOrder));
@@ -81,7 +82,7 @@ public class CqlSortProvider {
     return fieldSort(field).order(sortOrder).sortMode(sortOrder == ASC ? MIN : MAX);
   }
 
-  private PlainFieldDescription getValidSortField(String resource, String field) {
+  private PlainFieldDescription getValidSortField(ResourceType resource, String field) {
     return getSortFieldDescription(resource, field)
       .or(() -> getSortFieldDescription(resource, DEFAULT_SORT_FIELD_PREFIX + field))
       .orElseThrow(() -> new RequestValidationException("Sort field not found or cannot be used.", "sortField", field));
@@ -96,7 +97,7 @@ public class CqlSortProvider {
     }
   }
 
-  private Optional<PlainFieldDescription> getSortFieldDescription(String resource, String field) {
+  private Optional<PlainFieldDescription> getSortFieldDescription(ResourceType resource, String field) {
     return searchFieldProvider.getPlainFieldByPath(resource, field)
       .filter(fieldDescription -> fieldDescription.hasType(SORT));
   }

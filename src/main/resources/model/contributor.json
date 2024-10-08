@@ -1,10 +1,7 @@
 {
   "name": "contributor",
   "parent": "instance",
-  "eventBodyJavaClass": "org.folio.search.domain.dto.Contributor",
-  "indexingConfiguration": {
-    "resourceRepository": "instanceContributorsRepository"
-  },
+  "eventBodyJavaClass": "org.folio.search.model.index.ContributorResource",
   "fields": {
     "name": {
       "index": "keyword_lowercase",
@@ -21,7 +18,7 @@
         "instanceId": {
           "index": "source"
         },
-        "contributorTypeId": {
+        "typeId": {
           "index": "keyword",
           "showInResponse": [ "browse" ]
         },

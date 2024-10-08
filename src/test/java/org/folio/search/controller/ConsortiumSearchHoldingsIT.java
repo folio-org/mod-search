@@ -7,6 +7,7 @@ import static org.folio.search.controller.SearchConsortiumController.REQUEST_NOT
 import static org.folio.search.model.Pair.pair;
 import static org.folio.search.sample.SampleInstances.getSemanticWeb;
 import static org.folio.search.sample.SampleInstances.getSemanticWebId;
+import static org.folio.search.sample.SampleInstances.getSemanticWebMatchers;
 import static org.folio.search.support.base.ApiEndpoints.consortiumBatchHoldingsSearchPath;
 import static org.folio.search.support.base.ApiEndpoints.consortiumHoldingSearchPath;
 import static org.folio.search.support.base.ApiEndpoints.consortiumHoldingsSearchPath;
@@ -42,7 +43,7 @@ class ConsortiumSearchHoldingsIT extends BaseConsortiumIntegrationTest {
   @BeforeAll
   static void prepare() {
     setUpTenant(CENTRAL_TENANT_ID);
-    setUpTenant(MEMBER_TENANT_ID, getSemanticWeb());
+    setUpTenant(MEMBER_TENANT_ID, getSemanticWebMatchers(), getSemanticWeb());
   }
 
   @AfterAll

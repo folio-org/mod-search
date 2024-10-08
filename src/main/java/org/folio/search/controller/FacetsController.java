@@ -1,17 +1,12 @@
 package org.folio.search.controller;
 
-import static org.folio.search.utils.SearchUtils.AUTHORITY_RESOURCE;
-import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_RESOURCE;
-import static org.folio.search.utils.SearchUtils.INSTANCE_CLASSIFICATION_RESOURCE;
-import static org.folio.search.utils.SearchUtils.INSTANCE_RESOURCE;
-import static org.folio.search.utils.SearchUtils.INSTANCE_SUBJECT_RESOURCE;
-
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.domain.dto.RecordType;
 import org.folio.search.model.service.CqlFacetRequest;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.rest.resource.FacetsApi;
 import org.folio.search.service.FacetService;
 import org.folio.search.service.consortium.TenantProvider;
@@ -26,12 +21,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/")
 public class FacetsController implements FacetsApi {
 
-  private static final Map<RecordType, String> RECORD_TYPE_TO_RESOURCE_MAP = Map.of(
-    RecordType.INSTANCES, INSTANCE_RESOURCE,
-    RecordType.AUTHORITIES, AUTHORITY_RESOURCE,
-    RecordType.CONTRIBUTORS, CONTRIBUTOR_RESOURCE,
-    RecordType.SUBJECTS, INSTANCE_SUBJECT_RESOURCE,
-    RecordType.CLASSIFICATIONS, INSTANCE_CLASSIFICATION_RESOURCE
+  private static final Map<RecordType, ResourceType> RECORD_TYPE_TO_RESOURCE_MAP = Map.of(
+    RecordType.INSTANCES, ResourceType.INSTANCE,
+    RecordType.AUTHORITIES, ResourceType.AUTHORITY,
+    RecordType.CONTRIBUTORS, ResourceType.INSTANCE_CONTRIBUTOR,
+    RecordType.SUBJECTS, ResourceType.INSTANCE_SUBJECT,
+    RecordType.CLASSIFICATIONS, ResourceType.INSTANCE_CLASSIFICATION
   );
 
   private final FacetService facetService;
@@ -40,7 +35,7 @@ public class FacetsController implements FacetsApi {
   @Override
   public ResponseEntity<FacetResult> getFacets(RecordType recordType, String query,
                                                List<String> facet, String tenantId) {
-    var recordResource = RECORD_TYPE_TO_RESOURCE_MAP.getOrDefault(recordType, recordType.getValue());
+    var recordResource = RECORD_TYPE_TO_RESOURCE_MAP.getOrDefault(recordType, ResourceType.UNKNOWN);
     tenantId = tenantProvider.getTenant(tenantId);
     var facetRequest = CqlFacetRequest.of(recordResource, tenantId, query, facet);
     return ResponseEntity.ok(facetService.getFacets(facetRequest));

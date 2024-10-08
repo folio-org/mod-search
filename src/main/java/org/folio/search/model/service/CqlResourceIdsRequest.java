@@ -3,6 +3,7 @@ package org.folio.search.model.service;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.model.ResourceRequest;
+import org.folio.search.model.types.ResourceType;
 
 @Data
 @RequiredArgsConstructor(staticName = "of")
@@ -15,7 +16,7 @@ public class CqlResourceIdsRequest implements ResourceRequest {
   /**
    * Resource name.
    */
-  private final String resource;
+  private final ResourceType resource;
 
   /**
    * Request tenant id.

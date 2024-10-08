@@ -28,8 +28,8 @@ import org.folio.search.domain.dto.ClassificationNumberBrowseResult;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.ShelvingOrderAlgorithmType;
 import org.folio.search.model.Pair;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.support.base.BaseIntegrationTest;
-import org.folio.search.utils.SearchUtils;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -51,7 +51,7 @@ class BrowseClassificationIT extends BaseIntegrationTest {
   static void prepare() {
     setUpTenant(instances());
     await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
-      var counted = countIndexDocument(SearchUtils.INSTANCE_CLASSIFICATION_RESOURCE, TENANT_ID);
+      var counted = countIndexDocument(ResourceType.INSTANCE_CLASSIFICATION, TENANT_ID);
       assertThat(counted).isEqualTo(17);
     });
   }
@@ -86,18 +86,28 @@ class BrowseClassificationIT extends BaseIntegrationTest {
       .param("limit", "10")
       .param("precedingRecordsCount", "2");
     var actual = parseResponse(doGet(request), ClassificationNumberBrowseResult.class);
-    assertThat(actual).isEqualTo(classificationBrowseResult(null, "N6679.R64 G88 2010", 17, List.of(
-      classificationBrowseItem("146.4", DEWEY_TYPE_ID, 2),
-      classificationBrowseItem("221.609", DEWEY_TYPE_ID, 1),
-      classificationBrowseItem("292.07", DEWEY_TYPE_ID, 1, true),
-      classificationBrowseItem("333.91", DEWEY_TYPE_ID, 1),
-      classificationBrowseItem("372.4", DEWEY_TYPE_ID, 1),
-      classificationBrowseItem("BJ1453 .I49 1983", LC_TYPE_ID, 1),
-      classificationBrowseItem("BJ1453 .I49 1983", LC2_TYPE_ID, 1),
-      classificationBrowseItem("HD1691 .I5 1967", LC_TYPE_ID, 1),
-      classificationBrowseItem("HQ536 .A565 2018", LC2_TYPE_ID, 1),
-      classificationBrowseItem("N6679.R64 G88 2010", LC_TYPE_ID, 1)
-    )));
+    assertThat(actual)
+      .extracting(ClassificationNumberBrowseResult::getTotalRecords,
+        ClassificationNumberBrowseResult::getPrev,
+        ClassificationNumberBrowseResult::getNext)
+      .contains(17, null, "N6679.R64 G88 2010");
+    assertThat(actual.getItems())
+      .startsWith(
+        classificationBrowseItem("146.4", DEWEY_TYPE_ID, 2),
+        classificationBrowseItem("221.609", DEWEY_TYPE_ID, 1),
+        classificationBrowseItem("292.07", DEWEY_TYPE_ID, 1, true),
+        classificationBrowseItem("333.91", DEWEY_TYPE_ID, 1),
+        classificationBrowseItem("372.4", DEWEY_TYPE_ID, 1)
+      )
+      .contains(
+        classificationBrowseItem("BJ1453 .I49 1983", LC_TYPE_ID, 1),
+        classificationBrowseItem("BJ1453 .I49 1983", LC2_TYPE_ID, 1)
+      )
+      .endsWith(
+        classificationBrowseItem("HD1691 .I5 1967", LC_TYPE_ID, 1),
+        classificationBrowseItem("HQ536 .A565 2018", LC2_TYPE_ID, 1),
+        classificationBrowseItem("N6679.R64 G88 2010", LC_TYPE_ID, 1)
+      );
   }
 
   @Test

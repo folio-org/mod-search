@@ -86,6 +86,9 @@ jobs:
       - name: Show generated files
         working-directory: ${{ env.OUTPUT_DIR }}
         run: ls -R
+      - name: Fix dead link
+        run: jq '.config.oas.files[] |= if . == "${{ env.API_DIRECTORIES }}/openapi.yaml" then "${{ env.API_INPUT_SPEC }}" else . end' */config-doc.json > tmp.json && mv tmp.json */config-doc.json
+        working-directory: ${{ env.OUTPUT_DIR }}
       - name: Publish to AWS S3
         uses: sai-sharan/aws-s3-sync-action@v0.1.0
         with:

@@ -50,6 +50,7 @@
 * Subjects/Contributors browse: Fix instances count for Shared Facet ([MSEARCH-782](https://folio-org.atlassian.net/browse/MSEARCH-782))
 * Search Resources IDs: Local instances are not searchable with requests from member tenants ([MSEARCH-762](https://folio-org.atlassian.net/browse/MSEARCH-762))
 * Fix backslash handling in search terms ([MSEARCH-839](https://folio-org.atlassian.net/browse/MSEARCH-839))
+* Fix range filter conversion ([MSEARCH-845](https://folio-org.atlassian.net/browse/MSEARCH-845))
 
 ### Tech Dept
 * Re-Index: delete all records from consortium\_instance on full re-index ([MSEARCH-744](https://folio-org.atlassian.net/browse/MSEARCH-744))

@@ -1,7 +1,6 @@
 package org.folio.search.model.types;
 
 import com.fasterxml.jackson.annotation.JsonValue;
-import java.util.Set;
 import lombok.Getter;
 
 @Getter
@@ -25,12 +24,6 @@ public enum ResourceType {
   LOCATION("location"),
   UNKNOWN("unknown");
 
-  private static final Set<ResourceType> LINKED_DATA_RESOURCES = Set.of(
-    LINKED_DATA_AUTHORITY,
-    LINKED_DATA_INSTANCE,
-    LINKED_DATA_WORK
-  );
-
   @JsonValue
   private final String name;
 
@@ -48,6 +41,6 @@ public enum ResourceType {
   }
 
   public boolean isLinkedDataResource() {
-    return LINKED_DATA_RESOURCES.contains(this);
+    return name.startsWith("linked-data");
   }
 }

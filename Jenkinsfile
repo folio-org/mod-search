@@ -1,3 +1,5 @@
+@Library('folio_jenkins_shared_libs@folio-4054-java21') _
+
 buildMvn {
   publishModDescriptor = true
   mvnDeploy = true

@@ -637,10 +637,6 @@
       "version": "15.3 16.0"
     },
     {
-      "id": "inventory-view",
-      "version": "2.0"
-    },
-    {
       "id": "instance-reindex",
       "version": "0.1"
     },

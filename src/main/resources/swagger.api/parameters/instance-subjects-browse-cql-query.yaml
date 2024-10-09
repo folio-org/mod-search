@@ -19,6 +19,18 @@ description: |
     </thead>
     <tbody>
     <tr>
+        <td>typeId</td>
+        <td>uuid</td>
+        <td>==</td>
+        <td>Filter by subject type</td>
+    </tr>
+    <tr>
+        <td>sourceId</td>
+        <td>uuid</td>
+        <td>==</td>
+        <td>Filter by subject source</td>
+    </tr>
+    <tr>
         <td>instances.tenantId</td>
         <td>string</td>
         <td>==</td>

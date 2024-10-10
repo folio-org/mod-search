@@ -26,12 +26,12 @@ public class SampleLinkedData {
     return readJson("/samples/linked-data/work2.json");
   }
 
-  public static Map<String, Object> getAuthorityConceptSampleAsMap() {
-    return readJson("/samples/linked-data/authority_concept.json");
+  public static Map<String, Object> getHubSampleAsMap() {
+    return readJson("/samples/linked-data/hub.json");
   }
 
-  public static Map<String, Object> getAuthorityPersonSampleAsMap() {
-    return readJson("/samples/linked-data/authority_person.json");
+  public static Map<String, Object> getHubSample2AsMap() {
+    return readJson("/samples/linked-data/hub2.json");
   }
 
   private static Map<String, Object> readJson(String path) {

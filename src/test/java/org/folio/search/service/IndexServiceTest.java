@@ -2,7 +2,7 @@ package org.folio.search.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.LINKED_DATA_AUTHORITY;
+import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.LINKED_DATA_HUB;
 import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.LINKED_DATA_WORK;
 import static org.folio.search.model.types.ResourceType.AUTHORITY;
 import static org.folio.search.model.types.ResourceType.CAMPUS;
@@ -474,7 +474,7 @@ class IndexServiceTest {
   }
 
   @ParameterizedTest
-  @EnumSource(value = ResourceType.class, names = {"LINKED_DATA_WORK", "LINKED_DATA_AUTHORITY"})
+  @EnumSource(value = ResourceType.class, names = {"LINKED_DATA_WORK", "LINKED_DATA_HUB"})
   void reindexInventory_shouldRecreate_linkedDataResourcesIndexes(ResourceType resourceType) {
     var linkedDataResourceIndex = getIndexName(resourceType, TENANT_ID);
     when(resourceDescriptionService.find(resourceType)).thenReturn(
@@ -579,7 +579,7 @@ class IndexServiceTest {
       ),
       arguments(
         TENANT_ID,
-        new ReindexRequest().resourceName(LINKED_DATA_AUTHORITY)
+        new ReindexRequest().resourceName(LINKED_DATA_HUB)
       ),
       arguments(
         MEMBER_TENANT_ID,
@@ -587,7 +587,7 @@ class IndexServiceTest {
       ),
       arguments(
         MEMBER_TENANT_ID,
-        new ReindexRequest().resourceName(LINKED_DATA_AUTHORITY).recreateIndex(true)
+        new ReindexRequest().resourceName(LINKED_DATA_HUB).recreateIndex(true)
       )
     );
   }

@@ -17,7 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.LinkedDataAuthority;
+import org.folio.search.domain.dto.LinkedDataHub;
 import org.folio.search.domain.dto.LinkedDataWork;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.exception.SearchServiceException;
@@ -87,7 +87,7 @@ class SearchControllerTest {
     "/search/instances",
     "/search/authorities",
     "/search/linked-data/works",
-    "/search/linked-data/authorities",
+    "/search/linked-data/hubs",
   })
   void search_offset_limit_10k(String searchPath) throws Exception {
 
@@ -140,7 +140,7 @@ class SearchControllerTest {
     "Instances             , 500 , /search/instances",
     "Authorities           , 500 , /search/authorities",
     "LinkedDataWorks       , 100 , /search/linked-data/works",
-    "LinkedDataAuthorities , 100 , /search/linked-data/authorities",
+    "LinkedDataHubs        , 100 , /search/linked-data/hubs",
   })
   void search_negative_invalidLimitParameter(String classMessagePart, int limit,  String searchPass) throws Exception {
     var expectedMessage = String.format("search%s.limit must be less than or equal to %s", classMessagePart, limit);
@@ -212,7 +212,7 @@ class SearchControllerTest {
       Arguments.of(Instance.class, "/search/instances", false, 100, "$.instances"),
       Arguments.of(Authority.class, "/search/authorities", false, 100, "$.authorities"),
       Arguments.of(LinkedDataWork.class, "/search/linked-data/works", true, 10, "$.content"),
-      Arguments.of(LinkedDataAuthority.class, "/search/linked-data/authorities", true, 10, "$.content")
+      Arguments.of(LinkedDataHub.class, "/search/linked-data/hubs", true, 10, "$.content")
     );
   }
 }

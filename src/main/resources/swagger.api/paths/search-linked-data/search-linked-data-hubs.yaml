@@ -1,7 +1,7 @@
 get:
-  operationId: searchLinkedDataAuthorities
-  summary: Search Linked Data Authorities
-  description: Get a list of linked data authorities records for CQL query
+  operationId: searchLinkedDataHubs
+  summary: Search Linked Data Hubs
+  description: Get a list of linked data Hubs records for CQL query
   tags:
     - search
   parameters:
@@ -11,14 +11,14 @@ get:
     - $ref: '../../parameters/offset-param.yaml'
   responses:
     '200':
-      description: 'Linked data authorities search result'
+      description: 'Linked data Hubs search result'
       content:
         application/json:
           schema:
-            $ref: '../../schemas/response/linkedDataAuthoritySearchResult.yaml'
+            $ref: '../../schemas/response/linkedDataHubSearchResult.yaml'
           examples:
             searchResult:
-              $ref: '../../examples/result/linkedDataSearchAuthorityResult.yaml'
+              $ref: '../../examples/result/linkedDataHubSearchResult.yaml'
     '400':
       $ref: '../../responses/badRequestResponse.yaml'
     '500':

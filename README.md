@@ -328,11 +328,11 @@ x-okapi-token: [JWT_TOKEN]
 ```
 
 * `resourceName` parameter is optional and equal to `instance` by default. Possible values: `instance`, `authority`, `location`,
-  `linked-data-instance`, `linked-data-work`, `linked-data-authority`. Please note that `location` reindex is synchronous.
+  `linked-data-instance`, `linked-data-work`, `linked-data-hub`. Please note that `location` reindex is synchronous.
 * `recreateIndex` parameter is optional and equal to `false` by default. If it is equal to `true` then mod-search
   will drop existing indices for tenant and resource, creating them again. Executing request with this parameter
   equal to `true` in query will erase all the tenant data in mod-search.
-* Please note that for `linked-data-instance`, `linked-data-work` and `linked-data-authority` resources the endpoint is used only for index recreation
+* Please note that for `linked-data-instance`, `linked-data-work` and `linked-data-hub` resources the endpoint is used only for index recreation
   purpose and actual reindex operation is triggered through mod-linked-data.
 
 ### Monitoring reindex process
@@ -518,16 +518,16 @@ Consortium feature on module enable is defined by 'centralTenantId' tenant param
 
 ### Search API
 
-| METHOD | URL                               | DESCRIPTION                                                                          |
-|:-------|:----------------------------------|:-------------------------------------------------------------------------------------|
-| GET    | `/search/instances`               | Search by instances and to this instance items and holding-records                   |
-| GET    | `/search/authorities`             | Search by authority records                                                          |
-| GET    | `/search/linked-data/instances`   | Search linked data graph instance resource descriptions                              |
-| GET    | `/search/linked-data/works`       | Search linked data graph work resource descriptions                                  |
-| GET    | `/search/linked-data/authorities` | Search linked data graph authority resource descriptions                             |
-| GET    | `/search/{recordType}/facets`     | Get facets where recordType could be: instances, authorities, contributors, subjects |
-| GET    | ~~`/search/instances/ids`~~       | (DEPRECATED) Stream instance ids as JSON or plain text                               |
-| GET    | ~~`/search/holdings/ids`~~        | (DEPRECATED) Stream holding record ids as JSON or plain text                         |
+| METHOD | URL                             | DESCRIPTION                                                                          |
+|:-------|:--------------------------------|:-------------------------------------------------------------------------------------|
+| GET    | `/search/instances`             | Search by instances and to this instance items and holding-records                   |
+| GET    | `/search/authorities`           | Search by authority records                                                          |
+| GET    | `/search/linked-data/instances` | Search linked data graph instance resource descriptions                              |
+| GET    | `/search/linked-data/works`     | Search linked data graph work resource descriptions                                  |
+| GET    | `/search/linked-data/hubs`      | Search linked data graph hub resource descriptions                                   |
+| GET    | `/search/{recordType}/facets`   | Get facets where recordType could be: instances, authorities, contributors, subjects |
+| GET    | ~~`/search/instances/ids`~~     | (DEPRECATED) Stream instance ids as JSON or plain text                               |
+| GET    | ~~`/search/holdings/ids`~~      | (DEPRECATED) Stream holding record ids as JSON or plain text                         |
 
 #### Searching and filtering
 

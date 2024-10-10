@@ -136,8 +136,8 @@ paths:
   /search/linked-data/works:
     $ref: 'paths/search-linked-data/search-linked-data-works.yaml'
 
-  /search/linked-data/authorities:
-    $ref: 'paths/search-linked-data/search-linked-data-authorities.yaml'
+  /search/linked-data/hubs:
+    $ref: 'paths/search-linked-data/search-linked-data-hubs.yaml'
 
   /search/linked-data/instances:
     $ref: 'paths/search-linked-data/search-linked-data-instances.yaml'

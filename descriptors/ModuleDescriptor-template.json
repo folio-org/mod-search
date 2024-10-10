@@ -170,9 +170,9 @@
           "methods": [
             "GET"
           ],
-          "pathPattern": "/search/linked-data/authorities",
+          "pathPattern": "/search/linked-data/hubs",
           "permissionsRequired": [
-            "search.linked-data.authority.collection.get"
+            "search.linked-data.hub.collection.get"
           ],
           "modulePermissions": [
             "user-tenants.collection.get"
@@ -717,9 +717,9 @@
       "description": "Searches linked data works by given query"
     },
     {
-      "permissionName": "search.linked-data.authority.collection.get",
-      "displayName": "Search - searches linked data authorities by given query",
-      "description": "Searches linked data authorities by given query"
+      "permissionName": "search.linked-data.hub.collection.get",
+      "displayName": "Search - searches linked data hubs by given query",
+      "description": "Searches linked data hubs by given query"
     },
     {
       "permissionName": "browse.call-numbers.instances.collection.get",

@@ -1,0 +1,20 @@
+description: "Linked Data Hub search dto, contains Hub and Identifiers"
+type: "object"
+properties:
+  id:
+    description: "The Linked Data ID of an Hub"
+    type: "string"
+  originalId:
+    description: "Original RDF ID of an Hub"
+    type: "string"
+  tenantId:
+    description: "Tenant ID"
+    type: "string"
+  hubAAP:
+    description: "Hub AAP"
+    type: "string"
+  title:
+    description: "Hub Variant title"
+    type: "string"
+required:
+  - "id"

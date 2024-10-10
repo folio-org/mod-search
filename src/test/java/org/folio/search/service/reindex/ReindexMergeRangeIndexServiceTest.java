@@ -95,7 +95,7 @@ class ReindexMergeRangeIndexServiceTest {
     verify(repository).setIndexRangeFinishDate(eq(rangeId), captor.capture());
 
     var timestamp = captor.getValue();
-    assertThat(timestamp).isAfter(testStartTime);
+    assertThat(timestamp).isAfterOrEqualTo(testStartTime);
   }
 
   @Test

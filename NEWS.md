@@ -40,6 +40,7 @@
 * Create computed field for sorting and filtering Date 1 ([MSEARCH-806](https://folio-org.atlassian.net/browse/MSEARCH-806))
 * Support filters for subject source and type on subject browse ([MSEARCH-805](https://folio-org.atlassian.net/browse/MSEARCH-805))
 * Implement new re-index flow for instance records ([MSEARCH-793](https://folio-org.atlassian.net/issues/MSEARCH-793), [MSEARCH-794](https://folio-org.atlassian.net/issues/MSEARCH-794), [MSEARCH-796](https://folio-org.atlassian.net/issues/MSEARCH-796), [MSEARCH-797](https://folio-org.atlassian.net/issues/MSEARCH-797), [MSEARCH-798](https://folio-org.atlassian.net/issues/MSEARCH-798), [MSEARCH-799](https://folio-org.atlassian.net/issues/MSEARCH-799), [MSEARCH-800](https://folio-org.atlassian.net/issues/MSEARCH-800), [MSEARCH-801](https://folio-org.atlassian.net/issues/MSEARCH-801), [MSEARCH-802](https://folio-org.atlassian.net/issues/MSEARCH-802))
+* Implement Linked Data HUB index and search API ([MSEARCH-844](https://folio-org.atlassian.net/browse/MSEARCH-844))
 
 ### Bug fixes
 * Do not delete kafka topics if collection topic is enabled ([MSEARCH-725](https://folio-org.atlassian.net/browse/MSEARCH-725))
@@ -51,6 +52,7 @@
 * Search Resources IDs: Local instances are not searchable with requests from member tenants ([MSEARCH-762](https://folio-org.atlassian.net/browse/MSEARCH-762))
 * Fix backslash handling in search terms ([MSEARCH-839](https://folio-org.atlassian.net/browse/MSEARCH-839))
 * Fix range filter conversion ([MSEARCH-845](https://folio-org.atlassian.net/browse/MSEARCH-845))
+* Fix Linked data search not working in ECS/Eureka environment ([MSEARCH-852](https://folio-org.atlassian.net/browse/MSEARCH-852))
 * Fix similar classifications not being shown in response ([MSEARCH-756](https://folio-org.atlassian.net/browse/MSEARCH-756))
 
 ### Tech Dept

@@ -5,8 +5,13 @@
   "languageSourcePaths": [ "$.languages" ],
   "fields": {
     "id": {
-      "index": "whitespace",
+      "index": "keyword",
       "searchAliases": [ "keyword" ]
+    },
+    "tenantId": {
+      "index": "keyword_lowercase",
+      "showInResponse": [ "search" ],
+      "isTenant": true
     },
     "classifications": {
       "type": "object",

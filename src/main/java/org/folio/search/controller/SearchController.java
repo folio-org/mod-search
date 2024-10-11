@@ -7,8 +7,8 @@ import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthoritySearchResult;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceSearchResult;
-import org.folio.search.domain.dto.LinkedDataAuthority;
-import org.folio.search.domain.dto.LinkedDataAuthoritySearchResult;
+import org.folio.search.domain.dto.LinkedDataHub;
+import org.folio.search.domain.dto.LinkedDataHubSearchResult;
 import org.folio.search.domain.dto.LinkedDataInstance;
 import org.folio.search.domain.dto.LinkedDataInstanceSearchResult;
 import org.folio.search.domain.dto.LinkedDataWork;
@@ -93,14 +93,14 @@ public class SearchController implements SearchApi {
   }
 
   @Override
-  public ResponseEntity<LinkedDataAuthoritySearchResult> searchLinkedDataAuthorities(String tenantId,
-                                                                                     String query,
-                                                                                     Integer limit,
-                                                                                     Integer offset) {
+  public ResponseEntity<LinkedDataHubSearchResult> searchLinkedDataHubs(String tenantId,
+                                                                        String query,
+                                                                        Integer limit,
+                                                                        Integer offset) {
     var searchRequest = CqlSearchRequest.of(
-      LinkedDataAuthority.class, tenantId, query, limit, offset, true);
+      LinkedDataHub.class, tenantId, query, limit, offset, true);
     var result = searchService.search(searchRequest);
-    return ResponseEntity.ok(new LinkedDataAuthoritySearchResult()
+    return ResponseEntity.ok(new LinkedDataHubSearchResult()
       .searchQuery(query)
       .content(result.getRecords())
       .pageNumber(divPlusOneIfRemainder(offset, limit))

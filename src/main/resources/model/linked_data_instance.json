@@ -8,6 +8,11 @@
       "index": "keyword",
       "searchAliases": [ "keyword" ]
     },
+    "tenantId": {
+      "index": "keyword_lowercase",
+      "showInResponse": [ "search" ],
+      "isTenant": true
+    },
     "classifications": {
       "type": "object",
       "properties": {

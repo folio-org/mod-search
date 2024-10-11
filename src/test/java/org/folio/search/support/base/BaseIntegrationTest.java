@@ -6,6 +6,7 @@ import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
 import static org.awaitility.Durations.ONE_MINUTE;
 import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
 import static org.awaitility.Durations.TWO_MINUTES;
+import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.model.client.CqlQuery.exactMatchAny;
 import static org.folio.search.model.types.ResourceType.AUTHORITY;
 import static org.folio.search.support.base.ApiEndpoints.authoritySearchPath;
@@ -14,6 +15,8 @@ import static org.folio.search.support.base.ApiEndpoints.linkedDataAuthoritySear
 import static org.folio.search.support.base.ApiEndpoints.linkedDataInstanceSearchPath;
 import static org.folio.search.support.base.ApiEndpoints.linkedDataWorkSearchPath;
 import static org.folio.search.utils.SearchUtils.getIndexName;
+import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
+import static org.folio.search.utils.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestConstants.inventoryAuthorityTopic;
 import static org.folio.search.utils.TestConstants.linkedDataAuthorityTopic;
@@ -65,6 +68,7 @@ import org.folio.spring.testing.extension.EnableKafka;
 import org.folio.spring.testing.extension.EnableOkapi;
 import org.folio.spring.testing.extension.EnablePostgres;
 import org.folio.spring.testing.extension.impl.OkapiConfiguration;
+import org.folio.tenant.domain.dto.Parameter;
 import org.folio.tenant.domain.dto.TenantAttributes;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
@@ -173,14 +177,22 @@ public abstract class BaseIntegrationTest {
     return doSearch(authoritySearchPath(), TENANT_ID, Map.of("query", query));
   }
 
-  @SneakyThrows
   protected static ResultActions doSearchByLinkedDataInstance(String query) {
-    return doSearch(linkedDataInstanceSearchPath(), TENANT_ID, Map.of("query", query));
+    return doSearchByLinkedDataInstance(TENANT_ID, query);
   }
 
   @SneakyThrows
+  protected static ResultActions doSearchByLinkedDataInstance(String tenantId, String query) {
+    return doSearch(linkedDataInstanceSearchPath(), tenantId, Map.of("query", query));
+  }
+
   protected static ResultActions doSearchByLinkedDataWork(String query) {
-    return doSearch(linkedDataWorkSearchPath(), TENANT_ID, Map.of("query", query));
+    return doSearchByLinkedDataWork(TENANT_ID, query);
+  }
+
+  @SneakyThrows
+  protected static ResultActions doSearchByLinkedDataWork(String tenantId, String query) {
+    return doSearch(linkedDataWorkSearchPath(), tenantId, Map.of("query", query));
   }
 
   @SneakyThrows
@@ -243,6 +255,11 @@ public abstract class BaseIntegrationTest {
   @SneakyThrows
   protected static void setUpTenant(Instance... instances) {
     setUpTenant(emptyList(), instances);
+  }
+
+  @SneakyThrows
+  protected static void setUpTenant(String tenantName, Instance... instances) {
+    setUpTenant(tenantName, emptyList(), instances);
   }
 
   @SneakyThrows
@@ -340,21 +357,21 @@ public abstract class BaseIntegrationTest {
     if (type.equals(LinkedDataInstance.class)) {
       setUpTenant(tenant, linkedDataInstanceSearchPath(), postInitAction, asList(records), expectedCount, matchers,
         ldInstance -> kafkaTemplate.send(linkedDataInstanceTopic(tenant),
-          resourceEvent(ResourceType.LINKED_DATA_INSTANCE, ldInstance))
+          resourceEvent(tenant, ResourceType.LINKED_DATA_INSTANCE, CREATE, ldInstance))
       );
     }
 
     if (type.equals(LinkedDataWork.class)) {
       setUpTenant(tenant, linkedDataWorkSearchPath(), postInitAction, asList(records), expectedCount, matchers,
         ldWork -> kafkaTemplate.send(linkedDataWorkTopic(tenant),
-          resourceEvent(ResourceType.LINKED_DATA_WORK, ldWork))
+          resourceEvent(tenant, ResourceType.LINKED_DATA_WORK, CREATE, ldWork))
       );
     }
 
     if (type.equals(LinkedDataAuthority.class)) {
       setUpTenant(tenant, linkedDataAuthoritySearchPath(), postInitAction, asList(records), expectedCount, matchers,
         ldAuthority -> kafkaTemplate.send(linkedDataAuthorityTopic(tenant),
-          resourceEvent(ResourceType.LINKED_DATA_AUTHORITY, ldAuthority))
+          resourceEvent(tenant, ResourceType.LINKED_DATA_AUTHORITY, CREATE, ldAuthority))
       );
     }
   }
@@ -413,7 +430,9 @@ public abstract class BaseIntegrationTest {
   @SneakyThrows
   protected static void enableTenant(String tenant) {
     var tenantAttributes = new TenantAttributes().moduleTo("mod-search");
-
+    if (CENTRAL_TENANT_ID.equals(tenant) || MEMBER_TENANT_ID.equals(tenant)) {
+      tenantAttributes.addParametersItem(new Parameter("centralTenantId").value(CENTRAL_TENANT_ID));
+    }
     mockMvc.perform(post("/_/tenant", randomId())
         .content(asJsonString(tenantAttributes))
         .headers(defaultHeaders(tenant))

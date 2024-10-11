@@ -290,17 +290,11 @@
         "createdByUserId": {
           "index": "source"
         },
-        "createdByUsername": {
-          "index": "source"
-        },
         "updatedDate": {
           "searchTypes": "filter",
           "index": "date"
         },
         "updatedByUserId": {
-          "index": "source"
-        },
-        "updatedByUsername": {
           "index": "source"
         }
       }

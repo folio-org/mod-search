@@ -4,7 +4,7 @@
   "eventBodyJavaClass": "org.folio.search.model.index.ContributorResource",
   "fields": {
     "name": {
-      "index": "keyword_lowercase",
+      "index": "keyword_icu",
       "showInResponse": [ "browse" ]
     },
     "contributorNameTypeId": {
@@ -12,12 +12,13 @@
       "searchTypes": [ "facet", "filter" ],
       "showInResponse": [ "browse" ]
     },
+    "authorityId": {
+      "index": "keyword",
+      "showInResponse": [ "browse" ]
+    },
     "instances": {
       "type": "object",
       "properties": {
-        "instanceId": {
-          "index": "source"
-        },
         "typeId": {
           "index": "keyword",
           "showInResponse": [ "browse" ]
@@ -30,12 +31,11 @@
           "index": "bool",
           "searchTypes": [ "facet", "filter" ],
           "default": false
+        },
+        "count": {
+          "index": "source"
         }
       }
-    },
-    "authorityId": {
-      "index": "keyword",
-      "showInResponse": [ "browse" ]
     }
   }
 }

@@ -25,6 +25,12 @@
       "normalizer": "keyword_uppercase"
     }
   },
+  "keyword_icu": {
+    "mapping": {
+      "type": "keyword",
+      "normalizer": "keyword_icu"
+    }
+  },
   "keyword_lowercase": {
     "mapping": {
       "type": "keyword",

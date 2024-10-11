@@ -26,21 +26,48 @@ import org.springframework.stereotype.Repository;
 public class ContributorRepository extends UploadRangeRepository {
 
   public static final String SELECT_QUERY = """
-    SELECT c.id, c.name, c.name_type_id, c.authority_id, json_agg(json_build_object(
-                'instanceId', ic.instance_id,
-                'typeId', NULLIF(ic.type_id, ''),
-                'shared', ic.shared,
-                'tenantId', ic.tenant_id
-            )) AS instances
-    FROM %1$s.instance_contributor ic
-    JOIN %1$s.contributor c ON c.id = ic.contributor_id
-    WHERE %2$s
-    GROUP BY c.id;
+    SELECT
+        c.id,
+        c.name,
+        c.name_type_id,
+        c.authority_id,
+        json_agg(
+            json_build_object(
+                'count', sub.instance_count,
+                'typeId', sub.type_ids,
+                'shared', sub.shared,
+                'tenantId', sub.tenant_id
+            )
+        ) AS instances
+    FROM
+        (
+            SELECT
+                ins.contributor_id,
+                ins.tenant_id,
+                ins.shared,
+                array_agg(DISTINCT ins.type_id) FILTER (WHERE ins.type_id <> '') as type_ids,
+                COUNT(DISTINCT ins.instance_id) AS instance_count
+            FROM
+                %1$s.instance_contributor ins
+            WHERE
+                %2$s
+            GROUP BY
+                ins.contributor_id,
+                ins.tenant_id,
+                ins.shared
+        ) sub
+    JOIN
+        %1$s.contributor c ON c.id = sub.contributor_id
+    WHERE
+        %3$s
+    GROUP BY
+        c.id;
     """;
 
-  private static final String ID_RANGE_WHERE_CLAUSE = "ic.contributor_id >= ? AND ic.contributor_id <= ? "
-                                                      + "AND c.id >= ? AND c.id <= ?";
-  private static final String IDS_WHERE_CLAUSE = "ic.contributor_id IN (%1$s) AND c.id IN (%1$s)";
+  private static final String ID_RANGE_INS_WHERE_CLAUSE = "ins.contributor_id >= ? AND ins.contributor_id <= ?";
+  private static final String ID_RANGE_CONTR_WHERE_CLAUSE = "c.id >= ? AND c.id <= ?";
+  private static final String IDS_INS_WHERE_CLAUSE = "ins.contributor_id IN (%1$s)";
+  private static final String IDS_CONTR_WHERE_CLAUSE = "c.id IN (%1$s)";
 
   protected ContributorRepository(JdbcTemplate jdbcTemplate, JsonConverter jsonConverter,
                                   FolioExecutionContext context,
@@ -68,7 +95,9 @@ public class ContributorRepository extends UploadRangeRepository {
       return Collections.emptyList();
     }
     var sql = SELECT_QUERY.formatted(JdbcUtils.getSchemaName(context),
-      IDS_WHERE_CLAUSE.formatted(getParamPlaceholder(ids.size())));
+      IDS_INS_WHERE_CLAUSE.formatted(getParamPlaceholder(ids.size())),
+      IDS_CONTR_WHERE_CLAUSE.formatted(getParamPlaceholder(ids.size()))
+    );
     return jdbcTemplate.query(sql, instanceAggRowMapper(), ListUtils.union(ids, ids).toArray());
   }
 
@@ -80,7 +109,8 @@ public class ContributorRepository extends UploadRangeRepository {
 
   @Override
   protected String getFetchBySql() {
-    return SELECT_QUERY.formatted(JdbcUtils.getSchemaName(context), ID_RANGE_WHERE_CLAUSE);
+    return SELECT_QUERY.formatted(JdbcUtils.getSchemaName(context),
+      ID_RANGE_INS_WHERE_CLAUSE, ID_RANGE_CONTR_WHERE_CLAUSE);
   }
 
   @Override

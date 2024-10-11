@@ -17,8 +17,7 @@
       "keyword_lowercase": {
         "filter": [
           "lowercase",
-          "trim",
-          "icu_folding"
+          "trim"
         ],
         "type": "custom"
       },
@@ -32,6 +31,14 @@
       },
       "keyword_trimmed": {
         "filter": [
+          "trim",
+          "icu_folding"
+        ],
+        "type": "custom"
+      },
+      "keyword_icu": {
+        "filter": [
+          "lowercase",
           "trim",
           "icu_folding"
         ],

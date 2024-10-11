@@ -1,6 +1,5 @@
 package org.folio.search.service.browse;
 
-import static java.util.Objects.nonNull;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.MISSING_LAST_PROP;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
@@ -105,10 +104,7 @@ public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<Sub
   private Integer getTotalRecords(BrowseContext context, SubjectResource subjectResource) {
     return consortiumSearchHelper.filterSubResourcesForConsortium(context, subjectResource,
         SubjectResource::instances).stream()
-      .map(InstanceSubResource::getInstanceId)
-      .filter(instanceId -> nonNull(instanceId) && !instanceId.equals("null"))
-      .distinct()
-      .map(e -> 1)
+      .map(InstanceSubResource::getCount)
       .reduce(0, Integer::sum);
   }
 }

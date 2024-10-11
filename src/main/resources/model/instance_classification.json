@@ -4,7 +4,7 @@
   "parent": "instance",
   "fields": {
     "number": {
-      "index": "keyword_lowercase",
+      "index": "keyword_icu",
       "showInResponse": [ "browse" ]
     },
     "typeId": {
@@ -14,9 +14,6 @@
     "instances": {
       "type": "object",
       "properties": {
-        "instanceId": {
-          "index": "source"
-        },
         "tenantId": {
           "index": "keyword",
           "searchTypes": [ "facet", "filter" ]
@@ -25,6 +22,9 @@
           "index": "bool",
           "searchTypes": [ "facet", "filter" ],
           "default": false
+        },
+        "count": {
+          "index": "source"
         }
       }
     }
@@ -32,17 +32,17 @@
   "searchFields": {
     "defaultShelvingOrder": {
       "type": "search",
-      "index": "keyword_lowercase",
+      "index": "keyword_icu",
       "processor": "defaultClassificationShelvingOrderFieldProcessor"
     },
     "lcShelvingOrder": {
       "type": "search",
-      "index": "keyword_lowercase",
+      "index": "keyword_icu",
       "processor": "lcClassificationShelvingOrderFieldProcessor"
     },
     "deweyShelvingOrder": {
       "type": "search",
-      "index": "keyword_lowercase",
+      "index": "keyword_icu",
       "processor": "deweyClassificationShelvingOrderFieldProcessor"
     }
   }

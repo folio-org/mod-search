@@ -120,7 +120,7 @@ class IndexManagementIT extends BaseIntegrationTest {
   }
 
   @ParameterizedTest
-  @EnumSource(value = ResourceType.class, names = {"LINKED_DATA_WORK", "LINKED_DATA_AUTHORITY"})
+  @EnumSource(value = ResourceType.class, names = {"LINKED_DATA_WORK", "LINKED_DATA_HUB"})
   void runReindex_shouldRecreate_linkedDataResourcesIndexes(ResourceType resourceType) throws Exception {
     var reindexRequest = new ReindexRequest()
       .resourceName(ResourceNameEnum.valueOf(resourceType.name()))

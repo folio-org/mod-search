@@ -11,7 +11,7 @@ import static org.folio.search.model.client.CqlQuery.exactMatchAny;
 import static org.folio.search.model.types.ResourceType.AUTHORITY;
 import static org.folio.search.support.base.ApiEndpoints.authoritySearchPath;
 import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
-import static org.folio.search.support.base.ApiEndpoints.linkedDataAuthoritySearchPath;
+import static org.folio.search.support.base.ApiEndpoints.linkedDataHubSearchPath;
 import static org.folio.search.support.base.ApiEndpoints.linkedDataInstanceSearchPath;
 import static org.folio.search.support.base.ApiEndpoints.linkedDataWorkSearchPath;
 import static org.folio.search.utils.SearchUtils.getIndexName;
@@ -19,7 +19,7 @@ import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.search.utils.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestConstants.inventoryAuthorityTopic;
-import static org.folio.search.utils.TestConstants.linkedDataAuthorityTopic;
+import static org.folio.search.utils.TestConstants.linkedDataHubTopic;
 import static org.folio.search.utils.TestConstants.linkedDataInstanceTopic;
 import static org.folio.search.utils.TestConstants.linkedDataWorkTopic;
 import static org.folio.search.utils.TestUtils.asJsonString;
@@ -53,7 +53,7 @@ import org.awaitility.core.ThrowingRunnable;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.FeatureConfig;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.LinkedDataAuthority;
+import org.folio.search.domain.dto.LinkedDataHub;
 import org.folio.search.domain.dto.LinkedDataInstance;
 import org.folio.search.domain.dto.LinkedDataWork;
 import org.folio.search.domain.dto.ResourceEvent;
@@ -201,8 +201,8 @@ public abstract class BaseIntegrationTest {
   }
 
   @SneakyThrows
-  protected static ResultActions doSearchByLinkedDataAuthority(String query) {
-    return doSearch(linkedDataAuthoritySearchPath(), TENANT_ID, Map.of("query", query));
+  protected static ResultActions doSearchByLinkedDataHub(String query) {
+    return doSearch(linkedDataHubSearchPath(), TENANT_ID, Map.of("query", query));
   }
 
   @SneakyThrows
@@ -368,10 +368,10 @@ public abstract class BaseIntegrationTest {
       );
     }
 
-    if (type.equals(LinkedDataAuthority.class)) {
-      setUpTenant(tenant, linkedDataAuthoritySearchPath(), postInitAction, asList(records), expectedCount, matchers,
-        ldAuthority -> kafkaTemplate.send(linkedDataAuthorityTopic(tenant),
-          resourceEvent(tenant, ResourceType.LINKED_DATA_AUTHORITY, CREATE, ldAuthority))
+    if (type.equals(LinkedDataHub.class)) {
+      setUpTenant(tenant, linkedDataHubSearchPath(), postInitAction, asList(records), expectedCount, matchers,
+        ldHub -> kafkaTemplate.send(linkedDataHubTopic(tenant),
+          resourceEvent(tenant, ResourceType.LINKED_DATA_HUB, CREATE, ldHub))
       );
     }
   }

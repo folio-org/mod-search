@@ -109,8 +109,8 @@ public class ApiEndpoints {
     return "/search/linked-data/works";
   }
 
-  public static String linkedDataAuthoritySearchPath() {
-    return "/search/linked-data/authorities";
+  public static String linkedDataHubSearchPath() {
+    return "/search/linked-data/hubs";
   }
 
   public static String authorityBrowsePath() {

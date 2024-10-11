@@ -4,6 +4,9 @@ properties:
   id:
     description: "The Linked Data ID of a Work"
     type: "string"
+  tenantId:
+    description: "Tenant ID"
+    type: string
   classifications:
     type: "array"
     description: "List of classification items"

@@ -6,6 +6,11 @@
     "id": {
       "index": "keyword"
     },
+    "tenantId": {
+      "index": "keyword_lowercase",
+      "showInResponse": [ "search" ],
+      "isTenant": true
+    },
     "label": {
       "index": "standard"
     },

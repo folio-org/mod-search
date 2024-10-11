@@ -540,6 +540,10 @@ public class TestUtils {
     return new ResourceEvent().id(id).type(type).resourceName(resourceName).tenant(TENANT_ID)._new(n).old(o);
   }
 
+  public static ResourceEvent resourceEvent(String tenant, ResourceType resource, ResourceEventType type, Object n) {
+    return new ResourceEvent().resourceName(resource.getName()).type(type).tenant(tenant)._new(n);
+  }
+
   public static ResourceEvent kafkaResourceEvent(ResourceEventType type, Object newData, Object oldData) {
     return kafkaResourceEvent(TENANT_ID, type, newData, oldData);
   }

@@ -39,4 +39,8 @@ public enum ResourceType {
     }
     return UNKNOWN;
   }
+
+  public boolean isLinkedDataResource() {
+    return name.startsWith("linked-data");
+  }
 }

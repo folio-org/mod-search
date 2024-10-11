@@ -52,6 +52,7 @@
 * Search Resources IDs: Local instances are not searchable with requests from member tenants ([MSEARCH-762](https://folio-org.atlassian.net/browse/MSEARCH-762))
 * Fix backslash handling in search terms ([MSEARCH-839](https://folio-org.atlassian.net/browse/MSEARCH-839))
 * Fix range filter conversion ([MSEARCH-845](https://folio-org.atlassian.net/browse/MSEARCH-845))
+* Fix Linked data search not working in ECS/Eureka environment ([MSEARCH-852](https://folio-org.atlassian.net/browse/MSEARCH-852))
 
 ### Tech Dept
 * Re-Index: delete all records from consortium\_instance on full re-index ([MSEARCH-744](https://folio-org.atlassian.net/browse/MSEARCH-744))

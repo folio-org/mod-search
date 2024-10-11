@@ -75,7 +75,7 @@ class BrowseSubjectIT extends BaseIntegrationTest {
       .param("limit", String.valueOf(limit));
     var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
 
-    assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
+    assertThat(actual).isEqualTo(expected);
   }
 
   @Test
@@ -139,7 +139,7 @@ class BrowseSubjectIT extends BaseIntegrationTest {
     var expected = new SubjectBrowseResult().totalRecords(4).prev("Music").next(null).items(
       List.of(
         subjectBrowseItem(1, "Music", MUSIC_AUTHORITY_ID_1, MUSIC_SOURCE_ID_1, MUSIC_TYPE_ID_1),
-        subjectBrowseItem(1, "Music", MUSIC_AUTHORITY_ID_2, MUSIC_SOURCE_ID_1, null),
+        subjectBrowseItem(1, "Music", null, MUSIC_SOURCE_ID_1, null),
         subjectBrowseItem(0, "Philosophy", true),
         subjectBrowseItem(1, "United States", null, MUSIC_SOURCE_ID_1, MUSIC_TYPE_ID_2)));
 
@@ -155,8 +155,8 @@ class BrowseSubjectIT extends BaseIntegrationTest {
     var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
     var expected = new SubjectBrowseResult().totalRecords(3).prev(null).next(null).items(
       List.of(
-        subjectBrowseItem(1, "Music", MUSIC_AUTHORITY_ID_1, null, MUSIC_TYPE_ID_2),
         subjectBrowseItem(2, "Music", MUSIC_AUTHORITY_ID_2, MUSIC_SOURCE_ID_2, MUSIC_TYPE_ID_2),
+        subjectBrowseItem(1, "Music", MUSIC_AUTHORITY_ID_1, null, MUSIC_TYPE_ID_2),
         subjectBrowseItem(0, "Philosophy", true),
         subjectBrowseItem(1, "United States", null, MUSIC_SOURCE_ID_1, MUSIC_TYPE_ID_2)));
 

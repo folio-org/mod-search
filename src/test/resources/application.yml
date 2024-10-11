@@ -106,7 +106,7 @@ folio:
       - name: linked-data.work
         numPartitions: 1
         replicationFactor: 1
-      - name: linked-data.authority
+      - name: linked-data.hub
         numPartitions: 1
         replicationFactor: 1
       - name: inventory.campus
@@ -147,7 +147,7 @@ folio:
         group-id: ${folio.environment}-mod-search-location-type-group
       linked-data:
         concurrency: 1
-        topic-pattern: (${folio.environment}\.)(.*\.)linked-data\.(instance|work|authority)
+        topic-pattern: (${folio.environment}\.)(.*\.)linked-data\.(instance|work|hub)
         group-id: ${folio.environment}-mod-search-linked-data-group
       reindex-range-index:
         concurrency: 1

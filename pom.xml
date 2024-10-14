@@ -34,7 +34,7 @@
       src/main/java/org/folio/search/configuration/properties/**
     </sonar.exclusions>
 
-    <folio-spring-support.version>8.2.0-SNAPSHOT</folio-spring-support.version>
+    <folio-spring-support.version>8.2.0</folio-spring-support.version>
     <folio-service-tools.version>4.1.0-SNAPSHOT</folio-service-tools.version>
     <folio-isbn-utils.version>1.7.0-SNAPSHOT</folio-isbn-utils.version>
     <folio-cql2pgjson.version>35.2.2</folio-cql2pgjson.version>

@@ -149,16 +149,7 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
 
   private void updateSearchAfterValuesForQuery(SearchSourceBuilder query, Object[] sortValues) {
     if (sortValues != null && ArrayUtils.isNotEmpty(sortValues)) {
-      safetyNullifySortValues(sortValues);
       query.searchAfter(sortValues);
-    }
-  }
-
-  private void safetyNullifySortValues(Object[] sortValues) {
-    if (sortValues != null && sortValues.length > 1) {
-      for (int i = 1; i < sortValues.length; i++) {
-        sortValues[i] = null;
-      }
     }
   }
 

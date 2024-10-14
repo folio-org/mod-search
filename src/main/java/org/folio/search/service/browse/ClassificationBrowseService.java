@@ -37,6 +37,8 @@ import org.springframework.stereotype.Service;
 public class ClassificationBrowseService
   extends AbstractBrowseServiceBySearchAfter<ClassificationNumberBrowseItem, ClassificationResource> {
 
+  private static final String CLASSIFICATION_NUMBER_FIELD = "number";
+
   private final ConsortiumSearchHelper consortiumSearchHelper;
   private final BrowseConfigServiceDecorator configService;
 
@@ -49,9 +51,14 @@ public class ClassificationBrowseService
   protected SearchSourceBuilder getAnchorSearchQuery(BrowseRequest req, BrowseContext ctx) {
     log.debug("getAnchorSearchQuery:: by [request: {}]", req);
     var config = configService.getConfig(BrowseType.INSTANCE_CLASSIFICATION, req.getBrowseOptionType());
+
+    var browseField = getBrowseField(config);
     var termQueryBuilder = getQuery(ctx, config, termQuery(req.getTargetField(), ctx.getAnchor()));
     var query = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(ctx, termQueryBuilder, req.getResource());
+    var sortOrder = ctx.isBrowsingForward() ? ASC : DESC;
     return searchSource().query(query)
+      .sort(fieldSort(browseField).order(sortOrder))
+      .sort(fieldSort(CLASSIFICATION_NUMBER_FIELD).order(sortOrder))
       .size(ctx.getLimit(ctx.isBrowsingForward()))
       .from(0);
   }
@@ -66,9 +73,11 @@ public class ClassificationBrowseService
     var query = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(ctx, getQuery(ctx, config, null),
       req.getResource());
 
+    var sortOrder = isBrowsingForward ? ASC : DESC;
     return searchSource().query(query)
-      .searchAfter(new Object[] {normalizedAnchor.toLowerCase(ROOT)})
-      .sort(fieldSort(browseField).order(isBrowsingForward ? ASC : DESC))
+      .searchAfter(new Object[] {normalizedAnchor.toLowerCase(ROOT), ctx.getAnchor().toLowerCase(ROOT)})
+      .sort(fieldSort(browseField).order(sortOrder))
+      .sort(fieldSort(CLASSIFICATION_NUMBER_FIELD).order(sortOrder))
       .size(ctx.getLimit(isBrowsingForward) + 1)
       .from(0);
   }

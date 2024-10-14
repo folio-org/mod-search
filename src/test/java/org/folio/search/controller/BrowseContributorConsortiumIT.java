@@ -58,7 +58,7 @@ class BrowseContributorConsortiumIT extends BaseConsortiumIntegrationTest {
   private static final Instance[] INSTANCES_CENTRAL = instancesCentral();
 
   @BeforeAll
-  static void prepare() throws InterruptedException {
+  static void prepare() {
     setUpTenant(CENTRAL_TENANT_ID);
     setUpTenant(MEMBER_TENANT_ID);
     saveRecords(CENTRAL_TENANT_ID, instanceSearchPath(), asList(INSTANCES_CENTRAL),
@@ -103,8 +103,8 @@ class BrowseContributorConsortiumIT extends BaseConsortiumIntegrationTest {
     var actual = parseResponse(doGet(request), ContributorBrowseResult.class);
     var expected = new ContributorBrowseResult().totalRecords(5).prev(null).next(null).items(
       List.of(
-        contributorBrowseItem(1, "Anthony Kiedis", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[0]),
         contributorBrowseItem(1, "Anthony Kiedis", NAME_TYPE_IDS[1], AUTHORITY_IDS[1], TYPE_IDS[2]),
+        contributorBrowseItem(1, "Anthony Kiedis", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[0]),
         contributorBrowseItem(1, true, "Bon Jovi", NAME_TYPE_IDS[0], AUTHORITY_IDS[0],
           TYPE_IDS[0]),
         contributorBrowseItem(1, true, "Bon Jovi", NAME_TYPE_IDS[1], AUTHORITY_IDS[1],

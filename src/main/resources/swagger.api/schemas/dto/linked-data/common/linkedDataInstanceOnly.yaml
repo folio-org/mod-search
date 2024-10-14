@@ -4,6 +4,9 @@ properties:
   id:
     description: "The Linked Data ID of an Instance"
     type: "string"
+  tenantId:
+    description: "Tenant ID"
+    type: string
   contributors:
     type: "array"
     description: "Contributor array"

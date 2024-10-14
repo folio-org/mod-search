@@ -36,7 +36,7 @@ public class TestConstants {
   public static final String CONSORTIUM_INSTANCE_TOPIC = "search.consortium.instance";
   public static final String LINKED_DATA_WORK_INSTANCE = "linked-data.instance";
   public static final String LINKED_DATA_WORK_TOPIC = "linked-data.work";
-  public static final String LINKED_DATA_AUTHORITY_TOPIC = "linked-data.authority";
+  public static final String LINKED_DATA_HUB_TOPIC = "linked-data.hub";
   public static final String CAMPUS_TOPIC = "inventory.campus";
   public static final String INSTITUTION_TOPIC = "inventory.institution";
   public static final String LIBRARY_TOPIC = "inventory.library";
@@ -140,8 +140,8 @@ public class TestConstants {
     return getTopicName(tenantId, LINKED_DATA_WORK_TOPIC);
   }
 
-  public static String linkedDataAuthorityTopic(String tenantId) {
-    return getTopicName(tenantId, LINKED_DATA_AUTHORITY_TOPIC);
+  public static String linkedDataHubTopic(String tenantId) {
+    return getTopicName(tenantId, LINKED_DATA_HUB_TOPIC);
   }
 
   public static String inventoryCampusTopic(String tenantId) {

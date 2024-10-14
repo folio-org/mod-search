@@ -9,7 +9,7 @@ import static org.folio.search.domain.dto.ResourceEventType.REINDEX;
 import static org.folio.search.domain.dto.ResourceEventType.UPDATE;
 import static org.folio.search.model.types.ResourceType.AUTHORITY;
 import static org.folio.search.model.types.ResourceType.INSTANCE;
-import static org.folio.search.model.types.ResourceType.LINKED_DATA_AUTHORITY;
+import static org.folio.search.model.types.ResourceType.LINKED_DATA_HUB;
 import static org.folio.search.model.types.ResourceType.LINKED_DATA_INSTANCE;
 import static org.folio.search.model.types.ResourceType.LINKED_DATA_WORK;
 import static org.folio.search.utils.TestConstants.INVENTORY_INSTANCE_TOPIC;
@@ -21,7 +21,7 @@ import static org.folio.search.utils.TestConstants.inventoryClassificationTopic;
 import static org.folio.search.utils.TestConstants.inventoryHoldingTopic;
 import static org.folio.search.utils.TestConstants.inventoryInstanceTopic;
 import static org.folio.search.utils.TestConstants.inventoryItemTopic;
-import static org.folio.search.utils.TestConstants.linkedDataAuthorityTopic;
+import static org.folio.search.utils.TestConstants.linkedDataHubTopic;
 import static org.folio.search.utils.TestConstants.linkedDataInstanceTopic;
 import static org.folio.search.utils.TestConstants.linkedDataWorkTopic;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
@@ -45,7 +45,7 @@ import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.folio.search.domain.dto.Authority;
-import org.folio.search.domain.dto.LinkedDataAuthority;
+import org.folio.search.domain.dto.LinkedDataHub;
 import org.folio.search.domain.dto.LinkedDataInstance;
 import org.folio.search.domain.dto.LinkedDataWork;
 import org.folio.search.domain.dto.ResourceEvent;
@@ -285,23 +285,23 @@ class KafkaMessageListenerTest {
   }
 
   @Test
-  void handleLinkedDataAuthorityEvent_positive() {
-    var payload = toMap(new LinkedDataAuthority().id(RESOURCE_ID));
+  void handleLinkedDataHubEvent_positive() {
+    var payload = toMap(new LinkedDataHub().id(RESOURCE_ID));
 
     messageListener.handleLinkedDataEvents(List.of(new ConsumerRecord<>(
-      linkedDataAuthorityTopic(TENANT_ID), 0, 0, RESOURCE_ID,
-      resourceEvent(null, LINKED_DATA_AUTHORITY, CREATE, payload, null))));
+      linkedDataHubTopic(TENANT_ID), 0, 0, RESOURCE_ID,
+      resourceEvent(null, LINKED_DATA_HUB, CREATE, payload, null))));
 
     var expectedEvents = singletonList(
-      resourceEvent(RESOURCE_ID, LINKED_DATA_AUTHORITY, CREATE, payload, null));
+      resourceEvent(RESOURCE_ID, LINKED_DATA_HUB, CREATE, payload, null));
     verify(resourceService).indexResources(expectedEvents);
     verify(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
   }
 
   @Test
-  void handleLinkedDataAuthorityEvent_negative_logFailedEvent() {
-    var payload = toMap(new LinkedDataAuthority().id(RESOURCE_ID));
-    var expectedEvents = List.of(resourceEvent(RESOURCE_ID, LINKED_DATA_AUTHORITY, UPDATE, payload, null));
+  void handleLinkedDataHubEvent_negative_logFailedEvent() {
+    var payload = toMap(new LinkedDataHub().id(RESOURCE_ID));
+    var expectedEvents = List.of(resourceEvent(RESOURCE_ID, LINKED_DATA_HUB, UPDATE, payload, null));
 
     doAnswer(inv -> {
       inv.<BiConsumer<ResourceEvent, Exception>>getArgument(3).accept(expectedEvents.get(0), new Exception("error"));
@@ -309,8 +309,8 @@ class KafkaMessageListenerTest {
     }).when(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
 
     messageListener.handleLinkedDataEvents(List.of(new ConsumerRecord<>(
-      linkedDataAuthorityTopic(TENANT_ID), 0, 0, RESOURCE_ID,
-      resourceEvent(null, LINKED_DATA_AUTHORITY, UPDATE, payload, null))));
+      linkedDataHubTopic(TENANT_ID), 0, 0, RESOURCE_ID,
+      resourceEvent(null, LINKED_DATA_HUB, UPDATE, payload, null))));
 
     verify(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
   }

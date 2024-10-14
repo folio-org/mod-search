@@ -1,9 +1,14 @@
 ## v4.0.0 YYYY-mm-DD
+### Breaking changes
+* Implement new re-index flow for instance records
+* Permission changes in `consortium-search` API:
+  * Endpoint `GET /search/consortium/batch/items` requires `consortium-search.items.batch.collection.get` permission
+  * Endpoint `GET /search/consortium/batch/holdings` requires `consortium-search.holdings.batch.collection.get` permission
 
 ### New APIs versions
 * Provides `indices v0.8`
 * Provides `search v1.3`
-* Provides `consortium-search v1.2`
+* Provides `consortium-search v2.0`
 * Provides `browse v1.4`
 * Requires `locations v3.0`
 * Requires `instance-storage v10.3 or v11.0`
@@ -40,6 +45,7 @@
 * Create computed field for sorting and filtering Date 1 ([MSEARCH-806](https://folio-org.atlassian.net/browse/MSEARCH-806))
 * Support filters for subject source and type on subject browse ([MSEARCH-805](https://folio-org.atlassian.net/browse/MSEARCH-805))
 * Implement new re-index flow for instance records ([MSEARCH-793](https://folio-org.atlassian.net/issues/MSEARCH-793), [MSEARCH-794](https://folio-org.atlassian.net/issues/MSEARCH-794), [MSEARCH-796](https://folio-org.atlassian.net/issues/MSEARCH-796), [MSEARCH-797](https://folio-org.atlassian.net/issues/MSEARCH-797), [MSEARCH-798](https://folio-org.atlassian.net/issues/MSEARCH-798), [MSEARCH-799](https://folio-org.atlassian.net/issues/MSEARCH-799), [MSEARCH-800](https://folio-org.atlassian.net/issues/MSEARCH-800), [MSEARCH-801](https://folio-org.atlassian.net/issues/MSEARCH-801), [MSEARCH-802](https://folio-org.atlassian.net/issues/MSEARCH-802))
+* Implement Linked Data HUB index and search API ([MSEARCH-844](https://folio-org.atlassian.net/browse/MSEARCH-844))
 
 ### Bug fixes
 * Do not delete kafka topics if collection topic is enabled ([MSEARCH-725](https://folio-org.atlassian.net/browse/MSEARCH-725))
@@ -51,10 +57,12 @@
 * Search Resources IDs: Local instances are not searchable with requests from member tenants ([MSEARCH-762](https://folio-org.atlassian.net/browse/MSEARCH-762))
 * Fix backslash handling in search terms ([MSEARCH-839](https://folio-org.atlassian.net/browse/MSEARCH-839))
 * Fix range filter conversion ([MSEARCH-845](https://folio-org.atlassian.net/browse/MSEARCH-845))
+* Fix Linked data search not working in ECS/Eureka environment ([MSEARCH-852](https://folio-org.atlassian.net/browse/MSEARCH-852))
 
 ### Tech Dept
 * Re-Index: delete all records from consortium\_instance on full re-index ([MSEARCH-744](https://folio-org.atlassian.net/browse/MSEARCH-744))
 * Test scope for folio-spring-testing ([MSEARCH-834](https://folio-org.atlassian.net/browse/MSEARCH-834))
+* Update permissions for consortium-search interface ([MSEARCH-836](https://folio-org.atlassian.net/browse/MSEARCH-836))
 
 ### Dependencies
 * Bump `LIB_NAME` from `OLD_VERSION` to `NEW_VERSION`

@@ -15,7 +15,7 @@ properties:
       - location
       - linked-data-instance
       - linked-data-work
-      - linked-data-authority
+      - linked-data-hub
   indexSettings:
     description: Index settings to apply for index
     $ref: "../../schemas/entity/indexSettings.yaml"

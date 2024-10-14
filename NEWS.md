@@ -1,9 +1,14 @@
 ## v4.0.0 YYYY-mm-DD
+### Breaking changes
+* Implement new re-index flow for instance records
+* Permission changes in `consortium-search` API:
+  * Endpoint `GET /search/consortium/batch/items` requires `consortium-search.items.batch.collection.get` permission
+  * Endpoint `GET /search/consortium/batch/holdings` requires `consortium-search.holdings.batch.collection.get` permission
 
 ### New APIs versions
 * Provides `indices v0.8`
 * Provides `search v1.3`
-* Provides `consortium-search v1.2`
+* Provides `consortium-search v2.0`
 * Provides `browse v1.4`
 * Requires `locations v3.0`
 * Requires `instance-storage v10.3 or v11.0`
@@ -57,6 +62,7 @@
 ### Tech Dept
 * Re-Index: delete all records from consortium\_instance on full re-index ([MSEARCH-744](https://folio-org.atlassian.net/browse/MSEARCH-744))
 * Test scope for folio-spring-testing ([MSEARCH-834](https://folio-org.atlassian.net/browse/MSEARCH-834))
+* Update permissions for consortium-search interface ([MSEARCH-836](https://folio-org.atlassian.net/browse/MSEARCH-836))
 
 ### Dependencies
 * Bump `LIB_NAME` from `OLD_VERSION` to `NEW_VERSION`

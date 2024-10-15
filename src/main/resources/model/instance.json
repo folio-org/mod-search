@@ -768,7 +768,6 @@
       "normalizedDate1",
       "callNumber",
       "typedCallNumber",
-      "itemEffectiveShelvingOrder",
       "callNumberType",
 
       "alternativeTitles.alternativeTitle",

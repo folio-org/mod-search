@@ -39,12 +39,12 @@ class ItemTypedCallNumberProcessorTest {
       item("HD 11", CallNumberType.OTHER.getId())
     );
     var actual = processor.getFieldValue(eventBody);
-    assertThat(actual).containsExactly(229342416757269504L,
-      373897522706326528L,
-      518452628655383552L,
-      663007734604440576L,
-      807562840553497600L,
-      952117946502554624L);
+    assertThat(actual).containsExactly(229342436593683712L,
+      373897542542740736L,
+      518452648491797760L,
+      663007754440854784L,
+      807562860389911808L,
+      952117966338968832L);
   }
 
   @ParameterizedTest
@@ -72,7 +72,7 @@ class ItemTypedCallNumberProcessorTest {
 
   private static Item item(String effectiveShelvingOrder, String callNumberTypeId) {
     return new Item()
-      .effectiveShelvingOrder(effectiveShelvingOrder)
-      .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents().typeId(callNumberTypeId));
+      .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents().callNumber(effectiveShelvingOrder)
+        .typeId(callNumberTypeId));
   }
 }

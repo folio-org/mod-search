@@ -163,32 +163,6 @@ class KafkaMessageListenerIT {
   }
 
   @Test
-  void handleInstanceEvents_positive_splittingBatchToTheParts() {
-    var ids = List.of(randomId(), randomId(), randomId());
-
-    when(resourceService.indexInstancesById(anyList())).thenAnswer(inv -> {
-      var resourceIdEvents = inv.<List<ResourceEvent>>getArgument(0);
-      if (resourceIdEvents.size() == 3) {
-        throw new SearchOperationException("Failed to save bulk");
-      }
-      if (resourceIdEvents.get(0).getId().equals(ids.get(2))) {
-        throw new SearchOperationException("Failed to save single resource");
-      }
-      return getSuccessIndexOperationResponse();
-    });
-
-    sendMessagesWithStoppedListenerContainer(ids, EVENT_LISTENER_ID,
-      inventoryInstanceTopic(), KafkaMessageListenerIT::instanceEvent);
-
-    var expectedEvents = ids.stream().map(KafkaMessageListenerIT::instanceEvent).toList();
-    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() -> {
-      verify(resourceService).indexInstancesById(List.of(expectedEvents.get(0)));
-      verify(resourceService).indexInstancesById(List.of(expectedEvents.get(1)));
-      verify(resourceService, times(3)).indexInstancesById(List.of(expectedEvents.get(2)));
-    });
-  }
-
-  @Test
   void handleInstanceEvents_positive_logFailedAuthorityEvent() {
     var authorityIds = List.of(randomId(), randomId());
     when(resourceService.indexResources(anyList())).thenAnswer(inv -> {

@@ -9,6 +9,7 @@ import static org.opensearch.index.query.QueryBuilders.disMaxQuery;
 import static org.opensearch.index.query.QueryBuilders.rangeQuery;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import org.folio.search.domain.dto.InstanceContributorBrowseItem;
@@ -55,14 +56,11 @@ class ContributorBrowseServiceTest {
     var browseContext = BrowseContext.builder()
       .filters(singletonList(termQuery("instances.shared", false)))
       .build();
-    var instanceId1 = "ins1";
-    var instanceId2 = "ins2";
     var contributorsSubResourcesMock = Set.of(
-      contributorSubResource(instanceId1, "type1"),
-      contributorSubResource(instanceId1, "type2"),
-      contributorSubResource(instanceId2, "type1"),
-      contributorSubResource(instanceId2, null),
-      contributorSubResource(instanceId1, "null"));
+      contributorSubResource("type1"),
+      contributorSubResource("type2"),
+      contributorSubResource("type1", "type2")
+    );
 
     var expected = new InstanceContributorBrowseItem()
       .isAnchor(false)
@@ -70,7 +68,7 @@ class ContributorBrowseServiceTest {
       .name("name")
       .contributorNameTypeId("nameType")
       .authorityId("auth")
-      .totalRecords(2);
+      .totalRecords(3);
 
     when(consortiumSearchHelper.filterSubResourcesForConsortium(any(), any(), any()))
       .thenReturn(contributorsSubResourcesMock);
@@ -116,25 +114,25 @@ class ContributorBrowseServiceTest {
   private List<ContributorResource> contributors() {
     return singletonList(new ContributorResource("id", "name", "nameType", "auth",
       Set.of(
-          contributorInstance("ins1", "type1", false, "tenant1"),
-          contributorInstance("ins2", "type1", true, "tenant2"),
-          contributorInstance("ins1", "type2", false, "tenant1")))
+          contributorInstance("type1", false, "tenant1"),
+          contributorInstance("type1", true, "tenant2"),
+          contributorInstance("type2", false, "tenant1")))
     );
   }
 
-  private InstanceSubResource contributorInstance(String instanceId, String typeId, Boolean shared, String tenantId) {
+  private InstanceSubResource contributorInstance(String typeId, Boolean shared, String tenantId) {
     return InstanceSubResource.builder()
-      .instanceId(instanceId)
-      .typeId(typeId)
+      .count(1)
+      .typeId(List.of(typeId))
       .shared(shared)
       .tenantId(tenantId)
       .build();
   }
 
-  private InstanceSubResource contributorSubResource(String instanceId, String typeId) {
+  private InstanceSubResource contributorSubResource(String... typeId) {
     return InstanceSubResource.builder()
-      .instanceId(instanceId)
-      .typeId(typeId)
+      .count(1)
+      .typeId(Arrays.stream(typeId).toList())
       .build();
   }
 }

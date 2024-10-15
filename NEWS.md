@@ -44,6 +44,7 @@
 * Implement Reindexing of Institutions ([MSEARCH-768](https://issues.folio.org/browse/MSEARCH-768))
 * Create computed field for sorting and filtering Date 1 ([MSEARCH-806](https://folio-org.atlassian.net/browse/MSEARCH-806))
 * Support filters for subject source and type on subject browse ([MSEARCH-805](https://folio-org.atlassian.net/browse/MSEARCH-805))
+* Simplify indexing for instance child documents ([MSEARCH-851](https://folio-org.atlassian.net/browse/MSEARCH-851))
 * Modify usage of shelving order for call number browse ([MSEARCH-831](https://folio-org.atlassian.net/browse/MSEARCH-831))
 * Implement new re-index flow for instance records ([MSEARCH-793](https://folio-org.atlassian.net/issues/MSEARCH-793), [MSEARCH-794](https://folio-org.atlassian.net/issues/MSEARCH-794), [MSEARCH-796](https://folio-org.atlassian.net/issues/MSEARCH-796), [MSEARCH-797](https://folio-org.atlassian.net/issues/MSEARCH-797), [MSEARCH-798](https://folio-org.atlassian.net/issues/MSEARCH-798), [MSEARCH-799](https://folio-org.atlassian.net/issues/MSEARCH-799), [MSEARCH-800](https://folio-org.atlassian.net/issues/MSEARCH-800), [MSEARCH-801](https://folio-org.atlassian.net/issues/MSEARCH-801), [MSEARCH-802](https://folio-org.atlassian.net/issues/MSEARCH-802))
 * Implement Linked Data HUB index and search API ([MSEARCH-844](https://folio-org.atlassian.net/browse/MSEARCH-844))

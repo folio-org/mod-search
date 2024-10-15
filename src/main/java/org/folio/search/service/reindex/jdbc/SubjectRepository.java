@@ -26,20 +26,47 @@ import org.springframework.stereotype.Repository;
 public class SubjectRepository extends UploadRangeRepository {
 
   public static final String SELECT_QUERY = """
-    SELECT s.id, s.value, s.authority_id, s.source_id, s.type_id, json_agg(json_build_object(
-                'instanceId', ins.instance_id,
-                'shared', ins.shared,
-                'tenantId', ins.tenant_id
-            )) AS instances
-    FROM %1$s.instance_subject ins
-    JOIN %1$s.subject s ON s.id = ins.subject_id
-    WHERE %2$s
-    GROUP BY s.id;
+    SELECT
+        s.id,
+        s.value,
+        s.authority_id,
+        s.source_id,
+        s.type_id,
+        json_agg(
+            json_build_object(
+                'count', sub.instance_count,
+                'shared', sub.shared,
+                'tenantId', sub.tenant_id
+            )
+        ) AS instances
+    FROM
+        (
+            SELECT
+                ins.subject_id,
+                ins.tenant_id,
+                ins.shared,
+                COUNT(1) AS instance_count
+            FROM
+                %1$s.instance_subject ins
+            WHERE
+                %2$s
+            GROUP BY
+                ins.subject_id,
+                ins.tenant_id,
+                ins.shared
+        ) sub
+    JOIN
+        %1$s.subject s ON s.id = sub.subject_id
+    WHERE
+        %3$s
+    GROUP BY
+        s.id;
     """;
 
-  private static final String ID_RANGE_WHERE_CLAUSE = "ins.subject_id >= ? AND ins.subject_id <= ? "
-                                                      + "AND s.id >= ? AND s.id <= ?";
-  private static final String IDS_WHERE_CLAUSE = "ins.subject_id IN (%1$s) AND s.id IN (%1$s)";
+  private static final String ID_RANGE_INS_WHERE_CLAUSE = "ins.subject_id >= ? AND ins.subject_id <= ?";
+  private static final String ID_RANGE_SUBJ_WHERE_CLAUSE = "s.id >= ? AND s.id <= ?";
+  private static final String IDS_INS_WHERE_CLAUSE = "ins.subject_id IN (%1$s)";
+  private static final String IDS_SUB_WHERE_CLAUSE = "s.id IN (%1$s)";
 
 
   protected SubjectRepository(JdbcTemplate jdbcTemplate,
@@ -69,7 +96,8 @@ public class SubjectRepository extends UploadRangeRepository {
       return Collections.emptyList();
     }
     var sql = SELECT_QUERY.formatted(JdbcUtils.getSchemaName(context),
-      IDS_WHERE_CLAUSE.formatted(getParamPlaceholder(ids.size())));
+      IDS_INS_WHERE_CLAUSE.formatted(getParamPlaceholder(ids.size())),
+      IDS_SUB_WHERE_CLAUSE.formatted(getParamPlaceholder(ids.size())));
     return jdbcTemplate.query(sql, instanceAggRowMapper(), ListUtils.union(ids, ids).toArray());
   }
 
@@ -83,7 +111,9 @@ public class SubjectRepository extends UploadRangeRepository {
 
   @Override
   protected String getFetchBySql() {
-    return SELECT_QUERY.formatted(JdbcUtils.getSchemaName(context), ID_RANGE_WHERE_CLAUSE);
+    return SELECT_QUERY.formatted(JdbcUtils.getSchemaName(context),
+      ID_RANGE_INS_WHERE_CLAUSE,
+      ID_RANGE_SUBJ_WHERE_CLAUSE);
   }
 
   @Override

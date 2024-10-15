@@ -4,7 +4,7 @@
   "parent": "instance",
   "fields": {
     "value": {
-      "index": "keyword_lowercase",
+      "index": "keyword_icu",
       "showInResponse": [ "browse" ]
     },
     "authorityId": {
@@ -24,9 +24,6 @@
     "instances": {
       "type": "object",
       "properties": {
-        "instanceId": {
-          "index": "source"
-        },
         "tenantId": {
           "index": "keyword",
           "searchTypes": [ "facet", "filter" ]
@@ -35,6 +32,9 @@
           "index": "bool",
           "searchTypes": [ "facet", "filter" ],
           "default": false
+        },
+        "count": {
+          "index": "source"
         }
       }
     }

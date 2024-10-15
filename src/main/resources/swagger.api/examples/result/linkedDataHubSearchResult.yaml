@@ -1,0 +1,10 @@
+value:
+  searchQuery: "query string"
+  content:
+    - id: "1"
+      originalId: "d292aac1-6f82-4828-93ae-c1b5cde1318a"
+      hubAAP: "hub AAP"
+      title: "hub title"
+  pageNumber: 0
+  totalPages: 3
+  totalRecords: 27

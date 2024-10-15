@@ -2,6 +2,7 @@ package org.folio.search.service.browse;
 
 import static java.util.Objects.nonNull;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_ID_FIELD;
+import static org.folio.search.utils.SearchUtils.MISSING_FIRST_PROP;
 import static org.folio.search.utils.SearchUtils.MISSING_LAST_PROP;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
@@ -68,13 +69,15 @@ public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<Sub
       ctx.getFilters().forEach(boolQuery::filter);
       query = boolQuery;
     }
+    var sortOrder = isBrowsingForward ? ASC : DESC;
+    var missingProperty = isBrowsingForward || !ctx.isBrowsingForward() ? MISSING_LAST_PROP : MISSING_FIRST_PROP;
     query = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(ctx, query, req.getResource());
     return searchSource().query(query)
       .searchAfter(new Object[] {getAnchorValue(req, ctx), null, null, null})
-      .sort(fieldSort(req.getTargetField()).order(isBrowsingForward ? ASC : DESC))
-      .sort(fieldSort(AUTHORITY_ID_FIELD).missing(MISSING_LAST_PROP))
-      .sort(fieldSort(SUBJECT_SOURCE_ID_FIELD).missing(MISSING_LAST_PROP))
-      .sort(fieldSort(SUBJECT_TYPE_ID_FIELD).missing(MISSING_LAST_PROP).sortMode(SortMode.MAX))
+      .sort(fieldSort(req.getTargetField()).order(sortOrder))
+      .sort(fieldSort(AUTHORITY_ID_FIELD).order(sortOrder).missing(missingProperty))
+      .sort(fieldSort(SUBJECT_SOURCE_ID_FIELD).order(sortOrder).missing(missingProperty))
+      .sort(fieldSort(SUBJECT_TYPE_ID_FIELD).order(sortOrder).missing(missingProperty).sortMode(SortMode.MAX))
       .size(ctx.getLimit(isBrowsingForward) + 1)
       .from(0);
   }

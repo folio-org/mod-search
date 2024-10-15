@@ -89,7 +89,7 @@ class BrowseCallNumberTypedIT extends BaseIntegrationTest {
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
     cleanupActual(actual);
     assertThat(actual).isEqualTo(new CallNumberBrowseResult()
-      .totalRecords(11).prev(null).next("11 CE 216 B 46724 541993").items(List.of(
+      .totalRecords(11).prev("11 CE 216 B 46713 X 541993").next("11 CE 216 B 46724 541993").items(List.of(
         cnBrowseItem(instance("instance #44"), "1CE 16 B6713 X 41993"),
         cnBrowseItem(DEWEY, "1CE 16 B6724 41993", 2, true)
       )));
@@ -106,7 +106,7 @@ class BrowseCallNumberTypedIT extends BaseIntegrationTest {
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
     cleanupActual(actual);
     assertThat(actual).isEqualTo(new CallNumberBrowseResult()
-      .totalRecords(8).prev("11 CE 3210 K 3297 541858").next(null).items(List.of(
+      .totalRecords(8).prev("11 CE 3210 K 3297 541858").next("A 3123.5").items(List.of(
         cnBrowseItem(instance("instance #38"), "1CE 210 K297 41858"),
         cnBrowseItem(instance("instance #48"), "A 123.4", true),
         cnBrowseItem(instance("instance #49"), "A 123.5")
@@ -123,7 +123,7 @@ class BrowseCallNumberTypedIT extends BaseIntegrationTest {
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
     cleanupActual(actual);
     assertThat(actual).isEqualTo(new CallNumberBrowseResult()
-      .totalRecords(6).prev(null).next("11 CE 3210 K 3297 541858").items(List.of(
+      .totalRecords(6).prev("11 CE 216 B 46713 X 541993").next("11 CE 3210 K 3297 541858").items(List.of(
         cnBrowseItem(instance("instance #44"), "1CE 16 B6713 X 41993"),
         cnBrowseItem(DEWEY, "1CE 16 B6724 41993", 2, null),
         cnBrowseItem(instance("instance #04"), "1CE 16 D86 X 41998"),
@@ -143,7 +143,7 @@ class BrowseCallNumberTypedIT extends BaseIntegrationTest {
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
     cleanupActual(actual);
     assertThat(actual).isEqualTo(new CallNumberBrowseResult()
-      .totalRecords(4).prev(null).next(null).items(List.of(
+      .totalRecords(4).prev("AC 211 A4 VOL 3235").next("AC 211 E8 NO 214 P S1487").items(List.of(
         cnBrowseItem(instance("instance #25"), "AC 11 A4 VOL 235"),
         cnBrowseItem(instance("instance #08"), "AC 11 A67 X 42000"),
         cnBrowseItem(instance("instance #18"), "AC 11 E8 NO 14 P S1487", true)
@@ -161,53 +161,11 @@ class BrowseCallNumberTypedIT extends BaseIntegrationTest {
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
     cleanupActual(actual);
     assertThat(actual).isEqualTo(new CallNumberBrowseResult()
-      .totalRecords(5).prev(null).next(null).items(List.of(
+      .totalRecords(5).prev("D 11.211 N52 VOL 214").next("P 11.44034 B38 541993").items(List.of(
         cnBrowseItem(instance("instance #12"), "D1.211 N52 VOL 14"),
         cnBrowseItem(instance("instance #10"), "D1.3201 B34 41972"),
         cnBrowseItem(instance("instance #17"), "G1.16 A63 41581"),
         cnBrowseItem(instance("instance #16"), "P1.44034 B38 41993", true)
-      )));
-  }
-
-  @Test
-  void browseByCallNumberLocal_browsingAroundWhenPrecedingRecordsCountIsSpecified() {
-    var request = get(instanceCallNumberBrowsePath())
-      .param("query",
-        prepareQuery("typedCallNumber < {value} or typedCallNumber >= {value}", "\"F  PR1866.S63 V.1 C.1\""))
-      .param("callNumberType", "local")
-      .param("limit", "5")
-      .param("expandAll", "true")
-      .param("precedingRecordsCount", "4");
-    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
-    cleanupActual(actual);
-
-    var multipleItemsInstance = instance("instance #27");
-    assertThat(actual).isEqualTo(new CallNumberBrowseResult()
-      .totalRecords(12).prev("DB 11 A66 SUPPL NO 11").next("F  PR1866.S63 V.1 C.1").items(List.of(
-        cnBrowseItem(instance("instance #23"), "DB 11 A66 SUPPL NO 11"),
-        cnBrowseItem(instance("instance #35"), "E 12.11 I12 288 D"),
-        cnBrowseItem(instance("instance #33"), "E 12.11 I2 298"),
-        cnBrowseItem(instance(multipleItemsInstance, multipleItemsInstance.getItems().get(0)), "E 211 A506"),
-        cnBrowseItem(instance("instance #46"), "F  PR1866.S63 V.1 C.1", true)
-      )));
-  }
-
-  @Test
-  void browseByCallNumberLocal_browsingForwardIncluding() {
-    var request = get(instanceCallNumberBrowsePath())
-      .param("query", prepareQuery("itemEffectiveShelvingOrder >= {value}", "\"F  PR1866.S63 V.1 C.1\""))
-      .param("callNumberType", "local")
-      .param("limit", "5")
-      .param("expandAll", "true");
-    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
-    cleanupActual(actual);
-    assertThat(actual).isEqualTo(new CallNumberBrowseResult()
-      .totalRecords(5).prev("F  PR1866.S63 V.1 C.1").next(null).items(List.of(
-        cnBrowseItem(instance("instance #46"), "F  PR1866.S63 V.1 C.1"),
-        cnBrowseItem(instance("instance #37"), "FC 17 B89"),
-        cnBrowseItem(instance("instance #30"), "GA 16 G32 41557 V1"),
-        cnBrowseItem(instance("instance #26"), "PR 17 I55 42006"),
-        cnBrowseItem(instance("instance #40"), "PR 213 E5 41999")
       )));
   }
 

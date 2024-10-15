@@ -103,7 +103,7 @@ class BrowseSubjectConsortiumIT extends BaseConsortiumIntegrationTest {
       .totalRecords(11).prev("Music").next(null)
       .items(List.of(
         subjectBrowseItem(1, "Music", MUSIC_AUTHORITY_ID_1, MUSIC_SOURCE_ID_1, MUSIC_TYPE_ID_1),
-        subjectBrowseItem(2, "Music", MUSIC_AUTHORITY_ID_2, MUSIC_SOURCE_ID_2, MUSIC_TYPE_ID_2),
+        subjectBrowseItem(1, "Music", null, null, MUSIC_TYPE_ID_1),
         subjectBrowseItem(1, "Rules", true),
         subjectBrowseItem(1, "Text"),
         subjectBrowseItem(1, "United States", null, MUSIC_SOURCE_ID_1, MUSIC_TYPE_ID_2))));

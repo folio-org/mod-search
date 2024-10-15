@@ -21,6 +21,7 @@ import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
 import org.folio.search.integration.folio.ReferenceDataService;
 import org.folio.search.model.types.CallNumberType;
 import org.folio.search.service.setter.FieldProcessor;
+import org.folio.search.utils.CallNumberUtils;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -49,7 +50,7 @@ public class ItemTypedCallNumberProcessor implements FieldProcessor<Instance, Se
   }
 
   private Long toCallNumberLongRepresentation(Item item) {
-    var effectiveShelvingOrder = item.getEffectiveShelvingOrder();
+    var effectiveShelvingOrder = CallNumberUtils.calculateShelvingOrder(item);
     var callNumberTypeId = Optional.ofNullable(item.getEffectiveCallNumberComponents())
       .map(ItemEffectiveCallNumberComponents::getTypeId)
       .orElse(null);

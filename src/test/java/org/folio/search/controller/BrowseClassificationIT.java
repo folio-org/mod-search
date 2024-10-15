@@ -52,7 +52,7 @@ class BrowseClassificationIT extends BaseIntegrationTest {
     setUpTenant(instances());
     await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
       var counted = countIndexDocument(ResourceType.INSTANCE_CLASSIFICATION, TENANT_ID);
-      assertThat(counted).isEqualTo(17);
+      assertThat(counted).isEqualTo(19);
     });
   }
 
@@ -90,7 +90,7 @@ class BrowseClassificationIT extends BaseIntegrationTest {
       .extracting(ClassificationNumberBrowseResult::getTotalRecords,
         ClassificationNumberBrowseResult::getPrev,
         ClassificationNumberBrowseResult::getNext)
-      .contains(17, null, "N6679.R64 G88 2010");
+      .contains(19, null, "N6679.R64 G88 2010");
     assertThat(actual.getItems())
       .startsWith(
         classificationBrowseItem("146.4", DEWEY_TYPE_ID, 2),
@@ -117,7 +117,7 @@ class BrowseClassificationIT extends BaseIntegrationTest {
       .param("limit", "3")
       .param("precedingRecordsCount", "1");
     var actual = parseResponse(doGet(request), ClassificationNumberBrowseResult.class);
-    assertThat(actual).isEqualTo(classificationBrowseResult("292.07", "333.91", 17, List.of(
+    assertThat(actual).isEqualTo(classificationBrowseResult("292.07", "333.91", 19, List.of(
       classificationBrowseItem("292.07", DEWEY_TYPE_ID, 1),
       classificationBrowseItem("292.08", null, 0, true),
       classificationBrowseItem("333.91", DEWEY_TYPE_ID, 1)
@@ -133,7 +133,7 @@ class BrowseClassificationIT extends BaseIntegrationTest {
       .param("limit", "10")
       .param("precedingRecordsCount", "2");
     var actual = parseResponse(doGet(request), ClassificationNumberBrowseResult.class);
-    assertThat(actual).isEqualTo(classificationBrowseResult(null, "QD453 .M8 1961", 13, List.of(
+    assertThat(actual).isEqualTo(classificationBrowseResult(null, "QD453 .M8 1961", 15, List.of(
       classificationBrowseItem("146.4", DEWEY_TYPE_ID, 2),
       classificationBrowseItem("221.609", DEWEY_TYPE_ID, 1),
       classificationBrowseItem("292.07", DEWEY_TYPE_ID, 1, true),
@@ -167,7 +167,7 @@ class BrowseClassificationIT extends BaseIntegrationTest {
 
     return Stream.of(
       arguments(aroundIncludingQuery, "QD33 .O87", 5, classificationBrowseResult("HD1691 .I5 1967",
-        "SF433 .D47 2004", 8, List.of(
+        "SF433 .D47 2004", 10, List.of(
           classificationBrowseItem("HD1691 .I5 1967", LC_TYPE_ID, 1),
           classificationBrowseItem("N6679.R64 G88 2010", LC_TYPE_ID, 1),
           classificationBrowseItem("QD33 .O87", LC_TYPE_ID, 2, true),
@@ -175,37 +175,47 @@ class BrowseClassificationIT extends BaseIntegrationTest {
           classificationBrowseItem("SF433 .D47 2004", LC_TYPE_ID, 1)
         ))),
 
-      arguments(forwardQuery, "QD33 .O87", 5, classificationBrowseResult("QD453 .M8 1961", null, 8, List.of(
+      arguments(forwardQuery, "QD33 .O87", 5, classificationBrowseResult("QD453 .M8 1961", "TX545 M45", 10, List.of(
         classificationBrowseItem("QD453 .M8 1961", LC_TYPE_ID, 1),
         classificationBrowseItem("SF433 .D47 2004", LC_TYPE_ID, 1),
         classificationBrowseItem("TN800 .F4613", LC_TYPE_ID, 1),
-        classificationBrowseItem("TX545 .M45", LC_TYPE_ID, 1)
+        classificationBrowseItem("TX545 .M45", LC_TYPE_ID, 1),
+        classificationBrowseItem("TX545 M45", LC_TYPE_ID, 1)
       ))),
 
-      arguments(forwardQuery, "Z", 10, classificationBrowseResult(null, null, 8, emptyList())),
+      arguments(forwardQuery, "Z", 10, classificationBrowseResult(null, null, 10, emptyList())),
 
-      arguments(forwardIncludingQuery, "QD33 .O87", 5, classificationBrowseResult("QD33 .O87", null, 8, List.of(
-        classificationBrowseItem("QD33 .O87", LC_TYPE_ID, 2),
-        classificationBrowseItem("QD453 .M8 1961", LC_TYPE_ID, 1),
-        classificationBrowseItem("SF433 .D47 2004", LC_TYPE_ID, 1),
-        classificationBrowseItem("TN800 .F4613", LC_TYPE_ID, 1),
-        classificationBrowseItem("TX545 .M45", LC_TYPE_ID, 1)
-      ))),
+      arguments(forwardIncludingQuery, "QD33 .O87", 5, classificationBrowseResult("QD33 .O87", "TX545 .M45", 10,
+        List.of(
+          classificationBrowseItem("QD33 .O87", LC_TYPE_ID, 2),
+          classificationBrowseItem("QD453 .M8 1961", LC_TYPE_ID, 1),
+          classificationBrowseItem("SF433 .D47 2004", LC_TYPE_ID, 1),
+          classificationBrowseItem("TN800 .F4613", LC_TYPE_ID, 1),
+          classificationBrowseItem("TX545 .M45", LC_TYPE_ID, 1)
+        ))),
 
-      arguments(backwardQuery, "QD33 .O87", 5, classificationBrowseResult(null, "N6679.R64 G88 2010", 8, List.of(
+      arguments(backwardQuery, "QD33 .O87", 5, classificationBrowseResult(null, "N6679.R64 G88 2010", 10, List.of(
         classificationBrowseItem("BJ1453 .I49 1983", LC_TYPE_ID, 1),
         classificationBrowseItem("HD1691 .I5 1967", LC_TYPE_ID, 1),
         classificationBrowseItem("N6679.R64 G88 2010", LC_TYPE_ID, 1)
       ))),
 
-      arguments(backwardQuery, "A", 10, classificationBrowseResult(null, null, 8, emptyList())),
+      arguments(backwardQuery, "A", 10, classificationBrowseResult(null, null, 10, emptyList())),
 
-      arguments(backwardIncludingQuery, "QD33 .O87", 5, classificationBrowseResult(null, "QD33 .O87", 8, List.of(
+      arguments(backwardIncludingQuery, "QD33 .O87", 5, classificationBrowseResult(null, "QD33 .O87", 10, List.of(
         classificationBrowseItem("BJ1453 .I49 1983", LC_TYPE_ID, 1),
         classificationBrowseItem("HD1691 .I5 1967", LC_TYPE_ID, 1),
         classificationBrowseItem("N6679.R64 G88 2010", LC_TYPE_ID, 1),
         classificationBrowseItem("QD33 .O87", LC_TYPE_ID, 2)
-      )))
+      ))),
+
+      arguments(aroundIncludingQuery, "TX545 M45", 5, classificationBrowseResult("TN800 .F4613",
+        null, 10, List.of(
+          classificationBrowseItem("TN800 .F4613", LC_TYPE_ID, 1),
+          classificationBrowseItem("TX545 .M45", LC_TYPE_ID, 1),
+          classificationBrowseItem("TX545 M45", LC_TYPE_ID, 1, true),
+          classificationBrowseItem("TX545.M45", LC_TYPE_ID, 1)
+        )))
     );
   }
 
@@ -243,7 +253,9 @@ class BrowseClassificationIT extends BaseIntegrationTest {
       List.of("instance #09", List.of(pair("292.07", DEWEY_TYPE_ID), pair("333.91", DEWEY_TYPE_ID),
         pair("372.4", DEWEY_TYPE_ID))),
       List.of("instance #10", List.of(pair("146.4", DEWEY_TYPE_ID), pair("QD33 .O87", LC_TYPE_ID),
-        pair("SF991 .M94", null)))
+        pair("SF991 .M94", null))),
+      List.of("instance #11", List.of(pair("TX545 M45", LC_TYPE_ID))),
+      List.of("instance #12", List.of(pair("TX545.M45", LC_TYPE_ID)))
     );
   }
 }

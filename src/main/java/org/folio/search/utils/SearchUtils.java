@@ -64,6 +64,7 @@ public class SearchUtils {
   public static final String DOT = ".";
   public static final String EMPTY_ARRAY = "[]";
   public static final String KEYWORD_FIELD_INDEX = "keyword";
+  public static final String MISSING_FIRST_PROP = "_first";
   public static final String MISSING_LAST_PROP = "_last";
   public static final float CONST_SIZE_LOAD_FACTOR = 1.0f;
 

@@ -9,7 +9,6 @@ import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.cleanupActual;
 import static org.folio.search.utils.TestUtils.cnBrowseItem;
 import static org.folio.search.utils.TestUtils.cnBrowseItemWithNoType;
-import static org.folio.search.utils.TestUtils.cnBrowseResult;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.hamcrest.Matchers.is;
@@ -56,7 +55,8 @@ class BrowseCallNumberOtherIT extends BaseIntegrationTest {
       .param("limit", "15").param("expandAll", "true");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
     cleanupActual(actual);
-    var expected = cnBrowseResult(12, List.of(
+    var expected = new CallNumberBrowseResult()
+      .totalRecords(12).prev("43350.28").next("RAW 222").items(List.of(
       cnBrowseItem(instance("instance #04"), "3350.28"),
       cnBrowseItem(instance("instance #05"), "3362.82 292 220"),
       cnBrowseItem(instance("instance #02"), "DA 3880 O6 M96"),
@@ -84,7 +84,8 @@ class BrowseCallNumberOtherIT extends BaseIntegrationTest {
       .param("limit", "15").param("expandAll", "true");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
     cleanupActual(actual);
-    var expected = cnBrowseResult(12, List.of(
+    var expected = new CallNumberBrowseResult()
+      .totalRecords(12).prev("43350.28").next("RAW 222").items(List.of(
       cnBrowseItem(instance("instance #04"), "3350.28"),
       cnBrowseItem(instance("instance #05"), "3362.82 292 220"),
       cnBrowseItem(instance("instance #02"), "DA 3880 O6 M96"),
@@ -115,7 +116,7 @@ class BrowseCallNumberOtherIT extends BaseIntegrationTest {
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
     cleanupActual(actual);
     var expected = new CallNumberBrowseResult()
-      .totalRecords(13).prev("DA 3880 O6 M96").next("G  SHELF#1").items(List.of(
+      .totalRecords(13).prev("DA 43880 O6 M96").next("G  SHELF#1").items(List.of(
         cnBrowseItem(instance("instance #02"), "DA 3880 O6 M96"),
         cnBrowseItem(instance("instance #09"), "F  PR1866.S63 V.1 C.1"),
         cnBrowseItem(instance("instance #11"), "F-1,452"),

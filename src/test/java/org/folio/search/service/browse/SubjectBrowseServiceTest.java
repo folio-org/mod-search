@@ -3,6 +3,7 @@ package org.folio.search.service.browse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.model.types.ResourceType.INSTANCE_SUBJECT;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_ID_FIELD;
+import static org.folio.search.utils.SearchUtils.MISSING_FIRST_PROP;
 import static org.folio.search.utils.SearchUtils.MISSING_LAST_PROP;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.searchResult;
@@ -128,7 +129,7 @@ class SubjectBrowseServiceTest {
     var request = BrowseRequest.of(INSTANCE_SUBJECT, TENANT_ID, query, 3, TARGET_FIELD, null, null, false, 3);
     var esQuery = rangeQuery(TARGET_FIELD).lt("s4");
     var context = BrowseContext.builder().precedingQuery(esQuery).precedingLimit(3).anchor("s4").build();
-    var expectedSearchSource = searchSource("s4", 4, DESC);
+    var expectedSearchSource = backwardSearchSource("s4", 4, DESC);
 
     when(browseContextProvider.get(request)).thenReturn(context);
     when(searchRepository.search(request, expectedSearchSource)).thenReturn(searchResponse);
@@ -193,7 +194,7 @@ class SubjectBrowseServiceTest {
 
     when(browseContextProvider.get(request)).thenReturn(context);
     mockMultiSearchRequest(request,
-      List.of(searchSource("s4", 4, DESC), subjectTermQuery("s4", 3)),
+      List.of(backwardSearchSource("s4", 4, DESC), subjectTermQuery("s4", 3)),
       List.of(browsingSearchResult, searchResult(browseItems("s4"))));
 
     var browseSearchResult = subjectBrowseService.browse(request);
@@ -385,14 +386,22 @@ class SubjectBrowseServiceTest {
     return Set.of(InstanceSubResource.builder().count(sub.length()).tenantId(TENANT_ID).build());
   }
 
+  private SearchSourceBuilder backwardSearchSource(String subject, int size, SortOrder sortOrder) {
+    return searchSource(subject, size, sortOrder, MISSING_LAST_PROP);
+  }
+
   private SearchSourceBuilder searchSource(String subject, int size, SortOrder sortOrder) {
+    return searchSource(subject, size, sortOrder, missingProp(sortOrder));
+  }
+
+  private SearchSourceBuilder searchSource(String subject, int size, SortOrder sortOrder, String missingProp) {
     return SearchSourceBuilder.searchSource()
       .query(matchAllQuery())
       .searchAfter(new String[] {subject, null, null, null}).from(0).size(size)
       .sort(fieldSort(TARGET_FIELD).order(sortOrder))
-      .sort(fieldSort(AUTHORITY_ID_FIELD).missing(MISSING_LAST_PROP))
-      .sort(fieldSort("sourceId").missing(MISSING_LAST_PROP))
-      .sort(fieldSort("typeId").missing(MISSING_LAST_PROP).sortMode(SortMode.MAX));
+      .sort(fieldSort(AUTHORITY_ID_FIELD).order(sortOrder).missing(missingProp))
+      .sort(fieldSort("sourceId").order(sortOrder).missing(missingProp))
+      .sort(fieldSort("typeId").order(sortOrder).missing(missingProp).sortMode(SortMode.MAX));
   }
 
   private SearchSourceBuilder searchSource(QueryBuilder query) {
@@ -402,9 +411,9 @@ class SubjectBrowseServiceTest {
   private SearchSourceBuilder subjectTermQuery(String subjectValue, int size) {
     return searchSource(termQuery(TARGET_FIELD, subjectValue)).from(0).size(size)
       .sort(TARGET_FIELD)
-      .sort(fieldSort(AUTHORITY_ID_FIELD).missing(MISSING_LAST_PROP))
-      .sort(fieldSort("sourceId").missing(MISSING_LAST_PROP))
-      .sort(fieldSort("typeId").missing(MISSING_LAST_PROP).sortMode(SortMode.MAX));
+      .sort(fieldSort(AUTHORITY_ID_FIELD).missing(missingProp(ASC)))
+      .sort(fieldSort("sourceId").missing(missingProp(ASC)))
+      .sort(fieldSort("typeId").missing(missingProp(ASC)).sortMode(SortMode.MAX));
   }
 
   private BrowseContext browseContextAround(boolean includeAnchor) {
@@ -421,12 +430,16 @@ class SubjectBrowseServiceTest {
     var items = new MultiSearchResponse.Item[results.size()];
     for (int i = 0; i < results.size(); i++) {
       items[i] = mock(MultiSearchResponse.Item.class);
-      var searchResponse = mock(SearchResponse.class);
-      when(items[i].getResponse()).thenReturn(searchResponse);
-      when(documentConverter.convertToSearchResult(searchResponse, SubjectResource.class)).thenReturn(results.get(i));
+      var response = mock(SearchResponse.class);
+      when(items[i].getResponse()).thenReturn(response);
+      when(documentConverter.convertToSearchResult(response, SubjectResource.class)).thenReturn(results.get(i));
     }
 
     when(searchRepository.msearch(request, queries)).thenReturn(multiSearchResponse);
     when(multiSearchResponse.getResponses()).thenReturn(items);
+  }
+
+  private String missingProp(SortOrder order) {
+    return ASC.equals(order) ? MISSING_LAST_PROP : MISSING_FIRST_PROP;
   }
 }

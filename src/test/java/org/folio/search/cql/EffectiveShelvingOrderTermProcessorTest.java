@@ -1,6 +1,7 @@
 package org.folio.search.cql;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.utils.CallNumberUtils.getShelfKeyFromCallNumber;
 import static org.folio.search.utils.CallNumberUtils.normalizeEffectiveShelvingOrder;
 
 import java.util.List;
@@ -79,7 +80,7 @@ class EffectiveShelvingOrderTermProcessorTest {
   @NullAndEmptySource
   @ValueSource(strings = {"rack №1", "raw", " unknown", "3641.5943 M68 L ", "   "})
   void getSearchTerm(String given) {
-    var expected = normalizeEffectiveShelvingOrder(given);
+    var expected = getShelfKeyFromCallNumber(given).orElse(given);
     var actual = searchTermProcessor.getSearchTerm(given);
     assertThat(actual).isEqualTo(expected);
   }

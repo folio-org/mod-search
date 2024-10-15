@@ -1,6 +1,7 @@
 package org.folio.search.service.browse;
 
 import static org.folio.search.utils.SearchUtils.AUTHORITY_ID_FIELD;
+import static org.folio.search.utils.SearchUtils.MISSING_FIRST_PROP;
 import static org.folio.search.utils.SearchUtils.MISSING_LAST_PROP;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
@@ -45,11 +46,13 @@ public class ContributorBrowseService extends
     var boolQuery = boolQuery().must(termQuery(request.getTargetField(), context.getAnchor()));
     context.getFilters().forEach(boolQuery::filter);
     var query = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(context, boolQuery, request.getResource());
+    var sortOrder = context.isBrowsingForward() ? ASC : DESC;
+    var missingProperty = context.isBrowsingForward() ? MISSING_LAST_PROP : MISSING_FIRST_PROP;
     return searchSource().query(query)
-      .sort(fieldSort(request.getTargetField()))
-      .sort(fieldSort(AUTHORITY_ID_FIELD).missing(MISSING_LAST_PROP))
-      .sort(fieldSort(CONTRIBUTOR_NAME_TYPE_ID_FIELD).missing(MISSING_LAST_PROP))
-      .sort(fieldSort(CONTRIBUTOR_TYPE_ID_FIELD).missing(MISSING_LAST_PROP).sortMode(SortMode.MAX))
+      .sort(fieldSort(request.getTargetField()).order(sortOrder))
+      .sort(fieldSort(AUTHORITY_ID_FIELD).order(sortOrder).missing(missingProperty))
+      .sort(fieldSort(CONTRIBUTOR_NAME_TYPE_ID_FIELD).order(sortOrder).missing(missingProperty))
+      .sort(fieldSort(CONTRIBUTOR_TYPE_ID_FIELD).order(sortOrder).missing(missingProperty).sortMode(SortMode.MAX))
       .size(context.getLimit(context.isBrowsingForward()))
       .from(0);
   }
@@ -66,13 +69,15 @@ public class ContributorBrowseService extends
       ctx.getFilters().forEach(boolQuery::filter);
       query = boolQuery;
     }
+    var sortOrder = isBrowsingForward ? ASC : DESC;
+    var missingProperty = isBrowsingForward || !ctx.isBrowsingForward() ? MISSING_LAST_PROP : MISSING_FIRST_PROP;
     query = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(ctx, query, req.getResource());
     return searchSource().query(query)
       .searchAfter(new Object[] {getAnchorValue(req, ctx), null, null, null})
-      .sort(fieldSort(req.getTargetField()).order(isBrowsingForward ? ASC : DESC))
-      .sort(fieldSort(AUTHORITY_ID_FIELD).missing(MISSING_LAST_PROP))
-      .sort(fieldSort(CONTRIBUTOR_NAME_TYPE_ID_FIELD).missing(MISSING_LAST_PROP))
-      .sort(fieldSort(CONTRIBUTOR_TYPE_ID_FIELD).missing(MISSING_LAST_PROP).sortMode(SortMode.MAX))
+      .sort(fieldSort(req.getTargetField()).order(sortOrder))
+      .sort(fieldSort(AUTHORITY_ID_FIELD).order(sortOrder).missing(missingProperty))
+      .sort(fieldSort(CONTRIBUTOR_NAME_TYPE_ID_FIELD).order(sortOrder).missing(missingProperty))
+      .sort(fieldSort(CONTRIBUTOR_TYPE_ID_FIELD).order(sortOrder).missing(missingProperty).sortMode(SortMode.MAX))
       .size(ctx.getLimit(isBrowsingForward) + 1)
       .from(0);
   }

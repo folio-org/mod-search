@@ -34,7 +34,7 @@
       src/main/java/org/folio/search/configuration/properties/**
     </sonar.exclusions>
 
-    <folio-spring-support.version>8.2.0-SNAPSHOT</folio-spring-support.version>
+    <folio-spring-support.version>8.2.0</folio-spring-support.version>
     <folio-service-tools.version>4.1.0-SNAPSHOT</folio-service-tools.version>
     <folio-isbn-utils.version>1.7.0-SNAPSHOT</folio-isbn-utils.version>
     <folio-cql2pgjson.version>35.2.2</folio-cql2pgjson.version>
@@ -49,15 +49,16 @@
     <jackson-bom.version>2.16.0</jackson-bom.version>
 
     <!-- Plugins versions -->
-    <maven-openapi-generator-plugin.version>7.8.0</maven-openapi-generator-plugin.version>
+    <folio-module-descriptor-validator.version>1.0.0</folio-module-descriptor-validator.version>
+    <maven-openapi-generator-plugin.version>7.9.0</maven-openapi-generator-plugin.version>
     <maven-copy-rename-plugin.version>1.0.1</maven-copy-rename-plugin.version>
     <maven-build-helper-plugin.version>3.6.0</maven-build-helper-plugin.version>
     <maven-clean-plugin.version>3.4.0</maven-clean-plugin.version>
     <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
     <maven-checkstyle-plugin.version>3.5.0</maven-checkstyle-plugin.version>
     <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
-    <maven-surefire-plugin.version>3.5.0</maven-surefire-plugin.version>
-    <maven-failsafe-plugin.version>3.5.0</maven-failsafe-plugin.version>
+    <maven-surefire-plugin.version>3.5.1</maven-surefire-plugin.version>
+    <maven-failsafe-plugin.version>3.5.1</maven-failsafe-plugin.version>
     <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
     <checkstyle.version>10.18.2</checkstyle.version>
   </properties>
@@ -94,6 +95,13 @@
         </exclusion>
       </exclusions>
     </dependency>
+
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.14.0</version>
+    </dependency>
+
 
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -264,6 +272,14 @@
     </dependency>
   </dependencies>
 
+  <pluginRepositories>
+    <pluginRepository>
+      <id>folio-nexus</id>
+      <name>FOLIO Maven repository</name>
+      <url>https://repository.folio.org/repository/maven-folio</url>
+    </pluginRepository>
+  </pluginRepositories>
+
   <build>
     <plugins>
 
@@ -296,6 +312,19 @@
             </exclude>
           </excludes>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.folio</groupId>
+        <artifactId>folio-module-descriptor-validator</artifactId>
+        <version>${folio-module-descriptor-validator.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>validate</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
 
       <plugin>

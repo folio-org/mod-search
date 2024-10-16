@@ -9,9 +9,11 @@ import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.domain.dto.ReindexRequest;
+import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.browse.CallNumberBrowseRangeService;
 import org.folio.search.service.consortium.LanguageConfigServiceDecorator;
 import org.folio.search.service.metadata.ResourceDescriptionService;
+import org.folio.search.service.reindex.ReindexService;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.liquibase.FolioSpringLiquibase;
 import org.folio.spring.service.PrepareSystemUserService;
@@ -32,6 +34,7 @@ public class SearchTenantService extends TenantService {
   private static final String CENTRAL_TENANT_ID_PARAM_NAME = "centralTenantId";
 
   private final IndexService indexService;
+  private final ReindexService reindexService;
   private final KafkaAdminService kafkaAdminService;
   private final PrepareSystemUserService prepareSystemUserService;
   private final LanguageConfigServiceDecorator languageConfigService;
@@ -41,7 +44,7 @@ public class SearchTenantService extends TenantService {
 
   public SearchTenantService(JdbcTemplate jdbcTemplate, FolioExecutionContext context,
                              FolioSpringLiquibase folioSpringLiquibase, KafkaAdminService kafkaAdminService,
-                             IndexService indexService,
+                             IndexService indexService, ReindexService reindexService,
                              PrepareSystemUserService prepareSystemUserService,
                              LanguageConfigServiceDecorator languageConfigService,
                              CallNumberBrowseRangeService callNumberBrowseRangeService,
@@ -50,6 +53,7 @@ public class SearchTenantService extends TenantService {
     super(jdbcTemplate, context, folioSpringLiquibase);
     this.kafkaAdminService = kafkaAdminService;
     this.indexService = indexService;
+    this.reindexService = reindexService;
     this.prepareSystemUserService = prepareSystemUserService;
     this.languageConfigService = languageConfigService;
     this.callNumberBrowseRangeService = callNumberBrowseRangeService;
@@ -167,7 +171,12 @@ public class SearchTenantService extends TenantService {
       .filter(parameter -> parameter.getKey().equals(REINDEX_PARAM_NAME) && parseBoolean(parameter.getValue()))
       .findFirst()
       .ifPresent(parameter -> resourceNames.forEach(resource -> {
-        if (resourceDescriptionService.get(resource).isReindexSupported()) {
+        if (!resourceDescriptionService.get(resource).isReindexSupported()) {
+          return;
+        }
+        if (resource.getName().equals(ReindexEntityType.INSTANCE.getType())) {
+          reindexService.submitFullReindex(context.getTenantId(), null);
+        } else {
           indexService.reindexInventory(context.getTenantId(),
             new ReindexRequest().resourceName(ReindexRequest.ResourceNameEnum.fromValue(resource.getName())));
         }

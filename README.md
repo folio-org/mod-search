@@ -323,12 +323,13 @@ x-okapi-token: [JWT_TOKEN]
 
 {
   "recreateIndex": true,
-  "resourceName": "instance"
+  "resourceName": "authority"
 }
 ```
 
-* `resourceName` parameter is optional and equal to `instance` by default. Possible values: `instance`, `authority`, `location`,
+* `resourceName` parameter is optional and equal to `authority` by default. Possible values: `authority`, `location`,
   `linked-data-instance`, `linked-data-work`, `linked-data-hub`. Please note that `location` reindex is synchronous.
+  Refer to [Indexing of Instance Records](#indexing-of-instance-records) section for reindexing of instances
 * `recreateIndex` parameter is optional and equal to `false` by default. If it is equal to `true` then mod-search
   will drop existing indices for tenant and resource, creating them again. Executing request with this parameter
   equal to `true` in query will erase all the tenant data in mod-search.
@@ -341,13 +342,13 @@ There is no end-to-end monitoring implemented yet, however it is possible to mon
 how many records published to Kafka topic use inventory API:
 
 ```http
-GET [OKAPI_URL]/instance-storage/reindex/[reindex job id]
+GET [OKAPI_URL]/authority-storage/reindex/[reindex job id]
 ```
 
 _reindex job id_ - id returned by `/search/index/inventory/reindex` endpoint.
 
 In order to estimate total records that actually added to the index, you can send a "match all" search query and check
-`totalRecords`, e.g. `GET /search/instances?query=id="*"`. Alternatively you can query Elasticsearch directly,
+`totalRecords`, e.g. `GET /search/authorities?query=id="*"`. Alternatively you can query Elasticsearch directly,
 see [ES search API](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-all-query.html#query-dsl-match-all-query).
 
 ## Indexing of Instance Records

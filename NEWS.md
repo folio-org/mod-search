@@ -6,7 +6,7 @@
   * Endpoint `GET /search/consortium/batch/holdings` requires `consortium-search.holdings.batch.collection.get` permission
 
 ### New APIs versions
-* Provides `indices v0.8`
+* Provides `indices v1.0`
 * Provides `search v1.3`
 * Provides `consortium-search v2.0`
 * Provides `browse v1.4`
@@ -46,6 +46,7 @@
 * Support filters for subject source and type on subject browse ([MSEARCH-805](https://folio-org.atlassian.net/browse/MSEARCH-805))
 * Implement new re-index flow for instance records ([MSEARCH-793](https://folio-org.atlassian.net/issues/MSEARCH-793), [MSEARCH-794](https://folio-org.atlassian.net/issues/MSEARCH-794), [MSEARCH-796](https://folio-org.atlassian.net/issues/MSEARCH-796), [MSEARCH-797](https://folio-org.atlassian.net/issues/MSEARCH-797), [MSEARCH-798](https://folio-org.atlassian.net/issues/MSEARCH-798), [MSEARCH-799](https://folio-org.atlassian.net/issues/MSEARCH-799), [MSEARCH-800](https://folio-org.atlassian.net/issues/MSEARCH-800), [MSEARCH-801](https://folio-org.atlassian.net/issues/MSEARCH-801), [MSEARCH-802](https://folio-org.atlassian.net/issues/MSEARCH-802))
 * Implement Linked Data HUB index and search API ([MSEARCH-844](https://folio-org.atlassian.net/browse/MSEARCH-844))
+* Extend instance-records reindex endpoint with index settings ([MSEARCH-853](https://folio-org.atlassian.net/browse/MSEARCH-853))
 
 ### Bug fixes
 * Do not delete kafka topics if collection topic is enabled ([MSEARCH-725](https://folio-org.atlassian.net/browse/MSEARCH-725))

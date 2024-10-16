@@ -254,18 +254,18 @@ class IndexServiceTest {
 
   @Test
   void reindexInventory_positive_recreateIndexIsTrue() {
-    var indexName = getIndexName(INSTANCE, TENANT_ID);
+    var indexName = getIndexName(AUTHORITY, TENANT_ID);
     var createIndexResponse = getSuccessFolioCreateIndexResponse(List.of(indexName));
     var expectedResponse = new ReindexJob().id(randomId());
-    var expectedUri = URI.create("http://instance-storage/reindex");
+    var expectedUri = URI.create("http://authority-storage/reindex");
 
     when(resourceReindexClient.submitReindex(expectedUri)).thenReturn(expectedResponse);
-    when(mappingsHelper.getMappings(INSTANCE)).thenReturn(EMPTY_OBJECT);
-    when(settingsHelper.getSettingsJson(INSTANCE)).thenReturn(EMPTY_JSON_OBJECT);
+    when(mappingsHelper.getMappings(AUTHORITY)).thenReturn(EMPTY_OBJECT);
+    when(settingsHelper.getSettingsJson(AUTHORITY)).thenReturn(EMPTY_JSON_OBJECT);
     when(indexRepository.indexExists(indexName)).thenReturn(true, false);
     when(indexRepository.createIndex(indexName, EMPTY_OBJECT, EMPTY_OBJECT)).thenReturn(createIndexResponse);
-    when(resourceDescriptionService.find(INSTANCE)).thenReturn(
-      Optional.of(resourceDescription(INSTANCE)));
+    when(resourceDescriptionService.find(AUTHORITY)).thenReturn(
+      Optional.of(resourceDescription(AUTHORITY)));
 
     var actual = indexService.reindexInventory(TENANT_ID, new ReindexRequest().recreateIndex(true));
 
@@ -277,11 +277,11 @@ class IndexServiceTest {
   @Test
   void reindexInventory_positive_recreateIndexIsTrue_memberTenant() {
     var expectedResponse = new ReindexJob().id(randomId());
-    var expectedUri = URI.create("http://instance-storage/reindex");
+    var expectedUri = URI.create("http://authority-storage/reindex");
 
     when(resourceReindexClient.submitReindex(expectedUri)).thenReturn(expectedResponse);
-    when(resourceDescriptionService.find(INSTANCE)).thenReturn(
-      Optional.of(resourceDescription(INSTANCE)));
+    when(resourceDescriptionService.find(AUTHORITY)).thenReturn(
+      Optional.of(resourceDescription(AUTHORITY)));
     when(tenantProvider.getTenant(TENANT_ID)).thenReturn(CENTRAL_TENANT_ID);
 
     var actual = indexService.reindexInventory(TENANT_ID, new ReindexRequest().recreateIndex(true));
@@ -294,11 +294,11 @@ class IndexServiceTest {
   @Test
   void reindexInventory_positive_recreateIndexIsFalse() {
     var expectedResponse = new ReindexJob().id(randomId());
-    var expectedUri = URI.create("http://instance-storage/reindex");
+    var expectedUri = URI.create("http://authority-storage/reindex");
 
     when(resourceReindexClient.submitReindex(expectedUri)).thenReturn(expectedResponse);
-    when(resourceDescriptionService.find(INSTANCE)).thenReturn(
-      Optional.of(resourceDescription(INSTANCE)));
+    when(resourceDescriptionService.find(AUTHORITY)).thenReturn(
+      Optional.of(resourceDescription(AUTHORITY)));
 
     var actual = indexService.reindexInventory(TENANT_ID, new ReindexRequest());
     assertThat(actual).isEqualTo(expectedResponse);
@@ -308,7 +308,7 @@ class IndexServiceTest {
   @Test
   void reindexInventory_positive_resourceNameIsNull() {
     var expectedResponse = new ReindexJob().id(randomId());
-    var expectedUri = URI.create("http://instance-storage/reindex");
+    var expectedUri = URI.create("http://authority-storage/reindex");
 
     when(resourceDescriptionService.find(INSTANCE)).thenReturn(
       Optional.of(resourceDescription(INSTANCE)));
@@ -363,44 +363,6 @@ class IndexServiceTest {
     var actual = indexService.reindexInventory(TENANT_ID, null);
 
     assertThat(actual).isEqualTo(expectedResponse);
-    verifyNoInteractions(locationService);
-  }
-
-  @Test
-  void reindexInventory_positive_authorityRecord() {
-    var expectedResponse = new ReindexJob().id(randomId());
-    var expectedUri = URI.create("http://authority-storage/reindex");
-    var resourceName = AUTHORITY;
-
-    when(resourceReindexClient.submitReindex(expectedUri)).thenReturn(expectedResponse);
-    when(resourceDescriptionService.find(resourceName))
-      .thenReturn(Optional.of(resourceDescription(resourceName)));
-
-    var actual = indexService.reindexInventory(TENANT_ID, new ReindexRequest()
-      .resourceName(ResourceNameEnum.AUTHORITY));
-
-    assertThat(actual).isEqualTo(expectedResponse);
-    verifyNoInteractions(locationService);
-  }
-
-  @Test
-  void reindexInventory_positive_authorityRecordAndRecreateIndex() {
-    var reindexResponse = new ReindexJob().id(randomId());
-    var expectedUri = URI.create("http://authority-storage/reindex");
-    var indexName = getIndexName(AUTHORITY, TENANT_ID);
-
-    when(resourceReindexClient.submitReindex(expectedUri)).thenReturn(reindexResponse);
-    when(resourceDescriptionService.find(AUTHORITY)).thenReturn(
-      Optional.of(resourceDescription(AUTHORITY)));
-    when(mappingsHelper.getMappings(AUTHORITY)).thenReturn(EMPTY_OBJECT);
-    when(settingsHelper.getSettingsJson(AUTHORITY)).thenReturn(EMPTY_JSON_OBJECT);
-    when(indexRepository.createIndex(indexName, EMPTY_OBJECT, EMPTY_OBJECT))
-      .thenReturn(getSuccessFolioCreateIndexResponse(List.of(indexName)));
-
-    var reindexRequest = new ReindexRequest().resourceName(ResourceNameEnum.AUTHORITY).recreateIndex(true);
-    var actual = indexService.reindexInventory(TENANT_ID, reindexRequest);
-
-    assertThat(actual).isEqualTo(reindexResponse);
     verifyNoInteractions(locationService);
   }
 

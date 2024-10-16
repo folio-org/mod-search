@@ -8,7 +8,7 @@
 ### New APIs versions
 * Provides `indices v0.8`
 * Provides `search v1.3`
-* Provides `consortium-search v2.0`
+* Provides `consortium-search v2.1`
 * Provides `browse v1.4`
 * Requires `locations v3.0`
 * Requires `instance-storage v10.3 or v11.0`
@@ -48,6 +48,7 @@
 * Modify usage of shelving order for call number browse ([MSEARCH-831](https://folio-org.atlassian.net/browse/MSEARCH-831))
 * Implement new re-index flow for instance records ([MSEARCH-793](https://folio-org.atlassian.net/issues/MSEARCH-793), [MSEARCH-794](https://folio-org.atlassian.net/issues/MSEARCH-794), [MSEARCH-796](https://folio-org.atlassian.net/issues/MSEARCH-796), [MSEARCH-797](https://folio-org.atlassian.net/issues/MSEARCH-797), [MSEARCH-798](https://folio-org.atlassian.net/issues/MSEARCH-798), [MSEARCH-799](https://folio-org.atlassian.net/issues/MSEARCH-799), [MSEARCH-800](https://folio-org.atlassian.net/issues/MSEARCH-800), [MSEARCH-801](https://folio-org.atlassian.net/issues/MSEARCH-801), [MSEARCH-802](https://folio-org.atlassian.net/issues/MSEARCH-802))
 * Implement Linked Data HUB index and search API ([MSEARCH-844](https://folio-org.atlassian.net/browse/MSEARCH-844))
+* Extend consortium library, campus, institution API with id param ([MSEARCH-855](https://folio-org.atlassian.net/browse/MSEARCH-855))
 
 ### Bug fixes
 * Do not delete kafka topics if collection topic is enabled ([MSEARCH-725](https://folio-org.atlassian.net/browse/MSEARCH-725))

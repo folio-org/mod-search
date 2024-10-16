@@ -9,5 +9,8 @@ properties:
   name:
     description: Institution name
     type: string
+  code:
+    description: Institution code
+    type: string
   metadata:
     $ref: "../dto/common/metadata.yaml"

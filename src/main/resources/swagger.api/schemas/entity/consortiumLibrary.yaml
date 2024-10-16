@@ -12,5 +12,8 @@ properties:
   campusId:
     description: The UUID of the campus, the second-level location unit, this (shelf) library belongs to.
     type: string
+  code:
+    description: Library code
+    type: string
   metadata:
     $ref: "../dto/common/metadata.yaml"

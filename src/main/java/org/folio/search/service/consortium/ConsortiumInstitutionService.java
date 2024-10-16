@@ -20,20 +20,22 @@ public class ConsortiumInstitutionService {
 
   public SearchResult<ConsortiumInstitution> fetchInstitutions(String tenantHeader,
                                                                String tenantId,
+                                                               String id,
                                                                Integer limit,
                                                                Integer offset,
                                                                String sortBy,
                                                                SortOrder sortOrder) {
-    log.info("fetching consortium institution for tenant: {}, tenantId: {}, sortBy: {}",
+    log.info("fetching consortium institution for tenant: {}, tenantId: {}, id: {}, sortBy: {}",
       tenantHeader,
       tenantId,
+      id,
       sortBy);
 
     validateSortByValue(sortBy);
 
     return executor.execute(
       tenantHeader,
-      () -> repository.fetchInstitutions(tenantHeader, tenantId, limit, offset, sortBy, sortOrder));
+      () -> repository.fetchInstitutions(tenantHeader, tenantId, id, limit, offset, sortBy, sortOrder));
   }
 
   private void validateSortByValue(String sortBy) {

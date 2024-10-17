@@ -74,9 +74,9 @@ class IndexManagementIT extends BaseIntegrationTest {
 
     mockMvc.perform(request)
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.id", is("77ef33c0-2774-45e9-9f45-eb54082e2820")))
+      .andExpect(jsonPath("$.id", is("37bd1461-ee1a-4522-9f8c-93bab186fad3")))
       .andExpect(jsonPath("$.jobStatus", is("In progress")))
-      .andExpect(jsonPath("$.submittedDate", is("2021-11-08T12:00:00.000+00:00")));
+      .andExpect(jsonPath("$.submittedDate", is("2021-11-08T13:00:00.000+00:00")));
   }
 
   @Test

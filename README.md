@@ -77,7 +77,7 @@ mvn install
 
 See that it says "BUILD SUCCESS" near the end.
 
-By default the integration tests run against an OpenSearch server.
+By default, the integration tests run against an OpenSearch server.
 To run them against an Elasticsearch server use
 
 ```shell
@@ -371,7 +371,7 @@ update or sync the aggregated data of those specific Instances, so that the aggr
 
 Upload step queries the aggregated data for the specific Instance resources type and then runs the indexing by populating the data into resource's OpenSearch index.
 
-We can execute both Merge and Upload steps with so called _full reindex_ API:
+We can execute both Merge and Upload steps with so-called _full reindex_ API:
 ```http
 POST /search/index/instance-records/reindex/full
 ```
@@ -644,7 +644,7 @@ does not produce any values, so the following search options will return an empt
 | `modeOfIssuanceId`                     |   term    | `modeOfIssuanceId=="123"`                                            | Matches instances that have `123` mode of issuance                                                                                                |
 | `natureOfContentTermIds`               |   term    | `natureOfContentTermIds=="123"`                                      | Matches instances that have `123` nature of content                                                                                               |
 | `publisher`                            | full-text | `publisher all "Publisher of Ukraine"`                               | Matches instances that have `Publisher of Ukraine` publisher                                                                                      |
-| `publication.place`                    | full-text   | `publication.place all "Ukraine"`                                    | Matches instances that have `Ukraine` in publication place                                                                                        |
+| `publication.place`                    | full-text | `publication.place all "Ukraine"`                                    | Matches instances that have `Ukraine` in publication place                                                                                        |
 | `instanceTags`                         |   term    | `instanceTags=="important"`                                          | Matches instances that have `important` tag                                                                                                       |
 | `classifications.classificationNumber` |   term    | `classifications.classificationNumber=="cl1"`                        | Matches instances that have `cl1` classification number                                                                                           |
 | `classifications.classificationTypeId` |   term    | `classifications.classificationTypeId=="123"`                        | Matches instances that have classification type id `123`                                                                                          |
@@ -949,7 +949,7 @@ Send a POST request to create a Job
 }
 ```
 
-It is possible to check job status by jobs Id.
+It is possible to check job status by job ID.
 
 `GET /search/resources/jobs/{jobId}`
 

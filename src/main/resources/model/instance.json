@@ -182,17 +182,11 @@
         "createdByUserId": {
           "index": "keyword_lowercase"
         },
-        "createdByUsername": {
-          "index": "keyword_lowercase"
-        },
         "updatedDate": {
           "searchTypes": "filter",
           "index": "date"
         },
         "updatedByUserId": {
-          "index": "keyword_lowercase"
-        },
-        "updatedByUsername": {
           "index": "keyword_lowercase"
         }
       }
@@ -235,7 +229,7 @@
       "type": "object",
       "properties": {
         "classificationNumber": {
-          "index": "keyword_lowercase"
+          "index": "keyword_icu"
         },
         "classificationTypeId": {
           "searchTypes": [ "filter" ],
@@ -262,7 +256,7 @@
       "properties": {
         "uri": {
           "searchAliases": [ "electronicAccess" ],
-          "index": "keyword_lowercase"
+          "index": "keyword_icu"
         },
         "linkText": {
           "searchAliases": [ "electronicAccess" ],
@@ -312,16 +306,16 @@
           "index": "keyword_lowercase"
         },
         "accessionNumber": {
-          "index": "keyword_lowercase"
+          "index": "keyword_icu"
         },
         "formerIds": {
-          "index": "keyword_lowercase"
+          "index": "keyword_icu"
         },
         "itemIdentifier": {
           "index": "source"
         },
         "barcode": {
-          "index": "keyword_lowercase"
+          "index": "keyword_icu"
         },
         "effectiveLocationId": {
           "searchTypes": [ "facet", "filter" ],
@@ -330,7 +324,7 @@
         },
         "statisticalCodeIds": {
           "searchTypes": [ "facet", "filter" ],
-          "index": "keyword_lowercase"
+          "index": "keyword_icu"
         },
         "status": {
           "type": "object",
@@ -396,7 +390,7 @@
           "properties": {
             "uri": {
               "searchAliases": [ "items.electronicAccess" ],
-              "index": "keyword_lowercase"
+              "index": "keyword_icu"
             },
             "linkText": {
               "searchAliases": [ "items.electronicAccess" ],
@@ -448,17 +442,11 @@
             "createdByUserId": {
               "index": "keyword_lowercase"
             },
-            "createdByUsername": {
-              "index": "keyword_lowercase"
-            },
             "updatedDate": {
               "searchTypes": "filter",
               "index": "date"
             },
             "updatedByUserId": {
-              "index": "keyword_lowercase"
-            },
-            "updatedByUsername": {
               "index": "keyword_lowercase"
             }
           }
@@ -489,7 +477,7 @@
         },
         "statisticalCodeIds": {
           "searchTypes": [ "facet", "filter" ],
-          "index": "keyword_lowercase"
+          "index": "keyword_icu"
         },
         "discoverySuppress": {
           "$type": "suppress"
@@ -513,7 +501,7 @@
           "properties": {
             "uri": {
               "searchAliases": [ "holdings.electronicAccess" ],
-              "index": "keyword_lowercase"
+              "index": "keyword_icu"
             },
             "linkText": {
               "searchAliases": [ "holdings.electronicAccess" ],
@@ -552,17 +540,11 @@
             "createdByUserId": {
               "index": "keyword_lowercase"
             },
-            "createdByUsername": {
-              "index": "keyword_lowercase"
-            },
             "updatedDate": {
               "searchTypes": "filter",
               "index": "date"
             },
             "updatedByUserId": {
-              "index": "keyword_lowercase"
-            },
-            "updatedByUsername": {
               "index": "keyword_lowercase"
             }
           }
@@ -574,7 +556,7 @@
     "sort_title": {
       "searchTypes": "sort",
       "type": "search",
-      "index": "keyword_lowercase",
+      "index": "keyword_icu",
       "processor": "sortTitleProcessor"
     },
     "normalizedDate1": {
@@ -590,7 +572,7 @@
     "sort_contributors": {
       "searchTypes": "sort",
       "type": "search",
-      "index": "keyword_lowercase",
+      "index": "keyword_icu",
       "processor": "sortContributorsProcessor"
     },
     "publicNotes": {
@@ -630,19 +612,19 @@
     "instanceTags": {
       "searchTypes": [ "facet", "filter" ],
       "type": "search",
-      "index": "keyword_lowercase",
+      "index": "keyword_icu",
       "processor": "tagsProcessor"
     },
     "itemTags": {
       "searchTypes": [ "facet", "filter" ],
       "type": "search",
-      "index": "keyword_lowercase",
+      "index": "keyword_icu",
       "processor": "itemTagsProcessor"
     },
     "holdingsTags": {
       "searchTypes": [ "facet", "filter" ],
       "type": "search",
-      "index": "keyword_lowercase",
+      "index": "keyword_icu",
       "processor": "holdingsTagsProcessor"
     },
     "holdingsTypeId": {
@@ -654,18 +636,18 @@
     "statisticalCodes": {
       "searchTypes": [ "facet", "filter" ],
       "type": "search",
-      "index": "keyword_lowercase",
+      "index": "keyword_icu",
       "processor": "statisticalCodesProcessor"
     },
     "itemFullCallNumbers": {
       "type": "search",
-      "index": "keyword_lowercase",
+      "index": "keyword_icu",
       "searchAliases": [ "items.effectiveCallNumberComponents", "items.fullCallNumber" ],
       "processor": "effectiveCallNumberComponentsProcessor"
     },
     "holdingsFullCallNumbers": {
       "type": "search",
-      "index": "keyword_lowercase",
+      "index": "keyword_icu",
       "searchAliases": [ "holdings.fullCallNumber" ],
       "processor": "holdingsCallNumberComponentsProcessor"
     },
@@ -685,12 +667,12 @@
     },
     "holdingsIdentifiers": {
       "type": "search",
-      "index": "keyword_lowercase",
+      "index": "keyword_icu",
       "processor": "holdingsIdentifiersProcessor"
     },
     "itemIdentifiers": {
       "type": "search",
-      "index": "keyword_lowercase",
+      "index": "keyword_icu",
       "processor": "itemIdentifiersProcessor"
     },
     "uniformTitle": {
@@ -717,7 +699,7 @@
     },
     "itemEffectiveShelvingOrder": {
       "type": "search",
-      "index": "keyword_lowercase",
+      "index": "keyword_icu",
       "searchAliases": [ "items.effectiveShelvingOrder" ],
       "processor": "itemEffectiveShelvingOrderProcessor"
     },
@@ -747,13 +729,13 @@
     },
     "lccn": {
       "type": "search",
-      "index": "keyword_lowercase",
+      "index": "keyword_icu",
       "processor": "lccnInstanceProcessor",
       "searchTermProcessor": "lccnSearchTermProcessor"
     },
     "normalizedClassificationNumber": {
       "type": "search",
-      "index": "keyword_lowercase",
+      "index": "keyword_icu",
       "processor": "classificationNumberProcessor",
       "searchTermProcessor": "classificationNumberSearchTermProcessor"
     }
@@ -768,7 +750,6 @@
       "normalizedDate1",
       "callNumber",
       "typedCallNumber",
-      "itemEffectiveShelvingOrder",
       "callNumberType",
 
       "alternativeTitles.alternativeTitle",

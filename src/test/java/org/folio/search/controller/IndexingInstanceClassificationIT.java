@@ -58,10 +58,10 @@ class IndexingInstanceClassificationIT extends BaseIntegrationTest {
     @SuppressWarnings("unchecked")
     var instances = (List<Map<String, Object>>) sourceAsMap.get("instances");
     assertThat(instances)
+      .hasSize(1)
       .allSatisfy(map -> assertThat(map).containsEntry("shared", false))
       .allSatisfy(map -> assertThat(map).containsEntry("tenantId", TENANT_ID))
-      .anySatisfy(map -> assertThat(map).containsEntry("instanceId", instanceId1))
-      .anySatisfy(map -> assertThat(map).containsEntry("instanceId", instanceId2));
+      .allSatisfy(map -> assertThat(map).containsEntry("count", 2));
   }
 
   @Test

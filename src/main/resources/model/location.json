@@ -62,17 +62,11 @@
         "createdByUserId": {
           "index": "keyword_lowercase"
         },
-        "createdByUsername": {
-          "index": "keyword_lowercase"
-        },
         "updatedDate": {
           "searchTypes": "filter",
           "index": "date"
         },
         "updatedByUserId": {
-          "index": "keyword_lowercase"
-        },
-        "updatedByUsername": {
           "index": "keyword_lowercase"
         }
       }

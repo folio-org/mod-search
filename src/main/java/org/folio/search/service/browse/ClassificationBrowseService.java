@@ -135,9 +135,7 @@ public class ClassificationBrowseService
   private Integer getTotalRecords(BrowseContext ctx, ClassificationResource classificationResource) {
     return consortiumSearchHelper.filterSubResourcesForConsortium(ctx, classificationResource,
         ClassificationResource::instances).stream()
-      .map(InstanceSubResource::getInstanceId)
-      .distinct()
-      .map(e -> 1)
+      .map(InstanceSubResource::getCount)
       .reduce(0, Integer::sum);
   }
 

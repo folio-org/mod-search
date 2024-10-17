@@ -73,7 +73,7 @@ class ElasticsearchDocumentConverterTest {
         instance(instance -> instance.setIdentifiers(List.of(identifier("isbn1"), identifier("isbn2"))))),
 
       arguments(
-        mapOf("metadata", mapOf("updatedByUserId", "userId", "createdByUsername", "username")),
+        mapOf("metadata", mapOf("updatedByUserId", "userId")),
         instance(instance -> instance.setMetadata(metadata()))),
 
       arguments(
@@ -120,7 +120,6 @@ class ElasticsearchDocumentConverterTest {
   private static Metadata metadata() {
     var metadata = new Metadata();
     metadata.setUpdatedByUserId("userId");
-    metadata.setCreatedByUsername("username");
     return metadata;
   }
 

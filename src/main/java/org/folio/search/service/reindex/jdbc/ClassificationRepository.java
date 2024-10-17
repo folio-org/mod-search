@@ -26,20 +26,45 @@ import org.springframework.stereotype.Repository;
 public class ClassificationRepository extends UploadRangeRepository {
 
   private static final String SELECT_QUERY = """
-    SELECT c.id as id, c.number as number, c.type_id as type_id, json_agg(json_build_object(
-                'instanceId', ic.instance_id,
-                'shared', ic.shared,
-                'tenantId', ic.tenant_id
-            )) AS instances
-    FROM %1$s.instance_classification ic
-    JOIN %1$s.classification c ON c.id = ic.classification_id
-    WHERE %2$s
-    GROUP BY c.id;
+    SELECT
+        c.id,
+        c.number,
+        c.type_id,
+        json_agg(
+            json_build_object(
+                'count', sub.instance_count,
+                'shared', sub.shared,
+                'tenantId', sub.tenant_id
+            )
+        ) AS instances
+    FROM
+        (
+            SELECT
+                ins.classification_id,
+                ins.tenant_id,
+                ins.shared,
+                COUNT(1) AS instance_count
+            FROM
+                %1$s.instance_classification ins
+            WHERE
+                %2$s
+            GROUP BY
+                ins.classification_id,
+                ins.tenant_id,
+                ins.shared
+        ) sub
+    JOIN
+        %1$s.classification c ON c.id = sub.classification_id
+    WHERE
+        %3$s
+    GROUP BY
+        c.id;
     """;
 
-  private static final String ID_RANGE_WHERE_CLAUSE = "ic.classification_id >= ? AND ic.classification_id <= ? "
-                                                      + "AND c.id >= ? AND c.id <= ?";
-  private static final String IDS_WHERE_CLAUSE = "ic.classification_id IN (%1$s) AND c.id IN (%1$s)";
+  private static final String ID_RANGE_INS_WHERE_CLAUSE = "ins.classification_id >= ? AND ins.classification_id <= ?";
+  private static final String ID_RANGE_CLAS_WHERE_CLAUSE = "c.id >= ? AND c.id <= ?";
+  private static final String IDS_INS_WHERE_CLAUSE = "ins.classification_id IN (%1$s)";
+  private static final String IDS_CLAS_WHERE_CLAUSE = "c.id IN (%1$s)";
 
   protected ClassificationRepository(JdbcTemplate jdbcTemplate,
                                      JsonConverter jsonConverter,
@@ -68,7 +93,8 @@ public class ClassificationRepository extends UploadRangeRepository {
       return Collections.emptyList();
     }
     var sql = SELECT_QUERY.formatted(JdbcUtils.getSchemaName(context),
-      IDS_WHERE_CLAUSE.formatted(getParamPlaceholder(ids.size())));
+      IDS_INS_WHERE_CLAUSE.formatted(getParamPlaceholder(ids.size())),
+      IDS_CLAS_WHERE_CLAUSE.formatted(getParamPlaceholder(ids.size())));
     return jdbcTemplate.query(sql, instanceClassificationAggRowMapper(), ListUtils.union(ids, ids).toArray());
   }
 
@@ -80,7 +106,9 @@ public class ClassificationRepository extends UploadRangeRepository {
 
   @Override
   protected String getFetchBySql() {
-    return SELECT_QUERY.formatted(JdbcUtils.getSchemaName(context), ID_RANGE_WHERE_CLAUSE);
+    return SELECT_QUERY.formatted(JdbcUtils.getSchemaName(context),
+      ID_RANGE_INS_WHERE_CLAUSE,
+      ID_RANGE_CLAS_WHERE_CLAUSE);
   }
 
   @Override

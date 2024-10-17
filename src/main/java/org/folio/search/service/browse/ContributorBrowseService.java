@@ -1,6 +1,5 @@
 package org.folio.search.service.browse;
 
-import static java.util.Objects.nonNull;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.MISSING_FIRST_PROP;
 import static org.folio.search.utils.SearchUtils.MISSING_LAST_PROP;
@@ -12,6 +11,8 @@ import static org.opensearch.search.sort.SortBuilders.fieldSort;
 import static org.opensearch.search.sort.SortOrder.ASC;
 import static org.opensearch.search.sort.SortOrder.DESC;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -96,7 +97,8 @@ public class ContributorBrowseService extends
           ContributorResource::instances);
         var typeIds = filteredInstanceResources.stream()
           .map(InstanceSubResource::getTypeId)
-          .filter(typeId -> nonNull(typeId) && !typeId.equals("null"))
+          .filter(Objects::nonNull)
+          .flatMap(List::stream)
           .distinct()
           .sorted()
           .toList();
@@ -118,10 +120,7 @@ public class ContributorBrowseService extends
 
   private Integer getTotalRecords(Set<InstanceSubResource> filteredInstanceResources) {
     return filteredInstanceResources.stream()
-      .map(InstanceSubResource::getInstanceId)
-      .filter(instanceId -> nonNull(instanceId) && !instanceId.equals("null"))
-      .distinct()
-      .map(e -> 1)
+      .map(InstanceSubResource::getCount)
       .reduce(0, Integer::sum);
   }
 }

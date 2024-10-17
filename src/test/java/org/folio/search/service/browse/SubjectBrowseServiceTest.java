@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Set;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.ResourceRequest;
 import org.folio.search.model.SearchResult;
@@ -377,10 +377,13 @@ class SubjectBrowseServiceTest {
   }
 
   private SubjectResource[] browseItems(String... subject) {
-    return Arrays.stream(subject).map(sub -> new SubjectResource("id", sub, null, null, null, sub.chars()
-      .mapToObj(String::valueOf)
-      .map(s -> InstanceSubResource.builder().instanceId(s).build())
-      .collect(Collectors.toSet()))).toArray(SubjectResource[]::new);
+    return Arrays.stream(subject)
+      .map(sub -> new SubjectResource("id", sub, null, null, null, buildSubResources(sub)))
+      .toArray(SubjectResource[]::new);
+  }
+
+  private Set<InstanceSubResource> buildSubResources(String sub) {
+    return Set.of(InstanceSubResource.builder().count(sub.length()).tenantId(TENANT_ID).build());
   }
 
   private SearchSourceBuilder backwardSearchSource(String subject, int size, SortOrder sortOrder) {

@@ -54,10 +54,7 @@ class BrowseCallNumberAroundIT extends BaseIntegrationTest {
       .param("precedingRecordsCount", "9");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
     assertThat(actual).isEqualTo(new CallNumberBrowseResult()
-      .totalRecords(59).prev("C23 987").next("E 3184 S75 1243").items(List.of(
-        cnBrowseItemWithNoType(instance("instance #34"), "C23 987"),
-        cnBrowseItemWithNoType(instance("instance #33"), "D15.H63 A3 2002"),
-        cnBrowseItemWithNoType(instance("instance #27"), "E 3184 S74 5671"),
+      .totalRecords(64).prev("E 43184 S74 45672").next("E 43184 S75 41243").items(List.of(
         cnBrowseItemWithNoType(instance("instance #28"), "E 3184 S74 5672"),
         cnBrowseItemWithNoType(instance("instance #29"), "E 3184 S74 5673"),
         cnBrowseItemWithNoType(instance("instance #30"), "E 3184 S74 5674"),
@@ -87,7 +84,7 @@ class BrowseCallNumberAroundIT extends BaseIntegrationTest {
       .param("precedingRecordsCount", "1");
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
     assertThat(actual).isEqualTo(new CallNumberBrowseResult()
-      .totalRecords(59).prev("E 3184 S75 1233").next("G75 1255").items(List.of(
+      .totalRecords(64).prev("E 43184 S75 41233").next("G 275 41255").items(List.of(
         cnBrowseItemWithNoType(instance("instance #03"), "E 3184 S75 1233"),
         cnBrowseItemWithNoType(instance("instance #04"), "E 3184 S75 1234", true),
         cnBrowseItemWithNoType(instance("instance #05"), "E 3184 S75 1235"),

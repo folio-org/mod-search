@@ -131,10 +131,8 @@
       "metadata": {
         "createdDate": "2020-12-08T15:47:13.625+00:00",
         "createdByUserId": null,
-        "createdByUsername": null,
         "updatedDate": "2021-01-15T15:17:22.851+00:00",
-        "updatedByUserId": "d2533d6c-a42c-5bff-ad77-22f87c297925",
-        "updatedByUsername": null
+        "updatedByUserId": "d2533d6c-a42c-5bff-ad77-22f87c297925"
       },
       "administrativeNotes": [
         "original + pcc",
@@ -218,7 +216,7 @@
             "suffix": "suffix-10101",
             "typeId": "512173a7-bd09-490e-b773-17d83f2b63fe"
           },
-          "effectiveShelvingOrder": "TK 45105.88815 A58 42004 FT MEADE",
+          "effectiveShelvingOrder": "TK 45105.88815 A58 42004 FT MEADE V1 COPY 12 SUFFIX 510101",
           "itemLevelCallNumberTypeId": "5ba6b62e-6858-490a-8102-5b1369873835",
           "tags": {
             "tagList": [
@@ -250,10 +248,8 @@
           "metadata": {
             "createdDate": "2020-12-08T15:47:21.327+00:00",
             "createdByUserId": null,
-            "createdByUsername": null,
             "updatedDate": "2021-01-18T08:17:56.752+00:00",
-            "updatedByUserId": "d2533d6c-a42c-5bff-ad77-22f87c297925",
-            "updatedByUsername": null
+            "updatedByUserId": "d2533d6c-a42c-5bff-ad77-22f87c297925"
           }
         },
         {
@@ -277,7 +273,7 @@
             "suffix": "suffix-90000",
             "typeId": "512173a7-bd09-490e-b773-17d83f2b63fe"
           },
-          "effectiveShelvingOrder": "TK 45105.88815 A58 42004 FT MEADE",
+          "effectiveShelvingOrder": "TK 45105.88815 A58 42004 FT MEADE SUFFIX 590000",
           "itemLevelCallNumberTypeId": null,
           "tags": null,
           "electronicAccess": [
@@ -321,10 +317,8 @@
           "metadata": {
             "createdDate": "2020-12-08T15:47:22.827+00:00",
             "createdByUserId": null,
-            "createdByUsername": null,
             "updatedDate": "2020-12-08T15:47:22.827+00:00",
-            "updatedByUserId": null,
-            "updatedByUsername": null
+            "updatedByUserId": null
           }
         },
         {
@@ -348,7 +342,7 @@
             "suffix": "suff 2",
             "typeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35"
           },
-          "effectiveShelvingOrder": "3332 12 suff 2",
+          "effectiveShelvingOrder": "3332 12 SUFF 12",
           "itemLevelCallNumberTypeId": null,
           "tags": {
             "tagList": []
@@ -361,10 +355,8 @@
           "metadata": {
             "createdDate": "2024-03-14T13:05:09.406+00:00",
             "createdByUserId": "93fc1367-7321-4836-b2a7-cbc7ffe8c20e",
-            "createdByUsername": null,
             "updatedDate": "2024-03-14T13:05:09.406+00:00",
-            "updatedByUserId": "93fc1367-7321-4836-b2a7-cbc7ffe8c20e",
-            "updatedByUsername": null
+            "updatedByUserId": "93fc1367-7321-4836-b2a7-cbc7ffe8c20e"
           }
         }
       ],
@@ -394,10 +386,8 @@
           "metadata": {
             "createdDate": "2021-03-04T12:36:57.751+00:00",
             "createdByUserId": "d2533d6c-a42c-5bff-ad77-22f87c297925",
-            "createdByUsername": null,
             "updatedDate": "2021-03-04T12:36:57.751+00:00",
-            "updatedByUserId": "d2533d6c-a42c-5bff-ad77-22f87c297925",
-            "updatedByUsername": null
+            "updatedByUserId": "d2533d6c-a42c-5bff-ad77-22f87c297925"
           }
         },
         {
@@ -444,10 +434,8 @@
           "metadata": {
             "createdDate": "2021-03-04T12:36:17.211+00:00",
             "createdByUserId": "d2533d6c-a42c-5bff-ad77-22f87c297925",
-            "createdByUsername": null,
             "updatedDate": "2021-03-04T12:36:17.211+00:00",
-            "updatedByUserId": "d2533d6c-a42c-5bff-ad77-22f87c297925",
-            "updatedByUsername": null
+            "updatedByUserId": "d2533d6c-a42c-5bff-ad77-22f87c297925"
           }
         },
         {
@@ -478,10 +466,8 @@
           "metadata": {
             "createdDate": "2020-12-08T15:47:19.330+00:00",
             "createdByUserId": null,
-            "createdByUsername": null,
             "updatedDate": "2020-12-08T15:47:19.330+00:00",
-            "updatedByUserId": null,
-            "updatedByUsername": null
+            "updatedByUserId": null
           }
         }
       ]

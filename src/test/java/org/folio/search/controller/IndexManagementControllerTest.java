@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import org.folio.search.domain.dto.CreateIndexRequest;
 import org.folio.search.domain.dto.IndexDynamicSettings;
+import org.folio.search.domain.dto.IndexSettings;
 import org.folio.search.domain.dto.ReindexJob;
 import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.domain.dto.ReindexStatusItem;
@@ -80,9 +81,19 @@ class IndexManagementControllerTest {
 
   @Test
   void submitReindexFull_positive() throws Exception {
-    when(reindexService.submitFullReindex(TENANT_ID)).thenReturn(new CompletableFuture<>());
+    when(reindexService.submitFullReindex(TENANT_ID, null)).thenReturn(new CompletableFuture<>());
 
-    mockMvc.perform(post(reindexFullPath()).header(XOkapiHeaders.TENANT, TENANT_ID))
+    mockMvc.perform(post(reindexFullPath())
+        .contentType(APPLICATION_JSON).header(XOkapiHeaders.TENANT, TENANT_ID))
+      .andExpect(status().isOk());
+  }
+
+  @Test
+  void submitReindexFull_positive_withSettings() throws Exception {
+    var requestBody = new IndexSettings().numberOfShards(1).refreshInterval(2).numberOfReplicas(3);
+    when(reindexService.submitFullReindex(TENANT_ID, requestBody)).thenReturn(new CompletableFuture<>());
+
+    mockMvc.perform(preparePostRequest(reindexFullPath(), asJsonString(requestBody)))
       .andExpect(status().isOk());
   }
 
@@ -90,6 +101,19 @@ class IndexManagementControllerTest {
   void submitReindexUpload_positive() throws Exception {
     when(reindexService.submitUploadReindex(eq(TENANT_ID), anyList())).thenReturn(new CompletableFuture<>());
     var requestBody = new ReindexUploadDto().addEntityTypesItem(ReindexUploadDto.EntityTypesEnum.INSTANCE);
+
+    mockMvc.perform(preparePostRequest(reindexUploadPath(), asJsonString(requestBody))
+        .header(XOkapiHeaders.TENANT, TENANT_ID))
+      .andExpect(status().isOk());
+  }
+
+  @Test
+  void submitReindexUpload_positive_withSettings() throws Exception {
+    var indexSettings = new IndexSettings().numberOfShards(1).refreshInterval(2).numberOfReplicas(3);
+    var requestBody = new ReindexUploadDto()
+      .addEntityTypesItem(ReindexUploadDto.EntityTypesEnum.INSTANCE)
+      .indexSettings(indexSettings);
+    when(reindexService.submitUploadReindex(TENANT_ID, requestBody)).thenReturn(new CompletableFuture<>());
 
     mockMvc.perform(preparePostRequest(reindexUploadPath(), asJsonString(requestBody))
         .header(XOkapiHeaders.TENANT, TENANT_ID))

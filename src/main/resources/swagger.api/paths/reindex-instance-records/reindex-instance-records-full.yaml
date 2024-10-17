@@ -4,6 +4,14 @@ post:
   description: Initiates the full reindex for the inventory instance records
   tags:
     - index-management
+  requestBody:
+    content:
+      application/json:
+        examples:
+          indexSettings:
+            $ref: '../../examples/request/indexSettings.yaml'
+        schema:
+          $ref: '../../schemas/entity/indexSettings.yaml'
   parameters:
     - $ref: '../../parameters/x-okapi-tenant-header.yaml'
   responses:

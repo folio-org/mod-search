@@ -8,9 +8,8 @@ properties:
   resourceName:
     type: string
     description: Resource name to run reindex for
-    default: instance
+    default: authority
     enum:
-      - instance
       - authority
       - location
       - linked-data-instance

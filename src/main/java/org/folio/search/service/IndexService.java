@@ -272,7 +272,7 @@ public class IndexService {
 
   private static ResourceType getReindexRequestResourceType(ReindexRequest req) {
     return req == null || req.getResourceName() == null
-           ? ResourceType.INSTANCE
+           ? ResourceType.AUTHORITY
            : ResourceType.byName(req.getResourceName().getValue());
   }
 

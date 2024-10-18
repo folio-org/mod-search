@@ -5,6 +5,7 @@ post:
   tags:
     - index-management
   requestBody:
+    required: true
     content:
       application/json:
         examples:

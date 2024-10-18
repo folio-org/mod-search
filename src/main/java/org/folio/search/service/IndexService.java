@@ -271,9 +271,7 @@ public class IndexService {
   }
 
   private static ResourceType getReindexRequestResourceType(ReindexRequest req) {
-    return req == null || req.getResourceName() == null
-           ? ResourceType.INSTANCE
-           : ResourceType.byName(req.getResourceName().getValue());
+    return ResourceType.byName(req.getResourceName().getValue());
   }
 
   private void validateResourceName(ResourceType resourceName, String message) {

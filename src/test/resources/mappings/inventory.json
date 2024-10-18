@@ -191,23 +191,6 @@
     {
       "request": {
         "method": "POST",
-        "url": "/instance-storage/reindex"
-      },
-      "response": {
-        "status": 200,
-        "jsonBody": {
-          "id": "77ef33c0-2774-45e9-9f45-eb54082e2820",
-          "jobStatus": "In progress",
-          "submittedDate": "2021-11-08T12:00:00.000+00:00"
-        },
-        "headers": {
-          "Content-Type": "application/json"
-        }
-      }
-    },
-    {
-      "request": {
-        "method": "POST",
         "url": "/authority-storage/reindex"
       },
       "response": {

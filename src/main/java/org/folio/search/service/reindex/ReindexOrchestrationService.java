@@ -1,15 +1,14 @@
 package org.folio.search.service.reindex;
 
-import java.util.Arrays;
 import java.util.Collection;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.message.FormattedMessage;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
-import org.folio.search.domain.dto.ReindexUploadDto;
 import org.folio.search.exception.ReindexException;
 import org.folio.search.model.event.ReindexRangeIndexEvent;
 import org.folio.search.model.event.ReindexRecordsEvent;
+import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.repository.PrimaryResourceRepository;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.spring.FolioExecutionContext;
@@ -64,8 +63,7 @@ public class ReindexOrchestrationService {
         event.getRangeId(), event.getRecordType());
       mergeRangeService.updateFinishDate(entityType, event.getRangeId());
       if (reindexStatusService.isMergeCompleted()) {
-        reindexService.submitUploadReindex(context.getTenantId(),
-          Arrays.asList(ReindexUploadDto.EntityTypesEnum.values()));
+        reindexService.submitUploadReindex(context.getTenantId(), ReindexEntityType.supportUploadTypes());
       }
     }
 

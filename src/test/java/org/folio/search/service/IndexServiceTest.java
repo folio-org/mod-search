@@ -7,7 +7,6 @@ import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.LINKED
 import static org.folio.search.model.types.ResourceType.AUTHORITY;
 import static org.folio.search.model.types.ResourceType.CAMPUS;
 import static org.folio.search.model.types.ResourceType.INSTANCE;
-import static org.folio.search.model.types.ResourceType.INSTANCE_SUBJECT;
 import static org.folio.search.model.types.ResourceType.INSTITUTION;
 import static org.folio.search.model.types.ResourceType.LIBRARY;
 import static org.folio.search.model.types.ResourceType.LOCATION;
@@ -23,12 +22,10 @@ import static org.folio.search.utils.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceDescription;
-import static org.folio.search.utils.TestUtils.secondaryResourceDescription;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atMostOnce;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
@@ -254,20 +251,21 @@ class IndexServiceTest {
 
   @Test
   void reindexInventory_positive_recreateIndexIsTrue() {
-    var indexName = getIndexName(INSTANCE, TENANT_ID);
+    var indexName = getIndexName(AUTHORITY, TENANT_ID);
     var createIndexResponse = getSuccessFolioCreateIndexResponse(List.of(indexName));
     var expectedResponse = new ReindexJob().id(randomId());
-    var expectedUri = URI.create("http://instance-storage/reindex");
+    var expectedUri = URI.create("http://authority-storage/reindex");
 
     when(resourceReindexClient.submitReindex(expectedUri)).thenReturn(expectedResponse);
-    when(mappingsHelper.getMappings(INSTANCE)).thenReturn(EMPTY_OBJECT);
-    when(settingsHelper.getSettingsJson(INSTANCE)).thenReturn(EMPTY_JSON_OBJECT);
+    when(mappingsHelper.getMappings(AUTHORITY)).thenReturn(EMPTY_OBJECT);
+    when(settingsHelper.getSettingsJson(AUTHORITY)).thenReturn(EMPTY_JSON_OBJECT);
     when(indexRepository.indexExists(indexName)).thenReturn(true, false);
     when(indexRepository.createIndex(indexName, EMPTY_OBJECT, EMPTY_OBJECT)).thenReturn(createIndexResponse);
-    when(resourceDescriptionService.find(INSTANCE)).thenReturn(
-      Optional.of(resourceDescription(INSTANCE)));
+    when(resourceDescriptionService.find(AUTHORITY)).thenReturn(
+      Optional.of(resourceDescription(AUTHORITY)));
 
-    var actual = indexService.reindexInventory(TENANT_ID, new ReindexRequest().recreateIndex(true));
+    var actual = indexService.reindexInventory(TENANT_ID,
+      new ReindexRequest().resourceName(ResourceNameEnum.AUTHORITY).recreateIndex(true));
 
     assertThat(actual).isEqualTo(expectedResponse);
     verify(indexRepository).dropIndex(indexName);
@@ -277,14 +275,15 @@ class IndexServiceTest {
   @Test
   void reindexInventory_positive_recreateIndexIsTrue_memberTenant() {
     var expectedResponse = new ReindexJob().id(randomId());
-    var expectedUri = URI.create("http://instance-storage/reindex");
+    var expectedUri = URI.create("http://authority-storage/reindex");
 
     when(resourceReindexClient.submitReindex(expectedUri)).thenReturn(expectedResponse);
-    when(resourceDescriptionService.find(INSTANCE)).thenReturn(
-      Optional.of(resourceDescription(INSTANCE)));
+    when(resourceDescriptionService.find(AUTHORITY)).thenReturn(
+      Optional.of(resourceDescription(AUTHORITY)));
     when(tenantProvider.getTenant(TENANT_ID)).thenReturn(CENTRAL_TENANT_ID);
 
-    var actual = indexService.reindexInventory(TENANT_ID, new ReindexRequest().recreateIndex(true));
+    var actual = indexService.reindexInventory(TENANT_ID,
+      new ReindexRequest().resourceName(ResourceNameEnum.AUTHORITY).recreateIndex(true));
 
     assertThat(actual).isEqualTo(expectedResponse);
     verifyNoInteractions(indexRepository);
@@ -294,113 +293,15 @@ class IndexServiceTest {
   @Test
   void reindexInventory_positive_recreateIndexIsFalse() {
     var expectedResponse = new ReindexJob().id(randomId());
-    var expectedUri = URI.create("http://instance-storage/reindex");
-
-    when(resourceReindexClient.submitReindex(expectedUri)).thenReturn(expectedResponse);
-    when(resourceDescriptionService.find(INSTANCE)).thenReturn(
-      Optional.of(resourceDescription(INSTANCE)));
-
-    var actual = indexService.reindexInventory(TENANT_ID, new ReindexRequest());
-    assertThat(actual).isEqualTo(expectedResponse);
-    verifyNoInteractions(locationService);
-  }
-
-  @Test
-  void reindexInventory_positive_resourceNameIsNull() {
-    var expectedResponse = new ReindexJob().id(randomId());
-    var expectedUri = URI.create("http://instance-storage/reindex");
-
-    when(resourceDescriptionService.find(INSTANCE)).thenReturn(
-      Optional.of(resourceDescription(INSTANCE)));
-    when(resourceDescriptionService.getSecondaryResourceTypes(INSTANCE)).thenReturn(
-      List.of(UNKNOWN));
-    when(resourceReindexClient.submitReindex(expectedUri)).thenReturn(expectedResponse);
-
-    var actual = indexService.reindexInventory(TENANT_ID, new ReindexRequest().resourceName(null));
-    assertThat(actual).isEqualTo(expectedResponse);
-    verifyNoInteractions(locationService);
-  }
-
-  @Test
-  void reindexInventory_positive_resourceNameIsNullAndRecreateIndexIsTrue() {
-    var expectedResponse = new ReindexJob().id(randomId());
-    var expectedUri = URI.create("http://instance-storage/reindex");
-
-    when(resourceDescriptionService.find(INSTANCE)).thenReturn(
-      Optional.of(resourceDescription(INSTANCE)));
-    when(resourceDescriptionService.find(INSTANCE_SUBJECT))
-      .thenReturn(Optional.of(secondaryResourceDescription(INSTANCE_SUBJECT, INSTANCE)));
-    when(resourceReindexClient.submitReindex(expectedUri)).thenReturn(expectedResponse);
-    when(resourceDescriptionService.getSecondaryResourceTypes(INSTANCE))
-      .thenReturn(List.of(INSTANCE_SUBJECT));
-    mockCreateIndexOperation(INSTANCE);
-    mockCreateIndexOperation(INSTANCE_SUBJECT);
-
-    var secondaryIndexName = getIndexName(INSTANCE_SUBJECT, TENANT_ID);
-    var instanceIndexName = getIndexName(INSTANCE, TENANT_ID);
-    when(indexRepository.indexExists(instanceIndexName)).thenReturn(true);
-    when(indexRepository.indexExists(secondaryIndexName)).thenReturn(true);
-
-    var actual = indexService.reindexInventory(TENANT_ID, new ReindexRequest().resourceName(null).recreateIndex(true));
-    assertThat(actual).isEqualTo(expectedResponse);
-
-    verify(indexRepository).dropIndex(instanceIndexName);
-    verify(indexRepository).dropIndex(secondaryIndexName);
-    verifyNoInteractions(locationService);
-  }
-
-  @Test
-  void reindexInventory_positive_reindexRequestIsNull() {
-    var expectedResponse = new ReindexJob().id(randomId());
-    var expectedUri = URI.create("http://instance-storage/reindex");
-
-    when(resourceReindexClient.submitReindex(expectedUri)).thenReturn(expectedResponse);
-    when(resourceDescriptionService.find(INSTANCE)).thenReturn(
-      Optional.of(resourceDescription(INSTANCE)));
-    when(resourceDescriptionService.getSecondaryResourceTypes(INSTANCE)).thenReturn(
-      List.of(UNKNOWN));
-
-    var actual = indexService.reindexInventory(TENANT_ID, null);
-
-    assertThat(actual).isEqualTo(expectedResponse);
-    verifyNoInteractions(locationService);
-  }
-
-  @Test
-  void reindexInventory_positive_authorityRecord() {
-    var expectedResponse = new ReindexJob().id(randomId());
     var expectedUri = URI.create("http://authority-storage/reindex");
-    var resourceName = AUTHORITY;
 
     when(resourceReindexClient.submitReindex(expectedUri)).thenReturn(expectedResponse);
-    when(resourceDescriptionService.find(resourceName))
-      .thenReturn(Optional.of(resourceDescription(resourceName)));
-
-    var actual = indexService.reindexInventory(TENANT_ID, new ReindexRequest()
-      .resourceName(ResourceNameEnum.AUTHORITY));
-
-    assertThat(actual).isEqualTo(expectedResponse);
-    verifyNoInteractions(locationService);
-  }
-
-  @Test
-  void reindexInventory_positive_authorityRecordAndRecreateIndex() {
-    var reindexResponse = new ReindexJob().id(randomId());
-    var expectedUri = URI.create("http://authority-storage/reindex");
-    var indexName = getIndexName(AUTHORITY, TENANT_ID);
-
-    when(resourceReindexClient.submitReindex(expectedUri)).thenReturn(reindexResponse);
     when(resourceDescriptionService.find(AUTHORITY)).thenReturn(
       Optional.of(resourceDescription(AUTHORITY)));
-    when(mappingsHelper.getMappings(AUTHORITY)).thenReturn(EMPTY_OBJECT);
-    when(settingsHelper.getSettingsJson(AUTHORITY)).thenReturn(EMPTY_JSON_OBJECT);
-    when(indexRepository.createIndex(indexName, EMPTY_OBJECT, EMPTY_OBJECT))
-      .thenReturn(getSuccessFolioCreateIndexResponse(List.of(indexName)));
 
-    var reindexRequest = new ReindexRequest().resourceName(ResourceNameEnum.AUTHORITY).recreateIndex(true);
-    var actual = indexService.reindexInventory(TENANT_ID, reindexRequest);
-
-    assertThat(actual).isEqualTo(reindexResponse);
+    var actual = indexService.reindexInventory(TENANT_ID,
+      new ReindexRequest().resourceName(ResourceNameEnum.AUTHORITY));
+    assertThat(actual).isEqualTo(expectedResponse);
     verifyNoInteractions(locationService);
   }
 
@@ -541,14 +442,6 @@ class IndexServiceTest {
     return MAPPER.writeValueAsString(Map.of("index", Map.of(
       "number_of_replicas", replicas,
       "refresh_interval", refresh)));
-  }
-
-  private void mockCreateIndexOperation(ResourceType resource) {
-    var indexName = getIndexName(resource, TENANT_ID);
-    doReturn(EMPTY_OBJECT).when(mappingsHelper).getMappings(resource);
-    doReturn(EMPTY_JSON_OBJECT).when(settingsHelper).getSettingsJson(resource);
-    doReturn(getSuccessFolioCreateIndexResponse(List.of(indexName))).when(indexRepository)
-      .createIndex(indexName, EMPTY_OBJECT, EMPTY_OBJECT);
   }
 
   private static Stream<Arguments> customSettingsTestData() {

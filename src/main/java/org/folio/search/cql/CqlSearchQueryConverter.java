@@ -7,8 +7,10 @@ import static org.opensearch.index.query.QueryBuilders.boolQuery;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.model.types.SearchType;
@@ -20,7 +22,6 @@ import org.opensearch.index.query.QueryBuilders;
 import org.opensearch.index.query.RangeQueryBuilder;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.stereotype.Component;
-import org.z3950.zing.cql.CQLBoolean;
 import org.z3950.zing.cql.CQLBooleanNode;
 import org.z3950.zing.cql.CQLNode;
 import org.z3950.zing.cql.CQLSortNode;
@@ -140,8 +141,8 @@ public class CqlSearchQueryConverter {
   private BoolQueryBuilder convertToBoolQuery(CQLBooleanNode node, ResourceType resource) {
     var operator = node.getOperator();
     return switch (operator) {
-      case OR -> flattenBoolQuery(node, resource, operator, BoolQueryBuilder::should);
-      case AND -> flattenBoolQuery(node, resource, operator, BoolQueryBuilder::must);
+      case OR -> flattenBoolQuery(node, resource, BoolQueryBuilder::should);
+      case AND -> flattenBoolQuery(node, resource, BoolQueryBuilder::must);
       case NOT -> boolQuery()
         .must(convertToQuery(node.getLeftOperand(), resource))
         .mustNot(convertToQuery(node.getRightOperand(), resource));
@@ -150,17 +151,10 @@ public class CqlSearchQueryConverter {
     };
   }
 
-  private BoolQueryBuilder flattenBoolQuery(CQLBooleanNode node, ResourceType resource, CQLBoolean operator,
+  private BoolQueryBuilder flattenBoolQuery(CQLBooleanNode node, ResourceType resource,
                                             Function<BoolQueryBuilder, List<QueryBuilder>> conditionProvider) {
     var rightOperandQuery = convertToQuery(node.getRightOperand(), resource);
     var leftOperandQuery = convertToQuery(node.getLeftOperand(), resource);
-
-    if (CQLBoolean.AND.equals(operator)
-      && leftOperandQuery instanceof RangeQueryBuilder lr
-      && rightOperandQuery instanceof RangeQueryBuilder rr
-      && lr.fieldName().equals(rr.fieldName())) {
-      return collapseRangeQueries(lr, rr, conditionProvider);
-    }
 
     var boolQuery = boolQuery();
     if (isBoolQuery(leftOperandQuery)) {
@@ -177,28 +171,6 @@ public class CqlSearchQueryConverter {
     var conditions = conditionProvider.apply(boolQuery);
     conditions.add(leftOperandQuery);
     conditions.add(rightOperandQuery);
-    return boolQuery;
-  }
-
-  private BoolQueryBuilder collapseRangeQueries(RangeQueryBuilder leftRange, RangeQueryBuilder rightRange,
-                                            Function<BoolQueryBuilder, List<QueryBuilder>> conditionProvider) {
-    var rangeQuery = QueryBuilders.rangeQuery(leftRange.fieldName());
-
-    if (leftRange.from() != null) {
-      rangeQuery.from(leftRange.from())
-        .includeLower(leftRange.includeLower())
-        .to(rightRange.to())
-        .includeUpper(rightRange.includeUpper());
-    } else {
-      rangeQuery.from(rightRange.from())
-        .includeLower(rightRange.includeLower())
-        .to(leftRange.to())
-        .includeUpper(leftRange.includeUpper());
-    }
-
-    var boolQuery = boolQuery();
-    var conditions = conditionProvider.apply(boolQuery);
-    conditions.add(rangeQuery);
     return boolQuery;
   }
 
@@ -226,7 +198,66 @@ public class CqlSearchQueryConverter {
     }
     mustConditions.clear();
     mustConditions.addAll(mustQueryConditions);
+
+    return collapseRangeQueries(query);
+  }
+
+  private BoolQueryBuilder collapseRangeQueries(BoolQueryBuilder query) {
+    //get range queries grouped by field name
+    var rangeFilters = query.filter().stream()
+      .map(filter -> filter instanceof RangeQueryBuilder rq ? rq : null)
+      .filter(Objects::nonNull)
+      .collect(Collectors.groupingBy(RangeQueryBuilder::fieldName));
+
+    //join range queries when there are 2 range queries for the same field
+    var collapsedRangeFilters = rangeFilters.entrySet().stream()
+      .map(entry -> entry.getValue().size() == 2 ? collapseRangeQueries(entry.getKey(), entry.getValue()) : null)
+      .filter(Objects::nonNull)
+      .toList();
+
+    if (collapsedRangeFilters.isEmpty()) {
+      return query;
+    }
+
+    //extract filters with field name different from ones that were collapsed
+    var resultFilters = query.filter().stream()
+      .filter(filter -> !(filter instanceof RangeQueryBuilder rangeFilter)
+        || collapsedRangeFilters.stream()
+        .noneMatch(collapsedFilter -> collapsedFilter.fieldName().equals(rangeFilter.fieldName())))
+      .collect(Collectors.toList());
+    //add collapsed filters
+    resultFilters.addAll(collapsedRangeFilters);
+
+    //clear filters to drop ones that were collapsed
+    query.filter().clear();
+    query.filter().addAll(resultFilters);
     return query;
+  }
+
+  /**
+   * Construct new range query having range bounds from two incoming queries.
+   *
+   * @param fieldName query field name.
+   * @param sourceQueries two range queries with same field name.
+   * */
+  private RangeQueryBuilder collapseRangeQueries(String fieldName, List<RangeQueryBuilder> sourceQueries) {
+    var rangeQuery = QueryBuilders.rangeQuery(fieldName);
+    var firstRange = sourceQueries.get(0);
+    var secondRange = sourceQueries.get(1);
+
+    if (firstRange.from() != null) {
+      rangeQuery.from(firstRange.from())
+        .includeLower(firstRange.includeLower())
+        .to(secondRange.to())
+        .includeUpper(secondRange.includeUpper());
+    } else {
+      rangeQuery.from(secondRange.from())
+        .includeLower(secondRange.includeLower())
+        .to(firstRange.to())
+        .includeUpper(firstRange.includeUpper());
+    }
+
+    return rangeQuery;
   }
 
   private boolean isFilterInnerQuery(QueryBuilder query, Predicate<String> filterFieldPredicate) {

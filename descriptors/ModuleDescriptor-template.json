@@ -224,6 +224,18 @@
           "methods": [
             "GET"
           ],
+          "pathPattern": "/search/consortium/instances/{id}",
+          "permissionsRequired": [
+            "consortium-search.instance.item.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
+        },
+        {
+          "methods": [
+            "GET"
+          ],
           "pathPattern": "/search/consortium/holdings",
           "permissionsRequired": [
             "consortium-search.holdings.collection.get"
@@ -888,6 +900,11 @@
       "permissionName": "consortium-search.institutions.collection.get",
       "displayName": "Consortium Search - fetch institutions records",
       "description": "Returns institution records in consortium"
+    },
+    {
+      "permissionName": "consortium-search.instance.item.get",
+      "displayName": "Consortium Search - fetch instance record",
+      "description": "Returns instance record in consortium"
     },
     {
       "permissionName": "search.index.instance-records.reindex.all",

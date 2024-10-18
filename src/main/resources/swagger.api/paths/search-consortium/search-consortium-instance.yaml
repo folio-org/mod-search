@@ -1,0 +1,19 @@
+get:
+  operationId: getConsortiumInstance
+  summary: Get Consolidated Instance
+  description: Get a consolidated instance (only for consortium environment)
+  tags:
+    - search-consortium
+  parameters:
+    - $ref: '../../parameters/record-id-param.yaml'
+  responses:
+    '200':
+      description: Instance
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/entity/instance.yaml'
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

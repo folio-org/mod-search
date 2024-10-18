@@ -17,6 +17,12 @@ public class ConsortiumInstanceRepository {
   private final JdbcTemplate jdbcTemplate;
   private final FolioExecutionContext context;
 
+
+  public List<String> fetchJson(ConsortiumSearchQueryBuilder searchQueryBuilder) {
+    return jdbcTemplate.query(searchQueryBuilder.buildSelectJsonQuery(context),
+      (rs, rowNum) -> rs.getString(1), searchQueryBuilder.getQueryArguments());
+  }
+
   public List<ConsortiumHolding> fetchHoldings(ConsortiumSearchQueryBuilder searchQueryBuilder) {
     return jdbcTemplate.query(searchQueryBuilder.buildSelectQuery(context),
       (rs, rowNum) -> new ConsortiumHolding()

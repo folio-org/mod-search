@@ -38,11 +38,13 @@ public class ConsortiumSearchQueryBuilder {
 
   private static final String INSTANCE_ID = "instance_id";
   private static final Map<ResourceType, Map<String, String>> RESOURCE_FILTER_DATABASE_NAME = Map.of(
+    ResourceType.INSTANCE, Map.of("instanceId", "id"),
     ResourceType.HOLDINGS, Map.of("instanceId", INSTANCE_ID, "tenantId", "tenant_id"),
     ResourceType.ITEM, Map.of("instanceId", INSTANCE_ID, "tenantId", "tenant_id", "holdingsRecordId", "holding_id")
   );
 
   private static final Map<String, String> COLUMN_CASTS = Map.of(
+    "id", "uuid",
     INSTANCE_ID, "uuid",
     "holding_id", "uuid"
   );
@@ -57,6 +59,12 @@ public class ConsortiumSearchQueryBuilder {
     this.filters = prepareFilters(resourceType);
   }
 
+  public ConsortiumSearchQueryBuilder(ConsortiumSearchContext searchContext, ResourceType resourceType) {
+    this.searchContext = searchContext;
+    this.resourceType = resourceType;
+    this.filters = prepareFilters(resourceType);
+  }
+
   public String buildSelectQuery(FolioExecutionContext context) {
     var fullTableName = getFullTableName(context, CONSORTIUM_TABLES.get(resourceType));
     String query = "SELECT i.id as id, i.instance_id as instanceId, i.tenant_id as tenantId,"
@@ -66,6 +74,17 @@ public class ConsortiumSearchQueryBuilder {
                    + getOrderByClause()
                    + getLimitClause()
                    + getOffsetClause();
+    return StringUtils.normalizeSpace(query);
+  }
+
+  public String buildSelectJsonQuery(FolioExecutionContext context) {
+    var fullTableName = getFullTableName(context, CONSORTIUM_TABLES.get(resourceType));
+    String query = "SELECT i.json"
+      + " FROM " + fullTableName + " i"
+      + getWhereClause(filters, null)
+      + getOrderByClause()
+      + getLimitClause()
+      + getOffsetClause();
     return StringUtils.normalizeSpace(query);
   }
 

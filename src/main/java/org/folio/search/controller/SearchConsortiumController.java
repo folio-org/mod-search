@@ -33,6 +33,7 @@ import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -201,6 +202,14 @@ public class SearchConsortiumController implements SearchConsortiumApi {
 
     var result = searchService.fetchConsortiumBatchItems(tenant, identifierValues, identifierType);
     return ResponseEntity.ok(result);
+  }
+
+  @Override
+  public ResponseEntity<Instance> getConsortiumInstance(UUID id) {
+    var context = ConsortiumSearchContext.builderFor(ResourceType.INSTANCE)
+      .filter("instanceId", id.toString())
+      .build();
+    return ResponseEntity.ok(instanceService.fetchInstance(context));
   }
 
   private String verifyAndGetTenant(String tenantHeader) {

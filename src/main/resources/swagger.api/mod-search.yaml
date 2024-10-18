@@ -67,6 +67,9 @@ paths:
   /search/resources/jobs/{jobId}/ids:
     $ref: 'paths/search-resources/search-resources-jobs-job-id-ids.yaml'
 
+  /search/consortium/instances/{id}:
+    $ref: 'paths/search-consortium/search-consortium-instance.yaml'
+
   /search/consortium/holdings:
     $ref: 'paths/search-consortium/search-consortium-holdings.yaml'
 

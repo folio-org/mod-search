@@ -146,6 +146,16 @@ class ConsortiumSearchQueryBuilderTest {
                  + "WHERE instance_id = ?::uuid AND tenant_id = ? ORDER BY id desc LIMIT 100 OFFSET 10", actual);
   }
 
+  @Test
+  void testBuildSelectJsonQuery_forInstance() {
+    var searchContext = new SearchContextMockBuilder().forInstance().withInstanceId("test").build();
+
+    var actual = new ConsortiumSearchQueryBuilder(searchContext).buildSelectJsonQuery(executionContext);
+    assertEquals("SELECT i.json"
+      + " FROM schema.instance i "
+      + "WHERE id = ?::uuid AND tenantId = ? ORDER BY id desc LIMIT 100 OFFSET 10", actual);
+  }
+
   private static final class SearchContextMockBuilder {
     private ResourceType resourceType;
     private String instanceId = "inst123";
@@ -163,6 +173,11 @@ class ConsortiumSearchQueryBuilderTest {
 
     SearchContextMockBuilder forItem() {
       this.resourceType = ResourceType.ITEM;
+      return this;
+    }
+
+    SearchContextMockBuilder forInstance() {
+      this.resourceType = ResourceType.INSTANCE;
       return this;
     }
 

@@ -57,6 +57,10 @@ public class ApiEndpoints {
     return addQueryParams(consortiumInstitutionsSearchPath(), queryParams);
   }
 
+  public static String consortiumInstanceSearchPath(String id) {
+    return "/search/consortium/instances/" + id;
+  }
+
   public static String consortiumItemsSearchPath() {
     return "/search/consortium/items";
   }

@@ -10,6 +10,9 @@ properties:
   permanentLocationId:
     type: string
     description: "The permanent shelving location in which an item resides."
+  effectiveLocationId:
+    type: string
+    description: "Read only current home location for the holding"
   discoverySuppress:
     type: boolean
     description: "Indicates that the record should not be displayed in a discovery system"
@@ -62,6 +65,21 @@ properties:
     description: "Notes about action, copy, binding etc."
     items:
       $ref: "note.yaml"
+  holdingsStatements:
+    type: array
+    description: "Holdings record statements"
+    items:
+      $ref: "holdingStatement.yaml"
+  holdingsStatementsForIndexes:
+    type: array
+    description: "Holdings record indexes statements"
+    items:
+      $ref: "holdingStatement.yaml"
+  holdingsStatementsForSupplements:
+    type: array
+    description: "Holdings record supplements statements"
+    items:
+      $ref: "holdingStatement.yaml"
   metadata:
     $ref: "../common/metadata.yaml"
 required:

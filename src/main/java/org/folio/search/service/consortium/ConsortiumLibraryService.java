@@ -20,20 +20,22 @@ public class ConsortiumLibraryService {
 
   public SearchResult<ConsortiumLibrary> fetchLibraries(String tenantHeader,
                                                         String tenantId,
+                                                        String id,
                                                         Integer limit,
                                                         Integer offset,
                                                         String sortBy,
                                                         SortOrder sortOrder) {
-    log.info("fetching consortium libraries for tenant: {}, tenantId: {}, sortBy: {}",
+    log.info("fetching consortium libraries for tenant: {}, tenantId: {}, id: {}, sortBy: {}",
       tenantHeader,
       tenantId,
+      id,
       sortBy);
 
     validateSortByValue(sortBy);
 
     return executor.execute(
       tenantHeader,
-      () -> repository.fetchLibraries(tenantHeader, tenantId, limit, offset, sortBy, sortOrder));
+      () -> repository.fetchLibraries(tenantHeader, tenantId, id, limit, offset, sortBy, sortOrder));
   }
 
   private void validateSortByValue(String sortBy) {

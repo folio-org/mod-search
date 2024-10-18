@@ -1,0 +1,6 @@
+in: query
+name: id
+description: "ID to filter by"
+required: false
+schema:
+  type: string

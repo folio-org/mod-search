@@ -79,7 +79,7 @@ class ConsortiumSearchLibrariesIT extends BaseConsortiumIntegrationTest {
   }
 
   @Test
-  void doGetConsortiumLibraries_returns200AndRecords_withAllQueryParams() {
+  void doGetConsortiumLibraries_returns200AndRecords_withTenantAndSortQueryParams() {
     List<Pair<String, String>> queryParams = List.of(
       pair("tenantId", "consortium"),
       pair("limit", "5"),
@@ -97,6 +97,27 @@ class ConsortiumSearchLibrariesIT extends BaseConsortiumIntegrationTest {
     // check sortBy name
     assertThat(actual.getLibraries().get(0).getName()).isEqualTo("My library 1");
     assertThat(actual.getLibraries().get(1).getName()).isEqualTo("My library 2");
+  }
+
+  @Test
+  void doGetConsortiumLibraries_returns200AndRecords_withAllQueryParams() {
+    List<Pair<String, String>> queryParams = List.of(
+        pair("tenantId", "consortium"),
+        pair("id", "83891666-dcb6-4cd7-ad3a-f4b305abfe21"),
+        pair("limit", "5"),
+        pair("offset", "0"),
+        pair("sortBy", "name"),
+        pair("sortOrder", "asc")
+    );
+
+    var result = doGet(consortiumLibrariesSearchPath(queryParams), CENTRAL_TENANT_ID);
+    var actual = parseResponse(result, ConsortiumLibraryCollection.class);
+
+    assertThat(actual.getLibraries()).hasSize(1);
+    assertThat(actual.getTotalRecords()).isEqualTo(1);
+    assertThat(actual.getLibraries().get(0).getTenantId()).isEqualTo(CENTRAL_TENANT_ID);
+    assertThat(actual.getLibraries().get(0).getName()).isEqualTo("My library 1");
+    assertThat(actual.getLibraries().get(0).getCode()).isEqualTo("ML1");
   }
 
   private static void saveLibraryRecords() {

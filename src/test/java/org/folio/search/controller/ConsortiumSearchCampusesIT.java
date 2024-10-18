@@ -79,7 +79,7 @@ class ConsortiumSearchCampusesIT extends BaseConsortiumIntegrationTest {
   }
 
   @Test
-  void doGetConsortiumCampuses_returns200AndRecords_withAllQueryParams() {
+  void doGetConsortiumCampuses_returns200AndRecords_withTenantAndSortQueryParams() {
     List<Pair<String, String>> queryParams = List.of(
       pair("tenantId", "consortium"),
       pair("limit", "5"),
@@ -97,6 +97,27 @@ class ConsortiumSearchCampusesIT extends BaseConsortiumIntegrationTest {
     // check sortBy name
     assertThat(actual.getCampuses().get(0).getName()).isEqualTo("My campus 1");
     assertThat(actual.getCampuses().get(1).getName()).isEqualTo("My campus 2");
+  }
+
+  @Test
+  void doGetConsortiumCampuses_returns200AndRecords_withAllQueryParams() {
+    List<Pair<String, String>> queryParams = List.of(
+        pair("tenantId", "consortium"),
+        pair("id", "83891666-dcb6-4cd7-ad3a-f4b305abfe21"),
+        pair("limit", "5"),
+        pair("offset", "0"),
+        pair("sortBy", "name"),
+        pair("sortOrder", "asc")
+    );
+
+    var result = doGet(consortiumCampusesSearchPath(queryParams), CENTRAL_TENANT_ID);
+    var actual = parseResponse(result, ConsortiumCampusCollection.class);
+
+    assertThat(actual.getCampuses()).hasSize(1);
+    assertThat(actual.getTotalRecords()).isEqualTo(1);
+    assertThat(actual.getCampuses().get(0).getTenantId()).isEqualTo(CENTRAL_TENANT_ID);
+    assertThat(actual.getCampuses().get(0).getName()).isEqualTo("My campus 1");
+    assertThat(actual.getCampuses().get(0).getCode()).isEqualTo("MC1");
   }
 
   private static void saveCampusRecords() {

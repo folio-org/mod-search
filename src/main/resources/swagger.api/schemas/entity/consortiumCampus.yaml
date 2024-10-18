@@ -9,6 +9,9 @@ properties:
   name:
     description: Campus name
     type: string
+  code:
+    description: Campus code
+    type: string
   institutionId:
     description: The UUID of the institution, the first-level location unit, this (shelf) campus belongs to.
     type: string

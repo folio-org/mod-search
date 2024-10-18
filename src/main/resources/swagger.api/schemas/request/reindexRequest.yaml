@@ -8,7 +8,6 @@ properties:
   resourceName:
     type: string
     description: Resource name to run reindex for
-    default: authority
     enum:
       - authority
       - location
@@ -18,3 +17,5 @@ properties:
   indexSettings:
     description: Index settings to apply for index
     $ref: "../../schemas/entity/indexSettings.yaml"
+required:
+  - resourceName

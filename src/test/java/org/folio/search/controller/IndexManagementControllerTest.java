@@ -11,6 +11,7 @@ import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceEvent;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
@@ -235,10 +236,12 @@ class IndexManagementControllerTest {
   @Test
   void canSubmitReindex() throws Exception {
     var jobId = randomId();
-    when(indexService.reindexInventory(TENANT_ID, null)).thenReturn(new ReindexJob().id(jobId));
+    var request = new ReindexRequest().resourceName(ReindexRequest.ResourceNameEnum.AUTHORITY);
+    when(indexService.reindexInventory(TENANT_ID, request)).thenReturn(new ReindexJob().id(jobId));
 
     mockMvc.perform(post("/search/index/inventory/reindex")
         .header(XOkapiHeaders.TENANT, TENANT_ID)
+        .content(asJsonString(request))
         .contentType(APPLICATION_JSON))
       .andExpect(status().isOk())
       .andExpect(jsonPath("id", is(jobId)));
@@ -247,7 +250,7 @@ class IndexManagementControllerTest {
   @Test
   void reindexInventoryRecords_positive_withRecreateIndexFlag() throws Exception {
     var jobId = randomId();
-    var request = new ReindexRequest().recreateIndex(true);
+    var request = new ReindexRequest().resourceName(ReindexRequest.ResourceNameEnum.AUTHORITY).recreateIndex(true);
     when(indexService.reindexInventory(TENANT_ID, request)).thenReturn(new ReindexJob().id(jobId));
 
     mockMvc.perform(post("/search/index/inventory/reindex")
@@ -257,6 +260,17 @@ class IndexManagementControllerTest {
         .param("recreateIndex", "true"))
       .andExpect(status().isOk())
       .andExpect(jsonPath("id", is(jobId)));
+  }
+
+  @Test
+  void canSubmitReindex_negative_noBody() throws Exception {
+    var jobId = randomId();
+    when(indexService.reindexInventory(TENANT_ID, null)).thenReturn(new ReindexJob().id(jobId));
+
+    mockMvc.perform(post("/search/index/inventory/reindex")
+        .header(XOkapiHeaders.TENANT, TENANT_ID)
+        .contentType(APPLICATION_JSON))
+      .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -277,14 +291,16 @@ class IndexManagementControllerTest {
 
   @Test
   void reindexInventoryRecords_negative_constraintViolationException() throws Exception {
+    var request = new ReindexRequest().resourceName(ReindexRequest.ResourceNameEnum.AUTHORITY);
     var constraintViolation = mock(ConstraintViolationImpl.class);
     when(constraintViolation.getPropertyPath()).thenReturn(PathImpl.createPathFromString("recreateIndices"));
     when(constraintViolation.getMessage()).thenReturn("must be boolean");
-    when(indexService.reindexInventory(TENANT_ID, null)).thenThrow(
+    when(indexService.reindexInventory(TENANT_ID, request)).thenThrow(
       new ConstraintViolationException("error", Set.<ConstraintViolation<?>>of(constraintViolation)));
 
     mockMvc.perform(post("/search/index/inventory/reindex")
         .header(XOkapiHeaders.TENANT, TENANT_ID)
+        .content(asJsonString(request))
         .contentType(APPLICATION_JSON))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.total_records", is(1)))
@@ -295,14 +311,16 @@ class IndexManagementControllerTest {
 
   @Test
   void reindexInventoryRecords_negative_illegalArgumentException() throws Exception {
-    when(indexService.reindexInventory(TENANT_ID, null)).thenThrow(new IllegalArgumentException("invalid value"));
+    var request = new ReindexRequest().resourceName(ReindexRequest.ResourceNameEnum.AUTHORITY);
+    when(indexService.reindexInventory(TENANT_ID, request)).thenThrow(new IllegalArgumentException("invalid value"));
 
     mockMvc.perform(post("/search/index/inventory/reindex")
         .header(XOkapiHeaders.TENANT, TENANT_ID)
+        .content(asJsonString(request))
         .contentType(APPLICATION_JSON))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.total_records", is(1)))
-      .andExpect(jsonPath("$.errors[0].message", is("invalid value")))
+      .andExpect(jsonPath("$.errors[0].message", containsString("invalid value")))
       .andExpect(jsonPath("$.errors[0].type", is("IllegalArgumentException")))
       .andExpect(jsonPath("$.errors[0].code", is("validation_error")));
   }

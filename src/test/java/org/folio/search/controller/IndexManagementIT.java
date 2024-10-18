@@ -67,10 +67,8 @@ class IndexManagementIT extends BaseIntegrationTest {
 
   @Test
   void runReindex_positive_authority() throws Exception {
-    var request = post(ApiEndpoints.reindexPath())
-      .headers(defaultHeaders())
-      .header(XOkapiHeaders.URL, okapi.getOkapiUrl())
-      .contentType(MediaType.APPLICATION_JSON);
+    var request = getReindexRequestBuilder(
+      asJsonString(new ReindexRequest().resourceName(AUTHORITY)));
 
     mockMvc.perform(request)
       .andExpect(status().isOk())

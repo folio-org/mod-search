@@ -327,7 +327,7 @@ x-okapi-token: [JWT_TOKEN]
 }
 ```
 
-* `resourceName` parameter is optional and equal to `authority` by default. Possible values: `authority`, `location`,
+* `resourceName` parameter is required. Possible values: `authority`, `location`,
   `linked-data-instance`, `linked-data-work`, `linked-data-hub`. Please note that `location` reindex is synchronous.
   Refer to [Indexing of Instance Records](#indexing-of-instance-records) section for reindexing of instances
 * `recreateIndex` parameter is optional and equal to `false` by default. If it is equal to `true` then mod-search

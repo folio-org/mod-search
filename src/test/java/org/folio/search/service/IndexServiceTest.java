@@ -62,8 +62,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.NullSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -251,15 +249,12 @@ class IndexServiceTest {
     verify(indexRepository, times(0)).createIndex(eq(indexName), any(), any());
   }
 
-  @ParameterizedTest
-  @NullSource
-  @ValueSource(strings = "authority")
-  void reindexInventory_positive_recreateIndexIsTrue(String resourceName) {
+  @Test
+  void reindexInventory_positive_recreateIndexIsTrue() {
     var indexName = getIndexName(AUTHORITY, TENANT_ID);
     var createIndexResponse = getSuccessFolioCreateIndexResponse(List.of(indexName));
     var expectedResponse = new ReindexJob().id(randomId());
     var expectedUri = URI.create("http://authority-storage/reindex");
-    var resource = resourceName == null ? null : ResourceNameEnum.fromValue(resourceName);
 
     when(resourceReindexClient.submitReindex(expectedUri)).thenReturn(expectedResponse);
     when(mappingsHelper.getMappings(AUTHORITY)).thenReturn(EMPTY_OBJECT);
@@ -270,7 +265,7 @@ class IndexServiceTest {
       Optional.of(resourceDescription(AUTHORITY)));
 
     var actual = indexService.reindexInventory(TENANT_ID,
-      new ReindexRequest().resourceName(resource).recreateIndex(true));
+      new ReindexRequest().resourceName(ResourceNameEnum.AUTHORITY).recreateIndex(true));
 
     assertThat(actual).isEqualTo(expectedResponse);
     verify(indexRepository).dropIndex(indexName);
@@ -287,7 +282,8 @@ class IndexServiceTest {
       Optional.of(resourceDescription(AUTHORITY)));
     when(tenantProvider.getTenant(TENANT_ID)).thenReturn(CENTRAL_TENANT_ID);
 
-    var actual = indexService.reindexInventory(TENANT_ID, new ReindexRequest().recreateIndex(true));
+    var actual = indexService.reindexInventory(TENANT_ID,
+      new ReindexRequest().resourceName(ResourceNameEnum.AUTHORITY).recreateIndex(true));
 
     assertThat(actual).isEqualTo(expectedResponse);
     verifyNoInteractions(indexRepository);
@@ -303,40 +299,8 @@ class IndexServiceTest {
     when(resourceDescriptionService.find(AUTHORITY)).thenReturn(
       Optional.of(resourceDescription(AUTHORITY)));
 
-    var actual = indexService.reindexInventory(TENANT_ID, new ReindexRequest());
-    assertThat(actual).isEqualTo(expectedResponse);
-    verifyNoInteractions(locationService);
-  }
-
-  @Test
-  void reindexInventory_positive_resourceNameIsNull() {
-    var expectedResponse = new ReindexJob().id(randomId());
-    var expectedUri = URI.create("http://authority-storage/reindex");
-
-    when(resourceDescriptionService.find(AUTHORITY)).thenReturn(
-      Optional.of(resourceDescription(AUTHORITY)));
-    when(resourceDescriptionService.getSecondaryResourceTypes(AUTHORITY)).thenReturn(
-      List.of(UNKNOWN));
-    when(resourceReindexClient.submitReindex(expectedUri)).thenReturn(expectedResponse);
-
-    var actual = indexService.reindexInventory(TENANT_ID, new ReindexRequest().resourceName(null));
-    assertThat(actual).isEqualTo(expectedResponse);
-    verifyNoInteractions(locationService);
-  }
-
-  @Test
-  void reindexInventory_positive_reindexRequestIsNull() {
-    var expectedResponse = new ReindexJob().id(randomId());
-    var expectedUri = URI.create("http://authority-storage/reindex");
-
-    when(resourceReindexClient.submitReindex(expectedUri)).thenReturn(expectedResponse);
-    when(resourceDescriptionService.find(AUTHORITY)).thenReturn(
-      Optional.of(resourceDescription(AUTHORITY)));
-    when(resourceDescriptionService.getSecondaryResourceTypes(AUTHORITY)).thenReturn(
-      List.of(UNKNOWN));
-
-    var actual = indexService.reindexInventory(TENANT_ID, null);
-
+    var actual = indexService.reindexInventory(TENANT_ID,
+      new ReindexRequest().resourceName(ResourceNameEnum.AUTHORITY));
     assertThat(actual).isEqualTo(expectedResponse);
     verifyNoInteractions(locationService);
   }

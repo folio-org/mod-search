@@ -2,9 +2,11 @@ package org.folio.search.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.model.types.ResourceType.CAMPUS;
+import static org.folio.search.utils.SearchUtils.ID_FIELD;
 import static org.folio.search.utils.SearchUtils.TENANT_ID_FIELD_NAME;
 import static org.folio.search.utils.TestConstants.INDEX_NAME;
 import static org.folio.search.utils.TestConstants.MEMBER_TENANT_ID;
+import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
@@ -67,7 +69,7 @@ class ConsortiumCampusRepositoryTest {
     when(client.search(requestCaptor.capture(), eq(DEFAULT))).thenReturn(searchResponse);
     when(documentConverter.convertToSearchResult(searchResponse, ConsortiumCampus.class)).thenReturn(searchResult);
 
-    var actual = repository.fetchCampuses(TENANT_ID, null, limit, offset, sortBy, null);
+    var actual = repository.fetchCampuses(TENANT_ID, null, null, limit, offset, sortBy, null);
 
     assertThat(actual).isEqualTo(searchResult);
 
@@ -99,7 +101,7 @@ class ConsortiumCampusRepositoryTest {
     when(client.search(requestCaptor.capture(), eq(DEFAULT))).thenReturn(searchResponse);
     when(documentConverter.convertToSearchResult(searchResponse, ConsortiumCampus.class)).thenReturn(searchResult);
 
-    var actual = repository.fetchCampuses(TENANT_ID, MEMBER_TENANT_ID, limit, offset, sortBy, null);
+    var actual = repository.fetchCampuses(TENANT_ID, MEMBER_TENANT_ID, null, limit, offset, sortBy, null);
 
     assertThat(actual).isEqualTo(searchResult);
 
@@ -124,6 +126,41 @@ class ConsortiumCampusRepositoryTest {
   }
 
   @Test
+  void fetchCampuses_positive_withIdFilter() throws IOException {
+    var limit = 123;
+    var offset = 321;
+    var sortBy = "test";
+    var searchResponse = mock(SearchResponse.class);
+    var searchResult = Mockito.<SearchResult<ConsortiumCampus>>mock();
+
+    when(client.search(requestCaptor.capture(), eq(DEFAULT))).thenReturn(searchResponse);
+    when(documentConverter.convertToSearchResult(searchResponse, ConsortiumCampus.class)).thenReturn(searchResult);
+
+    var actual = repository.fetchCampuses(TENANT_ID, null, RESOURCE_ID, limit, offset, sortBy, null);
+
+    assertThat(actual).isEqualTo(searchResult);
+
+    assertThat(requestCaptor.getValue())
+        .matches(request -> request.indices().length == 1 && request.indices()[0].equals(INDEX_NAME))
+        .satisfies(request -> {
+          var source = request.source();
+          assertThat(source.size()).isEqualTo(limit);
+          assertThat(source.from()).isEqualTo(offset);
+          assertThat(source.sorts()).hasSize(1);
+          assertThat(source.sorts().get(0)).isInstanceOf(FieldSortBuilder.class);
+
+          var sort = (FieldSortBuilder) source.sorts().get(0);
+          assertThat(sort.getFieldName()).isEqualTo(sortBy);
+          assertThat(sort.order()).isEqualTo(SortOrder.ASC);
+          assertThat(source.query()).isInstanceOf(BoolQueryBuilder.class);
+
+          var query = (BoolQueryBuilder) source.query();
+          assertThat(query.filter())
+              .isEqualTo(List.of(QueryBuilders.termQuery(ID_FIELD, RESOURCE_ID)));
+        });
+  }
+
+  @Test
   void fetchCampuses_positive_sortDesc() throws IOException {
     var limit = 123;
     var offset = 321;
@@ -134,7 +171,7 @@ class ConsortiumCampusRepositoryTest {
     when(client.search(requestCaptor.capture(), eq(DEFAULT))).thenReturn(searchResponse);
     when(documentConverter.convertToSearchResult(searchResponse, ConsortiumCampus.class)).thenReturn(searchResult);
 
-    var actual = repository.fetchCampuses(TENANT_ID, null, limit, offset, sortBy,
+    var actual = repository.fetchCampuses(TENANT_ID, null, null, limit, offset, sortBy,
       org.folio.search.domain.dto.SortOrder.DESC);
 
     assertThat(actual).isEqualTo(searchResult);

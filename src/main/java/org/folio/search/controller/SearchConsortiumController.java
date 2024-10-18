@@ -107,11 +107,12 @@ public class SearchConsortiumController implements SearchConsortiumApi {
   @Override
   public ResponseEntity<ConsortiumCampusCollection> getConsortiumCampuses(String tenantHeader,
                                                                           String tenantId,
+                                                                          String id,
                                                                           Integer limit,
                                                                           Integer offset,
                                                                           String sortBy,
                                                                           SortOrder sortOrder) {
-    var result = campusService.fetchCampuses(tenantHeader, tenantId, limit, offset, sortBy, sortOrder);
+    var result = campusService.fetchCampuses(tenantHeader, tenantId, id, limit, offset, sortBy, sortOrder);
 
     return ResponseEntity.ok(new
       ConsortiumCampusCollection()
@@ -122,11 +123,12 @@ public class SearchConsortiumController implements SearchConsortiumApi {
   @Override
   public ResponseEntity<ConsortiumLibraryCollection> getConsortiumLibraries(String tenantHeader,
                                                                            String tenantId,
+                                                                           String id,
                                                                            Integer limit,
                                                                            Integer offset,
                                                                            String sortBy,
                                                                            SortOrder sortOrder) {
-    var result = libraryService.fetchLibraries(tenantHeader, tenantId, limit, offset, sortBy, sortOrder);
+    var result = libraryService.fetchLibraries(tenantHeader, tenantId, id, limit, offset, sortBy, sortOrder);
 
     return ResponseEntity.ok(new
       ConsortiumLibraryCollection()
@@ -137,11 +139,12 @@ public class SearchConsortiumController implements SearchConsortiumApi {
   @Override
   public ResponseEntity<ConsortiumInstitutionCollection> getConsortiumInstitutions(String tenantHeader,
                                                                                    String tenantId,
+                                                                                   String id,
                                                                                    Integer limit,
                                                                                    Integer offset,
                                                                                    String sortBy,
                                                                                    SortOrder sortOrder) {
-    var result = institutionService.fetchInstitutions(tenantHeader, tenantId, limit, offset, sortBy, sortOrder);
+    var result = institutionService.fetchInstitutions(tenantHeader, tenantId, id, limit, offset, sortBy, sortOrder);
 
     return ResponseEntity.ok(new
       ConsortiumInstitutionCollection()

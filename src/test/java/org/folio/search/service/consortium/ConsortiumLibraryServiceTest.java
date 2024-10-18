@@ -50,20 +50,21 @@ public class ConsortiumLibraryServiceTest {
   void fetchLibraries_ValidSortBy(String sortBy) {
     var tenantHeader = CONSORTIUM_TENANT;
     var tenantId = CONSORTIUM_TENANT;
+    var libraryId = ID;
     var sortOrder = SortOrder.ASC;
     var limit = 10;
     var offset = 0;
     var searchResult = prepareSearchResult();
 
-    when(repository.fetchLibraries(tenantHeader, tenantId, limit, offset, sortBy, sortOrder))
+    when(repository.fetchLibraries(tenantHeader, tenantId, libraryId, limit, offset, sortBy, sortOrder))
       .thenReturn(searchResult);
     when(executor.execute(eq(tenantId), any(Supplier.class)))
       .thenAnswer(invocation -> ((Supplier<ConsortiumLibrary>) invocation.getArgument(1)).get());
 
-    var actual = service.fetchLibraries(tenantHeader, tenantId, limit, offset, sortBy, sortOrder);
+    var actual = service.fetchLibraries(tenantHeader, tenantId, libraryId, limit, offset, sortBy, sortOrder);
 
     assertThat(actual).isEqualTo(searchResult);
-    verify(repository).fetchLibraries(tenantHeader, tenantId, limit, offset, sortBy, sortOrder);
+    verify(repository).fetchLibraries(tenantHeader, tenantId, libraryId, limit, offset, sortBy, sortOrder);
     verify(executor).execute(eq(tenantId), any(Supplier.class));
   }
 
@@ -74,7 +75,7 @@ public class ConsortiumLibraryServiceTest {
     var offset = 0;
 
     Assertions.assertThrows(IllegalArgumentException.class, () ->
-      service.fetchLibraries(CONSORTIUM_TENANT, CONSORTIUM_TENANT, limit, offset, "invalid", sortOrder)
+      service.fetchLibraries(CONSORTIUM_TENANT, CONSORTIUM_TENANT, ID, limit, offset, "invalid", sortOrder)
     );
   }
 

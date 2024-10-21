@@ -37,7 +37,7 @@
     <folio-spring-support.version>8.2.0</folio-spring-support.version>
     <folio-service-tools.version>4.1.0-SNAPSHOT</folio-service-tools.version>
     <folio-isbn-utils.version>1.7.0-SNAPSHOT</folio-isbn-utils.version>
-    <folio-cql2pgjson.version>35.2.2</folio-cql2pgjson.version>
+    <folio-cql2pgjson.version>35.3.0</folio-cql2pgjson.version>
     <opensearch.version>2.17.1</opensearch.version>
     <mapstruct.version>1.6.2</mapstruct.version>
     <apache-commons-io.version>2.17.0</apache-commons-io.version>
@@ -99,7 +99,7 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
-      <version>3.14.0</version>
+      <version>3.17.0</version>
     </dependency>
 
 

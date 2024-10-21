@@ -279,6 +279,9 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
         List.of(IDS[0])),
       arguments("(holdings.metadata.createdDate>=2016-01-01 and holdings.metadata.createdDate<=2018-12-12) "
         + "sortby title", List.of()),
+      arguments("(staffSuppress==false "
+        + "and holdings.metadata.createdDate>=2016-01-01 and holdings.metadata.createdDate<=2018-12-12) "
+        + "sortby title", List.of()),
 
       arguments("(holdings.metadata.updatedDate >= 2021-03-14) sortby title", List.of(IDS[3])),
       arguments("(holdings.metadata.updatedDate > 2021-03-01) sortby title", List.of(IDS[0], IDS[1], IDS[3])),
@@ -337,6 +340,9 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments("(items.metadata.createdDate>= 2021-03-01 and metadata.createdDate < 2021-03-10) sortby title",
         List.of(IDS[0], IDS[2])),
       arguments("(items.metadata.createdDate>=2016-01-01 and items.metadata.createdDate<=2018-12-12) sortby title",
+        List.of()),
+      arguments("(staffSuppress==false "
+          + "and items.metadata.createdDate>=2016-01-01 and items.metadata.createdDate<=2018-12-12) sortby title",
         List.of()),
 
       arguments("(items.metadata.updatedDate >= 2021-03-14) sortby title", List.of(IDS[2], IDS[3])),

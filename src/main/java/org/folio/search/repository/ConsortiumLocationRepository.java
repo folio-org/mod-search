@@ -1,6 +1,7 @@
 package org.folio.search.repository;
 
 import static org.folio.search.model.types.ResourceType.LOCATION;
+import static org.folio.search.utils.SearchUtils.ID_FIELD;
 import static org.folio.search.utils.SearchUtils.TENANT_ID_FIELD_NAME;
 import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
 import static org.opensearch.search.sort.SortOrder.ASC;
@@ -37,27 +38,38 @@ public class ConsortiumLocationRepository {
 
   public SearchResult<ConsortiumLocation> fetchLocations(String tenantHeader,
                                                          String tenantId,
+                                                         String id,
                                                          Integer limit,
                                                          Integer offset,
                                                          String sortBy,
                                                          SortOrder sortOrder) {
 
-    var sourceBuilder = getSearchSourceBuilder(tenantId, limit, offset, sortBy, sortOrder);
+    var sourceBuilder = getSearchSourceBuilder(tenantId, id, limit, offset, sortBy, sortOrder);
     var response = search(sourceBuilder, tenantHeader);
     return documentConverter.convertToSearchResult(response, ConsortiumLocation.class);
   }
 
   @NotNull
   private static SearchSourceBuilder getSearchSourceBuilder(String tenantId,
+                                                            String locationId,
                                                             Integer limit,
                                                             Integer offset,
                                                             String sortBy,
                                                             SortOrder sortOrder) {
     var sourceBuilder = new SearchSourceBuilder();
+    var boolQuery = QueryBuilders.boolQuery();
+
     Optional.ofNullable(tenantId)
-      .ifPresent(id -> sourceBuilder
-        .query(QueryBuilders
-          .termQuery(TENANT_ID_FIELD_NAME, id)));
+        .ifPresent(id -> boolQuery
+            .filter(QueryBuilders.termQuery(TENANT_ID_FIELD_NAME, id)));
+
+    Optional.ofNullable(locationId)
+        .ifPresent(id -> boolQuery
+            .filter(QueryBuilders.termQuery(ID_FIELD, id)));
+
+    if (boolQuery.hasClauses()) {
+      sourceBuilder.query(boolQuery);
+    }
 
     return sourceBuilder
       .from(offset)

@@ -92,11 +92,12 @@ public class SearchConsortiumController implements SearchConsortiumApi {
   @Override
   public ResponseEntity<ConsortiumLocationCollection> getConsortiumLocations(String tenantHeader,
                                                                              String tenantId,
+                                                                             String id,
                                                                              Integer limit,
                                                                              Integer offset,
                                                                              String sortBy,
                                                                              SortOrder sortOrder) {
-    var result = locationService.fetchLocations(tenantHeader, tenantId, limit, offset, sortBy, sortOrder);
+    var result = locationService.fetchLocations(tenantHeader, tenantId, id, limit, offset, sortBy, sortOrder);
 
     return ResponseEntity.ok(new
       ConsortiumLocationCollection()

@@ -24,19 +24,21 @@ public class ConsortiumLocationService {
 
   public SearchResult<ConsortiumLocation> fetchLocations(String tenantHeader,
                                                          String tenantId,
+                                                         String id,
                                                          Integer limit,
                                                          Integer offset,
                                                          String sortBy,
                                                          SortOrder sortOrder) {
-    log.info("fetching consortium locations for tenant: {}, tenantId: {}, sortBy: {}",
+    log.info("fetching consortium locations for tenant: {}, tenantId: {}, id: {}, sortBy: {}",
       tenantHeader,
       tenantId,
+      id,
       sortBy);
     validatePaginationParameters(limit, offset);
     validateSortByValue(sortBy);
     return executor.execute(
       tenantHeader,
-      () -> repository.fetchLocations(tenantHeader, tenantId, limit, offset, sortBy, sortOrder));
+      () -> repository.fetchLocations(tenantHeader, tenantId, id, limit, offset, sortBy, sortOrder));
   }
 
   private void validateSortByValue(String sortBy) {

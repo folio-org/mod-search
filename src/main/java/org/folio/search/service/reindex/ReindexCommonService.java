@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
+import org.folio.search.domain.dto.IndexSettings;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.IndexService;
 import org.folio.search.service.reindex.jdbc.ReindexJdbcRepository;
@@ -33,11 +34,11 @@ public class ReindexCommonService {
     }
   }
 
-  public void recreateIndex(ReindexEntityType reindexEntityType, String tenantId) {
+  public void recreateIndex(ReindexEntityType reindexEntityType, String tenantId, IndexSettings indexSettings) {
     try {
       var resourceType = RESOURCE_NAME_MAP.get(reindexEntityType);
       indexService.dropIndex(resourceType, tenantId);
-      indexService.createIndex(resourceType, tenantId);
+      indexService.createIndex(resourceType, tenantId, indexSettings);
     } catch (Exception e) {
       log.warn("Index cannot be recreated for resource={}, message={}", reindexEntityType, e.getMessage());
     }

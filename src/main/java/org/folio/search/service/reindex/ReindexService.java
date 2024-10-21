@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.converter.ReindexEntityTypeMapper;
+import org.folio.search.domain.dto.IndexSettings;
 import org.folio.search.domain.dto.ReindexUploadDto;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.integration.folio.InventoryService;
@@ -62,7 +63,7 @@ public class ReindexService {
     this.reindexCommonService = reindexCommonService;
   }
 
-  public CompletableFuture<Void> submitFullReindex(String tenantId) {
+  public CompletableFuture<Void> submitFullReindex(String tenantId, IndexSettings indexSettings) {
     log.info("submitFullReindex:: for [tenantId: {}]", tenantId);
 
     validateTenant(tenantId);
@@ -81,6 +82,7 @@ public class ReindexService {
       mergeRangeService.saveMergeRanges(rangesForAllTenants);
     }, reindexFullExecutor)
       .thenRun(() -> publishRecordsRange(tenantId))
+      .thenRun(() -> recreateIndices(tenantId, ReindexEntityType.supportUploadTypes(), indexSettings))
       .handle((unused, throwable) -> {
         if (throwable != null) {
           log.error("initFullReindex:: process failed [tenantId: {}, error: {}]", tenantId, throwable);
@@ -94,20 +96,34 @@ public class ReindexService {
   }
 
   public CompletableFuture<Void> submitUploadReindex(String tenantId,
-                                                     List<ReindexUploadDto.EntityTypesEnum> entityTypes) {
-    log.info("submitUploadReindex:: for [tenantId: {}, entities: {}]", tenantId, entityTypes);
-    var reindexEntityTypes = entityTypeMapper.convert(entityTypes)
+                                                     ReindexUploadDto reindexUploadDto) {
+    var entityTypes = entityTypeMapper.convert(reindexUploadDto.getEntityTypes())
       .stream().filter(ReindexEntityType::isSupportsUpload).toList();
+    return submitUploadReindex(tenantId, entityTypes, true, reindexUploadDto.getIndexSettings());
+  }
 
-    validateUploadReindex(tenantId, reindexEntityTypes);
+  public CompletableFuture<Void> submitUploadReindex(String tenantId,
+                                                     List<ReindexEntityType> entityTypes) {
+    return submitUploadReindex(tenantId, entityTypes, false, null);
+  }
 
-    for (var reindexEntityType : reindexEntityTypes) {
+  private CompletableFuture<Void> submitUploadReindex(String tenantId,
+                                                     List<ReindexEntityType> entityTypes,
+                                                     boolean recreateIndex,
+                                                     IndexSettings indexSettings) {
+    log.info("submitUploadReindex:: for [tenantId: {}, entities: {}]", tenantId, entityTypes);
+
+    validateUploadReindex(tenantId, entityTypes);
+
+    for (var reindexEntityType : entityTypes) {
       statusService.recreateUploadStatusRecord(reindexEntityType);
-      reindexCommonService.recreateIndex(reindexEntityType, tenantId);
+      if (recreateIndex) {
+        reindexCommonService.recreateIndex(reindexEntityType, tenantId, indexSettings);
+      }
     }
 
     var futures = new ArrayList<>();
-    for (var entityType : reindexEntityTypes) {
+    for (var entityType : entityTypes) {
       var future = CompletableFuture.runAsync(() ->
            uploadRangeService.prepareAndSendIndexRanges(entityType), reindexUploadExecutor)
         .handle((unused, throwable) -> {
@@ -122,6 +138,12 @@ public class ReindexService {
 
     log.info("submitUploadReindex:: submitted [tenantId: {}]", tenantId);
     return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+  }
+
+  private void recreateIndices(String tenantId, List<ReindexEntityType> entityTypes, IndexSettings indexSettings) {
+    for (var reindexEntityType : entityTypes) {
+      reindexCommonService.recreateIndex(reindexEntityType, tenantId, indexSettings);
+    }
   }
 
   private List<MergeRangeEntity> processForConsortium(String tenantId) {

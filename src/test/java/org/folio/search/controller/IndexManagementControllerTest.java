@@ -11,6 +11,7 @@ import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.search.utils.TestUtils.resourceEvent;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
@@ -31,6 +32,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import org.folio.search.domain.dto.CreateIndexRequest;
 import org.folio.search.domain.dto.IndexDynamicSettings;
+import org.folio.search.domain.dto.IndexSettings;
 import org.folio.search.domain.dto.ReindexJob;
 import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.domain.dto.ReindexStatusItem;
@@ -80,9 +82,19 @@ class IndexManagementControllerTest {
 
   @Test
   void submitReindexFull_positive() throws Exception {
-    when(reindexService.submitFullReindex(TENANT_ID)).thenReturn(new CompletableFuture<>());
+    when(reindexService.submitFullReindex(TENANT_ID, null)).thenReturn(new CompletableFuture<>());
 
-    mockMvc.perform(post(reindexFullPath()).header(XOkapiHeaders.TENANT, TENANT_ID))
+    mockMvc.perform(post(reindexFullPath())
+        .contentType(APPLICATION_JSON).header(XOkapiHeaders.TENANT, TENANT_ID))
+      .andExpect(status().isOk());
+  }
+
+  @Test
+  void submitReindexFull_positive_withSettings() throws Exception {
+    var requestBody = new IndexSettings().numberOfShards(1).refreshInterval(2).numberOfReplicas(3);
+    when(reindexService.submitFullReindex(TENANT_ID, requestBody)).thenReturn(new CompletableFuture<>());
+
+    mockMvc.perform(preparePostRequest(reindexFullPath(), asJsonString(requestBody)))
       .andExpect(status().isOk());
   }
 
@@ -90,6 +102,19 @@ class IndexManagementControllerTest {
   void submitReindexUpload_positive() throws Exception {
     when(reindexService.submitUploadReindex(eq(TENANT_ID), anyList())).thenReturn(new CompletableFuture<>());
     var requestBody = new ReindexUploadDto().addEntityTypesItem(ReindexUploadDto.EntityTypesEnum.INSTANCE);
+
+    mockMvc.perform(preparePostRequest(reindexUploadPath(), asJsonString(requestBody))
+        .header(XOkapiHeaders.TENANT, TENANT_ID))
+      .andExpect(status().isOk());
+  }
+
+  @Test
+  void submitReindexUpload_positive_withSettings() throws Exception {
+    var indexSettings = new IndexSettings().numberOfShards(1).refreshInterval(2).numberOfReplicas(3);
+    var requestBody = new ReindexUploadDto()
+      .addEntityTypesItem(ReindexUploadDto.EntityTypesEnum.INSTANCE)
+      .indexSettings(indexSettings);
+    when(reindexService.submitUploadReindex(TENANT_ID, requestBody)).thenReturn(new CompletableFuture<>());
 
     mockMvc.perform(preparePostRequest(reindexUploadPath(), asJsonString(requestBody))
         .header(XOkapiHeaders.TENANT, TENANT_ID))
@@ -211,10 +236,12 @@ class IndexManagementControllerTest {
   @Test
   void canSubmitReindex() throws Exception {
     var jobId = randomId();
-    when(indexService.reindexInventory(TENANT_ID, null)).thenReturn(new ReindexJob().id(jobId));
+    var request = new ReindexRequest().resourceName(ReindexRequest.ResourceNameEnum.AUTHORITY);
+    when(indexService.reindexInventory(TENANT_ID, request)).thenReturn(new ReindexJob().id(jobId));
 
     mockMvc.perform(post("/search/index/inventory/reindex")
         .header(XOkapiHeaders.TENANT, TENANT_ID)
+        .content(asJsonString(request))
         .contentType(APPLICATION_JSON))
       .andExpect(status().isOk())
       .andExpect(jsonPath("id", is(jobId)));
@@ -223,7 +250,7 @@ class IndexManagementControllerTest {
   @Test
   void reindexInventoryRecords_positive_withRecreateIndexFlag() throws Exception {
     var jobId = randomId();
-    var request = new ReindexRequest().recreateIndex(true);
+    var request = new ReindexRequest().resourceName(ReindexRequest.ResourceNameEnum.AUTHORITY).recreateIndex(true);
     when(indexService.reindexInventory(TENANT_ID, request)).thenReturn(new ReindexJob().id(jobId));
 
     mockMvc.perform(post("/search/index/inventory/reindex")
@@ -233,6 +260,17 @@ class IndexManagementControllerTest {
         .param("recreateIndex", "true"))
       .andExpect(status().isOk())
       .andExpect(jsonPath("id", is(jobId)));
+  }
+
+  @Test
+  void canSubmitReindex_negative_noBody() throws Exception {
+    var jobId = randomId();
+    when(indexService.reindexInventory(TENANT_ID, null)).thenReturn(new ReindexJob().id(jobId));
+
+    mockMvc.perform(post("/search/index/inventory/reindex")
+        .header(XOkapiHeaders.TENANT, TENANT_ID)
+        .contentType(APPLICATION_JSON))
+      .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -253,14 +291,16 @@ class IndexManagementControllerTest {
 
   @Test
   void reindexInventoryRecords_negative_constraintViolationException() throws Exception {
+    var request = new ReindexRequest().resourceName(ReindexRequest.ResourceNameEnum.AUTHORITY);
     var constraintViolation = mock(ConstraintViolationImpl.class);
     when(constraintViolation.getPropertyPath()).thenReturn(PathImpl.createPathFromString("recreateIndices"));
     when(constraintViolation.getMessage()).thenReturn("must be boolean");
-    when(indexService.reindexInventory(TENANT_ID, null)).thenThrow(
+    when(indexService.reindexInventory(TENANT_ID, request)).thenThrow(
       new ConstraintViolationException("error", Set.<ConstraintViolation<?>>of(constraintViolation)));
 
     mockMvc.perform(post("/search/index/inventory/reindex")
         .header(XOkapiHeaders.TENANT, TENANT_ID)
+        .content(asJsonString(request))
         .contentType(APPLICATION_JSON))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.total_records", is(1)))
@@ -271,14 +311,16 @@ class IndexManagementControllerTest {
 
   @Test
   void reindexInventoryRecords_negative_illegalArgumentException() throws Exception {
-    when(indexService.reindexInventory(TENANT_ID, null)).thenThrow(new IllegalArgumentException("invalid value"));
+    var request = new ReindexRequest().resourceName(ReindexRequest.ResourceNameEnum.AUTHORITY);
+    when(indexService.reindexInventory(TENANT_ID, request)).thenThrow(new IllegalArgumentException("invalid value"));
 
     mockMvc.perform(post("/search/index/inventory/reindex")
         .header(XOkapiHeaders.TENANT, TENANT_ID)
+        .content(asJsonString(request))
         .contentType(APPLICATION_JSON))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.total_records", is(1)))
-      .andExpect(jsonPath("$.errors[0].message", is("invalid value")))
+      .andExpect(jsonPath("$.errors[0].message", containsString("invalid value")))
       .andExpect(jsonPath("$.errors[0].type", is("IllegalArgumentException")))
       .andExpect(jsonPath("$.errors[0].code", is("validation_error")));
   }

@@ -43,21 +43,22 @@ public class ConsortiumLocationServiceTest {
   void fetchLocations_ValidSortBy() {
     var tenantHeader = CONSORTIUM_TENANT;
     var tenantId = CONSORTIUM_TENANT;
+    var locationId = ID;
     var sortOrder = SortOrder.ASC;
     var sortBy = NAME;
     var limit = 10;
     var offset = 0;
     var searchResult = prepareSearchResult();
 
-    when(repository.fetchLocations(tenantHeader, tenantId, limit, offset, sortBy, sortOrder))
+    when(repository.fetchLocations(tenantHeader, tenantId, locationId, limit, offset, sortBy, sortOrder))
       .thenReturn(searchResult);
     when(executor.execute(eq(tenantId), any(Supplier.class)))
       .thenAnswer(invocation -> ((Supplier<ConsortiumLocation>) invocation.getArgument(1)).get());
 
-    var actual = service.fetchLocations(tenantHeader, tenantId, limit, offset, sortBy, sortOrder);
+    var actual = service.fetchLocations(tenantHeader, tenantId, locationId, limit, offset, sortBy, sortOrder);
 
     assertThat(actual).isEqualTo(searchResult);
-    verify(repository).fetchLocations(tenantHeader, tenantId, limit, offset, sortBy, sortOrder);
+    verify(repository).fetchLocations(tenantHeader, tenantId, locationId, limit, offset, sortBy, sortOrder);
     verify(executor).execute(eq(tenantId), any(Supplier.class));
   }
 
@@ -68,7 +69,7 @@ public class ConsortiumLocationServiceTest {
     var offset = 0;
 
     Assertions.assertThrows(RequestValidationException.class, () ->
-      service.fetchLocations(CONSORTIUM_TENANT, CONSORTIUM_TENANT, limit, offset, "invalid", sortOrder)
+      service.fetchLocations(CONSORTIUM_TENANT, CONSORTIUM_TENANT, ID, limit, offset, "invalid", sortOrder)
     );
   }
 
@@ -79,7 +80,7 @@ public class ConsortiumLocationServiceTest {
     var offset = 9900;
 
     Assertions.assertThrows(RequestValidationException.class, () ->
-      service.fetchLocations(CONSORTIUM_TENANT, CONSORTIUM_TENANT, limit, offset, NAME, sortOrder)
+      service.fetchLocations(CONSORTIUM_TENANT, CONSORTIUM_TENANT, ID, limit, offset, NAME, sortOrder)
     );
   }
 

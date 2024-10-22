@@ -2,6 +2,7 @@ package org.folio.search.configuration;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.configuration.properties.StreamIdsProperties;
 import org.folio.spring.tools.kafka.FolioKafkaProperties;
 import org.springframework.context.annotation.Bean;
@@ -15,8 +16,7 @@ public class RetryTemplateConfiguration {
 
   public static final String KAFKA_RETRY_TEMPLATE_NAME = "kafkaMessageListenerRetryTemplate";
   public static final String STREAM_IDS_RETRY_TEMPLATE_NAME = "streamIdsRetryTemplate";
-  private final FolioKafkaProperties folioKafkaProperties;
-  private final StreamIdsProperties streamIdsProperties;
+  public static final String REINDEX_PUBLISH_RANGE_RETRY_TEMPLATE_NAME = "reindexPublishRangeRetryTemplate";
 
   /**
    * Constructs a batch handler that tries to deliver messages 10 times with configured interval, if exception is not
@@ -26,18 +26,26 @@ public class RetryTemplateConfiguration {
    * @return created {@link RetryTemplate} object
    */
   @Bean(name = KAFKA_RETRY_TEMPLATE_NAME)
-  public RetryTemplate kafkaMessageListenerRetryTemplate() {
+  public RetryTemplate kafkaMessageListenerRetryTemplate(FolioKafkaProperties properties) {
     return RetryTemplate.builder()
-      .maxAttempts((int) folioKafkaProperties.getRetryDeliveryAttempts())
-      .fixedBackoff(folioKafkaProperties.getRetryIntervalMs())
+      .maxAttempts((int) properties.getRetryDeliveryAttempts())
+      .fixedBackoff(properties.getRetryIntervalMs())
       .build();
   }
 
   @Bean(name = STREAM_IDS_RETRY_TEMPLATE_NAME)
-  public RetryTemplate streamIdsRetryTemplate() {
+  public RetryTemplate streamIdsRetryTemplate(StreamIdsProperties properties) {
     return RetryTemplate.builder()
-      .maxAttempts((int) streamIdsProperties.getRetryAttempts())
-      .fixedBackoff(streamIdsProperties.getRetryIntervalMs())
+      .maxAttempts(properties.getRetryAttempts())
+      .fixedBackoff(properties.getRetryIntervalMs())
+      .build();
+  }
+
+  @Bean(name = REINDEX_PUBLISH_RANGE_RETRY_TEMPLATE_NAME)
+  public RetryTemplate reindexPublishRangeRetryTemplate(ReindexConfigurationProperties properties) {
+    return RetryTemplate.builder()
+      .maxAttempts(properties.getMergeRangePublisherRetryAttempts())
+      .fixedBackoff(properties.getMergeRangePublisherRetryIntervalMs())
       .build();
   }
 }

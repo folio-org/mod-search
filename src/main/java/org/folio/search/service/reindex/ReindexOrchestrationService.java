@@ -12,6 +12,7 @@ import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.repository.PrimaryResourceRepository;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.spring.FolioExecutionContext;
+import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 @Log4j2
@@ -54,17 +55,21 @@ public class ReindexOrchestrationService {
     try {
       mergeRangeService.saveEntities(event);
       reindexStatusService.addProcessedMergeRanges(entityType, 1);
+      mergeRangeService.updateFinishDate(entityType, event.getRangeId());
+      log.info("process:: ReindexRecordsEvent processed [rangeId: {}, recordType: {}]",
+        event.getRangeId(), event.getRecordType());
+      if (reindexStatusService.isMergeCompleted()) {
+        reindexService.submitUploadReindex(context.getTenantId(), ReindexEntityType.supportUploadTypes());
+      }
+    } catch (PessimisticLockingFailureException ex) {
+      log.warn(new FormattedMessage("process:: ReindexRecordsEvent indexing recoverable error"
+                                    + " [rangeId: {}, error: {}]", event.getRangeId(), ex.getMessage()), ex);
+      throw new ReindexException(ex.getMessage());
     } catch (Exception ex) {
       log.error(new FormattedMessage("process:: ReindexRecordsEvent indexing error [rangeId: {}, error: {}]",
         event.getRangeId(), ex.getMessage()), ex);
       reindexStatusService.updateReindexMergeFailed();
-    } finally {
-      log.info("process:: ReindexRecordsEvent processed [rangeId: {}, recordType: {}]",
-        event.getRangeId(), event.getRecordType());
       mergeRangeService.updateFinishDate(entityType, event.getRangeId());
-      if (reindexStatusService.isMergeCompleted()) {
-        reindexService.submitUploadReindex(context.getTenantId(), ReindexEntityType.supportUploadTypes());
-      }
     }
 
     return true;

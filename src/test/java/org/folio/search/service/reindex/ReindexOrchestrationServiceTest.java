@@ -29,6 +29,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.PessimisticLockingFailureException;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -115,14 +116,26 @@ class ReindexOrchestrationServiceTest {
     event.setRangeId(UUID.randomUUID().toString());
     event.setRecordType(ReindexRecordsEvent.ReindexRecordType.INSTANCE);
     event.setRecords(emptyList());
-    when(reindexStatusService.isMergeCompleted()).thenReturn(false);
     doThrow(new RuntimeException()).when(mergeRangeIndexService).saveEntities(event);
 
     service.process(event);
 
     verify(reindexStatusService).updateReindexMergeFailed();
     verify(mergeRangeIndexService).updateFinishDate(ReindexEntityType.INSTANCE, event.getRangeId());
-    verify(reindexStatusService).isMergeCompleted();
+    verifyNoMoreInteractions(reindexStatusService);
+  }
+
+  @Test
+  void process_negative_reindexRecordsEvent_shouldNotFailMergeOnPessimisticLockingFailureException() {
+    var event = new ReindexRecordsEvent();
+    event.setRangeId(UUID.randomUUID().toString());
+    event.setRecordType(ReindexRecordsEvent.ReindexRecordType.INSTANCE);
+    event.setRecords(emptyList());
+    doThrow(new PessimisticLockingFailureException("Deadlock")).when(mergeRangeIndexService).saveEntities(event);
+
+    assertThrows(ReindexException.class, () -> service.process(event));
+
+    verifyNoMoreInteractions(mergeRangeIndexService);
     verifyNoMoreInteractions(reindexStatusService);
   }
 

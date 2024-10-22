@@ -26,7 +26,7 @@ public class StreamIdsProperties {
   /**
    * How many delivery attempts to perform when message failed.
    */
-  private long retryAttempts = 3;
+  private int retryAttempts = 3;
 
   /**
    * ThreadPoolExecutor's core pool size.

@@ -29,4 +29,8 @@ public class ReindexConfigurationProperties {
   private Integer mergeRangePublisherCorePoolSize = 3;
 
   private Integer mergeRangePublisherMaxPoolSize = 6;
+
+  private long mergeRangePublisherRetryIntervalMs = 1000;
+
+  private int mergeRangePublisherRetryAttempts = 5;
 }

@@ -1,12 +1,17 @@
 package org.folio.search.integration.folio;
 
+import static org.folio.search.configuration.RetryTemplateConfiguration.REINDEX_PUBLISH_RANGE_RETRY_TEMPLATE_NAME;
+
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.logging.log4j.message.FormattedMessage;
 import org.folio.search.client.InventoryInstanceClient;
 import org.folio.search.client.InventoryReindexRecordsClient;
 import org.folio.search.exception.FolioIntegrationException;
 import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.InventoryRecordType;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -16,11 +21,14 @@ public class InventoryService {
 
   private final InventoryInstanceClient inventoryInstanceClient;
   private final InventoryReindexRecordsClient reindexRecordsClient;
+  private final RetryTemplate retryTemplate;
 
   public InventoryService(InventoryInstanceClient inventoryInstanceClient,
-                          InventoryReindexRecordsClient reindexRecordsClient) {
+                          InventoryReindexRecordsClient reindexRecordsClient,
+                          @Qualifier(value = REINDEX_PUBLISH_RANGE_RETRY_TEMPLATE_NAME) RetryTemplate retryTemplate) {
     this.inventoryInstanceClient = inventoryInstanceClient;
     this.reindexRecordsClient = reindexRecordsClient;
+    this.retryTemplate = retryTemplate;
   }
 
   public int fetchInventoryRecordsCount(InventoryRecordType recordType) {
@@ -41,7 +49,7 @@ public class InventoryService {
 
       return result.totalRecords();
     } catch (Exception e) {
-      log.error("Failed to fetch Inventory record counts for {}", recordType);
+      log.error(new FormattedMessage("Failed to fetch Inventory record counts for {}", recordType), e);
       throw new FolioIntegrationException(
         "Failed to fetch inventory record counts for %s : %s".formatted(recordType.name(), e.getMessage()), e);
     }
@@ -49,23 +57,24 @@ public class InventoryService {
 
   public void publishReindexRecordsRange(MergeRangeEntity rangeEntity) {
     if (rangeEntity == null
-      || ObjectUtils.anyNull(rangeEntity.getId(), rangeEntity.getLowerId(), rangeEntity.getUpperId())) {
+        || ObjectUtils.anyNull(rangeEntity.getId(), rangeEntity.getLowerId(), rangeEntity.getUpperId())) {
       log.warn("Invalid Range Entity: [rangeEntity: {}]", rangeEntity);
       return;
     }
 
-    var from = rangeEntity.getLowerId();
-    var to = rangeEntity.getUpperId();
-    var recordsRange = new InventoryReindexRecordsClient.ReindexRecords(
+    var recordsRange = InventoryReindexRecordsClient.constructRequest(
       rangeEntity.getId().toString(),
       rangeEntity.getEntityType().getType(),
-      new InventoryReindexRecordsClient.ReindexRecordsRange(from, to));
+      rangeEntity.getLowerId(),
+      rangeEntity.getUpperId());
 
-    try {
+    retryTemplate.execute(context -> {
       reindexRecordsClient.publishReindexRecords(recordsRange);
-    } catch (Exception e) {
-      log.warn("Failed to publish reindex records range {} : {}", recordsRange, e.getMessage());
-      throw new FolioIntegrationException("Failed to publish reindex records range", e);
-    }
+      return null;
+    }, context -> {
+      var lastThrowable = context.getLastThrowable();
+      log.error(new FormattedMessage("Failed to publish reindex records range {}", recordsRange), lastThrowable);
+      throw new FolioIntegrationException("Failed to publish reindex records range after all retries", lastThrowable);
+    });
   }
 }

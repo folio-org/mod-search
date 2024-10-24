@@ -1227,6 +1227,16 @@
         "name": "REINDEX_MERGE_RANGE_PUBLISHER_MAX_POOL_SIZE",
         "value": "6",
         "description": "The maximum number of threads for publishing the merge ranges to allow in the pool."
+      },
+      {
+        "name": "REINDEX_MERGE_RANGE_PUBLISHER_RETRY_INTERVAL_MS",
+        "value": "1000",
+        "description": "The retry interval in ms for reindex merge range request publishing."
+      },
+      {
+        "name": "REINDEX_MERGE_RANGE_PUBLISHER_RETRY_ATTEMPTS",
+        "value": "5",
+        "description": "The maximum number of retries for reindex merge range request publishing."
       }
     ]
   }

@@ -34,6 +34,7 @@ import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.RetryTemplateConfiguration;
 import org.folio.search.configuration.kafka.InstanceResourceEventKafkaConfiguration;
 import org.folio.search.configuration.kafka.ResourceEventKafkaConfiguration;
+import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.configuration.properties.StreamIdsProperties;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.exception.SearchOperationException;
@@ -75,7 +76,8 @@ import org.springframework.retry.annotation.EnableRetry;
 @IntegrationTest
 @Import(KafkaListenerTestConfiguration.class)
 @SpringBootTest(
-  classes = {KafkaMessageListener.class, FolioKafkaProperties.class, StreamIdsProperties.class},
+  classes = {KafkaMessageListener.class, FolioKafkaProperties.class, StreamIdsProperties.class,
+             ReindexConfigurationProperties.class},
   properties = {
     "ENV=kafka-listener-it",
     "folio.environment=${ENV:folio}",

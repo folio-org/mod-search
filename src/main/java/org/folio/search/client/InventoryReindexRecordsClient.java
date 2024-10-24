@@ -9,9 +9,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 public interface InventoryReindexRecordsClient {
 
   @PostMapping(path = "/publish", consumes = APPLICATION_JSON_VALUE)
-  void publishReindexRecords(ReindexRecords reindexRecords);
+  void publishReindexRecords(ReindexRecordsRequest reindexRecordsRequest);
 
-  record ReindexRecords(String id, String recordType, ReindexRecordsRange recordIdsRange) {}
+  static ReindexRecordsRequest constructRequest(String id, String recordType, String from, String to) {
+    return new ReindexRecordsRequest(id, recordType, new ReindexRecordsRange(from, to));
+  }
 
-  record ReindexRecordsRange(String from, String to) {}
+  record ReindexRecordsRequest(String id, String recordType, ReindexRecordsRange recordIdsRange) { }
+
+  record ReindexRecordsRange(String from, String to) { }
 }

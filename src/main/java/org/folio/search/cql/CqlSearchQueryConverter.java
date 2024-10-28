@@ -29,10 +29,7 @@ import org.z3950.zing.cql.CQLTermNode;
 
 /**
  * Convert a CQL query into a elasticsearch query.
- *
- * <p> Contextual Query Language (CQL) Specification:
- * <a href="https://www.loc.gov/standards/sru/cql/spec.html">https://www.loc.gov/standards/sru/cql/spec.html</a>
- * </p>
+ * Contextual Query Language (CQL) Specification: <a href="https://www.loc.gov/standards/sru/cql/spec.html">https://www.loc.gov/standards/sru/cql/spec.html</a>
  */
 @Component
 @RequiredArgsConstructor
@@ -222,8 +219,8 @@ public class CqlSearchQueryConverter {
     //extract filters with field name different from ones that were collapsed
     var resultFilters = query.filter().stream()
       .filter(filter -> !(filter instanceof RangeQueryBuilder rangeFilter)
-        || collapsedRangeFilters.stream()
-        .noneMatch(collapsedFilter -> collapsedFilter.fieldName().equals(rangeFilter.fieldName())))
+                        || collapsedRangeFilters.stream()
+                          .noneMatch(collapsedFilter -> collapsedFilter.fieldName().equals(rangeFilter.fieldName())))
       .collect(Collectors.toList());
     //add collapsed filters
     resultFilters.addAll(collapsedRangeFilters);
@@ -237,9 +234,9 @@ public class CqlSearchQueryConverter {
   /**
    * Construct new range query having range bounds from two incoming queries.
    *
-   * @param fieldName query field name.
+   * @param fieldName     query field name.
    * @param sourceQueries two range queries with same field name.
-   * */
+   */
   private RangeQueryBuilder collapseRangeQueries(String fieldName, List<RangeQueryBuilder> sourceQueries) {
     var rangeQuery = QueryBuilders.rangeQuery(fieldName);
     var firstRange = sourceQueries.get(0);

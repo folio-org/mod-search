@@ -84,11 +84,9 @@ public class ElasticsearchFacetConverter {
 
   /**
    * Merges selected and not-selected facets in the single key.
-   *
-   * <p><i>Implementation details:</i></p>
-   * <p>Selected facets are prefixed with 'selected_' value. This method should merge facets with prefix and without it
+   * Selected facets are prefixed with 'selected_' value. This method should merge facets with prefix and without it
    * into single {@link Facet} object. A 'totalRecords' value in {@link Facet} should be recalculated too after
-   * merge.</p>
+   * merge.
    *
    * @param facets map with elastic
    * @return {@link Map} object with key as the facet name, value as the {@link Facet} object

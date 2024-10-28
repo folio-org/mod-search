@@ -25,10 +25,8 @@ public class FolioMessageBatchProcessor {
 
   /**
    * Consumes batch of values as list and tries to process them using the strategy with retry.
-   *
-   * <p> At first, a batch will be retried by the specified retry policy, then, if it's failing, it would be processed
+   * At first, a batch will be retried by the specified retry policy, then, if it's failing, it would be processed
    * by single value at one time, if the value would be failed to process - failedValueConsumer will be executed.
-   * </p>
    *
    * @param batch               list of values as {@link List} object
    * @param retryBeanName       retry bean name, if it's not specified - default retry policy will be used.

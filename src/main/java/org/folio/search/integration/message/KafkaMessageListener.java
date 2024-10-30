@@ -61,6 +61,7 @@ public class KafkaMessageListener {
     log.info("Processing instance related events from kafka events [number of events: {}]", consumerRecords.size());
     var batch = getInstanceResourceEvents(consumerRecords);
     var batchByTenant = batch.stream().collect(Collectors.groupingBy(ResourceEvent::getTenant));
+    log.info("handleInstanceEvents:: batchByTenant {}", batchByTenant);
     batchByTenant.forEach((tenant, resourceEvents) -> executionService.executeSystemUserScoped(tenant, () -> {
       folioMessageBatchProcessor.consumeBatchWithFallback(resourceEvents, KAFKA_RETRY_TEMPLATE_NAME,
         resourceService::indexInstancesById, KafkaMessageListener::logFailedEvent);

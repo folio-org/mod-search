@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -32,6 +33,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.kafka.listener.BatchInterceptor;
 import org.springframework.stereotype.Component;
 
+@Log4j2
 @Order(Ordered.LOWEST_PRECEDENCE)
 @Component
 public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String, ResourceEvent> {
@@ -51,6 +53,7 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
   @Override
   public ConsumerRecords<String, ResourceEvent> intercept(ConsumerRecords<String, ResourceEvent> records,
                                                           Consumer<String, ResourceEvent> consumer) {
+    log.info("intercept:: BatchInterceptor retrieve ConsumerRecords: {}", records.count());
     var recordsById = StreamSupport.stream(records.spliterator(), false)
       .filter(r -> isInstanceEvent(r.value()))
       .collect(Collectors.groupingBy(ConsumerRecord::key));
@@ -68,6 +71,7 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
   }
 
   private void populate(List<ResourceEvent> records) {
+    log.info("populate:: populate ResourceEvent list: {}", records);
     var batchByTenant = records.stream().collect(Collectors.groupingBy(ResourceEvent::getTenant));
     batchByTenant.forEach((tenant, batch) -> systemUserScopedExecutionService.executeSystemUserScoped(tenant,
       () -> executionService.execute(() -> {
@@ -78,6 +82,7 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
   }
 
   private void process(String tenant, List<ResourceEvent> batch) {
+    log.info("process:: process ResourceEvent list: {}", batch);
     var recordByResource = batch.stream().collect(Collectors.groupingBy(ResourceEvent::getResourceName));
     for (Map.Entry<String, List<ResourceEvent>> recordCollection : recordByResource.entrySet()) {
       if (ResourceType.BOUND_WITH.getName().equals(recordCollection.getKey())) {

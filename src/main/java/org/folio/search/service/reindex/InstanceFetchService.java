@@ -47,6 +47,7 @@ public class InstanceFetchService {
   }
 
   private List<ResourceEvent> fetchInstances(List<ResourceEvent> events) {
+    log.info("fetchInstances:: events {}", events);
     var eventsById = events.stream().collect(groupingBy(ResourceEvent::getId, LinkedHashMap::new, toList()));
     var instanceIdList = List.copyOf(eventsById.keySet());
     var tenantId = context.getTenantId();

@@ -3,6 +3,7 @@ package org.folio.search.integration.message.interceptor;
 import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
 
 import java.util.Map;
+import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.folio.search.domain.dto.ResourceEvent;
@@ -14,6 +15,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.kafka.listener.BatchInterceptor;
 import org.springframework.stereotype.Component;
 
+@Log4j2
 @Order(value = Ordered.LOWEST_PRECEDENCE - 1)
 @Component
 public class ResourceEventBatchInterceptor implements BatchInterceptor<String, ResourceEvent> {
@@ -39,6 +41,7 @@ public class ResourceEventBatchInterceptor implements BatchInterceptor<String, R
   @Override
   public ConsumerRecords<String, ResourceEvent> intercept(@NotNull ConsumerRecords<String, ResourceEvent> records,
                                                           @NotNull Consumer<String, ResourceEvent> consumer) {
+    log.info("intercept:: ResourceEventBatchInterceptor records {}", records);
     records.forEach(consumerRecord -> {
       var topicName = KafkaUtils.getTopicName(consumerRecord);
       var resourceType = TOPIC_TO_RESOURCE_MAP.getOrDefault(topicName, ResourceType.UNKNOWN);

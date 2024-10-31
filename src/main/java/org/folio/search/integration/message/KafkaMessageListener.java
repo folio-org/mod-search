@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.logging.log4j.message.FormattedMessage;
 import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.model.event.SubResourceEvent;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.ResourceService;
 import org.folio.search.service.config.ConfigSynchronizationService;
@@ -67,6 +68,31 @@ public class KafkaMessageListener {
       return null;
     }));
 
+  }
+
+  /**
+   * Handles instance events and indexes them by id.
+   *
+   * @param consumerRecords - list of consumer records from Apache Kafka to process.
+   */
+  @KafkaListener(
+    id = KafkaConstants.INSTANCE_SUB_RESOURCE_LISTENER_ID,
+    containerFactory = "subResourceListenerContainerFactory",
+    topicPattern = "#{folioKafkaProperties.listener['index-sub-resource'].topicPattern}",
+    groupId = "#{folioKafkaProperties.listener['index-sub-resource'].groupId}",
+    concurrency = "#{folioKafkaProperties.listener['index-sub-resource'].concurrency}")
+  public void handleInstanceChildrenEvents(List<ConsumerRecord<String, SubResourceEvent>> consumerRecords) {
+    log.info("Processing instance sub resource events from kafka events [number of events: {}]",
+      consumerRecords.size());
+    var batch = consumerRecords.stream()
+      .map(ConsumerRecord::value)
+      .toList();
+    var batchByTenant = batch.stream().collect(Collectors.groupingBy(ResourceEvent::getTenant));
+    batchByTenant.forEach((tenant, resourceEvents) -> executionService.executeSystemUserScoped(tenant, () -> {
+      folioMessageBatchProcessor.consumeBatchWithFallback(resourceEvents, KAFKA_RETRY_TEMPLATE_NAME,
+        resourceService::indexInstanceSubResources, KafkaMessageListener::logFailedEvent);
+      return null;
+    }));
   }
 
   /**

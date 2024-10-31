@@ -1,5 +1,6 @@
 package org.folio.search.utils;
 
+import static org.folio.search.configuration.kafka.KafkaConfiguration.SearchTopic.INDEX_SUB_RESOURCE;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.spring.config.properties.FolioEnvironment.getFolioEnvName;
 
@@ -33,7 +34,6 @@ public class TestConstants {
   public static final String INVENTORY_HOLDING_TOPIC = "inventory.holdings-record";
   public static final String INVENTORY_BOUND_WITH_TOPIC = "inventory.bound-with";
   public static final String INVENTORY_CLASSIFICATION_TYPE_TOPIC = "inventory.classification-type";
-  public static final String CONSORTIUM_INSTANCE_TOPIC = "search.consortium.instance";
   public static final String LINKED_DATA_WORK_INSTANCE = "linked-data.instance";
   public static final String LINKED_DATA_WORK_TOPIC = "linked-data.work";
   public static final String LINKED_DATA_HUB_TOPIC = "linked-data.hub";
@@ -62,6 +62,10 @@ public class TestConstants {
 
   public static String inventoryInstanceTopic(String tenantId) {
     return getTopicName(tenantId, INVENTORY_INSTANCE_TOPIC);
+  }
+
+  public static String instanceSubResourceTopic() {
+    return getTopicName(TENANT_ID, INDEX_SUB_RESOURCE.topicName());
   }
 
   public static String reindexRangeIndexTopic(String tenantId) {
@@ -114,14 +118,6 @@ public class TestConstants {
 
   public static String inventoryContributorTopic(String tenantId) {
     return getTopicName(tenantId, CONTRIBUTOR_TOPIC);
-  }
-
-  public static String consortiumInstanceTopic() {
-    return consortiumInstanceTopic(TENANT_ID);
-  }
-
-  public static String consortiumInstanceTopic(String tenantId) {
-    return getTopicName(tenantId, CONSORTIUM_INSTANCE_TOPIC);
   }
 
   public static String inventoryBoundWithTopic() {

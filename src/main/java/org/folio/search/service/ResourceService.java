@@ -14,11 +14,13 @@ import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperati
 import static org.folio.search.utils.SearchUtils.getNumberOfRequests;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -26,6 +28,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
+import org.folio.search.model.event.SubResourceEvent;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.ResourceIndexingConfiguration;
@@ -35,7 +38,6 @@ import org.folio.search.repository.PrimaryResourceRepository;
 import org.folio.search.repository.ResourceRepository;
 import org.folio.search.service.consortium.ConsortiumTenantExecutor;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
-import org.folio.search.service.converter.preprocessor.InstanceEventPreProcessor;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.service.reindex.InstanceFetchService;
 import org.springframework.stereotype.Service;
@@ -54,7 +56,7 @@ public class ResourceService {
   private final MultiTenantSearchDocumentConverter searchDocumentConverter;
   private final Map<String, ResourceRepository> resourceRepositoryBeans;
   private final ConsortiumTenantExecutor consortiumTenantExecutor;
-  private final InstanceEventPreProcessor instanceEventPreProcessor;
+  private final InstanceChildrenResourceService instanceChildrenResourceService;
 
   /**
    * Saves list of resourceEvents to elasticsearch.
@@ -75,6 +77,15 @@ public class ResourceService {
       getNumberOfRequests(elasticsearchDocuments), getErrorMessage(bulkIndexResponse));
 
     return bulkIndexResponse;
+  }
+
+  public FolioIndexOperationResponse indexInstanceSubResources(List<SubResourceEvent> events) {
+    var childEvents = events.stream()
+      .map(instanceChildrenResourceService::extractChildren)
+      .flatMap(Collection::stream)
+      .toList();
+
+    return indexResources(childEvents);
   }
 
   /**
@@ -103,29 +114,26 @@ public class ResourceService {
 
   private Map<String, List<SearchDocumentBody>> processIndexInstanceEvents(List<ResourceEvent> resourceEvents) {
     var indexEvents = extractEventsForDataMove(resourceEvents);
-    var fetchedInstances = consortiumTenantExecutor.execute(
-      () -> resourceFetchService.fetchInstancesByIds(indexEvents));
+    var fetchedInstances = Optional.ofNullable(consortiumTenantExecutor.execute(
+        () -> resourceFetchService.fetchInstancesByIds(indexEvents)))
+      .orElse(Collections.emptyList()).stream()
+      .filter(Objects::nonNull)
+      .toList();
 
-    var list = preProcessEvents(fetchedInstances);
-    return searchDocumentConverter.convert(list);
+    preProcessEvents(fetchedInstances);
+    return searchDocumentConverter.convert(fetchedInstances);
   }
 
-  private List<ResourceEvent> preProcessEvents(List<ResourceEvent> instanceEvents) {
-    if (instanceEvents == null) {
-      instanceEvents = Collections.emptyList();
-    }
-
-    return instanceEvents.stream()
-      .filter(Objects::nonNull)
-      .map(event -> consortiumTenantExecutor.execute(() -> instanceEventPreProcessor.preProcess(event)))
-      .filter(Objects::nonNull)
-      .flatMap(List::stream)
-      .toList();
+  private void preProcessEvents(List<ResourceEvent> instanceEvents) {
+    instanceEvents.forEach(event -> consortiumTenantExecutor.run(
+      () -> instanceChildrenResourceService.sendChildrenEvent(event)));
   }
 
   private Map<String, List<SearchDocumentBody>> processDeleteInstanceEvents(List<ResourceEvent> deleteEvents) {
-    var list = preProcessEvents(deleteEvents);
-    return searchDocumentConverter.convert(list);
+    if (deleteEvents != null) {
+      preProcessEvents(deleteEvents);
+    }
+    return searchDocumentConverter.convert(deleteEvents);
   }
 
   private FolioIndexOperationResponse indexSearchDocuments(Map<String, List<SearchDocumentBody>> eventsByResource) {

@@ -124,11 +124,16 @@ folio:
       - name: inventory.reindex-records
         numPartitions: 1
         replicationFactor: 1
+      - name: search.index.sub-resource
+        numPartitions: 1
+        replicationFactor: 1
     listener:
       events:
         concurrency: 2
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.(instance|holdings-record|item|bound-with)
         group-id: ${folio.environment}-mod-search-events-group
+        max-poll-records: ${KAFKA_CONSUMER_EVENTS_MAX_POLL_RECORDS:5}
+        max-poll-interval-ms: ${KAFKA_CONSUMER_EVENTS_MAX_POLL_INTERVAL_MS:60000}
       instances:
         concurrency: 1
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.instance
@@ -157,6 +162,12 @@ folio:
         concurrency: 1
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.reindex-records
         group-id: ${folio.environment}-mod-search-reindex-records-group
+      index-sub-resource:
+        concurrency: 2
+        topic-pattern: (${folio.environment}\.)(.*\.)search\.index\.sub-resource
+        group-id: ${folio.environment}-mod-search-index-sub-resource-group
+        max-poll-records: ${KAFKA_CONSUMER_INDEX_SUB_RESOURCE_MAX_POLL_RECORDS:5}
+        max-poll-interval-ms: ${KAFKA_CONSUMER_INDEX_SUB_RESOURCE_MAX_POLL_INTERVAL_MS:60000}
   okapiUrl: ${okapi.url}
   logging:
     request:

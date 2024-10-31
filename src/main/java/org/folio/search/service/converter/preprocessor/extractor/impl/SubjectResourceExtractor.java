@@ -88,6 +88,14 @@ public class SubjectResourceExtractor implements ChildResourceExtractor {
       .toList();
   }
 
+  @Override
+  public boolean hasChildResourceChanges(ResourceEvent event) {
+    var oldSubjects = getSubjects(getOldAsMap(event));
+    var newSubjects = getSubjects(getNewAsMap(event));
+
+    return !oldSubjects.equals(newSubjects);
+  }
+
   private List<ResourceEvent> getResourceEventsForDeletion(List<String> idsForDelete,
                                                            List<InstanceSubjectEntityAgg> entityAggList,
                                                            String tenant) {

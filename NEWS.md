@@ -50,6 +50,7 @@
 * Implement Linked Data HUB index and search API ([MSEARCH-844](https://folio-org.atlassian.net/browse/MSEARCH-844))
 * Extend consortium library, campus, institution, location API with id param ([MSEARCH-855](https://folio-org.atlassian.net/browse/MSEARCH-855))
 * Extend instance-records reindex endpoint with index settings ([MSEARCH-853](https://folio-org.atlassian.net/browse/MSEARCH-853))
+* Index instance sub-documents in async mode ([MSEARCH-873](https://folio-org.atlassian.net/browse/MSEARCH-873))
 
 ### Bug fixes
 * Do not delete kafka topics if collection topic is enabled ([MSEARCH-725](https://folio-org.atlassian.net/browse/MSEARCH-725))

@@ -1,7 +1,12 @@
 package org.folio.search.configuration.kafka;
 
+import static org.apache.kafka.clients.consumer.ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG;
+import static org.apache.kafka.clients.consumer.ConsumerConfig.MAX_POLL_RECORDS_CONFIG;
+
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.ResourceEvent;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,11 +29,15 @@ public class InstanceResourceEventKafkaConfiguration extends KafkaConfiguration 
    */
   @Bean
   public ConcurrentKafkaListenerContainerFactory<String, ResourceEvent> instanceResourceListenerContainerFactory(
-    BatchInterceptor<String, ResourceEvent>[] batchInterceptors) {
+    BatchInterceptor<String, ResourceEvent>[] batchInterceptors,
+    @Value("#{folioKafkaProperties.listener['events'].maxPollRecords}") Integer maxPollRecords,
+    @Value("#{folioKafkaProperties.listener['events'].maxPollIntervalMs}") Integer maxPollIntervalMs) {
     var factory = new ConcurrentKafkaListenerContainerFactory<String, ResourceEvent>();
     factory.setBatchListener(true);
     var deserializer = new JsonDeserializer<>(ResourceEvent.class, false);
-    factory.setConsumerFactory(getConsumerFactory(deserializer, kafkaProperties));
+    var overrideProperties = Map.<String, Object>of(MAX_POLL_RECORDS_CONFIG, maxPollRecords,
+      MAX_POLL_INTERVAL_MS_CONFIG, maxPollIntervalMs);
+    factory.setConsumerFactory(getConsumerFactory(deserializer, kafkaProperties, overrideProperties));
     factory.setBatchInterceptor(new CompositeBatchInterceptor<>(batchInterceptors));
     return factory;
   }

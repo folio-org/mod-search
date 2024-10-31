@@ -68,7 +68,11 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
         list.sort(Comparator.comparingLong(ConsumerRecord::timestamp));
       }
       log.info("intercept:: list after sort {}", list);
-      consumerRecords.add(list.get(0).value());
+      consumerRecords.addAll(
+        list.stream()
+          .map(ConsumerRecord::value)
+          .toList()
+      );
     }
     log.info("intercept::consumerRecords for population: {}", consumerRecords);
     populate(consumerRecords);

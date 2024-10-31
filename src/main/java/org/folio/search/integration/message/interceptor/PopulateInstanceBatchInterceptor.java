@@ -53,19 +53,24 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
   @Override
   public ConsumerRecords<String, ResourceEvent> intercept(ConsumerRecords<String, ResourceEvent> records,
                                                           Consumer<String, ResourceEvent> consumer) {
-    log.info("intercept:: BatchInterceptor retrieve ConsumerRecords: {}", records.count());
+    log.info("intercept:: BatchInterceptor retrieve ConsumerRecords count: {}", records.count());
+    log.info("intercept:: BatchInterceptor retrieve ConsumerRecords: {}", records);
     var recordsById = StreamSupport.stream(records.spliterator(), false)
       .filter(r -> isInstanceEvent(r.value()))
       .collect(Collectors.groupingBy(ConsumerRecord::key));
-
+    log.info("intercept:: recordsById: {}", recordsById);
     List<ResourceEvent> consumerRecords = new ArrayList<>();
     for (var entry : recordsById.entrySet()) {
+      log.info("intercept:: entry {}", entry);
       var list = entry.getValue();
+      log.info("intercept:: list {}", list);
       if (list.size() > 1) {
         list.sort(Comparator.comparingLong(ConsumerRecord::timestamp));
       }
+      log.info("intercept:: list after sort {}", list);
       consumerRecords.add(list.get(0).value());
     }
+    log.info("intercept::consumerRecords for population: {}", consumerRecords);
     populate(consumerRecords);
     return records;
   }

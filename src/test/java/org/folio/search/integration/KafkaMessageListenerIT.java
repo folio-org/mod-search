@@ -10,6 +10,7 @@ import static org.folio.search.utils.KafkaConstants.AUTHORITY_LISTENER_ID;
 import static org.folio.search.utils.KafkaConstants.EVENT_LISTENER_ID;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.search.utils.TestConstants.instanceSubResourceTopic;
 import static org.folio.search.utils.TestConstants.inventoryAuthorityTopic;
 import static org.folio.search.utils.TestConstants.inventoryBoundWithTopic;
 import static org.folio.search.utils.TestConstants.inventoryInstanceTopic;
@@ -34,6 +35,7 @@ import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.RetryTemplateConfiguration;
 import org.folio.search.configuration.kafka.InstanceResourceEventKafkaConfiguration;
 import org.folio.search.configuration.kafka.ResourceEventKafkaConfiguration;
+import org.folio.search.configuration.kafka.SubResourceKafkaConfiguration;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.configuration.properties.StreamIdsProperties;
 import org.folio.search.domain.dto.ResourceEvent;
@@ -42,6 +44,7 @@ import org.folio.search.integration.KafkaMessageListenerIT.KafkaListenerTestConf
 import org.folio.search.integration.message.FolioMessageBatchProcessor;
 import org.folio.search.integration.message.KafkaMessageListener;
 import org.folio.search.integration.message.interceptor.ResourceEventBatchInterceptor;
+import org.folio.search.model.event.SubResourceEvent;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.ResourceService;
 import org.folio.search.service.config.ConfigSynchronizationService;
@@ -96,6 +99,8 @@ class KafkaMessageListenerIT {
   @Autowired
   private KafkaTemplate<String, ResourceEvent> resourceKafkaTemplate;
   @Autowired
+  private KafkaTemplate<String, SubResourceEvent> subResourceKafkaTemplate;
+  @Autowired
   private FolioKafkaProperties kafkaProperties;
   @MockBean
   private ResourceService resourceService;
@@ -136,6 +141,14 @@ class KafkaMessageListenerIT {
     resourceKafkaTemplate.send(inventoryBoundWithTopic(), INSTANCE_ID, boundWithEvent);
     await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
       verify(resourceService).indexInstancesById(List.of(expectedEvent)));
+  }
+
+  @Test
+  void handleInstanceSubResourceEvents_positive() {
+    var expectedEvent = SubResourceEvent.fromResourceEvent(instanceEvent());
+    subResourceKafkaTemplate.send(instanceSubResourceTopic(), INSTANCE_ID, expectedEvent);
+    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
+      verify(resourceService).indexInstanceSubResources(List.of(expectedEvent)));
   }
 
   @Test
@@ -236,6 +249,7 @@ class KafkaMessageListenerIT {
   @EnableRetry(proxyTargetClass = true)
   @Import({
     InstanceResourceEventKafkaConfiguration.class, ResourceEventKafkaConfiguration.class,
+    SubResourceKafkaConfiguration.class,
     KafkaAutoConfiguration.class, FolioMessageBatchProcessor.class,
     KafkaAdminService.class, LocalFileProvider.class, JsonConverter.class, JacksonAutoConfiguration.class,
     RetryTemplateConfiguration.class, ResourceEventBatchInterceptor.class

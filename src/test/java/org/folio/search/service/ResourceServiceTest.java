@@ -42,7 +42,6 @@ import org.folio.search.repository.ResourceRepository;
 import org.folio.search.service.consortium.ConsortiumTenantExecutor;
 import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
-import org.folio.search.service.converter.preprocessor.InstanceEventPreProcessor;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.service.reindex.InstanceFetchService;
 import org.folio.search.utils.SearchUtils;
@@ -81,7 +80,7 @@ class ResourceServiceTest {
   @Mock
   private Map<String, ResourceRepository> resourceRepositoryBeans;
   @Mock
-  private InstanceEventPreProcessor instanceEventPreProcessor;
+  private InstanceChildrenResourceService instanceChildrenResourceService;
   @InjectMocks
   private ResourceService indexService;
 
@@ -94,8 +93,6 @@ class ResourceServiceTest {
       .thenAnswer(invocation -> ((Supplier<?>) invocation.getArgument(0)).get());
     lenient().when(indexNameProvider.getIndexName(any(ResourceEvent.class)))
       .thenAnswer(invocation -> SearchUtils.getIndexName((ResourceEvent) invocation.getArgument(0)));
-    lenient().when(instanceEventPreProcessor.preProcess(any()))
-      .thenAnswer(invocation -> List.of((ResourceEvent) invocation.getArgument(0)));
   }
 
   @Test

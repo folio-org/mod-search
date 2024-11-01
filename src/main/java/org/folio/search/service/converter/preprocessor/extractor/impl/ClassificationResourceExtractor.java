@@ -100,6 +100,14 @@ public class ClassificationResourceExtractor implements ChildResourceExtractor {
       .toList();
   }
 
+  @Override
+  public boolean hasChildResourceChanges(ResourceEvent event) {
+    var oldClassifications = getClassifications(getOldAsMap(event));
+    var newClassifications = getClassifications(getNewAsMap(event));
+
+    return !oldClassifications.equals(newClassifications);
+  }
+
   private List<ResourceEvent> getResourceEventsForDeletion(List<String> idsForDelete,
                                                            List<InstanceClassificationEntityAgg> entityAggList,
                                                            String tenant) {

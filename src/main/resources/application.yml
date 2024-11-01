@@ -108,11 +108,16 @@ folio:
       - name: search.reindex.range-index
         numPartitions: ${KAFKA_REINDEX_RANGE_INDEX_TOPIC_PARTITIONS:16}
         replicationFactor: ${KAFKA_REINDEX_RANGE_INDEX_TOPIC_REPLICATION_FACTOR:}
+      - name: search.index.sub-resource
+        numPartitions: ${KAFKA_INDEX_SUB_RESOURCE_TOPIC_PARTITIONS:50}
+        replicationFactor: ${KAFKA_INDEX_SUB_RESOURCE_TOPIC_REPLICATION_FACTOR:}
     listener:
       events:
         concurrency: ${KAFKA_EVENTS_CONCURRENCY:2}
         topic-pattern: ${KAFKA_EVENTS_CONSUMER_PATTERN:(${folio.environment}\.)(.*\.)inventory\.(instance|holdings-record|item|bound-with)}
         group-id: ${folio.environment}-mod-search-events-group
+        max-poll-records: ${KAFKA_CONSUMER_EVENTS_MAX_POLL_RECORDS:200}
+        max-poll-interval-ms: ${KAFKA_CONSUMER_EVENTS_MAX_POLL_INTERVAL_MS:600000}
       instances:
         concurrency: ${KAFKA_EVENTS_CONCURRENCY:2}
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.instance
@@ -141,6 +146,12 @@ folio:
         concurrency: ${KAFKA_REINDEX_RECORDS_CONCURRENCY:2}
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.reindex-records
         group-id: ${folio.environment}-mod-search-reindex-records-group
+      index-sub-resource:
+        concurrency: ${KAFKA_INDEX_SUB_RESOURCE_CONCURRENCY:2}
+        topic-pattern: (${folio.environment}\.)(.*\.)search\.index\.sub-resource
+        group-id: ${folio.environment}-mod-search-index-sub-resource-group
+        max-poll-records: ${KAFKA_CONSUMER_INDEX_SUB_RESOURCE_MAX_POLL_RECORDS:200}
+        max-poll-interval-ms: ${KAFKA_CONSUMER_INDEX_SUB_RESOURCE_MAX_POLL_INTERVAL_MS:600000}
   okapiUrl: ${okapi.url}
   logging:
     request:

@@ -8,4 +8,6 @@ public interface ChildResourceExtractor {
   List<ResourceEvent> prepareEvents(ResourceEvent resource);
 
   List<ResourceEvent> prepareEventsOnSharing(ResourceEvent resource);
+
+  boolean hasChildResourceChanges(ResourceEvent event);
 }

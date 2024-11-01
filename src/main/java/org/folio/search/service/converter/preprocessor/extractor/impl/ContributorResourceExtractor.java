@@ -88,6 +88,14 @@ public class ContributorResourceExtractor implements ChildResourceExtractor {
       .toList();
   }
 
+  @Override
+  public boolean hasChildResourceChanges(ResourceEvent event) {
+    var oldContributors = getEntities(getOldAsMap(event));
+    var newContributors = getEntities(getNewAsMap(event));
+
+    return !oldContributors.equals(newContributors);
+  }
+
   private List<ResourceEvent> getResourceEventsForDeletion(List<String> idsForDelete,
                                                            List<InstanceContributorEntityAgg> entityAggList,
                                                            String tenant) {

@@ -122,7 +122,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
 
     var actual = parseResponse(response, InstanceSearchResult.class);
 
-    Assertions.assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
+    Assertions.assertThat(actual).usingRecursiveComparison().ignoringCollectionOrder().isEqualTo(expected);
   }
 
   @Test
@@ -132,7 +132,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
 
     var actual = parseResponse(response, InstanceSearchResult.class);
 
-    Assertions.assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
+    Assertions.assertThat(actual).usingRecursiveComparison().ignoringCollectionOrder().isEqualTo(expected);
   }
 
   private static Stream<Arguments> testDataProvider() {

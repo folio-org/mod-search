@@ -1,6 +1,30 @@
-## v4.0.0 YYYY-mm-DD
+## v4.1.0 YYYY-mm-DD
 ### Breaking changes
-* Implement new re-index flow for instance records
+* Description ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))
+
+### New APIs versions
+* Provides `API_NAME vX.Y`
+* Requires `API_NAME vX.Y`
+
+### Features
+* Description ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))
+
+### Bug fixes
+* Description ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))
+
+### Tech Dept
+* Description ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))
+
+### Dependencies
+* Bump `LIB_NAME` from `OLD_VERSION` to `NEW_VERSION`
+* Add `LIB_NAME VERSION`
+* Remove `LIB_NAME`
+
+---
+
+## v4.0.0 2024-11-01
+### Breaking changes
+* Implement new re-index flow for instance records. Old re-index endpoint doesn't support instance indexing.
 * Permission changes in `consortium-search` API:
   * Endpoint `GET /search/consortium/batch/items` requires `consortium-search.items.batch.collection.get` permission
   * Endpoint `GET /search/consortium/batch/holdings` requires `consortium-search.holdings.batch.collection.get` permission
@@ -71,9 +95,15 @@
 * Update permissions for consortium-search interface ([MSEARCH-836](https://folio-org.atlassian.net/browse/MSEARCH-836))
 
 ### Dependencies
-* Bump `LIB_NAME` from `OLD_VERSION` to `NEW_VERSION`
-* Add `LIB_NAME` `2.7.4`
-* Remove `LIB_NAME`
+* Bump `spring-boot` from `3.2.3` to `3.3.5`
+* Bump `folio-spring-support` from `8.1.0` to `8.2.1`
+* Bump `folio-service-tools` from `4.0.1` to `4.1.1`
+* Bump `folio-cql2pgjson` from `35.2.0` to `35.3.0`
+* Bump `opensearch` from `2.12.0` to `2.17.1`
+* Bump `mapstruct` from `1.5.5.Final` to `1.6.2`
+* Bump `apache-commons-io` from `2.15.1` to `2.17.0`
+* Bump `lombok` from `1.18.32` to `1.18.34`
+* Bump `streamex` from `0.8.2` to `0.8.3`
 
 ---
 

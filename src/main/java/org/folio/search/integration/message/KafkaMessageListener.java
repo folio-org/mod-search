@@ -71,7 +71,7 @@ public class KafkaMessageListener {
   }
 
   /**
-   * Handles instance events and indexes them by id.
+   * Handles instance sub-resource events and indexes them after extracting from instance resource..
    *
    * @param consumerRecords - list of consumer records from Apache Kafka to process.
    */

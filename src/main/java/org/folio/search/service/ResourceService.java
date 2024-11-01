@@ -83,6 +83,7 @@ public class ResourceService {
     var childEvents = events.stream()
       .map(instanceChildrenResourceService::extractChildren)
       .flatMap(Collection::stream)
+      .distinct()
       .toList();
 
     return indexResources(childEvents);

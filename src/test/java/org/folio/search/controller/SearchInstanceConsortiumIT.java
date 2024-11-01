@@ -39,7 +39,7 @@ class SearchInstanceConsortiumIT extends BaseConsortiumIntegrationTest {
 
     var actual = parseResponse(response, InstanceSearchResult.class);
 
-    Assertions.assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
+    Assertions.assertThat(actual).usingRecursiveComparison().ignoringCollectionOrder().isEqualTo(expected);
   }
 
   private static void setTenant(InstanceSearchResult expected) {

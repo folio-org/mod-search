@@ -1,3 +1,9 @@
+## v4.0.1 2024-11-13
+### Bug fixes
+* Remove shelving order calculation for local call-number types ([MSEARCH-878](https://issues.folio.org/browse/MSEARCH-878))
+
+---
+
 ## v4.0.0 2024-11-01
 ### Breaking changes
 * Implement new re-index flow for instance records. Old re-index endpoint doesn't support instance indexing.

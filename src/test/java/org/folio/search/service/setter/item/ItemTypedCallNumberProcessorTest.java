@@ -43,8 +43,7 @@ class ItemTypedCallNumberProcessorTest {
       373897542542740736L,
       518452648491797760L,
       663007754440854784L,
-      807562860389911808L,
-      952117966338968832L);
+      807562860389911808L);
   }
 
   @ParameterizedTest

@@ -33,6 +33,14 @@
           "trim"
         ],
         "type": "custom"
+      },
+      "keyword_icu": {
+        "filter": [
+          "lowercase",
+          "trim",
+          "icu_folding"
+        ],
+        "type": "custom"
       }
     },
     "analyzer": {

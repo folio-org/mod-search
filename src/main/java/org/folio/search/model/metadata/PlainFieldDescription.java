@@ -22,7 +22,7 @@ public class PlainFieldDescription extends FieldDescription {
 
   public static final String MULTILANG_FIELD_TYPE = "multilang";
   public static final String STANDARD_FIELD_TYPE = "standard";
-  public static final String PLAIN_FULLTEXT_FIELD_TYPE = "keyword_lowercase";
+  public static final String PLAIN_FULLTEXT_FIELD_TYPE = "keyword_icu";
 
   public static final Map<String, String> FULLTEXT_FIELD_TYPES = Map.of(
     MULTILANG_FIELD_TYPE, PLAIN_FULLTEXT_FIELD_TYPE,

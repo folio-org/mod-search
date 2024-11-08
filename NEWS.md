@@ -11,6 +11,7 @@
 
 ### Bug fixes
 * Remove shelving order calculation for local call-number types
+* Use keyword_icu instead of keyword_lowercase for fulltext fields plain values ([MSEARCH-857](https://folio-org.atlassian.net/browse/MSEARCH-857))
 
 ### Tech Dept
 * Description ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))

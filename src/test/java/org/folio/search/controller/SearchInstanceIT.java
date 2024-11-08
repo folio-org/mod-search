@@ -169,6 +169,10 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("title all {value}", "deja vu"),
       arguments("title all {value}", "déjà vu"),
       arguments("title all {value}", "Algérie"),
+      arguments("title all {value}", "Der Preis der Verfuhrung"),
+      arguments("title all {value}", "Der Preis der Verführung"),
+      arguments("title all {value}", "Der Preis der Verfuhrung*"),
+      arguments("title all {value}", "Der Preis der Verführung*"),
       // e here should replace e + U + 0301 (Combining Acute Accent)
       arguments("title all {value}", "algerie"),
 

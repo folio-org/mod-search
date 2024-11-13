@@ -3,14 +3,6 @@
 * Remove shelving order calculation for local call-number types ([MSEARCH-878](https://issues.folio.org/browse/MSEARCH-878))
 * Use keyword_icu instead of keyword_lowercase for fulltext fields plain values ([MSEARCH-857](https://folio-org.atlassian.net/browse/MSEARCH-857))
 
-### Tech Dept
-* Description ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))
-
-### Dependencies
-* Bump `LIB_NAME` from `OLD_VERSION` to `NEW_VERSION`
-* Add `LIB_NAME VERSION`
-* Remove `LIB_NAME`
-
 ---
 
 ## v4.0.0 2024-11-01

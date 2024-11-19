@@ -1,3 +1,11 @@
+## v4.0.2 2024-12-06
+### Bug fixes
+
+### Dependencies
+* Bump `opensearch` from `2.17.1` to `2.18.0` fixing protobuf-java CVE-2024-7254 ([MSEARCH-889](https://folio-org.atlassian.net/browse/MSEARCH-889))
+
+---
+
 ## v4.0.1 2024-11-13
 ### Bug fixes
 * Remove shelving order calculation for local call-number types ([MSEARCH-878](https://issues.folio.org/browse/MSEARCH-878))

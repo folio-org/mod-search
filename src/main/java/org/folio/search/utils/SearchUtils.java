@@ -1,6 +1,8 @@
 package org.folio.search.utils;
 
 import static java.util.Locale.ROOT;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.apache.commons.lang3.StringUtils.truncate;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToSet;
 import static org.folio.spring.config.properties.FolioEnvironment.getFolioEnvName;
 
@@ -53,6 +55,10 @@ public class SearchUtils {
   public static final String CONTRIBUTORS_FIELD = "contributors";
   public static final String CLASSIFICATION_NUMBER_FIELD = "classificationNumber";
   public static final String CLASSIFICATION_TYPE_FIELD = "classificationTypeId";
+  public static final String CONTRIBUTOR_TYPE_FIELD = "contributorTypeId";
+  public static final String SUBJECT_VALUE_FIELD = "value";
+  public static final String SUBJECT_TYPE_ID_FIELD = "typeId";
+  public static final String SUBJECT_SOURCE_ID_FIELD = "sourceId";
   public static final String SUBJECT_AGGREGATION_NAME = "subjects.value";
   public static final String SOURCE_CONSORTIUM_PREFIX = "CONSORTIUM-";
 
@@ -325,6 +331,13 @@ public class SearchUtils {
    * */
   public static String buildPreferenceKey(String tenantId, String resource, String query) {
     return tenantId + "-" + resource + "-" + query;
+  }
+
+  /**
+   * Coverts to non-null string, replaces backslash with double backslash and truncates to expected length.
+   * */
+  public static String prepareForExpectedFormat(Object value, int length) {
+    return truncate(Objects.toString(value, EMPTY).replace("\\", "\\\\"), length);
   }
 
   private static Object getMultilangValueObject(Object value) {

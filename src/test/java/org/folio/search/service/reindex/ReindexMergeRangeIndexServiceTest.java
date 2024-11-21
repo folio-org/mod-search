@@ -10,6 +10,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.sql.Timestamp;
@@ -17,6 +18,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.assertj.core.api.Condition;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.integration.folio.InventoryService;
@@ -24,13 +27,18 @@ import org.folio.search.model.event.ReindexRecordsEvent;
 import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.InventoryRecordType;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.service.InstanceChildrenResourceService;
 import org.folio.search.service.reindex.jdbc.HoldingRepository;
 import org.folio.search.service.reindex.jdbc.ItemRepository;
+import org.folio.search.service.reindex.jdbc.MergeInstanceRepository;
 import org.folio.search.service.reindex.jdbc.MergeRangeRepository;
+import org.folio.search.service.reindex.jdbc.ReindexJdbcRepository;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -40,18 +48,24 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class ReindexMergeRangeIndexServiceTest {
 
-  private @Mock MergeRangeRepository repository;
+  private @Mock MergeInstanceRepository instanceRepository;
   private @Mock ItemRepository itemRepository;
   private @Mock HoldingRepository holdingRepository;
   private @Mock InventoryService inventoryService;
   private @Mock ReindexConfigurationProperties config;
+  private @Mock InstanceChildrenResourceService instanceChildrenResourceService;
 
   private ReindexMergeRangeIndexService service;
+  private Map<ReindexEntityType, MergeRangeRepository> repositoryMap;
 
   @BeforeEach
   void setUp() {
-    when(repository.entityType()).thenReturn(INSTANCE);
-    service = new ReindexMergeRangeIndexService(List.of(repository), inventoryService, config);
+    var repositories = List.of(instanceRepository, itemRepository, holdingRepository);
+    repositories.forEach(repository -> when(repository.entityType()).thenCallRealMethod());
+    service = new ReindexMergeRangeIndexService(
+      repositories, inventoryService, config, instanceChildrenResourceService);
+    repositoryMap = repositories.stream()
+      .collect(Collectors.toMap(ReindexJdbcRepository::entityType, Function.identity()));
   }
 
   @Test
@@ -60,7 +74,7 @@ class ReindexMergeRangeIndexServiceTest {
     service.saveMergeRanges(List.of());
 
     // assert
-    verify(repository).saveMergeRanges(Mockito.anyList());
+    verify(repositoryMap.values().iterator().next()).saveMergeRanges(Mockito.anyList());
   }
 
   @Test
@@ -92,22 +106,28 @@ class ReindexMergeRangeIndexServiceTest {
 
     service.updateFinishDate(ReindexEntityType.INSTANCE, rangeId.toString());
 
-    verify(repository).setIndexRangeFinishDate(eq(rangeId), captor.capture());
+    verify(instanceRepository).setIndexRangeFinishDate(eq(rangeId), captor.capture());
 
     var timestamp = captor.getValue();
     assertThat(timestamp).isAfterOrEqualTo(testStartTime);
   }
 
-  @Test
-  void saveEntities() {
+  @EnumSource(value = ReindexRecordsEvent.ReindexRecordType.class)
+  @ParameterizedTest
+  void saveEntities(ReindexRecordsEvent.ReindexRecordType recordType) {
     var entities = Map.<String, Object>of("id", UUID.randomUUID());
     var event = new ReindexRecordsEvent();
     event.setTenant(TENANT_ID);
-    event.setRecordType(ReindexRecordsEvent.ReindexRecordType.INSTANCE);
+    event.setRecordType(recordType);
     event.setRecords(List.of(entities));
 
     service.saveEntities(event);
 
-    verify(repository).saveEntities(TENANT_ID, List.of(entities));
+    verify(repositoryMap.get(recordType.getEntityType())).saveEntities(TENANT_ID, List.of(entities));
+    if (recordType == ReindexRecordsEvent.ReindexRecordType.INSTANCE) {
+      verify(instanceChildrenResourceService).persistChildrenOnReindex(TENANT_ID, List.of(entities));
+    } else {
+      verifyNoInteractions(instanceChildrenResourceService);
+    }
   }
 }

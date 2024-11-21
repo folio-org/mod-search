@@ -17,7 +17,7 @@ import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ShelvingOrderAlgorithmType;

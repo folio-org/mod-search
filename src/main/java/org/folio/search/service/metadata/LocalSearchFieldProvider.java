@@ -33,7 +33,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.cql.SearchFieldModifier;
 import org.folio.search.exception.ResourceDescriptionException;
 import org.folio.search.model.Pair;

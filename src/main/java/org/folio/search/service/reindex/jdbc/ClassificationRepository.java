@@ -139,8 +139,8 @@ public class ClassificationRepository extends UploadRangeRepository implements I
     return (rs, rowNum) -> {
       Map<String, Object> classification = new HashMap<>();
       classification.put("id", getId(rs));
-      classification.put(CLASSIFICATION_NUMBER_FIELD, getNumber(rs));
-      classification.put(CLASSIFICATION_TYPE_FIELD, getTypeId(rs));
+      classification.put("number", getNumber(rs));
+      classification.put("typeId", getTypeId(rs));
 
       var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs));
       classification.put("instances", maps);

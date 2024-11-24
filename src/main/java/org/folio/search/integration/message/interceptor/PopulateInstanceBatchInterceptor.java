@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
+import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -36,6 +38,7 @@ import org.springframework.stereotype.Component;
 
 @Order(Ordered.LOWEST_PRECEDENCE)
 @Component
+@Log4j2
 public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String, ResourceEvent> {
 
   private final Map<ReindexEntityType, MergeRangeRepository> repositories;
@@ -56,19 +59,25 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
   @Override
   public ConsumerRecords<String, ResourceEvent> intercept(ConsumerRecords<String, ResourceEvent> records,
                                                           Consumer<String, ResourceEvent> consumer) {
+    log.info("PopulateInstanceBatchInterceptor::intercept  records{}", records);
+    log.info("PopulateInstanceBatchInterceptor::intercept  records count {}", records.count());
+    log.info("PopulateInstanceBatchInterceptor::intercept  consumer {}", consumer);
     var recordsById = StreamSupport.stream(records.spliterator(), false)
       .filter(r -> isInstanceEvent(r.value()))
       .collect(Collectors.groupingBy(ConsumerRecord::key));
 
     var consumerRecords = new ArrayList<ResourceEvent>();
     for (var entry : recordsById.entrySet()) {
+      log.info("PopulateInstanceBatchInterceptor::intercept  recordsById.entrySet {}", entry);
       var list = entry.getValue();
       if (list.size() > 1) {
         list.sort(Comparator.comparingLong(ConsumerRecord::timestamp));
       }
       consumerRecords.add(list.get(0).value());
     }
+    log.info("PopulateInstanceBatchInterceptor::intercept  consumerRecords {}", consumerRecords);
     populate(consumerRecords);
+    log.info("PopulateInstanceBatchInterceptor::intercept  records after populate method {}", records);
     return records;
   }
 
@@ -83,6 +92,7 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
   }
 
   private void process(String tenant, List<ResourceEvent> batch) {
+    log.info("PopulateInstanceBatchInterceptor::process  batch {}", batch);
     var recordByResource = batch.stream().collect(Collectors.groupingBy(ResourceEvent::getResourceName));
     for (Map.Entry<String, List<ResourceEvent>> recordCollection : recordByResource.entrySet()) {
       if (ResourceType.BOUND_WITH.getName().equals(recordCollection.getKey())) {
@@ -116,6 +126,7 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
           .map(ResourceEvent::getId)
           .toList();
         if (!idsToDrop.isEmpty()) {
+          log.info("PopulateInstanceBatchInterceptor::process  idsToDrop {}", idsToDrop);
           repository.deleteEntities(idsToDrop);
         }
 

@@ -50,6 +50,8 @@ public class MergeInstanceRepository extends MergeRangeRepository {
 
   @Override
   public void saveEntities(String tenantId, List<Map<String, Object>> entities) {
+    log.info("saveEntities::tenantId {}", tenantId);
+    log.info("saveEntities::entities {}", entities);
     var fullTableName = getFullTableName(context, entityTable());
     var sql = INSERT_SQL.formatted(fullTableName);
     var shared = consortiumTenantProvider.isCentralTenant(tenantId);
@@ -64,7 +66,7 @@ public class MergeInstanceRepository extends MergeRangeRepository {
           statement.setString(5, jsonConverter.toJson(entity));
         });
     } catch (DataAccessException e) {
-      log.warn("saveEntities::Failed to save batch. Starting processing one-by-one", e);
+      log.error("saveEntities::Failed to save batch. Starting processing one-by-one", e);
       for (Map<String, Object> entity : entities) {
         jdbcTemplate.update(sql, entity.get("id"),
           tenantId,
@@ -77,6 +79,7 @@ public class MergeInstanceRepository extends MergeRangeRepository {
 
   @Override
   public void updateBoundWith(String tenantId, String id, boolean bound) {
+    log.info("updateBoundWith::id {} , tenantId {}", id, tenantId);
     var fullTableName = getFullTableName(context, entityTable());
     var sql = UPDATE_BOUND_WITH_SQL.formatted(fullTableName);
     jdbcTemplate.update(sql, bound /*? "true" : "false"*/, id);

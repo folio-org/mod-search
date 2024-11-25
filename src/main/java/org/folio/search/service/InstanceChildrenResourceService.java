@@ -93,7 +93,9 @@ public class InstanceChildrenResourceService {
   public void persistChildrenOnReindex(String tenantId, List<Map<String, Object>> instances) {
     var events = instances.stream()
       .map(instance -> new ResourceEvent()
+        .id(instance.get("id").toString())
         .type(ResourceEventType.REINDEX)
+        .tenant(tenantId)
         ._new(instance))
       .toList();
     persistChildren(tenantId, events);

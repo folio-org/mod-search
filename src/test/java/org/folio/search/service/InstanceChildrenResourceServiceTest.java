@@ -11,9 +11,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.event.SubResourceEvent;
@@ -160,10 +160,12 @@ class InstanceChildrenResourceServiceTest {
   @ParameterizedTest
   @ValueSource(booleans = {true, false})
   void persistChildrenOnReindex(boolean shared) {
-    var instances = List.of(Collections.<String, Object>emptyMap(), Collections.<String, Object>emptyMap());
+    var id1 = UUID.randomUUID();
+    var id2 = UUID.randomUUID();
+    var instances = List.of(Map.<String, Object>of("id", id1), Map.<String, Object>of("id", id2));
     var expectedEvents = List.of(
-      new ResourceEvent().type(ResourceEventType.REINDEX)._new(Collections.<String, Object>emptyMap()),
-      new ResourceEvent().type(ResourceEventType.REINDEX)._new(Collections.<String, Object>emptyMap()));
+      new ResourceEvent().id(id1.toString()).type(ResourceEventType.REINDEX).tenant(TENANT_ID)._new(instances.get(0)),
+      new ResourceEvent().id(id2.toString()).type(ResourceEventType.REINDEX).tenant(TENANT_ID)._new(instances.get(1)));
     when(consortiumTenantProvider.isCentralTenant(TENANT_ID)).thenReturn(shared);
 
     service.persistChildrenOnReindex(TENANT_ID, instances);

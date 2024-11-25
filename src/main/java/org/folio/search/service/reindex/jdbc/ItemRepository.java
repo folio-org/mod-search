@@ -4,6 +4,7 @@ import static org.folio.search.utils.JdbcUtils.getFullTableName;
 
 import java.util.List;
 import java.util.Map;
+import lombok.extern.log4j.Log4j2;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.reindex.ReindexConstants;
 import org.folio.search.utils.JsonConverter;
@@ -11,6 +12,7 @@ import org.folio.spring.FolioExecutionContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+@Log4j2
 @Repository
 public class ItemRepository extends MergeRangeRepository {
 
@@ -37,6 +39,7 @@ public class ItemRepository extends MergeRangeRepository {
 
   @Override
   public void saveEntities(String tenantId, List<Map<String, Object>> entities) {
+    log.info("ItemRepository::saveEntities tenantId {}, entities {}", tenantId, entities);
     var fullTableName = getFullTableName(context, entityTable());
     var sql = INSERT_SQL.formatted(fullTableName);
 

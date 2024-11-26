@@ -15,13 +15,13 @@ public class ResourceChangeRecordFilterStrategy implements RecordFilterStrategy<
 
   @Override
   public boolean filter(ConsumerRecord<String, ResourceEvent> consumerRecord) {
-    log.debug("Processing resource event [id: {}]", consumerRecord.value().getId());
+    log.info("Processing resource event [id: {}]", consumerRecord.value().getId());
     var resourceEvent = consumerRecord.value();
     var resourceName = resourceEvent.getResourceName();
     var resourceEventType = resourceEvent.getType();
     if (ResourceEventType.DELETE == resourceEventType && ResourceType.AUTHORITY.getName().equals(resourceName)
         && ResourceDeleteEventSubType.HARD_DELETE == resourceEvent.getDeleteEventSubType()) {
-      log.debug("Skip hard-delete event. No need to process event for authority resource");
+      log.info("Skip hard-delete event. No need to process event for authority resource");
       return true;
     }
     return false;

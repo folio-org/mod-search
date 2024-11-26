@@ -92,7 +92,9 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
 
   private void process(String tenant, List<ResourceEvent> batch) {
     log.info("PopulateInstanceBatchInterceptor::process  batch {}", batch);
+    log.info("PopulateInstanceBatchInterceptor::process  tenant {}", tenant);
     var recordByResource = batch.stream().collect(Collectors.groupingBy(ResourceEvent::getResourceName));
+    log.info("PopulateInstanceBatchInterceptor::process recordByResource.entrySet() {}", recordByResource.entrySet());
     for (Map.Entry<String, List<ResourceEvent>> recordCollection : recordByResource.entrySet()) {
       if (ResourceType.BOUND_WITH.getName().equals(recordCollection.getKey())) {
         var repository = repositories.get(ReindexEntityType.INSTANCE);
@@ -115,9 +117,11 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
             return true;
           })
           .collect(Collectors.groupingBy(resourceEvent -> resourceEvent.getType() != ResourceEventType.DELETE));
+        log.info("PopulateInstanceBatchInterceptor::process recordByOperation {}", recordByOperation);
         var resourceToSave = recordByOperation.getOrDefault(true, emptyList()).stream()
           .map(SearchConverterUtils::getNewAsMap)
           .toList();
+        log.info("PopulateInstanceBatchInterceptor::process resourceToSave {}", resourceToSave);
         if (!resourceToSave.isEmpty()) {
           repository.saveEntities(tenant, resourceToSave);
         }

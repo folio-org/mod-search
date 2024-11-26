@@ -64,10 +64,10 @@ public class SearchDocumentConverter {
    * @return list with elasticsearch documents.
    */
   public Optional<SearchDocumentBody> convert(ResourceEvent resourceEvent) {
-    log.debug("convert:: by [resourceEvent: {}]", resourceEvent);
+    log.info("convert:: by [resourceEvent: {}]", resourceEvent);
 
     if (resourceEvent.getType() == ResourceEventType.DELETE) {
-      log.debug("convert:: resourceEvent.Type == DELETE");
+      log.info("convert:: resourceEvent.Type == DELETE");
       return Optional.of(SearchDocumentBody.of(null, indexingDataFormat, resourceEvent, DELETE));
     }
 

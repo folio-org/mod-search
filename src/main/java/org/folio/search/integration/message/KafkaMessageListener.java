@@ -60,6 +60,7 @@ public class KafkaMessageListener {
     concurrency = "#{folioKafkaProperties.listener['events'].concurrency}")
   public void handleInstanceEvents(List<ConsumerRecord<String, ResourceEvent>> consumerRecords) {
     log.info("Processing instance related events from kafka events [number of events: {}]", consumerRecords.size());
+    log.info("KafkaMessageListener::handleInstanceEvents consumerRecords {}", consumerRecords);
     var batch = getInstanceResourceEvents(consumerRecords);
     var batchByTenant = batch.stream().collect(Collectors.groupingBy(ResourceEvent::getTenant));
     batchByTenant.forEach((tenant, resourceEvents) -> executionService.executeSystemUserScoped(tenant, () -> {

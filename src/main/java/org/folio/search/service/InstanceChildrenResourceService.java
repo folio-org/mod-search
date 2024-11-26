@@ -44,24 +44,22 @@ public class InstanceChildrenResourceService {
 
     if (needChildrenEvent) {
       var childEvent = SubResourceEvent.fromResourceEvent(event);
-      log.debug("sendChildrenEvent::Sending event for instance child entities processing");
-      if (log.isDebugEnabled()) {
-        log.debug("sendChildrenEvent::Sending event for instance child entities processing [{}]", event);
-      }
+      log.info("sendChildrenEvent::Sending event for instance child entities processing");
+
+      log.info("sendChildrenEvent::Sending event for instance child entities processing [{}]", event);
+
       messageProducer.sendMessages(singletonList(childEvent));
     } else {
-      log.debug("sendChildrenEvent::Not sending event for instance child entities processing");
-      if (log.isDebugEnabled()) {
-        log.debug("sendChildrenEvent::Not sending event for instance child entities processing [{}]", event);
-      }
+      log.info("sendChildrenEvent::Not sending event for instance child entities processing");
+
+      log.info("sendChildrenEvent::Not sending event for instance child entities processing [{}]", event);
     }
   }
 
   public List<ResourceEvent> extractChildren(ResourceEvent event) {
-    log.debug("processChildren::Starting instance children event processing");
-    if (log.isDebugEnabled()) {
-      log.debug("processChildren::Starting instance children event processing [{}]", event);
-    }
+    log.info("processChildren::Starting instance children event processing");
+
+    log.info("processChildren::Starting instance children event processing [{}]", event);
 
     var events = new LinkedList<ResourceEvent>();
 
@@ -70,18 +68,17 @@ public class InstanceChildrenResourceService {
         events.addAll(resourceExtractor.prepareEventsOnSharing(event));
       }
     } else if (startsWith(getResourceSource(event), SOURCE_CONSORTIUM_PREFIX)) {
-      log.debug(
+      log.info(
         "processChildren::Finished instance children event processing. No additional action for shadow instance.");
+      log.info("processChildren::Finished instance children event processing.events {}, ", events);
       return events;
     } else {
       for (var resourceExtractor : resourceExtractors) {
         events.addAll(resourceExtractor.prepareEvents(event));
       }
     }
+    log.info("processChildren::Finished instance children event processing. Events after: [{}], ", events);
 
-    if (log.isDebugEnabled()) {
-      log.debug("processChildren::Finished instance children event processing. Events after: [{}], ", events);
-    }
     return events;
   }
 

@@ -65,27 +65,31 @@ public class ResourceService {
    * @return index operation response as {@link FolioIndexOperationResponse} object
    */
   public FolioIndexOperationResponse indexResources(List<ResourceEvent> resourceEvents) {
-    log.debug("indexResources: by [resourceEvent.size: {}]", collectionToLogMsg(resourceEvents, true));
+    log.info("ResourceService::indexResources resourceEvents {}", resourceEvents);
+    log.info("indexResources: by [resourceEvent.size: {}]", collectionToLogMsg(resourceEvents, true));
 
     if (CollectionUtils.isEmpty(resourceEvents)) {
       return getSuccessIndexOperationResponse();
     }
 
     var elasticsearchDocuments = searchDocumentConverter.convert(resourceEvents);
+    log.info("ResourceService::indexResources elasticsearchDocuments {}", elasticsearchDocuments);
     var bulkIndexResponse = indexSearchDocuments(elasticsearchDocuments);
     log.info("Records indexed to elasticsearch [indexRequests: {} {}]",
       getNumberOfRequests(elasticsearchDocuments), getErrorMessage(bulkIndexResponse));
-
+    log.info("ResourceService::indexResources bulkIndexResponse {}", bulkIndexResponse);
     return bulkIndexResponse;
   }
 
   public FolioIndexOperationResponse indexInstanceSubResources(List<SubResourceEvent> events) {
+    log.info("ResourceService::indexInstanceSubResources: {}", events);
+
     var childEvents = events.stream()
       .map(instanceChildrenResourceService::extractChildren)
       .flatMap(Collection::stream)
       .distinct()
       .toList();
-
+    log.info("ResourceService::indexInstanceSubResources childEvents {}", childEvents);
     return indexResources(childEvents);
   }
 
@@ -96,31 +100,37 @@ public class ResourceService {
    * @return index operation response as {@link FolioIndexOperationResponse} object
    */
   public FolioIndexOperationResponse indexInstancesById(List<ResourceEvent> resourceIdEvents) {
-    log.debug("indexResourcesById: by [resourceEvent.size: {}]", collectionToLogMsg(resourceIdEvents, true));
+    log.info("ResourceService::indexInstancesById resourceIdEvents {}", resourceIdEvents);
+    log.info("indexResourcesById: by [resourceEvent.size: {}]", collectionToLogMsg(resourceIdEvents, true));
 
     if (CollectionUtils.isEmpty(resourceIdEvents)) {
       return getSuccessIndexOperationResponse();
     }
 
     var groupedByOperation = resourceIdEvents.stream().collect(groupingBy(ResourceService::getEventIndexType));
+    log.info("ResourceService::indexInstancesById groupedByOperation {}", groupedByOperation);
     var indexDocuments = processIndexInstanceEvents(groupedByOperation.get(INDEX));
+    log.info("ResourceService::indexInstancesById indexDocuments {}", indexDocuments);
     var removeDocuments = processDeleteInstanceEvents(groupedByOperation.get(DELETE));
+    log.info("ResourceService::indexInstancesById removeDocuments {}", removeDocuments);
 
     var bulkIndexResponse = indexSearchDocuments(mergeMaps(indexDocuments, removeDocuments));
     log.info("Records indexed to elasticsearch [indexRequests: {}, removeRequests: {}{}]",
       getNumberOfRequests(indexDocuments), getNumberOfRequests(removeDocuments), getErrorMessage(bulkIndexResponse));
-
+    log.info("ResourceService::indexInstancesById bulkIndexResponse {}", bulkIndexResponse);
     return bulkIndexResponse;
   }
 
   private Map<String, List<SearchDocumentBody>> processIndexInstanceEvents(List<ResourceEvent> resourceEvents) {
+    log.info("ResourceService::processIndexInstanceEvents resourceEvents {}", resourceEvents);
     var indexEvents = extractEventsForDataMove(resourceEvents);
+    log.info("ResourceService::processIndexInstanceEvents indexEvents {}", indexEvents);
     var fetchedInstances = Optional.ofNullable(consortiumTenantExecutor.execute(
         () -> resourceFetchService.fetchInstancesByIds(indexEvents)))
       .orElse(Collections.emptyList()).stream()
       .filter(Objects::nonNull)
       .toList();
-
+    log.info("ResourceService::processIndexInstanceEvents fetchedInstances {}", fetchedInstances);
     preProcessEvents(fetchedInstances);
     return searchDocumentConverter.convert(fetchedInstances);
   }
@@ -138,23 +148,26 @@ public class ResourceService {
   }
 
   private FolioIndexOperationResponse indexSearchDocuments(Map<String, List<SearchDocumentBody>> eventsByResource) {
+    log.info("ResourceService::indexSearchDocuments eventsByResource.entrySet() {}", eventsByResource.entrySet());
     var eventsByRepository = eventsByResource.entrySet().stream().collect(groupingBy(
       entry -> getIndexingRepositoryName(ResourceType.byName(entry.getKey())),
       flatMapping(entry -> entry.getValue().stream(), toList())));
+    log.info("ResourceService::indexSearchDocuments eventsByRepository after groupingBy {}", eventsByRepository);
 
     var responses = new ArrayList<FolioIndexOperationResponse>();
     var primaryResources = eventsByRepository.get(PRIMARY_INDEXING_REPOSITORY_NAME);
     responses.add(primaryResourceRepository.indexResources(primaryResources));
     eventsByRepository.remove(PRIMARY_INDEXING_REPOSITORY_NAME);
+    log.info("ResourceService::indexSearchDocuments responses {}", responses);
 
     eventsByRepository.forEach((repository, events) ->
       responses.add(resourceRepositoryBeans.get(repository).indexResources(events)));
-
+    log.info("ResourceService::indexSearchDocuments all responses {}", responses);
     var errorMessage = responses.stream()
       .map(FolioIndexOperationResponse::getErrorMessage)
       .filter(Objects::nonNull)
       .collect(joining(", "));
-
+    log.info("ResourceService::indexSearchDocuments errorMessage {}", errorMessage);
     return errorMessage.isEmpty() ? getSuccessIndexOperationResponse() : getErrorIndexOperationResponse(errorMessage);
   }
 

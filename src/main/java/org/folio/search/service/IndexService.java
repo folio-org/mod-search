@@ -128,6 +128,7 @@ public class IndexService {
    * @param tenantId     - tenant id as {@link String} object
    */
   public void createIndexIfNotExist(ResourceType resourceType, String tenantId) {
+    log.info("IndexService::createIndexIfNotExist resourceType {}, tenantId {}", resourceType, tenantId);
     var index = indexNameProvider.getIndexName(resourceType, tenantId);
     if (!indexRepository.indexExists(index)) {
       createIndex(resourceType, tenantId);

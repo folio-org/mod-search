@@ -1,8 +1,7 @@
 package org.folio.search.service.converter.preprocessor.extractor.impl;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.emptySet;
-import static org.apache.commons.collections4.MapUtils.getObject;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 import static org.apache.commons.lang3.StringUtils.truncate;
 import static org.folio.search.utils.CollectionUtils.subtract;
@@ -11,14 +10,15 @@ import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
 import static org.folio.search.utils.SearchUtils.CLASSIFICATIONS_FIELD;
 import static org.folio.search.utils.SearchUtils.CLASSIFICATION_NUMBER_FIELD;
 import static org.folio.search.utils.SearchUtils.CLASSIFICATION_TYPE_FIELD;
+import static org.folio.search.utils.SearchUtils.prepareForExpectedFormat;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.MapUtils;
 import org.folio.search.domain.dto.ResourceEvent;
@@ -38,12 +38,19 @@ import org.springframework.stereotype.Component;
 
 @Log4j2
 @Component
-@RequiredArgsConstructor
-public class ClassificationResourceExtractor implements ChildResourceExtractor {
+public class ClassificationResourceExtractor extends ChildResourceExtractor {
 
   private final JsonConverter jsonConverter;
   private final FeatureConfigService featureConfigService;
-  private final ClassificationRepository classificationRepository;
+  private final ClassificationRepository repository;
+
+  public ClassificationResourceExtractor(ClassificationRepository repository, JsonConverter jsonConverter,
+                                         FeatureConfigService featureConfigService) {
+    super(repository);
+    this.jsonConverter = jsonConverter;
+    this.featureConfigService = featureConfigService;
+    this.repository = repository;
+  }
 
   @Override
   public List<ResourceEvent> prepareEvents(ResourceEvent event) {
@@ -51,8 +58,8 @@ public class ClassificationResourceExtractor implements ChildResourceExtractor {
       return emptyList();
     }
 
-    var oldClassifications = getClassifications(getOldAsMap(event));
-    var newClassifications = getClassifications(getNewAsMap(event));
+    var oldClassifications = getChildResources(getOldAsMap(event));
+    var newClassifications = getChildResources(getNewAsMap(event));
 
     if (oldClassifications.equals(newClassifications)) {
       return emptyList();
@@ -68,7 +75,7 @@ public class ClassificationResourceExtractor implements ChildResourceExtractor {
     idsForFetch.addAll(idsForCreate);
     idsForFetch.addAll(idsForDelete);
 
-    var entityAggList = classificationRepository.fetchByIds(idsForFetch);
+    var entityAggList = repository.fetchByIds(idsForFetch);
     var list = getResourceEventsForDeletion(idsForDelete, entityAggList, tenant);
 
     var list1 = entityAggList.stream()
@@ -83,9 +90,9 @@ public class ClassificationResourceExtractor implements ChildResourceExtractor {
       return emptyList();
     }
 
-    var classifications = getClassifications(getOldAsMap(event));
+    var classifications = getChildResources(getOldAsMap(event));
 
-    if (!classifications.equals(getClassifications(getNewAsMap(event)))) {
+    if (!classifications.equals(getChildResources(getNewAsMap(event)))) {
       log.warn("Classifications are different on Update for instance sharing");
       return emptyList();
     }
@@ -93,7 +100,7 @@ public class ClassificationResourceExtractor implements ChildResourceExtractor {
     var tenant = event.getTenant();
 
     var entitiesForDelete = toIds(classifications);
-    var entityAggList = classificationRepository.fetchByIds(entitiesForDelete);
+    var entityAggList = repository.fetchByIds(entitiesForDelete);
 
     return entityAggList.stream()
       .map(entities -> toResourceEvent(entities, tenant))
@@ -102,10 +109,43 @@ public class ClassificationResourceExtractor implements ChildResourceExtractor {
 
   @Override
   public boolean hasChildResourceChanges(ResourceEvent event) {
-    var oldClassifications = getClassifications(getOldAsMap(event));
-    var newClassifications = getClassifications(getNewAsMap(event));
+    var oldClassifications = getChildResources(getOldAsMap(event));
+    var newClassifications = getChildResources(getNewAsMap(event));
 
     return !oldClassifications.equals(newClassifications);
+  }
+
+  @Override
+  protected List<Map<String, Object>> constructRelations(boolean shared, ResourceEvent event,
+                                                       List<Map<String, Object>> entities) {
+    return entities.stream()
+      .map(entity -> Map.of("instanceId", event.getId(),
+        "classificationId", entity.get("id"),
+        "tenantId", event.getTenant(),
+        "shared", shared))
+      .toList();
+  }
+
+  @Override
+  protected Map<String, Object> constructEntity(Map<String, Object> entityProperties) {
+    var classificationNumber = prepareForExpectedFormat(entityProperties.get(CLASSIFICATION_NUMBER_FIELD), 50);
+    if (classificationNumber.isEmpty()) {
+      return null;
+    }
+
+    var classificationTypeId = entityProperties.get(CLASSIFICATION_TYPE_FIELD);
+    var id = ShaUtils.sha(classificationNumber, Objects.toString(classificationTypeId, EMPTY));
+
+    var entity = new HashMap<String, Object>();
+    entity.put("id", id);
+    entity.put(CLASSIFICATION_NUMBER_FIELD, classificationNumber);
+    entity.put(CLASSIFICATION_TYPE_FIELD, classificationTypeId);
+    return entity;
+  }
+
+  @Override
+  protected String childrenFieldName() {
+    return CLASSIFICATIONS_FIELD;
   }
 
   private List<ResourceEvent> getResourceEventsForDeletion(List<String> idsForDelete,
@@ -156,14 +196,5 @@ public class ClassificationResourceExtractor implements ChildResourceExtractor {
       .map(map -> getClassificationId(defaultIfBlank(MapUtils.getString(map, CLASSIFICATION_NUMBER_FIELD), ""),
         MapUtils.getString(map, CLASSIFICATION_TYPE_FIELD)))
       .collect(Collectors.toCollection(ArrayList::new));
-  }
-
-  @SuppressWarnings("unchecked")
-  private Set<Map<String, Object>> getClassifications(Map<String, Object> event) {
-    var object = getObject(event, CLASSIFICATIONS_FIELD, emptyList());
-    if (object == null) {
-      return emptySet();
-    }
-    return new HashSet<>((List<Map<String, Object>>) object);
   }
 }

@@ -1,13 +1,81 @@
 package org.folio.search.service.converter.preprocessor.extractor;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
+import static org.apache.commons.collections4.MapUtils.getObject;
+import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
+
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.domain.dto.ResourceEventType;
+import org.folio.search.service.reindex.jdbc.InstanceChildResourceRepository;
+import org.springframework.transaction.annotation.Transactional;
 
-public interface ChildResourceExtractor {
+@RequiredArgsConstructor
+public abstract class ChildResourceExtractor {
 
-  List<ResourceEvent> prepareEvents(ResourceEvent resource);
+  private final InstanceChildResourceRepository repository;
 
-  List<ResourceEvent> prepareEventsOnSharing(ResourceEvent resource);
+  public abstract List<ResourceEvent> prepareEvents(ResourceEvent resource);
 
-  boolean hasChildResourceChanges(ResourceEvent event);
+  public abstract List<ResourceEvent> prepareEventsOnSharing(ResourceEvent resource);
+
+  public abstract boolean hasChildResourceChanges(ResourceEvent event);
+
+  protected abstract List<Map<String, Object>> constructRelations(boolean shared, ResourceEvent event,
+                                                                  List<Map<String, Object>> entities);
+
+  protected abstract Map<String, Object> constructEntity(Map<String, Object> entityProperties);
+
+  protected abstract String childrenFieldName();
+
+  @Transactional
+  public void persistChildren(boolean shared, List<ResourceEvent> events) {
+    var instanceIdsForDeletion = events.stream()
+      .filter(event -> event.getType() != ResourceEventType.CREATE && event.getType() != ResourceEventType.REINDEX)
+      .map(ResourceEvent::getId)
+      .toList();
+    if (!instanceIdsForDeletion.isEmpty()) {
+      repository.deleteByInstanceIds(instanceIdsForDeletion);
+    }
+
+    var eventsForSaving = events.stream()
+      .filter(event -> event.getType() != ResourceEventType.DELETE)
+      .toList();
+    if (eventsForSaving.isEmpty()) {
+      return;
+    }
+
+    var entities = new HashSet<Map<String, Object>>();
+    var relations = new LinkedList<Map<String, Object>>();
+    eventsForSaving.forEach(event -> {
+      var entitiesFromEvent = extractEntities(event);
+      relations.addAll(constructRelations(shared, event, entitiesFromEvent));
+      entities.addAll(entitiesFromEvent);
+    });
+    repository.saveAll(entities, relations);
+  }
+
+  private List<Map<String, Object>> extractEntities(ResourceEvent event) {
+    var entities = getChildResources(getNewAsMap(event));
+    return entities.stream()
+      .map(this::constructEntity)
+      .filter(Objects::nonNull)
+      .toList();
+  }
+
+  @SuppressWarnings("unchecked")
+  protected Set<Map<String, Object>> getChildResources(Map<String, Object> event) {
+    var object = getObject(event, childrenFieldName(), emptyList());
+    if (object == null) {
+      return emptySet();
+    }
+    return new HashSet<>((List<Map<String, Object>>) object);
+  }
 }

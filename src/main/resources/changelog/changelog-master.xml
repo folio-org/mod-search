@@ -10,4 +10,5 @@
   <include file="changes/v3.2/create_instance_classification_table.xml" relativeToChangelogFile="true"/>
   <include file="changes/v3.2/create_browse_config_table.xml" relativeToChangelogFile="true"/>
   <include file="changes/v4.0/create-reindex-entity-tables.xml" relativeToChangelogFile="true"/>
+  <include file="changes/v4.0/delete-instance-trigger.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

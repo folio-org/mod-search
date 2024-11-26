@@ -1,6 +1,9 @@
 package org.folio.search.service.reindex.jdbc;
 
 import static org.folio.search.utils.JdbcUtils.getParamPlaceholder;
+import static org.folio.search.utils.JdbcUtils.getParamPlaceholderForUuid;
+import static org.folio.search.utils.SearchUtils.AUTHORITY_ID_FIELD;
+import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_TYPE_FIELD;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,6 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
@@ -18,14 +23,16 @@ import org.folio.search.service.reindex.ReindexConstants;
 import org.folio.search.utils.JdbcUtils;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+@Log4j2
 @Repository
-public class ContributorRepository extends UploadRangeRepository {
+public class ContributorRepository extends UploadRangeRepository implements InstanceChildResourceRepository {
 
-  public static final String SELECT_QUERY = """
+  private static final String SELECT_QUERY = """
     SELECT
         c.id,
         c.name,
@@ -62,6 +69,22 @@ public class ContributorRepository extends UploadRangeRepository {
         %3$s
     GROUP BY
         c.id;
+    """;
+
+  private static final String DELETE_QUERY = """
+    DELETE
+    FROM %s.instance_contributor
+    WHERE instance_id IN (%s);
+    """;
+  private static final String INSERT_ENTITIES_SQL = """
+      INSERT INTO %s.contributor (id, name, name_type_id, authority_id)
+      VALUES (?, ?, ?, ?)
+      ON CONFLICT DO NOTHING;
+    """;
+  private static final String INSERT_RELATIONS_SQL = """
+      INSERT INTO %s.instance_contributor (instance_id, contributor_id, type_id, tenant_id, shared)
+      VALUES (?::uuid, ?, ?, ?, ?)
+      ON CONFLICT DO NOTHING;
     """;
 
   private static final String ID_RANGE_INS_WHERE_CLAUSE = "ins.contributor_id >= ? AND ins.contributor_id <= ?";
@@ -120,13 +143,57 @@ public class ContributorRepository extends UploadRangeRepository {
       contributor.put("id", getId(rs));
       contributor.put("name", getName(rs));
       contributor.put("contributorNameTypeId", getNameTypeId(rs));
-      contributor.put("authorityId", getAuthorityId(rs));
+      contributor.put(AUTHORITY_ID_FIELD, getAuthorityId(rs));
 
       var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs));
       contributor.put("instances", maps);
 
       return contributor;
     };
+  }
+
+  @Override
+  public void deleteByInstanceIds(List<String> instanceIds) {
+    var sql = DELETE_QUERY.formatted(JdbcUtils.getSchemaName(context), getParamPlaceholderForUuid(instanceIds.size()));
+    jdbcTemplate.update(sql, instanceIds.toArray());
+  }
+
+  @Override
+  public void saveAll(Set<Map<String, Object>> entities, List<Map<String, Object>> entityRelations) {
+    var entitiesSql = INSERT_ENTITIES_SQL.formatted(JdbcUtils.getSchemaName(context));
+    try {
+      jdbcTemplate.batchUpdate(entitiesSql, entities, BATCH_OPERATION_SIZE,
+        (statement, entity) -> {
+          statement.setString(1, (String) entity.get("id"));
+          statement.setString(2, (String) entity.get("name"));
+          statement.setObject(3, entity.get("nameTypeId"));
+          statement.setObject(4, entity.get(AUTHORITY_ID_FIELD));
+        });
+    } catch (DataAccessException e) {
+      log.warn("saveAll::Failed to save entities batch. Starting processing one-by-one", e);
+      for (var entity : entities) {
+        jdbcTemplate.update(entitiesSql,
+          entity.get("id"), entity.get("name"), entity.get("nameTypeId"), entity.get(AUTHORITY_ID_FIELD));
+      }
+    }
+
+    var relationsSql = INSERT_RELATIONS_SQL.formatted(JdbcUtils.getSchemaName(context));
+    try {
+      jdbcTemplate.batchUpdate(relationsSql, entityRelations, BATCH_OPERATION_SIZE,
+        (statement, entityRelation) -> {
+          statement.setObject(1, entityRelation.get("instanceId"));
+          statement.setString(2, (String) entityRelation.get("contributorId"));
+          statement.setString(3, (String) entityRelation.get(CONTRIBUTOR_TYPE_FIELD));
+          statement.setString(4, (String) entityRelation.get("tenantId"));
+          statement.setObject(5, entityRelation.get("shared"));
+        });
+    } catch (DataAccessException e) {
+      log.warn("saveAll::Failed to save relations batch. Starting processing one-by-one", e);
+      for (var entityRelation : entityRelations) {
+        jdbcTemplate.update(relationsSql, entityRelation.get("instanceId"), entityRelation.get("contributorId"),
+          entityRelation.get(CONTRIBUTOR_TYPE_FIELD), entityRelation.get("tenantId"), entityRelation.get("shared"));
+      }
+    }
   }
 
   private RowMapper<InstanceContributorEntityAgg> instanceAggRowMapper() {

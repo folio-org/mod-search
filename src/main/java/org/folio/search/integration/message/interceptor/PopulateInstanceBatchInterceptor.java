@@ -119,10 +119,9 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
           repository.deleteEntities(idsToDrop);
         }
 
-        if (ResourceType.INSTANCE.getName().equals(recordCollection.getKey())) {
-          var noShadowCopiesInstanceEvents = recordByOperation.values().stream().flatMap(Collection::stream).toList();
-          instanceChildrenResourceService.persistChildren(tenant, noShadowCopiesInstanceEvents);
-        }
+        var noShadowCopiesInstanceEvents = recordByOperation.values().stream().flatMap(Collection::stream).toList();
+        instanceChildrenResourceService.persistChildren(tenant, ResourceType.byName(recordCollection.getKey()),
+          noShadowCopiesInstanceEvents);
       }
 
     }

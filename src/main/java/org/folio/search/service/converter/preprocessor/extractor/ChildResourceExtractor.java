@@ -5,6 +5,7 @@ import static java.util.Collections.emptySet;
 import static org.apache.commons.collections4.MapUtils.getObject;
 import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,6 +15,8 @@ import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
+import org.folio.search.model.entity.ChildResourceEntityBatch;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.reindex.jdbc.InstanceChildResourceRepository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +30,8 @@ public abstract class ChildResourceExtractor {
   public abstract List<ResourceEvent> prepareEventsOnSharing(ResourceEvent resource);
 
   public abstract boolean hasChildResourceChanges(ResourceEvent event);
+
+  public abstract ResourceType resourceType();
 
   protected abstract List<Map<String, Object>> constructRelations(boolean shared, ResourceEvent event,
                                                                   List<Map<String, Object>> entities);
@@ -59,7 +64,7 @@ public abstract class ChildResourceExtractor {
       relations.addAll(constructRelations(shared, event, entitiesFromEvent));
       entities.addAll(entitiesFromEvent);
     });
-    repository.saveAll(entities, relations);
+    repository.saveAll(new ChildResourceEntityBatch(new ArrayList<>(entities), relations));
   }
 
   private List<Map<String, Object>> extractEntities(ResourceEvent event) {

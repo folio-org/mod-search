@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
+import org.folio.search.model.entity.ChildResourceEntityBatch;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
@@ -92,7 +93,7 @@ class ClassificationRepositoryIT {
       classificationRelation("b3bae8a9-cfb1-4afe-83d5-2cdae4580e07", "2"),
       classificationRelation("9ec55e4f-6a76-427c-b47b-197046f44a54", "2"));
 
-    repository.saveAll(entities, entityRelations);
+    repository.saveAll(new ChildResourceEntityBatch(entities, entityRelations));
 
     // assert
     var ranges = repository.fetchByIdRange("0", "50");

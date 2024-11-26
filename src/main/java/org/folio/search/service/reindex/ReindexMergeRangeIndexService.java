@@ -1,5 +1,7 @@
 package org.folio.search.service.reindex;
 
+import static org.folio.search.service.reindex.ReindexConstants.RESOURCE_NAME_MAP;
+
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -79,9 +81,8 @@ public class ReindexMergeRangeIndexService {
       .toList();
 
     repositories.get(event.getRecordType().getEntityType()).saveEntities(event.getTenant(), entities);
-    if (event.getRecordType() == ReindexRecordsEvent.ReindexRecordType.INSTANCE) {
-      instanceChildrenResourceService.persistChildrenOnReindex(event.getTenant(), entities);
-    }
+    instanceChildrenResourceService.persistChildrenOnReindex(event.getTenant(),
+      RESOURCE_NAME_MAP.get(event.getRecordType().getEntityType()), entities);
   }
 
   private List<MergeRangeEntity> constructMergeRangeRecords(int recordsCount,

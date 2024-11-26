@@ -1,8 +1,8 @@
 <?xml version="1.1" encoding="UTF-8" standalone="no"?>
-<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
-                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
   <include file="changes/initial_schema.xml" relativeToChangelogFile="true"/>
   <include file="changes/v2.1/change_resource_ids_job_query_type.xml" relativeToChangelogFile="true"/>
@@ -11,4 +11,5 @@
   <include file="changes/v3.2/create_browse_config_table.xml" relativeToChangelogFile="true"/>
   <include file="changes/v4.0/create-reindex-entity-tables.xml" relativeToChangelogFile="true"/>
   <include file="changes/v4.0/delete-instance-trigger.xml" relativeToChangelogFile="true"/>
+  <include file="changes/v4.1/create_call_number_tables.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

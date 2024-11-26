@@ -17,6 +17,7 @@ import java.util.UUID;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.event.SubResourceEvent;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.consortium.ConsortiumTenantProvider;
 import org.folio.search.service.converter.preprocessor.extractor.ChildResourceExtractor;
 import org.folio.search.service.converter.preprocessor.extractor.impl.ClassificationResourceExtractor;
@@ -55,6 +56,9 @@ class InstanceChildrenResourceServiceTest {
   void setUp() {
     this.resourceExtractors =
       List.of(classificationResourceExtractor, contributorResourceExtractor, subjectResourceExtractor);
+    for (var resourceExtractor : resourceExtractors) {
+      lenient().when(resourceExtractor.resourceType()).thenReturn(ResourceType.INSTANCE);
+    }
     service = new InstanceChildrenResourceService(messageProducer, resourceExtractors, consortiumTenantProvider);
   }
 
@@ -62,7 +66,8 @@ class InstanceChildrenResourceServiceTest {
   @ValueSource(ints = {0, 1, 2})
   void sendChildrenEvent(int extractorIndex) {
     var event = new ResourceEvent()
-      ._new(Map.of(SOURCE_FIELD, "MARC"));
+      ._new(Map.of(SOURCE_FIELD, "MARC"))
+      .resourceName(ResourceType.INSTANCE.getName());
     var expectedEvent = SubResourceEvent.fromResourceEvent(event);
     when(resourceExtractors.get(extractorIndex).hasChildResourceChanges(event)).thenReturn(true);
 
@@ -91,6 +96,7 @@ class InstanceChildrenResourceServiceTest {
   @ValueSource(strings = {"MARC", "CONSORTIUM_MARC"})
   void sendChildrenEvent_noEvent(String source) {
     var event = new ResourceEvent()
+      .resourceName(ResourceType.INSTANCE.getName())
       ._new(Map.of(SOURCE_FIELD, source));
     resourceExtractors.forEach(resourceExtractor ->
       when(resourceExtractor.hasChildResourceChanges(event)).thenReturn(false));
@@ -113,7 +119,8 @@ class InstanceChildrenResourceServiceTest {
 
   @Test
   void extractChildren() {
-    var event = new ResourceEvent();
+    var event = new ResourceEvent()
+      .resourceName(ResourceType.INSTANCE.getName());
     resourceExtractors.forEach(resourceExtractor ->
       when(resourceExtractor.prepareEvents(event)).thenReturn(List.of(new ResourceEvent(), new ResourceEvent())));
 
@@ -142,7 +149,8 @@ class InstanceChildrenResourceServiceTest {
     var result = service.extractChildren(event);
 
     assertThat(result).isEmpty();
-    resourceExtractors.forEach(Mockito::verifyNoInteractions);
+    resourceExtractors.forEach(resourceExtractor -> Mockito.verify(resourceExtractor).resourceType());
+    resourceExtractors.forEach(Mockito::verifyNoMoreInteractions);
   }
 
   @ParameterizedTest
@@ -151,7 +159,7 @@ class InstanceChildrenResourceServiceTest {
     var events = List.of(new ResourceEvent(), new ResourceEvent());
     when(consortiumTenantProvider.isCentralTenant(TENANT_ID)).thenReturn(shared);
 
-    service.persistChildren(TENANT_ID, events);
+    service.persistChildren(TENANT_ID, ResourceType.INSTANCE, events);
 
     resourceExtractors.forEach(resourceExtractor ->
       verify(resourceExtractor).persistChildren(shared, events));
@@ -163,20 +171,24 @@ class InstanceChildrenResourceServiceTest {
     var id1 = UUID.randomUUID();
     var id2 = UUID.randomUUID();
     var instances = List.of(Map.<String, Object>of("id", id1), Map.<String, Object>of("id", id2));
-    var expectedEvents = List.of(
-      new ResourceEvent().id(id1.toString()).type(ResourceEventType.REINDEX).tenant(TENANT_ID)._new(instances.get(0)),
-      new ResourceEvent().id(id2.toString()).type(ResourceEventType.REINDEX).tenant(TENANT_ID)._new(instances.get(1)));
+    var expectedEvents = List.of(getResourceEvent(id1, instances.get(0)), getResourceEvent(id2, instances.get(1)));
     when(consortiumTenantProvider.isCentralTenant(TENANT_ID)).thenReturn(shared);
 
-    service.persistChildrenOnReindex(TENANT_ID, instances);
+    service.persistChildrenOnReindex(TENANT_ID, ResourceType.INSTANCE, instances);
 
     resourceExtractors.forEach(resourceExtractor ->
       verify(resourceExtractor).persistChildren(shared, expectedEvents));
   }
 
+  private ResourceEvent getResourceEvent(UUID id1, Map<String, Object> payload) {
+    return new ResourceEvent().id(id1.toString()).type(ResourceEventType.REINDEX)
+      .resourceName(ResourceType.INSTANCE.getName()).tenant(TENANT_ID)._new(payload);
+  }
+
   private ResourceEvent resourceSharingEvent() {
     return new ResourceEvent()
       .type(ResourceEventType.UPDATE)
+      .resourceName(ResourceType.INSTANCE.getName())
       ._new(Map.of(SOURCE_FIELD, SOURCE_CONSORTIUM_PREFIX + "MARC"))
       .old(Map.of(SOURCE_FIELD, "MARC"));
   }

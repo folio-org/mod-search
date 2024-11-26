@@ -10,6 +10,7 @@ import static org.folio.search.utils.SearchUtils.INSTANCE_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.SOURCE_CONSORTIUM_PREFIX;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,7 @@ import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ResourceType;
+import org.folio.search.service.InstanceChildrenResourceService;
 import org.folio.search.service.consortium.ConsortiumTenantExecutor;
 import org.folio.search.service.reindex.jdbc.MergeRangeRepository;
 import org.folio.search.service.reindex.jdbc.ReindexJdbcRepository;
@@ -39,13 +41,16 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
   private final Map<ReindexEntityType, MergeRangeRepository> repositories;
   private final ConsortiumTenantExecutor executionService;
   private final SystemUserScopedExecutionService systemUserScopedExecutionService;
+  private final InstanceChildrenResourceService instanceChildrenResourceService;
 
   public PopulateInstanceBatchInterceptor(List<MergeRangeRepository> repositories,
                                           ConsortiumTenantExecutor executionService,
-                                          SystemUserScopedExecutionService systemUserScopedExecutionService) {
+                                          SystemUserScopedExecutionService systemUserScopedExecutionService,
+                                          InstanceChildrenResourceService instanceChildrenResourceService) {
     this.repositories = repositories.stream().collect(Collectors.toMap(ReindexJdbcRepository::entityType, identity()));
     this.executionService = executionService;
     this.systemUserScopedExecutionService = systemUserScopedExecutionService;
+    this.instanceChildrenResourceService = instanceChildrenResourceService;
   }
 
   @Override
@@ -55,7 +60,7 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
       .filter(r -> isInstanceEvent(r.value()))
       .collect(Collectors.groupingBy(ConsumerRecord::key));
 
-    List<ResourceEvent> consumerRecords = new ArrayList<>();
+    var consumerRecords = new ArrayList<ResourceEvent>();
     for (var entry : recordsById.entrySet()) {
       var list = entry.getValue();
       if (list.size() > 1) {
@@ -112,6 +117,11 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
           .toList();
         if (!idsToDrop.isEmpty()) {
           repository.deleteEntities(idsToDrop);
+        }
+
+        if (ResourceType.INSTANCE.getName().equals(recordCollection.getKey())) {
+          var noShadowCopiesInstanceEvents = recordByOperation.values().stream().flatMap(Collection::stream).toList();
+          instanceChildrenResourceService.persistChildren(tenant, noShadowCopiesInstanceEvents);
         }
       }
 

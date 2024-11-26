@@ -4,7 +4,7 @@ import static org.folio.search.utils.CollectionUtils.toStreamSafe;
 
 import java.util.Collection;
 import java.util.stream.Stream;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Note;

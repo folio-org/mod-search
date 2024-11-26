@@ -17,7 +17,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 
 import java.util.Map;
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.model.converter.ConversionContext;
 import org.folio.search.model.metadata.ResourceDescription;

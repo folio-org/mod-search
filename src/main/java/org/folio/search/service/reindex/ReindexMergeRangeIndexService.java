@@ -16,6 +16,7 @@ import org.folio.search.model.event.ReindexRecordsEvent;
 import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.InventoryRecordType;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.service.InstanceChildrenResourceService;
 import org.folio.search.service.reindex.jdbc.MergeRangeRepository;
 import org.springframework.stereotype.Service;
 
@@ -26,14 +27,17 @@ public class ReindexMergeRangeIndexService {
   private final Map<ReindexEntityType, MergeRangeRepository> repositories;
   private final InventoryService inventoryService;
   private final ReindexConfigurationProperties reindexConfig;
+  private final InstanceChildrenResourceService instanceChildrenResourceService;
 
   public ReindexMergeRangeIndexService(List<MergeRangeRepository> repositories,
                                        InventoryService inventoryService,
-                                       ReindexConfigurationProperties reindexConfig) {
+                                       ReindexConfigurationProperties reindexConfig,
+                                       InstanceChildrenResourceService instanceChildrenResourceService) {
     this.repositories = repositories.stream()
       .collect(Collectors.toMap(MergeRangeRepository::entityType, Function.identity()));
     this.inventoryService = inventoryService;
     this.reindexConfig = reindexConfig;
+    this.instanceChildrenResourceService = instanceChildrenResourceService;
   }
 
   public void saveMergeRanges(List<MergeRangeEntity> ranges) {
@@ -75,6 +79,9 @@ public class ReindexMergeRangeIndexService {
       .toList();
 
     repositories.get(event.getRecordType().getEntityType()).saveEntities(event.getTenant(), entities);
+    if (event.getRecordType() == ReindexRecordsEvent.ReindexRecordType.INSTANCE) {
+      instanceChildrenResourceService.persistChildrenOnReindex(event.getTenant(), entities);
+    }
   }
 
   private List<MergeRangeEntity> constructMergeRangeRecords(int recordsCount,

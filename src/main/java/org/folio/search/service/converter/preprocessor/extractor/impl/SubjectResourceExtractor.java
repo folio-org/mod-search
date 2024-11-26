@@ -1,22 +1,26 @@
 package org.folio.search.service.converter.preprocessor.extractor.impl;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.emptySet;
-import static org.apache.commons.collections4.MapUtils.getObject;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 import static org.apache.commons.lang3.StringUtils.truncate;
 import static org.folio.search.utils.CollectionUtils.subtract;
 import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
 import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
+import static org.folio.search.utils.SearchUtils.AUTHORITY_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.SUBJECTS_FIELD;
+import static org.folio.search.utils.SearchUtils.SUBJECT_SOURCE_ID_FIELD;
+import static org.folio.search.utils.SearchUtils.SUBJECT_TYPE_ID_FIELD;
+import static org.folio.search.utils.SearchUtils.SUBJECT_VALUE_FIELD;
+import static org.folio.search.utils.SearchUtils.prepareForExpectedFormat;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.MapUtils;
 import org.folio.search.domain.dto.ResourceEvent;
@@ -34,16 +38,21 @@ import org.springframework.stereotype.Component;
 
 @Log4j2
 @Component
-@RequiredArgsConstructor
-public class SubjectResourceExtractor implements ChildResourceExtractor {
+public class SubjectResourceExtractor extends ChildResourceExtractor {
 
   private final JsonConverter jsonConverter;
-  private final SubjectRepository subjectRepository;
+  private final SubjectRepository repository;
+
+  public SubjectResourceExtractor(SubjectRepository repository, JsonConverter jsonConverter) {
+    super(repository);
+    this.repository = repository;
+    this.jsonConverter = jsonConverter;
+  }
 
   @Override
   public List<ResourceEvent> prepareEvents(ResourceEvent event) {
-    var oldSubjects = getSubjects(getOldAsMap(event));
-    var newSubjects = getSubjects(getNewAsMap(event));
+    var oldSubjects = getChildResources(getOldAsMap(event));
+    var newSubjects = getChildResources(getNewAsMap(event));
 
     if (oldSubjects.equals(newSubjects)) {
       return emptyList();
@@ -60,7 +69,7 @@ public class SubjectResourceExtractor implements ChildResourceExtractor {
     idsForFetch.addAll(idsForCreate);
     idsForFetch.addAll(idsForDelete);
 
-    var entityAggList = subjectRepository.fetchByIds(idsForFetch);
+    var entityAggList = repository.fetchByIds(idsForFetch);
     var list = getResourceEventsForDeletion(idsForDelete, entityAggList, tenant);
 
     var list1 = entityAggList.stream()
@@ -71,9 +80,9 @@ public class SubjectResourceExtractor implements ChildResourceExtractor {
 
   @Override
   public List<ResourceEvent> prepareEventsOnSharing(ResourceEvent event) {
-    var subjects = getSubjects(getOldAsMap(event));
+    var subjects = getChildResources(getOldAsMap(event));
 
-    if (!subjects.equals(getSubjects(getNewAsMap(event)))) {
+    if (!subjects.equals(getChildResources(getNewAsMap(event)))) {
       log.warn("Subjects are different on Update for instance sharing");
       return emptyList();
     }
@@ -81,7 +90,7 @@ public class SubjectResourceExtractor implements ChildResourceExtractor {
     var tenant = event.getTenant();
 
     var ids = toIds(subjects);
-    var entityAggList = subjectRepository.fetchByIds(ids);
+    var entityAggList = repository.fetchByIds(ids);
 
     return entityAggList.stream()
       .map(entities -> toResourceEvent(entities, tenant))
@@ -90,10 +99,48 @@ public class SubjectResourceExtractor implements ChildResourceExtractor {
 
   @Override
   public boolean hasChildResourceChanges(ResourceEvent event) {
-    var oldSubjects = getSubjects(getOldAsMap(event));
-    var newSubjects = getSubjects(getNewAsMap(event));
+    var oldSubjects = getChildResources(getOldAsMap(event));
+    var newSubjects = getChildResources(getNewAsMap(event));
 
     return !oldSubjects.equals(newSubjects);
+  }
+
+  @Override
+  protected List<Map<String, Object>> constructRelations(boolean shared, ResourceEvent event,
+                                                       List<Map<String, Object>> entities) {
+    return entities.stream()
+      .map(entity -> Map.of("instanceId", event.getId(),
+        "subjectId", entity.get("id"),
+        "tenantId", event.getTenant(),
+        "shared", shared))
+      .toList();
+  }
+
+  @Override
+  protected Map<String, Object> constructEntity(Map<String, Object> entityProperties) {
+    var subjectValue = prepareForExpectedFormat(entityProperties.get(SUBJECT_VALUE_FIELD), 255);
+    if (subjectValue.isEmpty()) {
+      return null;
+    }
+
+    var authorityId = entityProperties.get(AUTHORITY_ID_FIELD);
+    var sourceId = entityProperties.get(SUBJECT_SOURCE_ID_FIELD);
+    var typeId = entityProperties.get(SUBJECT_TYPE_ID_FIELD);
+    var id = ShaUtils.sha(subjectValue,
+      Objects.toString(authorityId, EMPTY), Objects.toString(sourceId, EMPTY), Objects.toString(typeId, EMPTY));
+
+    var entity = new HashMap<String, Object>();
+    entity.put("id", id);
+    entity.put(SUBJECT_VALUE_FIELD, subjectValue);
+    entity.put(AUTHORITY_ID_FIELD, authorityId);
+    entity.put(SUBJECT_SOURCE_ID_FIELD, sourceId);
+    entity.put(SUBJECT_TYPE_ID_FIELD, typeId);
+    return entity;
+  }
+
+  @Override
+  protected String childrenFieldName() {
+    return SUBJECTS_FIELD;
   }
 
   private List<ResourceEvent> getResourceEventsForDeletion(List<String> idsForDelete,
@@ -143,19 +190,10 @@ public class SubjectResourceExtractor implements ChildResourceExtractor {
   @NotNull
   private List<String> toIds(Set<Map<String, Object>> subtract) {
     return subtract.stream()
-      .map(map -> getEntityId(defaultIfBlank(MapUtils.getString(map, "value"), ""),
-        MapUtils.getString(map, "authorityId"),
-        MapUtils.getString(map, "sourceId"),
-        MapUtils.getString(map, "typeId")))
+      .map(map -> getEntityId(defaultIfBlank(MapUtils.getString(map, SUBJECT_VALUE_FIELD), ""),
+        MapUtils.getString(map, AUTHORITY_ID_FIELD),
+        MapUtils.getString(map, SUBJECT_SOURCE_ID_FIELD),
+        MapUtils.getString(map, SUBJECT_TYPE_ID_FIELD)))
       .collect(Collectors.toCollection(ArrayList::new));
-  }
-
-  @SuppressWarnings("unchecked")
-  private Set<Map<String, Object>> getSubjects(Map<String, Object> event) {
-    var object = getObject(event, SUBJECTS_FIELD, emptyList());
-    if (object == null) {
-      return emptySet();
-    }
-    return new HashSet<>((List<Map<String, Object>>) object);
   }
 }

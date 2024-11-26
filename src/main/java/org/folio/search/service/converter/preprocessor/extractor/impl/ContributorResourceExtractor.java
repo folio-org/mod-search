@@ -1,22 +1,24 @@
 package org.folio.search.service.converter.preprocessor.extractor.impl;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.emptySet;
-import static org.apache.commons.collections4.MapUtils.getObject;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 import static org.apache.commons.lang3.StringUtils.truncate;
 import static org.folio.search.utils.CollectionUtils.subtract;
 import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
 import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
+import static org.folio.search.utils.SearchUtils.AUTHORITY_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.CONTRIBUTORS_FIELD;
+import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_TYPE_FIELD;
+import static org.folio.search.utils.SearchUtils.prepareForExpectedFormat;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.MapUtils;
 import org.folio.search.domain.dto.ResourceEvent;
@@ -34,16 +36,21 @@ import org.springframework.stereotype.Component;
 
 @Log4j2
 @Component
-@RequiredArgsConstructor
-public class ContributorResourceExtractor implements ChildResourceExtractor {
+public class ContributorResourceExtractor extends ChildResourceExtractor {
 
   private final JsonConverter jsonConverter;
-  private final ContributorRepository contributorRepository;
+  private final ContributorRepository repository;
+
+  public ContributorResourceExtractor(ContributorRepository repository, JsonConverter jsonConverter) {
+    super(repository);
+    this.jsonConverter = jsonConverter;
+    this.repository = repository;
+  }
 
   @Override
   public List<ResourceEvent> prepareEvents(ResourceEvent event) {
-    var oldEntities = getEntities(getOldAsMap(event));
-    var newEntities = getEntities(getNewAsMap(event));
+    var oldEntities = getChildResources(getOldAsMap(event));
+    var newEntities = getChildResources(getNewAsMap(event));
 
     if (oldEntities.equals(newEntities)) {
       return emptyList();
@@ -60,7 +67,7 @@ public class ContributorResourceExtractor implements ChildResourceExtractor {
     idsForFetch.addAll(idsForCreate);
     idsForFetch.addAll(idsForDelete);
 
-    var entityAggList = contributorRepository.fetchByIds(idsForFetch);
+    var entityAggList = repository.fetchByIds(idsForFetch);
     var list = getResourceEventsForDeletion(idsForDelete, entityAggList, tenant);
 
     var list1 = entityAggList.stream()
@@ -71,9 +78,9 @@ public class ContributorResourceExtractor implements ChildResourceExtractor {
 
   @Override
   public List<ResourceEvent> prepareEventsOnSharing(ResourceEvent event) {
-    var entities = getEntities(getOldAsMap(event));
+    var entities = getChildResources(getOldAsMap(event));
 
-    if (!entities.equals(getEntities(getNewAsMap(event)))) {
+    if (!entities.equals(getChildResources(getNewAsMap(event)))) {
       log.warn("Contributors are different on Update for instance sharing");
       return emptyList();
     }
@@ -81,7 +88,7 @@ public class ContributorResourceExtractor implements ChildResourceExtractor {
     var tenant = event.getTenant();
 
     var ids = toIds(entities);
-    var entityAggList = contributorRepository.fetchByIds(ids);
+    var entityAggList = repository.fetchByIds(ids);
 
     return entityAggList.stream()
       .map(e -> toResourceEvent(e, tenant))
@@ -90,10 +97,48 @@ public class ContributorResourceExtractor implements ChildResourceExtractor {
 
   @Override
   public boolean hasChildResourceChanges(ResourceEvent event) {
-    var oldContributors = getEntities(getOldAsMap(event));
-    var newContributors = getEntities(getNewAsMap(event));
+    var oldContributors = getChildResources(getOldAsMap(event));
+    var newContributors = getChildResources(getNewAsMap(event));
 
     return !oldContributors.equals(newContributors);
+  }
+
+  @Override
+  protected List<Map<String, Object>> constructRelations(boolean shared, ResourceEvent event,
+                                                         List<Map<String, Object>> entities) {
+    return entities.stream()
+      .map(entity -> Map.of("instanceId", event.getId(),
+        "contributorId", entity.get("id"),
+        CONTRIBUTOR_TYPE_FIELD, entity.remove(CONTRIBUTOR_TYPE_FIELD),
+        "tenantId", event.getTenant(),
+        "shared", shared))
+      .toList();
+  }
+
+  @Override
+  protected Map<String, Object> constructEntity(Map<String, Object> entityProperties) {
+    var contributorName = prepareForExpectedFormat(entityProperties.get("name"), 255);
+    if (contributorName.isBlank()) {
+      return null;
+    }
+
+    var nameTypeId = entityProperties.get("contributorNameTypeId");
+    var authorityId = entityProperties.get(AUTHORITY_ID_FIELD);
+    var id = ShaUtils.sha(contributorName, Objects.toString(nameTypeId, EMPTY), Objects.toString(authorityId, EMPTY));
+    var typeId = entityProperties.get(CONTRIBUTOR_TYPE_FIELD);
+
+    var entity = new HashMap<String, Object>();
+    entity.put("id", id);
+    entity.put("name", contributorName);
+    entity.put("nameTypeId", nameTypeId);
+    entity.put(AUTHORITY_ID_FIELD, authorityId);
+    entity.put(CONTRIBUTOR_TYPE_FIELD, Objects.toString(typeId, EMPTY));
+    return entity;
+  }
+
+  @Override
+  protected String childrenFieldName() {
+    return CONTRIBUTORS_FIELD;
   }
 
   private List<ResourceEvent> getResourceEventsForDeletion(List<String> idsForDelete,
@@ -145,16 +190,7 @@ public class ContributorResourceExtractor implements ChildResourceExtractor {
     return subtract.stream()
       .map(map -> getEntityId(defaultIfBlank(MapUtils.getString(map, "name"), ""),
         MapUtils.getString(map, "contributorNameTypeId"),
-        MapUtils.getString(map, "authorityId")))
+        MapUtils.getString(map, AUTHORITY_ID_FIELD)))
       .collect(Collectors.toCollection(ArrayList::new));
-  }
-
-  @SuppressWarnings("unchecked")
-  private Set<Map<String, Object>> getEntities(Map<String, Object> event) {
-    var object = getObject(event, CONTRIBUTORS_FIELD, emptyList());
-    if (object == null) {
-      return emptySet();
-    }
-    return new HashSet<>((List<Map<String, Object>>) object);
   }
 }

@@ -108,10 +108,19 @@ class SubjectRepositoryIT {
     assertThat(ranges)
       .hasSize(2)
       .allMatch(map -> map.keySet().containsAll(List.of("id", "value", "authorityId", "instances")))
-      .extracting("value", "authorityId")
+      .extracting("value", "authorityId", "sourceId", "typeId")
       .containsExactlyInAnyOrder(
-        tuple("Alternative History", null),
-        tuple("History", "79144653-7a98-4dfb-aa6a-13ad49e80952"));
+        tuple(
+          "Alternative History",
+          null,
+          "a5a0b02e-c868-4074-ab01-348a4e87fd9f",
+          "b36c89f9-79fe-4a0a-bc13-02d95e032c08"),
+        tuple(
+          "History",
+          "79144653-7a98-4dfb-aa6a-13ad49e80952",
+          null,
+          null)
+      );
   }
 
   @Test

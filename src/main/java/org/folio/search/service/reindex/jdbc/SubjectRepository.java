@@ -148,6 +148,8 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
       subject.put("id", getId(rs));
       subject.put(SUBJECT_VALUE_FIELD, getValue(rs));
       subject.put(AUTHORITY_ID_FIELD, getAuthorityId(rs));
+      subject.put("sourceId", getSourceId(rs));
+      subject.put("typeId", getTypeId(rs));
 
       var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs));
       subject.put("instances", maps);

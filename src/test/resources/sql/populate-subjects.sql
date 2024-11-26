@@ -1,26 +1,26 @@
-INSERT INTO subject (id, value, authority_id)
+INSERT INTO subject (id, value, authority_id, source_id, type_id)
 VALUES
-    ('1', 'Genre', 'b7df83a1-8b15-46c1-9a4c-9d2dbb3cf4d6'),
-    ('2', 'Sci-Fi', 'dfb20d52-7f1f-4b5b-a492-2e47d2c0ac59'),
-    ('3', 'Drama', '652b293e-e742-456e-b9e9-6e98655d89e6'),
-    ('4', 'Comedy', '2f23b9fa-9e1a-44ff-a30f-61ec5f3adcc8'),
-    ('5', 'Thriller', 'c00a8290-8e6f-4bb9-8530-c8575c8d54a8'),
-    ('6', 'Romance', 'cafc6429-8e7c-488c-be9d-ecc45e7659ec'),
-    ('7', 'Horror', '72e2d771-2b05-41f2-afae-9e0b140b767d'),
-    ('8', 'Action', NULL),
-    ('9', 'Adventure', '0e80645b-0293-4daa-8a0a-2c1a43b26b5d'),
-    ('10', 'Mystery', '1310782d-bdce-4038-97a1-f4036542f97c'),
-    ('11', 'Western', 'b0aa3a38-cd9c-46bd-9d88-d95eaa379c41'),
-    ('12', 'Animation', '84aac856-c4ab-426c-8302-9ab0e6a295c0'),
-    ('13', 'Musical', NULL),
-    ('14', 'Film-Noir', '9c2c968d-c642-4403-a449-2ec40afcd736'),
-    ('15', 'Biography', '9f8febd1-e96c-46c4-a5f4-84a45cc499a2'),
-    ('16', 'Children', '8751df7c-a588-4d86-8268-8c153bb98b16'),
-    ('17', 'Crime', NULL),
-    ('18', 'Drama/Romance', NULL),
-    ('19', 'Fantasy', NULL),
-    ('20', 'Alternative History', NULL),
-    ('21', 'History', '79144653-7a98-4dfb-aa6a-13ad49e80952');
+    ('1', 'Genre', 'b7df83a1-8b15-46c1-9a4c-9d2dbb3cf4d6', NULL, NULL),
+    ('2', 'Sci-Fi', 'dfb20d52-7f1f-4b5b-a492-2e47d2c0ac59', NULL, NULL),
+    ('3', 'Drama', '652b293e-e742-456e-b9e9-6e98655d89e6', NULL, NULL),
+    ('4', 'Comedy', '2f23b9fa-9e1a-44ff-a30f-61ec5f3adcc8', NULL, NULL),
+    ('5', 'Thriller', 'c00a8290-8e6f-4bb9-8530-c8575c8d54a8', NULL, NULL),
+    ('6', 'Romance', 'cafc6429-8e7c-488c-be9d-ecc45e7659ec', NULL, NULL),
+    ('7', 'Horror', '72e2d771-2b05-41f2-afae-9e0b140b767d', NULL, NULL),
+    ('8', 'Action', NULL, NULL, NULL),
+    ('9', 'Adventure', '0e80645b-0293-4daa-8a0a-2c1a43b26b5d', NULL, NULL),
+    ('10', 'Mystery', '1310782d-bdce-4038-97a1-f4036542f97c', NULL, NULL),
+    ('11', 'Western', 'b0aa3a38-cd9c-46bd-9d88-d95eaa379c41', NULL, NULL),
+    ('12', 'Animation', '84aac856-c4ab-426c-8302-9ab0e6a295c0', NULL, NULL),
+    ('13', 'Musical', NULL, NULL, NULL),
+    ('14', 'Film-Noir', '9c2c968d-c642-4403-a449-2ec40afcd736', NULL, NULL),
+    ('15', 'Biography', '9f8febd1-e96c-46c4-a5f4-84a45cc499a2', NULL, NULL),
+    ('16', 'Children', '8751df7c-a588-4d86-8268-8c153bb98b16', NULL, NULL),
+    ('17', 'Crime', NULL, NULL, NULL),
+    ('18', 'Drama/Romance', NULL, NULL, NULL),
+    ('19', 'Fantasy', NULL, NULL, NULL),
+    ('20', 'Alternative History', NULL, 'a5a0b02e-c868-4074-ab01-348a4e87fd9f', 'b36c89f9-79fe-4a0a-bc13-02d95e032c08'),
+    ('21', 'History', '79144653-7a98-4dfb-aa6a-13ad49e80952', NULL, NULL);
 
 
 INSERT INTO instance_subject (subject_id, instance_id, tenant_id, shared)

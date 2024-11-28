@@ -40,7 +40,7 @@
         <insert tableName="browse_config">
             <column name="browse_type" value="instance-call-number"/>
             <column name="browse_option_type" value="other"/>
-            <column name="shelving_algorithm" value="other"/>
+            <column name="shelving_algorithm" value="default"/>
         </insert>
     </changeSet>
 

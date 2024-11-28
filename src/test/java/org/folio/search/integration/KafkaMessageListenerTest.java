@@ -65,6 +65,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -317,35 +318,20 @@ class KafkaMessageListenerTest {
     verify(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
   }
 
-  @Test
-  void handleClassificationTypeEvent_positive_filterOnlyDeleteEvents() {
-    var deleteEvent = resourceEvent(RESOURCE_ID, ResourceType.CLASSIFICATION_TYPE, DELETE, null, emptyMap());
-    var createEvent = resourceEvent(RESOURCE_ID, ResourceType.CLASSIFICATION_TYPE, CREATE, emptyMap(), null);
-    var updateEvent = resourceEvent(RESOURCE_ID, ResourceType.CLASSIFICATION_TYPE, UPDATE, null, null);
+  @ParameterizedTest
+  @EnumSource(value = ResourceType.class, names = {"CLASSIFICATION_TYPE", "CALL_NUMBER_TYPE"})
+  void handleBrowseConfigDataEvent_positive_filterOnlyDeleteEvents(ResourceType type) {
+    var deleteEvent = resourceEvent(RESOURCE_ID, type, DELETE, null, emptyMap());
+    var createEvent = resourceEvent(RESOURCE_ID, type, CREATE, emptyMap(), null);
+    var updateEvent = resourceEvent(RESOURCE_ID, type, UPDATE, null, null);
 
-    messageListener.handleClassificationTypeEvents(List.of(
-      consumerRecordForType(ResourceType.CLASSIFICATION_TYPE, deleteEvent),
-      consumerRecordForType(ResourceType.CLASSIFICATION_TYPE, updateEvent),
-      consumerRecordForType(ResourceType.CLASSIFICATION_TYPE, createEvent))
+    messageListener.handleBrowseConfigDataEvents(List.of(
+      consumerRecordForType(type, deleteEvent),
+      consumerRecordForType(type, updateEvent),
+      consumerRecordForType(type, createEvent))
     );
 
-    verify(configSynchronizationService).sync(List.of(deleteEvent), ResourceType.CLASSIFICATION_TYPE);
-    verify(batchProcessor).consumeBatchWithFallback(eq(List.of(deleteEvent)), any(), any(), any());
-  }
-
-  @Test
-  void handleCallNumberTypeEvent_positive_filterOnlyDeleteEvents() {
-    var deleteEvent = resourceEvent(RESOURCE_ID, ResourceType.CALL_NUMBER_TYPE, DELETE, null, emptyMap());
-    var createEvent = resourceEvent(RESOURCE_ID, ResourceType.CALL_NUMBER_TYPE, CREATE, emptyMap(), null);
-    var updateEvent = resourceEvent(RESOURCE_ID, ResourceType.CALL_NUMBER_TYPE, UPDATE, null, null);
-
-    messageListener.handleCallNumberTypeEvents(List.of(
-      consumerRecordForType(ResourceType.CALL_NUMBER_TYPE, deleteEvent),
-      consumerRecordForType(ResourceType.CALL_NUMBER_TYPE, updateEvent),
-      consumerRecordForType(ResourceType.CALL_NUMBER_TYPE, createEvent))
-    );
-
-    verify(configSynchronizationService).sync(List.of(deleteEvent), ResourceType.CALL_NUMBER_TYPE);
+    verify(configSynchronizationService).sync(List.of(deleteEvent), type);
     verify(batchProcessor).consumeBatchWithFallback(eq(List.of(deleteEvent)), any(), any(), any());
   }
 

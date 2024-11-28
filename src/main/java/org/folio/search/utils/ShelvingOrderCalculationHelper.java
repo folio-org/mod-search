@@ -18,7 +18,7 @@ public class ShelvingOrderCalculationHelper {
       case DEWEY -> new DeweyCallNumber(input).getShelfKey().trim();
       case NLM -> new NlmCallNumber(input).getShelfKey().trim();
       case SUDOC -> new SuDocCallNumber(input).getShelfKey().trim();
-      case OTHER, DEFAULT -> normalize(input);
+      case DEFAULT -> normalize(input);
     };
   }
 

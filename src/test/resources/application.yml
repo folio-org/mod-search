@@ -145,14 +145,10 @@ folio:
         concurrency: 1
         topic-pattern: (${folio.environment}\.)(.*\.)authorities\.authority
         group-id: ${folio.environment}-mod-search-authorities-group
-      classification-type:
+      browse-config-data:
         concurrency: 1
-        topic-pattern: (${folio.environment}\.)(.*\.)inventory\.classification-type
-        group-id: ${folio.environment}-mod-search-classification-type-group
-      call-number-type:
-        concurrency: 1
-        topic-pattern: (${folio.environment}\.)(.*\.)inventory\.call-number-type
-        group-id: ${folio.environment}-mod-search-call-number-type-group
+        topic-pattern: (${folio.environment}\.)(.*\.)inventory\.(classification-type|call-number-type)
+        group-id: ${folio.environment}-mod-search-browse-config-data-group
       location:
         concurrency: 1
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.(location|campus|institution|library)

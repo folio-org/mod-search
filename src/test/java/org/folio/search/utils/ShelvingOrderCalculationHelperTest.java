@@ -7,8 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.folio.search.domain.dto.ShelvingOrderAlgorithmType;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
 
 @UnitTest
 class ShelvingOrderCalculationHelperTest {
@@ -53,13 +51,12 @@ class ShelvingOrderCalculationHelperTest {
     assertEquals(expectedShelfKey, result);
   }
 
-  @ParameterizedTest
-  @EnumSource(value = ShelvingOrderAlgorithmType.class, mode = EnumSource.Mode.INCLUDE, names = {"DEFAULT", "OTHER"})
-  void shouldCalculateNormalizedNumber(ShelvingOrderAlgorithmType type) {
+  @Test
+  void shouldCalculateDefaultNumber() {
     var input = "hd1691 ^I5 1967";
     var expectedShelfKey = "HD1691 ^I5 1967";
 
-    var result = calculate(input, type);
+    var result = calculate(input, ShelvingOrderAlgorithmType.DEFAULT);
 
     assertEquals(expectedShelfKey, result);
   }

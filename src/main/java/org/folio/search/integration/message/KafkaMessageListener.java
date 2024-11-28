@@ -125,7 +125,7 @@ public class KafkaMessageListener {
     topicPattern = "#{folioKafkaProperties.listener['browse-config-data'].topicPattern}")
   @CacheEvict(cacheNames = REFERENCE_DATA_CACHE, allEntries = true)
   public void handleBrowseConfigDataEvents(List<ConsumerRecord<String, ResourceEvent>> consumerRecords) {
-    log.info("Processing classification-type events from Kafka [number of events: {}]", consumerRecords.size());
+    log.info("Processing browse config data events from Kafka [number of events: {}]", consumerRecords.size());
     var batch = consumerRecords.stream()
       .map(ConsumerRecord::value)
       .filter(resourceEvent -> resourceEvent.getType() == DELETE)
@@ -137,15 +137,8 @@ public class KafkaMessageListener {
       folioMessageBatchProcessor.consumeBatchWithFallback(batch, KAFKA_RETRY_TEMPLATE_NAME,
         resourceEvent -> {
           var eventsByResource = resourceEvent.stream().collect(Collectors.groupingBy(ResourceEvent::getResourceName));
-          eventsByResource.forEach((resourceName, events) -> {
-            if (ResourceType.CLASSIFICATION_TYPE.getName().equals(resourceName)) {
-              configSynchronizationService.sync(resourceEvent, ResourceType.CLASSIFICATION_TYPE);
-            } else if (ResourceType.CALL_NUMBER_TYPE.getName().equals(resourceName)) {
-              configSynchronizationService.sync(resourceEvent, ResourceType.CALL_NUMBER_TYPE);
-            } else {
-              log.warn("handleBrowseConfigDataEvents:: unsupported resource type: [{}]", resourceName);
-            }
-          });
+          eventsByResource.forEach((resourceName, events) ->
+            configSynchronizationService.sync(resourceEvent, ResourceType.byName(resourceName)));
         },
         KafkaMessageListener::logFailedEvent);
       return null;

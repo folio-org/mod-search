@@ -17,6 +17,7 @@ import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestConstants.inventoryAuthorityTopic;
 import static org.folio.search.utils.TestConstants.inventoryBoundWithTopic;
+import static org.folio.search.utils.TestConstants.inventoryCallNumberTopic;
 import static org.folio.search.utils.TestConstants.inventoryClassificationTopic;
 import static org.folio.search.utils.TestConstants.inventoryHoldingTopic;
 import static org.folio.search.utils.TestConstants.inventoryInstanceTopic;
@@ -39,6 +40,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.retry.support.RetryTemplate.defaultInstance;
+import static org.testcontainers.shaded.org.apache.commons.lang3.StringUtils.EMPTY;
 
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -322,17 +324,39 @@ class KafkaMessageListenerTest {
     var updateEvent = resourceEvent(RESOURCE_ID, ResourceType.CLASSIFICATION_TYPE, UPDATE, null, null);
 
     messageListener.handleClassificationTypeEvents(List.of(
-      classificationTypeConsumerRecord(deleteEvent),
-      classificationTypeConsumerRecord(updateEvent),
-      classificationTypeConsumerRecord(createEvent))
+      consumerRecordForType(ResourceType.CLASSIFICATION_TYPE, deleteEvent),
+      consumerRecordForType(ResourceType.CLASSIFICATION_TYPE, updateEvent),
+      consumerRecordForType(ResourceType.CLASSIFICATION_TYPE, createEvent))
     );
 
     verify(configSynchronizationService).sync(List.of(deleteEvent), ResourceType.CLASSIFICATION_TYPE);
     verify(batchProcessor).consumeBatchWithFallback(eq(List.of(deleteEvent)), any(), any(), any());
   }
 
+  @Test
+  void handleCallNumberTypeEvent_positive_filterOnlyDeleteEvents() {
+    var deleteEvent = resourceEvent(RESOURCE_ID, ResourceType.CALL_NUMBER_TYPE, DELETE, null, emptyMap());
+    var createEvent = resourceEvent(RESOURCE_ID, ResourceType.CALL_NUMBER_TYPE, CREATE, emptyMap(), null);
+    var updateEvent = resourceEvent(RESOURCE_ID, ResourceType.CALL_NUMBER_TYPE, UPDATE, null, null);
+
+    messageListener.handleCallNumberTypeEvents(List.of(
+      consumerRecordForType(ResourceType.CALL_NUMBER_TYPE, deleteEvent),
+      consumerRecordForType(ResourceType.CALL_NUMBER_TYPE, updateEvent),
+      consumerRecordForType(ResourceType.CALL_NUMBER_TYPE, createEvent))
+    );
+
+    verify(configSynchronizationService).sync(List.of(deleteEvent), ResourceType.CALL_NUMBER_TYPE);
+    verify(batchProcessor).consumeBatchWithFallback(eq(List.of(deleteEvent)), any(), any(), any());
+  }
+
   @NotNull
-  private static ConsumerRecord<String, ResourceEvent> classificationTypeConsumerRecord(ResourceEvent deleteEvent) {
-    return new ConsumerRecord<>(inventoryClassificationTopic(), 0, 0, RESOURCE_ID, deleteEvent);
+  private static ConsumerRecord<String, ResourceEvent> consumerRecordForType(ResourceType resourceType,
+                                                                             ResourceEvent event) {
+    var topic = switch (resourceType) {
+      case CLASSIFICATION_TYPE -> inventoryClassificationTopic();
+      case CALL_NUMBER_TYPE -> inventoryCallNumberTopic();
+      default -> EMPTY;
+    };
+    return new ConsumerRecord<>(topic, 0, 0, RESOURCE_ID, event);
   }
 }

@@ -141,6 +141,29 @@ public class KafkaMessageListener {
   }
 
   @KafkaListener(
+    id = KafkaConstants.CALL_NUMBER_TYPE_LISTENER_ID,
+    containerFactory = "resourceListenerContainerFactory",
+    groupId = "#{folioKafkaProperties.listener['call-number-type'].groupId}",
+    concurrency = "#{folioKafkaProperties.listener['call-number-type'].concurrency}",
+    topicPattern = "#{folioKafkaProperties.listener['call-number-type'].topicPattern}")
+  @CacheEvict(cacheNames = REFERENCE_DATA_CACHE, allEntries = true)
+  public void handleCallNumberTypeEvents(List<ConsumerRecord<String, ResourceEvent>> consumerRecords) {
+    log.info("Processing call-number-type events from Kafka [number of events: {}]", consumerRecords.size());
+    var batch = consumerRecords.stream()
+      .map(ConsumerRecord::value)
+      .filter(resourceEvent -> resourceEvent.getType() == DELETE).toList();
+
+    var batchByTenant = batch.stream().collect(Collectors.groupingBy(ResourceEvent::getTenant));
+
+    batchByTenant.forEach((tenant, resourceEvents) -> executionService.executeSystemUserScoped(tenant, () -> {
+      folioMessageBatchProcessor.consumeBatchWithFallback(batch, KAFKA_RETRY_TEMPLATE_NAME,
+        resourceEvent -> configSynchronizationService.sync(resourceEvent, ResourceType.CALL_NUMBER_TYPE),
+        KafkaMessageListener::logFailedEvent);
+      return null;
+    }));
+  }
+
+  @KafkaListener(
     id = KafkaConstants.LOCATION_LISTENER_ID,
     containerFactory = "resourceListenerContainerFactory",
     groupId = "#{folioKafkaProperties.listener['location'].groupId}",

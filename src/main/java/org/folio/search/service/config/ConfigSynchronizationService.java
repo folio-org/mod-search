@@ -1,6 +1,7 @@
 package org.folio.search.service.config;
 
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.BrowseType;
 import org.folio.search.domain.dto.ResourceEvent;
@@ -18,10 +19,16 @@ public class ConfigSynchronizationService {
     if (resourceEvent == null || resourceEvent.isEmpty()) {
       return;
     }
-    if (resourceType == ResourceType.CLASSIFICATION_TYPE) {
-      var ids = resourceEvent.stream().map(ResourceEvent::getId).toList();
-      configService.deleteTypeIdsFromConfigs(BrowseType.INSTANCE_CLASSIFICATION, ids);
-    }
+
+    Optional.ofNullable(resourceType)
+      .map(resource -> switch (resourceType) {
+        case CLASSIFICATION_TYPE -> BrowseType.CLASSIFICATION;
+        case CALL_NUMBER_TYPE -> BrowseType.CALL_NUMBER;
+        default -> null; })
+      .ifPresent(browseType -> {
+        var ids = resourceEvent.stream().map(ResourceEvent::getId).toList();
+        configService.deleteTypeIdsFromConfigs(browseType, ids);
+      });
   }
 
 }

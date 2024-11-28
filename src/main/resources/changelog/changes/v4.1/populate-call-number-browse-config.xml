@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="MSEARCH-863@@populate_call_number_browse_config" author="viacheslav_kolesnyk">
+        <preConditions>
+            <tableExists tableName="browse_config"/>
+        </preConditions>
+
+        <comment>Populate browse_config table with default call number values</comment>
+
+        <insert tableName="browse_config">
+            <column name="browse_type" value="instance-call-number"/>
+            <column name="browse_option_type" value="all"/>
+            <column name="shelving_algorithm" value="default"/>
+        </insert>
+        <insert tableName="browse_config">
+            <column name="browse_type" value="instance-call-number"/>
+            <column name="browse_option_type" value="lc"/>
+            <column name="shelving_algorithm" value="lc"/>
+        </insert>
+        <insert tableName="browse_config">
+            <column name="browse_type" value="instance-call-number"/>
+            <column name="browse_option_type" value="dewey"/>
+            <column name="shelving_algorithm" value="dewey"/>
+        </insert>
+        <insert tableName="browse_config">
+            <column name="browse_type" value="instance-call-number"/>
+            <column name="browse_option_type" value="nlm"/>
+            <column name="shelving_algorithm" value="nlm"/>
+        </insert>
+        <insert tableName="browse_config">
+            <column name="browse_type" value="instance-call-number"/>
+            <column name="browse_option_type" value="sudoc"/>
+            <column name="shelving_algorithm" value="sudoc"/>
+        </insert>
+        <insert tableName="browse_config">
+            <column name="browse_type" value="instance-call-number"/>
+            <column name="browse_option_type" value="other"/>
+            <column name="shelving_algorithm" value="other"/>
+        </insert>
+    </changeSet>
+
+
+</databaseChangeLog>

@@ -4,3 +4,6 @@ enum:
   - all
   - lc
   - dewey
+  - nlm
+  - sudoc
+  - other

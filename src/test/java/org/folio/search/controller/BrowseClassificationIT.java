@@ -154,7 +154,7 @@ class BrowseClassificationIT extends BaseIntegrationTest {
       .typeIds(typeIds);
 
     var stub = mockClassificationTypes(okapi.wireMockServer(), typeIds.toArray(new UUID[0]));
-    doPut(browseConfigPath(BrowseType.INSTANCE_CLASSIFICATION, BrowseOptionType.LC), config);
+    doPut(browseConfigPath(BrowseType.CLASSIFICATION, BrowseOptionType.LC), config);
     okapi.wireMockServer().removeStub(stub);
   }
 

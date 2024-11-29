@@ -118,23 +118,28 @@ public class KafkaMessageListener {
   }
 
   @KafkaListener(
-    id = KafkaConstants.CLASSIFICATION_TYPE_LISTENER_ID,
+    id = KafkaConstants.BROWSE_CONFIG_DATA_LISTENER_ID,
     containerFactory = "resourceListenerContainerFactory",
-    groupId = "#{folioKafkaProperties.listener['classification-type'].groupId}",
-    concurrency = "#{folioKafkaProperties.listener['classification-type'].concurrency}",
-    topicPattern = "#{folioKafkaProperties.listener['classification-type'].topicPattern}")
+    groupId = "#{folioKafkaProperties.listener['browse-config-data'].groupId}",
+    concurrency = "#{folioKafkaProperties.listener['browse-config-data'].concurrency}",
+    topicPattern = "#{folioKafkaProperties.listener['browse-config-data'].topicPattern}")
   @CacheEvict(cacheNames = REFERENCE_DATA_CACHE, allEntries = true)
-  public void handleClassificationTypeEvents(List<ConsumerRecord<String, ResourceEvent>> consumerRecords) {
-    log.info("Processing classification-type events from Kafka [number of events: {}]", consumerRecords.size());
+  public void handleBrowseConfigDataEvents(List<ConsumerRecord<String, ResourceEvent>> consumerRecords) {
+    log.info("Processing browse config data events from Kafka [number of events: {}]", consumerRecords.size());
     var batch = consumerRecords.stream()
       .map(ConsumerRecord::value)
-      .filter(resourceEvent -> resourceEvent.getType() == DELETE).toList();
+      .filter(resourceEvent -> resourceEvent.getType() == DELETE)
+      .toList();
 
     var batchByTenant = batch.stream().collect(Collectors.groupingBy(ResourceEvent::getTenant));
 
     batchByTenant.forEach((tenant, resourceEvents) -> executionService.executeSystemUserScoped(tenant, () -> {
       folioMessageBatchProcessor.consumeBatchWithFallback(batch, KAFKA_RETRY_TEMPLATE_NAME,
-        resourceEvent -> configSynchronizationService.sync(resourceEvent, ResourceType.CLASSIFICATION_TYPE),
+        resourceEvent -> {
+          var eventsByResource = resourceEvent.stream().collect(Collectors.groupingBy(ResourceEvent::getResourceName));
+          eventsByResource.forEach((resourceName, events) ->
+            configSynchronizationService.sync(resourceEvent, ResourceType.byName(resourceName)));
+        },
         KafkaMessageListener::logFailedEvent);
       return null;
     }));

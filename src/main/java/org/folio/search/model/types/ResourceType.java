@@ -10,6 +10,7 @@ public enum ResourceType {
   BOUND_WITH("bound_with"),
   CAMPUS("campus"),
   CLASSIFICATION_TYPE("classification-type"),
+  CALL_NUMBER_TYPE("call-number-type"),
   HOLDINGS("holdings"),
   INSTANCE("instance"),
   INSTANCE_CONTRIBUTOR("contributor"),

@@ -3,4 +3,6 @@ type: string
 enum:
   - lc
   - dewey
+  - nlm
+  - sudoc
   - default

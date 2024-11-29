@@ -2,10 +2,11 @@ package org.folio.search.service.config;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.client.InventoryReferenceDataClient.ReferenceDataType.CALL_NUMBER_TYPES;
 import static org.folio.search.client.InventoryReferenceDataClient.ReferenceDataType.CLASSIFICATION_TYPES;
 import static org.folio.search.domain.dto.BrowseOptionType.ALL;
 import static org.folio.search.domain.dto.BrowseOptionType.LC;
-import static org.folio.search.domain.dto.BrowseType.INSTANCE_CLASSIFICATION;
+import static org.folio.search.domain.dto.BrowseType.CLASSIFICATION;
 import static org.folio.search.model.client.CqlQueryParam.ID;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import org.folio.search.client.InventoryReferenceDataClient.ReferenceDataType;
 import org.folio.search.converter.BrowseConfigMapper;
 import org.folio.search.domain.dto.BrowseConfig;
 import org.folio.search.domain.dto.BrowseConfigCollection;
@@ -37,6 +39,8 @@ import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -57,14 +61,12 @@ class BrowseConfigServiceTest {
   @InjectMocks
   private BrowseConfigService service;
 
-  private BrowseType type;
   private BrowseOptionType configId;
   private BrowseConfig config;
   private List<String> typeIds;
 
   @BeforeEach
   void setUp() {
-    type = INSTANCE_CLASSIFICATION;
     configId = LC;
     typeIds = List.of(randomId(), randomId());
     config = new BrowseConfig()
@@ -73,10 +75,11 @@ class BrowseConfigServiceTest {
       .typeIds(typeIds.stream().map(UUID::fromString).toList());
   }
 
-  @Test
-  void shouldGetConfigs() {
-    List<BrowseConfigEntity> entities = List.of(getEntity());
-    BrowseConfigCollection configs = new BrowseConfigCollection().addConfigsItem(config);
+  @EnumSource(BrowseType.class)
+  @ParameterizedTest
+  void shouldGetConfigs(BrowseType type) {
+    var entities = List.of(getEntity(type));
+    var configs = new BrowseConfigCollection().addConfigsItem(config);
     given(repository.findByConfigId_BrowseType(type.getValue())).willReturn(entities);
     given(mapper.convert(entities)).willReturn(configs);
 
@@ -86,10 +89,11 @@ class BrowseConfigServiceTest {
     verify(repository).findByConfigId_BrowseType(type.getValue());
   }
 
-  @Test
-  void shouldGetConfig() {
-    var browseConfigId = new BrowseConfigId("instance-classification", "lc");
-    var configEntity = getEntity();
+  @EnumSource(BrowseType.class)
+  @ParameterizedTest
+  void shouldGetConfig(BrowseType type) {
+    var browseConfigId = new BrowseConfigId(type.getValue(), "lc");
+    var configEntity = getEntity(type);
     given(repository.findById(browseConfigId)).willReturn(Optional.of(configEntity));
     given(mapper.convert(configEntity)).willReturn(config);
 
@@ -99,8 +103,9 @@ class BrowseConfigServiceTest {
     verify(repository).findById(browseConfigId);
   }
 
-  @Test
-  void shouldThrowExceptionIfConfigNotExists() {
+  @EnumSource(BrowseType.class)
+  @ParameterizedTest
+  void shouldThrowExceptionIfConfigNotExists(BrowseType type) {
     given(repository.findById(any())).willReturn(Optional.empty());
 
     var exception = assertThrows(IllegalStateException.class, () -> service.getConfig(type, configId));
@@ -110,11 +115,12 @@ class BrowseConfigServiceTest {
     assertTrue(exception.getMessage().contains(expectedMessage));
   }
 
-  @Test
-  void shouldUpsertConfigWhenFitAllValidations() {
-    var entity = getEntity();
+  @EnumSource(BrowseType.class)
+  @ParameterizedTest
+  void shouldUpsertConfigWhenFitAllValidations(BrowseType type) {
+    var entity = getEntity(type);
     given(mapper.convert(type, config)).willReturn(entity);
-    given(referenceDataService.fetchReferenceData(CLASSIFICATION_TYPES, ID, new HashSet<>(typeIds)))
+    given(referenceDataService.fetchReferenceData(referenceDataType(type), ID, new HashSet<>(typeIds)))
       .willReturn(new HashSet<>(typeIds));
 
     assertDoesNotThrow(() -> service.upsertConfig(type, configId, config));
@@ -125,29 +131,32 @@ class BrowseConfigServiceTest {
   void shouldThrowExceptionWhenConfigIdNotMatches() {
     config.setId(ALL);
 
-    var exception = assertThrows(RequestValidationException.class, () -> service.upsertConfig(type, configId, config));
+    var exception = assertThrows(RequestValidationException.class,
+      () -> service.upsertConfig(CLASSIFICATION, configId, config));
 
     assertThat(exception)
       .hasMessage("Body doesn't match path parameter: %s", configId.getValue());
     verifyNoInteractions(repository);
   }
 
-  @Test
-  void shouldThrowExceptionWhenIdIsNotInReferenceData() {
-    given(referenceDataService.fetchReferenceData(CLASSIFICATION_TYPES, ID, new HashSet<>(typeIds)))
+  @EnumSource(BrowseType.class)
+  @ParameterizedTest
+  void shouldThrowExceptionWhenIdIsNotInReferenceData(BrowseType type) {
+    given(referenceDataService.fetchReferenceData(referenceDataType(type), ID, new HashSet<>(typeIds)))
       .willReturn(Set.of(typeIds.get(0)));
 
     var exception = assertThrows(RequestValidationException.class, () -> service.upsertConfig(type, configId, config));
 
     assertThat(exception)
-      .hasMessage("Classification type IDs don't exist");
+      .hasMessage(type.getValue() + " type IDs don't exist");
 
     verifyNoInteractions(repository);
   }
 
-  @Test
-  void shouldDeleteTypeIdsFromConfigs() {
-    List<BrowseConfigEntity> entities = List.of(getEntity(), getEntity());
+  @EnumSource(BrowseType.class)
+  @ParameterizedTest
+  void shouldDeleteTypeIdsFromConfigs(BrowseType type) {
+    var entities = List.of(getEntity(type), getEntity(type));
     given(repository.findByConfigId_BrowseType(type.getValue())).willReturn(entities);
     ArgumentCaptor<List<BrowseConfigEntity>> captor = ArgumentCaptor.captor();
     given(repository.saveAll(captor.capture())).willReturn(emptyList());
@@ -160,11 +169,15 @@ class BrowseConfigServiceTest {
     }
   }
 
-  private static BrowseConfigEntity getEntity() {
+  private static BrowseConfigEntity getEntity(BrowseType type) {
     var configEntity = new BrowseConfigEntity();
-    configEntity.setConfigId(new BrowseConfigId(INSTANCE_CLASSIFICATION.getValue(), LC.getValue()));
+    configEntity.setConfigId(new BrowseConfigId(type.getValue(), LC.getValue()));
     configEntity.setShelvingAlgorithm(ShelvingOrderAlgorithmType.LC.getValue());
     configEntity.setTypeIds(List.of("e1", "e2"));
     return configEntity;
+  }
+
+  private ReferenceDataType referenceDataType(BrowseType browseType) {
+    return CLASSIFICATION.equals(browseType) ? CLASSIFICATION_TYPES : CALL_NUMBER_TYPES;
   }
 }

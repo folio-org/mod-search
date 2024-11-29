@@ -488,7 +488,8 @@
           ],
           "modulePermissions": [
             "user-tenants.collection.get",
-            "inventory-storage.classification-types.collection.get"
+            "inventory-storage.classification-types.collection.get",
+            "inventory-storage.call-number-types.collection.get"
           ]
         }
       ]

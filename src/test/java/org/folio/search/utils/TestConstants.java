@@ -33,6 +33,7 @@ public class TestConstants {
   public static final String INVENTORY_HOLDING_TOPIC = "inventory.holdings-record";
   public static final String INVENTORY_BOUND_WITH_TOPIC = "inventory.bound-with";
   public static final String INVENTORY_CLASSIFICATION_TYPE_TOPIC = "inventory.classification-type";
+  public static final String INVENTORY_CALL_NUMBER_TYPE_TOPIC = "inventory.call-number-type";
   public static final String LINKED_DATA_WORK_INSTANCE = "linked-data.instance";
   public static final String LINKED_DATA_WORK_TOPIC = "linked-data.work";
   public static final String LINKED_DATA_HUB_TOPIC = "linked-data.hub";
@@ -107,6 +108,14 @@ public class TestConstants {
     return getTopicName(tenantId, INVENTORY_CLASSIFICATION_TYPE_TOPIC);
   }
 
+  public static String inventoryCallNumberTopic() {
+    return inventoryCallNumberTopic(TENANT_ID);
+  }
+
+  public static String inventoryCallNumberTopic(String tenantId) {
+    return getTopicName(tenantId, INVENTORY_CALL_NUMBER_TYPE_TOPIC);
+  }
+
   public static String inventoryContributorTopic() {
     return inventoryContributorTopic(TENANT_ID);
   }
@@ -149,6 +158,10 @@ public class TestConstants {
 
   public static String indexName(String tenantId) {
     return String.join("_", ENV, ResourceType.INSTANCE.getName(), tenantId);
+  }
+
+  public static String getTopicName(String topic) {
+    return String.format("%s.%s.%s", getFolioEnvName(), TENANT_ID, topic);
   }
 
   private static String getTopicName(String tenantId, String topic) {

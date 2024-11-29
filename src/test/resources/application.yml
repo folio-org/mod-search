@@ -101,6 +101,9 @@ folio:
       - name: inventory.classification-type
         numPartitions: 1
         replicationFactor: 1
+      - name: inventory.call-number-type
+        numPartitions: 1
+        replicationFactor: 1
       - name: inventory.location
         numPartitions: 1
         replicationFactor: 1
@@ -143,10 +146,10 @@ folio:
         concurrency: 1
         topic-pattern: (${folio.environment}\.)(.*\.)authorities\.authority
         group-id: ${folio.environment}-mod-search-authorities-group
-      classification-type:
+      browse-config-data:
         concurrency: 1
-        topic-pattern: (${folio.environment}\.)(.*\.)inventory\.classification-type
-        group-id: ${folio.environment}-mod-search-classification-type-group
+        topic-pattern: (${folio.environment}\.)(.*\.)inventory\.(classification-type|call-number-type)
+        group-id: ${folio.environment}-mod-search-browse-config-data-group
       location:
         concurrency: 1
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.(location|campus|institution|library)

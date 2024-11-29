@@ -15,6 +15,7 @@ import org.folio.search.model.entity.ChildResourceEntityBatch;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -94,36 +95,53 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
     return null;
   }
 
-  private void saveRelationshipEntities(ChildResourceEntityBatch entityBatch) {
-    var instanceCallNumberTable = getFullTableName(context, INSTANCE_CALL_NUMBER_TABLE);
-    var instanceCallNumberSql = INSERT_RELATIONS_SQL.formatted(instanceCallNumberTable);
-
-    jdbcTemplate.batchUpdate(instanceCallNumberSql, entityBatch.relationshipEntities(), BATCH_OPERATION_SIZE,
-      (statement, entity) -> {
-        statement.setString(1, getCallNumberId(entity));
-        statement.setString(2, getItemId(entity));
-        statement.setString(3, getInstanceId(entity));
-        statement.setString(4, getTenantId(entity));
-        statement.setString(5, getLocationId(entity));
-      });
-  }
-
   private void saveResourceEntities(ChildResourceEntityBatch entityBatch) {
     var callNumberTable = getFullTableName(context, entityTable());
     var callNumberSql = INSERT_ENTITIES_SQL.formatted(callNumberTable);
 
-    jdbcTemplate.batchUpdate(callNumberSql, entityBatch.resourceEntities(), BATCH_OPERATION_SIZE,
-      (statement, entity) -> {
-        statement.setString(1, getId(entity));
-        statement.setString(2, getCallNumber(entity));
-        statement.setString(3, getPrefix(entity));
-        statement.setString(4, getSuffix(entity));
-        statement.setString(5, getTypeId(entity));
-        statement.setString(6, getVolume(entity));
-        statement.setString(7, getEnumeration(entity));
-        statement.setString(8, getChronology(entity));
-        statement.setString(9, getCopyNumber(entity));
-      });
+    try {
+      jdbcTemplate.batchUpdate(callNumberSql, entityBatch.resourceEntities(), BATCH_OPERATION_SIZE,
+        (statement, entity) -> {
+          statement.setString(1, getId(entity));
+          statement.setString(2, getCallNumber(entity));
+          statement.setString(3, getPrefix(entity));
+          statement.setString(4, getSuffix(entity));
+          statement.setString(5, getTypeId(entity));
+          statement.setString(6, getVolume(entity));
+          statement.setString(7, getEnumeration(entity));
+          statement.setString(8, getChronology(entity));
+          statement.setString(9, getCopyNumber(entity));
+        });
+    } catch (DataAccessException e) {
+      log.warn("saveAll::Failed to save entities batch. Starting processing one-by-one", e);
+      for (var entity : entityBatch.resourceEntities()) {
+        jdbcTemplate.update(callNumberSql,
+          getId(entity), getCallNumber(entity), getPrefix(entity), getSuffix(entity), getTypeId(entity),
+          getVolume(entity), getEnumeration(entity), getChronology(entity), getCopyNumber(entity));
+      }
+    }
+  }
+
+  private void saveRelationshipEntities(ChildResourceEntityBatch entityBatch) {
+    var instanceCallNumberTable = getFullTableName(context, INSTANCE_CALL_NUMBER_TABLE);
+    var instanceCallNumberSql = INSERT_RELATIONS_SQL.formatted(instanceCallNumberTable);
+
+    try {
+      jdbcTemplate.batchUpdate(instanceCallNumberSql, entityBatch.relationshipEntities(), BATCH_OPERATION_SIZE,
+        (statement, entity) -> {
+          statement.setString(1, getCallNumberId(entity));
+          statement.setString(2, getItemId(entity));
+          statement.setString(3, getInstanceId(entity));
+          statement.setString(4, getTenantId(entity));
+          statement.setString(5, getLocationId(entity));
+        });
+    } catch (DataAccessException e) {
+      log.warn("saveAll::Failed to save relations batch. Starting processing one-by-one", e);
+      for (var entityRelation : entityBatch.relationshipEntities()) {
+        jdbcTemplate.update(instanceCallNumberSql, getCallNumberId(entityRelation), getItemId(entityRelation),
+          getInstanceId(entityRelation), getTenantId(entityRelation), getLocationId(entityRelation));
+      }
+    }
   }
 
   private String getCallNumber(Map<String, Object> callNumberComponents) {

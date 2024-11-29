@@ -13,6 +13,7 @@ import static org.folio.search.utils.SearchUtils.CLASSIFICATION_TYPE_FIELD;
 import static org.folio.search.utils.SearchUtils.prepareForExpectedFormat;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -137,11 +138,11 @@ public class ClassificationResourceExtractor extends ChildResourceExtractor {
   @Override
   protected Map<String, Object> constructEntity(Map<String, Object> entityProperties) {
     if (!featureConfigService.isEnabled(TenantConfiguredFeature.BROWSE_CLASSIFICATIONS)) {
-      return null;
+      return Collections.emptyMap();
     }
     var classificationNumber = prepareForExpectedFormat(entityProperties.get(CLASSIFICATION_NUMBER_FIELD), 50);
     if (classificationNumber.isEmpty()) {
-      return null;
+      return Collections.emptyMap();
     }
 
     var classificationTypeId = entityProperties.get(CLASSIFICATION_TYPE_FIELD);

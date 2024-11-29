@@ -75,12 +75,13 @@ public class CallNumberResourceExtractor extends ChildResourceExtractor {
   @Override
   protected List<Map<String, Object>> constructRelations(boolean shared, ResourceEvent event,
                                                          List<Map<String, Object>> entities) {
+    var resourceMap = getNewAsMap(event);
     return entities.stream()
       .map(entity -> InstanceCallNumberEntity.builder()
         .callNumberId(getString(entity, "id"))
-        .itemId(getString(getNewAsMap(event), "id"))
-        .instanceId(getString(getNewAsMap(event), "instanceId"))
-        .locationId(getString(getNewAsMap(event), "effectiveLocationId"))
+        .itemId(getString(resourceMap, "id"))
+        .instanceId(getString(resourceMap, "instanceId"))
+        .locationId(getString(resourceMap, "effectiveLocationId"))
         .tenantId(event.getTenant())
         .build())
       .map(jsonConverter::convertToMap)
@@ -90,11 +91,9 @@ public class CallNumberResourceExtractor extends ChildResourceExtractor {
   @Override
   protected Map<String, Object> constructEntity(Map<String, Object> entityProperties) {
     if (!featureConfigService.isEnabled(TenantConfiguredFeature.BROWSE_CALL_NUMBERS)) {
-      return null;
+      return Collections.emptyMap();
     }
-    var callNumberComponents =
-      (Map<String, Object>) getMap(entityProperties, EFFECTIVE_CALL_NUMBER_COMPONENTS_FIELD,
-        Collections.<String, Object>emptyMap());
+    var callNumberComponents = getCallNumberComponents(entityProperties);
     var callNumber = getString(callNumberComponents, CALL_NUMBER_FIELD);
     if (callNumber != null) {
       var callNumberEntity = CallNumberEntity.builder()
@@ -109,7 +108,13 @@ public class CallNumberResourceExtractor extends ChildResourceExtractor {
         .build();
       return jsonConverter.convertToMap(callNumberEntity);
     }
-    return null;
+    return Collections.emptyMap();
+  }
+
+  @SuppressWarnings("unchecked")
+  private Map<String, Object> getCallNumberComponents(Map<String, Object> entityProperties) {
+    return (Map<String, Object>) getMap(entityProperties, EFFECTIVE_CALL_NUMBER_COMPONENTS_FIELD,
+      Collections.<String, Object>emptyMap());
   }
 
   @Override

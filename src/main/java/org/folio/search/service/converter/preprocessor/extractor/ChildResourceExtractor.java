@@ -71,7 +71,7 @@ public abstract class ChildResourceExtractor {
     var entities = getChildResources(getNewAsMap(event));
     return entities.stream()
       .map(this::constructEntity)
-      .filter(Objects::nonNull)
+      .filter(obj -> Objects.nonNull(obj) && !obj.isEmpty())
       .toList();
   }
 

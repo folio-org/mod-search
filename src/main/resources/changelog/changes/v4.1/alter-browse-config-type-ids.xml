@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
+
+  <changeSet id="MSEARCH-890@@alter-browse_config-type_ids" author="viacheslav_kolesnyk">
+    <preConditions>
+      <tableExists tableName="browse_config"/>
+    </preConditions>
+
+    <sql>
+      ALTER TABLE browse_config
+      ALTER COLUMN type_ids TYPE varchar(36)[] USING
+      CASE WHEN type_ids = null OR type_ids = '[null]' THEN null
+      ELSE string_to_array(type_ids, ';')
+      END;
+    </sql>
+  </changeSet>
+</databaseChangeLog>

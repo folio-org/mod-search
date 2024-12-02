@@ -14,6 +14,7 @@ import static org.opensearch.search.sort.SortOrder.DESC;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.domain.dto.BrowseConfig;
 import org.folio.search.domain.dto.BrowseType;
 import org.folio.search.domain.dto.ClassificationNumberBrowseItem;
@@ -104,14 +105,15 @@ public class ClassificationBrowseService
 
   private static QueryBuilder getQuery(BrowseContext ctx, BrowseConfig config, TermQueryBuilder anchorQuery) {
     var typeIds = config.getTypeIds();
-    if (config.getTypeIds().isEmpty() && ctx.getFilters().isEmpty()) {
+    var typeIdsEmpty = CollectionUtils.isEmpty(config.getTypeIds());
+    if (typeIdsEmpty && ctx.getFilters().isEmpty()) {
       if (anchorQuery != null) {
         return anchorQuery;
       }
       return matchAllQuery();
     } else {
       var boolQueryMain = boolQuery();
-      if (!config.getTypeIds().isEmpty()) {
+      if (!typeIdsEmpty) {
         var boolQuery = boolQuery();
         for (var typeId : typeIds) {
           boolQuery.should(termQuery(CLASSIFICATION_TYPE_ID_FIELD, typeId.toString()));

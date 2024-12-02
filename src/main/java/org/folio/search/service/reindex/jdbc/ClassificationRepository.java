@@ -14,9 +14,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
+import org.folio.search.model.entity.ChildResourceEntityBatch;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.reindex.ReindexConstants;
 import org.folio.search.utils.JdbcUtils;
@@ -219,10 +219,10 @@ public class ClassificationRepository extends UploadRangeRepository implements I
   }
 
   @Override
-  public void saveAll(Set<Map<String, Object>> entities, List<Map<String, Object>> entityRelations) {
+  public void saveAll(ChildResourceEntityBatch entityBatch) {
     var entitiesSql = INSERT_ENTITIES_SQL.formatted(JdbcUtils.getSchemaName(context));
     try {
-      jdbcTemplate.batchUpdate(entitiesSql, entities, BATCH_OPERATION_SIZE,
+      jdbcTemplate.batchUpdate(entitiesSql, entityBatch.resourceEntities(), BATCH_OPERATION_SIZE,
         (statement, entity) -> {
           statement.setString(1, (String) entity.get("id"));
           statement.setString(2, (String) entity.get(CLASSIFICATION_NUMBER_FIELD));
@@ -230,7 +230,7 @@ public class ClassificationRepository extends UploadRangeRepository implements I
         });
     } catch (DataAccessException e) {
       log.warn("saveAll::Failed to save entities batch. Starting processing one-by-one", e);
-      for (var entity : entities) {
+      for (var entity : entityBatch.resourceEntities()) {
         jdbcTemplate.update(entitiesSql,
           entity.get("id"), entity.get(CLASSIFICATION_NUMBER_FIELD), entity.get(CLASSIFICATION_TYPE_FIELD));
       }
@@ -238,7 +238,7 @@ public class ClassificationRepository extends UploadRangeRepository implements I
 
     var relationsSql = INSERT_RELATIONS_SQL.formatted(JdbcUtils.getSchemaName(context));
     try {
-      jdbcTemplate.batchUpdate(relationsSql, entityRelations, BATCH_OPERATION_SIZE,
+      jdbcTemplate.batchUpdate(relationsSql, entityBatch.relationshipEntities(), BATCH_OPERATION_SIZE,
         (statement, entityRelation) -> {
           statement.setObject(1, entityRelation.get("instanceId"));
           statement.setString(2, (String) entityRelation.get("classificationId"));
@@ -247,7 +247,7 @@ public class ClassificationRepository extends UploadRangeRepository implements I
         });
     } catch (DataAccessException e) {
       log.warn("saveAll::Failed to save relations batch. Starting processing one-by-one", e);
-      for (var entityRelation : entityRelations) {
+      for (var entityRelation : entityBatch.relationshipEntities()) {
         jdbcTemplate.update(relationsSql, entityRelation.get("instanceId"), entityRelation.get("classificationId"),
           entityRelation.get("tenantId"), entityRelation.get("shared"));
       }

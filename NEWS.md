@@ -8,6 +8,7 @@
 
 ### Features
 * Move Instance sub-entities population from database trigger to code ([MSEARCH-887](https://folio-org.atlassian.net/browse/MSEARCH-887))
+* Call Numbers Browse: Implement Database Structure and Logic for Managing Call Numbers ([MSEARCH-862](https://folio-org.atlassian.net/browse/MSEARCH-862))
 
 ### Bug fixes
 * Remove shelving order calculation for local call-number types

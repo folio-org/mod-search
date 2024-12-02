@@ -53,6 +53,7 @@ folio:
       browse-cn-intermediate-values: true
       browse-cn-intermediate-remove-duplicates: true
       browse-classifications: true
+      browse-call-numbers: true
     indexing:
       data-format: ${INDEXING_DATA_FORMAT:json}
   reindex:

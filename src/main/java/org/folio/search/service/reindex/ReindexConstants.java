@@ -10,15 +10,19 @@ public final class ReindexConstants {
 
   public static final Map<ReindexEntityType, ResourceType> RESOURCE_NAME_MAP = Map.of(
     ReindexEntityType.INSTANCE, ResourceType.INSTANCE,
+    ReindexEntityType.ITEM, ResourceType.ITEM,
+    ReindexEntityType.HOLDINGS, ResourceType.HOLDINGS,
     ReindexEntityType.SUBJECT, ResourceType.INSTANCE_SUBJECT,
     ReindexEntityType.CLASSIFICATION, ResourceType.INSTANCE_CLASSIFICATION,
     ReindexEntityType.CONTRIBUTOR, ResourceType.INSTANCE_CONTRIBUTOR
   );
 
+  public static final String CALL_NUMBER_TABLE = "call_number";
   public static final String CLASSIFICATION_TABLE = "classification";
   public static final String CONTRIBUTOR_TABLE = "contributor";
   public static final String HOLDING_TABLE = "holding";
   public static final String INSTANCE_TABLE = "instance";
+  public static final String INSTANCE_CALL_NUMBER_TABLE = "instance_call_number";
   public static final String INSTANCE_CLASSIFICATION_TABLE = "instance_classification";
   public static final String INSTANCE_CONTRIBUTOR_TABLE = "instance_contributor";
   public static final String INSTANCE_SUBJECT_TABLE = "instance_subject";

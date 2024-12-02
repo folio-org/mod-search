@@ -5,3 +5,4 @@ enum:
   - browse.cn.intermediate.values
   - browse.cn.intermediate.remove.duplicates
   - browse.classifications
+  - browse.call-numbers

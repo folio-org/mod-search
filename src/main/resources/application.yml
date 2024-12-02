@@ -13,10 +13,10 @@ spring:
   opensearch:
     username: ${ELASTICSEARCH_USERNAME:}
     password: ${ELASTICSEARCH_PASSWORD:}
-    uris: ${ELASTICSEARCH_URL:http://elasticsearch:9200}
+    uris: ${ELASTICSEARCH_URL:http://localhost:9200}
     compression-enabled: ${ELASTICSEARCH_COMPRESSION_ENABLED:true}
   kafka:
-    bootstrap-servers: ${KAFKA_HOST:kafka}:${KAFKA_PORT:9092}
+    bootstrap-servers: ${KAFKA_HOST:localhost}:${KAFKA_PORT:9092}
     consumer:
       max-poll-records: ${KAFKA_CONSUMER_MAX_POLL_RECORDS:200}
       properties:
@@ -35,9 +35,9 @@ spring:
         max.in.flight.requests.per.connection: 5
         retries: 5
   datasource:
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:postgres}
-    url: jdbc:postgresql://${DB_HOST:postgres}:${DB_PORT:5432}/${DB_DATABASE:okapi_modules}
+    username: ${DB_USERNAME:folio_admin}
+    password: ${DB_PASSWORD:folio_admin}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_DATABASE:okapi_modules}
     hikari:
       data-source-properties:
         reWriteBatchedInserts: true
@@ -71,6 +71,7 @@ folio:
       browse-cn-intermediate-values: ${BROWSE_CN_INTERMEDIATE_VALUES_ENABLED:true}
       browse-cn-intermediate-remove-duplicates: ${BROWSE_CN_INTERMEDIATE_REMOVE_DUPLICATES:true}
       browse-classifications: ${BROWSE_CLASSIFICATIONS_ENABLED:true}
+      browse-call-numbers: ${BROWSE_CALL_NUMBERS_ENABLED:true}
     indexing:
       data-format: ${INDEXING_DATA_FORMAT:smile}
   reindex:
@@ -152,7 +153,7 @@ folio:
         group-id: ${folio.environment}-mod-search-index-sub-resource-group
         max-poll-records: ${KAFKA_CONSUMER_INDEX_SUB_RESOURCE_MAX_POLL_RECORDS:200}
         max-poll-interval-ms: ${KAFKA_CONSUMER_INDEX_SUB_RESOURCE_MAX_POLL_INTERVAL_MS:600000}
-  okapiUrl: ${okapi.url}
+  okapiUrl: ${okapi.url:http://localhost:9130}
   logging:
     request:
       enabled: true

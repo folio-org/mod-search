@@ -36,6 +36,11 @@ public class ItemRepository extends MergeRangeRepository {
   }
 
   @Override
+  protected String entityTable() {
+    return ReindexConstants.ITEM_TABLE;
+  }
+
+  @Override
   public void saveEntities(String tenantId, List<Map<String, Object>> entities) {
     var fullTableName = getFullTableName(context, entityTable());
     var sql = INSERT_SQL.formatted(fullTableName);
@@ -48,10 +53,7 @@ public class ItemRepository extends MergeRangeRepository {
         statement.setObject(4, entity.get("holdingsRecordId"));
         statement.setString(5, jsonConverter.toJson(entity));
       });
+
   }
 
-  @Override
-  protected String entityTable() {
-    return ReindexConstants.ITEM_TABLE;
-  }
 }

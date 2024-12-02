@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+  <changeSet id="MSEARCH-862@@create-table:call_number" author="Pavlo_Smahin">
+    <preConditions>
+      <not>
+        <tableExists tableName="call_number"/>
+      </not>
+    </preConditions>
+
+    <comment>Create call_number table</comment>
+
+    <createTable tableName="call_number">
+      <column name="id" type="VARCHAR(40)">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_call_number"/>
+      </column>
+      <column name="call_number" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="call_number_prefix" type="VARCHAR(20)"/>
+      <column name="call_number_suffix" type="VARCHAR(25)"/>
+      <column name="call_number_type_id" type="VARCHAR(40)"/>
+      <column name="volume" type="VARCHAR(50)"/>
+      <column name="enumeration" type="VARCHAR(50)"/>
+      <column name="chronology" type="VARCHAR(50)"/>
+      <column name="copy_number" type="VARCHAR(10)"/>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="MSEARCH-862@@create-table:instance_call_number" author="Pavlo_Smahin">
+    <preConditions>
+      <not>
+        <tableExists tableName="instance_call_number"/>
+      </not>
+    </preConditions>
+
+    <comment>Create instance_call_number table</comment>
+
+    <createTable tableName="instance_call_number">
+      <column name="call_number_id" type="VARCHAR(40)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="item_id" type="UUID">
+        <constraints nullable="false"/>
+      </column>
+      <column name="instance_id" type="UUID">
+        <constraints nullable="false"/>
+      </column>
+      <column name="tenant_id" type="VARCHAR(100)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="location_id" type="UUID"/>
+    </createTable>
+
+    <addPrimaryKey tableName="instance_call_number"
+                   columnNames="call_number_id, item_id, instance_id, tenant_id"/>
+
+  </changeSet>
+
+</databaseChangeLog>

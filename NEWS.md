@@ -17,6 +17,7 @@
 * Remove shelving order calculation for local call-number types
 * Use keyword_icu instead of keyword_lowercase for fulltext fields plain values ([MSEARCH-857](https://folio-org.atlassian.net/browse/MSEARCH-857))
 * Populate typeId and sourceId on subjects re-indexing ([MSEARCH-891](https://folio-org.atlassian.net/browse/MSEARCH-891))
+* Change browse_config type_ids column type from varchar to array ([MSEARCH-890](https://folio-org.atlassian.net/browse/MSEARCH-890))
 
 ### Tech Dept
 * Description ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))

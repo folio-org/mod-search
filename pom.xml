@@ -222,17 +222,6 @@
       <artifactId>folio-isbn-util</artifactId>
       <version>${folio-isbn-utils.version}</version>
     </dependency>
-    <!--todo: remove 2 following dependencies after https://folio-org.atlassian.net/browse/ISBNUTIL-25-->
-    <dependency>
-      <groupId>com.github.ladutsko</groupId>
-      <artifactId>isbn-core</artifactId>
-      <version>1.5.3</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-validator</groupId>
-      <artifactId>commons-validator</artifactId>
-      <version>1.9.0</version>
-    </dependency>
 
     <dependency>
       <groupId>org.folio</groupId>

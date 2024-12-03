@@ -6,6 +6,7 @@ import static org.folio.search.configuration.SearchCacheNames.BROWSE_CONFIG_CACH
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.NonNull;
@@ -81,7 +82,9 @@ public class BrowseConfigService {
     }
     var configs = repository.findByConfigId_BrowseType(type.getValue());
     for (BrowseConfigEntity config : configs) {
-      var newTypeIds = new ArrayList<>(config.getTypeIds());
+      var newTypeIds = Optional.ofNullable(config.getTypeIds())
+        .map(ArrayList::new)
+        .orElse(new ArrayList<>());
       newTypeIds.removeAll(typeIds);
       config.setTypeIds(newTypeIds);
     }

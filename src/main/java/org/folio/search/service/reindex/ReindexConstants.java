@@ -14,7 +14,8 @@ public final class ReindexConstants {
     ReindexEntityType.HOLDINGS, ResourceType.HOLDINGS,
     ReindexEntityType.SUBJECT, ResourceType.INSTANCE_SUBJECT,
     ReindexEntityType.CLASSIFICATION, ResourceType.INSTANCE_CLASSIFICATION,
-    ReindexEntityType.CONTRIBUTOR, ResourceType.INSTANCE_CONTRIBUTOR
+    ReindexEntityType.CONTRIBUTOR, ResourceType.INSTANCE_CONTRIBUTOR,
+    ReindexEntityType.CALL_NUMBER, ResourceType.INSTANCE_CALL_NUMBER
   );
 
   public static final String CALL_NUMBER_TABLE = "call_number";

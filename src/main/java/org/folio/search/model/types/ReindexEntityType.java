@@ -12,7 +12,7 @@ public enum ReindexEntityType {
   SUBJECT("subject", false, true),
   CONTRIBUTOR("contributor", false, true),
   CLASSIFICATION("classification", false, true),
-  CALL_NUMBER("call-number", false, true),
+  CALL_NUMBER("call_number", false, true),
   ITEM("item", true, false),
   HOLDINGS("holdings", true, false);
 

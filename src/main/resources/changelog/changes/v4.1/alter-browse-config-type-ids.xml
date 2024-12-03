@@ -12,7 +12,7 @@
 
     <sql>
       ALTER TABLE browse_config
-      ALTER COLUMN type_ids TYPE varchar(36)[] USING
+      ALTER COLUMN type_ids TYPE char(36)[] USING
       CASE WHEN type_ids = null OR type_ids = '[null]' THEN null
       ELSE string_to_array(type_ids, ';')
       END;

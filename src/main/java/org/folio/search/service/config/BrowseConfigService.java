@@ -3,7 +3,7 @@ package org.folio.search.service.config;
 import static org.folio.search.client.InventoryReferenceDataClient.ReferenceDataType.CLASSIFICATION_TYPES;
 import static org.folio.search.configuration.SearchCacheNames.BROWSE_CONFIG_CACHE;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -82,8 +82,8 @@ public class BrowseConfigService {
     var configs = repository.findByConfigId_BrowseType(type.getValue());
     for (BrowseConfigEntity config : configs) {
       var newTypeIds = Optional.ofNullable(config.getTypeIds())
-        .map(LinkedList::new)
-        .orElse(new LinkedList<>());
+        .map(ArrayList::new)
+        .orElse(new ArrayList<>());
       newTypeIds.removeAll(typeIds);
       config.setTypeIds(newTypeIds);
     }

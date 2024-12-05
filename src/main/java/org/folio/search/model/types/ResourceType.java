@@ -15,6 +15,7 @@ public enum ResourceType {
   INSTANCE("instance"),
   INSTANCE_CONTRIBUTOR("contributor"),
   INSTANCE_CLASSIFICATION("instance_classification"),
+  INSTANCE_CALL_NUMBER("instance_call_number"),
   INSTANCE_SUBJECT("instance_subject"),
   INSTITUTION("institution"),
   ITEM("item"),

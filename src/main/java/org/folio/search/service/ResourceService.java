@@ -103,6 +103,7 @@ public class ResourceService {
 
   private Map<String, List<SearchDocumentBody>> processIndexInstanceEvents(List<ResourceEvent> resourceEvents) {
     var indexEvents = extractEventsForDataMove(resourceEvents);
+    preProcessEvents(indexEvents);
     var fetchedInstances = Optional.ofNullable(consortiumTenantExecutor.execute(
         () -> resourceFetchService.fetchInstancesByIds(indexEvents)))
       .orElse(Collections.emptyList()).stream()

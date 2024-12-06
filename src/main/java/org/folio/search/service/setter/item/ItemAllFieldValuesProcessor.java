@@ -1,6 +1,6 @@
 package org.folio.search.service.setter.item;
 
-import static org.apache.commons.collections.MapUtils.getObject;
+import static org.apache.commons.collections4.MapUtils.getObject;
 import static org.folio.search.utils.CollectionUtils.noneMatch;
 import static org.folio.search.utils.SearchUtils.INSTANCE_ITEM_FIELD_NAME;
 

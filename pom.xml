@@ -12,7 +12,7 @@
   <name>mod-search</name>
   <groupId>org.folio</groupId>
   <artifactId>mod-search</artifactId>
-  <version>4.0.2-SNAPSHOT</version>
+  <version>4.0.3-SNAPSHOT</version>
   <description>FOLIO search service</description>
   <packaging>jar</packaging>
 
@@ -38,7 +38,7 @@
     <folio-service-tools.version>4.1.1</folio-service-tools.version>
     <folio-isbn-utils.version>1.6.0</folio-isbn-utils.version>
     <folio-cql2pgjson.version>35.3.0</folio-cql2pgjson.version>
-    <opensearch.version>2.17.1</opensearch.version>
+    <opensearch.version>2.18.0</opensearch.version>
     <mapstruct.version>1.6.2</mapstruct.version>
     <apache-commons-io.version>2.17.0</apache-commons-io.version>
     <apache-commons-collections.version>4.4</apache-commons-collections.version>

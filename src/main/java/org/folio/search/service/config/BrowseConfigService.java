@@ -58,8 +58,7 @@ public class BrowseConfigService {
         "Config for %s type %s must be present in database".formatted(typeValue, optionTypeValue)));
   }
 
-  @CacheEvict(cacheNames = BROWSE_CONFIG_CACHE,
-              key = "@folioExecutionContext.tenantId + ':' + #type.value + ':' + #optionType.value")
+  @CacheEvict(cacheNames = BROWSE_CONFIG_CACHE, allEntries = true)
   public void upsertConfig(@NonNull BrowseType type,
                            @NonNull BrowseOptionType optionType,
                            @NonNull BrowseConfig config) {

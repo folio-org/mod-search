@@ -4,7 +4,7 @@ import static java.lang.String.valueOf;
 import static java.util.Collections.emptyList;
 import static java.util.function.Function.identity;
 import static java.util.stream.Stream.concat;
-import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.folio.search.model.types.ResourceType.INSTANCE;
 import static org.folio.search.utils.CollectionUtils.toLinkedHashMap;
 import static org.opensearch.index.query.QueryBuilders.existsQuery;

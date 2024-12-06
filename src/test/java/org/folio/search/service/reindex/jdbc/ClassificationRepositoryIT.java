@@ -2,10 +2,8 @@ package org.folio.search.service.reindex.jdbc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.folio.search.utils.SearchUtils.AUTHORITY_ID_FIELD;
-import static org.folio.search.utils.SearchUtils.SUBJECT_SOURCE_ID_FIELD;
-import static org.folio.search.utils.SearchUtils.SUBJECT_TYPE_ID_FIELD;
-import static org.folio.search.utils.SearchUtils.SUBJECT_VALUE_FIELD;
+import static org.folio.search.utils.SearchUtils.CLASSIFICATION_NUMBER_FIELD;
+import static org.folio.search.utils.SearchUtils.CLASSIFICATION_TYPE_FIELD;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
@@ -19,10 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.assertj.core.api.Condition;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
-import org.folio.search.model.reindex.UploadRangeEntity;
-import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
@@ -44,18 +39,18 @@ import org.springframework.test.context.jdbc.Sql;
 @EnablePostgres
 @AutoConfigureJson
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class SubjectRepositoryIT {
+class ClassificationRepositoryIT {
 
   private @SpyBean JdbcTemplate jdbcTemplate;
   private @MockBean FolioExecutionContext context;
-  private SubjectRepository repository;
+  private ClassificationRepository repository;
   private ReindexConfigurationProperties properties;
 
   @BeforeEach
   void setUp() {
     properties = new ReindexConfigurationProperties();
     var jsonConverter = new JsonConverter(new ObjectMapper());
-    repository = spy(new SubjectRepository(jdbcTemplate, jsonConverter, context, properties));
+    repository = spy(new ClassificationRepository(jdbcTemplate, jsonConverter, context, properties));
     when(context.getFolioModuleMetadata()).thenReturn(new FolioModuleMetadata() {
       @Override
       public String getModuleName() {
@@ -71,61 +66,8 @@ class SubjectRepositoryIT {
   }
 
   @Test
-  void getUploadRanges_returnEmptyList_whenNoUploadRangesAndNotPopulate() {
-    // act
-    var ranges = repository.getUploadRanges(false);
-
-    // assert
-    assertThat(ranges).isEmpty();
-  }
-
-  @Test
-  @Sql("/sql/populate-subjects.sql")
-  void getUploadRanges_returnList_whenNoUploadRangesAndNotPopulate() {
-    // arrange
-    properties.setUploadRangeLevel(1);
-
-    // act
-    var ranges = repository.getUploadRanges(true);
-
-    // assert
-    assertThat(ranges)
-      .hasSize(15)
-      .are(new Condition<>(range -> range.getEntityType() == ReindexEntityType.SUBJECT, "subject range"))
-      .extracting(UploadRangeEntity::getLower, UploadRangeEntity::getUpper)
-      .startsWith(tuple("0", "1"))
-      .contains(tuple("a", "b"))
-      .endsWith(tuple("e", "f"));
-  }
-
-  @Test
-  @Sql("/sql/populate-subjects.sql")
-  void fetchBy_returnListOfMaps() {
-    // act
-    var ranges = repository.fetchByIdRange("20", "21");
-
-    // assert
-    assertThat(ranges)
-      .hasSize(2)
-      .allMatch(map -> map.keySet().containsAll(List.of("id", "value", "authorityId", "instances")))
-      .extracting("value", "authorityId", "sourceId", "typeId")
-      .containsExactlyInAnyOrder(
-        tuple(
-          "Alternative History",
-          null,
-          "a5a0b02e-c868-4074-ab01-348a4e87fd9f",
-          "b36c89f9-79fe-4a0a-bc13-02d95e032c08"),
-        tuple(
-          "History",
-          "79144653-7a98-4dfb-aa6a-13ad49e80952",
-          null,
-          null)
-      );
-  }
-
-  @Test
-  @Sql("/sql/populate-subjects.sql")
-  void deleteByInstanceIds_oneSubjectRemovedAndOneInstanceCounterDecremented() {
+  @Sql("/sql/populate-classifications.sql")
+  void deleteByInstanceIds_oneClassificationRemovedAndOneInstanceCounterDecremented() {
     var instanceIds = List.of("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", "b3bae8a9-cfb1-4afe-83d5-2cdae4580e07");
 
     // act
@@ -134,8 +76,8 @@ class SubjectRepositoryIT {
     // assert
     var ranges = repository.fetchByIdRange("0", "50");
     assertThat(ranges)
-      .hasSize(16)
-      .extracting("value", "instances")
+      .hasSize(1)
+      .extracting("number", "instances")
       .contains(
         tuple("Sci-Fi", List.of(
           Map.of("count", 1, "shared", true, "tenantId", "consortium"),
@@ -144,11 +86,11 @@ class SubjectRepositoryIT {
 
   @Test
   void saveAll() {
-    var entities = Set.of(subjectEntity("1"), subjectEntity("2"));
+    var entities = Set.of(classificationEntity("1"), classificationEntity("2"));
     var entityRelations = List.of(
-      subjectRelation("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", "1"),
-      subjectRelation("b3bae8a9-cfb1-4afe-83d5-2cdae4580e07", "2"),
-      subjectRelation("9ec55e4f-6a76-427c-b47b-197046f44a54", "2"));
+      classificationRelation("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", "1"),
+      classificationRelation("b3bae8a9-cfb1-4afe-83d5-2cdae4580e07", "2"),
+      classificationRelation("9ec55e4f-6a76-427c-b47b-197046f44a54", "2"));
 
     repository.saveAll(entities, entityRelations);
 
@@ -156,10 +98,10 @@ class SubjectRepositoryIT {
     var ranges = repository.fetchByIdRange("0", "50");
     assertThat(ranges)
       .hasSize(2)
-      .extracting("value", "instances")
+      .extracting("number", "instances")
       .contains(
-        tuple("value1", List.of(Map.of("count", 1, "shared", false, "tenantId", TENANT_ID))),
-        tuple("value2", List.of(Map.of("count", 2, "shared", false, "tenantId", TENANT_ID))));
+        tuple("number1", List.of(Map.of("count", 1, "shared", false, "tenantId", TENANT_ID))),
+        tuple("number2", List.of(Map.of("count", 2, "shared", false, "tenantId", TENANT_ID))));
   }
 
   @Test
@@ -170,20 +112,18 @@ class SubjectRepositoryIT {
     saveAll();
   }
 
-  private Map<String, Object> subjectEntity(String id) {
+  private Map<String, Object> classificationEntity(String id) {
     return Map.of(
       "id", id,
-      SUBJECT_VALUE_FIELD, "value" + id,
-      AUTHORITY_ID_FIELD, "b7df83a1-8b15-46c1-9a4c-9d2dbb3cf4d6",
-      SUBJECT_SOURCE_ID_FIELD, "b7df83a1-8b15-46c1-9a4c-9d2dbb3cf4d5",
-      SUBJECT_TYPE_ID_FIELD, "b7df83a1-8b15-46c1-9a4c-9d2dbb3cf4d4"
+      CLASSIFICATION_NUMBER_FIELD, "number" + id,
+      CLASSIFICATION_TYPE_FIELD, "b7df83a1-8b15-46c1-9a4c-9d2dbb3cf4d6"
     );
   }
 
-  private Map<String, Object> subjectRelation(String instanceId, String subjectId) {
+  private Map<String, Object> classificationRelation(String instanceId, String classificationId) {
     return Map.of(
       "instanceId", instanceId,
-      "subjectId", subjectId,
+      "classificationId", classificationId,
       "tenantId", TENANT_ID,
       "shared", false
     );

@@ -3,6 +3,8 @@ package org.folio.search.service.browse;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.MISSING_FIRST_PROP;
 import static org.folio.search.utils.SearchUtils.MISSING_LAST_PROP;
+import static org.folio.search.utils.SearchUtils.SUBJECT_SOURCE_ID_FIELD;
+import static org.folio.search.utils.SearchUtils.SUBJECT_TYPE_ID_FIELD;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
@@ -31,9 +33,6 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<SubjectBrowseItem, SubjectResource> {
-
-  private static final String SUBJECT_SOURCE_ID_FIELD = "sourceId";
-  private static final String SUBJECT_TYPE_ID_FIELD = "typeId";
 
   private ConsortiumSearchHelper consortiumSearchHelper;
 

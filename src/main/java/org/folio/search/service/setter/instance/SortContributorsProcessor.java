@@ -3,7 +3,7 @@ package org.folio.search.service.setter.instance;
 import static org.apache.commons.lang3.BooleanUtils.isTrue;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.service.setter.FieldProcessor;
 import org.springframework.stereotype.Component;

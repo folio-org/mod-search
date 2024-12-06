@@ -1,6 +1,6 @@
 package org.folio.search.service.setter.holding;
 
-import static org.apache.commons.collections.MapUtils.getObject;
+import static org.apache.commons.collections4.MapUtils.getObject;
 import static org.folio.search.utils.SearchUtils.INSTANCE_HOLDING_FIELD_NAME;
 
 import java.util.Map;

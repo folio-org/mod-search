@@ -2,7 +2,7 @@ package org.folio.search.service.browse;
 
 import static java.lang.Boolean.TRUE;
 import static java.util.Collections.singletonList;
-import static org.apache.commons.collections.CollectionUtils.isEmpty;
+import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.folio.search.model.types.CallNumberTypeSource.FOLIO;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToList;
 

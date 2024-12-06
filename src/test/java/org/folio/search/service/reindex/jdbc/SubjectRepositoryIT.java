@@ -90,12 +90,12 @@ class SubjectRepositoryIT {
 
     // assert
     assertThat(ranges)
-      .hasSize(15)
+      .hasSize(16)
       .are(new Condition<>(range -> range.getEntityType() == ReindexEntityType.SUBJECT, "subject range"))
       .extracting(UploadRangeEntity::getLower, UploadRangeEntity::getUpper)
       .startsWith(tuple("0", "1"))
       .contains(tuple("a", "b"))
-      .endsWith(tuple("e", "f"));
+      .endsWith(tuple("f", "x"));
   }
 
   @Test

@@ -49,6 +49,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -670,6 +671,30 @@ public class TestUtils {
       aResponse().withStatus(200).withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE).withBody("""
         {
           "classificationTypes": [
+             %s
+          ]
+        }
+        """.formatted(String.join(",", strings))));
+    wireMockServer.stubFor(stub);
+    return stub;
+  }
+
+  public static MappingBuilder mockCallNumberTypes(WireMockServer wireMockServer, UUID... typeIds) {
+    var strings = new LinkedList<String>();
+    var stub = get(urlPathEqualTo("/call-number-types"));
+    for (var typeId : typeIds) {
+      stub.withQueryParam("query", containing(typeId.toString()));
+      strings.add("""
+        {
+          "id": "%s",
+          "name": "SUDOC"
+        }
+        """.formatted(typeId));
+    }
+    stub.willReturn(
+      aResponse().withStatus(200).withHeader(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE).withBody("""
+        {
+          "callNumberTypes": [
              %s
           ]
         }

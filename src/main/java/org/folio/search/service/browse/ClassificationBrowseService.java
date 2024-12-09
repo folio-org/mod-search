@@ -51,7 +51,7 @@ public class ClassificationBrowseService
   @Override
   protected SearchSourceBuilder getAnchorSearchQuery(BrowseRequest req, BrowseContext ctx) {
     log.debug("getAnchorSearchQuery:: by [request: {}]", req);
-    var config = configService.getConfig(BrowseType.INSTANCE_CLASSIFICATION, req.getBrowseOptionType());
+    var config = configService.getConfig(BrowseType.CLASSIFICATION, req.getBrowseOptionType());
 
     var browseField = getBrowseField(config);
     var termQueryBuilder = getQuery(ctx, config, termQuery(req.getTargetField(), ctx.getAnchor()));
@@ -67,7 +67,7 @@ public class ClassificationBrowseService
   @Override
   protected SearchSourceBuilder getSearchQuery(BrowseRequest req, BrowseContext ctx, boolean isBrowsingForward) {
     log.debug("getSearchQuery:: by [request: {}, isBrowsingForward: {}]", req, isBrowsingForward);
-    var config = configService.getConfig(BrowseType.INSTANCE_CLASSIFICATION, req.getBrowseOptionType());
+    var config = configService.getConfig(BrowseType.CLASSIFICATION, req.getBrowseOptionType());
 
     var browseField = getBrowseField(config);
     var normalizedAnchor = ShelvingOrderCalculationHelper.calculate(ctx.getAnchor(), config.getShelvingAlgorithm());

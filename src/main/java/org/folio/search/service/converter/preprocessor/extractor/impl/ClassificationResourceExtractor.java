@@ -13,6 +13,7 @@ import static org.folio.search.utils.SearchUtils.CLASSIFICATION_TYPE_FIELD;
 import static org.folio.search.utils.SearchUtils.prepareForExpectedFormat;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -109,6 +110,9 @@ public class ClassificationResourceExtractor extends ChildResourceExtractor {
 
   @Override
   public boolean hasChildResourceChanges(ResourceEvent event) {
+    if (!featureConfigService.isEnabled(TenantConfiguredFeature.BROWSE_CLASSIFICATIONS)) {
+      return false;
+    }
     var oldClassifications = getChildResources(getOldAsMap(event));
     var newClassifications = getChildResources(getNewAsMap(event));
 
@@ -116,8 +120,13 @@ public class ClassificationResourceExtractor extends ChildResourceExtractor {
   }
 
   @Override
+  public ResourceType resourceType() {
+    return ResourceType.INSTANCE;
+  }
+
+  @Override
   protected List<Map<String, Object>> constructRelations(boolean shared, ResourceEvent event,
-                                                       List<Map<String, Object>> entities) {
+                                                         List<Map<String, Object>> entities) {
     return entities.stream()
       .map(entity -> Map.of("instanceId", event.getId(),
         "classificationId", entity.get("id"),
@@ -128,9 +137,12 @@ public class ClassificationResourceExtractor extends ChildResourceExtractor {
 
   @Override
   protected Map<String, Object> constructEntity(Map<String, Object> entityProperties) {
+    if (!featureConfigService.isEnabled(TenantConfiguredFeature.BROWSE_CLASSIFICATIONS)) {
+      return Collections.emptyMap();
+    }
     var classificationNumber = prepareForExpectedFormat(entityProperties.get(CLASSIFICATION_NUMBER_FIELD), 50);
     if (classificationNumber.isEmpty()) {
-      return null;
+      return Collections.emptyMap();
     }
 
     var classificationTypeId = entityProperties.get(CLASSIFICATION_TYPE_FIELD);

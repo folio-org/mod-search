@@ -3,12 +3,14 @@ package org.folio.search.service.converter.preprocessor.extractor;
 import static org.folio.search.utils.SearchUtils.CLASSIFICATIONS_FIELD;
 import static org.folio.search.utils.SearchUtils.CLASSIFICATION_NUMBER_FIELD;
 import static org.folio.search.utils.SearchUtils.CLASSIFICATION_TYPE_FIELD;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Supplier;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.folio.search.domain.dto.TenantConfiguredFeature;
 import org.folio.search.service.FeatureConfigService;
 import org.folio.search.service.converter.preprocessor.extractor.impl.ClassificationResourceExtractor;
 import org.folio.search.service.reindex.jdbc.ClassificationRepository;
@@ -36,6 +38,7 @@ class ClassificationResourceExtractorTest extends ChildResourceExtractorTestBase
 
   @Test
   void persistChildren() {
+    when(featureConfigService.isEnabled(TenantConfiguredFeature.BROWSE_CLASSIFICATIONS)).thenReturn(true);
     persistChildrenTest(extractor, repository, classificationsBodySupplier());
   }
 

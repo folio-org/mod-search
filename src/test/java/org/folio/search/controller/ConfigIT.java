@@ -11,9 +11,14 @@ import static org.folio.search.support.base.ApiEndpoints.featureConfigPath;
 import static org.folio.search.utils.SearchConverterUtils.getMapValueByPath;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
 import static org.folio.search.utils.SearchUtils.getIndexName;
+import static org.folio.search.utils.TestConstants.INVENTORY_CALL_NUMBER_TYPE_TOPIC;
+import static org.folio.search.utils.TestConstants.INVENTORY_CLASSIFICATION_TYPE_TOPIC;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.search.utils.TestConstants.getTopicName;
+import static org.folio.search.utils.TestConstants.inventoryCallNumberTopic;
 import static org.folio.search.utils.TestConstants.inventoryClassificationTopic;
 import static org.folio.search.utils.TestUtils.mapOf;
+import static org.folio.search.utils.TestUtils.mockCallNumberTypes;
 import static org.folio.search.utils.TestUtils.mockClassificationTypes;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.folio.search.utils.TestUtils.randomId;
@@ -49,6 +54,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.opensearch.action.search.SearchRequest;
 import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestHighLevelClient;
@@ -230,13 +237,19 @@ class ConfigIT extends BaseIntegrationTest {
   }
 
   @Test
-  void getBrowseConfigs_positive() throws Exception {
-    doGet(ApiEndpoints.browseConfigPath(BrowseType.INSTANCE_CLASSIFICATION))
+  void getBrowseConfigs_positive_classification() throws Exception {
+    doGet(ApiEndpoints.browseConfigPath(BrowseType.CLASSIFICATION))
       .andExpect(jsonPath("$.totalRecords", is(3)));
   }
 
   @Test
-  void putBrowseConfigs_positive() throws Exception {
+  void getBrowseConfigs_positive_callNumber() throws Exception {
+    doGet(ApiEndpoints.browseConfigPath(BrowseType.CALL_NUMBER))
+      .andExpect(jsonPath("$.totalRecords", is(6)));
+  }
+
+  @Test
+  void putBrowseConfigs_positive_classification() throws Exception {
     var typeId1 = UUID.randomUUID();
     var typeId2 = UUID.randomUUID();
     var config = new BrowseConfig().id(BrowseOptionType.LC)
@@ -245,14 +258,36 @@ class ConfigIT extends BaseIntegrationTest {
 
     var stub = mockClassificationTypes(okapi.wireMockServer(), typeId1, typeId2);
 
-    doPut(ApiEndpoints.browseConfigPath(BrowseType.INSTANCE_CLASSIFICATION, BrowseOptionType.LC), config);
+    doPut(ApiEndpoints.browseConfigPath(BrowseType.CLASSIFICATION, BrowseOptionType.LC), config);
 
-    var result = doGet(ApiEndpoints.browseConfigPath(BrowseType.INSTANCE_CLASSIFICATION))
+    var result = doGet(ApiEndpoints.browseConfigPath(BrowseType.CLASSIFICATION))
       .andExpect(jsonPath("$.totalRecords", is(3)));
 
     var configCollection = parseResponse(result, BrowseConfigCollection.class);
     assertThat(configCollection.getConfigs())
       .hasSize(3)
+      .contains(config);
+    okapi.wireMockServer().removeStub(stub);
+  }
+
+  @Test
+  void putBrowseConfigs_positive_callNumber() throws Exception {
+    var typeId1 = UUID.randomUUID();
+    var typeId2 = UUID.randomUUID();
+    var config = new BrowseConfig().id(BrowseOptionType.SUDOC)
+      .shelvingAlgorithm(ShelvingOrderAlgorithmType.DEFAULT)
+      .addTypeIdsItem(typeId1).addTypeIdsItem(typeId2);
+
+    var stub = mockCallNumberTypes(okapi.wireMockServer(), typeId1, typeId2);
+
+    doPut(ApiEndpoints.browseConfigPath(BrowseType.CALL_NUMBER, BrowseOptionType.SUDOC), config);
+
+    var result = doGet(ApiEndpoints.browseConfigPath(BrowseType.CALL_NUMBER))
+      .andExpect(jsonPath("$.totalRecords", is(6)));
+
+    var configCollection = parseResponse(result, BrowseConfigCollection.class);
+    assertThat(configCollection.getConfigs())
+      .hasSize(6)
       .contains(config);
     okapi.wireMockServer().removeStub(stub);
   }
@@ -267,7 +302,7 @@ class ConfigIT extends BaseIntegrationTest {
 
     final var stub = mockClassificationTypes(okapi.wireMockServer(), typeId1, typeId2);
 
-    doPut(ApiEndpoints.browseConfigPath(BrowseType.INSTANCE_CLASSIFICATION, BrowseOptionType.LC), config);
+    doPut(ApiEndpoints.browseConfigPath(BrowseType.CLASSIFICATION, BrowseOptionType.LC), config);
 
     kafkaTemplate.send(inventoryClassificationTopic(), typeId1.toString(), new ResourceEvent()
       .type(ResourceEventType.DELETE)
@@ -277,7 +312,7 @@ class ConfigIT extends BaseIntegrationTest {
     );
 
     await().atMost(ONE_MINUTE).pollInterval(TWO_SECONDS).untilAsserted(() -> {
-      var result = doGet(ApiEndpoints.browseConfigPath(BrowseType.INSTANCE_CLASSIFICATION));
+      var result = doGet(ApiEndpoints.browseConfigPath(BrowseType.CLASSIFICATION));
 
       var configCollection = parseResponse(result, BrowseConfigCollection.class);
       for (BrowseConfig browseConfig : configCollection.getConfigs()) {
@@ -293,15 +328,51 @@ class ConfigIT extends BaseIntegrationTest {
   }
 
   @Test
-  void referenceDataCacheInvalidates_whenClassificationTypeEventReceived() {
+  void browseConfigs_synchronised_whenDeleteCallNumberTypeEventReceived() {
+    var typeId1 = UUID.randomUUID();
+    var typeId2 = UUID.randomUUID();
+    var config = new BrowseConfig().id(BrowseOptionType.SUDOC)
+      .shelvingAlgorithm(ShelvingOrderAlgorithmType.DEFAULT)
+      .addTypeIdsItem(typeId2).addTypeIdsItem(typeId1);
+
+    final var stub = mockCallNumberTypes(okapi.wireMockServer(), typeId1, typeId2);
+
+    doPut(ApiEndpoints.browseConfigPath(BrowseType.CALL_NUMBER, BrowseOptionType.SUDOC), config);
+
+    kafkaTemplate.send(inventoryCallNumberTopic(), typeId1.toString(), new ResourceEvent()
+      .type(ResourceEventType.DELETE)
+      .tenant(TENANT_ID)
+      .resourceName(ResourceType.CALL_NUMBER_TYPE.getName())
+      .old(mapOf(ID_FIELD, typeId1.toString()))
+    );
+
+    await().atMost(ONE_MINUTE).pollInterval(TWO_SECONDS).untilAsserted(() -> {
+      var result = doGet(ApiEndpoints.browseConfigPath(BrowseType.CALL_NUMBER));
+
+      var configCollection = parseResponse(result, BrowseConfigCollection.class);
+      for (var browseConfig : configCollection.getConfigs()) {
+        if (browseConfig.getId() == BrowseOptionType.SUDOC) {
+          assertThat(browseConfig.getTypeIds())
+            .hasSize(1)
+            .containsExactly(typeId2);
+        }
+      }
+    });
+
+    okapi.wireMockServer().removeStub(stub);
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+    INVENTORY_CLASSIFICATION_TYPE_TOPIC + ",classification-type",
+    INVENTORY_CALL_NUMBER_TYPE_TOPIC + ",call-number-type"})
+  void referenceDataCacheInvalidates_whenEventReceived(String topic, String resource) {
     var cacheKey = "cache-test-key";
     var referenceDataCache = Objects.requireNonNull(cacheManager.getCache(REFERENCE_DATA_CACHE));
     referenceDataCache.put(cacheKey, UUID.randomUUID());
     assertThat(referenceDataCache.get(cacheKey)).isNotNull();
 
-    kafkaTemplate.send(inventoryClassificationTopic(), randomId(), new ResourceEvent()
-      .resourceName(ResourceType.CLASSIFICATION_TYPE.getName())
-    );
+    kafkaTemplate.send(getTopicName(topic), randomId(), new ResourceEvent().resourceName(resource));
 
     await().atMost(ONE_MINUTE).pollInterval(TWO_SECONDS)
       .untilAsserted(() -> assertThat(referenceDataCache.get(cacheKey)).isNull());

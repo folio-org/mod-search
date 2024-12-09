@@ -125,13 +125,15 @@ public class ResourceService {
     log.info("ResourceService::processIndexInstanceEvents resourceEvents {}", resourceEvents);
     var indexEvents = extractEventsForDataMove(resourceEvents);
     log.info("ResourceService::processIndexInstanceEvents indexEvents {}", indexEvents);
+
+    preProcessEvents(indexEvents);
     var fetchedInstances = Optional.ofNullable(consortiumTenantExecutor.execute(
         () -> resourceFetchService.fetchInstancesByIds(indexEvents)))
       .orElse(Collections.emptyList()).stream()
       .filter(Objects::nonNull)
       .toList();
     log.info("ResourceService::processIndexInstanceEvents fetchedInstances {}", fetchedInstances);
-    preProcessEvents(fetchedInstances);
+
     return searchDocumentConverter.convert(fetchedInstances);
   }
 

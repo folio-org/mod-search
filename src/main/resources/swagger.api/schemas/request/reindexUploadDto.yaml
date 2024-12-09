@@ -10,9 +10,9 @@ properties:
         - subject
         - contributor
         - classification
+        - call-number
     minItems: 1
   indexSettings:
-    description: Index settings to apply for index
     $ref: '../entity/indexSettings.yaml'
 required:
   - entityTypes

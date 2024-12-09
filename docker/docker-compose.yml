@@ -1,35 +1,4 @@
-version: "3.8"
-
 services:
-  mod-search:
-    container_name: mod-search
-    image: dev.folio/mod-search
-    build:
-      context: ../
-      dockerfile: Dockerfile
-    networks:
-      - mod-search-local
-    ports:
-      - "8081:8081"
-      - "${DEBUG_PORT}:${DEBUG_PORT}"
-    depends_on:
-      - api-mock
-      - opensearch
-      - kafka
-      - postgres
-    environment:
-      ELASTICSEARCH_URL: http://opensearch:9200
-      ENV: ${ENV}
-      KAFKA_HOST: ${KAFKA_HOST}
-      KAFKA_PORT: ${KAFKA_PORT}
-      REPLICATION_FACTOR: ${REPLICATION_FACTOR}
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PORT: ${DB_PORT}
-      DB_HOST: ${DB_HOST}
-      DB_DATABASE: ${DB_DATABASE}
-      DB_PASSWORD: ${DB_PASSWORD}
-      OKAPI_URL: http://api-mock:8080
-      JAVA_OPTIONS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:${DEBUG_PORT}"
 
   api-mock:
     container_name: api-mock_mod-search
@@ -45,86 +14,79 @@ services:
 
   opensearch:
     container_name: opensearch_mod-search
-    image: dev.folio/opensearch:1.3.2
+    image: dev.folio/opensearch:latest
     build:
       context: opensearch
       dockerfile: Dockerfile
     networks:
+      - opensearch-net
       - mod-search-local
     ports:
       - "9200:9200"
-      - "9300:9300"
     volumes:
       - es-data:/usr/share/elasticsearch/data
     environment:
       - discovery.type=single-node
-      - discovery.zen.minimum_master_nodes=1
-      - "DISABLE_SECURITY_PLUGIN=true"
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "DISABLE_INSTALL_DEMO_CONFIG=true"
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
 
   opensearch-dashboards:
     container_name: opensearch-dashboards_mod-search
-    image: dev.folio/opensearch-dashboards:1.3.2
-    build:
-      context: dashboards
-      dockerfile: Dockerfile
+    image: opensearchproject/opensearch-dashboards:2
     ports:
       - "5601:5601"
+    expose:
+      - "5601"
     environment:
       OPENSEARCH_HOSTS: '["http://opensearch:9200"]'
+      DISABLE_SECURITY_DASHBOARDS_PLUGIN: true
     networks:
+      - opensearch-net
       - mod-search-local
     depends_on:
       - opensearch
 
-  zookeeper:
-    container_name: zookeeper_mod-search
-    image: wurstmeister/zookeeper:3.4.6
-    networks:
-      - mod-search-local
-    ports:
-      - "2181:2181"
-
   kafka:
     container_name: kafka_mod-search
-    image: wurstmeister/kafka:2.13-2.8.1
+    image: apache/kafka-native
     networks:
       - mod-search-local
-    depends_on:
-      - zookeeper
     ports:
       - "9092:9092"
-      - "29092:29092"
+      - "9093:9093"
     environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_LISTENERS: INSIDE://:9092,OUTSIDE://:29092
-      KAFKA_ADVERTISED_LISTENERS: INSIDE://:9092,OUTSIDE://localhost:29092
-      KAFKA_ADVERTISED_HOST_NAME: kafka
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
-      KAFKA_MESSAGE_MAX_BYTES: 1000000
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      # Configure listeners for both docker and host communication
+      KAFKA_LISTENERS: CONTROLLER://localhost:9091,HOST://0.0.0.0:9092,DOCKER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: HOST://localhost:9092,DOCKER://kafka:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,DOCKER:PLAINTEXT,HOST:PLAINTEXT
+      # Settings required for KRaft mode
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9091
+      # Listener to use for broker-to-broker communication
+      KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER
+      # Required for a single node cluster
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
 
   kafka-ui:
     container_name: kafka-ui_mod-search
-    image: provectuslabs/kafka-ui:latest
-    ports:
-      - "8080:8080"
-    depends_on:
-      - zookeeper
-      - kafka
-    environment:
-      KAFKA_CLUSTERS_0_NAME: local
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
-      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
-      KAFKA_CLUSTERS_0_JMXPORT: 9997
+    image: ghcr.io/kafbat/kafka-ui:latest
     networks:
       - mod-search-local
+    ports:
+      - "8080:8080"
+    environment:
+      DYNAMIC_CONFIG_ENABLED: 'true'
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9093
+    depends_on:
+      - kafka
 
   postgres:
     container_name: postgres_mod-search
-    image: postgres:12-alpine
+    image: postgres:16-alpine
     networks:
       - mod-search-local
     ports:
@@ -136,11 +98,11 @@ services:
 
   pgadmin:
     container_name: pgadmin_mod-search
-    image: dpage/pgadmin4:6.7
+    image: dpage/pgadmin4:8.13
     networks:
       - mod-search-local
     ports:
-      - ${PGADMIN_PORT}:80
+      - "5050:80"
     volumes:
       - "pgadmin-data:/var/lib/pgadmin"
     environment:
@@ -151,6 +113,7 @@ services:
 networks:
   mod-search-local:
     driver: bridge
+  opensearch-net:
 
 volumes:
   es-data: { }

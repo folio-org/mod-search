@@ -25,6 +25,14 @@ class ClassificationShelvingOrderFieldProcessorTest {
   private static final String OUTPUT = "ResultNum";
   private ClassificationResource eventBody;
 
+  public static Stream<Arguments> testData() {
+    return Stream.of(
+      Arguments.arguments(new DefaultClassificationShelvingOrderFieldProcessor(), DEFAULT),
+      Arguments.arguments(new DeweyClassificationShelvingOrderFieldProcessor(), DEWEY),
+      Arguments.arguments(new LcClassificationShelvingOrderFieldProcessor(), LC)
+    );
+  }
+
   @BeforeEach
   void setUp() {
     eventBody = mock(ClassificationResource.class);
@@ -41,14 +49,6 @@ class ClassificationShelvingOrderFieldProcessorTest {
       var fieldValue = processor.getFieldValue(eventBody);
       assertThat(fieldValue).isEqualTo(OUTPUT);
     }
-  }
-
-  public static Stream<Arguments> testData() {
-    return Stream.of(
-      Arguments.arguments(new DefaultClassificationShelvingOrderFieldProcessor(), DEFAULT),
-      Arguments.arguments(new DeweyClassificationShelvingOrderFieldProcessor(), DEWEY),
-      Arguments.arguments(new LcClassificationShelvingOrderFieldProcessor(), LC)
-    );
   }
 
 }

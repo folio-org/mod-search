@@ -1,7 +1,6 @@
 package org.folio.search.controller;
 
 import static java.util.UUID.randomUUID;
-import static org.folio.search.domain.dto.BrowseType.INSTANCE_CLASSIFICATION;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.SEARCH_ALL_FIELDS;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.asJsonString;
@@ -26,6 +25,7 @@ import java.util.UUID;
 import org.folio.search.domain.dto.BrowseConfig;
 import org.folio.search.domain.dto.BrowseConfigCollection;
 import org.folio.search.domain.dto.BrowseOptionType;
+import org.folio.search.domain.dto.BrowseType;
 import org.folio.search.domain.dto.FeatureConfig;
 import org.folio.search.domain.dto.FeatureConfigs;
 import org.folio.search.domain.dto.LanguageConfigs;
@@ -40,6 +40,8 @@ import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.testing.type.UnitTest;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -277,14 +279,15 @@ class ConfigControllerTest {
     mockMvc.perform(request).andExpect(status().isNoContent());
   }
 
-  @Test
-  void getBrowseConfigs_positive() throws Exception {
+  @ParameterizedTest
+  @EnumSource(BrowseType.class)
+  void getBrowseConfigs_positive(BrowseType type) throws Exception {
     var config = new BrowseConfig().id(BrowseOptionType.LC).shelvingAlgorithm(ShelvingOrderAlgorithmType.LC)
       .typeIds(List.of(randomUUID(), randomUUID()));
-    when(browseConfigService.getConfigs(INSTANCE_CLASSIFICATION))
+    when(browseConfigService.getConfigs(type))
       .thenReturn(new BrowseConfigCollection().addConfigsItem(config).totalRecords(1));
 
-    var request = get(ApiEndpoints.browseConfigPath(INSTANCE_CLASSIFICATION))
+    var request = get(ApiEndpoints.browseConfigPath(type))
       .header(XOkapiHeaders.TENANT, TENANT_ID)
       .contentType(APPLICATION_JSON);
 
@@ -297,13 +300,14 @@ class ConfigControllerTest {
         containsInAnyOrder(config.getTypeIds().stream().map(UUID::toString).toArray())));
   }
 
-  @Test
-  void putBrowseConfig_positive() throws Exception {
+  @ParameterizedTest
+  @EnumSource(BrowseType.class)
+  void putBrowseConfig_positive(BrowseType type) throws Exception {
     var config = new BrowseConfig().id(BrowseOptionType.LC).shelvingAlgorithm(ShelvingOrderAlgorithmType.LC)
       .typeIds(List.of(randomUUID(), randomUUID()));
-    doNothing().when(browseConfigService).upsertConfig(INSTANCE_CLASSIFICATION, BrowseOptionType.LC, config);
+    doNothing().when(browseConfigService).upsertConfig(type, BrowseOptionType.LC, config);
 
-    var request = put(ApiEndpoints.browseConfigPath(INSTANCE_CLASSIFICATION, BrowseOptionType.LC))
+    var request = put(ApiEndpoints.browseConfigPath(type, BrowseOptionType.LC))
       .header(XOkapiHeaders.TENANT, TENANT_ID)
       .contentType(APPLICATION_JSON)
       .content(asJsonString(config));

@@ -11,4 +11,5 @@ public class InstanceSubResource {
   private Boolean shared;
   private int count;
   private List<String> typeId;
+  private List<String> locationId;
 }

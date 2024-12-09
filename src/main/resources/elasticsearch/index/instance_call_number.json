@@ -1,0 +1,29 @@
+{
+  "index": {
+    "number_of_shards": 4,
+    "number_of_replicas": 2,
+    "refresh_interval": "1s",
+    "codec": "best_compression",
+    "mapping.total_fields.limit": 1000
+  },
+  "analysis": {
+    "normalizer": {
+      "keyword_lowercase": {
+        "filter": [
+          "lowercase",
+          "icu_folding"
+        ],
+        "type": "custom"
+      },
+      "keyword_icu": {
+        "filter": [
+          "lowercase",
+          "trim",
+          "icu_folding"
+        ],
+        "type": "custom"
+      }
+    },
+    "tokenizers": {}
+  }
+}

@@ -36,7 +36,12 @@ public abstract class ChildResourceExtractorTestBase {
     extractor.persistChildren(false, events);
 
     verify(repository).deleteByInstanceIds(instanceIdsForDeletion);
-    verify(repository).saveAll(argThat(set -> set.size() == 2), argThat(list -> list.size() == 3));
+    verify(repository).saveAll(argThat(set -> set.resourceEntities().size() == getExpectedEntitiesSize()
+      && set.relationshipEntities().size() == 3));
+  }
+
+  protected int getExpectedEntitiesSize() {
+    return 2;
   }
 
   private Map<String, Object> noMainValuesBody() {

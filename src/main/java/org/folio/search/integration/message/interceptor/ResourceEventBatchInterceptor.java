@@ -27,6 +27,7 @@ public class ResourceEventBatchInterceptor implements BatchInterceptor<String, R
     Map.entry("search.instance-contributor", ResourceType.INSTANCE_CONTRIBUTOR),
     Map.entry("search.instance-subject", ResourceType.INSTANCE_SUBJECT),
     Map.entry("inventory.classification-type", ResourceType.CLASSIFICATION_TYPE),
+    Map.entry("inventory.call-number-type", ResourceType.CALL_NUMBER_TYPE),
     Map.entry("inventory.location", ResourceType.LOCATION),
     Map.entry("inventory.campus", ResourceType.CAMPUS),
     Map.entry("inventory.institution", ResourceType.INSTITUTION),

@@ -1,23 +1,18 @@
 package org.folio.search.service.setter.classification;
 
 import java.util.function.UnaryOperator;
-import lombok.NonNull;
 import org.folio.search.model.index.ClassificationResource;
-import org.folio.search.service.setter.FieldProcessor;
+import org.folio.search.service.setter.common.shelving.ShelvingOrderFieldProcessor;
 
 public abstract class ClassificationShelvingOrderFieldProcessor
-  implements FieldProcessor<ClassificationResource, String> {
+  extends ShelvingOrderFieldProcessor<ClassificationResource> {
 
-  private final UnaryOperator<String> numberFunction;
-
-  protected ClassificationShelvingOrderFieldProcessor(@NonNull UnaryOperator<String> numberFunction) {
-    this.numberFunction = numberFunction;
+  protected ClassificationShelvingOrderFieldProcessor(UnaryOperator<String> numberFunction) {
+    super(numberFunction);
   }
 
   @Override
-  public String getFieldValue(ClassificationResource eventBody) {
-    var number = eventBody.number();
-    return numberFunction.apply(number);
+  protected String extractNumber(ClassificationResource classificationResource) {
+    return classificationResource.number();
   }
 }
-

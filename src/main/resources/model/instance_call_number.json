@@ -1,0 +1,96 @@
+{
+  "name": "instance_call_number",
+  "eventBodyJavaClass": "org.folio.search.model.index.CallNumberResource",
+  "parent": "instance",
+  "fields": {
+    "fullCallNumber" : {
+      "index": "keyword_icu",
+      "showInResponse": [ "browse" ]
+    },
+    "callNumber": {
+      "index": "source",
+      "showInResponse": [ "browse" ]
+    },
+    "callNumberPrefix": {
+      "index": "source",
+      "showInResponse": [ "browse" ]
+    },
+    "callNumberSuffix": {
+      "index": "source",
+      "showInResponse": [ "browse" ]
+    },
+    "callNumberTypeId": {
+      "index": "keyword",
+      "showInResponse": [ "browse" ]
+    },
+    "volume": {
+      "index": "source",
+      "showInResponse": [ "browse" ]
+    },
+    "enumeration": {
+      "index": "source",
+      "showInResponse": [ "browse" ]
+    },
+    "chronology": {
+      "index": "source",
+      "showInResponse": [ "browse" ]
+    },
+    "copyNumber": {
+      "index": "source",
+      "showInResponse": [ "browse" ]
+    },
+    "instances": {
+      "type": "object",
+      "properties": {
+        "tenantId": {
+          "index": "keyword",
+          "searchTypes": [ "facet", "filter" ]
+        },
+        "shared": {
+          "index": "bool",
+          "searchTypes": [ "facet", "filter" ],
+          "default": false
+        },
+        "locationId": {
+          "index": "keyword",
+          "searchTypes": [ "facet", "filter" ]
+        },
+        "count": {
+          "index": "source"
+        }
+      }
+    }
+  },
+  "searchFields": {
+    "fullCallNumber": {
+      "type": "search",
+      "index": "keyword_icu",
+      "processor": "defaultCallNumberShelvingOrderFieldProcessor"
+    },
+    "defaultShelvingOrder": {
+      "type": "search",
+      "index": "keyword_icu",
+      "processor": "defaultCallNumberShelvingOrderFieldProcessor"
+    },
+    "lcShelvingOrder": {
+      "type": "search",
+      "index": "keyword_icu",
+      "processor": "lcCallNumberShelvingOrderFieldProcessor"
+    },
+    "deweyShelvingOrder": {
+      "type": "search",
+      "index": "keyword_icu",
+      "processor": "deweyCallNumberShelvingOrderFieldProcessor"
+    },
+    "nlmShelvingOrder": {
+      "type": "search",
+      "index": "keyword_icu",
+      "processor": "nlmCallNumberShelvingOrderFieldProcessor"
+    },
+    "sudocShelvingOrder": {
+      "type": "search",
+      "index": "keyword_icu",
+      "processor": "sudocCallNumberShelvingOrderFieldProcessor"
+    }
+  }
+}

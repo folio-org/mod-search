@@ -13,3 +13,5 @@ RUN opensearch-plugin install --batch \
   analysis-smartcn \
   analysis-nori \
   analysis-phonetic
+
+RUN opensearch-plugin remove opensearch-security

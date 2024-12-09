@@ -46,16 +46,22 @@ public class CallNumberUtils {
   public static String calculateShelvingOrder(Item item) {
     var callNumberComponents = item.getEffectiveCallNumberComponents();
     if (callNumberComponents != null && isNotBlank(callNumberComponents.getCallNumber())) {
-      var fullCallNumber = Stream.of(callNumberComponents.getCallNumber(), item.getVolume(), item.getEnumeration(),
-            item.getChronology(), item.getCopyNumber(), callNumberComponents.getSuffix())
-          .filter(StringUtils::isNotBlank)
-          .map(StringUtils::trim)
-          .collect(joining(" "));
+      var fullCallNumber = calculateFullCallNumber(callNumberComponents.getCallNumber(),
+        item.getVolume(), item.getEnumeration(), item.getChronology(), item.getCopyNumber(),
+        callNumberComponents.getSuffix());
 
       return getShelfKeyFromCallNumber(fullCallNumber).orElse(null);
     }
 
     return null;
+  }
+
+  public static String calculateFullCallNumber(String callNumber, String volume, String enumeration, String chronology,
+                                               String copyNumber, String suffix) {
+    return Stream.of(callNumber, volume, enumeration, chronology, copyNumber, suffix)
+      .filter(StringUtils::isNotBlank)
+      .map(StringUtils::trim)
+      .collect(joining(" "));
   }
 
   public static Optional<String> getShelfKeyFromCallNumber(String callNumber) {

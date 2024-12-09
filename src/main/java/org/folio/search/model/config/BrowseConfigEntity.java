@@ -1,7 +1,6 @@
 package org.folio.search.model.config;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -12,7 +11,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.folio.search.configuration.jpa.StringListConverter;
 import org.hibernate.Hibernate;
 
 @Getter
@@ -29,7 +27,6 @@ public class BrowseConfigEntity {
   @Column(name = "shelving_algorithm", nullable = false)
   private String shelvingAlgorithm;
 
-  @Convert(converter = StringListConverter.class)
   @Column(name = "type_ids")
   private List<String> typeIds = new ArrayList<>();
 

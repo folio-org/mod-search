@@ -1,8 +1,11 @@
 package org.folio.search.service.reindex;
 
+import static java.lang.String.format;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 
 public class RangeGenerator {
 
@@ -50,10 +53,14 @@ public class RangeGenerator {
 
     // Loop from 0 to the maximum possible value with 'length' digits in hexadecimal
     for (int i = 0; i < totalElements; i++) {
-      String lowerBound = String.format(formatString, i);
-      String upperBound = String.format(formatString, i + 1);
+      String lowerBound = format(formatString, i);
+      String upperBound = format(formatString, i + 1);
       ranges.add(new Range(lowerBound, upperBound));
     }
+
+    String lowerBound = format(formatString, totalElements);
+    String upperBound = StringUtils.repeat('x', length);
+    ranges.add(new Range(lowerBound, upperBound));
 
     return ranges;
   }
@@ -71,7 +78,7 @@ public class RangeGenerator {
   }
 
   private static String fromBigint(BigInteger bigint) {
-    return String.format("%032X", bigint);
+    return format("%032X", bigint);
   }
 
   public record Range(String lowerBound, String upperBound) { }

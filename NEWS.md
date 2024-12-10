@@ -19,6 +19,7 @@
 * Populate typeId and sourceId on subjects re-indexing ([MSEARCH-891](https://folio-org.atlassian.net/browse/MSEARCH-891))
 * Change browse_config type_ids column type from varchar to array ([MSEARCH-890](https://folio-org.atlassian.net/browse/MSEARCH-890))
 * Fix old browse config returned on get after upsert ([MSEARCH-897](https://folio-org.atlassian.net/browse/MSEARCH-897))
+* Fix generation of IDs ranges in Reindex Upload for Subject, Classification and Contributor ([MSEARCH-907](https://folio-org.atlassian.net/browse/MSEARCH-907))
 
 ### Tech Dept
 * Description ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))

@@ -7,6 +7,7 @@ import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.asJsonString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Map;
@@ -72,6 +73,20 @@ public abstract class BaseConsortiumIntegrationTest extends BaseIntegrationTest 
     return mockMvc.perform(request
         .headers(defaultHeaders(tenantHeader))
         .accept("application/json;charset=UTF-8"))
+      .andExpect(status().isOk());
+  }
+
+  @SneakyThrows
+  public static ResultActions tryPut(String uri, String tenantHeader, Object body) {
+    return mockMvc.perform(put(uri)
+      .content(asJsonString(body))
+      .headers(defaultHeaders(tenantHeader))
+      .accept("application/json;charset=UTF-8"));
+  }
+
+  @SneakyThrows
+  public static ResultActions doPut(String uri, String tenantHeader, Object body) {
+    return tryPut(uri, tenantHeader, body)
       .andExpect(status().isOk());
   }
 

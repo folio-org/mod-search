@@ -1,7 +1,7 @@
 get:
   operationId: browseInstancesByClassificationNumber
   summary: Browse Instance Classifications
-  description: Provides list of classifications by classification number
+  description: Provides list of classification numbers
   tags:
     - browse
   parameters:
@@ -13,7 +13,7 @@ get:
     - $ref: '../../parameters/x-okapi-tenant-header.yaml'
   responses:
     '200':
-      description: 'Search result for browsing by call number'
+      description: 'Search result for browsing by classification number'
       content:
         application/json:
           examples:

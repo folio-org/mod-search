@@ -20,11 +20,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import org.folio.search.domain.dto.CallNumberBrowseResult;
 import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
+import org.folio.search.domain.dto.LegacyCallNumberBrowseResult;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
@@ -58,9 +58,9 @@ class BrowseCallNumberTypedIrrelevantResultIT extends BaseIntegrationTest {
       .param("highlightMatch", "true")
       .param("precedingRecordsCount", "5")
       .param("expandAll", "true");
-    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    var actual = parseResponse(doGet(request), LegacyCallNumberBrowseResult.class);
     cleanupActual(actual);
-    var expected = new CallNumberBrowseResult()
+    var expected = new LegacyCallNumberBrowseResult()
       .totalRecords(18)
       .prev("3308 H972")
       .next("3308 H981")
@@ -87,9 +87,9 @@ class BrowseCallNumberTypedIrrelevantResultIT extends BaseIntegrationTest {
       .param("limit", "10")
       .param("highlightMatch", "true")
       .param("precedingRecordsCount", "5");
-    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    var actual = parseResponse(doGet(request), LegacyCallNumberBrowseResult.class);
     cleanupActual(actual);
-    var expected = new CallNumberBrowseResult()
+    var expected = new LegacyCallNumberBrowseResult()
       .totalRecords(4)
       .prev("Z 3669 R360 41975")
       .next("Z 3669 R360 41977")
@@ -112,9 +112,9 @@ class BrowseCallNumberTypedIrrelevantResultIT extends BaseIntegrationTest {
       .param("highlightMatch", "true")
       .param("precedingRecordsCount", "7")
       .param("expandAll", "true");
-    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    var actual = parseResponse(doGet(request), LegacyCallNumberBrowseResult.class);
     cleanupActual(actual);
-    var expected = new CallNumberBrowseResult()
+    var expected = new LegacyCallNumberBrowseResult()
       .prev("3308 H970")
       .next("3308 H981")
       .totalRecords(18)
@@ -137,7 +137,7 @@ class BrowseCallNumberTypedIrrelevantResultIT extends BaseIntegrationTest {
     assertThat(actual).isEqualTo(expected);
   }
 
-  private void leaveOnlyBasicProps(CallNumberBrowseResult expected) {
+  private void leaveOnlyBasicProps(LegacyCallNumberBrowseResult expected) {
     expected.getItems().forEach(i -> {
       Instance instance = i.getInstance();
       instance.setTenantId(null);

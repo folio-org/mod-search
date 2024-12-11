@@ -26,7 +26,8 @@ public class FacetsController implements FacetsApi {
     RecordType.AUTHORITIES, ResourceType.AUTHORITY,
     RecordType.CONTRIBUTORS, ResourceType.INSTANCE_CONTRIBUTOR,
     RecordType.SUBJECTS, ResourceType.INSTANCE_SUBJECT,
-    RecordType.CLASSIFICATIONS, ResourceType.INSTANCE_CLASSIFICATION
+    RecordType.CLASSIFICATIONS, ResourceType.INSTANCE_CLASSIFICATION,
+    RecordType.CALL_NUMBERS, ResourceType.INSTANCE_CALL_NUMBER
   );
 
   private final FacetService facetService;

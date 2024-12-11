@@ -1,18 +1,36 @@
-description: Call-number browse search result item
+description: Call number browse search result item
 type: object
 properties:
   fullCallNumber:
     type: string
-    description: Full call number value to display
-  shelfKey:
+    description: Full call number (includes callNumber, volume, enumeration, chronology, copyNumber, callNumberPrefix)
+  callNumber:
     type: string
-    description: Shelf key value to be used for browsing
+    description: Call number
+  callNumberPrefix:
+    type: string
+    description: Call number prefix
+  callNumberSuffix:
+    type: string
+    description: Call number suffix
+  callNumberTypeId:
+    type: string
+    description: Call number type ID
+  volume:
+    type: string
+    description: Volume
+  enumeration:
+    type: string
+    description: Enumeration
+  chronology:
+    type: string
+    description: Chronology
+  copyNumber:
+    type: string
+    description: Copy number
   isAnchor:
     type: boolean
     description: Marks if current value is anchor or not
   totalRecords:
     type: integer
     description: Amount of records for the call number value
-  instance:
-    description: Related instance object
-    $ref: "../../schemas/entity/instance.yaml"

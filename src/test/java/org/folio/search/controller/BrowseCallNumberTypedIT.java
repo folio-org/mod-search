@@ -1,6 +1,5 @@
 package org.folio.search.controller;
 
-import static java.util.Collections.singletonList;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,11 +26,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import org.folio.search.domain.dto.CallNumberBrowseResult;
 import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
+import org.folio.search.domain.dto.LegacyCallNumberBrowseResult;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.testing.type.IntegrationTest;
@@ -66,9 +65,9 @@ class BrowseCallNumberTypedIT extends BaseIntegrationTest {
       .param("limit", "5")
       .param("expandAll", "true")
       .param("precedingRecordsCount", "4");
-    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    var actual = parseResponse(doGet(request), LegacyCallNumberBrowseResult.class);
     cleanupActual(actual);
-    assertThat(actual).isEqualTo(new CallNumberBrowseResult()
+    assertThat(actual).isEqualTo(new LegacyCallNumberBrowseResult()
       .totalRecords(23).prev("DA 43880 O6 M15").next("DA 43890 A2 B76 542002").items(List.of(
         cnBrowseItem(instance("instance #05"), "DA 3880 O6 M15"),
         cnBrowseItem(instance("instance #13"), "DA 3880 O6 M81"),
@@ -86,9 +85,9 @@ class BrowseCallNumberTypedIT extends BaseIntegrationTest {
       .param("limit", "5")
       .param("expandAll", "true")
       .param("precedingRecordsCount", "4");
-    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    var actual = parseResponse(doGet(request), LegacyCallNumberBrowseResult.class);
     cleanupActual(actual);
-    assertThat(actual).isEqualTo(new CallNumberBrowseResult()
+    assertThat(actual).isEqualTo(new LegacyCallNumberBrowseResult()
       .totalRecords(11).prev("11 CE 216 B 46713 X 541993").next("11 CE 216 B 46724 541993").items(List.of(
         cnBrowseItem(instance("instance #44"), "1CE 16 B6713 X 41993"),
         cnBrowseItem(DEWEY, "1CE 16 B6724 41993", 2, true)
@@ -103,9 +102,9 @@ class BrowseCallNumberTypedIT extends BaseIntegrationTest {
       .param("limit", "3")
       .param("expandAll", "true")
       .param("precedingRecordsCount", "1");
-    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    var actual = parseResponse(doGet(request), LegacyCallNumberBrowseResult.class);
     cleanupActual(actual);
-    assertThat(actual).isEqualTo(new CallNumberBrowseResult()
+    assertThat(actual).isEqualTo(new LegacyCallNumberBrowseResult()
       .totalRecords(8).prev("11 CE 3210 K 3297 541858").next("A 3123.5").items(List.of(
         cnBrowseItem(instance("instance #38"), "1CE 210 K297 41858"),
         cnBrowseItem(instance("instance #48"), "A 123.4", true),
@@ -120,9 +119,9 @@ class BrowseCallNumberTypedIT extends BaseIntegrationTest {
       .param("callNumberType", "dewey")
       .param("limit", "5")
       .param("expandAll", "true");
-    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    var actual = parseResponse(doGet(request), LegacyCallNumberBrowseResult.class);
     cleanupActual(actual);
-    assertThat(actual).isEqualTo(new CallNumberBrowseResult()
+    assertThat(actual).isEqualTo(new LegacyCallNumberBrowseResult()
       .totalRecords(6).prev("11 CE 216 B 46713 X 541993").next("11 CE 3210 K 3297 541858").items(List.of(
         cnBrowseItem(instance("instance #44"), "1CE 16 B6713 X 41993"),
         cnBrowseItem(DEWEY, "1CE 16 B6724 41993", 2, null),
@@ -140,9 +139,9 @@ class BrowseCallNumberTypedIT extends BaseIntegrationTest {
       .param("limit", "5")
       .param("expandAll", "true")
       .param("precedingRecordsCount", "4");
-    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    var actual = parseResponse(doGet(request), LegacyCallNumberBrowseResult.class);
     cleanupActual(actual);
-    assertThat(actual).isEqualTo(new CallNumberBrowseResult()
+    assertThat(actual).isEqualTo(new LegacyCallNumberBrowseResult()
       .totalRecords(4).prev("AC 211 A4 VOL 3235").next("AC 211 E8 NO 214 P S1487").items(List.of(
         cnBrowseItem(instance("instance #25"), "AC 11 A4 VOL 235"),
         cnBrowseItem(instance("instance #08"), "AC 11 A67 X 42000"),
@@ -158,9 +157,9 @@ class BrowseCallNumberTypedIT extends BaseIntegrationTest {
       .param("limit", "5")
       .param("expandAll", "true")
       .param("precedingRecordsCount", "4");
-    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    var actual = parseResponse(doGet(request), LegacyCallNumberBrowseResult.class);
     cleanupActual(actual);
-    assertThat(actual).isEqualTo(new CallNumberBrowseResult()
+    assertThat(actual).isEqualTo(new LegacyCallNumberBrowseResult()
       .totalRecords(5).prev("D 11.211 N52 VOL 214").next("P 11.44034 B38 541993").items(List.of(
         cnBrowseItem(instance("instance #12"), "D1.211 N52 VOL 14"),
         cnBrowseItem(instance("instance #10"), "D1.3201 B34 41972"),
@@ -219,19 +218,6 @@ class BrowseCallNumberTypedIT extends BaseIntegrationTest {
 
   private static Instance instance(String title) {
     return INSTANCE_MAP.get(title);
-  }
-
-  private static Instance instance(Instance instance, Item item) {
-    return new Instance()
-      .id(instance.getId())
-      .title(instance.getTitle())
-      .staffSuppress(instance.getStaffSuppress())
-      .discoverySuppress(instance.getDiscoverySuppress())
-      .isBoundWith(instance.getIsBoundWith())
-      .shared(instance.getShared())
-      .tenantId(instance.getTenantId())
-      .items(singletonList(item))
-      .holdings(instance.getHoldings());
   }
 
   private static List<List<Object>> callNumberBrowseInstanceData() {

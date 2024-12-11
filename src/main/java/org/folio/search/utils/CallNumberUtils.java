@@ -17,9 +17,9 @@ import java.util.stream.Stream;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
+import org.folio.search.domain.dto.LegacyCallNumberBrowseItem;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.types.CallNumberType;
 import org.folio.search.service.consortium.ConsortiumSearchHelper;
@@ -213,10 +213,10 @@ public class CallNumberUtils {
    * @param browseItems         - list of CallNumberBrowseItem objects
    * @return filtered records
    */
-  public static List<CallNumberBrowseItem> excludeIrrelevantResultItems(BrowseContext context,
+  public static List<LegacyCallNumberBrowseItem> excludeIrrelevantResultItems(BrowseContext context,
                                                                         String callNumberTypeValue,
                                                                         Set<String> folioCallNumberTypes,
-                                                                        List<CallNumberBrowseItem> browseItems) {
+                                                                        List<LegacyCallNumberBrowseItem> browseItems) {
     var callNumberType = Optional.ofNullable(StringUtils.trimToNull(callNumberTypeValue));
     var tenantFilter = ConsortiumSearchHelper.getBrowseFilter(context, BROWSE_TENANT_FILTER_KEY);
     var locationFilter = ConsortiumSearchHelper.getBrowseFilterValues(context, BROWSE_LOCATION_FILTER_KEY);
@@ -247,7 +247,7 @@ public class CallNumberUtils {
                                                     List<Object> locationFilter,
                                                     Optional<String> callNumberType,
                                                     Set<String> folioCallNumberTypes,
-                                                    CallNumberBrowseItem item) {
+                                                    LegacyCallNumberBrowseItem item) {
     return item.getInstance().getItems()
       .stream()
       .filter(i -> tenantIdMatch(tenantFilter, i) && callNumberTypeMatch(callNumberType, folioCallNumberTypes, i)
@@ -255,7 +255,7 @@ public class CallNumberUtils {
       .toList();
   }
 
-  private static boolean isItemRelevant(CallNumberBrowseItem r) {
+  private static boolean isItemRelevant(LegacyCallNumberBrowseItem r) {
     Instance instance = r.getInstance();
     if (instance != null) {
       return instance.getItems()

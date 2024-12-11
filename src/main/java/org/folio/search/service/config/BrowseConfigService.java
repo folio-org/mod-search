@@ -2,7 +2,6 @@ package org.folio.search.service.config;
 
 import static org.folio.search.client.InventoryReferenceDataClient.ReferenceDataType.CALL_NUMBER_TYPES;
 import static org.folio.search.client.InventoryReferenceDataClient.ReferenceDataType.CLASSIFICATION_TYPES;
-import static org.folio.search.configuration.SearchCacheNames.BROWSE_CONFIG_CACHE;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,8 +24,6 @@ import org.folio.search.model.config.BrowseConfigEntity;
 import org.folio.search.model.config.BrowseConfigId;
 import org.folio.search.repository.BrowseConfigEntityRepository;
 import org.folio.search.utils.CollectionUtils;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,8 +44,6 @@ public class BrowseConfigService {
     return mapper.convert(repository.findByConfigId_BrowseType(type.getValue()));
   }
 
-  @Cacheable(cacheNames = BROWSE_CONFIG_CACHE,
-             key = "@folioExecutionContext.tenantId + ':' + #type.value + ':' + #optionType.value")
   public BrowseConfig getConfig(@NonNull BrowseType type, @NonNull BrowseOptionType optionType) {
     var typeValue = type.getValue();
     var optionTypeValue = optionType.getValue();
@@ -60,7 +55,6 @@ public class BrowseConfigService {
         "Config for %s type %s must be present in database".formatted(typeValue, optionTypeValue)));
   }
 
-  @CacheEvict(cacheNames = BROWSE_CONFIG_CACHE, allEntries = true)
   public void upsertConfig(@NonNull BrowseType type,
                            @NonNull BrowseOptionType optionType,
                            @NonNull BrowseConfig config) {
@@ -74,7 +68,6 @@ public class BrowseConfigService {
   }
 
   @Transactional
-  @CacheEvict(cacheNames = BROWSE_CONFIG_CACHE, allEntries = true)
   public void deleteTypeIdsFromConfigs(@NonNull BrowseType type, @NonNull List<String> typeIds) {
     if (typeIds.isEmpty()) {
       return;

@@ -1,3 +1,9 @@
+## v4.0.3 2024-12-12
+### Bug fixes
+* Remove browse config caching ([MSEARCH-897](https://folio-org.atlassian.net/browse/MSEARCH-897))
+
+---
+
 ## v4.0.2 2024-12-06
 ### Features
 * Move Instance sub-entities population from database trigger to code ([MSEARCH-887](https://folio-org.atlassian.net/browse/MSEARCH-887))

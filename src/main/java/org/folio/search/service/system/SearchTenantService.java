@@ -1,4 +1,4 @@
-package org.folio.search.service;
+package org.folio.search.service.system;
 
 import static java.lang.Boolean.parseBoolean;
 
@@ -9,11 +9,14 @@ import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.domain.dto.ReindexRequest;
+import org.folio.search.model.entity.TenantEntity;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.service.IndexService;
 import org.folio.search.service.browse.CallNumberBrowseRangeService;
 import org.folio.search.service.consortium.LanguageConfigServiceDecorator;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.service.reindex.ReindexService;
+import org.folio.search.service.reindex.jdbc.TenantRepository;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.liquibase.FolioSpringLiquibase;
 import org.folio.spring.service.PrepareSystemUserService;
@@ -41,6 +44,7 @@ public class SearchTenantService extends TenantService {
   private final ResourceDescriptionService resourceDescriptionService;
   private final CallNumberBrowseRangeService callNumberBrowseRangeService;
   private final SearchConfigurationProperties searchConfigurationProperties;
+  private final TenantRepository tenantRepository;
 
   public SearchTenantService(JdbcTemplate jdbcTemplate, FolioExecutionContext context,
                              FolioSpringLiquibase folioSpringLiquibase, KafkaAdminService kafkaAdminService,
@@ -49,7 +53,8 @@ public class SearchTenantService extends TenantService {
                              LanguageConfigServiceDecorator languageConfigService,
                              CallNumberBrowseRangeService callNumberBrowseRangeService,
                              ResourceDescriptionService resourceDescriptionService,
-                             SearchConfigurationProperties searchConfigurationProperties) {
+                             SearchConfigurationProperties searchConfigurationProperties,
+                             TenantRepository tenantRepository) {
     super(jdbcTemplate, context, folioSpringLiquibase);
     this.kafkaAdminService = kafkaAdminService;
     this.indexService = indexService;
@@ -59,6 +64,7 @@ public class SearchTenantService extends TenantService {
     this.callNumberBrowseRangeService = callNumberBrowseRangeService;
     this.resourceDescriptionService = resourceDescriptionService;
     this.searchConfigurationProperties = searchConfigurationProperties;
+    this.tenantRepository = tenantRepository;
   }
 
   /**
@@ -84,7 +90,10 @@ public class SearchTenantService extends TenantService {
   public synchronized void createOrUpdateTenant(TenantAttributes tenantAttributes) {
     var tenantId = context.getTenantId();
     var centralTenant = centralTenant(tenantId, tenantAttributes);
-    if (tenantId.equals(centralTenant)) {
+    var isCentral = tenantId.equals(centralTenant);
+    var tenantEntity = new TenantEntity(tenantId, isCentral ? null : centralTenant, true);
+    tenantRepository.saveTenant(tenantEntity);
+    if (isCentral) {
       super.createOrUpdateTenant(tenantAttributes);
     } else {
       log.info("Not executing full tenant init for not central tenant {}.", tenantId);
@@ -104,7 +113,10 @@ public class SearchTenantService extends TenantService {
   public void deleteTenant(TenantAttributes tenantAttributes) {
     var tenantId = context.getTenantId();
     var centralTenant = centralTenant(tenantId, tenantAttributes);
-    if (tenantId.equals(centralTenant)) {
+    var isCentral = tenantId.equals(centralTenant);
+    var tenantEntity = new TenantEntity(tenantId, isCentral ? null : centralTenant, false);
+    tenantRepository.saveTenant(tenantEntity);
+    if (isCentral) {
       super.deleteTenant(tenantAttributes);
     } else {
       log.info("Not executing full tenant destroy for not central tenant {}.", tenantId);

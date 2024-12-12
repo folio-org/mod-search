@@ -44,6 +44,9 @@ server.port: 8081
 
 folio:
   environment: folio-test
+  system:
+    schemaName: mod_search__system
+    change-log: classpath:changelog/changelog-system.xml
   search-config:
     initial-languages: eng,fre,ita,spa,ger
     max-search-batch-request-ids-count: ${MAX_SEARCH_BATCH_REQUEST_IDS_COUNT:500}
@@ -54,6 +57,7 @@ folio:
       browse-classifications: true
     indexing:
       data-format: ${INDEXING_DATA_FORMAT:json}
+      instance-children-index-delay-ms: 2000
   reindex:
     location-batch-size: ${REINDEX_LOCATION_BATCH_SIZE:2}
   query:

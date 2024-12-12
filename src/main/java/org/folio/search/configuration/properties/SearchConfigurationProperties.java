@@ -69,6 +69,8 @@ public class SearchConfigurationProperties {
      * Data format to use for passing data to elasticsearch.
      */
     private IndexingDataFormat dataFormat;
+
+    private long instanceChildrenIndexDelayMs;
   }
 
 }

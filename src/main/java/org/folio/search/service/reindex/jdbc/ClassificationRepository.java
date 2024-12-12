@@ -7,10 +7,12 @@ import static org.folio.search.utils.SearchUtils.CLASSIFICATION_TYPE_FIELD;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import lombok.extern.log4j.Log4j2;
@@ -68,15 +70,62 @@ public class ClassificationRepository extends UploadRangeRepository implements I
         c.id;
     """;
 
-  private static final String DELETE_QUERY = """
-    DELETE
-    FROM %s.instance_classification
-    WHERE instance_id IN (%s);
+  private static final String SELECT_BY_UPDATED_QUERY = """
+    WITH cte AS (SELECT c.id,
+                             c.number,
+                             c.type_id,
+                             c.last_updated_date
+                      FROM %1$s.classification c
+                      WHERE last_updated_date > ?)
+         SELECT c.id,
+                c.number,
+                c.type_id,
+                c.last_updated_date,
+                json_agg(
+                CASE
+                                    WHEN sub.instance_count IS NULL THEN NULL
+                                    ELSE
+                        json_build_object(
+                                'count', sub.instance_count,
+                                'shared', sub.shared,
+                                'tenantId', sub.tenant_id
+                        )
+                        END
+                ) AS instances
+         FROM cte c
+                  LEFT JOIN
+              (SELECT cte.id,
+                      ins.tenant_id,
+                      ins.shared,
+                      count(1) AS instance_count
+               FROM %1$s.instance_classification ins
+                   INNER JOIN cte ON ins.classification_id = cte.id
+               GROUP BY cte.id,
+                   ins.tenant_id,
+                   ins.shared) sub ON c.id = sub.id
+         GROUP BY c.id,
+                  c.number,
+                  c.type_id,
+                  c.last_updated_date
+          ORDER BY last_updated_date ASC;
     """;
+
+  private static final String DELETE_QUERY = """
+    WITH deleted_ids as (
+        DELETE
+        FROM %1$s.instance_classification
+        WHERE instance_id IN (%2$s)
+        RETURNING classification_id
+    )
+    UPDATE %1$s.classification
+    SET last_updated_date = CURRENT_TIMESTAMP
+    WHERE id IN (SELECT * FROM deleted_ids);
+    """;
+
   private static final String INSERT_ENTITIES_SQL = """
       INSERT INTO %s.classification (id, number, type_id)
       VALUES (?, ?, ?)
-      ON CONFLICT DO NOTHING;
+      ON CONFLICT (id) DO UPDATE SET last_updated_date = CURRENT_TIMESTAMP;
     """;
   private static final String INSERT_RELATIONS_SQL = """
       INSERT INTO %s.instance_classification (instance_id, classification_id, tenant_id, shared)
@@ -128,6 +177,14 @@ public class ClassificationRepository extends UploadRangeRepository implements I
   }
 
   @Override
+  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp) {
+    var sql = SELECT_BY_UPDATED_QUERY.formatted(JdbcUtils.getSchemaName(tenant, context.getFolioModuleMetadata()));
+    var records = jdbcTemplate.query(sql, rowToMapMapper2(), timestamp);
+    var lastUpdateDate = records.isEmpty() ? null : records.get(records.size() - 1).get(LAST_UPDATED_DATE_FIELD);
+    return new SubResourceResult(records, (Timestamp) lastUpdateDate);
+  }
+
+  @Override
   protected String getFetchBySql() {
     return SELECT_QUERY.formatted(JdbcUtils.getSchemaName(context),
       ID_RANGE_INS_WHERE_CLAUSE,
@@ -142,8 +199,27 @@ public class ClassificationRepository extends UploadRangeRepository implements I
       classification.put("number", getNumber(rs));
       classification.put("typeId", getTypeId(rs));
 
-      var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs));
-      classification.put("instances", maps);
+      var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
+      if (!maps.isEmpty()) {
+        classification.put("instances", maps);
+      }
+
+      return classification;
+    };
+  }
+
+  protected RowMapper<Map<String, Object>> rowToMapMapper2() {
+    return (rs, rowNum) -> {
+      Map<String, Object> classification = new HashMap<>();
+      classification.put("id", getId(rs));
+      classification.put("number", getNumber(rs));
+      classification.put("typeId", getTypeId(rs));
+      classification.put(LAST_UPDATED_DATE_FIELD, rs.getTimestamp("last_updated_date"));
+
+      var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
+      if (!maps.isEmpty()) {
+        classification.put("instances", maps);
+      }
 
       return classification;
     };

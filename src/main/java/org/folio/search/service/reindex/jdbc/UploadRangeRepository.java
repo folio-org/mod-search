@@ -30,7 +30,7 @@ import org.springframework.jdbc.core.RowMapper;
 public abstract class UploadRangeRepository extends ReindexJdbcRepository {
 
   protected static final String SELECT_RECORD_SQL = "SELECT * from %s WHERE id >= ? AND id <= ?;";
-
+  protected static final String LAST_UPDATED_DATE_FIELD = "lastUpdatedDate";
   private static final String UPSERT_UPLOAD_RANGE_SQL = """
       INSERT INTO %s (id, entity_type, lower, upper, created_at, finished_at)
       VALUES (?, ?, ?, ?, ?, ?)
@@ -66,6 +66,8 @@ public abstract class UploadRangeRepository extends ReindexJdbcRepository {
     return jdbcTemplate.query(sql, rowToMapMapper(), lower, upper);
   }
 
+  public abstract SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp);
+
   protected String getFetchBySql() {
     return SELECT_RECORD_SQL.formatted(getFullTableName(context, entityTable()));
   }
@@ -83,6 +85,11 @@ public abstract class UploadRangeRepository extends ReindexJdbcRepository {
     } catch (Exception e) {
       throw new IllegalArgumentException(e);
     }
+  }
+
+  protected List<RangeGenerator.Range> createRanges() {
+    var uploadRangeLevel = reindexConfig.getUploadRangeLevel();
+    return RangeGenerator.createHexRanges(uploadRangeLevel);
   }
 
   private RowMapper<UploadRangeEntity> uploadRangeRowMapper() {
@@ -109,11 +116,6 @@ public abstract class UploadRangeRepository extends ReindexJdbcRepository {
     upsertUploadRanges(ranges);
 
     return ranges;
-  }
-
-  protected List<RangeGenerator.Range> createRanges() {
-    var uploadRangeLevel = reindexConfig.getUploadRangeLevel();
-    return RangeGenerator.createHexRanges(uploadRangeLevel);
   }
 
   private void upsertUploadRanges(List<UploadRangeEntity> uploadRanges) {

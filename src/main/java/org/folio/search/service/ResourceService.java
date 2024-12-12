@@ -126,8 +126,6 @@ public class ResourceService {
   }
 
   private void preProcessEvents(List<ResourceEvent> instanceEvents) {
-    instanceEvents.forEach(event -> consortiumTenantExecutor.run(
-      () -> instanceChildrenResourceService.sendChildrenEvent(event)));
   }
 
   private Map<String, List<SearchDocumentBody>> processDeleteInstanceEvents(List<ResourceEvent> deleteEvents) {

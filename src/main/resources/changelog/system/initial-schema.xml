@@ -1,0 +1,19 @@
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+  <changeSet id="MSEARCH-887@@create-tenant-table" author="pavlo_smahin">
+    <sql>
+      CREATE SCHEMA IF NOT EXISTS mod_search__system;
+    </sql>
+    <createTable tableName="known_tenant" schemaName="mod_search__system">
+      <column name="id" type="VARCHAR(255)">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_known_tenant"/>
+      </column>
+      <column name="central_id" type="VARCHAR(255)"/>
+      <column name="active" type="BOOLEAN" defaultValueBoolean="true"/>
+    </createTable>
+  </changeSet>
+
+</databaseChangeLog>

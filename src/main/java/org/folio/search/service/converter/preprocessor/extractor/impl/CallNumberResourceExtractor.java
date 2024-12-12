@@ -25,6 +25,7 @@ import org.folio.search.model.entity.InstanceCallNumberEntityAgg;
 import org.folio.search.model.index.CallNumberResource;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.FeatureConfigService;
+import org.folio.search.service.consortium.ConsortiumTenantProvider;
 import org.folio.search.service.converter.preprocessor.extractor.ChildResourceExtractor;
 import org.folio.search.service.reindex.jdbc.CallNumberRepository;
 import org.folio.search.utils.CollectionUtils;
@@ -48,13 +49,17 @@ public class CallNumberResourceExtractor extends ChildResourceExtractor {
   private final CallNumberRepository repository;
   private final JsonConverter jsonConverter;
   private final FeatureConfigService featureConfigService;
+  private final ConsortiumTenantProvider tenantProvider;
 
-  public CallNumberResourceExtractor(CallNumberRepository repository, JsonConverter jsonConverter,
-                                     FeatureConfigService featureConfigService) {
+  public CallNumberResourceExtractor(CallNumberRepository repository,
+                                     JsonConverter jsonConverter,
+                                     FeatureConfigService featureConfigService,
+                                     ConsortiumTenantProvider tenantProvider) {
     super(repository);
     this.repository = repository;
     this.jsonConverter = jsonConverter;
     this.featureConfigService = featureConfigService;
+    this.tenantProvider = tenantProvider;
   }
 
   @Override
@@ -189,6 +194,9 @@ public class CallNumberResourceExtractor extends ChildResourceExtractor {
     var resource = new CallNumberResource(id, source.fullCallNumber(), source.callNumber(),
       source.callNumberPrefix(), source.callNumberSuffix(), source.callNumberTypeId(), source.volume(),
       source.enumeration(), source.chronology(), source.copyNumber(), source.instances());
+    for (var instance : source.instances()) {
+      instance.setShared(tenantProvider.isCentralTenant(instance.getTenantId()));
+    }
     return new ResourceEvent()
       .id(id)
       .tenant(tenant)

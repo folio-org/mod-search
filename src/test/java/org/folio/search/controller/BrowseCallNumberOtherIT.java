@@ -19,11 +19,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import org.folio.search.domain.dto.CallNumberBrowseResult;
 import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
+import org.folio.search.domain.dto.LegacyCallNumberBrowseResult;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.search.utils.TestUtils;
 import org.folio.spring.testing.type.IntegrationTest;
@@ -53,24 +53,24 @@ class BrowseCallNumberOtherIT extends BaseIntegrationTest {
     var request = get(instanceCallNumberBrowsePath())
       .param("query", prepareQuery("callNumber >= {value} or callNumber < {value}", "g"))
       .param("limit", "15").param("expandAll", "true");
-    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    var actual = parseResponse(doGet(request), LegacyCallNumberBrowseResult.class);
     cleanupActual(actual);
-    var expected = new CallNumberBrowseResult()
+    var expected = new LegacyCallNumberBrowseResult()
       .totalRecords(12).prev("43350.28").next("RAW 222").items(List.of(
-      cnBrowseItem(instance("instance #04"), "3350.28"),
-      cnBrowseItem(instance("instance #05"), "3362.82 292 220"),
-      cnBrowseItem(instance("instance #02"), "DA 3880 O6 M96"),
-      cnBrowseItem(instance("instance #09"), "F  PR1866.S63 V.1 C.1"),
-      cnBrowseItem(instance("instance #11"), "F-1,452"),
-      cnBrowseItemWithNoType(instance("instance #10"), "FA 42010 3546 256"),
-      cnBrowseItem(0, "g", true),
-      cnBrowseItem(instance("instance #12"), "G  SHELF#1", "G (shelf#1)"),
-      cnBrowseItem(instance("instance #03"), "PICCADILLY JZ 4 C.1", "Piccadilly Jz 4 c.1"),
-      cnBrowseItem(instance("instance #01"), "PICKWIC JZ 9 C.1", "Pickwic Jz 9 c.1"),
-      cnBrowseItem(instance("instance #08"), "PIRANHA 19 _C 11"),
-      cnBrowseItem(instance("instance #06"), "PIROUET JAS 19035 C.1", "Pirouet JAS 19035 c.1"),
-      cnBrowseItem(instance("instance #07"), "RAW 22")
-    ));
+        cnBrowseItem(instance("instance #04"), "3350.28"),
+        cnBrowseItem(instance("instance #05"), "3362.82 292 220"),
+        cnBrowseItem(instance("instance #02"), "DA 3880 O6 M96"),
+        cnBrowseItem(instance("instance #09"), "F  PR1866.S63 V.1 C.1"),
+        cnBrowseItem(instance("instance #11"), "F-1,452"),
+        cnBrowseItemWithNoType(instance("instance #10"), "FA 42010 3546 256"),
+        cnBrowseItem(0, "g", true),
+        cnBrowseItem(instance("instance #12"), "G  SHELF#1", "G (shelf#1)"),
+        cnBrowseItem(instance("instance #03"), "PICCADILLY JZ 4 C.1", "Piccadilly Jz 4 c.1"),
+        cnBrowseItem(instance("instance #01"), "PICKWIC JZ 9 C.1", "Pickwic Jz 9 c.1"),
+        cnBrowseItem(instance("instance #08"), "PIRANHA 19 _C 11"),
+        cnBrowseItem(instance("instance #06"), "PIROUET JAS 19035 C.1", "Pirouet JAS 19035 c.1"),
+        cnBrowseItem(instance("instance #07"), "RAW 22")
+      ));
     cleanupActual(expected);
     assertThat(actual).isEqualTo(expected);
   }
@@ -82,24 +82,24 @@ class BrowseCallNumberOtherIT extends BaseIntegrationTest {
     var request = get(instanceCallNumberBrowsePath())
       .param("query", prepareQuery("callNumber >= {value} or callNumber < {value}", "g"))
       .param("limit", "15").param("expandAll", "true");
-    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    var actual = parseResponse(doGet(request), LegacyCallNumberBrowseResult.class);
     cleanupActual(actual);
-    var expected = new CallNumberBrowseResult()
+    var expected = new LegacyCallNumberBrowseResult()
       .totalRecords(12).prev("43350.28").next("RAW 222").items(List.of(
-      cnBrowseItem(instance("instance #04"), "3350.28"),
-      cnBrowseItem(instance("instance #05"), "3362.82 292 220"),
-      cnBrowseItem(instance("instance #02"), "DA 3880 O6 M96"),
-      cnBrowseItem(instance("instance #09"), "F  PR1866.S63 V.1 C.1"),
-      cnBrowseItem(instance("instance #11"), "F-1,452"),
-      cnBrowseItemWithNoType(instance("instance #10"), "FA 42010 3546 256"),
-      cnBrowseItem(0, "g", true),
-      cnBrowseItem(instance("instance #12"), "G  SHELF#1", "G (shelf#1)"),
-      cnBrowseItem(instance("instance #03"), "PICCADILLY JZ 4 C.1", "Piccadilly Jz 4 c.1"),
-      cnBrowseItem(instance("instance #01"), "PICKWIC JZ 9 C.1", "Pickwic Jz 9 c.1"),
-      cnBrowseItem(instance("instance #08"), "PIRANHA 19 _C 11"),
-      cnBrowseItem(instance("instance #06"), "PIROUET JAS 19035 C.1", "Pirouet JAS 19035 c.1"),
-      cnBrowseItem(instance("instance #07"), "RAW 22")
-    ));
+        cnBrowseItem(instance("instance #04"), "3350.28"),
+        cnBrowseItem(instance("instance #05"), "3362.82 292 220"),
+        cnBrowseItem(instance("instance #02"), "DA 3880 O6 M96"),
+        cnBrowseItem(instance("instance #09"), "F  PR1866.S63 V.1 C.1"),
+        cnBrowseItem(instance("instance #11"), "F-1,452"),
+        cnBrowseItemWithNoType(instance("instance #10"), "FA 42010 3546 256"),
+        cnBrowseItem(0, "g", true),
+        cnBrowseItem(instance("instance #12"), "G  SHELF#1", "G (shelf#1)"),
+        cnBrowseItem(instance("instance #03"), "PICCADILLY JZ 4 C.1", "Piccadilly Jz 4 c.1"),
+        cnBrowseItem(instance("instance #01"), "PICKWIC JZ 9 C.1", "Pickwic Jz 9 c.1"),
+        cnBrowseItem(instance("instance #08"), "PIRANHA 19 _C 11"),
+        cnBrowseItem(instance("instance #06"), "PIROUET JAS 19035 C.1", "Pirouet JAS 19035 c.1"),
+        cnBrowseItem(instance("instance #07"), "RAW 22")
+      ));
     cleanupActual(expected);
     assertThat(actual).isEqualTo(expected);
 
@@ -113,9 +113,9 @@ class BrowseCallNumberOtherIT extends BaseIntegrationTest {
       .param("limit", "5")
       .param("precedingRecordsCount", "3")
       .param("expandAll", "true");
-    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+    var actual = parseResponse(doGet(request), LegacyCallNumberBrowseResult.class);
     cleanupActual(actual);
-    var expected = new CallNumberBrowseResult()
+    var expected = new LegacyCallNumberBrowseResult()
       .totalRecords(13).prev("DA 43880 O6 M96").next("G  SHELF#1").items(List.of(
         cnBrowseItem(instance("instance #02"), "DA 3880 O6 M96"),
         cnBrowseItem(instance("instance #09"), "F  PR1866.S63 V.1 C.1"),
@@ -136,8 +136,8 @@ class BrowseCallNumberOtherIT extends BaseIntegrationTest {
   @SuppressWarnings("unchecked")
   private static Instance instance(List<Object> data) {
     var effectiveShelvingOrderFunction = data.size() < 3
-      ? (Function<String, String>) TestUtils::getShelfKeyFromCallNumber
-      : (Function<String, String>) data.get(2);
+                                         ? (Function<String, String>) TestUtils::getShelfKeyFromCallNumber
+                                         : (Function<String, String>) data.get(2);
 
     var holdingId = randomId();
     var holding = new Holding().id(holdingId).discoverySuppress(false).tenantId(TENANT_ID);

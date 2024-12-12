@@ -3,17 +3,20 @@ package org.folio.search.controller;
 import static java.util.Collections.emptyList;
 import static org.folio.search.model.types.ResourceType.AUTHORITY;
 import static org.folio.search.model.types.ResourceType.INSTANCE;
+import static org.folio.search.model.types.ResourceType.INSTANCE_CALL_NUMBER;
 import static org.folio.search.model.types.ResourceType.INSTANCE_SUBJECT;
 import static org.folio.search.support.base.ApiEndpoints.authorityBrowsePath;
 import static org.folio.search.support.base.ApiEndpoints.instanceCallNumberBrowsePath;
 import static org.folio.search.support.base.ApiEndpoints.instanceSubjectBrowsePath;
 import static org.folio.search.utils.SearchUtils.CALL_NUMBER_BROWSING_FIELD;
+import static org.folio.search.utils.SearchUtils.LEGACY_CALL_NUMBER_BROWSING_FIELD;
 import static org.folio.search.utils.SearchUtils.SHELVING_ORDER_BROWSING_FIELD;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.authorityBrowseItem;
 import static org.folio.search.utils.TestUtils.subjectBrowseItem;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -25,12 +28,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.folio.search.domain.dto.Authority;
+import org.folio.search.domain.dto.BrowseOptionType;
+import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.service.browse.AuthorityBrowseService;
 import org.folio.search.service.browse.CallNumberBrowseService;
 import org.folio.search.service.browse.ClassificationBrowseService;
 import org.folio.search.service.browse.ContributorBrowseService;
+import org.folio.search.service.browse.LegacyCallNumberBrowseService;
 import org.folio.search.service.browse.SubjectBrowseService;
 import org.folio.search.service.consortium.TenantProvider;
 import org.folio.search.service.setter.SearchResponsePostProcessor;
@@ -57,11 +63,13 @@ class BrowseControllerTest {
   @MockBean
   private AuthorityBrowseService authorityBrowseService;
   @MockBean
-  private CallNumberBrowseService callNumberBrowseService;
+  private LegacyCallNumberBrowseService legacyCallNumberBrowseService;
   @MockBean
   private ContributorBrowseService contributorBrowseService;
   @MockBean
   private ClassificationBrowseService classificationBrowseService;
+  @MockBean
+  private CallNumberBrowseService callNumberBrowseService;
   @MockBean
   private TenantProvider tenantProvider;
   @Mock
@@ -74,10 +82,10 @@ class BrowseControllerTest {
   }
 
   @Test
-  void browseInstancesByCallNumber_positive() throws Exception {
+  void browseInstancesByCallNumberLegacy_positive() throws Exception {
     var query = "callNumber > PR4034 .P7 2019";
     var request = browseRequest(query);
-    when(callNumberBrowseService.browse(request)).thenReturn(BrowseResult.empty());
+    when(legacyCallNumberBrowseService.browse(request)).thenReturn(BrowseResult.empty());
     var requestBuilder = get(instanceCallNumberBrowsePath())
       .queryParam("query", query)
       .queryParam("limit", "5")
@@ -91,11 +99,11 @@ class BrowseControllerTest {
   }
 
   @Test
-  void browseInstancesByCallNumber_positive_allFields() throws Exception {
+  void browseInstancesByCallNumberLegacy_positive_allFields() throws Exception {
     var query = "callNumber > B";
     var request = BrowseRequest.of(INSTANCE, TENANT_ID,
-      query, 20, SHELVING_ORDER_BROWSING_FIELD, CALL_NUMBER_BROWSING_FIELD, true, true, 5);
-    when(callNumberBrowseService.browse(request)).thenReturn(BrowseResult.empty());
+      query, 20, SHELVING_ORDER_BROWSING_FIELD, LEGACY_CALL_NUMBER_BROWSING_FIELD, true, true, 5);
+    when(legacyCallNumberBrowseService.browse(request)).thenReturn(BrowseResult.empty());
 
     var requestBuilder = get(instanceCallNumberBrowsePath())
       .queryParam("query", query)
@@ -153,7 +161,7 @@ class BrowseControllerTest {
   }
 
   @Test
-  void browseInstancesByCallNumber_negative_missingQueryParameter() throws Exception {
+  void browseInstancesByCallNumberLegacy_negative_missingQueryParameter() throws Exception {
     var requestBuilder = get(instanceCallNumberBrowsePath())
       .queryParam("limit", "5")
       .contentType(APPLICATION_JSON)
@@ -169,7 +177,7 @@ class BrowseControllerTest {
   }
 
   @Test
-  void browseInstancesByCallNumber_negative_precedingRecordsMoreThatLimit() throws Exception {
+  void browseInstancesByCallNumberLegacy_negative_precedingRecordsMoreThatLimit() throws Exception {
     var requestBuilder = get(instanceCallNumberBrowsePath())
       .queryParam("query", "callNumber > A")
       .queryParam("limit", "5")
@@ -188,8 +196,99 @@ class BrowseControllerTest {
   }
 
   @Test
-  void browseInstancesByCallNumber_negative_precedingRecordsCountIsZero() throws Exception {
+  void browseInstancesByCallNumberLegacy_negative_precedingRecordsCountIsZero() throws Exception {
     var requestBuilder = get(instanceCallNumberBrowsePath())
+      .queryParam("query", "callNumber >= A or callNumber < A")
+      .queryParam("limit", "5")
+      .queryParam("precedingRecordsCount", "0")
+      .contentType(APPLICATION_JSON)
+      .header(XOkapiHeaders.TENANT, TENANT_ID);
+
+    mockMvc.perform(requestBuilder)
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.total_records", is(1)))
+      .andExpect(jsonPath("$.errors[0].type", is("ConstraintViolationException")))
+      .andExpect(jsonPath("$.errors[0].code", is("validation_error")))
+      .andExpect(jsonPath("$.errors[0].message", is(
+        "browseInstancesByCallNumberLegacy.precedingRecordsCount must be greater than or equal to 1")));
+  }
+
+  @Test
+  void browseInstancesByCallNumber_positive() throws Exception {
+    var query = "fullCallNumber > PR4034 .P7 2019";
+    var browseRequest = BrowseRequest.of(INSTANCE_CALL_NUMBER, TENANT_ID, BrowseOptionType.ALL, query, 5,
+      CALL_NUMBER_BROWSING_FIELD, null, false, true, 2);
+    when(callNumberBrowseService.browse(browseRequest)).thenReturn(BrowseResult.of(1, "PR3", "PR5",
+      List.of(new CallNumberBrowseItem().callNumber("PR4034 .P7 2019"))));
+    var requestBuilder = get(instanceCallNumberBrowsePath(BrowseOptionType.ALL))
+      .queryParam("query", query)
+      .queryParam("limit", "5")
+      .contentType(APPLICATION_JSON)
+      .header(XOkapiHeaders.TENANT, TENANT_ID);
+
+    mockMvc.perform(requestBuilder)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.totalRecords", is(1)))
+      .andExpect(jsonPath("$.items.size()", is(1)))
+      .andExpect(jsonPath("$.prev", is("PR3")))
+      .andExpect(jsonPath("$.next", is("PR5")))
+      .andExpect(jsonPath("$.items[0].callNumber", is("PR4034 .P7 2019")));
+  }
+
+  @Test
+  void browseInstancesByCallNumber_positive_empty() throws Exception {
+    var query = "fullCallNumber > PR4034 .P7 2019";
+    when(callNumberBrowseService.browse(any())).thenReturn(BrowseResult.empty());
+    var requestBuilder = get(instanceCallNumberBrowsePath(BrowseOptionType.ALL))
+      .queryParam("query", query)
+      .queryParam("limit", "5")
+      .contentType(APPLICATION_JSON)
+      .header(XOkapiHeaders.TENANT, TENANT_ID);
+
+    mockMvc.perform(requestBuilder)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.totalRecords", is(0)))
+      .andExpect(jsonPath("$.items", is(emptyList())));
+  }
+
+  @Test
+  void browseInstancesByCallNumber_negative_missingQueryParameter() throws Exception {
+    var requestBuilder = get(instanceCallNumberBrowsePath(BrowseOptionType.ALL))
+      .queryParam("limit", "5")
+      .contentType(APPLICATION_JSON)
+      .header(XOkapiHeaders.TENANT, TENANT_ID);
+
+    var expectedErrorMessage = "Required request parameter 'query' for method parameter type String is not present";
+    mockMvc.perform(requestBuilder)
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.total_records", is(1)))
+      .andExpect(jsonPath("$.errors[0].message", is(expectedErrorMessage)))
+      .andExpect(jsonPath("$.errors[0].type", is("MissingServletRequestParameterException")))
+      .andExpect(jsonPath("$.errors[0].code", is("validation_error")));
+  }
+
+  @Test
+  void browseInstancesByCallNumber_negative_precedingRecordsMoreThatLimit() throws Exception {
+    var requestBuilder = get(instanceCallNumberBrowsePath(BrowseOptionType.ALL))
+      .queryParam("query", "callNumber > A")
+      .queryParam("limit", "5")
+      .queryParam("precedingRecordsCount", "10")
+      .contentType(APPLICATION_JSON)
+      .header(XOkapiHeaders.TENANT, TENANT_ID);
+
+    mockMvc.perform(requestBuilder)
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.total_records", is(1)))
+      .andExpect(jsonPath("$.errors[0].message", is("Preceding records count must be less than request limit")))
+      .andExpect(jsonPath("$.errors[0].parameters[0].key", is("precedingRecordsCount")))
+      .andExpect(jsonPath("$.errors[0].parameters[0].value", is("10")))
+      .andExpect(jsonPath("$.errors[0].type", is("RequestValidationException")))
+      .andExpect(jsonPath("$.errors[0].code", is("validation_error")));
+  }
+
+  @Test
+  void browseInstancesByCallNumber_negative_precedingRecordsCountIsZero() throws Exception {
+    var requestBuilder = get(instanceCallNumberBrowsePath(BrowseOptionType.ALL))
       .queryParam("query", "callNumber >= A or callNumber < A")
       .queryParam("limit", "5")
       .queryParam("precedingRecordsCount", "0")
@@ -207,6 +306,6 @@ class BrowseControllerTest {
 
   private BrowseRequest browseRequest(String query) {
     return BrowseRequest.of(INSTANCE, TENANT_ID, query, 5,
-      SHELVING_ORDER_BROWSING_FIELD, CALL_NUMBER_BROWSING_FIELD, false, true, 5 / 2);
+      SHELVING_ORDER_BROWSING_FIELD, LEGACY_CALL_NUMBER_BROWSING_FIELD, false, true, 5 / 2);
   }
 }

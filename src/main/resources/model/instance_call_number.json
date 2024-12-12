@@ -21,6 +21,7 @@
     },
     "callNumberTypeId": {
       "index": "keyword",
+      "searchTypes": [ "facet" ],
       "showInResponse": [ "browse" ]
     },
     "volume": {
@@ -62,11 +63,6 @@
     }
   },
   "searchFields": {
-    "fullCallNumber": {
-      "type": "search",
-      "index": "keyword_icu",
-      "processor": "defaultCallNumberShelvingOrderFieldProcessor"
-    },
     "defaultShelvingOrder": {
       "type": "search",
       "index": "keyword_icu",

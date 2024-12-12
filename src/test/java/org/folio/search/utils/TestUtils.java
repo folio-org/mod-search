@@ -78,6 +78,8 @@ import org.folio.search.domain.dto.InstanceContributorBrowseItem;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.domain.dto.LanguageConfigs;
+import org.folio.search.domain.dto.LegacyCallNumberBrowseItem;
+import org.folio.search.domain.dto.LegacyCallNumberBrowseResult;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.domain.dto.SubjectBrowseItem;
@@ -198,25 +200,26 @@ public class TestUtils {
     return new CallNumberBrowseResult().totalRecords(total).items(items);
   }
 
-  public static CallNumberBrowseItem cnBrowseItem(Instance instance, String callNumber) {
+  public static LegacyCallNumberBrowseItem cnBrowseItem(Instance instance, String callNumber) {
     return cnBrowseItem(instance, callNumber, 0);
   }
 
-  public static CallNumberBrowseItem cnBrowseItem(Instance instance, String callNumber,
-                                                  Integer itemNumberForCallNumberType) {
+  public static LegacyCallNumberBrowseItem cnBrowseItem(Instance instance, String callNumber,
+                                                        Integer itemNumberForCallNumberType) {
     return cnBrowseItem(instance, callNumber, itemNumberForCallNumberType, null);
   }
 
-  public static CallNumberBrowseItem cnBrowseItem(Instance instance, String shelfKey, String callNumber) {
-    return new CallNumberBrowseItem().fullCallNumber(callNumber).shelfKey(shelfKey).instance(instance).totalRecords(1);
+  public static LegacyCallNumberBrowseItem cnBrowseItem(Instance instance, String shelfKey, String callNumber) {
+    return new LegacyCallNumberBrowseItem().fullCallNumber(callNumber)
+      .shelfKey(shelfKey).instance(instance).totalRecords(1);
   }
 
-  public static CallNumberBrowseItem cnBrowseItem(Instance instance, String callNumber, boolean isAnchor) {
+  public static LegacyCallNumberBrowseItem cnBrowseItem(Instance instance, String callNumber, boolean isAnchor) {
     return cnBrowseItem(instance, callNumber, 0, isAnchor);
   }
 
-  public static CallNumberBrowseItem cnBrowseItem(Instance instance, String callNumber,
-                                                  Integer itemNumberForCallNumberType, Boolean isAnchor) {
+  public static LegacyCallNumberBrowseItem cnBrowseItem(Instance instance, String callNumber,
+                                                        Integer itemNumberForCallNumberType, Boolean isAnchor) {
     var callNumberType = Optional.ofNullable(instance.getItems().get(itemNumberForCallNumberType)).flatMap(
       item -> Optional.ofNullable(item.getEffectiveCallNumberComponents())
         .map(ItemEffectiveCallNumberComponents::getTypeId));
@@ -229,36 +232,37 @@ public class TestUtils {
       .isBoundWith(instance.getIsBoundWith())
       .items(null)
       .holdings(null);
-    return new CallNumberBrowseItem().fullCallNumber(callNumber).shelfKey(shelfKey).instance(ins).totalRecords(1)
+    return new LegacyCallNumberBrowseItem().fullCallNumber(callNumber).shelfKey(shelfKey).instance(ins).totalRecords(1)
       .isAnchor(isAnchor);
   }
 
-  public static CallNumberBrowseItem cnBrowseItem(CallNumberType callNumberType, String callNumber,
-                                                  Integer totalRecords, Boolean isAnchor) {
+  public static LegacyCallNumberBrowseItem cnBrowseItem(CallNumberType callNumberType, String callNumber,
+                                                        Integer totalRecords, Boolean isAnchor) {
     var shelfKey = getShelfKeyFromCallNumber(callNumber, callNumberType.getId());
-    return new CallNumberBrowseItem().fullCallNumber(callNumber).shelfKey(shelfKey).instance(null)
+    return new LegacyCallNumberBrowseItem().fullCallNumber(callNumber).shelfKey(shelfKey).instance(null)
       .totalRecords(totalRecords).isAnchor(isAnchor);
   }
 
-  public static CallNumberBrowseItem cnBrowseItem(int totalRecords, String callNumber) {
+  public static LegacyCallNumberBrowseItem cnBrowseItem(int totalRecords, String callNumber) {
     var shelfKey = getShelfKeyFromCallNumber(callNumber);
-    return new CallNumberBrowseItem().totalRecords(totalRecords).shelfKey(shelfKey).fullCallNumber(callNumber);
+    return new LegacyCallNumberBrowseItem().totalRecords(totalRecords).shelfKey(shelfKey).fullCallNumber(callNumber);
   }
 
-  public static CallNumberBrowseItem cnBrowseItem(int totalRecords, String callNumber, boolean isAnchor) {
+  public static LegacyCallNumberBrowseItem cnBrowseItem(int totalRecords, String callNumber, boolean isAnchor) {
     var shelfKey = getShelfKeyFromCallNumber(callNumber);
-    return new CallNumberBrowseItem().totalRecords(totalRecords).shelfKey(shelfKey).fullCallNumber(callNumber)
+    return new LegacyCallNumberBrowseItem().totalRecords(totalRecords).shelfKey(shelfKey).fullCallNumber(callNumber)
       .isAnchor(isAnchor);
   }
 
-  public static CallNumberBrowseItem cnBrowseItemWithNoType(Instance instance, String callNumber) {
+  public static LegacyCallNumberBrowseItem cnBrowseItemWithNoType(Instance instance, String callNumber) {
     return cnBrowseItemWithNoType(instance, callNumber, null);
   }
 
-  public static CallNumberBrowseItem cnBrowseItemWithNoType(Instance instance, String callNumber, Boolean isAnchor) {
+  public static LegacyCallNumberBrowseItem cnBrowseItemWithNoType(Instance instance, String callNumber,
+                                                                  Boolean isAnchor) {
     var shelfKey = getShelfKeyFromCallNumber(callNumber);
-    return new CallNumberBrowseItem().fullCallNumber(callNumber).shelfKey(shelfKey).instance(instance).totalRecords(1)
-      .isAnchor(isAnchor);
+    return new LegacyCallNumberBrowseItem().fullCallNumber(callNumber)
+      .shelfKey(shelfKey).instance(instance).totalRecords(1).isAnchor(isAnchor);
   }
 
   public static String getShelfKeyFromCallNumber(String callNumber) {
@@ -372,23 +376,15 @@ public class TestUtils {
     return SearchDocumentBody.of(null, null, resourceEvent(), DELETE);
   }
 
-  public static void cleanupActual(CallNumberBrowseResult actual) {
+  public static void cleanupActual(LegacyCallNumberBrowseResult actual) {
     for (var item : actual.getItems()) {
       cleanupCallNumberItem(item);
     }
   }
 
-  public static void cleanupActual(BrowseResult<CallNumberBrowseItem> actual) {
+  public static void cleanupActual(BrowseResult<LegacyCallNumberBrowseItem> actual) {
     for (var item : actual.getRecords()) {
       cleanupCallNumberItem(item);
-    }
-  }
-
-  private static void cleanupCallNumberItem(CallNumberBrowseItem item) {
-    var instance = item.getInstance();
-    if (instance != null) {
-      instance.setItems(null);
-      instance.setHoldings(null);
     }
   }
 
@@ -701,6 +697,14 @@ public class TestUtils {
         """.formatted(String.join(",", strings))));
     wireMockServer.stubFor(stub);
     return stub;
+  }
+
+  private static void cleanupCallNumberItem(LegacyCallNumberBrowseItem item) {
+    var instance = item.getInstance();
+    if (instance != null) {
+      instance.setItems(null);
+      instance.setHoldings(null);
+    }
   }
 
   private static JsonNode searchResponseWithAggregation(JsonNode aggregationValue) {

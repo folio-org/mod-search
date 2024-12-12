@@ -1,18 +1,16 @@
 get:
-  operationId: browseInstancesByCallNumberLegacy
-  summary: Browse Call Numbers
-  description: Provides list of instances for browsing by call number
-  deprecated: true
+  operationId: browseInstancesByCallNumber
+  summary: Browse Instance Call Numbers
+  description: Provides list of call numbers
   tags:
     - browse
   parameters:
-    - $ref: '../../parameters/cql-query.yaml'
+    - $ref: '../../parameters/browse-option-id.yaml'
+    - $ref: '../../parameters/instance-call-number-browse-cql-query.yaml'
     - $ref: '../../parameters/browse-limit-param.yaml'
-    - $ref: '../../parameters/expand-all-param.yaml'
-    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
     - $ref: '../../parameters/highlight-match.yaml'
     - $ref: '../../parameters/preceding-records-count.yaml'
-    - $ref: '../../parameters/call-number-type-param.yaml'
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
   responses:
     '200':
       description: 'Search result for browsing by call number'
@@ -20,9 +18,9 @@ get:
         application/json:
           examples:
             browseResult:
-              $ref: '../../examples/result/browseCallNumberResult.yaml'
+              $ref: '../../examples/result/browseClassificationNumberResult.yaml'
           schema:
-            $ref: '../../schemas/legacy/legacyCallNumberBrowseResult.yaml'
+            $ref: '../../schemas/response/callNumberBrowseResult.yaml'
     '400':
       $ref: '../../responses/badRequestResponse.yaml'
     '500':

@@ -148,6 +148,9 @@ paths:
   /browse/call-numbers/instances:
     $ref: 'paths/browse-call-numbers/browse-call-numbers-instances.yaml'
 
+  /browse/call-numbers/{browseOptionId}/instances:
+    $ref: 'paths/browse-call-numbers/browse-instance-call-numbers.yaml'
+
   /browse/classification-numbers/{browseOptionId}/instances:
     $ref: 'paths/browse-classification-numbers/browse-instance-classifications.yaml'
 

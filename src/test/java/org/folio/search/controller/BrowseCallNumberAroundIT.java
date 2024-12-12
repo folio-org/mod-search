@@ -16,11 +16,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import org.folio.search.domain.dto.CallNumberBrowseResult;
 import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
+import org.folio.search.domain.dto.LegacyCallNumberBrowseResult;
 import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
@@ -52,8 +52,8 @@ class BrowseCallNumberAroundIT extends BaseIntegrationTest {
       .param("expandAll", "true")
       .param("highlightMatch", "true")
       .param("precedingRecordsCount", "9");
-    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
-    assertThat(actual).isEqualTo(new CallNumberBrowseResult()
+    var actual = parseResponse(doGet(request), LegacyCallNumberBrowseResult.class);
+    assertThat(actual).isEqualTo(new LegacyCallNumberBrowseResult()
       .totalRecords(64).prev("E 43184 S74 45672").next("E 43184 S75 41243").items(List.of(
         cnBrowseItemWithNoType(instance("instance #28"), "E 3184 S74 5672"),
         cnBrowseItemWithNoType(instance("instance #29"), "E 3184 S74 5673"),
@@ -82,8 +82,8 @@ class BrowseCallNumberAroundIT extends BaseIntegrationTest {
       .param("expandAll", "true")
       .param("highlightMatch", "true")
       .param("precedingRecordsCount", "1");
-    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
-    assertThat(actual).isEqualTo(new CallNumberBrowseResult()
+    var actual = parseResponse(doGet(request), LegacyCallNumberBrowseResult.class);
+    assertThat(actual).isEqualTo(new LegacyCallNumberBrowseResult()
       .totalRecords(64).prev("E 43184 S75 41233").next("G 275 41255").items(List.of(
         cnBrowseItemWithNoType(instance("instance #03"), "E 3184 S75 1233"),
         cnBrowseItemWithNoType(instance("instance #04"), "E 3184 S75 1234", true),

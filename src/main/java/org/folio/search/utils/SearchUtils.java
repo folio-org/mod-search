@@ -38,7 +38,9 @@ public class SearchUtils {
   public static final String INSTANCE_HOLDING_FIELD_NAME = "holdings";
   public static final String SHARED_FIELD_NAME = "shared";
   public static final String TENANT_ID_FIELD_NAME = "tenantId";
-  public static final String CALL_NUMBER_BROWSING_FIELD = "callNumber";
+  public static final String LEGACY_CALL_NUMBER_BROWSING_FIELD = "callNumber";
+  public static final String CALL_NUMBER_BROWSING_FIELD = "fullCallNumber";
+  public static final String CALL_NUMBER_TYPE_ID_FIELD = "callNumberTypeId";
   public static final String CLASSIFICATION_NUMBER_BROWSING_FIELD = "number";
   public static final String CLASSIFICATION_TYPE_ID_FIELD = "typeId";
   public static final String TYPED_CALL_NUMBER_BROWSING_FIELD = "typedCallNumber";
@@ -46,6 +48,8 @@ public class SearchUtils {
   public static final String DEFAULT_SHELVING_ORDER_BROWSING_FIELD = "defaultShelvingOrder";
   public static final String LC_SHELVING_ORDER_BROWSING_FIELD = "lcShelvingOrder";
   public static final String DEWEY_SHELVING_ORDER_BROWSING_FIELD = "deweyShelvingOrder";
+  public static final String NLM_SHELVING_ORDER_BROWSING_FIELD = "nlmShelvingOrder";
+  public static final String SUDOC_SHELVING_ORDER_BROWSING_FIELD = "sudocShelvingOrder";
   public static final String SUBJECT_BROWSING_FIELD = "value";
   public static final String CONTRIBUTOR_BROWSING_FIELD = "name";
   public static final String AUTHORITY_BROWSING_FIELD = "headingRef";
@@ -79,7 +83,9 @@ public class SearchUtils {
   public static final Map<ShelvingOrderAlgorithmType, String> BROWSE_FIELDS_MAP = Map.of(
     ShelvingOrderAlgorithmType.DEFAULT, DEFAULT_SHELVING_ORDER_BROWSING_FIELD,
     ShelvingOrderAlgorithmType.LC, LC_SHELVING_ORDER_BROWSING_FIELD,
-    ShelvingOrderAlgorithmType.DEWEY, DEWEY_SHELVING_ORDER_BROWSING_FIELD
+    ShelvingOrderAlgorithmType.DEWEY, DEWEY_SHELVING_ORDER_BROWSING_FIELD,
+    ShelvingOrderAlgorithmType.NLM, NLM_SHELVING_ORDER_BROWSING_FIELD,
+    ShelvingOrderAlgorithmType.SUDOC, SUDOC_SHELVING_ORDER_BROWSING_FIELD
   );
 
   private static final Pattern NON_ALPHA_NUMERIC_CHARS_PATTERN = Pattern.compile("[^a-zA-Z0-9]");

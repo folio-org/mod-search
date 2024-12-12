@@ -241,6 +241,7 @@ public class ConsortiumSearchHelper {
   private String getFieldForResource(String fieldName, ResourceType resourceName) {
     if (resourceName.equals(ResourceType.INSTANCE_CONTRIBUTOR)
         || resourceName.equals(ResourceType.INSTANCE_SUBJECT)
+        || resourceName.equals(ResourceType.INSTANCE_CALL_NUMBER)
         || resourceName.equals(ResourceType.INSTANCE_CLASSIFICATION)) {
       return "instances." + fieldName;
     }

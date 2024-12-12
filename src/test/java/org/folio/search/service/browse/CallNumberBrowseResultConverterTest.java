@@ -4,7 +4,7 @@ import static java.util.Arrays.stream;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CN_INTERMEDIATE_VALUES;
-import static org.folio.search.utils.SearchUtils.CALL_NUMBER_BROWSING_FIELD;
+import static org.folio.search.utils.SearchUtils.LEGACY_CALL_NUMBER_BROWSING_FIELD;
 import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
 import static org.folio.search.utils.TestUtils.cnBrowseItem;
 import static org.folio.search.utils.TestUtils.getShelfKeyFromCallNumber;
@@ -25,6 +25,7 @@ import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
+import org.folio.search.domain.dto.LegacyCallNumberBrowseItem;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
@@ -224,19 +225,23 @@ class CallNumberBrowseResultConverterTest {
   }
 
   private static BrowseContext forwardIncludingContext() {
-    return BrowseContext.builder().anchor("A").succeedingQuery(rangeQuery(CALL_NUMBER_BROWSING_FIELD).gte("A")).build();
+    return BrowseContext.builder().anchor("A")
+      .succeedingQuery(rangeQuery(LEGACY_CALL_NUMBER_BROWSING_FIELD).gte("A")).build();
   }
 
   private static BrowseContext forwardContext() {
-    return BrowseContext.builder().anchor("A").succeedingQuery(rangeQuery(CALL_NUMBER_BROWSING_FIELD).gt("A")).build();
+    return BrowseContext.builder().anchor("A")
+      .succeedingQuery(rangeQuery(LEGACY_CALL_NUMBER_BROWSING_FIELD).gt("A")).build();
   }
 
   private static BrowseContext backwardContext() {
-    return BrowseContext.builder().anchor("F").precedingQuery(rangeQuery(CALL_NUMBER_BROWSING_FIELD).lt("F")).build();
+    return BrowseContext.builder().anchor("F")
+      .precedingQuery(rangeQuery(LEGACY_CALL_NUMBER_BROWSING_FIELD).lt("F")).build();
   }
 
   private static BrowseContext backwardIncludingContext() {
-    return BrowseContext.builder().anchor("F").precedingQuery(rangeQuery(CALL_NUMBER_BROWSING_FIELD).lte("F")).build();
+    return BrowseContext.builder().anchor("F")
+      .precedingQuery(rangeQuery(LEGACY_CALL_NUMBER_BROWSING_FIELD).lte("F")).build();
   }
 
   private static List<SearchHit> searchHits(String... sortShelfKey) {
@@ -254,11 +259,11 @@ class CallNumberBrowseResultConverterTest {
     return searchHit;
   }
 
-  private static CallNumberBrowseItem browseItem(String shelfKey) {
+  private static LegacyCallNumberBrowseItem browseItem(String shelfKey) {
     return cnBrowseItem(instance(shelfKey), shelfKey);
   }
 
-  private static List<CallNumberBrowseItem> browseItems(String... shelfKeys) {
+  private static List<LegacyCallNumberBrowseItem> browseItems(String... shelfKeys) {
     return stream(shelfKeys).map(CallNumberBrowseResultConverterTest::browseItem).toList();
   }
 

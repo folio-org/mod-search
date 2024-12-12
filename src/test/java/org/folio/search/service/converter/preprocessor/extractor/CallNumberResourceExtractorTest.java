@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 import org.folio.search.domain.dto.TenantConfiguredFeature;
 import org.folio.search.service.FeatureConfigService;
+import org.folio.search.service.consortium.ConsortiumTenantProvider;
 import org.folio.search.service.converter.preprocessor.extractor.impl.CallNumberResourceExtractor;
 import org.folio.search.service.reindex.jdbc.CallNumberRepository;
 import org.folio.search.utils.JsonConverter;
@@ -35,6 +36,8 @@ class CallNumberResourceExtractorTest extends ChildResourceExtractorTestBase {
   private CallNumberRepository repository;
   @Mock
   private FeatureConfigService featureConfigService;
+  @Mock
+  private ConsortiumTenantProvider tenantProvider;
 
   private CallNumberResourceExtractor extractor;
 
@@ -47,7 +50,7 @@ class CallNumberResourceExtractorTest extends ChildResourceExtractorTestBase {
   void setUp() {
     extractor = new CallNumberResourceExtractor(repository,
       new JsonConverter(new ObjectMapper()),
-      featureConfigService);
+      featureConfigService, tenantProvider);
   }
 
   @Test

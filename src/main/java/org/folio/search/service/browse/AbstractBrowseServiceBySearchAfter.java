@@ -229,7 +229,7 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
   }
 
   private void logMultiSearchRequest(BrowseRequest request, int size) {
-    log.info("browseAround:: Attempting to multi-search request [tenant: {}, searchSource.size: {}]",
+    log.debug("browseAround:: Attempting to multi-search request [tenant: {}, searchSource.size: {}]",
       request.getTenantId(), size);
   }
 }

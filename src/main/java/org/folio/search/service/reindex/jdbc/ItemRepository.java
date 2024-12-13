@@ -1,8 +1,9 @@
 package org.folio.search.service.reindex.jdbc;
 
 import static org.folio.search.utils.JdbcUtils.getFullTableName;
-import static org.folio.search.utils.JdbcUtils.getParamPlaceholderForUuid;
+import static org.folio.search.utils.JdbcUtils.getParamPlaceholderForUuidArray;
 
+import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.log4j.Log4j2;
@@ -28,7 +29,7 @@ public class ItemRepository extends MergeRangeRepository {
     """;
 
   private static final String DELETE_SQL = """
-    DELETE FROM %s WHERE id IN (%s) AND tenant_id = ?;
+    DELETE FROM %s WHERE id = ANY (%s) AND tenant_id = ?;
     """;
 
   protected ItemRepository(JdbcTemplate jdbcTemplate,
@@ -61,9 +62,14 @@ public class ItemRepository extends MergeRangeRepository {
   @Override
   public void deleteEntities(List<String> ids, String tenantId) {
     var fullTableName = getFullTableName(context, entityTable());
-    var sql = DELETE_SQL.formatted(fullTableName, getParamPlaceholderForUuid(ids.size()));
+    var sql = DELETE_SQL.formatted(fullTableName, getParamPlaceholderForUuidArray(ids.size()));
 
-    jdbcTemplate.update(sql, ids.toArray(), tenantId);
+    jdbcTemplate.update(connection -> {
+      PreparedStatement ps = connection.prepareStatement(sql);
+      ps.setArray(1, connection.createArrayOf("uuid", ids.toArray()));
+      ps.setString(2, tenantId);
+      return ps;
+    });
   }
 
   @Override

@@ -1,6 +1,7 @@
 package org.folio.search.service.reindex.jdbc;
 
 import static org.folio.search.utils.JdbcUtils.getFullTableName;
+import static org.folio.search.utils.JdbcUtils.getParamPlaceholderForUuid;
 
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,10 @@ public class HoldingRepository extends MergeRangeRepository {
       DO UPDATE SET
       instance_id = EXCLUDED.instance_id,
       json = EXCLUDED.json;
+    """;
+
+  private static final String DELETE_SQL = """
+    DELETE FROM %s WHERE id IN (%s) AND tenant_id = ?;
     """;
 
   protected HoldingRepository(JdbcTemplate jdbcTemplate,
@@ -50,6 +55,14 @@ public class HoldingRepository extends MergeRangeRepository {
         statement.setObject(3, entity.get("instanceId"));
         statement.setString(4, jsonConverter.toJson(entity));
       });
+  }
+
+  @Override
+  public void deleteEntities(List<String> ids, String tenantId) {
+    var fullTableName = getFullTableName(context, entityTable());
+    var sql = DELETE_SQL.formatted(fullTableName, getParamPlaceholderForUuid(ids.size()));
+
+    jdbcTemplate.update(sql, ids.toArray(), tenantId);
   }
 
   @Override

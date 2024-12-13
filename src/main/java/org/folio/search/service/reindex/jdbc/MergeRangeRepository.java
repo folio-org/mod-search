@@ -66,7 +66,7 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
 
   public abstract void saveEntities(String tenantId, List<Map<String, Object>> entities);
 
-  public void deleteEntities(List<String> ids) {
+  public void deleteEntities(List<String> ids, String tenantId) {
     var fullTableName = getFullTableName(context, entityTable());
     var sql = DELETE_SQL.formatted(fullTableName, getParamPlaceholderForUuid(ids.size()));
 

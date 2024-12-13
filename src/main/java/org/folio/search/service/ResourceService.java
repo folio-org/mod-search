@@ -132,7 +132,9 @@ public class ResourceService {
       .toList();
     log.info("ResourceService::processIndexInstanceEvents fetchedInstances {}", fetchedInstances);
     preProcessEvents(fetchedInstances);
-    return searchDocumentConverter.convert(fetchedInstances);
+    var body = searchDocumentConverter.convert(fetchedInstances);
+    log.info("ResourceService::processIndexInstanceEvents body {}", body);
+    return body;
   }
 
   private void preProcessEvents(List<ResourceEvent> instanceEvents) {
@@ -206,6 +208,7 @@ public class ResourceService {
     var resultMap = new HashMap<K, List<V>>();
     map1.forEach((key, value) -> resultMap.computeIfAbsent(key, v -> new ArrayList<>()).addAll(value));
     map2.forEach((key, value) -> resultMap.computeIfAbsent(key, v -> new ArrayList<>()).addAll(value));
+    log.info("ResourceService::mergeMaps resultMap {}", resultMap);
     return resultMap;
   }
 

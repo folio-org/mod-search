@@ -5,6 +5,8 @@ import static org.folio.search.utils.JdbcUtils.getFullTableName;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.reindex.RangeGenerator;
@@ -15,7 +17,7 @@ import org.folio.spring.FolioExecutionContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-
+@Log4j2
 @Repository
 public class UploadInstanceRepository extends UploadRangeRepository {
 
@@ -61,6 +63,7 @@ public class UploadInstanceRepository extends UploadRangeRepository {
       getFullTableName(context, "holding"),
       getFullTableName(context, "item"),
       whereClause);
+    log.info("UploadInstanceRepository::fetchByIds sql {}", sql);
     return jdbcTemplate.query(sql, ps -> {
       int i = 1;
       for (; i <= ids.size(); i++) {

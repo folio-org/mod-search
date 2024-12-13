@@ -37,9 +37,11 @@ public abstract class AbstractResourceRepository implements ResourceRepository {
     if (CollectionUtils.isEmpty(documents)) {
       return getSuccessIndexOperationResponse();
     }
-
+    log.info("AbstractResourceRepository::indexResources documents {}", documents);
     var bulkRequest = prepareBulkRequest(documents);
+    log.info("AbstractResourceRepository::indexResources bulkRequest {}", bulkRequest);
     var bulkApiResponse = executeBulkRequest(bulkRequest);
+    log.info("AbstractResourceRepository::indexResources bulkApiResponse {}", bulkApiResponse);
 
     return bulkApiResponse.hasFailures()
            ? getErrorIndexOperationResponse(bulkApiResponse.buildFailureMessage())

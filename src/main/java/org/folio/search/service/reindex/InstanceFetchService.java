@@ -48,9 +48,12 @@ public class InstanceFetchService {
 
   private List<ResourceEvent> fetchInstances(List<ResourceEvent> events) {
     var eventsById = events.stream().collect(groupingBy(ResourceEvent::getId, LinkedHashMap::new, toList()));
+    log.info("InstanceFetchService::fetchInstances eventsById: {}", eventsById);
     var instanceIdList = List.copyOf(eventsById.keySet());
     var tenantId = context.getTenantId();
-    return instanceRepository.fetchByIds(instanceIdList).stream()
+    var fetchByIds = instanceRepository.fetchByIds(instanceIdList);
+    log.info("InstanceFetchService::fetchInstances tenantId {}, fetchByIds: {}", tenantId, fetchByIds);
+    return fetchByIds.stream()
       .map(this::populateEffectiveShelvingOrder)
       .map(instanceMap -> mapToResourceEvent(tenantId, instanceMap, eventsById))
       .toList();
@@ -77,8 +80,9 @@ public class InstanceFetchService {
       log.warn("Source event by id not found after fetching, returning fetched value [instanceId: {}]", id);
       return resourceEvent.type(ResourceEventType.CREATE);
     }
-
+    log.info("InstanceFetchService::mapToResourceEvent resourceEvent {}", resourceEvent);
     var sourceEvent = lastElement.get();
+    log.info("InstanceFetchService::mapToResourceEvent sourceEvent {}", sourceEvent);
     return resourceEvent.type(sourceEvent.getType()).old(sourceEvent.getOld());
   }
 }

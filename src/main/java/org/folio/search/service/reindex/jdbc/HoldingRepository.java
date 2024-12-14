@@ -1,9 +1,9 @@
 package org.folio.search.service.reindex.jdbc;
 
+import static jakarta.persistence.GenerationType.UUID;
 import static org.folio.search.utils.JdbcUtils.getFullTableName;
 import static org.folio.search.utils.JdbcUtils.getParamPlaceholderForUuidArray;
 
-import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.log4j.Log4j2;
@@ -63,11 +63,9 @@ public class HoldingRepository extends MergeRangeRepository {
     var fullTableName = getFullTableName(context, entityTable());
     var sql = DELETE_SQL.formatted(fullTableName, getParamPlaceholderForUuidArray(ids.size()));
 
-    jdbcTemplate.update(connection -> {
-      PreparedStatement ps = connection.prepareStatement(sql);
-      ps.setArray(1, connection.createArrayOf("uuid", ids.toArray()));
-      ps.setString(2, tenantId);
-      return ps;
+    jdbcTemplate.update(sql, statement -> {
+      statement.setArray(1, statement.getConnection().createArrayOf(UUID.name(), ids.toArray()));
+      statement.setString(2, tenantId);
     });
   }
 

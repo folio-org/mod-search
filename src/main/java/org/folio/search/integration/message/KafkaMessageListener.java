@@ -63,17 +63,11 @@ public class KafkaMessageListener {
     log.info("KafkaMessageListener::handleInstanceEvents consumerRecords {}", consumerRecords);
     var batch = getInstanceResourceEvents(consumerRecords);
     var batchByTenant = batch.stream().collect(Collectors.groupingBy(ResourceEvent::getTenant));
-    batchByTenant.forEach((tenant, resourceEvents) -> {
-      try {
-        executionService.executeSystemUserScoped(tenant, () -> {
-          folioMessageBatchProcessor.consumeBatchWithFallback(resourceEvents, KAFKA_RETRY_TEMPLATE_NAME,
-            resourceService::indexInstancesById, KafkaMessageListener::logFailedEvent);
-          return null;
-        });
-      } catch (Exception e) {
-        log.error("Error processing events for tenant {}: {}", tenant, e.getMessage(), e);
-      }
-    });
+    batchByTenant.forEach((tenant, resourceEvents) -> executionService.executeSystemUserScoped(tenant, () -> {
+      folioMessageBatchProcessor.consumeBatchWithFallback(resourceEvents, KAFKA_RETRY_TEMPLATE_NAME,
+        resourceService::indexInstancesById, KafkaMessageListener::logFailedEvent);
+      return null;
+    }));
   }
 
   /**

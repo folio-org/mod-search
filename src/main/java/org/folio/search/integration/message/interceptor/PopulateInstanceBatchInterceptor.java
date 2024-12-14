@@ -14,7 +14,6 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import lombok.extern.log4j.Log4j2;
@@ -83,8 +82,6 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
 
   private void populate(List<ResourceEvent> records) {
     var batchByTenant = records.stream().collect(Collectors.groupingBy(ResourceEvent::getTenant));
-    AtomicBoolean containsFailedRecords = new AtomicBoolean(false);
-
     batchByTenant.forEach((tenant, batch) -> {
       try {
         systemUserScopedExecutionService.executeSystemUserScoped(tenant, () -> executionService.execute(() -> {
@@ -93,12 +90,8 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
         }));
       } catch (Exception ex) {
         log.error("Error processing batch for tenant {}: {}", tenant, ex.getMessage(), ex);
-        containsFailedRecords.set(true);
       }
     });
-    if (containsFailedRecords.get()) {
-      throw new RuntimeException(String.format("Batch processing failed for records: %s ", records));
-    }
   }
 
   private void process(String tenant, List<ResourceEvent> batch) {

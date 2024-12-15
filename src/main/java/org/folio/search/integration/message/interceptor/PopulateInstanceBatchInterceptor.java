@@ -116,7 +116,7 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
           .map(ResourceEvent::getId)
           .toList();
         if (!idsToDrop.isEmpty()) {
-          repository.deleteEntities(idsToDrop);
+          repository.deleteEntities(idsToDrop, tenant);
         }
 
         if (ResourceType.INSTANCE.getName().equals(recordCollection.getKey())) {

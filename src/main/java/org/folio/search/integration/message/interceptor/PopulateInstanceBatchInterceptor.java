@@ -116,15 +116,22 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
           .map(ResourceEvent::getId)
           .toList();
         if (!idsToDrop.isEmpty()) {
-          repository.deleteEntities(idsToDrop, tenant);
+          deleteEntities(tenant, recordCollection.getKey(), repository, idsToDrop);
         }
-
         if (ResourceType.INSTANCE.getName().equals(recordCollection.getKey())) {
           var noShadowCopiesInstanceEvents = recordByOperation.values().stream().flatMap(Collection::stream).toList();
           instanceChildrenResourceService.persistChildren(tenant, noShadowCopiesInstanceEvents);
         }
       }
 
+    }
+  }
+
+  private void deleteEntities(String tenant, String resourceType, MergeRangeRepository repository, List<String> ids) {
+    if (ResourceType.HOLDINGS.getName().equals(resourceType) || ResourceType.ITEM.getName().equals(resourceType)) {
+      repository.deleteEntitiesForTenant(ids, tenant);
+    } else {
+      repository.deleteEntities(ids);
     }
   }
 

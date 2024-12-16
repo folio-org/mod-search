@@ -1,7 +1,6 @@
 package org.folio.search.service.reindex.jdbc;
 
 import static org.folio.search.utils.JdbcUtils.getFullTableName;
-import static org.folio.search.utils.JdbcUtils.getParamPlaceholderForUuid;
 
 import java.util.List;
 import java.util.Map;
@@ -31,11 +30,6 @@ public class MergeInstanceRepository extends MergeRangeRepository {
   private static final String UPDATE_BOUND_WITH_SQL = """
     UPDATE %s SET is_bound_with = ? WHERE id = ?::uuid;
     """;
-
-  private static final String DELETE_SQL = """
-    DELETE FROM %s WHERE id IN (%s);
-    """;
-
   private final ConsortiumTenantProvider consortiumTenantProvider;
 
   public MergeInstanceRepository(JdbcTemplate jdbcTemplate, JsonConverter jsonConverter, FolioExecutionContext context,
@@ -86,13 +80,5 @@ public class MergeInstanceRepository extends MergeRangeRepository {
     var fullTableName = getFullTableName(context, entityTable());
     var sql = UPDATE_BOUND_WITH_SQL.formatted(fullTableName);
     jdbcTemplate.update(sql, bound /*? "true" : "false"*/, id);
-  }
-
-  @Override
-  public void deleteEntities(List<String> ids, String tenantId) {
-    var fullTableName = getFullTableName(context, entityTable());
-    var sql = DELETE_SQL.formatted(fullTableName, getParamPlaceholderForUuid(ids.size()));
-
-    jdbcTemplate.update(sql, ids.toArray());
   }
 }

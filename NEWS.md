@@ -1,3 +1,9 @@
+## v4.0.4 2024-12-30
+### Bug fixes
+* Fix the "Invalid reference" appears after updating ownership ([MSEARCH-915](https://folio-org.atlassian.net/browse/MSEARCH-915))
+
+---
+
 ## v4.0.3 2024-12-12
 ### Bug fixes
 * Remove browse config caching ([MSEARCH-897](https://folio-org.atlassian.net/browse/MSEARCH-897))

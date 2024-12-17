@@ -23,6 +23,10 @@ public class JdbcUtils {
     return getParamPlaceholder(size, "uuid");
   }
 
+  public static String getParamPlaceholderForUuidArray(int size, String cast) {
+    return String.join(",", nCopies(size, "?" + (cast == null ? "" : "::" + cast + "[]")));
+  }
+
   public static String getParamPlaceholder(int size) {
     return getParamPlaceholder(size, null);
   }

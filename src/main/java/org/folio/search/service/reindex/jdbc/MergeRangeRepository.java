@@ -3,7 +3,9 @@ package org.folio.search.service.reindex.jdbc;
 import static org.folio.search.service.reindex.ReindexConstants.MERGE_RANGE_TABLE;
 import static org.folio.search.utils.JdbcUtils.getFullTableName;
 import static org.folio.search.utils.JdbcUtils.getParamPlaceholderForUuid;
+import static org.folio.search.utils.JdbcUtils.getParamPlaceholderForUuidArray;
 
+import jakarta.persistence.GenerationType;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -18,8 +20,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 public abstract class MergeRangeRepository extends ReindexJdbcRepository {
 
-  protected static final String DELETE_SQL = """
+  private static final String DELETE_SQL = """
     DELETE FROM %s WHERE id IN (%s);
+    """;
+
+  private static final String DELETE_SQL_FOR_TENANT = """
+    DELETE FROM %s WHERE id = ANY (%s) AND tenant_id = ?;
     """;
   private static final String INSERT_MERGE_RANGE_SQL = """
       INSERT INTO %s (id, entity_type, tenant_id, lower, upper, created_at, finished_at)
@@ -65,6 +71,17 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
   }
 
   public abstract void saveEntities(String tenantId, List<Map<String, Object>> entities);
+
+  public void deleteEntitiesForTenant(List<String> ids, String tenantId) {
+    var fullTableName = getFullTableName(context, entityTable());
+    var paramPlaceholder = getParamPlaceholderForUuidArray(ids.size(), GenerationType.UUID.name());
+    var sql = DELETE_SQL_FOR_TENANT.formatted(fullTableName, paramPlaceholder);
+
+    jdbcTemplate.update(sql, statement -> {
+      statement.setArray(1, statement.getConnection().createArrayOf(GenerationType.UUID.name(), ids.toArray()));
+      statement.setString(2, tenantId);
+    });
+  }
 
   public void deleteEntities(List<String> ids) {
     var fullTableName = getFullTableName(context, entityTable());

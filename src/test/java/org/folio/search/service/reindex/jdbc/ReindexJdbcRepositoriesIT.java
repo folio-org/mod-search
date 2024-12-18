@@ -58,6 +58,7 @@ class ReindexJdbcRepositoriesIT {
       }
     });
     when(context.getTenantId()).thenReturn(TENANT_ID);
+    when(reindexConfig.getUploadRangeSize()).thenReturn(1);
   }
 
   @Test

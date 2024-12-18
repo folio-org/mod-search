@@ -94,38 +94,16 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
     var recordByResource = batch.stream().collect(Collectors.groupingBy(ResourceEvent::getResourceName));
     for (Map.Entry<String, List<ResourceEvent>> recordCollection : recordByResource.entrySet()) {
       if (ResourceType.BOUND_WITH.getName().equals(recordCollection.getKey())) {
-        var repository = repositories.get(ReindexEntityType.INSTANCE);
-        for (ResourceEvent resourceEvent : recordCollection.getValue()) {
-          boolean bound = resourceEvent.getType() != ResourceEventType.DELETE;
-          var eventPayload = getEventPayload(resourceEvent);
-          var id = getString(eventPayload, INSTANCE_ID_FIELD);
-          repository.updateBoundWith(tenant, id, bound);
-        }
+        processBoundWithEvents(tenant, recordCollection);
         continue;
       }
 
       var repository = repositories.get(ReindexEntityType.fromValue(recordCollection.getKey()));
       if (repository != null) {
-        var recordByOperation = recordCollection.getValue().stream()
-          .filter(resourceEvent -> {
-            if (ResourceType.INSTANCE.getName().equals(resourceEvent.getResourceName())) {
-              return !startsWith(getResourceSource(resourceEvent), SOURCE_CONSORTIUM_PREFIX);
-            }
-            return true;
-          })
-          .collect(Collectors.groupingBy(resourceEvent -> resourceEvent.getType() != ResourceEventType.DELETE));
-        var resourceToSave = recordByOperation.getOrDefault(true, emptyList()).stream()
-          .map(SearchConverterUtils::getNewAsMap)
-          .toList();
-        if (!resourceToSave.isEmpty()) {
-          repository.saveEntities(tenant, resourceToSave);
-        }
-        var idsToDrop = recordByOperation.getOrDefault(false, emptyList()).stream()
-          .map(ResourceEvent::getId)
-          .toList();
-        if (!idsToDrop.isEmpty()) {
-          deleteEntities(tenant, recordCollection.getKey(), repository, idsToDrop);
-        }
+        var recordByOperation = getRecordByOperation(recordCollection);
+        saveEntities(tenant, recordByOperation, repository);
+        deleteEntities(tenant, recordCollection.getKey(), recordByOperation, repository);
+
         if (ResourceType.INSTANCE.getName().equals(recordCollection.getKey())) {
           var noShadowCopiesInstanceEvents = recordByOperation.values().stream().flatMap(Collection::stream).toList();
           instanceChildrenResourceService.persistChildren(tenant, noShadowCopiesInstanceEvents);
@@ -135,11 +113,50 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
     }
   }
 
-  private void deleteEntities(String tenant, String resourceType, MergeRangeRepository repository, List<String> ids) {
-    if (ResourceType.HOLDINGS.getName().equals(resourceType) || ResourceType.ITEM.getName().equals(resourceType)) {
-      repository.deleteEntitiesForTenant(ids, tenant);
-    } else {
-      repository.deleteEntities(ids);
+  private void processBoundWithEvents(String tenant, Map.Entry<String, List<ResourceEvent>> recordCollection) {
+    var repository = repositories.get(ReindexEntityType.INSTANCE);
+    for (ResourceEvent resourceEvent : recordCollection.getValue()) {
+      boolean bound = resourceEvent.getType() != ResourceEventType.DELETE;
+      var eventPayload = getEventPayload(resourceEvent);
+      var id = getString(eventPayload, INSTANCE_ID_FIELD);
+      repository.updateBoundWith(tenant, id, bound);
+    }
+  }
+
+  private Map<Boolean, List<ResourceEvent>> getRecordByOperation(
+    Map.Entry<String, List<ResourceEvent>> recordCollection) {
+
+    return recordCollection.getValue().stream()
+      .filter(resourceEvent -> {
+        if (ResourceType.INSTANCE.getName().equals(resourceEvent.getResourceName())) {
+          return !startsWith(getResourceSource(resourceEvent), SOURCE_CONSORTIUM_PREFIX);
+        }
+        return true;
+      })
+      .collect(Collectors.groupingBy(resourceEvent -> resourceEvent.getType() != ResourceEventType.DELETE));
+  }
+
+  private void saveEntities(String tenant, Map<Boolean, List<ResourceEvent>> recordByOperation,
+                            MergeRangeRepository repository) {
+    var resourceToSave = recordByOperation.getOrDefault(true, emptyList()).stream()
+      .map(SearchConverterUtils::getNewAsMap)
+      .toList();
+    if (!resourceToSave.isEmpty()) {
+      repository.saveEntities(tenant, resourceToSave);
+    }
+  }
+
+  private void deleteEntities(String tenant, String resourceType,
+                              Map<Boolean, List<ResourceEvent>> recordByOperation, MergeRangeRepository repository) {
+    var idsToDrop = recordByOperation.getOrDefault(false, emptyList()).stream()
+      .map(ResourceEvent::getId)
+      .toList();
+    if (!idsToDrop.isEmpty()) {
+      if (ResourceType.HOLDINGS.getName().equals(resourceType) || ResourceType.ITEM.getName().equals(resourceType)) {
+        repository.deleteEntitiesForTenant(idsToDrop, tenant);
+      } else {
+        repository.deleteEntities(idsToDrop);
+      }
     }
   }
 

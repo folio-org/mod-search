@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -28,6 +29,7 @@ import org.folio.search.service.consortium.ConsortiumTenantExecutor;
 import org.folio.search.service.reindex.jdbc.MergeRangeRepository;
 import org.folio.search.service.reindex.jdbc.ReindexJdbcRepository;
 import org.folio.search.utils.SearchConverterUtils;
+import org.folio.spring.exception.SystemUserAuthorizationException;
 import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -36,6 +38,7 @@ import org.springframework.stereotype.Component;
 
 @Order(Ordered.LOWEST_PRECEDENCE)
 @Component
+@Log4j2
 public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String, ResourceEvent> {
 
   private final Map<ReindexEntityType, MergeRangeRepository> repositories;
@@ -74,12 +77,17 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
 
   private void populate(List<ResourceEvent> records) {
     var batchByTenant = records.stream().collect(Collectors.groupingBy(ResourceEvent::getTenant));
-    batchByTenant.forEach((tenant, batch) -> systemUserScopedExecutionService.executeSystemUserScoped(tenant,
-      () -> executionService.execute(() -> {
-        process(tenant, batch);
-        return null;
-      })));
-
+    batchByTenant.forEach((tenant, batch) -> {
+      try {
+        systemUserScopedExecutionService.executeSystemUserScoped(tenant, () -> executionService.execute(() -> {
+          process(tenant, batch);
+          return null;
+        }));
+      } catch (SystemUserAuthorizationException ex) {
+        log.warn("System user authorization failed. Skip processing batch for tenant {}: {}",
+          tenant, ex.getMessage(), ex);
+      }
+    });
   }
 
   private void process(String tenant, List<ResourceEvent> batch) {

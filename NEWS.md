@@ -8,6 +8,7 @@
 
 ### Features
 * Move Instance sub-entities population from database trigger to code ([MSEARCH-887](https://folio-org.atlassian.net/browse/MSEARCH-887))
+* Update reindex merge failed status only for failed entity type ([MSEARCH-909](https://folio-org.atlassian.net/browse/MSEARCH-909))
 
 ### Bug fixes
 * Remove shelving order calculation for local call-number types

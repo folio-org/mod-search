@@ -120,7 +120,7 @@ class ReindexOrchestrationServiceTest {
 
     service.process(event);
 
-    verify(reindexStatusService).updateReindexMergeFailed();
+    verify(reindexStatusService).updateReindexMergeFailed(ReindexEntityType.INSTANCE);
     verify(mergeRangeIndexService).updateFinishDate(ReindexEntityType.INSTANCE, event.getRangeId());
     verifyNoMoreInteractions(reindexStatusService);
   }

@@ -68,7 +68,7 @@ public class ReindexOrchestrationService {
     } catch (Exception ex) {
       log.error(new FormattedMessage("process:: ReindexRecordsEvent indexing error [rangeId: {}, error: {}]",
         event.getRangeId(), ex.getMessage()), ex);
-      reindexStatusService.updateReindexMergeFailed();
+      reindexStatusService.updateReindexMergeFailed(entityType);
       mergeRangeService.updateFinishDate(entityType, event.getRangeId());
     }
 

@@ -1,5 +1,6 @@
 package org.folio.search.service.reindex;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.exception.RequestValidationException.REQUEST_NOT_ALLOWED_MSG;
 import static org.folio.search.model.types.ReindexEntityType.INSTANCE;
@@ -89,6 +90,15 @@ class ReindexStatusServiceTest {
 
     // assert
     verify(statusRepository).setMergeReindexFailed(ReindexEntityType.supportMergeTypes());
+  }
+
+  @Test
+  void updateReindexMergeFailed_forEntity() {
+    // act
+    service.updateReindexMergeFailed(ReindexEntityType.INSTANCE);
+
+    // assert
+    verify(statusRepository).setMergeReindexFailed(singletonList(INSTANCE));
   }
 
   @Test

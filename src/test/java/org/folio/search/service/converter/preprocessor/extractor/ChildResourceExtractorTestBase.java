@@ -35,7 +35,6 @@ public abstract class ChildResourceExtractorTestBase {
 
     extractor.persistChildren(false, events);
 
-    verify(repository).deleteByInstanceIds(instanceIdsForDeletion);
     verify(repository).saveAll(argThat(set -> set.size() == 2), argThat(list -> list.size() == 3));
   }
 

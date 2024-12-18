@@ -1,7 +1,6 @@
 package org.folio.search.service.reindex.jdbc;
 
 import static org.folio.search.utils.JdbcUtils.getParamPlaceholder;
-import static org.folio.search.utils.JdbcUtils.getParamPlaceholderForUuid;
 import static org.folio.search.utils.SearchUtils.CLASSIFICATION_NUMBER_FIELD;
 import static org.folio.search.utils.SearchUtils.CLASSIFICATION_TYPE_FIELD;
 
@@ -32,6 +31,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class ClassificationRepository extends UploadRangeRepository implements InstanceChildResourceRepository {
 
+  // TODO: override shared based on tenant id
   private static final String SELECT_QUERY = """
     SELECT
         c.id,
@@ -40,7 +40,7 @@ public class ClassificationRepository extends UploadRangeRepository implements I
         json_agg(
             json_build_object(
                 'count', sub.instance_count,
-                'shared', sub.shared,
+                'shared', false,
                 'tenantId', sub.tenant_id
             )
         ) AS instances
@@ -49,16 +49,14 @@ public class ClassificationRepository extends UploadRangeRepository implements I
             SELECT
                 ins.classification_id,
                 ins.tenant_id,
-                ins.shared,
-                COUNT(1) AS instance_count
+                SUM(ins.count) AS instance_count
             FROM
-                %1$s.instance_classification ins
+                %1$s.classification_count ins
             WHERE
                 %2$s
             GROUP BY
                 ins.classification_id,
-                ins.tenant_id,
-                ins.shared
+                ins.tenant_id
         ) sub
     JOIN
         %1$s.classification c ON c.id = sub.classification_id
@@ -68,10 +66,11 @@ public class ClassificationRepository extends UploadRangeRepository implements I
         c.id;
     """;
 
-  private static final String DELETE_QUERY = """
-    DELETE
-    FROM %s.instance_classification
-    WHERE instance_id IN (%s);
+  private static final String UPDATE_COUNTS_QUERY = """
+    UPDATE %s.classification_count set count = count -1
+    WHERE classification_id = ?
+      and tenant_id = ?
+      and count >0
     """;
   private static final String INSERT_ENTITIES_SQL = """
       INSERT INTO %s.classification (id, number, type_id)
@@ -79,9 +78,9 @@ public class ClassificationRepository extends UploadRangeRepository implements I
       ON CONFLICT DO NOTHING;
     """;
   private static final String INSERT_RELATIONS_SQL = """
-      INSERT INTO %s.instance_classification (instance_id, classification_id, tenant_id, shared)
-      VALUES (?::uuid, ?, ?, ?)
-      ON CONFLICT DO NOTHING;
+      INSERT INTO %s.classification_count (classification_id, tenant_id, count)
+      VALUES (?, ?, 1)
+      ON CONFLICT (classification_id, tenant_id) DO UPDATE SET count = %s.classification_count.count + 1;
     """;
 
   private static final String ID_RANGE_INS_WHERE_CLAUSE = "ins.classification_id >= ? AND ins.classification_id <= ?";
@@ -150,9 +149,21 @@ public class ClassificationRepository extends UploadRangeRepository implements I
   }
 
   @Override
-  public void deleteByInstanceIds(List<String> instanceIds) {
-    var sql = DELETE_QUERY.formatted(JdbcUtils.getSchemaName(context), getParamPlaceholderForUuid(instanceIds.size()));
-    jdbcTemplate.update(sql, instanceIds.toArray());
+  public void updateCounts(List<Map<String, Object>> relations) {
+    var sql = UPDATE_COUNTS_QUERY.formatted(JdbcUtils.getSchemaName(context));
+    try {
+      jdbcTemplate.batchUpdate(sql, relations, BATCH_OPERATION_SIZE,
+        (statement, relation) -> {
+          statement.setString(1, (String) relation.get("classificationId"));
+          statement.setString(2, (String) relation.get("tenantId"));
+        });
+    } catch (DataAccessException e) {
+      log.warn("updateCounts::Failed to save relations batch. Starting processing one-by-one", e);
+      for (var relation : relations) {
+        jdbcTemplate.update(sql, relation.get("classificationId"),
+          relation.get("tenantId"));
+      }
+    }
   }
 
   @Override
@@ -173,21 +184,12 @@ public class ClassificationRepository extends UploadRangeRepository implements I
       }
     }
 
-    var relationsSql = INSERT_RELATIONS_SQL.formatted(JdbcUtils.getSchemaName(context));
-    try {
-      jdbcTemplate.batchUpdate(relationsSql, entityRelations, BATCH_OPERATION_SIZE,
-        (statement, entityRelation) -> {
-          statement.setObject(1, entityRelation.get("instanceId"));
-          statement.setString(2, (String) entityRelation.get("classificationId"));
-          statement.setString(3, (String) entityRelation.get("tenantId"));
-          statement.setObject(4, entityRelation.get("shared"));
-        });
-    } catch (DataAccessException e) {
-      log.warn("saveAll::Failed to save relations batch. Starting processing one-by-one", e);
-      for (var entityRelation : entityRelations) {
-        jdbcTemplate.update(relationsSql, entityRelation.get("instanceId"), entityRelation.get("classificationId"),
-          entityRelation.get("tenantId"), entityRelation.get("shared"));
-      }
+    var relationsSql =
+      INSERT_RELATIONS_SQL.formatted(JdbcUtils.getSchemaName(context), JdbcUtils.getSchemaName(context));
+
+    for (var entityRelation : entityRelations) {
+      jdbcTemplate.update(relationsSql, entityRelation.get("classificationId"),
+        entityRelation.get("tenantId"));
     }
   }
 

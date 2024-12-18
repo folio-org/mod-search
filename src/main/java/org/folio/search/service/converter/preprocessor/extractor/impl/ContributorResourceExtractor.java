@@ -107,11 +107,10 @@ public class ContributorResourceExtractor extends ChildResourceExtractor {
   protected List<Map<String, Object>> constructRelations(boolean shared, ResourceEvent event,
                                                          List<Map<String, Object>> entities) {
     return entities.stream()
-      .map(entity -> Map.of("instanceId", event.getId(),
+      .map(entity -> Map.of(
         "contributorId", entity.get("id"),
         CONTRIBUTOR_TYPE_FIELD, entity.remove(CONTRIBUTOR_TYPE_FIELD),
-        "tenantId", event.getTenant(),
-        "shared", shared))
+        "tenantId", event.getTenant()))
       .toList();
   }
 

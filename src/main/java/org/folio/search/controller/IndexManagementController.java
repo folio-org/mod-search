@@ -17,10 +17,10 @@ import org.folio.search.domain.dto.UpdateMappingsRequest;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.rest.resource.IndexManagementApi;
 import org.folio.search.service.IndexService;
-import org.folio.search.service.ResourceService;
 import org.folio.search.service.reindex.ReindexService;
 import org.folio.search.service.reindex.ReindexStatusService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,10 +35,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/")
 public class IndexManagementController implements IndexManagementApi {
 
+  private static final String TOPIC_NAME = "folio.ALL.inventory.instance";
+
   private final IndexService indexService;
-  private final ResourceService resourceService;
   private final ReindexService reindexService;
   private final ReindexStatusService reindexStatusService;
+
+  private final KafkaTemplate<String, ResourceEvent> kafkaTemplate;
 
   @Override
   public ResponseEntity<FolioCreateIndexResponse> createIndices(String tenantId, CreateIndexRequest request) {
@@ -47,7 +50,13 @@ public class IndexManagementController implements IndexManagementApi {
 
   @Override
   public ResponseEntity<FolioIndexOperationResponse> indexRecords(List<ResourceEvent> events) {
-    return ResponseEntity.ok(resourceService.indexResources(events));
+    events.forEach(event -> {
+      kafkaTemplate.send(TOPIC_NAME, event.getId(), event);
+    });
+
+    FolioIndexOperationResponse body = new FolioIndexOperationResponse();
+    body.setStatus(FolioIndexOperationResponse.StatusEnum.SUCCESS);
+    return ResponseEntity.ok(body);
   }
 
   @Override

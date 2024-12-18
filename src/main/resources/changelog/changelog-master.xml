@@ -12,4 +12,5 @@
   <include file="changes/v4.0/create-reindex-entity-tables.xml" relativeToChangelogFile="true"/>
   <include file="changes/v4.0/delete-instance-trigger.xml" relativeToChangelogFile="true"/>
   <include file="changes/v4.1/alter-browse-config-type-ids.xml" relativeToChangelogFile="true"/>
+  <include file="changes/v4.2/sub-resource-counts.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

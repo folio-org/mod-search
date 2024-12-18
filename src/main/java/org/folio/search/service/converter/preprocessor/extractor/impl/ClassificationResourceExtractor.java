@@ -119,10 +119,9 @@ public class ClassificationResourceExtractor extends ChildResourceExtractor {
   protected List<Map<String, Object>> constructRelations(boolean shared, ResourceEvent event,
                                                        List<Map<String, Object>> entities) {
     return entities.stream()
-      .map(entity -> Map.of("instanceId", event.getId(),
+      .map(entity -> Map.of(
         "classificationId", entity.get("id"),
-        "tenantId", event.getTenant(),
-        "shared", shared))
+        "tenantId", event.getTenant()))
       .toList();
   }
 

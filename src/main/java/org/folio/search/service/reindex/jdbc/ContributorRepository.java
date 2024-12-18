@@ -1,7 +1,6 @@
 package org.folio.search.service.reindex.jdbc;
 
 import static org.folio.search.utils.JdbcUtils.getParamPlaceholder;
-import static org.folio.search.utils.JdbcUtils.getParamPlaceholderForUuid;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_TYPE_FIELD;
 
@@ -32,6 +31,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class ContributorRepository extends UploadRangeRepository implements InstanceChildResourceRepository {
 
+  // TODO: override shared based on tenant id
   private static final String SELECT_QUERY = """
     SELECT
         c.id,
@@ -42,26 +42,23 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
             json_build_object(
                 'count', sub.instance_count,
                 'typeId', sub.type_ids,
-                'shared', sub.shared,
+                'shared', false,
                 'tenantId', sub.tenant_id
             )
         ) AS instances
     FROM
-        (
-            SELECT
-                ins.contributor_id,
-                ins.tenant_id,
-                ins.shared,
-                array_agg(DISTINCT ins.type_id) FILTER (WHERE ins.type_id <> '') as type_ids,
-                COUNT(DISTINCT ins.instance_id) AS instance_count
-            FROM
-                %1$s.instance_contributor ins
-            WHERE
-                %2$s
-            GROUP BY
-                ins.contributor_id,
-                ins.tenant_id,
-                ins.shared
+      (
+        SELECT
+            ins.contributor_id,
+            ins.tenant_id,
+            sum(ins.count) as instance_count,
+            array_agg(DISTINCT ins.type_id) FILTER (WHERE ins.type_id <> '') as type_ids
+        FROM  %1$s.contributor_count ins
+        WHERE
+          %2$s
+        GROUP BY
+            ins.contributor_id,
+            ins.tenant_id
         ) sub
     JOIN
         %1$s.contributor c ON c.id = sub.contributor_id
@@ -71,10 +68,12 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
         c.id;
     """;
 
-  private static final String DELETE_QUERY = """
-    DELETE
-    FROM %s.instance_contributor
-    WHERE instance_id IN (%s);
+  private static final String UPDATE_COUNTS_QUERY = """
+    UPDATE %s.contributor_count set count = count - 1
+    WHERE contributor_id = ?
+      and type_id = ?
+      and tenant_id = ?
+      and count > 0
     """;
   private static final String INSERT_ENTITIES_SQL = """
       INSERT INTO %s.contributor (id, name, name_type_id, authority_id)
@@ -82,9 +81,9 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
       ON CONFLICT DO NOTHING;
     """;
   private static final String INSERT_RELATIONS_SQL = """
-      INSERT INTO %s.instance_contributor (instance_id, contributor_id, type_id, tenant_id, shared)
-      VALUES (?::uuid, ?, ?, ?, ?)
-      ON CONFLICT DO NOTHING;
+      INSERT INTO %s.contributor_count (contributor_id, type_id, tenant_id, count)
+      VALUES ( ?, ?, ?, 1)
+      ON CONFLICT (contributor_id, type_id, tenant_id) DO UPDATE SET count = %s.contributor_count.count +1;
     """;
 
   private static final String ID_RANGE_INS_WHERE_CLAUSE = "ins.contributor_id >= ? AND ins.contributor_id <= ?";
@@ -153,14 +152,28 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
   }
 
   @Override
-  public void deleteByInstanceIds(List<String> instanceIds) {
-    var sql = DELETE_QUERY.formatted(JdbcUtils.getSchemaName(context), getParamPlaceholderForUuid(instanceIds.size()));
-    jdbcTemplate.update(sql, instanceIds.toArray());
+  public void updateCounts(List<Map<String, Object>> relations) {
+    var sql = UPDATE_COUNTS_QUERY.formatted(JdbcUtils.getSchemaName(context));
+    try {
+      jdbcTemplate.batchUpdate(sql, relations, BATCH_OPERATION_SIZE,
+        (statement, relation) -> {
+          statement.setString(1, (String) relation.get("contributorId"));
+          statement.setString(2, (String) relation.get(CONTRIBUTOR_TYPE_FIELD));
+          statement.setString(3, (String) relation.get("tenantId"));
+        });
+    } catch (DataAccessException e) {
+      log.warn("updateCounts::Failed to save relations batch. Starting processing one-by-one", e);
+      for (var relation : relations) {
+        jdbcTemplate.update(sql, relation.get("contributorId"),
+          relation.get(CONTRIBUTOR_TYPE_FIELD), relation.get("tenantId"));
+      }
+    }
   }
 
   @Override
   public void saveAll(Set<Map<String, Object>> entities, List<Map<String, Object>> entityRelations) {
-    var entitiesSql = INSERT_ENTITIES_SQL.formatted(JdbcUtils.getSchemaName(context));
+    String schemaName = JdbcUtils.getSchemaName(context);
+    var entitiesSql = INSERT_ENTITIES_SQL.formatted(schemaName);
     try {
       jdbcTemplate.batchUpdate(entitiesSql, entities, BATCH_OPERATION_SIZE,
         (statement, entity) -> {
@@ -177,22 +190,11 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
       }
     }
 
-    var relationsSql = INSERT_RELATIONS_SQL.formatted(JdbcUtils.getSchemaName(context));
-    try {
-      jdbcTemplate.batchUpdate(relationsSql, entityRelations, BATCH_OPERATION_SIZE,
-        (statement, entityRelation) -> {
-          statement.setObject(1, entityRelation.get("instanceId"));
-          statement.setString(2, (String) entityRelation.get("contributorId"));
-          statement.setString(3, (String) entityRelation.get(CONTRIBUTOR_TYPE_FIELD));
-          statement.setString(4, (String) entityRelation.get("tenantId"));
-          statement.setObject(5, entityRelation.get("shared"));
-        });
-    } catch (DataAccessException e) {
-      log.warn("saveAll::Failed to save relations batch. Starting processing one-by-one", e);
-      for (var entityRelation : entityRelations) {
-        jdbcTemplate.update(relationsSql, entityRelation.get("instanceId"), entityRelation.get("contributorId"),
-          entityRelation.get(CONTRIBUTOR_TYPE_FIELD), entityRelation.get("tenantId"), entityRelation.get("shared"));
-      }
+    var relationsSql = INSERT_RELATIONS_SQL.formatted(schemaName, schemaName);
+
+    for (var entityRelation : entityRelations) {
+      jdbcTemplate.update(relationsSql, entityRelation.get("contributorId"),
+        entityRelation.get(CONTRIBUTOR_TYPE_FIELD), entityRelation.get("tenantId"));
     }
   }
 

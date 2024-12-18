@@ -107,12 +107,11 @@ public class SubjectResourceExtractor extends ChildResourceExtractor {
 
   @Override
   protected List<Map<String, Object>> constructRelations(boolean shared, ResourceEvent event,
-                                                       List<Map<String, Object>> entities) {
+                                                         List<Map<String, Object>> entities) {
     return entities.stream()
-      .map(entity -> Map.of("instanceId", event.getId(),
+      .map(entity -> Map.of(
         "subjectId", entity.get("id"),
-        "tenantId", event.getTenant(),
-        "shared", shared))
+        "tenantId", event.getTenant()))
       .toList();
   }
 

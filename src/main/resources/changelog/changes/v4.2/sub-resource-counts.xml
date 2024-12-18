@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
+
+  <changeSet id="MSEARCH-899@@contributor_count" author="Kalibek_Turgumbayev">
+    <createTable tableName="contributor_count">
+      <column name="contributor_id" type="VARCHAR(40)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="type_id" type="VARCHAR(40)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="tenant_id" type="VARCHAR(100)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="count" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <addPrimaryKey tableName="contributor_count"
+                   columnNames="contributor_id, type_id, tenant_id"/>
+  </changeSet>
+
+  <changeSet id="MSEARCH-899@@subject_count" author="Kalibek_Turgumbayev">
+    <createTable tableName="subject_count">
+      <column name="subject_id" type="VARCHAR(40)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="tenant_id" type="VARCHAR(100)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="count" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <addPrimaryKey tableName="subject_count"
+                   columnNames="subject_id, tenant_id"/>
+  </changeSet>
+
+  <changeSet id="MSEARCH-899@@classificaiton_count" author="Kalibek_Turgumbayev">
+    <createTable tableName="classification_count">
+      <column name="classification_id" type="VARCHAR(40)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="tenant_id" type="VARCHAR(100)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="count" type="bigint">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <addPrimaryKey tableName="classification_count"
+                   columnNames="classification_id, tenant_id"/>
+  </changeSet>
+
+</databaseChangeLog>

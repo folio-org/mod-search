@@ -37,13 +37,15 @@ public abstract class ChildResourceExtractor {
 
   @Transactional
   public void persistChildren(boolean shared, List<ResourceEvent> events) {
-    var instanceIdsForDeletion = events.stream()
+    var eventsForDeletion = events.stream()
       .filter(event -> event.getType() != ResourceEventType.CREATE && event.getType() != ResourceEventType.REINDEX)
-      .map(ResourceEvent::getId)
       .toList();
-    if (!instanceIdsForDeletion.isEmpty()) {
-      repository.deleteByInstanceIds(instanceIdsForDeletion);
-    }
+    var relationsToUpdate = new LinkedList<Map<String, Object>>();
+    eventsForDeletion.forEach(event -> {
+      var entitiesFromEvent = extractEntities(event);
+      relationsToUpdate.addAll(constructRelations(shared, event, entitiesFromEvent));
+    });
+    repository.updateCounts(relationsToUpdate);
 
     var eventsForSaving = events.stream()
       .filter(event -> event.getType() != ResourceEventType.DELETE)

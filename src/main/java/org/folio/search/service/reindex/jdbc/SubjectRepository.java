@@ -1,7 +1,6 @@
 package org.folio.search.service.reindex.jdbc;
 
 import static org.folio.search.utils.JdbcUtils.getParamPlaceholder;
-import static org.folio.search.utils.JdbcUtils.getParamPlaceholderForUuid;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.SUBJECT_SOURCE_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.SUBJECT_TYPE_ID_FIELD;
@@ -34,6 +33,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class SubjectRepository extends UploadRangeRepository implements InstanceChildResourceRepository {
 
+  // TODO: override shared based on tenant id
   private static final String SELECT_QUERY = """
     SELECT
         s.id,
@@ -44,7 +44,7 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
         json_agg(
             json_build_object(
                 'count', sub.instance_count,
-                'shared', sub.shared,
+                'shared', false,
                 'tenantId', sub.tenant_id
             )
         ) AS instances
@@ -53,16 +53,14 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
             SELECT
                 ins.subject_id,
                 ins.tenant_id,
-                ins.shared,
-                COUNT(1) AS instance_count
+                sum(ins.count) AS instance_count
             FROM
-                %1$s.instance_subject ins
+                %1$s.subject_count ins
             WHERE
                 %2$s
             GROUP BY
                 ins.subject_id,
-                ins.tenant_id,
-                ins.shared
+                ins.tenant_id
         ) sub
     JOIN
         %1$s.subject s ON s.id = sub.subject_id
@@ -72,10 +70,11 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
         s.id;
     """;
 
-  private static final String DELETE_QUERY = """
-    DELETE
-    FROM %s.instance_subject
-    WHERE instance_id IN (%s);
+  private static final String UPDATE_COUNTS_QUERY = """
+    UPDATE %s.classification_count set count = count -1
+    WHERE classification_id = ?
+      and tenant_id = ?
+      and count >0
     """;
   private static final String INSERT_ENTITIES_SQL = """
       INSERT INTO %s.subject (id, value, authority_id, source_id, type_id)
@@ -83,16 +82,15 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
       ON CONFLICT DO NOTHING;
     """;
   private static final String INSERT_RELATIONS_SQL = """
-      INSERT INTO %s.instance_subject (instance_id, subject_id, tenant_id, shared)
-      VALUES (?::uuid, ?, ?, ?)
-      ON CONFLICT DO NOTHING;
+      INSERT INTO %s.subject_count (subject_id, tenant_id, count)
+      VALUES (?, ?, 1)
+      ON CONFLICT (subject_id, tenant_id) DO UPDATE SET count = %s.subject_count.count + 1;
     """;
 
   private static final String ID_RANGE_INS_WHERE_CLAUSE = "ins.subject_id >= ? AND ins.subject_id <= ?";
   private static final String ID_RANGE_SUBJ_WHERE_CLAUSE = "s.id >= ? AND s.id <= ?";
   private static final String IDS_INS_WHERE_CLAUSE = "ins.subject_id IN (%1$s)";
   private static final String IDS_SUB_WHERE_CLAUSE = "s.id IN (%1$s)";
-
 
   protected SubjectRepository(JdbcTemplate jdbcTemplate,
                               JsonConverter jsonConverter,
@@ -126,13 +124,11 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
     return jdbcTemplate.query(sql, instanceAggRowMapper(), ListUtils.union(ids, ids).toArray());
   }
 
-
   @Override
   public List<Map<String, Object>> fetchByIdRange(String lower, String upper) {
     var sql = getFetchBySql();
     return jdbcTemplate.query(sql, rowToMapMapper(), lower, upper, lower, upper);
   }
-
 
   @Override
   protected String getFetchBySql() {
@@ -159,9 +155,21 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
   }
 
   @Override
-  public void deleteByInstanceIds(List<String> instanceIds) {
-    var sql = DELETE_QUERY.formatted(JdbcUtils.getSchemaName(context), getParamPlaceholderForUuid(instanceIds.size()));
-    jdbcTemplate.update(sql, instanceIds.toArray());
+  public void updateCounts(List<Map<String, Object>> relations) {
+    var sql = UPDATE_COUNTS_QUERY.formatted(JdbcUtils.getSchemaName(context));
+    try {
+      jdbcTemplate.batchUpdate(sql, relations, BATCH_OPERATION_SIZE,
+        (statement, relation) -> {
+          statement.setString(1, (String) relation.get("subjectId"));
+          statement.setString(2, (String) relation.get("tenantId"));
+        });
+    } catch (DataAccessException e) {
+      log.warn("updateCounts::Failed to save relations batch. Starting processing one-by-one", e);
+      for (var relation : relations) {
+        jdbcTemplate.update(sql, relation.get("subjectId"),
+          relation.get("tenantId"));
+      }
+    }
   }
 
   @Override
@@ -184,21 +192,12 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
       }
     }
 
-    var relationsSql = INSERT_RELATIONS_SQL.formatted(JdbcUtils.getSchemaName(context));
-    try {
-      jdbcTemplate.batchUpdate(relationsSql, entityRelations, BATCH_OPERATION_SIZE,
-        (statement, entityRelation) -> {
-          statement.setObject(1, entityRelation.get("instanceId"));
-          statement.setString(2, (String) entityRelation.get("subjectId"));
-          statement.setString(3, (String) entityRelation.get("tenantId"));
-          statement.setObject(4, entityRelation.get("shared"));
-        });
-    } catch (DataAccessException e) {
-      log.warn("saveAll::Failed to save relations batch. Starting processing one-by-one", e);
-      for (var entityRelation : entityRelations) {
-        jdbcTemplate.update(relationsSql, entityRelation.get("instanceId"), entityRelation.get("subjectId"),
-          entityRelation.get("tenantId"), entityRelation.get("shared"));
-      }
+    var relationsSql =
+      INSERT_RELATIONS_SQL.formatted(JdbcUtils.getSchemaName(context), JdbcUtils.getSchemaName(context));
+
+    for (var entityRelation : entityRelations) {
+      jdbcTemplate.update(relationsSql, entityRelation.get("subjectId"),
+        entityRelation.get("tenantId"));
     }
   }
 

@@ -6,7 +6,7 @@ import java.util.Set;
 
 public interface InstanceChildResourceRepository {
 
-  void deleteByInstanceIds(List<String> instanceIds);
+  void updateCounts(List<Map<String, Object>> entities);
 
   void saveAll(Set<Map<String, Object>> entities, List<Map<String, Object>> entityRelations);
 }

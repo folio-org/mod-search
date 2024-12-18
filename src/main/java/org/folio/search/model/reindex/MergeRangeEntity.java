@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.util.UUID;
 import lombok.Data;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.model.types.ReindexRangeStatus;
 
 @Data
 public class MergeRangeEntity {
@@ -15,6 +16,8 @@ public class MergeRangeEntity {
   public static final String RANGE_UPPER_COLUMN = "upper";
   public static final String CREATED_AT_COLUMN = "created_at";
   public static final String FINISHED_AT_COLUMN = "finished_at";
+  public static final String STATUS_COLUMN = "status";
+  public static final String FAIL_CAUSE_COLUMN = "fail_cause";
 
   private final UUID id;
   private final ReindexEntityType entityType;
@@ -23,5 +26,7 @@ public class MergeRangeEntity {
   private final String upperId;
   private final Timestamp createdAt;
   private Timestamp finishedAt;
+  private final ReindexRangeStatus status;
+  private final String failCause;
 
 }

@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.UUID;
 import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.model.types.ReindexRangeStatus;
 import org.folio.search.utils.JdbcUtils;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
@@ -102,7 +103,9 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
         rs.getString(MergeRangeEntity.TENANT_ID_COLUMN),
         rs.getString(MergeRangeEntity.RANGE_LOWER_COLUMN),
         rs.getString(MergeRangeEntity.RANGE_UPPER_COLUMN),
-        rs.getTimestamp(MergeRangeEntity.CREATED_AT_COLUMN)
+        rs.getTimestamp(MergeRangeEntity.CREATED_AT_COLUMN),
+        ReindexRangeStatus.valueOfNullable(rs.getString(MergeRangeEntity.STATUS_COLUMN)),
+        rs.getString(MergeRangeEntity.FAIL_CAUSE_COLUMN)
       );
       mergeRange.setFinishedAt(rs.getTimestamp(MergeRangeEntity.FINISHED_AT_COLUMN));
       return mergeRange;

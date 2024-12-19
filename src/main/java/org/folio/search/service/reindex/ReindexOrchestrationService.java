@@ -9,6 +9,7 @@ import org.folio.search.exception.ReindexException;
 import org.folio.search.model.event.ReindexRangeIndexEvent;
 import org.folio.search.model.event.ReindexRecordsEvent;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.model.types.ReindexRangeStatus;
 import org.folio.search.repository.PrimaryResourceRepository;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.spring.FolioExecutionContext;
@@ -34,13 +35,14 @@ public class ReindexOrchestrationService {
     var resourceEvents = uploadRangeService.fetchRecordRange(event);
     var documents = documentConverter.convert(resourceEvents).values().stream().flatMap(Collection::stream).toList();
     var folioIndexOperationResponse = elasticRepository.indexResources(documents);
-    uploadRangeService.updateFinishDate(event);
     if (folioIndexOperationResponse.getStatus() == FolioIndexOperationResponse.StatusEnum.ERROR) {
       log.warn("process:: ReindexRangeIndexEvent indexing error [id: {}, error: {}]",
         event.getId(), folioIndexOperationResponse.getErrorMessage());
+      uploadRangeService.updateStatus(event, ReindexRangeStatus.FAIL, folioIndexOperationResponse.getErrorMessage());
       reindexStatusService.updateReindexUploadFailed(event.getEntityType());
       throw new ReindexException(folioIndexOperationResponse.getErrorMessage());
     }
+    uploadRangeService.updateStatus(event, ReindexRangeStatus.SUCCESS, null);
 
     log.info("process:: ReindexRangeIndexEvent processed [id: {}]", event.getId());
     reindexStatusService.addProcessedUploadRanges(event.getEntityType(), 1);
@@ -55,7 +57,7 @@ public class ReindexOrchestrationService {
     try {
       mergeRangeService.saveEntities(event);
       reindexStatusService.addProcessedMergeRanges(entityType, 1);
-      mergeRangeService.updateFinishDate(entityType, event.getRangeId());
+      mergeRangeService.updateStatus(entityType, event.getRangeId(), ReindexRangeStatus.SUCCESS, null);
       log.info("process:: ReindexRecordsEvent processed [rangeId: {}, recordType: {}]",
         event.getRangeId(), event.getRecordType());
       if (reindexStatusService.isMergeCompleted()) {
@@ -69,7 +71,7 @@ public class ReindexOrchestrationService {
       log.error(new FormattedMessage("process:: ReindexRecordsEvent indexing error [rangeId: {}, error: {}]",
         event.getRangeId(), ex.getMessage()), ex);
       reindexStatusService.updateReindexMergeFailed(entityType);
-      mergeRangeService.updateFinishDate(entityType, event.getRangeId());
+      mergeRangeService.updateStatus(entityType, event.getRangeId(), ReindexRangeStatus.FAIL, ex.getMessage());
     }
 
     return true;

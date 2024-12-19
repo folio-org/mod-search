@@ -15,6 +15,7 @@ import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.event.ReindexRangeIndexEvent;
 import org.folio.search.model.reindex.UploadRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.model.types.ReindexRangeStatus;
 import org.folio.search.service.reindex.jdbc.UploadRangeRepository;
 import org.folio.spring.tools.kafka.FolioMessageProducer;
 import org.springframework.stereotype.Service;
@@ -56,9 +57,9 @@ public class ReindexUploadRangeIndexService {
       .toList();
   }
 
-  public void updateFinishDate(ReindexRangeIndexEvent event) {
+  public void updateStatus(ReindexRangeIndexEvent event, ReindexRangeStatus status, String failCause) {
     var repository = repositories.get(event.getEntityType());
-    repository.setIndexRangeFinishDate(event.getId(), Timestamp.from(Instant.now()));
+    repository.updateRangeStatus(event.getId(), Timestamp.from(Instant.now()), status, failCause);
   }
 
   private List<ReindexRangeIndexEvent> prepareEvents(List<UploadRangeEntity> uploadRanges) {

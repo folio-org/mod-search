@@ -17,6 +17,7 @@ import org.assertj.core.api.Condition;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.model.types.ReindexRangeStatus;
 import org.folio.search.service.consortium.ConsortiumTenantProvider;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
@@ -120,9 +121,9 @@ class MergeRangeRepositoriesIT {
     var bound2 = id2.toString().replace("-", "");
     var instanceRanges = List.of(
       new MergeRangeEntity(id1, ReindexEntityType.INSTANCE, "member", bound1, bound1,
-        Timestamp.from(Instant.now())),
+        Timestamp.from(Instant.now()), ReindexRangeStatus.SUCCESS, null),
       new MergeRangeEntity(id2, ReindexEntityType.INSTANCE, "member", bound2, bound2,
-        Timestamp.from(Instant.now()))
+        Timestamp.from(Instant.now()), ReindexRangeStatus.FAIL, "fail cause")
     );
 
     // act
@@ -132,7 +133,8 @@ class MergeRangeRepositoriesIT {
     var ranges = instanceRepository.getMergeRanges();
 
     assertThat(ranges)
-      .usingRecursiveFieldByFieldElementComparatorIgnoringFields("createdAt")
+      .allMatch(range -> range.getStatus() == null && range.getFailCause() == null)
+      .usingRecursiveFieldByFieldElementComparatorIgnoringFields("createdAt", "status", "failCause")
       .isEqualTo(instanceRanges);
   }
 
@@ -181,7 +183,6 @@ class MergeRangeRepositoriesIT {
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   void deleteEntities() {
     // given
     var instanceId = UUID.randomUUID();

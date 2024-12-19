@@ -6,6 +6,7 @@ import java.sql.Timestamp;
 import java.util.Optional;
 import java.util.UUID;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.model.types.ReindexRangeStatus;
 import org.folio.search.utils.JdbcUtils;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
@@ -15,7 +16,11 @@ public abstract class ReindexJdbcRepository {
 
   protected static final int BATCH_OPERATION_SIZE = 100;
   private static final String COUNT_SQL = "SELECT COUNT(*) FROM %s;";
-  private static final String UPDATE_FINISHED_AT_RANGE_SQL = "UPDATE %s SET finished_at = ? WHERE id = ?;";
+  private static final String UPDATE_STATUS_SQL = """
+    UPDATE %s
+    SET finished_at = ?, status = ?, fail_cause = ?
+    WHERE id = ?;
+    """;
 
   protected final JsonConverter jsonConverter;
   protected final FolioExecutionContext context;
@@ -40,9 +45,9 @@ public abstract class ReindexJdbcRepository {
     JdbcUtils.truncateTable(entityTable(), jdbcTemplate, context);
   }
 
-  public void setIndexRangeFinishDate(UUID id, Timestamp timestamp) {
-    var sql = UPDATE_FINISHED_AT_RANGE_SQL.formatted(getFullTableName(context, rangeTable()));
-    jdbcTemplate.update(sql, timestamp, id);
+  public void updateRangeStatus(UUID id, Timestamp timestamp, ReindexRangeStatus status, String failCause) {
+    var sql = UPDATE_STATUS_SQL.formatted(getFullTableName(context, rangeTable()));
+    jdbcTemplate.update(sql, timestamp, status.name(), failCause, id);
   }
 
   public abstract ReindexEntityType entityType();

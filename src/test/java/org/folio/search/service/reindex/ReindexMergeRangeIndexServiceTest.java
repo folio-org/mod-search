@@ -27,6 +27,7 @@ import org.folio.search.model.event.ReindexRecordsEvent;
 import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.InventoryRecordType;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.model.types.ReindexRangeStatus;
 import org.folio.search.service.InstanceChildrenResourceService;
 import org.folio.search.service.reindex.jdbc.HoldingRepository;
 import org.folio.search.service.reindex.jdbc.ItemRepository;
@@ -99,14 +100,16 @@ class ReindexMergeRangeIndexServiceTest {
   }
 
   @Test
-  void updateFinishDate() {
+  void updateStatus() {
     var testStartTime = Timestamp.from(Instant.now());
     var rangeId = UUID.randomUUID();
     var captor = ArgumentCaptor.<Timestamp>captor();
+    var failCause = "fail cause";
 
-    service.updateFinishDate(ReindexEntityType.INSTANCE, rangeId.toString());
+    service.updateStatus(ReindexEntityType.INSTANCE, rangeId.toString(), ReindexRangeStatus.FAIL, failCause);
 
-    verify(instanceRepository).setIndexRangeFinishDate(eq(rangeId), captor.capture());
+    verify(instanceRepository)
+      .updateRangeStatus(eq(rangeId), captor.capture(), eq(ReindexRangeStatus.FAIL), eq(failCause));
 
     var timestamp = captor.getValue();
     assertThat(timestamp).isAfterOrEqualTo(testStartTime);

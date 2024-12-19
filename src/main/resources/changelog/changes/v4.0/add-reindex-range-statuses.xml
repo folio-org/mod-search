@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
+
+  <changeSet id="MSEARCH-870@@add-merge_range-status" author="viacheslav_kolesnyk">
+    <preConditions onFail="MARK_RAN">
+      <and>
+        <tableExists tableName="merge_range"/>
+        <not>
+          <columnExists tableName="merge_range" columnName="status" />
+        </not>
+      </and>
+    </preConditions>
+
+    <addColumn tableName="merge_range">
+      <column name="status" type="VARCHAR(20)"/>
+      <column name="fail_cause" type="TEXT"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="MSEARCH-870@@add-upload_range-status" author="viacheslav_kolesnyk">
+    <preConditions onFail="MARK_RAN">
+      <and>
+        <tableExists tableName="upload_range"/>
+        <not>
+          <columnExists tableName="upload_range" columnName="status" />
+        </not>
+      </and>
+    </preConditions>
+
+    <addColumn tableName="upload_range">
+      <column name="status" type="VARCHAR(20)"/>
+      <column name="fail_cause" type="TEXT"/>
+    </addColumn>
+  </changeSet>
+
+</databaseChangeLog>

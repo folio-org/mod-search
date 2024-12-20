@@ -128,6 +128,9 @@ public class ClassificationResourceExtractor extends ChildResourceExtractor {
 
   @Override
   protected Map<String, Object> constructEntity(Map<String, Object> entityProperties) {
+    if (entityProperties == null) {
+      return null;
+    }
     var classificationNumber = prepareForExpectedFormat(entityProperties.get(CLASSIFICATION_NUMBER_FIELD), 50);
     if (classificationNumber.isEmpty()) {
       return null;

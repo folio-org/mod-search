@@ -117,6 +117,9 @@ public class ContributorResourceExtractor extends ChildResourceExtractor {
 
   @Override
   protected Map<String, Object> constructEntity(Map<String, Object> entityProperties) {
+    if (entityProperties == null) {
+      return null;
+    }
     var contributorName = prepareForExpectedFormat(entityProperties.get("name"), 255);
     if (contributorName.isBlank()) {
       return null;

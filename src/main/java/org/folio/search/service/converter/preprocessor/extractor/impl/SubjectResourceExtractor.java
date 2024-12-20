@@ -118,6 +118,9 @@ public class SubjectResourceExtractor extends ChildResourceExtractor {
 
   @Override
   protected Map<String, Object> constructEntity(Map<String, Object> entityProperties) {
+    if (entityProperties == null) {
+      return null;
+    }
     var subjectValue = prepareForExpectedFormat(entityProperties.get(SUBJECT_VALUE_FIELD), 255);
     if (subjectValue.isEmpty()) {
       return null;

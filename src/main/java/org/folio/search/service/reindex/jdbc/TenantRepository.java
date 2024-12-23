@@ -15,12 +15,12 @@ public class TenantRepository {
   private final SystemProperties systemProperties;
 
   public static final String INSERT_QUERY = """
-    INSERT INTO %s.known_tenant (id, central_id, active) "
-                   + "VALUES (?, ?, ?) ON CONFLICT (id) DO UPDATE SET active = ?;
+    INSERT INTO %s.known_tenant (id, central_id, active)
+    VALUES (?, ?, ?) ON CONFLICT (id) DO UPDATE SET active = ?;
     """;
   public static final String FETCH_QUERY = """
-    SELECT id FROM %s.known_tenant "
-                   + "WHERE active = TRUE AND central_id IS NULL;
+    SELECT id FROM %s.known_tenant
+    WHERE active = TRUE AND central_id IS NULL;
     """;
 
   public void saveTenant(TenantEntity tenantEntity) {

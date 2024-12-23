@@ -11,5 +11,6 @@
   <include file="changes/v3.2/create_browse_config_table.xml" relativeToChangelogFile="true"/>
   <include file="changes/v4.0/create-reindex-entity-tables.xml" relativeToChangelogFile="true"/>
   <include file="changes/v4.0/delete-instance-trigger.xml" relativeToChangelogFile="true"/>
+  <include file="changes/v4.0/add-reindex-range-statuses.xml" relativeToChangelogFile="true"/>
   <include file="changes/v4.1/alter-browse-config-type-ids.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

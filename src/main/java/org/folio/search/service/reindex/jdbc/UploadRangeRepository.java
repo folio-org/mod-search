@@ -2,9 +2,11 @@ package org.folio.search.service.reindex.jdbc;
 
 import static org.folio.search.model.reindex.UploadRangeEntity.CREATED_AT_COLUMN;
 import static org.folio.search.model.reindex.UploadRangeEntity.ENTITY_TYPE_COLUMN;
+import static org.folio.search.model.reindex.UploadRangeEntity.FAIL_CAUSE_COLUMN;
 import static org.folio.search.model.reindex.UploadRangeEntity.FINISHED_AT_COLUMN;
 import static org.folio.search.model.reindex.UploadRangeEntity.ID_COLUMN;
 import static org.folio.search.model.reindex.UploadRangeEntity.LOWER_BOUND_COLUMN;
+import static org.folio.search.model.reindex.UploadRangeEntity.STATUS_COLUMN;
 import static org.folio.search.model.reindex.UploadRangeEntity.UPPER_BOUND_COLUMN;
 import static org.folio.search.service.reindex.ReindexConstants.UPLOAD_RANGE_TABLE;
 import static org.folio.search.utils.JdbcUtils.getFullTableName;
@@ -21,6 +23,7 @@ import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.index.InstanceSubResource;
 import org.folio.search.model.reindex.UploadRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.model.types.ReindexRangeStatus;
 import org.folio.search.service.reindex.RangeGenerator;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
@@ -105,7 +108,9 @@ public abstract class UploadRangeRepository extends ReindexJdbcRepository {
         ReindexEntityType.fromValue(rs.getString(ENTITY_TYPE_COLUMN)),
         rs.getString(LOWER_BOUND_COLUMN),
         rs.getString(UPPER_BOUND_COLUMN),
-        rs.getTimestamp(CREATED_AT_COLUMN)
+        rs.getTimestamp(CREATED_AT_COLUMN),
+        ReindexRangeStatus.valueOfNullable(rs.getString(STATUS_COLUMN)),
+        rs.getString(FAIL_CAUSE_COLUMN)
       );
       uploadRange.setFinishedAt(rs.getTimestamp(FINISHED_AT_COLUMN));
       return uploadRange;
@@ -116,7 +121,7 @@ public abstract class UploadRangeRepository extends ReindexJdbcRepository {
     var ranges = createRanges()
       .stream()
       .map(range -> new UploadRangeEntity(UUID.randomUUID(), entityType(), range.lowerBound(), range.upperBound(),
-        Timestamp.from(Instant.now())))
+        Timestamp.from(Instant.now()), null, null))
       .toList();
 
     upsertUploadRanges(ranges);

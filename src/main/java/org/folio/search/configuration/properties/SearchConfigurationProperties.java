@@ -70,7 +70,15 @@ public class SearchConfigurationProperties {
      */
     private IndexingDataFormat dataFormat;
 
+    /**
+     * Scheduler delay for indexing subjects/contributors/classifications.
+     * */
     private long instanceChildrenIndexDelayMs;
+
+    /**
+     * Batch size for indexing subjects/contributors/classifications.
+     * */
+    private int instanceChildrenIndexBatchSize;
   }
 
 }

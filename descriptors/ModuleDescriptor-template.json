@@ -1119,6 +1119,16 @@
         "description": "Format for passing data to elasticsearch (json/smile)"
       },
       {
+        "name": "INSTANCE_CHILDREN_INDEX_DELAY_MS",
+        "value": "60000",
+        "description": "Scheduler delay for indexing subjects/contributors/classifications"
+      },
+      {
+        "name": "INSTANCE_CHILDREN_INDEX_BATCH_SIZE",
+        "value": "500",
+        "description": "Batch size for indexing subjects/contributors/classifications"
+      },
+      {
         "name": "INITIAL_LANGUAGES",
         "value": "eng",
         "description": "Comma separated list of languages for multilang fields"

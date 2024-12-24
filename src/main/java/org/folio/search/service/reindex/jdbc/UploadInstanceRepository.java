@@ -44,7 +44,7 @@ public class UploadInstanceRepository extends UploadRangeRepository {
   }
 
   @Override
-  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp) {
+  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp, int limit) {
     return null;
   }
 

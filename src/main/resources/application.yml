@@ -76,6 +76,7 @@ folio:
     indexing:
       data-format: ${INDEXING_DATA_FORMAT:smile}
       instance-children-index-delay-ms: ${INSTANCE_CHILDREN_INDEX_DELAY_MS:60000}
+      instance-children-index-batch-size: ${INSTANCE_CHILDREN_INDEX_BATCH_SIZE:500}
   reindex:
     location-batch-size: ${REINDEX_LOCATION_BATCH_SIZE:1000}
     upload-range-size: ${REINDEX_UPLOAD_RANGE_SIZE:1000}

@@ -8,6 +8,7 @@ import static org.folio.search.utils.SearchUtils.ID_FIELD;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.log4j.Log4j2;
+import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.types.ReindexEntityType;
@@ -30,12 +31,14 @@ public class ScheduledInstanceSubResourcesService {
   private final Map<ReindexEntityType, UploadRangeRepository> repositories;
   private final SubResourcesLockRepository subResourcesLockRepository;
   private final SystemUserScopedExecutionService executionService;
+  private final Integer batchSize;
 
   public ScheduledInstanceSubResourcesService(ResourceService resourceService,
                                               TenantRepository tenantRepository,
                                               List<UploadRangeRepository> repositories,
                                               SubResourcesLockRepository subResourcesLockRepository,
-                                              SystemUserScopedExecutionService executionService) {
+                                              SystemUserScopedExecutionService executionService,
+                                              SearchConfigurationProperties searchConfigurationProperties) {
     this.resourceService = resourceService;
     this.tenantRepository = tenantRepository;
     this.repositories = repositories.stream()
@@ -43,6 +46,7 @@ public class ScheduledInstanceSubResourcesService {
       .collect(toMap(UploadRangeRepository::entityType, identity()));
     this.subResourcesLockRepository = subResourcesLockRepository;
     this.executionService = executionService;
+    this.batchSize = searchConfigurationProperties.getIndexing().getInstanceChildrenIndexBatchSize();
   }
 
   @Scheduled(fixedDelayString = "#{searchConfigurationProperties.indexing.instanceChildrenIndexDelayMs}")
@@ -56,7 +60,7 @@ public class ScheduledInstanceSubResourcesService {
           if (timestamp.isPresent()) {
             SubResourceResult result = null;
             try {
-              result = repositories.get(entityType).fetchByTimestamp(tenant, timestamp.get());
+              result = repositories.get(entityType).fetchByTimestamp(tenant, timestamp.get(), batchSize);
               if (result.hasRecords()) {
                 var events = map(result.records(), entityType, tenant);
                 resourceService.indexResources(events);

@@ -210,7 +210,7 @@ class SearchLinkedDataWorkIT extends BaseIntegrationTest {
       .andExpect(jsonPath(toFormat(toInstance()), is("Monograph")))
       .andExpect(jsonPath(toIdValue(toInstance(), 0), is("1234567890123")))
       .andExpect(jsonPath(toIdType(toInstance(), 0), is("ISBN")))
-      .andExpect(jsonPath(toIdValue(toInstance(), 1), is("  2023-202345/AC/r932")))
+      .andExpect(jsonPath(toIdValue(toInstance(), 1), is("  2023202345")))
       .andExpect(jsonPath(toIdType(toInstance(), 1), is("LCCN")))
       .andExpect(jsonPath(toNoteValue(toInstance(), 0), is("first instance note")))
       .andExpect(jsonPath(toNoteType(toInstance(), 0), is("firstInstanceNoteType")))

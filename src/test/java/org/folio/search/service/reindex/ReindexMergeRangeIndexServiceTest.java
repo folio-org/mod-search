@@ -29,6 +29,8 @@ import org.folio.search.model.types.InventoryRecordType;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexRangeStatus;
 import org.folio.search.service.InstanceChildrenResourceService;
+import org.folio.search.service.reindex.jdbc.HoldingRepository;
+import org.folio.search.service.reindex.jdbc.ItemRepository;
 import org.folio.search.service.reindex.jdbc.MergeInstanceRepository;
 import org.folio.search.service.reindex.jdbc.MergeRangeRepository;
 import org.folio.search.service.reindex.jdbc.ReindexJdbcRepository;
@@ -48,6 +50,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class ReindexMergeRangeIndexServiceTest {
 
   private @Mock MergeInstanceRepository instanceRepository;
+  private @Mock ItemRepository itemRepository;
+  private @Mock HoldingRepository holdingRepository;
   private @Mock InventoryService inventoryService;
   private @Mock ReindexConfigurationProperties config;
   private @Mock InstanceChildrenResourceService instanceChildrenResourceService;
@@ -57,7 +61,7 @@ class ReindexMergeRangeIndexServiceTest {
 
   @BeforeEach
   void setUp() {
-    var repositories = List.<MergeRangeRepository>of(instanceRepository);
+    var repositories = List.of(instanceRepository, itemRepository, holdingRepository);
     repositories.forEach(repository -> when(repository.entityType()).thenCallRealMethod());
     service = new ReindexMergeRangeIndexService(
       repositories, inventoryService, config, instanceChildrenResourceService);

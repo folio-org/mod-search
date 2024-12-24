@@ -1,5 +1,6 @@
 package org.folio.search.service.reindex;
 
+import static java.util.Collections.emptyList;
 import static org.folio.search.exception.RequestValidationException.REQUEST_NOT_ALLOWED_MSG;
 import static org.folio.search.model.types.ReindexEntityType.HOLDINGS;
 import static org.folio.search.model.types.ReindexEntityType.INSTANCE;
@@ -14,6 +15,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
@@ -23,9 +25,11 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
+import lombok.SneakyThrows;
 import org.apache.commons.lang3.ThreadUtils;
 import org.folio.search.converter.ReindexEntityTypeMapper;
 import org.folio.search.domain.dto.IndexSettings;
@@ -237,5 +241,52 @@ class ReindexServiceTest {
     reindexService.submitUploadReindex(TENANT_ID, List.of(ReindexEntityType.INSTANCE));
 
     verify(statusService).updateReindexUploadFailed(INSTANCE);
+  }
+
+  @Test
+  void submitFailedRangesReindex_negative_shouldFailForEcsMemberTenant() {
+    when(consortiumService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of("central"));
+
+    assertThrows(RequestValidationException.class, () -> reindexService.submitFailedRangesReindex(TENANT_ID),
+      REQUEST_NOT_ALLOWED_MSG);
+  }
+
+  @Test
+  void submitFailedRangesReindex_negative_noFailedRanges() {
+    when(consortiumService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(TENANT_ID));
+    when(mergeRangeService.fetchFailedMergeRanges()).thenReturn(emptyList());
+
+    reindexService.submitFailedRangesReindex(TENANT_ID);
+
+    verifyNoInteractions(statusService);
+    verifyNoInteractions(inventoryService);
+  }
+
+  @Test
+  @SneakyThrows
+  void submitFailedRangesReindex_positive() {
+    var failedRanges = List.of(
+      createMergeRangeEntity(ReindexEntityType.ITEM),
+      createMergeRangeEntity(ReindexEntityType.HOLDINGS),
+      createMergeRangeEntity(ReindexEntityType.HOLDINGS),
+      createMergeRangeEntity(ReindexEntityType.INSTANCE),
+      createMergeRangeEntity(ReindexEntityType.INSTANCE),
+      createMergeRangeEntity(ReindexEntityType.INSTANCE));
+
+    when(consortiumService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(TENANT_ID));
+    when(mergeRangeService.fetchFailedMergeRanges()).thenReturn(failedRanges);
+
+    reindexService.submitFailedRangesReindex(TENANT_ID).get();
+
+    verify(statusService).updateReindexMergeInProgress(
+      Set.of(ReindexEntityType.ITEM, ReindexEntityType.HOLDINGS, ReindexEntityType.INSTANCE));
+    failedRanges.forEach(range ->
+      verify(inventoryService).publishReindexRecordsRange(range));
+  }
+
+  private MergeRangeEntity createMergeRangeEntity(ReindexEntityType entityType) {
+    var id = UUID.randomUUID();
+    return new MergeRangeEntity(id, entityType, TENANT_ID, id.toString(), id.toString(),
+      Timestamp.from(Instant.now()), null, null);
   }
 }

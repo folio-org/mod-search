@@ -64,6 +64,12 @@ public class IndexManagementController implements IndexManagementApi {
   }
 
   @Override
+  public ResponseEntity<Void> reindexFailedInstanceRecords(String tenantId) {
+    reindexService.submitFailedRangesReindex(tenantId);
+    return ResponseEntity.ok().build();
+  }
+
+  @Override
   public ResponseEntity<ReindexJob> reindexInventoryRecords(String tenantId, ReindexRequest request) {
     log.info("Attempting to start reindex for inventory [tenant: {}]", tenantId);
     return ResponseEntity.ok(indexService.reindexInventory(tenantId, request));

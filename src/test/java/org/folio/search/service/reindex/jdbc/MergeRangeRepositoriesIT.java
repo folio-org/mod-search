@@ -30,8 +30,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.boot.test.autoconfigure.json.AutoConfigureJson;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.jdbc.Sql;
 
 @IntegrationTest
@@ -42,9 +42,9 @@ import org.springframework.test.context.jdbc.Sql;
 class MergeRangeRepositoriesIT {
 
   private @Autowired JdbcTemplate jdbcTemplate;
-  private @MockBean FolioExecutionContext context;
-  private @MockBean ConsortiumTenantProvider tenantProvider;
-  private @MockBean ReindexConfigurationProperties reindexConfig;
+  private @MockitoBean FolioExecutionContext context;
+  private @MockitoBean ConsortiumTenantProvider tenantProvider;
+  private @MockitoBean ReindexConfigurationProperties reindexConfig;
   private HoldingRepository holdingRepository;
   private ItemRepository itemRepository;
   private MergeInstanceRepository instanceRepository;
@@ -136,6 +136,21 @@ class MergeRangeRepositoriesIT {
       .allMatch(range -> range.getStatus() == null && range.getFailCause() == null)
       .usingRecursiveFieldByFieldElementComparatorIgnoringFields("createdAt", "status", "failCause")
       .isEqualTo(instanceRanges);
+  }
+
+  @Test
+  @Sql("/sql/populate-merge-ranges.sql")
+  void getFailedMergeRanges() {
+    // act
+    var failedRanges = instanceRepository.getFailedMergeRanges();
+
+    // assert
+    assertThat(failedRanges)
+      .hasSize(3)
+      .anyMatch(range -> range.getEntityType() == ReindexEntityType.INSTANCE
+        || range.getEntityType() == ReindexEntityType.HOLDINGS)
+      .allMatch(range -> range.getStatus() == ReindexRangeStatus.FAIL
+        && "Some error".equals(range.getFailCause()));
   }
 
   @Test

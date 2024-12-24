@@ -1,6 +1,7 @@
 package org.folio.search.controller;
 
 import static org.folio.search.support.base.ApiEndpoints.createIndicesPath;
+import static org.folio.search.support.base.ApiEndpoints.reindexFailedPath;
 import static org.folio.search.support.base.ApiEndpoints.reindexFullPath;
 import static org.folio.search.support.base.ApiEndpoints.reindexInstanceRecordsStatus;
 import static org.folio.search.support.base.ApiEndpoints.reindexUploadPath;
@@ -55,8 +56,8 @@ import org.opensearch.OpenSearchException;
 import org.opensearch.core.index.Index;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
@@ -71,13 +72,13 @@ class IndexManagementControllerTest {
 
   @Autowired
   private MockMvc mockMvc;
-  @MockBean
+  @MockitoBean
   private IndexService indexService;
-  @MockBean
+  @MockitoBean
   private ResourceService resourceService;
-  @MockBean
+  @MockitoBean
   private ReindexService reindexService;
-  @MockBean
+  @MockitoBean
   private ReindexStatusService reindexStatusService;
 
   @Test
@@ -117,6 +118,15 @@ class IndexManagementControllerTest {
     when(reindexService.submitUploadReindex(TENANT_ID, requestBody)).thenReturn(new CompletableFuture<>());
 
     mockMvc.perform(preparePostRequest(reindexUploadPath(), asJsonString(requestBody))
+        .header(XOkapiHeaders.TENANT, TENANT_ID))
+      .andExpect(status().isOk());
+  }
+
+  @Test
+  void submitReindexFailed_positive() throws Exception {
+    when(reindexService.submitFailedRangesReindex(TENANT_ID)).thenReturn(new CompletableFuture<>());
+
+    mockMvc.perform(post(reindexFailedPath())
         .header(XOkapiHeaders.TENANT, TENANT_ID))
       .andExpect(status().isOk());
   }

@@ -4,7 +4,7 @@
   "provides": [
     {
       "id": "indices",
-      "version": "1.0",
+      "version": "1.1",
       "handlers": [
         {
           "methods": [
@@ -107,6 +107,18 @@
           "pathPattern": "/search/index/instance-records/reindex/upload",
           "permissionsRequired": [
             "search.index.instance-records.reindex.upload.post"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
+        },
+        {
+          "methods": [
+            "POST"
+          ],
+          "pathPattern": "/search/index/instance-records/reindex/failed",
+          "permissionsRequired": [
+            "search.index.instance-records.reindex.failed.post"
           ],
           "modulePermissions": [
             "user-tenants.collection.get"
@@ -697,6 +709,11 @@
       "description": "Starts inventory instance records reindex upload operation"
     },
     {
+      "permissionName": "search.index.instance-records.reindex.failed.post",
+      "displayName": "Search - starts inventory instance records reindex failed operation",
+      "description": "Starts inventory instance records reindexing if failed ranges"
+    },
+    {
       "permissionName": "search.instances.collection.get",
       "displayName": "Search - searches instances by given query",
       "description": "Searches instances by given query"
@@ -896,7 +913,8 @@
       "subPermissions": [
         "search.index.instance-records.reindex.status.get",
         "search.index.instance-records.reindex.full.post",
-        "search.index.instance-records.reindex.upload.post"
+        "search.index.instance-records.reindex.upload.post",
+        "search.index.instance-records.reindex.failed.post"
       ]
     }
 

@@ -4,6 +4,7 @@ import static java.util.Collections.singletonList;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.converter.ReindexStatusMapper;
@@ -91,6 +92,11 @@ public class ReindexStatusService {
   public void updateReindexMergeStarted(ReindexEntityType entityType, int totalMergeRanges) {
     log.info("updateReindexMergeStarted:: for [entityType: {}, totalMergeRanges: {}]", entityType, totalMergeRanges);
     statusRepository.setMergeReindexStarted(entityType, totalMergeRanges);
+  }
+
+  public void updateReindexMergeInProgress(Set<ReindexEntityType> entityTypes) {
+    log.info("updateReindexMergeInProgress:: for [entityTypes: {}]", entityTypes);
+    statusRepository.setMergeInProgress(entityTypes);
   }
 
   public void updateReindexUploadStarted(ReindexEntityType entityType, int totalUploadRanges) {

@@ -1,0 +1,15 @@
+post:
+  operationId: reindexFailedInstanceRecords
+  summary: Failed Re-Index
+  description: Initiates reindexing of failed ranges for inventory instance records
+  tags:
+    - index-management
+  parameters:
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+  responses:
+    '200':
+      description: Reindexing of failed ranges has been started
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

@@ -35,6 +35,8 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
 
   private static final String SELECT_MERGE_RANGES_BY_ENTITY_TYPE = "SELECT * FROM %s WHERE entity_type = ?;";
 
+  private static final String SELECT_FAILED_MERGE_RANGES = "SELECT * FROM %s WHERE status = 'FAIL';";
+
   protected MergeRangeRepository(JdbcTemplate jdbcTemplate,
                                  JsonConverter jsonConverter,
                                  FolioExecutionContext context) {
@@ -60,6 +62,12 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
     var fullTableName = getFullTableName(context, MERGE_RANGE_TABLE);
     var sql = SELECT_MERGE_RANGES_BY_ENTITY_TYPE.formatted(fullTableName);
     return jdbcTemplate.query(sql, mergeRangeEntityRowMapper(), entityType().getType());
+  }
+
+  public List<MergeRangeEntity> getFailedMergeRanges() {
+    var fullTableName = getFullTableName(context, MERGE_RANGE_TABLE);
+    var sql = SELECT_FAILED_MERGE_RANGES.formatted(fullTableName);
+    return jdbcTemplate.query(sql, mergeRangeEntityRowMapper());
   }
 
   public void truncateMergeRanges() {

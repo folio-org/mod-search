@@ -252,11 +252,12 @@ class ReindexServiceTest {
   }
 
   @Test
+  @SneakyThrows
   void submitFailedRangesReindex_negative_noFailedRanges() {
     when(consortiumService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(TENANT_ID));
     when(mergeRangeService.fetchFailedMergeRanges()).thenReturn(emptyList());
 
-    reindexService.submitFailedRangesReindex(TENANT_ID);
+    reindexService.submitFailedRangesReindex(TENANT_ID).get();
 
     verifyNoInteractions(statusService);
     verifyNoInteractions(inventoryService);

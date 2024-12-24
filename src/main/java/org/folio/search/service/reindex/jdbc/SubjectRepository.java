@@ -6,6 +6,7 @@ import static org.folio.search.utils.SearchUtils.AUTHORITY_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.SUBJECT_SOURCE_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.SUBJECT_TYPE_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.SUBJECT_VALUE_FIELD;
+import static org.folio.search.utils.SearchUtils.SUB_RESOURCE_INSTANCES_FIELD;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -212,7 +213,7 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
 
       var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
       if (!maps.isEmpty()) {
-        subject.put("instances", maps);
+        subject.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
       }
 
       return subject;
@@ -231,7 +232,7 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
 
       var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
       if (!maps.isEmpty()) {
-        subject.put("instances", maps);
+        subject.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
       }
 
       return subject;
@@ -314,6 +315,6 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
   }
 
   private String getInstances(ResultSet rs) throws SQLException {
-    return rs.getString("instances");
+    return rs.getString(SUB_RESOURCE_INSTANCES_FIELD);
   }
 }

@@ -4,6 +4,7 @@ import static org.folio.search.utils.JdbcUtils.getParamPlaceholder;
 import static org.folio.search.utils.JdbcUtils.getParamPlaceholderForUuid;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_TYPE_FIELD;
+import static org.folio.search.utils.SearchUtils.SUB_RESOURCE_INSTANCES_FIELD;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -210,7 +211,7 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
 
       var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
       if (!maps.isEmpty()) {
-        contributor.put("instances", maps);
+        contributor.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
       }
 
       return contributor;
@@ -228,7 +229,7 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
 
       var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
       if (!maps.isEmpty()) {
-        contributor.put("instances", maps);
+        contributor.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
       }
 
       return contributor;
@@ -306,7 +307,7 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
   }
 
   private String getInstances(ResultSet rs) throws SQLException {
-    return rs.getString("instances");
+    return rs.getString(SUB_RESOURCE_INSTANCES_FIELD);
   }
 
 }

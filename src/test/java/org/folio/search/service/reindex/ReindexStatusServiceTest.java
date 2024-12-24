@@ -3,6 +3,7 @@ package org.folio.search.service.reindex;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.exception.RequestValidationException.REQUEST_NOT_ALLOWED_MSG;
+import static org.folio.search.model.types.ReindexEntityType.HOLDINGS;
 import static org.folio.search.model.types.ReindexEntityType.INSTANCE;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.Mockito.verify;
@@ -10,6 +11,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Set;
 import org.assertj.core.api.Condition;
 import org.folio.search.converter.ReindexStatusMapper;
 import org.folio.search.domain.dto.ReindexStatusItem;
@@ -161,5 +163,17 @@ class ReindexStatusServiceTest {
         ReindexEntityType.supportMergeTypes().contains(statusEntity.getEntityType()), "merge status entity"))
       .are(new Condition<>(statusEntity ->
         ReindexStatus.MERGE_IN_PROGRESS.equals(statusEntity.getStatus()), "merge status entity"));
+  }
+
+  @Test
+  void updateReindexMergeInProgress() {
+    // given
+    var entityTypes = Set.of(INSTANCE, HOLDINGS);
+
+    // act
+    service.updateReindexMergeInProgress(entityTypes);
+
+    // assert
+    verify(statusRepository).setMergeInProgress(entityTypes);
   }
 }

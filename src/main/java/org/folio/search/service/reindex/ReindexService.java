@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
@@ -66,7 +67,7 @@ public class ReindexService {
   public CompletableFuture<Void> submitFullReindex(String tenantId, IndexSettings indexSettings) {
     log.info("submitFullReindex:: for [tenantId: {}]", tenantId);
 
-    validateTenant(tenantId);
+    validateTenant("submitFullReindex", tenantId);
 
     reindexCommonService.deleteAllRecords();
     statusService.recreateMergeStatusRecords();
@@ -140,6 +141,28 @@ public class ReindexService {
     return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
   }
 
+  public CompletableFuture<Void> submitFailedRangesReindex(String tenantId) {
+    log.info("submitFailedRangesReindex:: for [tenantId: {}]", tenantId);
+
+    validateTenant("submitFailedRangesReindex", tenantId);
+
+    return CompletableFuture.runAsync(() -> {
+      var failedRanges = mergeRangeService.fetchFailedMergeRanges();
+
+      if (CollectionUtils.isNotEmpty(failedRanges)) {
+        log.info("submitFailedRangesReindex:: for [tenantId: {}, count: {}]", tenantId, failedRanges.size());
+        var entityTypes = failedRanges.stream()
+          .map(MergeRangeEntity::getEntityType)
+          .collect(Collectors.toSet());
+
+        statusService.updateReindexMergeInProgress(entityTypes);
+        for (var rangeEntity : failedRanges) {
+          inventoryService.publishReindexRecordsRange(rangeEntity);
+        }
+      }
+    });
+  }
+
   private void recreateIndices(String tenantId, List<ReindexEntityType> entityTypes, IndexSettings indexSettings) {
     for (var reindexEntityType : entityTypes) {
       reindexCommonService.recreateIndex(reindexEntityType, tenantId, indexSettings);
@@ -180,7 +203,7 @@ public class ReindexService {
   }
 
   private void validateUploadReindex(String tenantId, List<ReindexEntityType> entityTypes) {
-    validateTenant(tenantId);
+    validateTenant("submitUploadReindex", tenantId);
 
     var statusesByType = statusService.getStatusesByType();
 
@@ -207,10 +230,10 @@ public class ReindexService {
     }
   }
 
-  private void validateTenant(String tenantId) {
+  private void validateTenant(String operation, String tenantId) {
     var central = consortiumService.getCentralTenant(tenantId);
     if (central.isPresent() && !central.get().equals(tenantId)) {
-      log.info("initFullReindex:: could not be started for consortium member tenant [tenantId: {}]", tenantId);
+      log.info("{}:: could not be started for consortium member tenant [tenantId: {}]", operation, tenantId);
       throw RequestValidationException.memberTenantNotAllowedException(tenantId);
     }
   }

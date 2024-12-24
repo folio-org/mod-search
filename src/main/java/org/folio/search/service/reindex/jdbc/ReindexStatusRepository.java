@@ -15,6 +15,7 @@ import static org.folio.search.utils.JdbcUtils.getFullTableName;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.model.reindex.ReindexStatusEntity;
@@ -122,6 +123,16 @@ public class ReindexStatusRepository {
       fullTableName, QUERY_TWO_COLUMNS_PLACEHOLDER.formatted(STATUS_COLUMN, END_TIME_MERGE_COLUMN), inTypes);
 
     jdbcTemplate.update(sql, ReindexStatus.MERGE_FAILED.name(), Timestamp.from(Instant.now()));
+  }
+
+  public void setMergeInProgress(Set<ReindexEntityType> entityTypes) {
+    var inTypes = entityTypes.stream()
+      .map(entityType -> "'%s'".formatted(entityType.name()))
+      .collect(Collectors.joining(","));
+    var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
+    var sql = UPDATE_FOR_ENTITIES_SQL.formatted(fullTableName, STATUS_COLUMN + " = ?", inTypes);
+
+    jdbcTemplate.update(sql, ReindexStatus.MERGE_IN_PROGRESS.name());
   }
 
   public void saveReindexStatusRecords(List<ReindexStatusEntity> statusRecords) {

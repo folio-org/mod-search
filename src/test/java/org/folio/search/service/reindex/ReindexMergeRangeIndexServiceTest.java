@@ -133,4 +133,13 @@ class ReindexMergeRangeIndexServiceTest {
       verifyNoInteractions(instanceChildrenResourceService);
     }
   }
+
+  @Test
+  void fetchFailedMergeRanges() {
+    // act
+    service.fetchFailedMergeRanges();
+
+    // assert
+    verify(repositoryMap.values().iterator().next()).getFailedMergeRanges();
+  }
 }

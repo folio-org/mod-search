@@ -68,6 +68,10 @@ public class ReindexMergeRangeIndexService {
     return repositories.get(entityType).getMergeRanges();
   }
 
+  public List<MergeRangeEntity> fetchFailedMergeRanges() {
+    return repositories.values().iterator().next().getFailedMergeRanges();
+  }
+
   public void updateStatus(ReindexEntityType entityType, String rangeId, ReindexRangeStatus status, String failCause) {
     var repository = repositories.get(entityType);
     repository.updateRangeStatus(UUID.fromString(rangeId), Timestamp.from(Instant.now()), status, failCause);

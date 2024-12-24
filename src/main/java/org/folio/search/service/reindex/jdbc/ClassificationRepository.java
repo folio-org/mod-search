@@ -1,14 +1,14 @@
 package org.folio.search.service.reindex.jdbc;
 
-import static org.folio.search.utils.JdbcUtils.getParamPlaceholder;
 import static org.folio.search.utils.JdbcUtils.getParamPlaceholderForUuid;
+import static org.folio.search.utils.SearchUtils.CLASSIFICATION_NUMBER_ENTITY_FIELD;
 import static org.folio.search.utils.SearchUtils.CLASSIFICATION_NUMBER_FIELD;
 import static org.folio.search.utils.SearchUtils.CLASSIFICATION_TYPE_FIELD;
+import static org.folio.search.utils.SearchUtils.SUB_RESOURCE_INSTANCES_FIELD;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,10 +16,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.ListUtils;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
-import org.folio.search.model.entity.InstanceClassificationEntityAgg;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.reindex.ReindexConstants;
 import org.folio.search.utils.JdbcUtils;
@@ -135,8 +132,6 @@ public class ClassificationRepository extends UploadRangeRepository implements I
 
   private static final String ID_RANGE_INS_WHERE_CLAUSE = "ins.classification_id >= ? AND ins.classification_id <= ?";
   private static final String ID_RANGE_CLAS_WHERE_CLAUSE = "c.id >= ? AND c.id <= ?";
-  private static final String IDS_INS_WHERE_CLAUSE = "ins.classification_id IN (%1$s)";
-  private static final String IDS_CLAS_WHERE_CLAUSE = "c.id IN (%1$s)";
 
   protected ClassificationRepository(JdbcTemplate jdbcTemplate,
                                      JsonConverter jsonConverter,
@@ -158,16 +153,6 @@ public class ClassificationRepository extends UploadRangeRepository implements I
   @Override
   protected Optional<String> subEntityTable() {
     return Optional.of(ReindexConstants.INSTANCE_CLASSIFICATION_TABLE);
-  }
-
-  public List<InstanceClassificationEntityAgg> fetchByIds(List<String> ids) {
-    if (CollectionUtils.isEmpty(ids)) {
-      return Collections.emptyList();
-    }
-    var sql = SELECT_QUERY.formatted(JdbcUtils.getSchemaName(context),
-      IDS_INS_WHERE_CLAUSE.formatted(getParamPlaceholder(ids.size())),
-      IDS_CLAS_WHERE_CLAUSE.formatted(getParamPlaceholder(ids.size())));
-    return jdbcTemplate.query(sql, instanceClassificationAggRowMapper(), ListUtils.union(ids, ids).toArray());
   }
 
   @Override
@@ -196,12 +181,12 @@ public class ClassificationRepository extends UploadRangeRepository implements I
     return (rs, rowNum) -> {
       Map<String, Object> classification = new HashMap<>();
       classification.put("id", getId(rs));
-      classification.put("number", getNumber(rs));
+      classification.put(CLASSIFICATION_NUMBER_ENTITY_FIELD, getNumber(rs));
       classification.put("typeId", getTypeId(rs));
 
       var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
       if (!maps.isEmpty()) {
-        classification.put("instances", maps);
+        classification.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
       }
 
       return classification;
@@ -212,13 +197,13 @@ public class ClassificationRepository extends UploadRangeRepository implements I
     return (rs, rowNum) -> {
       Map<String, Object> classification = new HashMap<>();
       classification.put("id", getId(rs));
-      classification.put("number", getNumber(rs));
+      classification.put(CLASSIFICATION_NUMBER_ENTITY_FIELD, getNumber(rs));
       classification.put("typeId", getTypeId(rs));
       classification.put(LAST_UPDATED_DATE_FIELD, rs.getTimestamp("last_updated_date"));
 
       var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
       if (!maps.isEmpty()) {
-        classification.put("instances", maps);
+        classification.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
       }
 
       return classification;
@@ -267,15 +252,6 @@ public class ClassificationRepository extends UploadRangeRepository implements I
     }
   }
 
-  private RowMapper<InstanceClassificationEntityAgg> instanceClassificationAggRowMapper() {
-    return (rs, rowNum) -> new InstanceClassificationEntityAgg(
-      getId(rs),
-      getTypeId(rs),
-      getNumber(rs),
-      parseInstanceSubResources(getInstances(rs))
-    );
-  }
-
   private String getId(ResultSet rs) throws SQLException {
     return rs.getString("id");
   }
@@ -285,10 +261,10 @@ public class ClassificationRepository extends UploadRangeRepository implements I
   }
 
   private String getNumber(ResultSet rs) throws SQLException {
-    return rs.getString("number");
+    return rs.getString(CLASSIFICATION_NUMBER_ENTITY_FIELD);
   }
 
   private String getInstances(ResultSet rs) throws SQLException {
-    return rs.getString("instances");
+    return rs.getString(SUB_RESOURCE_INSTANCES_FIELD);
   }
 }

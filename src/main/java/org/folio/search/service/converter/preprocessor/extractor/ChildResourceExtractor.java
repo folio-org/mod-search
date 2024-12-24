@@ -21,12 +21,6 @@ public abstract class ChildResourceExtractor {
 
   private final InstanceChildResourceRepository repository;
 
-  public abstract List<ResourceEvent> prepareEvents(ResourceEvent resource);
-
-  public abstract List<ResourceEvent> prepareEventsOnSharing(ResourceEvent resource);
-
-  public abstract boolean hasChildResourceChanges(ResourceEvent event);
-
   protected abstract List<Map<String, Object>> constructRelations(boolean shared, ResourceEvent event,
                                                                   List<Map<String, Object>> entities);
 

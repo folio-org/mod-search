@@ -508,11 +508,4 @@
     </preConditions>
     <sqlFile path="sql/update-reindex-status-trigger-v2.sql" relativeToChangelogFile="true" splitStatements="false"/>
   </changeSet>
-
-  <changeSet id="MSEARCH-902@@create-reindex_status-trigger-v3" author="pavlo_smahin">
-    <preConditions onFail="MARK_RAN">
-      <tableExists tableName="reindex_status"/>
-    </preConditions>
-    <sqlFile path="sql/update-reindex-status-trigger-v3.sql" relativeToChangelogFile="true" splitStatements="false"/>
-  </changeSet>
 </databaseChangeLog>

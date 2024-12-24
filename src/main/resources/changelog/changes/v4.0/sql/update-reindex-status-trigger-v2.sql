@@ -13,8 +13,16 @@ BEGIN
         THEN
             NEW.status = 'UPLOAD_COMPLETED';
             NEW.end_time_upload = current_timestamp;
-            UPDATE sub_resources_lock SET last_updated_date = current_timestamp WHERE entity_type = OLD.entity_type;
+            UPDATE sub_resources_lock
+            SET last_updated_date = current_timestamp, locked_flag = FALSE
+            WHERE entity_type = lower(OLD.entity_type);
         END IF;
+    END IF;
+    IF NEW.status = 'MERGE_IN_PROGRESS' AND NEW.entity_type = 'INSTANCE' THEN
+        UPDATE sub_resources_lock SET locked_flag = TRUE;
+    END IF;
+    IF NEW.status = 'UPLOAD_IN_PROGRESS' THEN
+        UPDATE sub_resources_lock SET locked_flag = TRUE WHERE entity_type = lower(NEW.entity_type);
     END IF;
     RETURN NEW;
 END;

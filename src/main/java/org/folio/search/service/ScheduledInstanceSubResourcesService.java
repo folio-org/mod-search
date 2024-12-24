@@ -20,29 +20,26 @@ import org.folio.search.service.reindex.jdbc.UploadRangeRepository;
 import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.support.TransactionTemplate;
 
 @Log4j2
 @Service
 public class ScheduledInstanceSubResourcesService {
 
-  private final TransactionTemplate transactionTemplate;
   private final ResourceService resourceService;
   private final TenantRepository tenantRepository;
   private final Map<ReindexEntityType, UploadRangeRepository> repositories;
   private final SubResourcesLockRepository subResourcesLockRepository;
   private final SystemUserScopedExecutionService executionService;
 
-  public ScheduledInstanceSubResourcesService(TransactionTemplate transactionTemplate, ResourceService resourceService,
+  public ScheduledInstanceSubResourcesService(ResourceService resourceService,
                                               TenantRepository tenantRepository,
                                               List<UploadRangeRepository> repositories,
                                               SubResourcesLockRepository subResourcesLockRepository,
                                               SystemUserScopedExecutionService executionService) {
-    this.transactionTemplate = transactionTemplate;
     this.resourceService = resourceService;
     this.tenantRepository = tenantRepository;
     this.repositories = repositories.stream()
-      .filter(uploadRangeRepository -> uploadRangeRepository instanceof InstanceChildResourceRepository)
+      .filter(InstanceChildResourceRepository.class::isInstance)
       .collect(toMap(UploadRangeRepository::entityType, identity()));
     this.subResourcesLockRepository = subResourcesLockRepository;
     this.executionService = executionService;
@@ -51,8 +48,8 @@ public class ScheduledInstanceSubResourcesService {
   @Scheduled(fixedDelayString = "#{searchConfigurationProperties.indexing.instanceChildrenIndexDelayMs}")
   public void persistChildren() {
     log.info("persistChildren::Starting instance children processing");
-    tenantRepository.fetchDataTenantIds().forEach(tenant -> {
-      executionService.executeSystemUserScoped(tenant, () -> {
+    tenantRepository.fetchDataTenantIds()
+      .forEach(tenant -> executionService.executeSystemUserScoped(tenant, () -> {
         var entityTypes = repositories.keySet();
         for (var entityType : entityTypes) {
           var timestamp = subResourcesLockRepository.lockSubResource(entityType, tenant);
@@ -68,16 +65,14 @@ public class ScheduledInstanceSubResourcesService {
               log.error("persistChildren::Error processing instance children", e);
             } finally {
               var lastUpdatedDate = result == null || result.lastUpdateDate() == null
-                                    ? timestamp.get()
-                                    : result.lastUpdateDate();
+                ? timestamp.get()
+                : result.lastUpdateDate();
               subResourcesLockRepository.unlockSubResource(entityType, lastUpdatedDate, tenant);
             }
           }
         }
         return null;
-      });
-
-    });
+      }));
 
     log.debug("persistChildren::Finished instance children processing");
   }

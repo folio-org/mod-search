@@ -140,6 +140,6 @@ class ReindexMergeRangeIndexServiceTest {
     service.fetchFailedMergeRanges();
 
     // assert
-    verify(instanceRepository).getFailedMergeRanges();
+    verify(holdingRepository).getFailedMergeRanges();
   }
 }

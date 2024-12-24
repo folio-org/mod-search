@@ -44,6 +44,9 @@ server.port: 8081
 
 folio:
   environment: folio-test
+  system:
+    schemaName: mod_search__system
+    change-log: classpath:changelog/changelog-system.xml
   search-config:
     initial-languages: eng,fre,ita,spa,ger
     max-search-batch-request-ids-count: ${MAX_SEARCH_BATCH_REQUEST_IDS_COUNT:500}
@@ -54,6 +57,8 @@ folio:
       browse-classifications: true
     indexing:
       data-format: ${INDEXING_DATA_FORMAT:json}
+      instance-children-index-delay-ms: 2000
+      instance-children-index-batch-size: 500
   reindex:
     location-batch-size: ${REINDEX_LOCATION_BATCH_SIZE:2}
   query:
@@ -123,9 +128,6 @@ folio:
       - name: inventory.reindex-records
         numPartitions: 1
         replicationFactor: 1
-      - name: search.index.sub-resource
-        numPartitions: 1
-        replicationFactor: 1
     listener:
       events:
         concurrency: 2
@@ -161,12 +163,6 @@ folio:
         concurrency: 1
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.reindex-records
         group-id: ${folio.environment}-mod-search-reindex-records-group
-      index-sub-resource:
-        concurrency: 2
-        topic-pattern: (${folio.environment}\.)(.*\.)search\.index\.sub-resource
-        group-id: ${folio.environment}-mod-search-index-sub-resource-group
-        max-poll-records: ${KAFKA_CONSUMER_INDEX_SUB_RESOURCE_MAX_POLL_RECORDS:5}
-        max-poll-interval-ms: ${KAFKA_CONSUMER_INDEX_SUB_RESOURCE_MAX_POLL_INTERVAL_MS:60000}
   okapiUrl: ${okapi.url}
   logging:
     request:

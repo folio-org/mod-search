@@ -54,12 +54,14 @@ public class SearchUtils {
   public static final String SUBJECTS_FIELD = "subjects";
   public static final String CONTRIBUTORS_FIELD = "contributors";
   public static final String CLASSIFICATION_NUMBER_FIELD = "classificationNumber";
+  public static final String CLASSIFICATION_NUMBER_ENTITY_FIELD = "number";
   public static final String CLASSIFICATION_TYPE_FIELD = "classificationTypeId";
   public static final String CONTRIBUTOR_TYPE_FIELD = "contributorTypeId";
   public static final String SUBJECT_VALUE_FIELD = "value";
   public static final String SUBJECT_TYPE_ID_FIELD = "typeId";
   public static final String SUBJECT_SOURCE_ID_FIELD = "sourceId";
   public static final String SUBJECT_AGGREGATION_NAME = "subjects.value";
+  public static final String SUB_RESOURCE_INSTANCES_FIELD = "instances";
   public static final String SOURCE_CONSORTIUM_PREFIX = "CONSORTIUM-";
 
   public static final String CQL_META_FIELD_PREFIX = "cql.";

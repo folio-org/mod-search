@@ -82,7 +82,8 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
                         last_updated_date
                  FROM %1$s.contributor
                  WHERE last_updated_date > ?
-                 LIMIT ?)
+                 ORDER BY last_updated_date
+                 )
     SELECT c.id,
            c.name,
            c.name_type_id,
@@ -188,9 +189,9 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
   }
 
   @Override
-  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp, int limit) {
+  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp) {
     var sql = SELECT_BY_UPDATED_QUERY.formatted(JdbcUtils.getSchemaName(tenant, context.getFolioModuleMetadata()));
-    var records = jdbcTemplate.query(sql, rowToMapMapper2(), timestamp, limit);
+    var records = jdbcTemplate.query(sql, rowToMapMapper2(), timestamp);
     var lastUpdateDate = records.isEmpty() ? null : records.get(records.size() - 1).get(LAST_UPDATED_DATE_FIELD);
     return new SubResourceResult(records, (Timestamp) lastUpdateDate);
   }

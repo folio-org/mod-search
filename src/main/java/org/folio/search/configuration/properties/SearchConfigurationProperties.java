@@ -75,10 +75,6 @@ public class SearchConfigurationProperties {
      * */
     private long instanceChildrenIndexDelayMs;
 
-    /**
-     * Batch size for indexing subjects/contributors/classifications.
-     * */
-    private int instanceChildrenIndexBatchSize;
   }
 
 }

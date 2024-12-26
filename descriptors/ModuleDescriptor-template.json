@@ -1037,34 +1037,9 @@
         "description": "Replication factor for `search.reindex.range-index` topic."
       },
       {
-        "name": "KAFKA_INDEX_SUB_RESOURCE_TOPIC_PARTITIONS",
-        "value": "50",
-        "description": "Amount of partitions for `search.index.sub-resource` topic."
-      },
-      {
-        "name": "KAFKA_INDEX_SUB_RESOURCE_TOPIC_REPLICATION_FACTOR",
-        "value": "",
-        "description": "Replication factor for `search.index.sub-resource` topic."
-      },
-      {
         "name": "KAFKA_REINDEX_RECORDS_CONCURRENCY",
         "value": "2",
         "description": "Custom number of kafka concurrent threads for `inventory.reindex-records` message consuming."
-      },
-      {
-        "name": "KAFKA_INDEX_SUB_RESOURCE_CONCURRENCY",
-        "value": "2",
-        "description": "Custom number of kafka concurrent threads for `search.index.sub-resource` message consuming."
-      },
-      {
-        "name": "KAFKA_CONSUMER_INDEX_SUB_RESOURCE_MAX_POLL_RECORDS",
-        "value": "200",
-        "description": "Maximum number of records returned in a single call to poll() for instance sub-resource events."
-      },
-      {
-        "name": "KAFKA_CONSUMER_INDEX_SUB_RESOURCE_MAX_POLL_INTERVAL_MS",
-        "value": "600000",
-        "description": "Maximum processing time allowed for consumer on instance sub-resource events."
       },
       {
         "name": "KAFKA_CONSUMER_MAX_POLL_RECORDS",
@@ -1142,6 +1117,16 @@
         "name": "INDEXING_DATA_FORMAT",
         "value": "smile",
         "description": "Format for passing data to elasticsearch (json/smile)"
+      },
+      {
+        "name": "INSTANCE_CHILDREN_INDEX_DELAY_MS",
+        "value": "60000",
+        "description": "Scheduler delay for indexing subjects/contributors/classifications"
+      },
+      {
+        "name": "INSTANCE_CHILDREN_INDEX_BATCH_SIZE",
+        "value": "500",
+        "description": "Batch size for indexing subjects/contributors/classifications"
       },
       {
         "name": "INITIAL_LANGUAGES",

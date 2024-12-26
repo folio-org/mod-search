@@ -8,7 +8,8 @@
   <changeSet id="MSEARCH-821@@create-pgcrypto-extension" author="pavlo_smahin">
     <comment>Enable pgcrypto extension</comment>
 
-    <sql>CREATE EXTENSION IF NOT EXISTS pgcrypto SCHEMA public;</sql>
+    <sql>CREATE
+    EXTENSION IF NOT EXISTS pgcrypto SCHEMA public;</sql>
   </changeSet>
 
   <changeSet id="MSEARCH-793@@create-instance-table" author="Mukhiddin_Yusupov">
@@ -192,7 +193,7 @@
         <constraints nullable="false"/>
       </column>
       <column name="subject_id" type="VARCHAR(40)">
-        <constraints nullable="false" />
+        <constraints nullable="false"/>
       </column>
       <column name="tenant_id" type="VARCHAR(100)">
         <constraints nullable="false"/>
@@ -374,7 +375,8 @@
   </changeSet>
 
   <changeSet id="MSEARCH-821@@create-merge_status_function-trigger" author="pavlo_smahin">
-    <sqlFile path="sql/check-merge-completed-status-function.sql" relativeToChangelogFile="true" splitStatements="false"/>
+    <sqlFile path="sql/check-merge-completed-status-function.sql" relativeToChangelogFile="true"
+             splitStatements="false"/>
   </changeSet>
 
   <changeSet id="MSEARCH-821@@drop-consortium_instance-table" author="pavlo_smahin">
@@ -385,5 +387,125 @@
     <dropTable tableName="consortium_instance"/>
   </changeSet>
 
+  <changeSet id="MSEARCH-900@@add-last_updated_date-to-subject" author="pavlo_smahin">
+    <preConditions onFail="MARK_RAN">
+      <tableExists tableName="subject"/>
+    </preConditions>
 
+    <addColumn tableName="subject">
+      <column name="last_updated_date" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="MSEARCH-901@@add-last_updated_date-to-contributor" author="pavlo_smahin">
+    <preConditions onFail="MARK_RAN">
+      <tableExists tableName="contributor"/>
+    </preConditions>
+
+    <addColumn tableName="contributor">
+      <column name="last_updated_date" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="MSEARCH-902@@add-last_updated_date-to-classification" author="pavlo_smahin">
+    <preConditions onFail="MARK_RAN">
+      <tableExists tableName="classification"/>
+    </preConditions>
+
+    <addColumn tableName="classification">
+      <column name="last_updated_date" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="MSEARCH-902@@add-last_updated_date-index-to-subject" author="pavlo_smahin">
+    <preConditions onFail="MARK_RAN">
+      <tableExists tableName="subject"/>
+    </preConditions>
+
+    <createIndex tableName="subject"
+                 indexName="idx_subject_last_updated_date">
+      <column name="last_updated_date"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="MSEARCH-902@@add-last_updated_date-index-to-contributor" author="pavlo_smahin">
+    <preConditions onFail="MARK_RAN">
+      <tableExists tableName="contributor"/>
+    </preConditions>
+
+    <createIndex tableName="contributor"
+                 indexName="idx_contributor_last_updated_date">
+      <column name="last_updated_date"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="MSEARCH-902@@add-last_updated_date-index-to-classification" author="pavlo_smahin">
+    <preConditions onFail="MARK_RAN">
+      <tableExists tableName="classification"/>
+    </preConditions>
+
+    <createIndex tableName="classification"
+                 indexName="idx_classification_last_updated_date">
+      <column name="last_updated_date"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="MSEARCH-899@@create-sub_resources_locks-table" author="pavlo_smahin">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="sub_resources_lock"/>
+      </not>
+    </preConditions>
+
+    <comment>Create sub_resources_locks table</comment>
+
+    <createTable tableName="sub_resources_lock">
+      <column name="entity_type" type="VARCHAR(30)">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_sub_resources_lock"/>
+      </column>
+      <column name="locked_flag" type="BOOLEAN">
+        <constraints nullable="false"/>
+      </column>
+      <column name="last_updated_date" type="DATETIME">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="MSEARCH-899@@fill-sub_resources_lock-table" author="pavlo_smahin">
+    <preConditions onFail="MARK_RAN">
+      <tableExists tableName="sub_resources_lock"/>
+    </preConditions>
+
+    <comment>Fill sub_resources_lock table with initial records</comment>
+
+    <insert tableName="sub_resources_lock">
+      <column name="entity_type" value="contributor"/>
+      <column name="locked_flag" value="false"/>
+      <column name="last_updated_date" valueComputed="CURRENT_TIMESTAMP"/>
+    </insert>
+    <insert tableName="sub_resources_lock">
+      <column name="entity_type" value="subject"/>
+      <column name="locked_flag" value="false"/>
+      <column name="last_updated_date" valueComputed="CURRENT_TIMESTAMP"/>
+    </insert>
+    <insert tableName="sub_resources_lock">
+      <column name="entity_type" value="classification"/>
+      <column name="locked_flag" value="false"/>
+      <column name="last_updated_date" valueComputed="CURRENT_TIMESTAMP"/>
+    </insert>
+  </changeSet>
+
+  <changeSet id="MSEARCH-902@@create-reindex_status-trigger-v2" author="pavlo_smahin">
+    <preConditions onFail="MARK_RAN">
+      <tableExists tableName="reindex_status"/>
+    </preConditions>
+    <sqlFile path="sql/update-reindex-status-trigger-v2.sql" relativeToChangelogFile="true" splitStatements="false"/>
+  </changeSet>
 </databaseChangeLog>

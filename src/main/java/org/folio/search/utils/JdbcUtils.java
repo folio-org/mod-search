@@ -4,12 +4,17 @@ import static java.util.Collections.nCopies;
 
 import lombok.experimental.UtilityClass;
 import org.folio.spring.FolioExecutionContext;
+import org.folio.spring.FolioModuleMetadata;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 @UtilityClass
 public class JdbcUtils {
 
   private static final String TRUNCATE_TABLE_SQL = "TRUNCATE TABLE %s;";
+
+  public static String getSchemaName(String tenantId, FolioModuleMetadata folioModuleMetadata) {
+    return folioModuleMetadata.getDBSchemaName(tenantId);
+  }
 
   public static String getSchemaName(FolioExecutionContext context) {
     return context.getFolioModuleMetadata().getDBSchemaName(context.getTenantId());

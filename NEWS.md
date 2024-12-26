@@ -1,3 +1,9 @@
+## v4.0.5 2025-01-03
+### Bug fixes
+* Implement scheduled indexing for instance sub-resources ([MSEARCH-922](https://folio-org.atlassian.net/browse/MSEARCH-922))
+
+---
+
 ## v4.0.4 2024-12-30
 ### Bug fixes
 * Fix generation of IDs ranges in Reindex Upload for Subject, Classification and Contributor ([MSEARCH-907](https://folio-org.atlassian.net/browse/MSEARCH-907))

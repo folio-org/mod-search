@@ -145,22 +145,34 @@ public class ReindexService {
     log.info("submitFailedRangesReindex:: for [tenantId: {}]", tenantId);
 
     validateTenant("submitFailedRangesReindex", tenantId);
+    var tenantIds = new ArrayList<String>();
+    tenantIds.add(tenantId);
+    var memberTenants = consortiumService.getConsortiumTenants(tenantId);
+    tenantIds.addAll(memberTenants);
 
-    return CompletableFuture.runAsync(() -> {
-      var failedRanges = mergeRangeService.fetchFailedMergeRanges();
+    var failedRanges = mergeRangeService.fetchFailedMergeRanges(tenantIds);
+    if (CollectionUtils.isEmpty(failedRanges)) {
+      log.info("submitFailedRangesReindex:: no failed ranges found");
+      return CompletableFuture.completedFuture(null);
+    }
 
-      if (CollectionUtils.isNotEmpty(failedRanges)) {
-        log.info("submitFailedRangesReindex:: for [tenantId: {}, count: {}]", tenantId, failedRanges.size());
-        var entityTypes = failedRanges.stream()
-          .map(MergeRangeEntity::getEntityType)
-          .collect(Collectors.toSet());
+    log.info("submitFailedRangesReindex:: for [tenantId: {}, count: {}]", tenantId, failedRanges.size());
+    var entityTypes = failedRanges.stream()
+      .map(MergeRangeEntity::getEntityType)
+      .collect(Collectors.toSet());
+    statusService.updateReindexMergeInProgress(entityTypes);
 
-        statusService.updateReindexMergeInProgress(entityTypes);
-        for (var rangeEntity : failedRanges) {
+    var futures = new ArrayList<>();
+    for (var rangeEntity : failedRanges) {
+      var future = CompletableFuture.runAsync(() ->
+        executionService.executeSystemUserScoped(rangeEntity.getTenantId(), () -> {
           inventoryService.publishReindexRecordsRange(rangeEntity);
-        }
-      }
-    });
+          return null;
+        }), reindexPublisherExecutor);
+      futures.add(future);
+    }
+
+    return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
   }
 
   private void recreateIndices(String tenantId, List<ReindexEntityType> entityTypes, IndexSettings indexSettings) {

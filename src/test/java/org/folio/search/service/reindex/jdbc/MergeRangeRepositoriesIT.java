@@ -142,7 +142,7 @@ class MergeRangeRepositoriesIT {
   @Sql("/sql/populate-merge-ranges.sql")
   void getFailedMergeRanges() {
     // act
-    var failedRanges = instanceRepository.getFailedMergeRanges();
+    var failedRanges = instanceRepository.getFailedMergeRanges(List.of("consortium", "member_tenant"));
 
     // assert
     assertThat(failedRanges)

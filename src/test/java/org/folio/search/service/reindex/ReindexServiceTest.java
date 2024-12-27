@@ -255,7 +255,7 @@ class ReindexServiceTest {
   @SneakyThrows
   void submitFailedRangesReindex_negative_noFailedRanges() {
     when(consortiumService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(TENANT_ID));
-    when(mergeRangeService.fetchFailedMergeRanges()).thenReturn(emptyList());
+    when(mergeRangeService.fetchFailedMergeRanges(List.of(TENANT_ID))).thenReturn(emptyList());
 
     reindexService.submitFailedRangesReindex(TENANT_ID).get();
 
@@ -275,7 +275,13 @@ class ReindexServiceTest {
       createMergeRangeEntity(ReindexEntityType.INSTANCE));
 
     when(consortiumService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(TENANT_ID));
-    when(mergeRangeService.fetchFailedMergeRanges()).thenReturn(failedRanges);
+    when(mergeRangeService.fetchFailedMergeRanges(List.of(TENANT_ID))).thenReturn(failedRanges);
+    doAnswer(invocation -> {
+      ((Runnable) invocation.getArgument(0)).run();
+      return null;
+    }).when(reindexExecutor).execute(any());
+    doAnswer(invocation -> ((Callable) invocation.getArgument(1)).call())
+      .when(executionService).executeSystemUserScoped(any(), any());
 
     reindexService.submitFailedRangesReindex(TENANT_ID).get();
 

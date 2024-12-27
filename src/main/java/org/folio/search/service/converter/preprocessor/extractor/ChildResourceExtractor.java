@@ -15,18 +15,11 @@ import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.service.reindex.jdbc.InstanceChildResourceRepository;
-import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 public abstract class ChildResourceExtractor {
 
   private final InstanceChildResourceRepository repository;
-
-  public abstract List<ResourceEvent> prepareEvents(ResourceEvent resource);
-
-  public abstract List<ResourceEvent> prepareEventsOnSharing(ResourceEvent resource);
-
-  public abstract boolean hasChildResourceChanges(ResourceEvent event);
 
   protected abstract List<Map<String, Object>> constructRelations(boolean shared, ResourceEvent event,
                                                                   List<Map<String, Object>> entities);
@@ -35,7 +28,6 @@ public abstract class ChildResourceExtractor {
 
   protected abstract String childrenFieldName();
 
-  @Transactional
   public void persistChildren(boolean shared, List<ResourceEvent> events) {
     var instanceIdsForDeletion = events.stream()
       .filter(event -> event.getType() != ResourceEventType.CREATE && event.getType() != ResourceEventType.REINDEX)

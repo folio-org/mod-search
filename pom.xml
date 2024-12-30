@@ -12,7 +12,7 @@
   <name>mod-search</name>
   <groupId>org.folio</groupId>
   <artifactId>mod-search</artifactId>
-  <version>4.0.4</version>
+  <version>4.0.5-SNAPSHOT</version>
   <description>FOLIO search service</description>
   <packaging>jar</packaging>
 
@@ -591,7 +591,7 @@
     <url>https://github.com/folio-org/${project.artifactId}</url>
     <connection>scm:git:git://github.com/folio-org/${project.artifactId}.git</connection>
     <developerConnection>scm:git:git@github.com:folio-org/${project.artifactId}.git</developerConnection>
-    <tag>v4.0.4</tag>
+    <tag>release/v4.0</tag>
   </scm>
 
 </project>

@@ -1,5 +1,6 @@
 ## v4.0.4 2024-12-30
 ### Bug fixes
+* Fix generation of IDs ranges in Reindex Upload for Subject, Classification and Contributor ([MSEARCH-907](https://folio-org.atlassian.net/browse/MSEARCH-907))
 * Fix the "Invalid reference" appears after updating ownership ([MSEARCH-915](https://folio-org.atlassian.net/browse/MSEARCH-915))
 
 ---
@@ -16,8 +17,7 @@
 
 ### Bug fixes
 * Populate typeId and sourceId on subjects re-indexing ([MSEARCH-891](https://folio-org.atlassian.net/browse/MSEARCH-891))
-* Fix old browse config returned on get after upsert ([MSEARCH-897](https://folio-org.atlassian.net/browse/MSEARCH-897))
-* Fix generation of IDs ranges in Reindex Upload for Subject, Classification and Contributor ([MSEARCH-907](https://folio-org.atlassian.net/browse/MSEARCH-907))
+* Fix old browse config returned on get after upsert ([MSEARCH-897](https://folio-org.atlassian.net/browse/MSEARCH-897)))
 
 ### Dependencies
 * Bump `opensearch` from `2.17.1` to `2.18.0` fixing protobuf-java CVE-2024-7254 ([MSEARCH-889](https://folio-org.atlassian.net/browse/MSEARCH-889))

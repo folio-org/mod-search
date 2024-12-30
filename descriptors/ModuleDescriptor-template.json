@@ -116,9 +116,9 @@
           "methods": [
             "POST"
           ],
-          "pathPattern": "/search/index/instance-records/reindex/failed",
+          "pathPattern": "/search/index/instance-records/reindex/merge/failed",
           "permissionsRequired": [
-            "search.index.instance-records.reindex.failed.post"
+            "search.index.instance-records.reindex.merge.failed.post"
           ],
           "modulePermissions": [
             "user-tenants.collection.get"
@@ -709,9 +709,9 @@
       "description": "Starts inventory instance records reindex upload operation"
     },
     {
-      "permissionName": "search.index.instance-records.reindex.failed.post",
-      "displayName": "Search - starts inventory instance records reindex failed operation",
-      "description": "Starts inventory instance records reindexing if failed ranges"
+      "permissionName": "search.index.instance-records.reindex.merge.failed.post",
+      "displayName": "Search - starts inventory instance records reindex merge failed operation",
+      "description": "Starts inventory instance records reindexing for failed merge ranges"
     },
     {
       "permissionName": "search.instances.collection.get",

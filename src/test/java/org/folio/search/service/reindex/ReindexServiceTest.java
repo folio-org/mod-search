@@ -244,20 +244,20 @@ class ReindexServiceTest {
   }
 
   @Test
-  void submitFailedRangesReindex_negative_shouldFailForEcsMemberTenant() {
+  void submitFailedMergeRangesReindex_negative_shouldFailForEcsMemberTenant() {
     when(consortiumService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of("central"));
 
-    assertThrows(RequestValidationException.class, () -> reindexService.submitFailedRangesReindex(TENANT_ID),
+    assertThrows(RequestValidationException.class, () -> reindexService.submitFailedMergeRangesReindex(TENANT_ID),
       REQUEST_NOT_ALLOWED_MSG);
   }
 
   @Test
   @SneakyThrows
-  void submitFailedRangesReindex_negative_noFailedRanges() {
+  void submitFailedMergeRangesReindex_negative_noFailedRanges() {
     when(consortiumService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(TENANT_ID));
     when(mergeRangeService.fetchFailedMergeRanges(List.of(TENANT_ID))).thenReturn(emptyList());
 
-    reindexService.submitFailedRangesReindex(TENANT_ID).get();
+    reindexService.submitFailedMergeRangesReindex(TENANT_ID).get();
 
     verifyNoInteractions(statusService);
     verifyNoInteractions(inventoryService);
@@ -265,7 +265,7 @@ class ReindexServiceTest {
 
   @Test
   @SneakyThrows
-  void submitFailedRangesReindex_positive() {
+  void submitFailedMergeRangesReindex_positive() {
     var failedRanges = List.of(
       createMergeRangeEntity(ReindexEntityType.ITEM),
       createMergeRangeEntity(ReindexEntityType.HOLDINGS),
@@ -283,7 +283,7 @@ class ReindexServiceTest {
     doAnswer(invocation -> ((Callable) invocation.getArgument(1)).call())
       .when(executionService).executeSystemUserScoped(any(), any());
 
-    reindexService.submitFailedRangesReindex(TENANT_ID).get();
+    reindexService.submitFailedMergeRangesReindex(TENANT_ID).get();
 
     verify(statusService).updateReindexMergeInProgress(
       Set.of(ReindexEntityType.ITEM, ReindexEntityType.HOLDINGS, ReindexEntityType.INSTANCE));

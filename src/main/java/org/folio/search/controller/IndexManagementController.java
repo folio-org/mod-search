@@ -64,8 +64,8 @@ public class IndexManagementController implements IndexManagementApi {
   }
 
   @Override
-  public ResponseEntity<Void> reindexFailedInstanceRecords(String tenantId) {
-    reindexService.submitFailedRangesReindex(tenantId);
+  public ResponseEntity<Void> reindexFailedMergeRanges(String tenantId) {
+    reindexService.submitFailedMergeRangesReindex(tenantId);
     return ResponseEntity.ok().build();
   }
 

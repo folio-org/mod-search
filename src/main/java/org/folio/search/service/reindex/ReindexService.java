@@ -141,10 +141,10 @@ public class ReindexService {
     return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
   }
 
-  public CompletableFuture<Void> submitFailedRangesReindex(String tenantId) {
-    log.info("submitFailedRangesReindex:: for [tenantId: {}]", tenantId);
+  public CompletableFuture<Void> submitFailedMergeRangesReindex(String tenantId) {
+    log.info("submitFailedMergeRangesReindex:: for [tenantId: {}]", tenantId);
 
-    validateTenant("submitFailedRangesReindex", tenantId);
+    validateTenant("submitFailedMergeRangesReindex", tenantId);
     var tenantIds = new ArrayList<String>();
     tenantIds.add(tenantId);
     var memberTenants = consortiumService.getConsortiumTenants(tenantId);
@@ -152,11 +152,11 @@ public class ReindexService {
 
     var failedRanges = mergeRangeService.fetchFailedMergeRanges(tenantIds);
     if (CollectionUtils.isEmpty(failedRanges)) {
-      log.info("submitFailedRangesReindex:: no failed ranges found");
+      log.info("submitFailedMergeRangesReindex:: no failed ranges found");
       return CompletableFuture.completedFuture(null);
     }
 
-    log.info("submitFailedRangesReindex:: for [tenantId: {}, count: {}]", tenantId, failedRanges.size());
+    log.info("submitFailedMergeRangesReindex:: for [tenantId: {}, count: {}]", tenantId, failedRanges.size());
     var entityTypes = failedRanges.stream()
       .map(MergeRangeEntity::getEntityType)
       .collect(Collectors.toSet());

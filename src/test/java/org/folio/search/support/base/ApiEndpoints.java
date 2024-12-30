@@ -191,7 +191,7 @@ public class ApiEndpoints {
   }
 
   public static String reindexFailedPath() {
-    return "/search/index/instance-records/reindex/failed";
+    return "/search/index/instance-records/reindex/merge/failed";
   }
 
   public static String allRecordsSortedBy(String sort, CqlSort order) {

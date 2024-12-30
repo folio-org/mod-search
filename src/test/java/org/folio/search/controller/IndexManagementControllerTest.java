@@ -123,8 +123,8 @@ class IndexManagementControllerTest {
   }
 
   @Test
-  void submitReindexFailed_positive() throws Exception {
-    when(reindexService.submitFailedRangesReindex(TENANT_ID)).thenReturn(new CompletableFuture<>());
+  void submitReindexMergeFailed_positive() throws Exception {
+    when(reindexService.submitFailedMergeRangesReindex(TENANT_ID)).thenReturn(new CompletableFuture<>());
 
     mockMvc.perform(post(reindexFailedPath())
         .header(XOkapiHeaders.TENANT, TENANT_ID))

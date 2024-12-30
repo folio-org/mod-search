@@ -200,7 +200,7 @@ class SearchLinkedDataInstanceIT extends BaseIntegrationTest {
       .andExpect(jsonPath(toHubAap(toParentWork(), 1), is("hubAAP2")))
       .andExpect(jsonPath(toIdValue(toRootContent(), 0), is("1234567890123")))
       .andExpect(jsonPath(toIdType(toRootContent(), 0), is("ISBN")))
-      .andExpect(jsonPath(toIdValue(toRootContent(), 1), is("  2023-202345/AC/r932")))
+      .andExpect(jsonPath(toIdValue(toRootContent(), 1), is("  2023202345")))
       .andExpect(jsonPath(toIdType(toRootContent(), 1), is("LCCN")))
       .andExpect(jsonPath(toLanguage(toParentWork(), 0), is("eng")))
       .andExpect(jsonPath(toLanguage(toParentWork(), 1), is("rus")))

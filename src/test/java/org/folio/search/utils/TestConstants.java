@@ -1,6 +1,5 @@
 package org.folio.search.utils;
 
-import static org.folio.search.configuration.kafka.KafkaConfiguration.SearchTopic.INDEX_SUB_RESOURCE;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.folio.spring.config.properties.FolioEnvironment.getFolioEnvName;
 
@@ -62,10 +61,6 @@ public class TestConstants {
 
   public static String inventoryInstanceTopic(String tenantId) {
     return getTopicName(tenantId, INVENTORY_INSTANCE_TOPIC);
-  }
-
-  public static String instanceSubResourceTopic() {
-    return getTopicName(TENANT_ID, INDEX_SUB_RESOURCE.topicName());
   }
 
   public static String reindexRangeIndexTopic(String tenantId) {

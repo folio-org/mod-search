@@ -1,4 +1,4 @@
-package org.folio.search.service;
+package org.folio.search.service.system;
 
 import static org.folio.search.model.types.ResourceType.INSTANCE_SUBJECT;
 import static org.folio.search.model.types.ResourceType.UNKNOWN;
@@ -20,9 +20,12 @@ import java.util.List;
 import java.util.Set;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.LanguageConfig;
+import org.folio.search.model.entity.TenantEntity;
+import org.folio.search.service.IndexService;
 import org.folio.search.service.browse.CallNumberBrowseRangeService;
 import org.folio.search.service.consortium.LanguageConfigServiceDecorator;
 import org.folio.search.service.metadata.ResourceDescriptionService;
+import org.folio.search.service.reindex.jdbc.TenantRepository;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
 import org.folio.spring.liquibase.FolioSpringLiquibase;
@@ -76,6 +79,8 @@ class SearchTenantServiceTest {
   private FolioSpringLiquibase folioSpringLiquibase;
   @Mock
   private JdbcTemplate jdbcTemplate;
+  @Mock
+  private TenantRepository tenantRepository;
 
   @Test
   void createOrUpdateTenant_positive() {
@@ -89,6 +94,7 @@ class SearchTenantServiceTest {
 
     searchTenantService.createOrUpdateTenant(tenantAttributes());
 
+    verify(tenantRepository).saveTenant(new TenantEntity(TENANT_ID, null, true));
     verify(languageConfigService).create(new LanguageConfig().code("eng"));
     verify(indexService).createIndexIfNotExist(UNKNOWN, TENANT_ID);
     verify(indexService, never()).reindexInventory(TENANT_ID, null);
@@ -105,6 +111,7 @@ class SearchTenantServiceTest {
 
     searchTenantService.createOrUpdateTenant(tenantAttributes().addParametersItem(centralTenantParameter()));
 
+    verify(tenantRepository).saveTenant(new TenantEntity(TENANT_ID, CENTRAL_TENANT_ID, true));
     verifyNoInteractions(languageConfigService);
     verifyNoInteractions(indexService);
     verify(kafkaAdminService).createTopics(TENANT_ID);
@@ -192,6 +199,7 @@ class SearchTenantServiceTest {
 
     searchTenantService.deleteTenant(tenantAttributes());
 
+    verify(tenantRepository).saveTenant(new TenantEntity(TENANT_ID, null, false));
     verify(jdbcTemplate).execute(anyString());
     verify(callNumberBrowseRangeService).evictRangeCache(TENANT_ID);
     verify(indexService).dropIndex(UNKNOWN, TENANT_ID);
@@ -204,6 +212,7 @@ class SearchTenantServiceTest {
 
     searchTenantService.deleteTenant(tenantAttributes().addParametersItem(centralTenantParameter()));
 
+    verify(tenantRepository).saveTenant(new TenantEntity(TENANT_ID, CENTRAL_TENANT_ID, false));
     verify(kafkaAdminService).deleteTopics(TENANT_ID);
     verifyNoInteractions(jdbcTemplate);
     verifyNoInteractions(callNumberBrowseRangeService);

@@ -59,6 +59,9 @@ spring:
 
 folio:
   environment: ${ENV:folio}
+  system:
+    schemaName: mod_search__system
+    change-log: classpath:changelog/changelog-system.xml
   search-config:
     initial-languages: ${INITIAL_LANGUAGES:eng}
     max-supported-languages: ${MAX_SUPPORTED_LANGUAGES:5}
@@ -72,6 +75,7 @@ folio:
       browse-classifications: ${BROWSE_CLASSIFICATIONS_ENABLED:true}
     indexing:
       data-format: ${INDEXING_DATA_FORMAT:smile}
+      instance-children-index-delay-ms: ${INSTANCE_CHILDREN_INDEX_DELAY_MS:60000}
   reindex:
     location-batch-size: ${REINDEX_LOCATION_BATCH_SIZE:1000}
     upload-range-size: ${REINDEX_UPLOAD_RANGE_SIZE:1000}
@@ -107,9 +111,6 @@ folio:
       - name: search.reindex.range-index
         numPartitions: ${KAFKA_REINDEX_RANGE_INDEX_TOPIC_PARTITIONS:16}
         replicationFactor: ${KAFKA_REINDEX_RANGE_INDEX_TOPIC_REPLICATION_FACTOR:}
-      - name: search.index.sub-resource
-        numPartitions: ${KAFKA_INDEX_SUB_RESOURCE_TOPIC_PARTITIONS:50}
-        replicationFactor: ${KAFKA_INDEX_SUB_RESOURCE_TOPIC_REPLICATION_FACTOR:}
     listener:
       events:
         concurrency: ${KAFKA_EVENTS_CONCURRENCY:2}
@@ -145,12 +146,6 @@ folio:
         concurrency: ${KAFKA_REINDEX_RECORDS_CONCURRENCY:2}
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.reindex-records
         group-id: ${folio.environment}-mod-search-reindex-records-group
-      index-sub-resource:
-        concurrency: ${KAFKA_INDEX_SUB_RESOURCE_CONCURRENCY:2}
-        topic-pattern: (${folio.environment}\.)(.*\.)search\.index\.sub-resource
-        group-id: ${folio.environment}-mod-search-index-sub-resource-group
-        max-poll-records: ${KAFKA_CONSUMER_INDEX_SUB_RESOURCE_MAX_POLL_RECORDS:200}
-        max-poll-interval-ms: ${KAFKA_CONSUMER_INDEX_SUB_RESOURCE_MAX_POLL_INTERVAL_MS:600000}
   okapiUrl: ${okapi.url}
   logging:
     request:

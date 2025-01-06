@@ -8,6 +8,9 @@
 
 ### Features
 * Move Instance sub-entities population from database trigger to code ([MSEARCH-887](https://folio-org.atlassian.net/browse/MSEARCH-887))
+* Update reindex merge failed status only for failed entity type ([MSEARCH-909](https://folio-org.atlassian.net/browse/MSEARCH-909))
+* Extend reindex range tables with status, fail_cause columns ([MSEARCH-870](https://folio-org.atlassian.net/browse/MSEARCH-870))
+* Implement scheduled indexing for instance sub-resources ([MSEARCH-922](https://folio-org.atlassian.net/browse/MSEARCH-922))
 * Call Numbers Browse: Implement Database Structure and Logic for Managing Call Numbers ([MSEARCH-862](https://folio-org.atlassian.net/browse/MSEARCH-862))
 * Call Numbers Browse: Implement Call Number Browse Config ([MSEARCH-863](https://folio-org.atlassian.net/browse/MSEARCH-863))
 * Call Numbers Browse: Implement Indexing and Re-indexing Mechanisms for Call-Numbers ([MSEARCH-864](https://folio-org.atlassian.net/browse/MSEARCH-864))
@@ -21,6 +24,7 @@
 * Fix old browse config returned on get after upsert ([MSEARCH-897](https://folio-org.atlassian.net/browse/MSEARCH-897))
 * Fix generation of IDs ranges in Reindex Upload for Subject, Classification and Contributor ([MSEARCH-907](https://folio-org.atlassian.net/browse/MSEARCH-907))
 * Remove browse config caching ([MSEARCH-897](https://folio-org.atlassian.net/browse/MSEARCH-897))
+* Fix the "Invalid reference" appears after updating ownership ([MSEARCH-915](https://folio-org.atlassian.net/browse/MSEARCH-915))
 
 ### Tech Dept
 * Description ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))

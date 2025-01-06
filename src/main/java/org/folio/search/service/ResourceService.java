@@ -14,7 +14,6 @@ import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperati
 import static org.folio.search.utils.SearchUtils.getNumberOfRequests;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +27,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
-import org.folio.search.model.event.SubResourceEvent;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.ResourceIndexingConfiguration;
@@ -79,16 +77,6 @@ public class ResourceService {
     return bulkIndexResponse;
   }
 
-  public FolioIndexOperationResponse indexInstanceSubResources(List<SubResourceEvent> events) {
-    var childEvents = events.stream()
-      .map(instanceChildrenResourceService::extractChildren)
-      .flatMap(Collection::stream)
-      .distinct()
-      .toList();
-
-    return indexResources(childEvents);
-  }
-
   /**
    * Index list of resource id event to elasticsearch.
    *
@@ -125,15 +113,7 @@ public class ResourceService {
     return searchDocumentConverter.convert(fetchedInstances);
   }
 
-  private void preProcessEvents(List<ResourceEvent> instanceEvents) {
-    instanceEvents.forEach(event -> consortiumTenantExecutor.run(
-      () -> instanceChildrenResourceService.sendChildrenEvent(event)));
-  }
-
   private Map<String, List<SearchDocumentBody>> processDeleteInstanceEvents(List<ResourceEvent> deleteEvents) {
-    if (deleteEvents != null) {
-      preProcessEvents(deleteEvents);
-    }
     return searchDocumentConverter.convert(deleteEvents);
   }
 

@@ -190,7 +190,8 @@
     "lccn": {
       "type": "search",
       "index": "standard",
-      "processor": "linkedDataInstanceLccnProcessor"
+      "processor": "linkedDataInstanceLccnProcessor",
+      "searchTermProcessor": "lccnSearchTermProcessor"
     },
     "note": {
       "type": "search",

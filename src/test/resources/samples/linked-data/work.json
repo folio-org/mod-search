@@ -107,6 +107,10 @@
         {
           "value": "  2023202345",
           "type": "LCCN"
+        },
+        {
+          "value": "a b24123456 ",
+          "type": "LCCN"
         }
       ],
       "notes": [

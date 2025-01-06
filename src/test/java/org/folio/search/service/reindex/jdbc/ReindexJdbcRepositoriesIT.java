@@ -75,7 +75,7 @@ class ReindexJdbcRepositoriesIT {
     var mergeRange = mergeRepository.getMergeRanges().stream()
       .filter(range -> range.getEntityType().equals(ReindexEntityType.INSTANCE))
       .findFirst();
-    var uploadRange = uploadRepository.getUploadRanges(false).stream()
+    var uploadRange = uploadRepository.getUploadRanges().stream()
       .filter(range -> range.getEntityType().equals(ReindexEntityType.INSTANCE))
       .findFirst();
 

@@ -71,22 +71,12 @@ class SubjectRepositoryIT {
   }
 
   @Test
-  void getUploadRanges_returnEmptyList_whenNoUploadRangesAndNotPopulate() {
-    // act
-    var ranges = repository.getUploadRanges(false);
-
-    // assert
-    assertThat(ranges).isEmpty();
-  }
-
-  @Test
-  @Sql("/sql/populate-subjects.sql")
-  void getUploadRanges_returnList_whenNoUploadRangesAndNotPopulate() {
+  void getUploadRanges_returnList() {
     // arrange
     properties.setUploadRangeLevel(1);
 
     // act
-    var ranges = repository.getUploadRanges(true);
+    var ranges = repository.createUploadRanges();
 
     // assert
     assertThat(ranges)
@@ -139,7 +129,7 @@ class SubjectRepositoryIT {
       .contains(
         tuple("Sci-Fi", List.of(
           Map.of("count", 1, "shared", true, "tenantId", "consortium"),
-            Map.of("count", 1, "shared", false, "tenantId", "member_tenant"))));
+          Map.of("count", 1, "shared", false, "tenantId", "member_tenant"))));
   }
 
   @Test

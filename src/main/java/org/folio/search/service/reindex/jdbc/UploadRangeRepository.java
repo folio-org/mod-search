@@ -39,6 +39,7 @@ public abstract class UploadRangeRepository extends ReindexJdbcRepository {
     """;
 
   private static final String SELECT_UPLOAD_RANGE_BY_ENTITY_TYPE_SQL = "SELECT * FROM %s WHERE entity_type = ?;";
+  private static final String DELETE_UPLOAD_RANGE_SQL = "DELETE FROM %s WHERE entity_type = ?;";
   private static final TypeReference<LinkedHashSet<InstanceSubResource>> VALUE_TYPE_REF = new TypeReference<>() { };
 
   protected final ReindexConfigurationProperties reindexConfig;
@@ -51,14 +52,19 @@ public abstract class UploadRangeRepository extends ReindexJdbcRepository {
     this.reindexConfig = reindexConfig;
   }
 
-  public List<UploadRangeEntity> getUploadRanges(boolean populateIfNotExist) {
+  public List<UploadRangeEntity> getUploadRanges() {
     var fullTableName = getFullTableName(context, UPLOAD_RANGE_TABLE);
     var sql = SELECT_UPLOAD_RANGE_BY_ENTITY_TYPE_SQL.formatted(fullTableName);
-    var uploadRanges = jdbcTemplate.query(sql, uploadRangeRowMapper(), entityType().getType());
 
-    return populateIfNotExist && uploadRanges.isEmpty()
-           ? prepareAndSaveUploadRanges()
-           : uploadRanges;
+    return jdbcTemplate.query(sql, uploadRangeRowMapper(), entityType().getType());
+  }
+
+  public List<UploadRangeEntity> createUploadRanges() {
+    var fullTableName = getFullTableName(context, UPLOAD_RANGE_TABLE);
+    var deleteSql = DELETE_UPLOAD_RANGE_SQL.formatted(fullTableName);
+    jdbcTemplate.update(deleteSql, entityType().getType());
+    
+    return prepareAndSaveUploadRanges();
   }
 
   public List<Map<String, Object>> fetchByIdRange(String lower, String upper) {

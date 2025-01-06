@@ -46,7 +46,7 @@ class ReindexUploadRangeIndexServiceTest {
   @Test
   void prepareAndSendIndexRanges_positive(@Random UploadRangeEntity uploadRange) {
     // arrange
-    when(repository.getUploadRanges(true)).thenReturn(List.of(uploadRange));
+    when(repository.createUploadRanges()).thenReturn(List.of(uploadRange));
 
     // act
     service.prepareAndSendIndexRanges(ReindexEntityType.INSTANCE);

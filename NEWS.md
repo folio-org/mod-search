@@ -1,3 +1,7 @@
+## v4.0.6 2025-01-08
+### Tech Dept
+* Recreate upload ranges each upload execution ([MSEARCH-934](https://folio-org.atlassian.net/browse/MSEARCH-934))
+
 ## v4.0.5 2025-01-03
 ### Bug fixes
 * Implement scheduled indexing for instance sub-resources ([MSEARCH-922](https://folio-org.atlassian.net/browse/MSEARCH-922))

@@ -39,7 +39,7 @@ public class ReindexUploadRangeIndexService {
     var repository = Optional.ofNullable(repositories.get(entityType))
       .orElseThrow(() -> new UnsupportedOperationException("No repository found for entity type: " + entityType));
 
-    var uploadRanges = repository.getUploadRanges(true);
+    var uploadRanges = repository.createUploadRanges();
     statusService.updateReindexUploadStarted(entityType, uploadRanges.size());
     indexRangeEventProducer.sendMessages(prepareEvents(uploadRanges));
   }

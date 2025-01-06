@@ -23,6 +23,7 @@
 * Fix the "Invalid reference" appears after updating ownership ([MSEARCH-915](https://folio-org.atlassian.net/browse/MSEARCH-915))
 
 ### Tech Dept
+* Recreate upload ranges each upload execution ([MSEARCH-934](https://folio-org.atlassian.net/browse/MSEARCH-934))
 * Remove unnecessary LccnNormalizerStructureB ([MSEARCH-926](https://folio-org.atlassian.net/browse/MSEARCH-926))
 
 ### Dependencies

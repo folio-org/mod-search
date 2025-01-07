@@ -69,10 +69,7 @@ public class CallNumberResourceExtractor extends ChildResourceExtractor {
 
   @Override
   protected Map<String, Object> constructEntity(Map<String, Object> entityProperties) {
-    if (entityProperties == null) {
-      return null;
-    }
-    if (!featureConfigService.isEnabled(TenantConfiguredFeature.BROWSE_CALL_NUMBERS)) {
+    if (entityProperties == null || !featureConfigService.isEnabled(TenantConfiguredFeature.BROWSE_CALL_NUMBERS)) {
       return Collections.emptyMap();
     }
     return toCallNumberEntity(entityProperties)

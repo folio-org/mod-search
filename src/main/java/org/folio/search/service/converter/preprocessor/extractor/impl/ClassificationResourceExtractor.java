@@ -51,10 +51,7 @@ public class ClassificationResourceExtractor extends ChildResourceExtractor {
 
   @Override
   protected Map<String, Object> constructEntity(Map<String, Object> entityProperties) {
-    if (entityProperties == null) {
-      return null;
-    }
-    if (!featureConfigService.isEnabled(TenantConfiguredFeature.BROWSE_CLASSIFICATIONS)) {
+    if (entityProperties == null || !featureConfigService.isEnabled(TenantConfiguredFeature.BROWSE_CLASSIFICATIONS)) {
       return Collections.emptyMap();
     }
     var classificationNumber = prepareForExpectedFormat(entityProperties.get(CLASSIFICATION_NUMBER_FIELD), 50);

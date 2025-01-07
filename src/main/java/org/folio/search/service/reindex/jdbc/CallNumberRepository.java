@@ -6,8 +6,16 @@ import static org.folio.search.service.converter.preprocessor.extractor.impl.Cal
 import static org.folio.search.service.converter.preprocessor.extractor.impl.CallNumberResourceExtractor.VOLUME_FIELD;
 import static org.folio.search.service.reindex.ReindexConstants.CALL_NUMBER_TABLE;
 import static org.folio.search.service.reindex.ReindexConstants.INSTANCE_CALL_NUMBER_TABLE;
+import static org.folio.search.utils.CallNumberUtils.calculateFullCallNumber;
 import static org.folio.search.utils.JdbcUtils.getFullTableName;
 import static org.folio.search.utils.JdbcUtils.getParamPlaceholderForUuid;
+import static org.folio.search.utils.SearchUtils.CALL_NUMBER_BROWSING_FIELD;
+import static org.folio.search.utils.SearchUtils.CALL_NUMBER_FIELD;
+import static org.folio.search.utils.SearchUtils.CALL_NUMBER_PREFIX_FIELD;
+import static org.folio.search.utils.SearchUtils.CALL_NUMBER_SUFFIX_FIELD;
+import static org.folio.search.utils.SearchUtils.CALL_NUMBER_TYPE_ID_FIELD;
+import static org.folio.search.utils.SearchUtils.COPY_NUMBER_FIELD;
+import static org.folio.search.utils.SearchUtils.ID_FIELD;
 import static org.folio.search.utils.SearchUtils.SUB_RESOURCE_INSTANCES_FIELD;
 
 import java.sql.ResultSet;
@@ -16,7 +24,6 @@ import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
@@ -216,48 +223,39 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
 
   @Override
   protected RowMapper<Map<String, Object>> rowToMapMapper() {
-    return (rs, rowNum) -> {
-      Map<String, Object> callNumber = new HashMap<>();
-      callNumber.put("id", getId(rs));
-      callNumber.put("callNumber", getCallNumber(rs));
-      callNumber.put("callNumberPrefix", getCallNumberPrefix(rs));
-      callNumber.put("callNumberSuffix", getCallNumberSuffix(rs));
-      callNumber.put("callNumberTypeId", getCallNumberTypeId(rs));
-      callNumber.put(VOLUME_FIELD, getVolume(rs));
-      callNumber.put(ENUMERATION_FIELD, getEnumeration(rs));
-      callNumber.put(CHRONOLOGY_FIELD, getChronology(rs));
-      callNumber.put("copyNumber", getCopyNumber(rs));
-
-      var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
-      if (!maps.isEmpty()) {
-        callNumber.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
-      }
-
-      return callNumber;
-    };
+    return (rs, rowNum) -> getCallNumberMap(rs);
   }
 
   protected RowMapper<Map<String, Object>> rowToMapMapper2() {
     return (rs, rowNum) -> {
-      Map<String, Object> callNumber = new HashMap<>();
-      callNumber.put("id", getId(rs));
-      callNumber.put("callNumber", getCallNumber(rs));
-      callNumber.put("callNumberPrefix", getCallNumberPrefix(rs));
-      callNumber.put("callNumberSuffix", getCallNumberSuffix(rs));
-      callNumber.put("callNumberTypeId", getCallNumberTypeId(rs));
-      callNumber.put(VOLUME_FIELD, getVolume(rs));
-      callNumber.put(ENUMERATION_FIELD, getEnumeration(rs));
-      callNumber.put(CHRONOLOGY_FIELD, getChronology(rs));
-      callNumber.put("copyNumber", getCopyNumber(rs));
-      callNumber.put(LAST_UPDATED_DATE_FIELD, rs.getTimestamp("last_updated_date"));
-
-      var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
-      if (!maps.isEmpty()) {
-        callNumber.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
-      }
-
-      return callNumber;
+      var callNumberMap = getCallNumberMap(rs);
+      callNumberMap.put(LAST_UPDATED_DATE_FIELD, rs.getTimestamp("last_updated_date"));
+      return callNumberMap;
     };
+  }
+
+  private Map<String, Object> getCallNumberMap(ResultSet rs) throws SQLException {
+    var callNumber = getCallNumber(rs);
+    var callNumberSuffix = getCallNumberSuffix(rs);
+    var volume = getVolume(rs);
+    var enumeration = getEnumeration(rs);
+    var chronology = getChronology(rs);
+    var copyNumber = getCopyNumber(rs);
+
+    Map<String, Object> callNumberMap = new HashMap<>();
+    callNumberMap.put(ID_FIELD, getId(rs));
+    callNumberMap.put(CALL_NUMBER_BROWSING_FIELD, calculateFullCallNumber(
+      callNumber, volume, enumeration, chronology, copyNumber, callNumberSuffix));
+    callNumberMap.put(CALL_NUMBER_FIELD, callNumber);
+    callNumberMap.put(CALL_NUMBER_PREFIX_FIELD, getCallNumberPrefix(rs));
+    callNumberMap.put(CALL_NUMBER_SUFFIX_FIELD, callNumberSuffix);
+    callNumberMap.put(CALL_NUMBER_TYPE_ID_FIELD, getCallNumberTypeId(rs));
+    callNumberMap.put(VOLUME_FIELD, volume);
+    callNumberMap.put(ENUMERATION_FIELD, enumeration);
+    callNumberMap.put(CHRONOLOGY_FIELD, chronology);
+    callNumberMap.put(COPY_NUMBER_FIELD, copyNumber);
+    callNumberMap.put(SUB_RESOURCE_INSTANCES_FIELD, parseInstanceSubResources(getInstances(rs)));
+    return callNumberMap;
   }
 
   private void saveResourceEntities(ChildResourceEntityBatch entityBatch) {

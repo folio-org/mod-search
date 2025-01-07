@@ -41,6 +41,10 @@ public class SearchUtils {
   public static final String LEGACY_CALL_NUMBER_BROWSING_FIELD = "callNumber";
   public static final String CALL_NUMBER_BROWSING_FIELD = "fullCallNumber";
   public static final String CALL_NUMBER_TYPE_ID_FIELD = "callNumberTypeId";
+  public static final String CALL_NUMBER_PREFIX_FIELD = "callNumberPrefix";
+  public static final String CALL_NUMBER_SUFFIX_FIELD = "callNumberSuffix";
+  public static final String CALL_NUMBER_FIELD = "callNumber";
+  public static final String COPY_NUMBER_FIELD = "copyNumber";
   public static final String CLASSIFICATION_NUMBER_BROWSING_FIELD = "number";
   public static final String CLASSIFICATION_TYPE_ID_FIELD = "typeId";
   public static final String TYPED_CALL_NUMBER_BROWSING_FIELD = "typedCallNumber";

@@ -27,6 +27,9 @@
       <column name="enumeration" type="VARCHAR(50)"/>
       <column name="chronology" type="VARCHAR(50)"/>
       <column name="copy_number" type="VARCHAR(10)"/>
+      <column name="last_updated_date" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
     </createTable>
   </changeSet>
 
@@ -58,18 +61,6 @@
     <addPrimaryKey tableName="instance_call_number"
                    columnNames="call_number_id, item_id, instance_id, tenant_id"/>
 
-  </changeSet>
-
-  <changeSet id="MSEARCH-936@@add-last_updated_date-to-call-number" author="svitlana_kovalova1">
-    <preConditions onFail="MARK_RAN">
-      <tableExists tableName="call_number"/>
-    </preConditions>
-
-    <addColumn tableName="call_number">
-      <column name="last_updated_date" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP">
-        <constraints nullable="false"/>
-      </column>
-    </addColumn>
   </changeSet>
 
   <changeSet id="MSEARCH-936@@fill-sub_resources_lock-table" author="svitlana_kovalova1">

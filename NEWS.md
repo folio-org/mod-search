@@ -1,3 +1,12 @@
+## v4.0.7 2025-01-09
+### New APIs versions
+* Provides `indices v1.1`
+
+### Tech Dept
+* Update reindex merge failed status only for failed entity type ([MSEARCH-909](https://folio-org.atlassian.net/browse/MSEARCH-909))
+* Extend reindex range tables with status, fail_cause columns ([MSEARCH-870](https://folio-org.atlassian.net/browse/MSEARCH-870))
+* Implement endpoint to run merge reindex stage only for failed ranges ([MSEARCH-906](https://folio-org.atlassian.net/browse/MSEARCH-906))
+
 ## v4.0.6 2025-01-08
 ### Bug fixes
 * Update tenant_id in database during event processing ([MSEARCH-877](https://folio-org.atlassian.net/browse/MSEARCH-877))

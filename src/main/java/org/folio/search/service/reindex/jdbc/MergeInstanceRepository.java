@@ -23,6 +23,7 @@ public class MergeInstanceRepository extends MergeRangeRepository {
       VALUES (?::uuid, ?, ?, ?, ?::jsonb)
       ON CONFLICT (id)
       DO UPDATE SET shared = EXCLUDED.shared,
+      tenant_id = EXCLUDED.tenant_id,
       is_bound_with = EXCLUDED.is_bound_with,
       json = EXCLUDED.json;
     """;
@@ -79,6 +80,6 @@ public class MergeInstanceRepository extends MergeRangeRepository {
   public void updateBoundWith(String tenantId, String id, boolean bound) {
     var fullTableName = getFullTableName(context, entityTable());
     var sql = UPDATE_BOUND_WITH_SQL.formatted(fullTableName);
-    jdbcTemplate.update(sql, bound /*? "true" : "false"*/, id);
+    jdbcTemplate.update(sql, bound, id);
   }
 }

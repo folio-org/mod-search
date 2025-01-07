@@ -1,25 +1,26 @@
 package org.folio.search.service.reindex.jdbc;
 
 import static org.apache.commons.collections4.MapUtils.getString;
+import static org.folio.search.service.converter.preprocessor.extractor.impl.CallNumberResourceExtractor.CHRONOLOGY_FIELD;
+import static org.folio.search.service.converter.preprocessor.extractor.impl.CallNumberResourceExtractor.ENUMERATION_FIELD;
+import static org.folio.search.service.converter.preprocessor.extractor.impl.CallNumberResourceExtractor.VOLUME_FIELD;
 import static org.folio.search.service.reindex.ReindexConstants.CALL_NUMBER_TABLE;
 import static org.folio.search.service.reindex.ReindexConstants.INSTANCE_CALL_NUMBER_TABLE;
-import static org.folio.search.utils.CallNumberUtils.calculateFullCallNumber;
 import static org.folio.search.utils.JdbcUtils.getFullTableName;
-import static org.folio.search.utils.JdbcUtils.getParamPlaceholder;
 import static org.folio.search.utils.JdbcUtils.getParamPlaceholderForUuid;
+import static org.folio.search.utils.SearchUtils.SUB_RESOURCE_INSTANCES_FIELD;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collections;
+import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.ListUtils;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.entity.ChildResourceEntityBatch;
-import org.folio.search.model.entity.InstanceCallNumberEntityAgg;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.utils.JdbcUtils;
 import org.folio.search.utils.JsonConverter;
@@ -55,9 +56,81 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
     """;
 
   private static final String DELETE_QUERY = """
-    DELETE
-    FROM %s
-    WHERE instance_id IN (%s);
+    WITH deleted_ids as (
+        DELETE
+        FROM %1$s.instance_call_number
+        WHERE instance_id IN (%2$s)
+        RETURNING call_number_id
+    )
+    UPDATE %1$s.call_number
+    SET last_updated_date = CURRENT_TIMESTAMP
+    WHERE id IN (SELECT * FROM deleted_ids);
+    """;
+
+  private static final String SELECT_BY_UPDATED_QUERY = """
+    WITH cte AS (
+        SELECT
+            id,
+            call_number,
+            call_number_prefix,
+            call_number_suffix,
+            call_number_type_id,
+            volume,
+            enumeration,
+            chronology,
+            copy_number,
+            last_updated_date
+        FROM %1$s.call_number
+        WHERE last_updated_date > ?
+        ORDER BY last_updated_date
+    )
+    SELECT
+        c.id,
+        c.call_number,
+        c.call_number_prefix,
+        c.call_number_suffix,
+        c.call_number_type_id,
+        c.volume,
+        c.enumeration,
+        c.chronology,
+        c.copy_number,
+        c.last_updated_date,
+        json_agg(
+            CASE
+                WHEN sub.instance_count IS NULL THEN NULL
+                ELSE json_build_object(
+                     'count', sub.instance_count,
+                     'tenantId', sub.tenant_id,
+                     'locationId', sub.location_ids
+                )
+            END
+        ) AS instances
+    FROM cte c
+    LEFT JOIN (
+        SELECT
+            cte.id,
+            ins.tenant_id,
+            array_agg(DISTINCT ins.location_id) FILTER (WHERE ins.location_id IS NOT NULL) AS location_ids,
+            count(DISTINCT ins.instance_id) AS instance_count
+        FROM %1$s.instance_call_number ins
+        INNER JOIN cte ON ins.call_number_id = cte.id
+        GROUP BY
+            cte.id,
+            ins.tenant_id
+    ) sub ON c.id = sub.id
+    GROUP BY
+        c.id,
+        c.call_number,
+        c.call_number_prefix,
+        c.call_number_suffix,
+        c.call_number_type_id,
+        c.volume,
+        c.enumeration,
+        c.chronology,
+        c.copy_number,
+        c.last_updated_date
+    ORDER BY
+        last_updated_date ASC;
     """;
 
   private static final String INSERT_ENTITIES_SQL = """
@@ -72,7 +145,7 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
         chronology,
         copy_number
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ON CONFLICT DO NOTHING;
+    ON CONFLICT (id) DO UPDATE SET last_updated_date = CURRENT_TIMESTAMP;
     """;
 
   private static final String INSERT_RELATIONS_SQL = """
@@ -88,8 +161,6 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
 
   private static final String ID_RANGE_INS_WHERE_CLAUSE = "ins.call_number_id >= ? AND ins.call_number_id <= ?";
   private static final String ID_RANGE_CLAS_WHERE_CLAUSE = "c.id >= ? AND c.id <= ?";
-  private static final String IDS_INS_WHERE_CLAUSE = "ins.call_number_id IN (%1$s)";
-  private static final String IDS_CLAS_WHERE_CLAUSE = "c.id IN (%1$s)";
 
   protected CallNumberRepository(JdbcTemplate jdbcTemplate, JsonConverter jsonConverter, FolioExecutionContext context,
                                  ReindexConfigurationProperties reindexConfig) {
@@ -98,8 +169,7 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
 
   @Override
   public void deleteByInstanceIds(List<String> instanceIds) {
-    var sql = DELETE_QUERY.formatted(getFullTableName(context, INSTANCE_CALL_NUMBER_TABLE),
-      getParamPlaceholderForUuid(instanceIds.size()));
+    var sql = DELETE_QUERY.formatted(JdbcUtils.getSchemaName(context), getParamPlaceholderForUuid(instanceIds.size()));
     jdbcTemplate.update(sql, instanceIds.toArray());
   }
 
@@ -124,23 +194,18 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
     return Optional.of(INSTANCE_CALL_NUMBER_TABLE);
   }
 
-  public List<InstanceCallNumberEntityAgg> fetchByIds(List<String> ids) {
-    if (CollectionUtils.isEmpty(ids)) {
-      return Collections.emptyList();
-    }
-    var sql = SELECT_QUERY.formatted(JdbcUtils.getSchemaName(context),
-      IDS_INS_WHERE_CLAUSE.formatted(getParamPlaceholder(ids.size())),
-      IDS_CLAS_WHERE_CLAUSE.formatted(getParamPlaceholder(ids.size())));
-    return jdbcTemplate.query(sql, instanceCallNumberAggRowMapper(), ListUtils.union(ids, ids).toArray());
-  }
-
   @Override
   public List<Map<String, Object>> fetchByIdRange(String lower, String upper) {
     var sql = getFetchBySql();
-    return jdbcTemplate.query(sql, instanceCallNumberAggRowMapper(), lower, upper, lower, upper)
-      .stream()
-      .map(jsonConverter::convertToMap)
-      .toList();
+    return jdbcTemplate.query(sql, rowToMapMapper(), lower, upper, lower, upper);
+  }
+
+  @Override
+  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp) {
+    var sql = SELECT_BY_UPDATED_QUERY.formatted(JdbcUtils.getSchemaName(tenant, context.getFolioModuleMetadata()));
+    var records = jdbcTemplate.query(sql, rowToMapMapper2(), timestamp);
+    var lastUpdateDate = records.isEmpty() ? null : records.get(records.size() - 1).get(LAST_UPDATED_DATE_FIELD);
+    return new SubResourceResult(records, (Timestamp) lastUpdateDate);
   }
 
   @Override
@@ -151,7 +216,48 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
 
   @Override
   protected RowMapper<Map<String, Object>> rowToMapMapper() {
-    return null;
+    return (rs, rowNum) -> {
+      Map<String, Object> callNumber = new HashMap<>();
+      callNumber.put("id", getId(rs));
+      callNumber.put("callNumber", getCallNumber(rs));
+      callNumber.put("callNumberPrefix", getCallNumberPrefix(rs));
+      callNumber.put("callNumberSuffix", getCallNumberSuffix(rs));
+      callNumber.put("callNumberTypeId", getCallNumberTypeId(rs));
+      callNumber.put(VOLUME_FIELD, getVolume(rs));
+      callNumber.put(ENUMERATION_FIELD, getEnumeration(rs));
+      callNumber.put(CHRONOLOGY_FIELD, getChronology(rs));
+      callNumber.put("copyNumber", getCopyNumber(rs));
+
+      var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
+      if (!maps.isEmpty()) {
+        callNumber.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
+      }
+
+      return callNumber;
+    };
+  }
+
+  protected RowMapper<Map<String, Object>> rowToMapMapper2() {
+    return (rs, rowNum) -> {
+      Map<String, Object> callNumber = new HashMap<>();
+      callNumber.put("id", getId(rs));
+      callNumber.put("callNumber", getCallNumber(rs));
+      callNumber.put("callNumberPrefix", getCallNumberPrefix(rs));
+      callNumber.put("callNumberSuffix", getCallNumberSuffix(rs));
+      callNumber.put("callNumberTypeId", getCallNumberTypeId(rs));
+      callNumber.put(VOLUME_FIELD, getVolume(rs));
+      callNumber.put(ENUMERATION_FIELD, getEnumeration(rs));
+      callNumber.put(CHRONOLOGY_FIELD, getChronology(rs));
+      callNumber.put("copyNumber", getCopyNumber(rs));
+      callNumber.put(LAST_UPDATED_DATE_FIELD, rs.getTimestamp("last_updated_date"));
+
+      var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
+      if (!maps.isEmpty()) {
+        callNumber.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
+      }
+
+      return callNumber;
+    };
   }
 
   private void saveResourceEntities(ChildResourceEntityBatch entityBatch) {
@@ -200,21 +306,6 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
           getInstanceId(entityRelation), getTenantId(entityRelation), getLocationId(entityRelation));
       }
     }
-  }
-
-  private RowMapper<InstanceCallNumberEntityAgg> instanceCallNumberAggRowMapper() {
-    return (rs, rowNum) -> {
-      var callNumber = getCallNumber(rs);
-      var callNumberSuffix = getCallNumberSuffix(rs);
-      var volume = getVolume(rs);
-      var enumeration = getEnumeration(rs);
-      var chronology = getChronology(rs);
-      var copyNumber = getCopyNumber(rs);
-      return new InstanceCallNumberEntityAgg(getId(rs),
-        calculateFullCallNumber(callNumber, volume, enumeration, chronology, copyNumber, callNumberSuffix),
-        callNumber, getCallNumberPrefix(rs), callNumberSuffix, getCallNumberTypeId(rs), volume, enumeration, chronology,
-        copyNumber, parseInstanceSubResources(getInstances(rs)));
-    };
   }
 
   private String getCallNumberSuffix(ResultSet rs) throws SQLException {

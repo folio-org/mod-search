@@ -27,7 +27,8 @@ public class ClassificationResourceExtractor extends ChildResourceExtractor {
 
   private final FeatureConfigService featureConfigService;
 
-  public ClassificationResourceExtractor(ClassificationRepository repository, FeatureConfigService featureConfigService) {
+  public ClassificationResourceExtractor(ClassificationRepository repository,
+                                         FeatureConfigService featureConfigService) {
     super(repository);
     this.featureConfigService = featureConfigService;
   }

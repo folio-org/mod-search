@@ -1,6 +1,7 @@
 package org.folio.search.service;
 
 import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -43,6 +44,9 @@ class InstanceChildrenResourceServiceTest {
   void setUp() {
     this.resourceExtractors =
       List.of(classificationResourceExtractor, contributorResourceExtractor, subjectResourceExtractor);
+    for (var resourceExtractor : resourceExtractors) {
+      lenient().when(resourceExtractor.resourceType()).thenReturn(ResourceType.INSTANCE);
+    }
     service = new InstanceChildrenResourceService(resourceExtractors, consortiumTenantProvider);
   }
 

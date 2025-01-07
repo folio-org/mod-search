@@ -1,6 +1,5 @@
 package org.folio.search.service.reindex.jdbc;
 
-import static org.folio.search.utils.JdbcUtils.getParamPlaceholder;
 import static org.folio.search.utils.JdbcUtils.getParamPlaceholderForUuid;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_TYPE_FIELD;
@@ -9,18 +8,14 @@ import static org.folio.search.utils.SearchUtils.SUB_RESOURCE_INSTANCES_FIELD;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.ListUtils;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.entity.ChildResourceEntityBatch;
-import org.folio.search.model.entity.InstanceContributorEntityAgg;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.reindex.ReindexConstants;
 import org.folio.search.utils.JdbcUtils;
@@ -147,8 +142,6 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
 
   private static final String ID_RANGE_INS_WHERE_CLAUSE = "ins.contributor_id >= ? AND ins.contributor_id <= ?";
   private static final String ID_RANGE_CONTR_WHERE_CLAUSE = "c.id >= ? AND c.id <= ?";
-  private static final String IDS_INS_WHERE_CLAUSE = "ins.contributor_id IN (%1$s)";
-  private static final String IDS_CONTR_WHERE_CLAUSE = "c.id IN (%1$s)";
 
   protected ContributorRepository(JdbcTemplate jdbcTemplate, JsonConverter jsonConverter,
                                   FolioExecutionContext context,
@@ -169,17 +162,6 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
   @Override
   protected Optional<String> subEntityTable() {
     return Optional.of(ReindexConstants.INSTANCE_CONTRIBUTOR_TABLE);
-  }
-
-  public List<InstanceContributorEntityAgg> fetchByIds(List<String> ids) {
-    if (CollectionUtils.isEmpty(ids)) {
-      return Collections.emptyList();
-    }
-    var sql = SELECT_QUERY.formatted(JdbcUtils.getSchemaName(context),
-      IDS_INS_WHERE_CLAUSE.formatted(getParamPlaceholder(ids.size())),
-      IDS_CONTR_WHERE_CLAUSE.formatted(getParamPlaceholder(ids.size()))
-    );
-    return jdbcTemplate.query(sql, instanceAggRowMapper(), ListUtils.union(ids, ids).toArray());
   }
 
   @Override
@@ -280,16 +262,6 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
           entityRelation.get(CONTRIBUTOR_TYPE_FIELD), entityRelation.get("tenantId"), entityRelation.get("shared"));
       }
     }
-  }
-
-  private RowMapper<InstanceContributorEntityAgg> instanceAggRowMapper() {
-    return (rs, rowNum) -> new InstanceContributorEntityAgg(
-      getId(rs),
-      getName(rs),
-      getNameTypeId(rs),
-      getAuthorityId(rs),
-      parseInstanceSubResources(getInstances(rs))
-    );
   }
 
   private String getId(ResultSet rs) throws SQLException {

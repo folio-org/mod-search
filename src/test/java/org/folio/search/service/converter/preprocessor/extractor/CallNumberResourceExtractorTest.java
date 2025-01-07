@@ -50,7 +50,7 @@ class CallNumberResourceExtractorTest extends ChildResourceExtractorTestBase {
   void setUp() {
     extractor = new CallNumberResourceExtractor(repository,
       new JsonConverter(new ObjectMapper()),
-      featureConfigService, tenantProvider);
+      featureConfigService);
   }
 
   @Test

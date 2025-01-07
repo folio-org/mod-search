@@ -2,7 +2,6 @@ package org.folio.search.service.reindex.jdbc;
 
 import static org.folio.search.service.reindex.ReindexConstants.MERGE_RANGE_TABLE;
 import static org.folio.search.utils.JdbcUtils.getFullTableName;
-import static org.folio.search.utils.JdbcUtils.getParamPlaceholder;
 import static org.folio.search.utils.JdbcUtils.getParamPlaceholderForUuid;
 import static org.folio.search.utils.JdbcUtils.getParamPlaceholderForUuidArray;
 
@@ -36,9 +35,7 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
 
   private static final String SELECT_MERGE_RANGES_BY_ENTITY_TYPE = "SELECT * FROM %s WHERE entity_type = ?;";
 
-  private static final String SELECT_FAILED_MERGE_RANGES = """
-    SELECT * FROM %s WHERE status = 'FAIL' and tenant_id IN (%s);
-    """;
+  private static final String SELECT_FAILED_MERGE_RANGES = "SELECT * FROM %s WHERE status = 'FAIL';";
 
   protected MergeRangeRepository(JdbcTemplate jdbcTemplate,
                                  JsonConverter jsonConverter,
@@ -67,10 +64,10 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
     return jdbcTemplate.query(sql, mergeRangeEntityRowMapper(), entityType().getType());
   }
 
-  public List<MergeRangeEntity> getFailedMergeRanges(List<String> tenantIds) {
+  public List<MergeRangeEntity> getFailedMergeRanges() {
     var fullTableName = getFullTableName(context, MERGE_RANGE_TABLE);
-    var sql = SELECT_FAILED_MERGE_RANGES.formatted(fullTableName, getParamPlaceholder(tenantIds.size()));
-    return jdbcTemplate.query(sql, mergeRangeEntityRowMapper(), tenantIds.toArray());
+    var sql = SELECT_FAILED_MERGE_RANGES.formatted(fullTableName);
+    return jdbcTemplate.query(sql, mergeRangeEntityRowMapper());
   }
 
   public void truncateMergeRanges() {

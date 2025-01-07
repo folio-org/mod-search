@@ -145,12 +145,8 @@ public class ReindexService {
     log.info("submitFailedMergeRangesReindex:: for [tenantId: {}]", tenantId);
 
     validateTenant("submitFailedMergeRangesReindex", tenantId);
-    var tenantIds = new ArrayList<String>();
-    tenantIds.add(tenantId);
-    var memberTenants = consortiumService.getConsortiumTenants(tenantId);
-    tenantIds.addAll(memberTenants);
 
-    var failedRanges = mergeRangeService.fetchFailedMergeRanges(tenantIds);
+    var failedRanges = mergeRangeService.fetchFailedMergeRanges();
     if (CollectionUtils.isEmpty(failedRanges)) {
       log.info("submitFailedMergeRangesReindex:: no failed ranges found");
       return CompletableFuture.completedFuture(null);

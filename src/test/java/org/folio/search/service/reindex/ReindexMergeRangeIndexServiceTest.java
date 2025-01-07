@@ -137,9 +137,9 @@ class ReindexMergeRangeIndexServiceTest {
   @Test
   void fetchFailedMergeRanges() {
     // act
-    service.fetchFailedMergeRanges(List.of(TENANT_ID));
+    service.fetchFailedMergeRanges();
 
     // assert
-    verify(repositoryMap.values().iterator().next()).getFailedMergeRanges(List.of(TENANT_ID));
+    verify(repositoryMap.values().iterator().next()).getFailedMergeRanges();
   }
 }

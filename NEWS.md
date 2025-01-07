@@ -22,9 +22,12 @@
 * Fix generation of IDs ranges in Reindex Upload for Subject, Classification and Contributor ([MSEARCH-907](https://folio-org.atlassian.net/browse/MSEARCH-907))
 * Remove browse config caching ([MSEARCH-897](https://folio-org.atlassian.net/browse/MSEARCH-897))
 * Fix the "Invalid reference" appears after updating ownership ([MSEARCH-915](https://folio-org.atlassian.net/browse/MSEARCH-915))
+* Update tenant_id in database during event processing ([MSEARCH-877](https://folio-org.atlassian.net/browse/MSEARCH-877))
+* Fix an issue with interrupting the batch event processing due to SystemUserAuthorizationException ([MSEARCH-925](https://folio-org.atlassian.net/browse/MSEARCH-925))
 
 ### Tech Dept
-* Description ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))
+* Recreate upload ranges each upload execution ([MSEARCH-934](https://folio-org.atlassian.net/browse/MSEARCH-934))
+* Remove unnecessary LccnNormalizerStructureB ([MSEARCH-926](https://folio-org.atlassian.net/browse/MSEARCH-926))
 
 ### Dependencies
 * Bump `opensearch` from `2.17.1` to `2.18.0` fixing protobuf-java CVE-2024-7254 ([MSEARCH-889](https://folio-org.atlassian.net/browse/MSEARCH-889))

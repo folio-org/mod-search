@@ -33,10 +33,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.boot.test.autoconfigure.json.AutoConfigureJson;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.jdbc.Sql;
 
 @IntegrationTest
@@ -46,8 +46,8 @@ import org.springframework.test.context.jdbc.Sql;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class SubjectRepositoryIT {
 
-  private @SpyBean JdbcTemplate jdbcTemplate;
-  private @MockBean FolioExecutionContext context;
+  private @MockitoSpyBean JdbcTemplate jdbcTemplate;
+  private @MockitoBean FolioExecutionContext context;
   private SubjectRepository repository;
   private ReindexConfigurationProperties properties;
 
@@ -71,22 +71,12 @@ class SubjectRepositoryIT {
   }
 
   @Test
-  void getUploadRanges_returnEmptyList_whenNoUploadRangesAndNotPopulate() {
-    // act
-    var ranges = repository.getUploadRanges(false);
-
-    // assert
-    assertThat(ranges).isEmpty();
-  }
-
-  @Test
-  @Sql("/sql/populate-subjects.sql")
-  void getUploadRanges_returnList_whenNoUploadRangesAndNotPopulate() {
+  void getUploadRanges_returnList() {
     // arrange
     properties.setUploadRangeLevel(1);
 
     // act
-    var ranges = repository.getUploadRanges(true);
+    var ranges = repository.createUploadRanges();
 
     // assert
     assertThat(ranges)
@@ -139,7 +129,7 @@ class SubjectRepositoryIT {
       .contains(
         tuple("Sci-Fi", List.of(
           Map.of("count", 1, "shared", true, "tenantId", "consortium"),
-            Map.of("count", 1, "shared", false, "tenantId", "member_tenant"))));
+          Map.of("count", 1, "shared", false, "tenantId", "member_tenant"))));
   }
 
   @Test

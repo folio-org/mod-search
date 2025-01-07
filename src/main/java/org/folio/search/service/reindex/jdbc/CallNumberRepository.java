@@ -24,6 +24,7 @@ import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
@@ -254,7 +255,11 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
     callNumberMap.put(ENUMERATION_FIELD, enumeration);
     callNumberMap.put(CHRONOLOGY_FIELD, chronology);
     callNumberMap.put(COPY_NUMBER_FIELD, copyNumber);
-    callNumberMap.put(SUB_RESOURCE_INSTANCES_FIELD, parseInstanceSubResources(getInstances(rs)));
+    var subResources = jsonConverter.toJson(parseInstanceSubResources(getInstances(rs)));
+    var maps = jsonConverter.fromJsonToListOfMaps(subResources).stream().filter(Objects::nonNull).toList();
+    if (!maps.isEmpty()) {
+      callNumberMap.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
+    }
     return callNumberMap;
   }
 

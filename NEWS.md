@@ -1,7 +1,10 @@
 ## v4.0.6 2025-01-08
+### Bug fixes
+* Update tenant_id in database during event processing ([MSEARCH-877](https://folio-org.atlassian.net/browse/MSEARCH-877))
+* Fix an issue with interrupting the batch event processing due to SystemUserAuthorizationException ([MSEARCH-925](https://folio-org.atlassian.net/browse/MSEARCH-925))
+
 ### Tech Dept
 * Recreate upload ranges each upload execution ([MSEARCH-934](https://folio-org.atlassian.net/browse/MSEARCH-934))
-* Fix an issue with interrupting the batch event processing due to SystemUserAuthorizationException ([MSEARCH-925](https://folio-org.atlassian.net/browse/MSEARCH-925))
 
 ## v4.0.5 2025-01-03
 ### Bug fixes

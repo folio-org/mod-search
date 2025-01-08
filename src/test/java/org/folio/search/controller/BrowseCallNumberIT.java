@@ -4,8 +4,8 @@ import static java.util.Collections.emptyList;
 import static java.util.function.Function.identity;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
+import static org.awaitility.Durations.ONE_MINUTE;
 import static org.awaitility.Durations.ONE_SECOND;
-import static org.awaitility.Durations.TWO_MINUTES;
 import static org.folio.search.support.base.ApiEndpoints.browseConfigPath;
 import static org.folio.search.support.base.ApiEndpoints.instanceCallNumberBrowsePath;
 import static org.folio.search.support.base.ApiEndpoints.recordFacetsPath;
@@ -56,7 +56,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
   @BeforeAll
   static void prepare() {
     setUpTenant(CallNumberTestData.instances().toArray(Instance[]::new));
-    await().atMost(TWO_MINUTES).pollInterval(ONE_SECOND).untilAsserted(() -> {
+    await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
       var counted = countIndexDocument(ResourceType.INSTANCE_CALL_NUMBER, TENANT_ID);
       assertThat(counted).isEqualTo(100);
     });

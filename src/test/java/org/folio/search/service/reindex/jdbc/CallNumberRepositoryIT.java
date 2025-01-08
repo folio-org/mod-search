@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.entity.ChildResourceEntityBatch;
+import org.folio.search.service.consortium.ConsortiumTenantProvider;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
@@ -40,6 +41,7 @@ class CallNumberRepositoryIT {
 
   private @MockitoSpyBean JdbcTemplate jdbcTemplate;
   private @MockitoBean FolioExecutionContext context;
+  private @MockitoBean ConsortiumTenantProvider tenantProvider;
   private CallNumberRepository repository;
   private ReindexConfigurationProperties properties;
 
@@ -47,7 +49,7 @@ class CallNumberRepositoryIT {
   void setUp() {
     properties = new ReindexConfigurationProperties();
     var jsonConverter = new JsonConverter(new ObjectMapper());
-    repository = spy(new CallNumberRepository(jdbcTemplate, jsonConverter, context, properties));
+    repository = spy(new CallNumberRepository(jdbcTemplate, jsonConverter, context, properties, tenantProvider));
     when(context.getFolioModuleMetadata()).thenReturn(new FolioModuleMetadata() {
       @Override
       public String getModuleName() {

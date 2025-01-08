@@ -30,6 +30,7 @@ import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.entity.ChildResourceEntityBatch;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.service.consortium.ConsortiumTenantProvider;
 import org.folio.search.utils.JdbcUtils;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
@@ -170,9 +171,13 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
   private static final String ID_RANGE_INS_WHERE_CLAUSE = "ins.call_number_id >= ? AND ins.call_number_id <= ?";
   private static final String ID_RANGE_CLAS_WHERE_CLAUSE = "c.id >= ? AND c.id <= ?";
 
+  private final ConsortiumTenantProvider tenantProvider;
+
   protected CallNumberRepository(JdbcTemplate jdbcTemplate, JsonConverter jsonConverter, FolioExecutionContext context,
-                                 ReindexConfigurationProperties reindexConfig) {
+                                 ReindexConfigurationProperties reindexConfig,
+                                 ConsortiumTenantProvider consortiumTenantProvider) {
     super(jdbcTemplate, jsonConverter, context, reindexConfig);
+    this.tenantProvider = consortiumTenantProvider;
   }
 
   @Override
@@ -230,9 +235,21 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
   protected RowMapper<Map<String, Object>> rowToMapMapper2() {
     return (rs, rowNum) -> {
       var callNumberMap = getCallNumberMap(rs);
+      var subResourcesInstances = getSubResourcesInstances(rs);
+      if (!subResourcesInstances.isEmpty()) {
+        callNumberMap.put(SUB_RESOURCE_INSTANCES_FIELD, subResourcesInstances);
+      }
       callNumberMap.put(LAST_UPDATED_DATE_FIELD, rs.getTimestamp("last_updated_date"));
       return callNumberMap;
     };
+  }
+
+  private List<Map<String, Object>> getSubResourcesInstances(ResultSet rs) throws SQLException {
+    var subResources = parseInstanceSubResources(getInstances(rs));
+    subResources.forEach(subResource ->
+      subResource.setShared(tenantProvider.isCentralTenant(subResource.getTenantId())));
+    var subResourcesJson = jsonConverter.toJson(subResources);
+    return jsonConverter.fromJsonToListOfMaps(subResourcesJson).stream().filter(Objects::nonNull).toList();
   }
 
   private Map<String, Object> getCallNumberMap(ResultSet rs) throws SQLException {

@@ -17,8 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.boot.test.autoconfigure.json.AutoConfigureJson;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.jdbc.Sql;
 
 @IntegrationTest
@@ -29,8 +29,8 @@ import org.springframework.test.context.jdbc.Sql;
 class UploadRangeRepositoriesIT {
 
   private @Autowired JdbcTemplate jdbcTemplate;
-  private @MockitoBean FolioExecutionContext context;
-  private @MockitoBean ReindexConfigurationProperties reindexConfig;
+  private @MockBean FolioExecutionContext context;
+  private @MockBean ReindexConfigurationProperties reindexConfig;
   private UploadInstanceRepository uploadRepository;
 
   @BeforeEach
@@ -56,8 +56,7 @@ class UploadRangeRepositoriesIT {
   @Sql({"/sql/populate-instances.sql"})
   void getUploadRanges_shouldNotPopulateStatus() {
     // act
-    var uploadRanges = uploadRepository.getUploadRanges(true);
-    System.out.println(uploadRanges.size());
+    var uploadRanges = uploadRepository.createUploadRanges();
 
     // assert
     assertThat(uploadRanges)

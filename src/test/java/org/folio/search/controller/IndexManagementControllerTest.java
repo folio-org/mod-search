@@ -56,8 +56,8 @@ import org.opensearch.OpenSearchException;
 import org.opensearch.core.index.Index;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
@@ -72,13 +72,13 @@ class IndexManagementControllerTest {
 
   @Autowired
   private MockMvc mockMvc;
-  @MockitoBean
+  @MockBean
   private IndexService indexService;
-  @MockitoBean
+  @MockBean
   private ResourceService resourceService;
-  @MockitoBean
+  @MockBean
   private ReindexService reindexService;
-  @MockitoBean
+  @MockBean
   private ReindexStatusService reindexStatusService;
 
   @Test

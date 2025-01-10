@@ -80,7 +80,7 @@ class InventoryServiceTest {
   void publishReindexRecordsRange_ValidExecutionPath() {
     var id = UUID.randomUUID();
     var validRange = new MergeRangeEntity(id, INSTANCE, TENANT_ID, "low", "high", Timestamp.from(
-      Instant.now()));
+      Instant.now()), null, null);
     var request = constructRequest(id.toString(), INSTANCE.getType(), "low", "high");
     doNothing().when(reindexRecordsClient).publishReindexRecords(request);
 
@@ -92,7 +92,7 @@ class InventoryServiceTest {
   void publishReindexRecordsRange_ShouldRetryOnFailure() {
     var id = UUID.randomUUID();
     var validRange = new MergeRangeEntity(id, INSTANCE, TENANT_ID, "low", "high", Timestamp.from(
-      Instant.now()));
+      Instant.now()), null, null);
     var request = constructRequest(id.toString(), INSTANCE.getType(), "low", "high");
     doThrow(new RuntimeException("API failure")).when(reindexRecordsClient).publishReindexRecords(request);
 

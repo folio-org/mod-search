@@ -1,25 +1,23 @@
 package org.folio.search.service.reindex.jdbc;
 
-import static org.folio.search.utils.JdbcUtils.getParamPlaceholder;
 import static org.folio.search.utils.JdbcUtils.getParamPlaceholderForUuid;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.SUBJECT_SOURCE_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.SUBJECT_TYPE_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.SUBJECT_VALUE_FIELD;
+import static org.folio.search.utils.SearchUtils.SUB_RESOURCE_INSTANCES_FIELD;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collections;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.ListUtils;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.entity.ChildResourceEntityBatch;
-import org.folio.search.model.entity.InstanceSubjectEntityAgg;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.reindex.ReindexConstants;
 import org.folio.search.utils.JdbcUtils;
@@ -72,15 +70,69 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
         s.id;
     """;
 
-  private static final String DELETE_QUERY = """
-    DELETE
-    FROM %s.instance_subject
-    WHERE instance_id IN (%s);
+  private static final String SELECT_BY_UPDATED_QUERY = """
+    WITH cte AS (SELECT s.id,
+                              s.value,
+                              s.authority_id,
+                              s.source_id,
+                              s.type_id,
+                              s.last_updated_date
+                       FROM %1$s.subject s
+                       WHERE last_updated_date > ?
+                       ORDER BY last_updated_date
+                       )
+          SELECT s.id,
+                 s.value,
+                 s.authority_id,
+                 s.source_id,
+                 s.type_id,
+                 s.last_updated_date,
+                                         json_agg(
+                                CASE
+                                    WHEN sub.instance_count IS NULL THEN NULL
+                                    ELSE json_build_object(
+                                            'count', sub.instance_count,
+                                             'shared', sub.shared,
+                                             'tenantId', sub.tenant_id
+                                         )
+                                    END
+                        ) AS instances
+          FROM cte s
+                   LEFT JOIN
+               (SELECT cte.id,
+                       ins.tenant_id,
+                       ins.shared,
+                       count(1) AS instance_count
+                FROM %1$s.instance_subject ins
+                         INNER JOIN cte ON ins.subject_id = cte.id
+                GROUP BY cte.id,
+                         ins.tenant_id,
+                         ins.shared) sub ON s.id = sub.id
+          GROUP BY s.id,
+                   s.value,
+                   s.authority_id,
+                   s.source_id,
+                   s.type_id,
+                   s.last_updated_date
+          ORDER BY last_updated_date ASC;
     """;
+
+  private static final String DELETE_QUERY = """
+    WITH deleted_ids as (
+        DELETE
+        FROM %1$s.instance_subject
+        WHERE instance_id IN (%2$s)
+        RETURNING subject_id
+    )
+    UPDATE %1$s.subject
+    SET last_updated_date = CURRENT_TIMESTAMP
+    WHERE id IN (SELECT * FROM deleted_ids);
+    """;
+
   private static final String INSERT_ENTITIES_SQL = """
       INSERT INTO %s.subject (id, value, authority_id, source_id, type_id)
       VALUES (?, ?, ?, ?, ?)
-      ON CONFLICT DO NOTHING;
+      ON CONFLICT (id) DO UPDATE SET last_updated_date = CURRENT_TIMESTAMP;
     """;
   private static final String INSERT_RELATIONS_SQL = """
       INSERT INTO %s.instance_subject (instance_id, subject_id, tenant_id, shared)
@@ -90,8 +142,6 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
 
   private static final String ID_RANGE_INS_WHERE_CLAUSE = "ins.subject_id >= ? AND ins.subject_id <= ?";
   private static final String ID_RANGE_SUBJ_WHERE_CLAUSE = "s.id >= ? AND s.id <= ?";
-  private static final String IDS_INS_WHERE_CLAUSE = "ins.subject_id IN (%1$s)";
-  private static final String IDS_SUB_WHERE_CLAUSE = "s.id IN (%1$s)";
 
   protected SubjectRepository(JdbcTemplate jdbcTemplate,
                               JsonConverter jsonConverter,
@@ -115,20 +165,18 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
     return Optional.of(ReindexConstants.INSTANCE_SUBJECT_TABLE);
   }
 
-  public List<InstanceSubjectEntityAgg> fetchByIds(List<String> ids) {
-    if (CollectionUtils.isEmpty(ids)) {
-      return Collections.emptyList();
-    }
-    var sql = SELECT_QUERY.formatted(JdbcUtils.getSchemaName(context),
-      IDS_INS_WHERE_CLAUSE.formatted(getParamPlaceholder(ids.size())),
-      IDS_SUB_WHERE_CLAUSE.formatted(getParamPlaceholder(ids.size())));
-    return jdbcTemplate.query(sql, instanceAggRowMapper(), ListUtils.union(ids, ids).toArray());
-  }
-
   @Override
   public List<Map<String, Object>> fetchByIdRange(String lower, String upper) {
     var sql = getFetchBySql();
     return jdbcTemplate.query(sql, rowToMapMapper(), lower, upper, lower, upper);
+  }
+
+  @Override
+  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp) {
+    var sql = SELECT_BY_UPDATED_QUERY.formatted(JdbcUtils.getSchemaName(tenant, context.getFolioModuleMetadata()));
+    var records = jdbcTemplate.query(sql, rowToMapMapper2(), timestamp);
+    var lastUpdateDate = records.isEmpty() ? null : records.get(records.size() - 1).get(LAST_UPDATED_DATE_FIELD);
+    return new SubResourceResult(records, (Timestamp) lastUpdateDate);
   }
 
   @Override
@@ -148,8 +196,29 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
       subject.put("sourceId", getSourceId(rs));
       subject.put("typeId", getTypeId(rs));
 
-      var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs));
-      subject.put("instances", maps);
+      var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
+      if (!maps.isEmpty()) {
+        subject.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
+      }
+
+      return subject;
+    };
+  }
+
+  protected RowMapper<Map<String, Object>> rowToMapMapper2() {
+    return (rs, rowNum) -> {
+      Map<String, Object> subject = new HashMap<>();
+      subject.put("id", getId(rs));
+      subject.put(SUBJECT_VALUE_FIELD, getValue(rs));
+      subject.put(AUTHORITY_ID_FIELD, getAuthorityId(rs));
+      subject.put("sourceId", getSourceId(rs));
+      subject.put("typeId", getTypeId(rs));
+      subject.put(LAST_UPDATED_DATE_FIELD, rs.getTimestamp("last_updated_date"));
+
+      var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
+      if (!maps.isEmpty()) {
+        subject.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
+      }
 
       return subject;
     };
@@ -199,17 +268,6 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
     }
   }
 
-  private RowMapper<InstanceSubjectEntityAgg> instanceAggRowMapper() {
-    return (rs, rowNum) -> new InstanceSubjectEntityAgg(
-      getId(rs),
-      getValue(rs),
-      getAuthorityId(rs),
-      getSourceId(rs),
-      getTypeId(rs),
-      parseInstanceSubResources(getInstances(rs))
-    );
-  }
-
   private String getId(ResultSet rs) throws SQLException {
     return rs.getString("id");
   }
@@ -231,6 +289,6 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
   }
 
   private String getInstances(ResultSet rs) throws SQLException {
-    return rs.getString("instances");
+    return rs.getString(SUB_RESOURCE_INSTANCES_FIELD);
   }
 }

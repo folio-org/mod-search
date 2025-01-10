@@ -1,23 +1,21 @@
 package org.folio.search.service.reindex.jdbc;
 
-import static org.folio.search.utils.JdbcUtils.getParamPlaceholder;
 import static org.folio.search.utils.JdbcUtils.getParamPlaceholderForUuid;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_TYPE_FIELD;
+import static org.folio.search.utils.SearchUtils.SUB_RESOURCE_INSTANCES_FIELD;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collections;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.ListUtils;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.entity.ChildResourceEntityBatch;
-import org.folio.search.model.entity.InstanceContributorEntityAgg;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.reindex.ReindexConstants;
 import org.folio.search.utils.JdbcUtils;
@@ -71,15 +69,70 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
         c.id;
     """;
 
-  private static final String DELETE_QUERY = """
-    DELETE
-    FROM %s.instance_contributor
-    WHERE instance_id IN (%s);
+  private static final String SELECT_BY_UPDATED_QUERY = """
+    WITH cte AS (SELECT id,
+                        name,
+                        name_type_id,
+                        authority_id,
+                        last_updated_date
+                 FROM %1$s.contributor
+                 WHERE last_updated_date > ?
+                 ORDER BY last_updated_date
+                 )
+    SELECT c.id,
+           c.name,
+           c.name_type_id,
+           c.authority_id,
+           c.last_updated_date,
+           json_agg(
+                   CASE
+                                    WHEN sub.instance_count IS NULL THEN NULL
+                                    ELSE json_build_object(
+                           'count', sub.instance_count,
+                           'typeId', sub.type_ids,
+                           'shared', sub.shared,
+                           'tenantId', sub.tenant_id
+                   )
+                   END
+           ) AS instances
+    FROM cte c
+             LEFT JOIN
+         (SELECT cte.id,
+                 ins.tenant_id,
+                 ins.shared,
+                 array_agg(DISTINCT ins.type_id) FILTER (WHERE ins.type_id <> '') AS type_ids,
+                 count(DISTINCT ins.instance_id)                                  AS instance_count
+          FROM %1$s.instance_contributor ins
+                   INNER JOIN cte
+                              ON ins.contributor_id = cte.id
+          GROUP BY cte.id,
+                   ins.tenant_id,
+                   ins.shared) sub ON c.id = sub.id
+    GROUP BY c.id,
+             c.name,
+             c.name_type_id,
+             c.authority_id,
+             c.last_updated_date
+          ORDER BY last_updated_date ASC;
     """;
+
+
+  private static final String DELETE_QUERY = """
+    WITH deleted_ids as (
+        DELETE
+        FROM %1$s.instance_contributor
+        WHERE instance_id IN (%2$s)
+        RETURNING contributor_id
+    )
+    UPDATE %1$s.contributor
+    SET last_updated_date = CURRENT_TIMESTAMP
+    WHERE id IN (SELECT * FROM deleted_ids);
+    """;
+
   private static final String INSERT_ENTITIES_SQL = """
       INSERT INTO %s.contributor (id, name, name_type_id, authority_id)
       VALUES (?, ?, ?, ?)
-      ON CONFLICT DO NOTHING;
+      ON CONFLICT (id) DO UPDATE SET last_updated_date = CURRENT_TIMESTAMP;
     """;
   private static final String INSERT_RELATIONS_SQL = """
       INSERT INTO %s.instance_contributor (instance_id, contributor_id, type_id, tenant_id, shared)
@@ -89,8 +142,6 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
 
   private static final String ID_RANGE_INS_WHERE_CLAUSE = "ins.contributor_id >= ? AND ins.contributor_id <= ?";
   private static final String ID_RANGE_CONTR_WHERE_CLAUSE = "c.id >= ? AND c.id <= ?";
-  private static final String IDS_INS_WHERE_CLAUSE = "ins.contributor_id IN (%1$s)";
-  private static final String IDS_CONTR_WHERE_CLAUSE = "c.id IN (%1$s)";
 
   protected ContributorRepository(JdbcTemplate jdbcTemplate, JsonConverter jsonConverter,
                                   FolioExecutionContext context,
@@ -113,21 +164,18 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
     return Optional.of(ReindexConstants.INSTANCE_CONTRIBUTOR_TABLE);
   }
 
-  public List<InstanceContributorEntityAgg> fetchByIds(List<String> ids) {
-    if (CollectionUtils.isEmpty(ids)) {
-      return Collections.emptyList();
-    }
-    var sql = SELECT_QUERY.formatted(JdbcUtils.getSchemaName(context),
-      IDS_INS_WHERE_CLAUSE.formatted(getParamPlaceholder(ids.size())),
-      IDS_CONTR_WHERE_CLAUSE.formatted(getParamPlaceholder(ids.size()))
-    );
-    return jdbcTemplate.query(sql, instanceAggRowMapper(), ListUtils.union(ids, ids).toArray());
-  }
-
   @Override
   public List<Map<String, Object>> fetchByIdRange(String lower, String upper) {
     var sql = getFetchBySql();
     return jdbcTemplate.query(sql, rowToMapMapper(), lower, upper, lower, upper);
+  }
+
+  @Override
+  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp) {
+    var sql = SELECT_BY_UPDATED_QUERY.formatted(JdbcUtils.getSchemaName(tenant, context.getFolioModuleMetadata()));
+    var records = jdbcTemplate.query(sql, rowToMapMapper2(), timestamp);
+    var lastUpdateDate = records.isEmpty() ? null : records.get(records.size() - 1).get(LAST_UPDATED_DATE_FIELD);
+    return new SubResourceResult(records, (Timestamp) lastUpdateDate);
   }
 
   @Override
@@ -145,8 +193,28 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
       contributor.put("contributorNameTypeId", getNameTypeId(rs));
       contributor.put(AUTHORITY_ID_FIELD, getAuthorityId(rs));
 
-      var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs));
-      contributor.put("instances", maps);
+      var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
+      if (!maps.isEmpty()) {
+        contributor.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
+      }
+
+      return contributor;
+    };
+  }
+
+  protected RowMapper<Map<String, Object>> rowToMapMapper2() {
+    return (rs, rowNum) -> {
+      Map<String, Object> contributor = new HashMap<>();
+      contributor.put("id", getId(rs));
+      contributor.put("name", getName(rs));
+      contributor.put("contributorNameTypeId", getNameTypeId(rs));
+      contributor.put(LAST_UPDATED_DATE_FIELD, rs.getTimestamp("last_updated_date"));
+      contributor.put(AUTHORITY_ID_FIELD, getAuthorityId(rs));
+
+      var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
+      if (!maps.isEmpty()) {
+        contributor.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
+      }
 
       return contributor;
     };
@@ -196,16 +264,6 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
     }
   }
 
-  private RowMapper<InstanceContributorEntityAgg> instanceAggRowMapper() {
-    return (rs, rowNum) -> new InstanceContributorEntityAgg(
-      getId(rs),
-      getName(rs),
-      getNameTypeId(rs),
-      getAuthorityId(rs),
-      parseInstanceSubResources(getInstances(rs))
-    );
-  }
-
   private String getId(ResultSet rs) throws SQLException {
     return rs.getString("id");
   }
@@ -223,7 +281,7 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
   }
 
   private String getInstances(ResultSet rs) throws SQLException {
-    return rs.getString("instances");
+    return rs.getString(SUB_RESOURCE_INSTANCES_FIELD);
   }
 
 }

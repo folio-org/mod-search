@@ -18,6 +18,7 @@ import org.folio.search.model.event.ReindexRecordsEvent;
 import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.InventoryRecordType;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.model.types.ReindexRangeStatus;
 import org.folio.search.service.InstanceChildrenResourceService;
 import org.folio.search.service.reindex.jdbc.MergeRangeRepository;
 import org.springframework.stereotype.Service;
@@ -69,9 +70,9 @@ public class ReindexMergeRangeIndexService {
     return repositories.get(entityType).getMergeRanges();
   }
 
-  public void updateFinishDate(ReindexEntityType entityType, String rangeId) {
+  public void updateStatus(ReindexEntityType entityType, String rangeId, ReindexRangeStatus status, String failCause) {
     var repository = repositories.get(entityType);
-    repository.setIndexRangeFinishDate(UUID.fromString(rangeId), Timestamp.from(Instant.now()));
+    repository.updateRangeStatus(UUID.fromString(rangeId), Timestamp.from(Instant.now()), status, failCause);
   }
 
   @SuppressWarnings("unchecked")
@@ -111,7 +112,7 @@ public class ReindexMergeRangeIndexService {
 
   private MergeRangeEntity mergeEntity(UUID id, InventoryRecordType recordType, String tenantId, String lowerId,
                                        String upperId, Timestamp createdAt) {
-    return new MergeRangeEntity(id, asEntityType(recordType), tenantId, lowerId, upperId, createdAt);
+    return new MergeRangeEntity(id, asEntityType(recordType), tenantId, lowerId, upperId, createdAt, null, null);
   }
 
   private ReindexEntityType asEntityType(InventoryRecordType recordType) {

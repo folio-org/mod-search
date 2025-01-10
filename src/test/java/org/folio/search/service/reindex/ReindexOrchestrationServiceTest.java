@@ -21,6 +21,7 @@ import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.types.IndexActionType;
 import org.folio.search.model.types.IndexingDataFormat;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.model.types.ReindexRangeStatus;
 import org.folio.search.repository.PrimaryResourceRepository;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.spring.testing.type.UnitTest;
@@ -107,7 +108,8 @@ class ReindexOrchestrationServiceTest {
 
     verify(mergeRangeIndexService).saveEntities(event);
     verify(reindexStatusService).addProcessedMergeRanges(ReindexEntityType.INSTANCE, 1);
-    verify(mergeRangeIndexService).updateFinishDate(ReindexEntityType.INSTANCE, event.getRangeId());
+    verify(mergeRangeIndexService)
+      .updateStatus(ReindexEntityType.INSTANCE, event.getRangeId(), ReindexRangeStatus.SUCCESS, null);
   }
 
   @Test
@@ -116,12 +118,14 @@ class ReindexOrchestrationServiceTest {
     event.setRangeId(UUID.randomUUID().toString());
     event.setRecordType(ReindexRecordsEvent.ReindexRecordType.INSTANCE);
     event.setRecords(emptyList());
-    doThrow(new RuntimeException()).when(mergeRangeIndexService).saveEntities(event);
+    var failCause = "exception occurred";
+    doThrow(new RuntimeException(failCause)).when(mergeRangeIndexService).saveEntities(event);
 
     service.process(event);
 
-    verify(reindexStatusService).updateReindexMergeFailed();
-    verify(mergeRangeIndexService).updateFinishDate(ReindexEntityType.INSTANCE, event.getRangeId());
+    verify(reindexStatusService).updateReindexMergeFailed(ReindexEntityType.INSTANCE);
+    verify(mergeRangeIndexService)
+      .updateStatus(ReindexEntityType.INSTANCE, event.getRangeId(), ReindexRangeStatus.FAIL, failCause);
     verifyNoMoreInteractions(reindexStatusService);
   }
 

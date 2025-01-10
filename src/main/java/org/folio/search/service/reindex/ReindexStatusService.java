@@ -1,5 +1,7 @@
 package org.folio.search.service.reindex;
 
+import static java.util.Collections.singletonList;
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -74,6 +76,11 @@ public class ReindexStatusService {
     var entityTypes = ReindexEntityType.supportMergeTypes();
     log.info("updateReindexMergeFailed:: for [entityTypes: {}]", entityTypes);
     statusRepository.setMergeReindexFailed(entityTypes);
+  }
+
+  public void updateReindexMergeFailed(ReindexEntityType entityType) {
+    log.info("updateReindexMergeFailed:: for [entityType: {}]", entityType);
+    statusRepository.setMergeReindexFailed(singletonList(entityType));
   }
 
   public void updateReindexUploadFailed(ReindexEntityType entityType) {

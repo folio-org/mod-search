@@ -2,6 +2,7 @@ package org.folio.search.service.reindex.jdbc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.folio.search.utils.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.Mockito.when;
 
@@ -16,6 +17,7 @@ import org.assertj.core.api.Condition;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.model.types.ReindexRangeStatus;
 import org.folio.search.service.consortium.ConsortiumTenantProvider;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
@@ -28,8 +30,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.boot.test.autoconfigure.json.AutoConfigureJson;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.jdbc.Sql;
 
 @IntegrationTest
@@ -40,9 +42,9 @@ import org.springframework.test.context.jdbc.Sql;
 class MergeRangeRepositoriesIT {
 
   private @Autowired JdbcTemplate jdbcTemplate;
-  private @MockBean FolioExecutionContext context;
-  private @MockBean ConsortiumTenantProvider tenantProvider;
-  private @MockBean ReindexConfigurationProperties reindexConfig;
+  private @MockitoBean FolioExecutionContext context;
+  private @MockitoBean ConsortiumTenantProvider tenantProvider;
+  private @MockitoBean ReindexConfigurationProperties reindexConfig;
   private HoldingRepository holdingRepository;
   private ItemRepository itemRepository;
   private MergeInstanceRepository instanceRepository;
@@ -119,9 +121,9 @@ class MergeRangeRepositoriesIT {
     var bound2 = id2.toString().replace("-", "");
     var instanceRanges = List.of(
       new MergeRangeEntity(id1, ReindexEntityType.INSTANCE, "member", bound1, bound1,
-        Timestamp.from(Instant.now())),
+        Timestamp.from(Instant.now()), ReindexRangeStatus.SUCCESS, null),
       new MergeRangeEntity(id2, ReindexEntityType.INSTANCE, "member", bound2, bound2,
-        Timestamp.from(Instant.now()))
+        Timestamp.from(Instant.now()), ReindexRangeStatus.FAIL, "fail cause")
     );
 
     // act
@@ -131,7 +133,8 @@ class MergeRangeRepositoriesIT {
     var ranges = instanceRepository.getMergeRanges();
 
     assertThat(ranges)
-      .usingRecursiveFieldByFieldElementComparatorIgnoringFields("createdAt")
+      .allMatch(range -> range.getStatus() == null && range.getFailCause() == null)
+      .usingRecursiveFieldByFieldElementComparatorIgnoringFields("createdAt", "status", "failCause")
       .isEqualTo(instanceRanges);
   }
 
@@ -177,6 +180,47 @@ class MergeRangeRepositoriesIT {
       .hasSize(2);
     assertThat(extractMapValues(instanceHoldings))
       .contains(mainInstanceId.toString(), holdingId1.toString(), holdingId2.toString());
+  }
+
+  @Test
+  void deleteEntities() {
+    // given
+    var instanceId = UUID.randomUUID();
+    var holdingId1 = UUID.randomUUID();
+    var holdingId2 = UUID.randomUUID();
+    var itemId1 = UUID.randomUUID();
+    var itemId2 = UUID.randomUUID();
+
+    var instances = List.of(Map.<String, Object>of("id", instanceId));
+    var holdings = List.of(
+      Map.<String, Object>of("id", holdingId1, "instanceId", instanceId),
+      Map.<String, Object>of("id", holdingId2, "instanceId", instanceId));
+    var items = List.of(
+      Map.<String, Object>of("id", itemId1, "instanceId", instanceId, "holdingsRecordId", holdingId1),
+      Map.<String, Object>of("id", itemId2, "instanceId", instanceId, "holdingsRecordId", holdingId2));
+
+    // act
+    instanceRepository.saveEntities(TENANT_ID, instances);
+    holdingRepository.saveEntities(TENANT_ID, holdings);
+    itemRepository.saveEntities(TENANT_ID, items);
+
+    //save the same entities for the "member_tenant" tenant
+    holdingRepository.saveEntities(MEMBER_TENANT_ID, holdings);
+    itemRepository.saveEntities(MEMBER_TENANT_ID, items);
+
+    // assert
+    assertThat(instanceRepository.countEntities()).isEqualTo(1);
+    assertThat(List.of(holdingRepository.countEntities(), itemRepository.countEntities()))
+      .allMatch(count -> count == 4);
+
+    //act
+    holdingRepository.deleteEntitiesForTenant(List.of(holdingId1.toString()), TENANT_ID);
+    itemRepository.deleteEntitiesForTenant(List.of(itemId1.toString()), TENANT_ID);
+
+    // assert
+    assertThat(instanceRepository.countEntities()).isEqualTo(1);
+    assertThat(List.of(holdingRepository.countEntities(), itemRepository.countEntities()))
+      .allMatch(count -> count == 3);
   }
 
   private List<String> extractMapValues(List<Map<String, Object>> maps) {

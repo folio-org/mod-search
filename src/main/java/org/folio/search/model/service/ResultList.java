@@ -23,6 +23,8 @@ public class ResultList<T> {
   /**
    * Paged result data.
    */
+  @JsonAlias({"classificationTypes", "identifierTypes", "alternativeTitleTypes", "callNumberTypes", "locations",
+    "loccamps", "loclibs", "locinsts"})
   private List<T> result = Collections.emptyList();
 
   // The `key` is required per contract

@@ -6,7 +6,6 @@ import static org.folio.search.utils.SearchUtils.CLASSIFICATION_NUMBER_FIELD;
 import static org.folio.search.utils.SearchUtils.CLASSIFICATION_TYPE_FIELD;
 import static org.folio.search.utils.SearchUtils.prepareForExpectedFormat;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -14,6 +13,9 @@ import java.util.Map;
 import java.util.Objects;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.domain.dto.TenantConfiguredFeature;
+import org.folio.search.model.types.ResourceType;
+import org.folio.search.service.FeatureConfigService;
 import org.folio.search.service.converter.preprocessor.extractor.ChildResourceExtractor;
 import org.folio.search.service.reindex.jdbc.ClassificationRepository;
 import org.folio.search.utils.ShaUtils;
@@ -23,77 +25,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class ClassificationResourceExtractor extends ChildResourceExtractor {
 
-  public ClassificationResourceExtractor(ClassificationRepository repository) {
+  private final FeatureConfigService featureConfigService;
+
+  public ClassificationResourceExtractor(ClassificationRepository repository,
+                                         FeatureConfigService featureConfigService) {
     super(repository);
-    this.jsonConverter = jsonConverter;
     this.featureConfigService = featureConfigService;
-    this.repository = repository;
-  }
-
-  @Override
-  public List<ResourceEvent> prepareEvents(ResourceEvent event) {
-    if (!featureConfigService.isEnabled(TenantConfiguredFeature.BROWSE_CLASSIFICATIONS)) {
-      return emptyList();
-    }
-
-    var oldClassifications = getChildResources(getOldAsMap(event));
-    var newClassifications = getChildResources(getNewAsMap(event));
-
-    if (oldClassifications.equals(newClassifications)) {
-      return emptyList();
-    }
-    var tenant = event.getTenant();
-    var classificationsForCreate = subtract(newClassifications, oldClassifications);
-    var classificationsForDelete = subtract(oldClassifications, newClassifications);
-
-    var idsForCreate = toIds(classificationsForCreate);
-    var idsForDelete = toIds(classificationsForDelete);
-
-    List<String> idsForFetch = new ArrayList<>();
-    idsForFetch.addAll(idsForCreate);
-    idsForFetch.addAll(idsForDelete);
-
-    var entityAggList = repository.fetchByIds(idsForFetch);
-    var list = getResourceEventsForDeletion(idsForDelete, entityAggList, tenant);
-
-    var list1 = entityAggList.stream()
-      .map(entities -> toResourceEvent(entities, tenant))
-      .toList();
-    return CollectionUtils.mergeSafelyToList(list, list1);
-  }
-
-  @Override
-  public List<ResourceEvent> prepareEventsOnSharing(ResourceEvent event) {
-    if (!featureConfigService.isEnabled(TenantConfiguredFeature.BROWSE_CLASSIFICATIONS)) {
-      return emptyList();
-    }
-
-    var classifications = getChildResources(getOldAsMap(event));
-
-    if (!classifications.equals(getChildResources(getNewAsMap(event)))) {
-      log.warn("Classifications are different on Update for instance sharing");
-      return emptyList();
-    }
-
-    var tenant = event.getTenant();
-
-    var entitiesForDelete = toIds(classifications);
-    var entityAggList = repository.fetchByIds(entitiesForDelete);
-
-    return entityAggList.stream()
-      .map(entities -> toResourceEvent(entities, tenant))
-      .toList();
-  }
-
-  @Override
-  public boolean hasChildResourceChanges(ResourceEvent event) {
-    if (!featureConfigService.isEnabled(TenantConfiguredFeature.BROWSE_CLASSIFICATIONS)) {
-      return false;
-    }
-    var oldClassifications = getChildResources(getOldAsMap(event));
-    var newClassifications = getChildResources(getNewAsMap(event));
-
-    return !oldClassifications.equals(newClassifications);
   }
 
   @Override
@@ -114,10 +51,7 @@ public class ClassificationResourceExtractor extends ChildResourceExtractor {
 
   @Override
   protected Map<String, Object> constructEntity(Map<String, Object> entityProperties) {
-    if (entityProperties == null) {
-      return null;
-    }
-    if (!featureConfigService.isEnabled(TenantConfiguredFeature.BROWSE_CLASSIFICATIONS)) {
+    if (entityProperties == null || !featureConfigService.isEnabled(TenantConfiguredFeature.BROWSE_CLASSIFICATIONS)) {
       return Collections.emptyMap();
     }
     var classificationNumber = prepareForExpectedFormat(entityProperties.get(CLASSIFICATION_NUMBER_FIELD), 50);

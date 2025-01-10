@@ -23,8 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.boot.test.autoconfigure.json.AutoConfigureJson;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.jdbc.Sql;
 
 @IntegrationTest
@@ -35,9 +34,9 @@ import org.springframework.test.context.jdbc.Sql;
 class ReindexJdbcRepositoriesIT {
 
   private @Autowired JdbcTemplate jdbcTemplate;
-  private @MockBean FolioExecutionContext context;
-  private @MockBean ReindexConfigurationProperties reindexConfig;
-  private @MockBean ConsortiumTenantProvider tenantProvider;
+  private @MockitoBean FolioExecutionContext context;
+  private @MockitoBean ReindexConfigurationProperties reindexConfig;
+  private @MockitoBean ConsortiumTenantProvider tenantProvider;
   private MergeInstanceRepository mergeRepository;
   private UploadInstanceRepository uploadRepository;
 

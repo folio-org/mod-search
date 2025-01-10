@@ -63,13 +63,13 @@ import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.listener.MessageListenerContainer;
 import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @Log4j2
 @EnableKafka
@@ -97,11 +97,11 @@ class KafkaMessageListenerIT {
   private KafkaTemplate<String, ResourceEvent> resourceKafkaTemplate;
   @Autowired
   private FolioKafkaProperties kafkaProperties;
-  @MockBean
+  @MockitoBean
   private ResourceService resourceService;
-  @MockBean
+  @MockitoBean
   private SystemUserScopedExecutionService executionService;
-  @MockBean
+  @MockitoBean
   private ConfigSynchronizationService configSynchronizationService;
 
   @Autowired

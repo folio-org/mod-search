@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.entity.ChildResourceEntityBatch;
+import org.folio.search.service.consortium.ConsortiumTenantProvider;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
@@ -25,9 +26,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.boot.test.autoconfigure.json.AutoConfigureJson;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.jdbc.Sql;
 
 @IntegrationTest
@@ -38,8 +39,9 @@ import org.springframework.test.context.jdbc.Sql;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class CallNumberRepositoryIT {
 
-  private @SpyBean JdbcTemplate jdbcTemplate;
-  private @MockBean FolioExecutionContext context;
+  private @MockitoSpyBean JdbcTemplate jdbcTemplate;
+  private @MockitoBean FolioExecutionContext context;
+  private @MockitoBean ConsortiumTenantProvider tenantProvider;
   private CallNumberRepository repository;
   private ReindexConfigurationProperties properties;
 
@@ -47,7 +49,7 @@ class CallNumberRepositoryIT {
   void setUp() {
     properties = new ReindexConfigurationProperties();
     var jsonConverter = new JsonConverter(new ObjectMapper());
-    repository = spy(new CallNumberRepository(jdbcTemplate, jsonConverter, context, properties));
+    repository = spy(new CallNumberRepository(jdbcTemplate, jsonConverter, context, properties, tenantProvider));
     when(context.getFolioModuleMetadata()).thenReturn(new FolioModuleMetadata() {
       @Override
       public String getModuleName() {

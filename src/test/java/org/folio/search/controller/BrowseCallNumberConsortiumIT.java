@@ -1,14 +1,17 @@
 package org.folio.search.controller;
 
+import static java.util.function.Function.identity;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.ONE_MINUTE;
 import static org.awaitility.Durations.ONE_SECOND;
 import static org.folio.search.domain.dto.RecordType.CALL_NUMBERS;
 import static org.folio.search.support.base.ApiEndpoints.browseConfigPath;
+import static org.folio.search.support.base.ApiEndpoints.instanceCallNumberBrowsePath;
 import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.search.support.base.ApiEndpoints.recordFacetsPath;
 import static org.folio.search.utils.CallNumberTestData.CallNumberTypeId.LC;
+import static org.folio.search.utils.CallNumberTestData.callNumbers;
 import static org.folio.search.utils.CallNumberTestData.locations;
 import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.search.utils.TestConstants.MEMBER_TENANT_ID;
@@ -19,17 +22,22 @@ import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.mockCallNumberTypes;
 import static org.folio.search.utils.TestUtils.parseResponse;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.BrowseConfig;
 import org.folio.search.domain.dto.BrowseOptionType;
 import org.folio.search.domain.dto.BrowseType;
+import org.folio.search.domain.dto.CallNumberBrowseItem;
+import org.folio.search.domain.dto.CallNumberBrowseResult;
 import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.domain.dto.ShelvingOrderAlgorithmType;
+import org.folio.search.model.index.CallNumberResource;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.support.base.BaseConsortiumIntegrationTest;
 import org.folio.search.utils.CallNumberTestData;
@@ -76,6 +84,19 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
     updateLcConfig(List.of(UUID.fromString(LC.getId())));
   }
 
+  @MethodSource("callNumberBrowsingDataProvider")
+  @DisplayName("browseByCallNumber_parameterized")
+  @ParameterizedTest(name = "[{index}] tenant={0} query={1}, option={2}, value=''{3}'', limit={4}")
+  void browseByCallNumber_parameterized(String query, String tenant, BrowseOptionType optionType, String input,
+                                        Integer limit, CallNumberBrowseResult expected) {
+    var request = get(instanceCallNumberBrowsePath(optionType))
+      .param("expandAll", "true")
+      .param("query", prepareQuery(query, '"' + input + '"'))
+      .param("limit", String.valueOf(limit));
+    var actual = parseResponse(doGet(request, tenant), CallNumberBrowseResult.class);
+    assertThat(actual).isEqualTo(expected);
+  }
+
   @MethodSource("facetQueriesProvider")
   @ParameterizedTest(name = "[{index}] tenant={0} query={1}, facets={2}")
   @DisplayName("getFacetsForCallNumbers_ecs_parameterized")
@@ -89,6 +110,62 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
       assertThat(actualFacet.getValues())
         .containsExactlyInAnyOrderElementsOf(expectedFacet.getValues());
     });
+  }
+
+  private static Stream<Arguments> callNumberBrowsingDataProvider() {
+    var aroundQuery = "fullCallNumber >= {value} or fullCallNumber < {value}";
+
+    var callNumbers = callNumbers().stream()
+      .map(CallNumberTestData.CallNumberTestDataRecord::callNumber)
+      .collect(Collectors.toMap(callNumberResource -> Integer.parseInt(callNumberResource.id()), identity()));
+
+    return Stream.of(
+      arguments(aroundQuery, CENTRAL_TENANT_ID, BrowseOptionType.ALL, callNumbers.get(1).fullCallNumber(), 5,
+        cnBrowseResult(callNumbers.get(35).fullCallNumber(), callNumbers.get(43).fullCallNumber(), 60, List.of(
+          cnBrowseItem(callNumbers.get(35), 1),
+          cnBrowseItem(callNumbers.get(25), 1),
+          cnBrowseItem(callNumbers.get(1), 3, true),
+          cnBrowseItem(callNumbers.get(33), 1),
+          cnBrowseItem(callNumbers.get(43), 1)
+        ))),
+
+      arguments(aroundQuery, MEMBER_TENANT_ID, BrowseOptionType.ALL, callNumbers.get(1).fullCallNumber(), 5,
+        cnBrowseResult(callNumbers.get(91).fullCallNumber(), callNumbers.get(68).fullCallNumber(), 100, List.of(
+          cnBrowseItem(callNumbers.get(91), 1),
+          cnBrowseItem(callNumbers.get(25), 1),
+          cnBrowseItem(callNumbers.get(1), 3, true),
+          cnBrowseItem(callNumbers.get(70), 1),
+          cnBrowseItem(callNumbers.get(68), 1)
+        )))
+    );
+  }
+
+  private static CallNumberBrowseResult cnBrowseResult(String prev, String next, int total,
+                                                       List<CallNumberBrowseItem> items) {
+    return new CallNumberBrowseResult().prev(prev).next(next).items(items).totalRecords(total);
+  }
+
+  private static CallNumberBrowseItem cnEmptyBrowseItem(String callNumber) {
+    return new CallNumberBrowseItem().fullCallNumber(callNumber).isAnchor(true).totalRecords(0);
+  }
+
+  private static CallNumberBrowseItem cnBrowseItem(CallNumberResource resource, int count) {
+    return cnBrowseItem(resource, count, null);
+  }
+
+  private static CallNumberBrowseItem cnBrowseItem(CallNumberResource resource, int count, Boolean isAnchor) {
+    return new CallNumberBrowseItem()
+      .fullCallNumber(resource.fullCallNumber())
+      .callNumber(resource.callNumber())
+      .callNumberPrefix(resource.callNumberPrefix())
+      .callNumberSuffix(resource.callNumberSuffix())
+      .callNumberTypeId(resource.callNumberTypeId())
+      .volume(resource.volume())
+      .chronology(resource.chronology())
+      .enumeration(resource.enumeration())
+      .copyNumber(resource.copyNumber())
+      .totalRecords(count)
+      .isAnchor(isAnchor);
   }
 
   private static Stream<Arguments> facetQueriesProvider() {

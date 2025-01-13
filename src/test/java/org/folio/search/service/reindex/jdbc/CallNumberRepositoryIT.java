@@ -8,12 +8,13 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.entity.ChildResourceEntityBatch;
-import org.folio.search.service.consortium.ConsortiumTenantProvider;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
@@ -39,9 +40,11 @@ import org.springframework.test.context.jdbc.Sql;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class CallNumberRepositoryIT {
 
+  private static final String INSTANCE_ID = "9f8febd1-e96c-46c4-a5f4-84a45cc499a2";
+  private static final Map<String, List<UUID>> ITEM_IDS =
+    Map.of("1", getList(1), "2", getList(2));
   private @MockitoSpyBean JdbcTemplate jdbcTemplate;
   private @MockitoBean FolioExecutionContext context;
-  private @MockitoBean ConsortiumTenantProvider tenantProvider;
   private CallNumberRepository repository;
   private ReindexConfigurationProperties properties;
 
@@ -49,7 +52,7 @@ class CallNumberRepositoryIT {
   void setUp() {
     properties = new ReindexConfigurationProperties();
     var jsonConverter = new JsonConverter(new ObjectMapper());
-    repository = spy(new CallNumberRepository(jdbcTemplate, jsonConverter, context, properties, tenantProvider));
+    repository = spy(new CallNumberRepository(jdbcTemplate, jsonConverter, context, properties));
     when(context.getFolioModuleMetadata()).thenReturn(new FolioModuleMetadata() {
       @Override
       public String getModuleName() {
@@ -65,7 +68,7 @@ class CallNumberRepositoryIT {
   }
 
   @Test
-  @Sql("/sql/populate-call-numbers.sql")
+  @Sql({"/sql/populate-instances.sql", "/sql/populate-call-numbers.sql"})
   void fetchBy_returnListOfMaps() {
     // act
     var ranges = repository.fetchByIdRange("cn7", "cna");
@@ -83,28 +86,37 @@ class CallNumberRepositoryIT {
   }
 
   @Test
+  @Sql("/sql/populate-instances.sql")
   void saveAll() {
     var entities = Set.of(callNumberEntity("1"), callNumberEntity("2"));
     var entityRelations = List.of(
-      callNumberRelation("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", "1"),
-      callNumberRelation("b3bae8a9-cfb1-4afe-83d5-2cdae4580e07", "2"),
-      callNumberRelation("9ec55e4f-6a76-427c-b47b-197046f44a54", "2"));
+      callNumberRelation("1"),
+      callNumberRelation("2"),
+      callNumberRelation("2"));
 
     repository.saveAll(new ChildResourceEntityBatch(entities, entityRelations));
 
     // assert
-    var ranges = repository.fetchByIdRange("0", "50");
+    var ranges = repository.fetchByIdRange("0", "z");
     assertThat(ranges)
       .hasSize(2)
       .extracting("callNumber", "instances")
       .contains(
         tuple("number1",
-          List.of(mapOf("count", 1, "locationId", null, "shared", null, "tenantId", TENANT_ID, "typeId", null))),
+          List.of(mapOf("count", 1, "locationId", null, "shared", false, "tenantId", TENANT_ID, "typeId", null))),
         tuple("number2",
-          List.of(mapOf("count", 2, "locationId", null, "shared", null, "tenantId", TENANT_ID, "typeId", null))));
+          List.of(mapOf("count", 1, "locationId", null, "shared", false, "tenantId", TENANT_ID, "typeId", null))));
   }
 
-  private Map<String, Object> callNumberEntity(String id) {
+  private static List<UUID> getList(int size) {
+    var list = new ArrayList<UUID>();
+    for (int i = 0; i < size; i++) {
+      list.add(UUID.randomUUID());
+    }
+    return list;
+  }
+
+  private static Map<String, Object> callNumberEntity(String id) {
     return Map.of(
       "id", id,
       "callNumber", "number" + id,
@@ -112,10 +124,11 @@ class CallNumberRepositoryIT {
     );
   }
 
-  private Map<String, Object> callNumberRelation(String instanceId, String callNumberId) {
+  private static Map<String, Object> callNumberRelation(String callNumberId) {
+    List<UUID> itemIdList = ITEM_IDS.get(callNumberId);
     return Map.of(
-      "instanceId", instanceId,
-      "itemId", "b3e1db88-67e7-4e62-8824-8bd8fe71af9a",
+      "instanceId", INSTANCE_ID,
+      "itemId", itemIdList.remove(0).toString(),
       "callNumberId", callNumberId,
       "tenantId", TENANT_ID,
       "shared", false

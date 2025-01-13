@@ -18,8 +18,9 @@ name: api-doc
 
 env:
   API_TYPES: 'OAS'
-  API_DIRECTORIES: 'src/main/resources/swagger.api'
-  API_EXCLUDES: 'paths responses'
+  API_DIRECTORIES: 'target/api/openapi'
+  API_INPUT_SPEC: 'src/main/resources/swagger.api/mod-search.yaml'
+  API_EXCLUDES: ''
   OUTPUT_DIR: 'folio-api-docs'
   AWS_S3_BUCKET: 'foliodocs'
   AWS_S3_FOLDER: 'api'
@@ -44,6 +45,13 @@ jobs:
         with:
           ref: ${{ github.REF }}
           submodules: recursive
+      - name: Build spec
+        uses: s4u/setup-maven-action@v1.12.0
+      - run: |
+          mvn openapi-generator:generate \
+          -Dopenapi.generator.maven.plugin.inputSpec=${{ env.API_INPUT_SPEC }} \
+          -Dopenapi.generator.maven.plugin.generatorName=openapi-yaml \
+          -Dopenapi.generator.maven.plugin.output=target/api
       - name: Prepare folio-tools
         run: |
           git clone https://github.com/folio-org/folio-tools
@@ -78,6 +86,9 @@ jobs:
       - name: Show generated files
         working-directory: ${{ env.OUTPUT_DIR }}
         run: ls -R
+      - name: Fix dead link
+        run: jq '.config.oas.files[] |= if . == "${{ env.API_DIRECTORIES }}/openapi.yaml" then "${{ env.API_INPUT_SPEC }}" else . end' */config-doc.json > tmp.json && mv tmp.json */config-doc.json
+        working-directory: ${{ env.OUTPUT_DIR }}
       - name: Publish to AWS S3
         uses: sai-sharan/aws-s3-sync-action@v0.1.0
         with:

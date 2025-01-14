@@ -30,7 +30,6 @@ import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.entity.ChildResourceEntityBatch;
 import org.folio.search.model.types.ReindexEntityType;
-import org.folio.search.service.consortium.ConsortiumTenantProvider;
 import org.folio.search.utils.JdbcUtils;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
@@ -49,16 +48,19 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
                    json_build_object(
                            'count', sub.instance_count,
                            'tenantId', sub.tenant_id,
+                           'shared', sub.shared,
                            'locationId', sub.location_ids
                    )
            ) AS instances
     FROM (SELECT ins.call_number_id,
                  ins.tenant_id,
+                 i.shared,
                  array_agg(DISTINCT ins.location_id) FILTER (WHERE ins.location_id IS NOT NULL) AS location_ids,
                  count(DISTINCT ins.instance_id)     AS instance_count
           FROM %1$s.instance_call_number ins
+          INNER JOIN %1$s.instance i ON i.id = ins.instance_id
           WHERE %2$s
-          GROUP BY ins.call_number_id, ins.tenant_id) sub
+          GROUP BY ins.call_number_id, ins.tenant_id, i.shared) sub
           JOIN %1$s.call_number c ON c.id = sub.call_number_id
     WHERE %3$s
     GROUP BY c.id;
@@ -110,6 +112,7 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
                 ELSE json_build_object(
                      'count', sub.instance_count,
                      'tenantId', sub.tenant_id,
+                     'shared', sub.shared,
                      'locationId', sub.location_ids
                 )
             END
@@ -119,13 +122,16 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
         SELECT
             cte.id,
             ins.tenant_id,
+            i.shared,
             array_agg(DISTINCT ins.location_id) FILTER (WHERE ins.location_id IS NOT NULL) AS location_ids,
             count(DISTINCT ins.instance_id) AS instance_count
         FROM %1$s.instance_call_number ins
         INNER JOIN cte ON ins.call_number_id = cte.id
+        INNER JOIN %1$s.instance i ON i.id = ins.instance_id
         GROUP BY
             cte.id,
-            ins.tenant_id
+            ins.tenant_id,
+            i.shared
     ) sub ON c.id = sub.id
     GROUP BY
         c.id,
@@ -171,13 +177,9 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
   private static final String ID_RANGE_INS_WHERE_CLAUSE = "ins.call_number_id >= ? AND ins.call_number_id <= ?";
   private static final String ID_RANGE_CLAS_WHERE_CLAUSE = "c.id >= ? AND c.id <= ?";
 
-  private final ConsortiumTenantProvider tenantProvider;
-
   protected CallNumberRepository(JdbcTemplate jdbcTemplate, JsonConverter jsonConverter, FolioExecutionContext context,
-                                 ReindexConfigurationProperties reindexConfig,
-                                 ConsortiumTenantProvider consortiumTenantProvider) {
+                                 ReindexConfigurationProperties reindexConfig) {
     super(jdbcTemplate, jsonConverter, context, reindexConfig);
-    this.tenantProvider = consortiumTenantProvider;
   }
 
   @Override
@@ -235,21 +237,13 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
   protected RowMapper<Map<String, Object>> rowToMapMapper2() {
     return (rs, rowNum) -> {
       var callNumberMap = getCallNumberMap(rs);
-      var subResourcesInstances = getSubResourcesInstances(rs);
-      if (!subResourcesInstances.isEmpty()) {
-        callNumberMap.put(SUB_RESOURCE_INSTANCES_FIELD, subResourcesInstances);
+      var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
+      if (!maps.isEmpty()) {
+        callNumberMap.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
       }
       callNumberMap.put(LAST_UPDATED_DATE_FIELD, rs.getTimestamp("last_updated_date"));
       return callNumberMap;
     };
-  }
-
-  private List<Map<String, Object>> getSubResourcesInstances(ResultSet rs) throws SQLException {
-    var subResources = parseInstanceSubResources(getInstances(rs));
-    subResources.forEach(subResource ->
-      subResource.setShared(tenantProvider.isCentralTenant(subResource.getTenantId())));
-    var subResourcesJson = jsonConverter.toJson(subResources);
-    return jsonConverter.fromJsonToListOfMaps(subResourcesJson).stream().filter(Objects::nonNull).toList();
   }
 
   private Map<String, Object> getCallNumberMap(ResultSet rs) throws SQLException {

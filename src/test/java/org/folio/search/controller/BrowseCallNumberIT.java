@@ -74,9 +74,9 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
 
   @MethodSource("callNumberBrowsingDataProvider")
   @DisplayName("browseByCallNumber_parameterized")
-  @ParameterizedTest(name = "[{index}] query={0}, option={1}, value=''{2}'', limit={3}")
-  void browseByCallNumber_parameterized(String query, BrowseOptionType optionType, String input, Integer limit,
-                                        CallNumberBrowseResult expected) {
+  @ParameterizedTest(name = "[{0}] query={1}, option={2}, value=''{3}'', limit={4}")
+  void browseByCallNumber_parameterized(int index, String query, BrowseOptionType optionType, String input,
+                                        Integer limit, CallNumberBrowseResult expected) {
     var request = get(instanceCallNumberBrowsePath(optionType))
       .param("expandAll", "true")
       .param("query", prepareQuery(query, '"' + input + '"'))
@@ -121,7 +121,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
 
     return Stream.of(
       // anchor call number appears in the middle of the result set
-      arguments(aroundQuery, BrowseOptionType.ALL, callNumbers.get(1).fullCallNumber(), 5,
+      arguments(1, aroundQuery, BrowseOptionType.ALL, callNumbers.get(1).fullCallNumber(), 5,
         cnBrowseResult(callNumbers.get(91).fullCallNumber(), callNumbers.get(68).fullCallNumber(), 100, List.of(
           cnBrowseItem(callNumbers.get(91), 1),
           cnBrowseItem(callNumbers.get(25), 1),
@@ -131,7 +131,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
         ))),
 
       // not existed anchor call number appears in the middle of the result set
-      arguments(aroundQuery, BrowseOptionType.ALL, "TA357 .A78 2011", 5,
+      arguments(2, aroundQuery, BrowseOptionType.ALL, "TA357 .A78 2011", 5,
         cnBrowseResult(callNumbers.get(25).fullCallNumber(), callNumbers.get(68).fullCallNumber(), 100, List.of(
           cnBrowseItem(callNumbers.get(25), 1),
           cnBrowseItem(callNumbers.get(1), 3),
@@ -141,7 +141,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
         ))),
 
       // anchor call number appears first in the result set
-      arguments(aroundQuery, BrowseOptionType.ALL, callNumbers.get(50).fullCallNumber(), 5,
+      arguments(3, aroundQuery, BrowseOptionType.ALL, callNumbers.get(50).fullCallNumber(), 5,
         cnBrowseResult(null, callNumbers.get(95).fullCallNumber(), 100, List.of(
           cnBrowseItem(callNumbers.get(50), 1, true),
           cnBrowseItem(callNumbers.get(97), 1),
@@ -149,7 +149,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
         ))),
 
       // not existed anchor call number appears first in the result set
-      arguments(aroundQuery, BrowseOptionType.ALL, "0.0", 5,
+      arguments(4, aroundQuery, BrowseOptionType.ALL, "0.0", 5,
         cnBrowseResult(null, callNumbers.get(97).fullCallNumber(), 100, List.of(
           cnEmptyBrowseItem("0.0"),
           cnBrowseItem(callNumbers.get(50), 1),
@@ -157,7 +157,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
         ))),
 
       // anchor call number appears last in the result set
-      arguments(aroundQuery, BrowseOptionType.ALL, callNumbers.get(11).fullCallNumber(), 5,
+      arguments(5, aroundQuery, BrowseOptionType.ALL, callNumbers.get(11).fullCallNumber(), 5,
         cnBrowseResult(callNumbers.get(49).fullCallNumber(), null, 100, List.of(
           cnBrowseItem(callNumbers.get(49), 1),
           cnBrowseItem(callNumbers.get(44), 1),
@@ -165,7 +165,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
         ))),
 
       // not existed anchor call number appears last in the result set
-      arguments(aroundQuery, BrowseOptionType.ALL, "ZZ", 5,
+      arguments(6, aroundQuery, BrowseOptionType.ALL, "ZZ", 5,
         cnBrowseResult(callNumbers.get(44).fullCallNumber(), null, 100, List.of(
           cnBrowseItem(callNumbers.get(44), 1),
           cnBrowseItem(callNumbers.get(11), 1),
@@ -173,7 +173,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
         ))),
 
       // anchor call number appears in the middle of the result set when filtering by type
-      arguments(aroundQuery, BrowseOptionType.LC, callNumbers.get(46).fullCallNumber(), 5,
+      arguments(7, aroundQuery, BrowseOptionType.LC, callNumbers.get(46).fullCallNumber(), 5,
         cnBrowseResult(callNumbers.get(66).fullCallNumber(), callNumbers.get(21).fullCallNumber(), 20, List.of(
           cnBrowseItem(callNumbers.get(66), 1),
           cnBrowseItem(callNumbers.get(96), 1),
@@ -183,7 +183,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
         ))),
 
       // forward browsing from the middle of the result set
-      arguments(forwardQuery, BrowseOptionType.ALL, callNumbers.get(22).fullCallNumber(), 5,
+      arguments(8, forwardQuery, BrowseOptionType.ALL, callNumbers.get(22).fullCallNumber(), 5,
         cnBrowseResult(callNumbers.get(47).fullCallNumber(), callNumbers.get(32).fullCallNumber(), 100, List.of(
           cnBrowseItem(callNumbers.get(47), 1),
           cnBrowseItem(callNumbers.get(62), 1),
@@ -193,11 +193,11 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
         ))),
 
       // forward browsing from the end of the result set
-      arguments(forwardQuery, BrowseOptionType.ALL, callNumbers.get(11).fullCallNumber(), 5,
+      arguments(9, forwardQuery, BrowseOptionType.ALL, callNumbers.get(11).fullCallNumber(), 5,
         cnBrowseResult(null, null, 100, emptyList())),
 
       // backward browsing from the middle of the result set
-      arguments(backwardQuery, BrowseOptionType.ALL, callNumbers.get(22).fullCallNumber(), 5,
+      arguments(10, backwardQuery, BrowseOptionType.ALL, callNumbers.get(22).fullCallNumber(), 5,
         cnBrowseResult(callNumbers.get(92).fullCallNumber(), callNumbers.get(90).fullCallNumber(), 100, List.of(
           cnBrowseItem(callNumbers.get(92), 1),
           cnBrowseItem(callNumbers.get(17), 1),
@@ -207,7 +207,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
         ))),
 
       // backward browsing from the end of the result set
-      arguments(backwardQuery, BrowseOptionType.ALL, callNumbers.get(50).fullCallNumber(), 5,
+      arguments(11, backwardQuery, BrowseOptionType.ALL, callNumbers.get(50).fullCallNumber(), 5,
         cnBrowseResult(null, null, 100, emptyList()))
     );
   }

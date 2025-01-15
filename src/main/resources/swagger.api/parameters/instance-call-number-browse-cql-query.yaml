@@ -2,7 +2,7 @@ name: query
 in: query
 required: true
 description: |
-  A CQL query string with filter conditions must include anchor query with range conditions. Anchor field is `number`. 
+  A CQL query string with filter conditions must include anchor query with range conditions. Anchor field is `fullCallNumber`. 
   Filters support logic operators `AND` and `OR`. All filters should be combined in parentheses.
   Anchor will be included only if `<=` or `>=` are used in the query. Otherwise, the empty row will be added if `highlightMatch` is equal to `true`.
   <table>
@@ -30,6 +30,18 @@ description: |
         <td>==</td>
         <td>Filter by shared/non-shared in consortium</td>
     </tr>
+    <tr>
+        <td>instances.locationId</td>
+        <td>string</td>
+        <td>==</td>
+        <td>Filter by location ID</td>
+    </tr>
+    <tr>
+        <td>callNumberTypeId</td>
+        <td>string</td>
+        <td>==</td>
+        <td>Filter by call-number type ID</td>
+    </tr>
     </tbody>
   </table>
 schema:
@@ -45,5 +57,5 @@ examples:
     value: number >= "DT571.F84"
     summary: Search for all classification numbers before "DT571.F84"
   browseAroundWithFilters:
-    value: (number >= "DT571.F84" or number < "DT571.F84") and instances.shared==false
+    value: (number >= "DT571.F84" or number < "DT571.F84") and instances.shared==false and instances.locationId=="2b94c631-fca9-4892-a730-03ee529ff6c3"
     summary: Search for local classification numbers before and after "DT571.F84"

@@ -3,6 +3,7 @@ package org.folio.search.cql;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.stream.Stream;
+import org.folio.search.cql.searchterm.ClassificationNumberSearchTermProcessor;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;

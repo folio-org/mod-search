@@ -18,6 +18,7 @@ import org.opensearch.index.query.BoolQueryBuilder;
 import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.index.query.RangeQueryBuilder;
 import org.opensearch.index.query.TermQueryBuilder;
+import org.opensearch.index.query.TermsQueryBuilder;
 import org.opensearch.search.aggregations.AggregationBuilders;
 import org.opensearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.opensearch.search.builder.SearchSourceBuilder;
@@ -75,7 +76,8 @@ public class SearchQueryUtils {
    * @return true if query is type of filter, false - otherwise
    */
   public static boolean isFilterQuery(QueryBuilder query, Predicate<String> check) {
-    return query instanceof TermQueryBuilder && check.test(((TermQueryBuilder) query).fieldName())
+    return query instanceof TermsQueryBuilder && check.test(((TermsQueryBuilder) query).fieldName())
+      || query instanceof TermQueryBuilder && check.test(((TermQueryBuilder) query).fieldName())
       || query instanceof RangeQueryBuilder && check.test(((RangeQueryBuilder) query).fieldName());
   }
 

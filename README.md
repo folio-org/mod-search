@@ -778,6 +778,12 @@ does not produce any values, so the following search options will return an empt
 |:------------------------|:----:|:------------------------------------|:------------------------------------------------|
 | `contributorNameTypeId` | term | `contributorNameTypeId == "123456"` | Matches contributors with `123456` name type id |
 
+##### Call-numbers search options
+
+| Option             | Type | Example                        | Description                                                                                                                     |
+|:-------------------|:----:|:-------------------------------|:--------------------------------------------------------------------------------------------------------------------------------|
+| `callNumberTypeId` | term | `callNumberTypeId == "123456"` | Matches call-numbers with `123456` call-number type id. Support aliases by call-number browse options: `callNumberTypeId == lc` |
+
 #### Search Facets
 
 Facets can be retrieved by using following API `GET /{recordType}/facets`. It consumes following request parameters:
@@ -875,6 +881,14 @@ GET /instances/facets?query=title all book&facet=source:5,discoverySuppress:2
 |:---------------------|:----:|:------------------------------|
 | `instances.tenantId` | term | Requests a tenantId facet     |
 | `instances.shared`   | term | Requests a shared/local facet |
+
+##### Classifications facets
+
+| Option                 | Type | Description                   |
+|:-----------------------|:----:|:------------------------------|
+| `instances.locationId` | term | Requests a location facet     |
+| `instances.tenantId`   | term | Requests a tenantId facet     |
+| `instances.shared`     | term | Requests a shared/local facet |
 
 #### Sorting results
 

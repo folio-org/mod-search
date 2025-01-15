@@ -99,7 +99,8 @@ class SearchQueryUtilsTest {
       arguments(rangeQuery("f").gt(10), false),
       arguments(matchQuery(FIELD, "value"), false),
       arguments(termQuery(FIELD, "value"), true),
-      arguments(termQuery("f", "v"), false)
-    );
+      arguments(termQuery("f", "v"), false),
+      arguments(termsQuery(FIELD, "value"), true)
+      );
   }
 }

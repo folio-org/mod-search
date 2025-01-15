@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import org.folio.search.cql.searchterm.IsbnSearchTermProcessor;
 import org.folio.search.service.setter.instance.IsbnProcessor;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;

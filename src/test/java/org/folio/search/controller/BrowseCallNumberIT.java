@@ -106,6 +106,8 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
       arguments("cql.allRecords=1", array("instances.locationId"), mapOf("instances.locationId",
         facet(facetItem(locations.get(1), 42), facetItem(locations.get(2), 34), facetItem(locations.get(3), 24)))),
       arguments("callNumberTypeId=\"" + LC.getId() + "\"", array("instances.locationId"), mapOf("instances.locationId",
+        facet(facetItem(locations.get(1), 8), facetItem(locations.get(2), 8), facetItem(locations.get(3), 4)))),
+      arguments("callNumberTypeId==lc", array("instances.locationId"), mapOf("instances.locationId",
         facet(facetItem(locations.get(1), 8), facetItem(locations.get(2), 8), facetItem(locations.get(3), 4))))
     );
   }

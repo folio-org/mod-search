@@ -7,6 +7,7 @@ import static org.opensearch.index.query.MultiMatchQueryBuilder.Type.PHRASE;
 import static org.opensearch.index.query.QueryBuilders.multiMatchQuery;
 import static org.opensearch.index.query.QueryBuilders.scriptQuery;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
+import static org.opensearch.index.query.QueryBuilders.termsQuery;
 
 import java.util.Arrays;
 import java.util.List;
@@ -46,6 +47,9 @@ public class ExactTermQueryBuilder extends FulltextQueryBuilder {
 
   @Override
   public QueryBuilder getTermLevelQuery(Object term, String fieldName, ResourceType resource, String fieldIndex) {
+    if (term instanceof String[] termArray) {
+      return termArray.length > 1 ? termsQuery(fieldName, termArray) : termQuery(fieldName, termArray[0]);
+    }
     return EMPTY_ARRAY.equals(term) && KEYWORD_FIELD_INDEX.equals(fieldIndex)
            ? getEmptyArrayScriptQuery(fieldName)
            : termQuery(fieldName, term);

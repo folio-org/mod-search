@@ -16,6 +16,7 @@ import java.util.StringJoiner;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.folio.search.cql.builders.TermQueryBuilder;
+import org.folio.search.cql.searchterm.SearchTermProcessor;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.exception.ValidationException;
 import org.folio.search.model.metadata.PlainFieldDescription;

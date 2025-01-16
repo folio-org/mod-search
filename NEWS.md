@@ -50,6 +50,7 @@
 * Call Numbers Browse: Implement Call Number Browse Config ([MSEARCH-863](https://folio-org.atlassian.net/browse/MSEARCH-863))
 * Call Numbers Browse: Implement Indexing and Re-indexing Mechanisms for Call-Numbers ([MSEARCH-864](https://folio-org.atlassian.net/browse/MSEARCH-864))
 * Call Numbers Browse: Implement Browsing Endpoint for Call-Numbers ([MSEARCH-865](https://folio-org.atlassian.net/browse/MSEARCH-865))
+* Call Numbers Browse: Support aliases for callNumberTypeId filters ([MSEARCH-942](https://folio-org.atlassian.net/browse/MSEARCH-942))
 
 ### Bug fixes
 * Populate typeId and sourceId on subjects re-indexing ([MSEARCH-891](https://folio-org.atlassian.net/browse/MSEARCH-891))

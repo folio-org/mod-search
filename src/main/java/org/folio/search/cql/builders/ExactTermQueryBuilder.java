@@ -4,9 +4,11 @@ import static org.folio.search.utils.SearchUtils.EMPTY_ARRAY;
 import static org.folio.search.utils.SearchUtils.KEYWORD_FIELD_INDEX;
 import static org.folio.search.utils.SearchUtils.getPathToFulltextPlainValue;
 import static org.opensearch.index.query.MultiMatchQueryBuilder.Type.PHRASE;
+import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
 import static org.opensearch.index.query.QueryBuilders.multiMatchQuery;
 import static org.opensearch.index.query.QueryBuilders.scriptQuery;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
+import static org.opensearch.index.query.QueryBuilders.termsQuery;
 
 import java.util.Arrays;
 import java.util.List;
@@ -46,18 +48,33 @@ public class ExactTermQueryBuilder extends FulltextQueryBuilder {
 
   @Override
   public QueryBuilder getTermLevelQuery(Object term, String fieldName, ResourceType resource, String fieldIndex) {
-    return EMPTY_ARRAY.equals(term) && KEYWORD_FIELD_INDEX.equals(fieldIndex)
-           ? getEmptyArrayScriptQuery(fieldName)
-           : termQuery(fieldName, term);
-  }
-
-  private static ScriptQueryBuilder getEmptyArrayScriptQuery(String fieldName) {
-    return scriptQuery(new Script(String.format(SCRIPT_TEMPLATE, fieldName)));
+    if (term instanceof String[] termArray) {
+      return getTermArrayQuery(termArray, fieldName);
+    }
+    return getSingleTermQuery(term, fieldName, fieldIndex);
   }
 
   @Override
   public Set<String> getSupportedComparators() {
     return Set.of("==");
+  }
+
+  private QueryBuilder getTermArrayQuery(String[] termArray, String fieldName) {
+    if (termArray.length == 0) {
+      return matchAllQuery();
+    }
+    return termArray.length == 1 ? termQuery(fieldName, termArray[0]) : termsQuery(fieldName, termArray);
+  }
+
+  private QueryBuilder getSingleTermQuery(Object term, String fieldName, String fieldIndex) {
+    if (EMPTY_ARRAY.equals(term) && KEYWORD_FIELD_INDEX.equals(fieldIndex)) {
+      return getEmptyArrayScriptQuery(fieldName);
+    }
+    return termQuery(fieldName, term);
+  }
+
+  private static ScriptQueryBuilder getEmptyArrayScriptQuery(String fieldName) {
+    return scriptQuery(new Script(String.format(SCRIPT_TEMPLATE, fieldName)));
   }
 
   private static String[] getUpdatedFields(String[] fieldsList) {

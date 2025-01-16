@@ -1,4 +1,4 @@
-package org.folio.search.cql;
+package org.folio.search.cql.searchterm;
 
 import static org.folio.search.utils.CallNumberUtils.getShelfKeyFromCallNumber;
 import static org.folio.search.utils.CallNumberUtils.normalizeEffectiveShelvingOrder;
@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import org.folio.search.cql.SuDocCallNumber;
 import org.folio.search.domain.dto.CallNumberType;
 import org.marc4j.callnum.CallNumber;
 import org.marc4j.callnum.DeweyCallNumber;

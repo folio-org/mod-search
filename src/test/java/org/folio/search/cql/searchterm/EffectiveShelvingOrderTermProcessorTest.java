@@ -1,4 +1,4 @@
-package org.folio.search.cql;
+package org.folio.search.cql.searchterm;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.CallNumberUtils.getShelfKeyFromCallNumber;
@@ -6,6 +6,7 @@ import static org.folio.search.utils.CallNumberUtils.normalizeEffectiveShelvingO
 
 import java.util.List;
 import java.util.stream.Collectors;
+import org.folio.search.cql.SuDocCallNumber;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

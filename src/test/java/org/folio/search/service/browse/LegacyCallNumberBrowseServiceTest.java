@@ -24,7 +24,7 @@ import java.util.List;
 import org.apache.lucene.search.TotalHits;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.cql.CqlSearchQueryConverter;
-import org.folio.search.cql.EffectiveShelvingOrderTermProcessor;
+import org.folio.search.cql.searchterm.EffectiveShelvingOrderTermProcessor;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;

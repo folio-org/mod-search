@@ -18,7 +18,7 @@ get:
         application/json:
           examples:
             browseResult:
-              $ref: '../../examples/result/browseClassificationNumberResult.yaml'
+              $ref: '../../examples/result/browseCallNumberResult.yaml'
           schema:
             $ref: '../../schemas/response/callNumberBrowseResult.yaml'
     '400':

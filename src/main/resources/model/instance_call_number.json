@@ -21,8 +21,9 @@
     },
     "callNumberTypeId": {
       "index": "keyword",
-      "searchTypes": [ "facet" ],
-      "showInResponse": [ "browse" ]
+      "searchTypes": [ "filter", "facet" ],
+      "showInResponse": [ "browse" ],
+      "searchTermProcessor": "callNumberTypeIdSearchTermProcessor"
     },
     "volume": {
       "index": "source",

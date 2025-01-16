@@ -2,7 +2,6 @@ package org.folio.search.cql.searchterm;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.folio.search.cql.searchterm.CallNumberSearchTermProcessor;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;

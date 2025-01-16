@@ -3,7 +3,6 @@ package org.folio.search.cql.searchterm;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import org.folio.search.cql.searchterm.OclcSearchTermProcessor;
 import org.folio.search.service.setter.instance.OclcProcessor;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;

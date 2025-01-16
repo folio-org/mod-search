@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
-import org.folio.search.cql.searchterm.LccnSearchTermProcessor;
 import org.folio.search.service.lccn.LccnNormalizer;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;

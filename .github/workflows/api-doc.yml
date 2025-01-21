@@ -52,7 +52,7 @@ jobs:
           -Dopenapi.generator.maven.plugin.inputSpec=${{ env.API_INPUT_SPEC }} \
           -Dopenapi.generator.maven.plugin.generatorName=openapi-yaml \
           -Dopenapi.generator.maven.plugin.output=target/api \
-          -Dopenapi.generator.maven.plugin.additionalProperties.outputFile=openapi/mod-search.yaml
+          -Dopenapi.generator.maven.plugin.additionalProperties=outputFile=openapi/mod-search.yaml
       - name: Prepare folio-tools
         run: |
           git clone https://github.com/folio-org/folio-tools

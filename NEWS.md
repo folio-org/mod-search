@@ -1,3 +1,7 @@
+## v4.0.8 2025-01-21
+### Tech Dept
+* Add location-units to optional interfaces in module descriptor ([MSEARCH-940](https://folio-org.atlassian.net/browse/MSEARCH-940))
+
 ## v4.0.7 2025-01-09
 ### New APIs versions
 * Provides `indices v1.1`

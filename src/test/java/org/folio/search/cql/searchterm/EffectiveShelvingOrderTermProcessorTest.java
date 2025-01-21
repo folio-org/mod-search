@@ -60,9 +60,9 @@ class EffectiveShelvingOrderTermProcessorTest {
 
   @ParameterizedTest
   @ValueSource(strings = {"782", "123", "185.25", "350.21", "362.82/92 / 20",
-    "591.52/63 / 20", "641.5943 M68l", "12", "11", "25", "1",
-    "3782", "3123", "3185.25", "3350.21", "3362.82 292 220",
-    "3591.52 263 220", "3641.5943 M68 L", "4123", "4782", "396.300"})
+                          "591.52/63 / 20", "641.5943 M68l", "12", "11", "25", "1",
+                          "3782", "3123", "3185.25", "3350.21", "3362.82 292 220",
+                          "3591.52 263 220", "3641.5943 M68 L", "4123", "4782", "396.300"})
   void getSearchTerm_dewey(String given) {
     var expected = new DeweyCallNumber(given).getShelfKey().trim();
     var actual = searchTermProcessor.getSearchTerm(given, "dewey");
@@ -98,7 +98,7 @@ class EffectiveShelvingOrderTermProcessorTest {
     var actual = searchTermProcessor.getSearchTerms(given);
 
     assertThat(callNumbers).extracting(CallNumber::isValid)
-        .containsExactly(false, true, false, true);
+      .containsExactly(false, true, false, true);
     assertThat(actual).isEqualTo(expected);
   }
 }

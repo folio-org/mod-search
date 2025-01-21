@@ -27,6 +27,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.folio.search.domain.dto.Instance;
+import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.types.ResourceType;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -98,11 +99,27 @@ public class InventoryApi {
       .whenComplete(onCompleteConsumer());
   }
 
+  public void createItem(String tenantId, String instanceId, Item instance) {
+    createItem(tenantId, instanceId, toMap(instance));
+  }
+
   public void createItem(String tenant, String instanceId, Map<String, Object> item) {
     item.put(INSTANCE_ID_FIELD, instanceId);
     var itemId = getString(item, ID_FIELD);
     ITEM_STORE.computeIfAbsent(tenant, k -> new LinkedHashMap<>()).put(itemId, item);
     kafkaTemplate.send(inventoryItemTopic(tenant), itemId, kafkaResourceEvent(tenant, CREATE, item, null))
+      .whenComplete(onCompleteConsumer());
+  }
+
+  public void updateItem(String tenantId, String instanceId, Item instance) {
+    updateItem(tenantId, instanceId, toMap(instance));
+  }
+
+  public void updateItem(String tenant, String instanceId, Map<String, Object> item) {
+    item.put(INSTANCE_ID_FIELD, instanceId);
+    var itemId = getString(item, ID_FIELD);
+    ITEM_STORE.computeIfAbsent(tenant, k -> new LinkedHashMap<>()).put(itemId, item);
+    kafkaTemplate.send(inventoryItemTopic(tenant), itemId, kafkaResourceEvent(tenant, UPDATE, item, null))
       .whenComplete(onCompleteConsumer());
   }
 

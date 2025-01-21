@@ -70,7 +70,7 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
     WITH deleted_ids as (
         DELETE
         FROM %1$s.instance_call_number
-        WHERE instance_id IN (%2$s)
+        WHERE item_id IN (%2$s)
         RETURNING call_number_id
     )
     UPDATE %1$s.call_number
@@ -183,9 +183,9 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
   }
 
   @Override
-  public void deleteByInstanceIds(List<String> instanceIds) {
-    var sql = DELETE_QUERY.formatted(JdbcUtils.getSchemaName(context), getParamPlaceholderForUuid(instanceIds.size()));
-    jdbcTemplate.update(sql, instanceIds.toArray());
+  public void deleteByInstanceIds(List<String> itemIds) {
+    var sql = DELETE_QUERY.formatted(JdbcUtils.getSchemaName(context), getParamPlaceholderForUuid(itemIds.size()));
+    jdbcTemplate.update(sql, itemIds.toArray());
   }
 
   @Override

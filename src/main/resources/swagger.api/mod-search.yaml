@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Search API
-  version: v2.1.0
+  version: v4.1.0
   description: |
     API for searching, browsing, and managing facets for various record types, including instances, holdings, and authorities.
     It also provides endpoints for configuring search and browse features, as well as managing the search index.

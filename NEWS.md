@@ -25,6 +25,7 @@
 * Update tenant_id in database during event processing ([MSEARCH-877](https://folio-org.atlassian.net/browse/MSEARCH-877))
 * Fix an issue with interrupting the batch event processing due to SystemUserAuthorizationException ([MSEARCH-925](https://folio-org.atlassian.net/browse/MSEARCH-925))
 * Use 'lccnSearchTermProcessor' in linked-data search APIs ([MSEARCH-935](https://folio-org.atlassian.net/browse/MSEARCH-935))
+* Fix documentation not being updated ([MSEARCH-937](https://folio-org.atlassian.net/browse/MSEARCH-937))
 
 ### Tech Dept
 * Recreate upload ranges each upload execution ([MSEARCH-934](https://folio-org.atlassian.net/browse/MSEARCH-934))

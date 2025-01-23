@@ -80,7 +80,7 @@ class CallNumberRepositoryIT {
       .extracting("id", "fullCallNumber")
       .containsExactlyInAnyOrder(
         tuple("cn7", "CN-007 Vol7 Enum7 Copy7"),
-        tuple("cn8", "CN-008 Chron8 Copy8 Suf8"),
+        tuple("cn8", "CN-008 Suf8 Chron8 Copy8"),
         tuple("cna", "CN-010 Vol10 Chron10 Copy10")
       );
   }

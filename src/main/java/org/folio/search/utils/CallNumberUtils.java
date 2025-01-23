@@ -58,7 +58,10 @@ public class CallNumberUtils {
 
   public static String calculateFullCallNumber(String callNumber, String volume, String enumeration, String chronology,
                                                String copyNumber, String suffix) {
-    return Stream.of(callNumber, volume, enumeration, chronology, copyNumber, suffix)
+    if (StringUtils.isBlank(callNumber)) {
+      throw new IllegalArgumentException("Call number is required to calculate full call number.");
+    }
+    return Stream.of(callNumber, suffix, volume, enumeration, chronology, copyNumber)
       .filter(StringUtils::isNotBlank)
       .map(StringUtils::trim)
       .collect(joining(" "));

@@ -2,6 +2,7 @@ package org.folio.search.utils;
 
 import static org.apache.commons.lang3.StringUtils.compareIgnoreCase;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.util.stream.IntStream;
@@ -15,6 +16,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvFileSource;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 
 @UnitTest
 class CallNumberUtilsTest {
@@ -102,6 +104,41 @@ class CallNumberUtilsTest {
   void getNormalizedCallNumber_with_suffix_prefix_positive() {
     var actual = CallNumberUtils.normalizeCallNumberComponents("prefix", "94 NF 14/1:3792-3835", "suffix");
     assertThat(actual).isEqualTo("prefix94nf14137923835suffix");
+  }
+
+  @ParameterizedTest
+  @MethodSource("provideCalculateFullCallNumberArguments")
+  void calculateFullCallNumber_variousInputs(String callNumber, String volume, String enumeration, String chronology,
+                                             String copyNumber, String suffix, String expected) {
+    var actual =
+      CallNumberUtils.calculateFullCallNumber(callNumber, volume, enumeration, chronology, copyNumber, suffix);
+    assertThat(actual).isEqualTo(expected);
+  }
+
+  @NullAndEmptySource
+  @ParameterizedTest
+  void calculateFullCallNumber_throwExceptionIfCallNumberIsNullOrEmpty(String callNumber) {
+    assertThrows(IllegalArgumentException.class, () -> CallNumberUtils.calculateFullCallNumber(callNumber,
+      "volume", "enumeration", "chronology", "copyNumber", "suffix"));
+  }
+
+  private static Stream<Arguments> provideCalculateFullCallNumberArguments() {
+    return Stream.of(
+      Arguments.of("callNumber", "volume", "enumeration", "chronology", "copyNumber", "suffix",
+        "callNumber suffix volume enumeration chronology copyNumber"),
+      Arguments.of("callNumber", null, null, null, null, null, "callNumber"),
+      Arguments.of("callNumber", "volume", null, null, null, null, "callNumber volume"),
+      Arguments.of("callNumber", null, "enumeration", null, null, null, "callNumber enumeration"),
+      Arguments.of("callNumber", null, null, "chronology", null, null, "callNumber chronology"),
+      Arguments.of("callNumber", null, null, null, "copyNumber", null, "callNumber copyNumber"),
+      Arguments.of("callNumber", null, null, null, null, "suffix", "callNumber suffix"),
+      Arguments.of("callNumber", "", "", "", "", "", "callNumber"),
+      Arguments.of("callNumber", "volume", "", "", "", "", "callNumber volume"),
+      Arguments.of("callNumber", "", "enumeration", "", "", "", "callNumber enumeration"),
+      Arguments.of("callNumber", "", "", "chronology", "", "", "callNumber chronology"),
+      Arguments.of("callNumber", "", "", "", "copyNumber", "", "callNumber copyNumber"),
+      Arguments.of("callNumber", "", "", "", "", "suffix", "callNumber suffix")
+    );
   }
 
   private static Stream<Arguments> supportedCharactersDataset() {

@@ -341,11 +341,6 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("item.electronicAccess.linkText all {value}", "links available"),
       arguments("item.electronicAccess.publicNote all {value}", "table of contents"),
 
-      arguments("item.effectiveShelvingOrder ==/string \"{value}\"",
-        "TK 45105.88815 A58 42004 FT MEADE V1 COPY 12 SUFFIX 510101"),
-      arguments("itemEffectiveShelvingOrder ==/string \"{value}\"",
-        "TK 45105.88815 A58 42004 FT MEADE V1 COPY 12 SUFFIX 510101"),
-
       // Search by item fields (Backward compatibility)
       arguments("items.hrid = {value}", "item000000000014"),
       arguments("items.hrid = {value}", "item*"),
@@ -575,11 +570,6 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("item.electronicAccess.uri==\"{value}\"", "HTTPS://WWW.LOC.GOV/CATDIR/TOC/ECIP0718/2007020429.HTML"),
       arguments("item.electronicAccess.linkText all {value}", "LINKS AVAILABLE"),
       arguments("item.electronicAccess.publicNote all {value}", "TABLE OF CONTENTS"),
-
-      arguments("item.effectiveShelvingOrder ==/string \"{value}\"",
-        "TK 45105.88815 A58 42004 FT MEADE V1 COPY 12 SUFFIX 510101"),
-      arguments("itemEffectiveShelvingOrder ==/string \"{value}\"",
-        "TK 45105.88815 A58 42004 FT MEADE V1 COPY 12 SUFFIX 510101"),
 
       // Search by item fields (Backward compatibility)
       arguments("items.hrid = {value}", "ITEM000000000014"),

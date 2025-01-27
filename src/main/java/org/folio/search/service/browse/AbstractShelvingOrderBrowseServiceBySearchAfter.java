@@ -31,7 +31,7 @@ import org.opensearch.search.builder.SearchSourceBuilder;
 public abstract class AbstractShelvingOrderBrowseServiceBySearchAfter<T, R>
   extends AbstractBrowseServiceBySearchAfter<T, R> {
 
-  private final ConsortiumSearchHelper consortiumSearchHelper;
+  protected final ConsortiumSearchHelper consortiumSearchHelper;
   private final BrowseConfigServiceDecorator configService;
 
   protected AbstractShelvingOrderBrowseServiceBySearchAfter(ConsortiumSearchHelper consortiumSearchHelper,

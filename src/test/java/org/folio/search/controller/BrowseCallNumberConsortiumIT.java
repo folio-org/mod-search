@@ -171,10 +171,6 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
       .callNumberPrefix(resource.callNumberPrefix())
       .callNumberSuffix(resource.callNumberSuffix())
       .callNumberTypeId(resource.callNumberTypeId())
-      .volume(resource.volume())
-      .chronology(resource.chronology())
-      .enumeration(resource.enumeration())
-      .copyNumber(resource.copyNumber())
       .instanceTitle(count == 1 ? INSTANCES.get(instanceIndex).getTitle() : null)
       .totalRecords(count)
       .isAnchor(isAnchor);

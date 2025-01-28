@@ -61,10 +61,6 @@ public class CallNumberBrowseService
         .callNumberPrefix(resource.callNumberPrefix())
         .callNumberSuffix(resource.callNumberSuffix())
         .callNumberTypeId(resource.callNumberTypeId())
-        .volume(resource.volume())
-        .chronology(resource.chronology())
-        .enumeration(resource.enumeration())
-        .copyNumber(resource.copyNumber())
         .instanceTitle(getInstanceTitle(ctx, resource, CallNumberResource::instances))
         .isAnchor(isAnchor ? true : null)
         .totalRecords(getTotalRecords(ctx, resource, CallNumberResource::instances)));

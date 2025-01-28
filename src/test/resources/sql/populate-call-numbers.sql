@@ -1,16 +1,16 @@
 -- Insert data into 'call_number' table with some fields set to NULL
-INSERT INTO call_number (id, call_number, call_number_prefix, call_number_suffix, call_number_type_id, volume, enumeration, chronology, copy_number)
+INSERT INTO call_number (id, call_number, call_number_prefix, call_number_suffix, call_number_type_id)
 VALUES
-    ('cn1', 'CN-001', 'Pre1', NULL, 'Type1', 'Vol1', 'Enum1', 'Chron1', NULL),
-    ('cn2', 'CN-002', NULL, 'Suf2', 'Type2', 'Vol2', NULL, 'Chron2', 'Copy2'),
-    ('cn3', 'CN-003', 'Pre3', 'Suf3', NULL, NULL, 'Enum3', NULL, 'Copy3'),
-    ('cn4', 'CN-004', NULL, NULL, 'Type4', 'Vol4', 'Enum4', 'Chron4', NULL),
-    ('cn5', 'CN-005', 'Pre5', 'Suf5', NULL, 'Vol5', NULL, NULL, 'Copy5'),
-    ('cn6', 'CN-006', NULL, 'Suf6', 'Type6', NULL, 'Enum6', 'Chron6', NULL),
-    ('cn7', 'CN-007', 'Pre7', NULL, NULL, 'Vol7', 'Enum7', NULL, 'Copy7'),
-    ('cn8', 'CN-008', NULL, 'Suf8', 'Type8', NULL, NULL, 'Chron8', 'Copy8'),
-    ('cn9', 'CN-009', 'Pre9', 'Suf9', 'Type9', 'Vol9', 'Enum9', NULL, NULL),
-    ('cna', 'CN-010', NULL, NULL, NULL, 'Vol10', NULL, 'Chron10', 'Copy10');
+    ('cn1', 'CN-001', 'Pre1', NULL, 'Type1'),
+    ('cn2', 'CN-002', NULL, 'Suf2', 'Type2'),
+    ('cn3', 'CN-003', 'Pre3', 'Suf3', NULL),
+    ('cn4', 'CN-004', NULL, NULL, 'Type4'),
+    ('cn5', 'CN-005', 'Pre5', 'Suf5', NULL),
+    ('cn6', 'CN-006', NULL, 'Suf6', 'Type6'),
+    ('cn7', 'CN-007', 'Pre7', NULL, NULL),
+    ('cn8', 'CN-008', NULL, 'Suf8', 'Type8'),
+    ('cn9', 'CN-009', 'Pre9', 'Suf9', 'Type9'),
+    ('cna', 'CN-010', NULL, NULL, NULL);
 
 -- Insert data into 'instance_call_number' table with varied location and count
 INSERT INTO instance_call_number (call_number_id, item_id, instance_id, tenant_id, location_id)

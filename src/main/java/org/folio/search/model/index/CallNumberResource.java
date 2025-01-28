@@ -9,8 +9,4 @@ public record CallNumberResource(
   String callNumberPrefix,
   String callNumberSuffix,
   String callNumberTypeId,
-  String volume,
-  String enumeration,
-  String chronology,
-  String copyNumber,
   Set<InstanceSubResource> instances) { }

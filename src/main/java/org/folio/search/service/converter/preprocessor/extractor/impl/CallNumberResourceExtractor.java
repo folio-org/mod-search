@@ -30,10 +30,6 @@ public class CallNumberResourceExtractor extends ChildResourceExtractor {
   public static final String PREFIX_FIELD = "prefix";
   public static final String SUFFIX_FIELD = "suffix";
   public static final String TYPE_ID_FIELD = "typeId";
-  public static final String VOLUME_FIELD = "volume";
-  public static final String CHRONOLOGY_FIELD = "chronology";
-  public static final String ENUMERATION_FIELD = "enumeration";
-  public static final String COPY_NUMBER_FIELD = "copyNumber";
 
   private final JsonConverter jsonConverter;
   private final FeatureConfigService featureConfigService;
@@ -96,10 +92,6 @@ public class CallNumberResourceExtractor extends ChildResourceExtractor {
         .callNumberPrefix(getString(callNumberComponents, PREFIX_FIELD))
         .callNumberSuffix(getString(callNumberComponents, SUFFIX_FIELD))
         .callNumberTypeId(getString(callNumberComponents, TYPE_ID_FIELD))
-        .volume(getString(entityProperties, VOLUME_FIELD))
-        .chronology(getString(entityProperties, CHRONOLOGY_FIELD))
-        .enumeration(getString(entityProperties, ENUMERATION_FIELD))
-        .copyNumber(getString(entityProperties, COPY_NUMBER_FIELD))
         .build();
       return Optional.of(callNumberEntity);
     }

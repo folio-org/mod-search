@@ -73,10 +73,6 @@ public class CallNumberTestData {
             .tenantId(TENANT_ID)
             .holdingsRecordId(holdingId)
             .effectiveLocationId(locationId)
-            .volume(callNumber.volume())
-            .enumeration(callNumber.enumeration())
-            .chronology(callNumber.chronology())
-            .copyNumber(callNumber.copyNumber())
             .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents()
               .callNumber(callNumber.callNumber())
               .typeId(callNumber.callNumberTypeId())
@@ -101,13 +97,8 @@ public class CallNumberTestData {
       var typeId = CallNumberTypeId.getIdByName(csvRecord.getString(CallNumberCsvHeader.TYPE.getHeader()));
       var prefix = csvRecord.getString(CallNumberCsvHeader.PREFIX.getHeader());
       var suffix = csvRecord.getString(CallNumberCsvHeader.SUFFIX.getHeader());
-      var volume = csvRecord.getString(CallNumberCsvHeader.VOLUME.getHeader());
-      var enumeration = csvRecord.getString(CallNumberCsvHeader.ENUMERATION.getHeader());
-      var chronology = csvRecord.getString(CallNumberCsvHeader.CHRONOLOGY.getHeader());
-      var copyNumber = csvRecord.getString(CallNumberCsvHeader.COPY_NUMBER.getHeader());
-      var fullCallNumber = calculateFullCallNumber(callNumber, volume, enumeration, chronology, copyNumber, suffix);
-      var callNumberResource = new CallNumberResource(id, fullCallNumber, callNumber, prefix, suffix, typeId,
-        volume, enumeration, chronology, copyNumber, null);
+      var fullCallNumber = calculateFullCallNumber(callNumber, suffix);
+      var callNumberResource = new CallNumberResource(id, fullCallNumber, callNumber, prefix, suffix, typeId, null);
       var locationNum = csvRecord.getString(CallNumberCsvHeader.LOCATION.getHeader());
       var locationId = locations.get(Integer.parseInt(locationNum));
       return new CallNumberTestDataRecord(callNumberResource, locationId);

@@ -53,12 +53,12 @@
           "searchTypes": [ "facet", "filter" ],
           "default": false
         },
+        "instanceId": {
+          "index": "source"
+        },
         "locationId": {
           "index": "keyword",
           "searchTypes": [ "facet", "filter" ]
-        },
-        "count": {
-          "index": "source"
         }
       }
     }

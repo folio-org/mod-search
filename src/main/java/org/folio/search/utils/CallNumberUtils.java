@@ -5,30 +5,21 @@ import static java.util.Locale.ROOT;
 import static java.util.stream.Collectors.joining;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
-import org.folio.search.domain.dto.LegacyCallNumberBrowseItem;
-import org.folio.search.model.service.BrowseContext;
-import org.folio.search.model.types.CallNumberType;
-import org.folio.search.service.consortium.ConsortiumSearchHelper;
-import org.jetbrains.annotations.NotNull;
 import org.marc4j.callnum.CallNumber;
 import org.marc4j.callnum.DeweyCallNumber;
 import org.marc4j.callnum.LCCallNumber;
 import org.marc4j.callnum.NlmCallNumber;
-import org.opensearch.index.query.TermQueryBuilder;
 import org.springframework.util.Assert;
 
 @UtilityClass
@@ -38,8 +29,6 @@ public class CallNumberUtils {
   private static final char ASCII_SPACE = ' ';
   private static final int MAX_SUPPORTED_CHARACTERS = 52;
   private static final String SUPPORTED_CHARACTERS_STRING = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ .,:;=-+~_/\\#@?!";
-  private static final String BROWSE_TENANT_FILTER_KEY = "holdings.tenantId";
-  private static final String BROWSE_LOCATION_FILTER_KEY = "items.effectiveLocationId";
   private static final Map<Character, Integer> VALID_CHARACTERS_MAP = getValidCharactersMap();
   private static final Pattern NORMALIZE_REGEX = Pattern.compile("[^a-z0-9]");
 
@@ -196,117 +185,10 @@ public class CallNumberUtils {
     return callNumberToLong(callNumber, startVal, CN_MAX_CHARS - 1);
   }
 
-  /**
-   * Excludes irrelevant items from result.
-   *
-   * <p>
-   * This algorithm takes call number browse result and call number type and removes irrelevant items from result
-   * approach:
-   * <ul>
-   *   <li>Each call number browse item has its own fullCallNumber field, which may vary from its instance's item or
-   *   holding call number. Matching ones filtered </li>
-   *   <li>CallNumberBrowseItem's instance may have items or holdings
-   *   which may have call numbers with different type. They will also be filtered by callNumberType</li>
-   *   <li>all filtered records are added together and returned</li>
-   * </ul>
-   * </p>
-   *
-   * @param context             - call number browse context
-   * @param callNumberTypeValue - call number type to check/compare result items' types
-   * @param browseItems         - list of CallNumberBrowseItem objects
-   * @return filtered records
-   */
-  public static List<LegacyCallNumberBrowseItem> excludeIrrelevantResultItems(BrowseContext context,
-                                                                        String callNumberTypeValue,
-                                                                        Set<String> folioCallNumberTypes,
-                                                                        List<LegacyCallNumberBrowseItem> browseItems) {
-    var callNumberType = Optional.ofNullable(StringUtils.trimToNull(callNumberTypeValue));
-    var tenantFilter = ConsortiumSearchHelper.getBrowseFilter(context, BROWSE_TENANT_FILTER_KEY);
-    var locationFilter = ConsortiumSearchHelper.getBrowseFilterValues(context, BROWSE_LOCATION_FILTER_KEY);
-    if (browseItems == null || browseItems.isEmpty()
-        || callNumberType.isEmpty() && tenantFilter.isEmpty() && locationFilter.isEmpty()) {
-      return browseItems;
-    }
-
-    browseItems.forEach(r -> {
-      if (r.getInstance() != null) {
-        r.getInstance().setItems(
-          getItemsFiltered(tenantFilter, locationFilter, callNumberType, folioCallNumberTypes, r));
-      }
-    });
-    return browseItems.stream()
-      .filter(CallNumberUtils::isItemRelevant)
-      .toList();
-  }
-
   private static Optional<String> getValidShelfKey(CallNumber value) {
     return Optional.of(value)
       .filter(CallNumber::isValid)
       .map(CallNumber::getShelfKey);
-  }
-
-  @NotNull
-  private static List<@Valid Item> getItemsFiltered(Optional<TermQueryBuilder> tenantFilter,
-                                                    List<Object> locationFilter,
-                                                    Optional<String> callNumberType,
-                                                    Set<String> folioCallNumberTypes,
-                                                    LegacyCallNumberBrowseItem item) {
-    return item.getInstance().getItems()
-      .stream()
-      .filter(i -> tenantIdMatch(tenantFilter, i) && callNumberTypeMatch(callNumberType, folioCallNumberTypes, i)
-                   && locationMatch(locationFilter, i))
-      .toList();
-  }
-
-  private static boolean isItemRelevant(LegacyCallNumberBrowseItem r) {
-    Instance instance = r.getInstance();
-    if (instance != null) {
-      return instance.getItems()
-        .stream()
-        .anyMatch(i -> {
-          String fullCallNumber = getFullCallNumber(i);
-          return r.getFullCallNumber() == null
-                 || fullCallNumber != null && fullCallNumber.equals(r.getFullCallNumber());
-        });
-    }
-    return true;
-  }
-
-  private static boolean callNumberTypeMatch(Optional<String> callNumberType, Set<String> folioCallNumberTypes,
-                                             Item item) {
-    if (callNumberType.isEmpty()) {
-      return true;
-    }
-
-    if (item.getEffectiveCallNumberComponents() == null) {
-      return false;
-    }
-
-    var itemCallNumberTypeId = item.getEffectiveCallNumberComponents().getTypeId();
-    var itemCallNumberType = CallNumberType.fromId(itemCallNumberTypeId);
-    var requestCallNumberType = CallNumberType.fromName(callNumberType.get());
-    return itemCallNumberType.equals(requestCallNumberType)
-           || itemCallNumberTypeId != null
-              && itemCallNumberType.isEmpty()
-              && requestCallNumberType.map(cnt -> cnt.equals(CallNumberType.LOCAL)).orElse(false)
-              && !folioCallNumberTypes.contains(itemCallNumberTypeId);
-  }
-
-  private static boolean tenantIdMatch(Optional<TermQueryBuilder> tenantFilter, Item item) {
-    return tenantFilter.isEmpty() || tenantFilter.get().value().equals(item.getTenantId());
-  }
-
-  private static boolean locationMatch(List<Object> locationFilter, Item item) {
-    return locationFilter.isEmpty() || locationFilter.stream()
-      .anyMatch(location -> location.equals(item.getEffectiveLocationId()));
-  }
-
-  private static String getFullCallNumber(Item item) {
-    return Optional.ofNullable(item.getEffectiveCallNumberComponents())
-      .map(iecnc -> Stream.of(iecnc.getPrefix(), iecnc.getCallNumber(), iecnc.getSuffix())
-        .filter(StringUtils::isNotBlank)
-        .collect(Collectors.joining(StringUtils.SPACE)))
-      .orElse(null);
   }
 
   private static long callNumberToLong(String callNumber, long startVal, int maxChars) {

@@ -28,6 +28,9 @@ properties:
   copyNumber:
     type: string
     description: Copy number
+  instanceTitle:
+    type: string
+    description: Instance title
   isAnchor:
     type: boolean
     description: Marks if current value is anchor or not

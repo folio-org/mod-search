@@ -369,7 +369,7 @@ class ConsortiumSearchHelperTest {
     var browseContext = browseContext(null, null);
     browseContext.getFilters().add(expected);
 
-    var actual = ConsortiumSearchHelper.getBrowseFilter(browseContext, filterKey);
+    var actual = consortiumSearchHelper.getBrowseFilter(browseContext, filterKey);
 
     assertThat(actual).contains(expected);
   }

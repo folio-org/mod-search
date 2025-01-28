@@ -46,21 +46,21 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
     SELECT c.*,
            json_agg(
                    json_build_object(
-                           'count', sub.instance_count,
+                           'instanceId', sub.instance_ids,
                            'tenantId', sub.tenant_id,
                            'shared', sub.shared,
-                           'locationId', sub.location_ids
+                           'locationId', sub.location_id
                    )
            ) AS instances
     FROM (SELECT ins.call_number_id,
                  ins.tenant_id,
                  i.shared,
-                 array_agg(DISTINCT ins.location_id) FILTER (WHERE ins.location_id IS NOT NULL) AS location_ids,
-                 count(DISTINCT ins.instance_id)     AS instance_count
+                 ins.location_id,
+                 array_agg(DISTINCT i.id) AS instance_ids
           FROM %1$s.instance_call_number ins
           INNER JOIN %1$s.instance i ON i.id = ins.instance_id
           WHERE %2$s
-          GROUP BY ins.call_number_id, ins.tenant_id, i.shared) sub
+          GROUP BY ins.call_number_id, ins.tenant_id, i.shared, ins.location_id) sub
           JOIN %1$s.call_number c ON c.id = sub.call_number_id
     WHERE %3$s
     GROUP BY c.id;
@@ -108,12 +108,12 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
         c.last_updated_date,
         json_agg(
             CASE
-                WHEN sub.instance_count IS NULL THEN NULL
+                WHEN sub.instance_ids IS NULL THEN NULL
                 ELSE json_build_object(
-                     'count', sub.instance_count,
+                     'instanceId', sub.instance_ids,
                      'tenantId', sub.tenant_id,
                      'shared', sub.shared,
-                     'locationId', sub.location_ids
+                     'locationId', sub.location_id
                 )
             END
         ) AS instances
@@ -123,15 +123,16 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
             cte.id,
             ins.tenant_id,
             i.shared,
-            array_agg(DISTINCT ins.location_id) FILTER (WHERE ins.location_id IS NOT NULL) AS location_ids,
-            count(DISTINCT ins.instance_id) AS instance_count
+            ins.location_id,
+            array_agg(DISTINCT i.id) AS instance_ids
         FROM %1$s.instance_call_number ins
         INNER JOIN cte ON ins.call_number_id = cte.id
         INNER JOIN %1$s.instance i ON i.id = ins.instance_id
         GROUP BY
             cte.id,
             ins.tenant_id,
-            i.shared
+            i.shared,
+            ins.location_id
     ) sub ON c.id = sub.id
     GROUP BY
         c.id,

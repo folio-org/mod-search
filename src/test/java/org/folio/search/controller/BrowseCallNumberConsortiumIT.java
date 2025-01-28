@@ -36,9 +36,12 @@ import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.CallNumberBrowseResult;
 import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetResult;
+import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.ShelvingOrderAlgorithmType;
 import org.folio.search.model.index.CallNumberResource;
+import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ResourceType;
+import org.folio.search.service.reindex.jdbc.SubResourcesLockRepository;
 import org.folio.search.support.base.BaseConsortiumIntegrationTest;
 import org.folio.search.utils.CallNumberTestData;
 import org.folio.spring.testing.type.IntegrationTest;
@@ -49,24 +52,31 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @IntegrationTest
 class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
 
-  public static final String LOCATION_FACET = "instances.locationId";
-  public static final String TENANT_FACET = "instances.tenantId";
+  private static final String LOCATION_FACET = "instances.locationId";
+  private static final String TENANT_FACET = "instances.tenantId";
+  private static final List<Instance> INSTANCES = CallNumberTestData.instances();
 
   @BeforeAll
-  static void prepare() {
-    var allInstances = CallNumberTestData.instances();
+  static void prepare(@Autowired SubResourcesLockRepository subResourcesLockRepository) {
     setUpTenant(CENTRAL_TENANT_ID);
     setUpTenant(MEMBER_TENANT_ID);
-    var centralInstances = allInstances.subList(0, 30);
+
+    var timestamp = subResourcesLockRepository.lockSubResource(ReindexEntityType.CALL_NUMBER, CENTRAL_TENANT_ID);
+    if (timestamp.isEmpty()) {
+      throw new IllegalStateException("Unexpected state of database: unable to lock call-number resource");
+    }
+    var centralInstances = INSTANCES.subList(0, 30);
     saveRecords(CENTRAL_TENANT_ID, instanceSearchPath(), centralInstances, centralInstances.size(),
       instance -> inventoryApi.createInstance(CENTRAL_TENANT_ID, instance));
-    var memberInstances = allInstances.subList(30, allInstances.size());
-    saveRecords(MEMBER_TENANT_ID, instanceSearchPath(), memberInstances, allInstances.size(),
+    var memberInstances = INSTANCES.subList(30, INSTANCES.size());
+    saveRecords(MEMBER_TENANT_ID, instanceSearchPath(), memberInstances, INSTANCES.size(),
       instance -> inventoryApi.createInstance(MEMBER_TENANT_ID, instance));
+    subResourcesLockRepository.unlockSubResource(ReindexEntityType.CALL_NUMBER, timestamp.get(), CENTRAL_TENANT_ID);
 
     await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
       var counted = countIndexDocument(ResourceType.INSTANCE_CALL_NUMBER, CENTRAL_TENANT_ID);
@@ -122,20 +132,20 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
     return Stream.of(
       arguments(aroundQuery, CENTRAL_TENANT_ID, BrowseOptionType.ALL, callNumbers.get(1).fullCallNumber(), 5,
         cnBrowseResult(callNumbers.get(35).fullCallNumber(), callNumbers.get(43).fullCallNumber(), 60, List.of(
-          cnBrowseItem(callNumbers.get(35), 1),
-          cnBrowseItem(callNumbers.get(25), 1),
-          cnBrowseItem(callNumbers.get(1), 3, true),
-          cnBrowseItem(callNumbers.get(33), 1),
-          cnBrowseItem(callNumbers.get(43), 1)
+          cnBrowseItem(callNumbers.get(35), 18, 1),
+          cnBrowseItem(callNumbers.get(25), 15, 1),
+          cnBrowseItem(callNumbers.get(1), 0, 3, true),
+          cnBrowseItem(callNumbers.get(33), 17, 1),
+          cnBrowseItem(callNumbers.get(43), 23, 1)
         ))),
 
       arguments(aroundQuery, MEMBER_TENANT_ID, BrowseOptionType.ALL, callNumbers.get(1).fullCallNumber(), 5,
         cnBrowseResult(callNumbers.get(91).fullCallNumber(), callNumbers.get(68).fullCallNumber(), 100, List.of(
-          cnBrowseItem(callNumbers.get(91), 1),
-          cnBrowseItem(callNumbers.get(25), 1),
-          cnBrowseItem(callNumbers.get(1), 3, true),
-          cnBrowseItem(callNumbers.get(70), 1),
-          cnBrowseItem(callNumbers.get(68), 1)
+          cnBrowseItem(callNumbers.get(91), 45, 1),
+          cnBrowseItem(callNumbers.get(25), 15, 1),
+          cnBrowseItem(callNumbers.get(1), 0, 3, true),
+          cnBrowseItem(callNumbers.get(70), 34, 1),
+          cnBrowseItem(callNumbers.get(68), 34, 1)
         )))
     );
   }
@@ -149,11 +159,12 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
     return new CallNumberBrowseItem().fullCallNumber(callNumber).isAnchor(true).totalRecords(0);
   }
 
-  private static CallNumberBrowseItem cnBrowseItem(CallNumberResource resource, int count) {
-    return cnBrowseItem(resource, count, null);
+  private static CallNumberBrowseItem cnBrowseItem(CallNumberResource resource, int instanceIndex, int count) {
+    return cnBrowseItem(resource, instanceIndex, count, null);
   }
 
-  private static CallNumberBrowseItem cnBrowseItem(CallNumberResource resource, int count, Boolean isAnchor) {
+  private static CallNumberBrowseItem cnBrowseItem(CallNumberResource resource, int instanceIndex, int count,
+                                                   Boolean isAnchor) {
     return new CallNumberBrowseItem()
       .fullCallNumber(resource.fullCallNumber())
       .callNumber(resource.callNumber())
@@ -164,6 +175,7 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
       .chronology(resource.chronology())
       .enumeration(resource.enumeration())
       .copyNumber(resource.copyNumber())
+      .instanceTitle(count == 1 ? INSTANCES.get(instanceIndex).getTitle() : null)
       .totalRecords(count)
       .isAnchor(isAnchor);
   }

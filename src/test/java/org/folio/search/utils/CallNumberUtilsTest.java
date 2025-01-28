@@ -108,36 +108,23 @@ class CallNumberUtilsTest {
 
   @ParameterizedTest
   @MethodSource("provideCalculateFullCallNumberArguments")
-  void calculateFullCallNumber_variousInputs(String callNumber, String volume, String enumeration, String chronology,
-                                             String copyNumber, String suffix, String expected) {
+  void calculateFullCallNumber_variousInputs(String callNumber, String suffix, String expected) {
     var actual =
-      CallNumberUtils.calculateFullCallNumber(callNumber, volume, enumeration, chronology, copyNumber, suffix);
+      CallNumberUtils.calculateFullCallNumber(callNumber, suffix);
     assertThat(actual).isEqualTo(expected);
   }
 
   @NullAndEmptySource
   @ParameterizedTest
   void calculateFullCallNumber_throwExceptionIfCallNumberIsNullOrEmpty(String callNumber) {
-    assertThrows(IllegalArgumentException.class, () -> CallNumberUtils.calculateFullCallNumber(callNumber,
-      "volume", "enumeration", "chronology", "copyNumber", "suffix"));
+    assertThrows(IllegalArgumentException.class, () -> CallNumberUtils.calculateFullCallNumber(callNumber, "suffix"));
   }
 
   private static Stream<Arguments> provideCalculateFullCallNumberArguments() {
     return Stream.of(
-      Arguments.of("callNumber", "volume", "enumeration", "chronology", "copyNumber", "suffix",
-        "callNumber suffix volume enumeration chronology copyNumber"),
-      Arguments.of("callNumber", null, null, null, null, null, "callNumber"),
-      Arguments.of("callNumber", "volume", null, null, null, null, "callNumber volume"),
-      Arguments.of("callNumber", null, "enumeration", null, null, null, "callNumber enumeration"),
-      Arguments.of("callNumber", null, null, "chronology", null, null, "callNumber chronology"),
-      Arguments.of("callNumber", null, null, null, "copyNumber", null, "callNumber copyNumber"),
-      Arguments.of("callNumber", null, null, null, null, "suffix", "callNumber suffix"),
-      Arguments.of("callNumber", "", "", "", "", "", "callNumber"),
-      Arguments.of("callNumber", "volume", "", "", "", "", "callNumber volume"),
-      Arguments.of("callNumber", "", "enumeration", "", "", "", "callNumber enumeration"),
-      Arguments.of("callNumber", "", "", "chronology", "", "", "callNumber chronology"),
-      Arguments.of("callNumber", "", "", "", "copyNumber", "", "callNumber copyNumber"),
-      Arguments.of("callNumber", "", "", "", "", "suffix", "callNumber suffix")
+      Arguments.of("callNumber", "suffix", "callNumber suffix"),
+      Arguments.of("callNumber", null, "callNumber"),
+      Arguments.of("callNumber", "", "callNumber")
     );
   }
 

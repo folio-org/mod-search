@@ -265,10 +265,6 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
       .callNumberPrefix(resource.callNumberPrefix())
       .callNumberSuffix(resource.callNumberSuffix())
       .callNumberTypeId(resource.callNumberTypeId())
-      .volume(resource.volume())
-      .chronology(resource.chronology())
-      .enumeration(resource.enumeration())
-      .copyNumber(resource.copyNumber())
       .instanceTitle(instanceTitle)
       .totalRecords(count)
       .isAnchor(isAnchor);

@@ -3,7 +3,7 @@ type: object
 properties:
   fullCallNumber:
     type: string
-    description: Full call number (includes callNumber, volume, enumeration, chronology, copyNumber, callNumberPrefix)
+    description: Full call number (includes callNumber, callNumberSuffix)
   callNumber:
     type: string
     description: Call number
@@ -16,18 +16,6 @@ properties:
   callNumberTypeId:
     type: string
     description: Call number type ID
-  volume:
-    type: string
-    description: Volume
-  enumeration:
-    type: string
-    description: Enumeration
-  chronology:
-    type: string
-    description: Chronology
-  copyNumber:
-    type: string
-    description: Copy number
   instanceTitle:
     type: string
     description: Instance title

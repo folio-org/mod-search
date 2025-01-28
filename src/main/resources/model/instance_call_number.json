@@ -25,22 +25,6 @@
       "showInResponse": [ "browse" ],
       "searchTermProcessor": "callNumberTypeIdSearchTermProcessor"
     },
-    "volume": {
-      "index": "source",
-      "showInResponse": [ "browse" ]
-    },
-    "enumeration": {
-      "index": "source",
-      "showInResponse": [ "browse" ]
-    },
-    "chronology": {
-      "index": "source",
-      "showInResponse": [ "browse" ]
-    },
-    "copyNumber": {
-      "index": "source",
-      "showInResponse": [ "browse" ]
-    },
     "instances": {
       "type": "object",
       "properties": {

@@ -1,9 +1,6 @@
 package org.folio.search.service.reindex.jdbc;
 
 import static org.apache.commons.collections4.MapUtils.getString;
-import static org.folio.search.service.converter.preprocessor.extractor.impl.CallNumberResourceExtractor.CHRONOLOGY_FIELD;
-import static org.folio.search.service.converter.preprocessor.extractor.impl.CallNumberResourceExtractor.ENUMERATION_FIELD;
-import static org.folio.search.service.converter.preprocessor.extractor.impl.CallNumberResourceExtractor.VOLUME_FIELD;
 import static org.folio.search.service.reindex.ReindexConstants.CALL_NUMBER_TABLE;
 import static org.folio.search.service.reindex.ReindexConstants.INSTANCE_CALL_NUMBER_TABLE;
 import static org.folio.search.utils.CallNumberUtils.calculateFullCallNumber;
@@ -14,7 +11,6 @@ import static org.folio.search.utils.SearchUtils.CALL_NUMBER_FIELD;
 import static org.folio.search.utils.SearchUtils.CALL_NUMBER_PREFIX_FIELD;
 import static org.folio.search.utils.SearchUtils.CALL_NUMBER_SUFFIX_FIELD;
 import static org.folio.search.utils.SearchUtils.CALL_NUMBER_TYPE_ID_FIELD;
-import static org.folio.search.utils.SearchUtils.COPY_NUMBER_FIELD;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
 import static org.folio.search.utils.SearchUtils.SUB_RESOURCE_INSTANCES_FIELD;
 
@@ -86,10 +82,6 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
             call_number_prefix,
             call_number_suffix,
             call_number_type_id,
-            volume,
-            enumeration,
-            chronology,
-            copy_number,
             last_updated_date
         FROM %1$s.call_number
         WHERE last_updated_date > ?
@@ -101,10 +93,6 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
         c.call_number_prefix,
         c.call_number_suffix,
         c.call_number_type_id,
-        c.volume,
-        c.enumeration,
-        c.chronology,
-        c.copy_number,
         c.last_updated_date,
         json_agg(
             CASE
@@ -140,10 +128,6 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
         c.call_number_prefix,
         c.call_number_suffix,
         c.call_number_type_id,
-        c.volume,
-        c.enumeration,
-        c.chronology,
-        c.copy_number,
         c.last_updated_date
     ORDER BY
         last_updated_date ASC;
@@ -155,12 +139,8 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
         call_number,
         call_number_prefix,
         call_number_suffix,
-        call_number_type_id,
-        volume,
-        enumeration,
-        chronology,
-        copy_number
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        call_number_type_id
+    ) VALUES (?, ?, ?, ?, ?)
     ON CONFLICT (id) DO UPDATE SET last_updated_date = CURRENT_TIMESTAMP;
     """;
 
@@ -250,23 +230,14 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
   private Map<String, Object> getCallNumberMap(ResultSet rs) throws SQLException {
     var callNumber = getCallNumber(rs);
     var callNumberSuffix = getCallNumberSuffix(rs);
-    var volume = getVolume(rs);
-    var enumeration = getEnumeration(rs);
-    var chronology = getChronology(rs);
-    var copyNumber = getCopyNumber(rs);
 
     Map<String, Object> callNumberMap = new HashMap<>();
     callNumberMap.put(ID_FIELD, getId(rs));
-    callNumberMap.put(CALL_NUMBER_BROWSING_FIELD, calculateFullCallNumber(
-      callNumber, volume, enumeration, chronology, copyNumber, callNumberSuffix));
+    callNumberMap.put(CALL_NUMBER_BROWSING_FIELD, calculateFullCallNumber(callNumber, callNumberSuffix));
     callNumberMap.put(CALL_NUMBER_FIELD, callNumber);
     callNumberMap.put(CALL_NUMBER_PREFIX_FIELD, getCallNumberPrefix(rs));
     callNumberMap.put(CALL_NUMBER_SUFFIX_FIELD, callNumberSuffix);
     callNumberMap.put(CALL_NUMBER_TYPE_ID_FIELD, getCallNumberTypeId(rs));
-    callNumberMap.put(VOLUME_FIELD, volume);
-    callNumberMap.put(ENUMERATION_FIELD, enumeration);
-    callNumberMap.put(CHRONOLOGY_FIELD, chronology);
-    callNumberMap.put(COPY_NUMBER_FIELD, copyNumber);
     var subResources = jsonConverter.toJson(parseInstanceSubResources(getInstances(rs)));
     var maps = jsonConverter.fromJsonToListOfMaps(subResources).stream().filter(Objects::nonNull).toList();
     if (!maps.isEmpty()) {
@@ -287,16 +258,12 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
           statement.setString(3, getPrefix(entity));
           statement.setString(4, getSuffix(entity));
           statement.setString(5, getTypeId(entity));
-          statement.setString(6, getVolume(entity));
-          statement.setString(7, getEnumeration(entity));
-          statement.setString(8, getChronology(entity));
-          statement.setString(9, getCopyNumber(entity));
         });
     } catch (DataAccessException e) {
       log.warn("saveAll::Failed to save entities batch. Starting processing one-by-one", e);
       for (var entity : entityBatch.resourceEntities()) {
         jdbcTemplate.update(callNumberSql, getId(entity), getCallNumber(entity), getPrefix(entity), getSuffix(entity),
-          getTypeId(entity), getVolume(entity), getEnumeration(entity), getChronology(entity), getCopyNumber(entity));
+          getTypeId(entity));
       }
     }
   }
@@ -373,38 +340,6 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
 
   private String getId(ResultSet rs) throws SQLException {
     return rs.getString("id");
-  }
-
-  private String getCopyNumber(Map<String, Object> item) {
-    return getString(item, "copyNumber");
-  }
-
-  private String getCopyNumber(ResultSet rs) throws SQLException {
-    return rs.getString("copy_number");
-  }
-
-  private String getEnumeration(Map<String, Object> item) {
-    return getString(item, "enumeration");
-  }
-
-  private String getEnumeration(ResultSet rs) throws SQLException {
-    return rs.getString("enumeration");
-  }
-
-  private String getChronology(Map<String, Object> item) {
-    return getString(item, "chronology");
-  }
-
-  private String getChronology(ResultSet rs) throws SQLException {
-    return rs.getString("chronology");
-  }
-
-  private String getVolume(Map<String, Object> item) {
-    return getString(item, "volume");
-  }
-
-  private String getVolume(ResultSet rs) throws SQLException {
-    return rs.getString("volume");
   }
 
   private String getTypeId(Map<String, Object> callNumberComponents) {

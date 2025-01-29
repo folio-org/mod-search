@@ -1,3 +1,7 @@
+## v4.0.9 2025-02-24
+### Bug fixes
+* Fix "Fix dead link" api-docs workflow step for release builds ([MSEARCH-947](https://folio-org.atlassian.net/browse/MSEARCH-947))
+
 ## v4.0.8 2025-01-21
 ### Tech Dept
 * Add location-units to optional interfaces in module descriptor ([MSEARCH-940](https://folio-org.atlassian.net/browse/MSEARCH-940))

@@ -931,6 +931,7 @@
         "user-tenants.collection.get",
         "users.collection.get",
         "users.item.post",
+        "users.item.put",
         "login.item.post",
         "login.item.delete",
         "perms.users.get",

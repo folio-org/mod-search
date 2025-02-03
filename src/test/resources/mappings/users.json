@@ -3,7 +3,7 @@
     {
       "request": {
         "method": "GET",
-        "url": "/users?query=username%3D%3Dmod-search"
+        "url": "/users?query=username%3D%3D%22mod-search%22"
       },
       "response": {
         "status": 200,

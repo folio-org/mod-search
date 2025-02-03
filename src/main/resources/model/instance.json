@@ -368,7 +368,7 @@
               "showInResponse": [ "search", "call-number-browse" ]
             },
             "typeId": {
-              "index": "source",
+              "index": "keyword",
               "showInResponse": [ "search", "call-number-browse" ]
             }
           }

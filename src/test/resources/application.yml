@@ -177,3 +177,4 @@ folio:
 logging:
   level:
     org.apache.kafka.clients.consumer.*: warn
+    org.folio: debug

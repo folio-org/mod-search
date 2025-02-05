@@ -71,7 +71,7 @@
     <dependency>
       <groupId>org.folio</groupId>
       <artifactId>folio-spring-system-user</artifactId>
-      <version>${folio-spring-support.version}</version>
+      <version>8.2.0</version>
       <exclusions>
         <exclusion>
           <groupId>software.amazon.ion</groupId>

@@ -1,6 +1,7 @@
 package org.folio.search.utils;
 
 import java.util.Collection;
+import java.util.StringJoiner;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -37,5 +38,21 @@ public final class LogUtils {
       return SIZE_OF_LIST + 0;
     }
     return input.toString();
+  }
+
+  /**
+   * Collects and formats the exception messages from the given exception and its causes.
+   *
+   * @param ex the exception from which to collect exception messages
+   * @return a formatted string containing the Class name and exception messages
+   */
+  public static String collectExceptionMsg(Throwable ex) {
+    var messages = new StringJoiner(System.lineSeparator()).add("");
+
+    while (ex != null) {
+      messages.add(String.format("%s: %s", ex.getClass().getName(), ex.getMessage()));
+      ex = ex.getCause();
+    }
+    return messages.toString();
   }
 }

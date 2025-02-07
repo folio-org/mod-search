@@ -3,7 +3,9 @@ package org.folio.search.utils;
 import java.util.Collection;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 
+@Log4j2
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class LogUtils {
   private static final String SIZE_OF_LIST = "size of list ";
@@ -37,5 +39,16 @@ public final class LogUtils {
       return SIZE_OF_LIST + 0;
     }
     return input.toString();
+  }
+
+  /**
+   * Logs a warning and debug message for the given exception.
+   *
+   * @param message the message to log
+   * @param e       the exception to log
+   */
+  public static void logWarnDebugError(String message, Exception e) {
+    log.debug(message, e);
+    log.warn(String.format("%s %s", message, e.getMessage()));
   }
 }

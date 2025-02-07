@@ -1,6 +1,7 @@
 package org.folio.search.service.reindex.jdbc;
 
 import static org.folio.search.utils.JdbcUtils.getParamPlaceholderForUuid;
+import static org.folio.search.utils.LogUtils.logWarnDebugError;
 import static org.folio.search.utils.SearchUtils.CLASSIFICATION_NUMBER_ENTITY_FIELD;
 import static org.folio.search.utils.SearchUtils.CLASSIFICATION_NUMBER_FIELD;
 import static org.folio.search.utils.SearchUtils.CLASSIFICATION_TYPE_FIELD;
@@ -229,8 +230,7 @@ public class ClassificationRepository extends UploadRangeRepository implements I
           statement.setObject(3, entity.get(CLASSIFICATION_TYPE_FIELD));
         });
     } catch (DataAccessException e) {
-      log.debug(SAVE_ENTITIES_BATCH_ERROR_MESSAGE, e);
-      log.warn(String.format("%s %s", SAVE_ENTITIES_BATCH_ERROR_MESSAGE, e.getMessage()));
+      logWarnDebugError(SAVE_ENTITIES_BATCH_ERROR_MESSAGE, e);
       for (var entity : entities) {
         jdbcTemplate.update(entitiesSql,
           entity.get("id"), entity.get(CLASSIFICATION_NUMBER_FIELD), entity.get(CLASSIFICATION_TYPE_FIELD));
@@ -247,8 +247,7 @@ public class ClassificationRepository extends UploadRangeRepository implements I
           statement.setObject(4, entityRelation.get("shared"));
         });
     } catch (DataAccessException e) {
-      log.debug(SAVE_RELATIONS_BATCH_ERROR_MESSAGE, e);
-      log.warn(String.format("%s %s", SAVE_RELATIONS_BATCH_ERROR_MESSAGE, e.getMessage()));
+      logWarnDebugError(SAVE_RELATIONS_BATCH_ERROR_MESSAGE, e);
       for (var entityRelation : entityRelations) {
         jdbcTemplate.update(relationsSql, entityRelation.get("instanceId"), entityRelation.get("classificationId"),
           entityRelation.get("tenantId"), entityRelation.get("shared"));

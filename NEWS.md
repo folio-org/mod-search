@@ -32,6 +32,7 @@
 * Recreate upload ranges each upload execution ([MSEARCH-934](https://folio-org.atlassian.net/browse/MSEARCH-934))
 * Remove unnecessary LccnNormalizerStructureB ([MSEARCH-926](https://folio-org.atlassian.net/browse/MSEARCH-926))
 * Add users.item.put to tenant endpoint module permissions ([MSEARCH-952](https://folio-org.atlassian.net/browse/MSEARCH-952))
+* Simplify bulk failure error logs ([MSEARCH-932](https://folio-org.atlassian.net/browse/MSEARCH-932))
 
 ### Dependencies
 * Bump `opensearch` from `2.17.1` to `2.18.0` fixing protobuf-java CVE-2024-7254 ([MSEARCH-889](https://folio-org.atlassian.net/browse/MSEARCH-889))

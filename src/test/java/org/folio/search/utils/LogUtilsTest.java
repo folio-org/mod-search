@@ -7,11 +7,11 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-
 class LogUtilsTest {
 
   private static final List<String> BIG_LIST = Arrays.asList("One", "Two", "Three");
   private static final String MSG = "size of list ";
+
 
   @Test
   void collectionToLogMsg_withoutHidingItems() {

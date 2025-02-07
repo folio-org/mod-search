@@ -32,6 +32,11 @@ import org.springframework.jdbc.core.RowMapper;
 
 public abstract class UploadRangeRepository extends ReindexJdbcRepository {
 
+  protected static final String SAVE_ENTITIES_BATCH_ERROR_MESSAGE =
+    "saveAll::Failed to save entities batch. Starting processing one-by-one.";
+  protected static final String SAVE_RELATIONS_BATCH_ERROR_MESSAGE =
+    "saveAll::Failed to save relations batch. Starting processing one-by-one.";
+
   protected static final String SELECT_RECORD_SQL = "SELECT * from %s WHERE id >= ? AND id <= ?;";
   protected static final String LAST_UPDATED_DATE_FIELD = "lastUpdatedDate";
   private static final String UPSERT_UPLOAD_RANGE_SQL = """
@@ -66,7 +71,7 @@ public abstract class UploadRangeRepository extends ReindexJdbcRepository {
     var fullTableName = getFullTableName(context, UPLOAD_RANGE_TABLE);
     var deleteSql = DELETE_UPLOAD_RANGE_SQL.formatted(fullTableName);
     jdbcTemplate.update(deleteSql, entityType().getType());
-    
+
     return prepareAndSaveUploadRanges();
   }
 

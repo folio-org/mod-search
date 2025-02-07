@@ -2,7 +2,6 @@ package org.folio.search.service.reindex.jdbc;
 
 import static org.folio.search.utils.JdbcUtils.getParamPlaceholder;
 import static org.folio.search.utils.JdbcUtils.getParamPlaceholderForUuid;
-import static org.folio.search.utils.LogUtils.collectExceptionMsg;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_TYPE_FIELD;
 import static org.folio.search.utils.SearchUtils.SUB_RESOURCE_INSTANCES_FIELD;
@@ -257,7 +256,8 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
           statement.setObject(4, entity.get(AUTHORITY_ID_FIELD));
         });
     } catch (DataAccessException e) {
-      log.warn("saveAll::Failed to save entities batch. Starting processing one-by-one {}", collectExceptionMsg(e));
+      log.debug(SAVE_ENTITIES_BATCH_ERROR_MESSAGE, e);
+      log.warn(String.format("%s %s", SAVE_ENTITIES_BATCH_ERROR_MESSAGE, e.getMessage()));
       for (var entity : entities) {
         jdbcTemplate.update(entitiesSql,
           entity.get("id"), entity.get("name"), entity.get("nameTypeId"), entity.get(AUTHORITY_ID_FIELD));
@@ -275,7 +275,8 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
           statement.setObject(5, entityRelation.get("shared"));
         });
     } catch (DataAccessException e) {
-      log.warn("saveAll::Failed to save relations batch. Starting processing one-by-one {}", collectExceptionMsg(e));
+      log.debug(SAVE_RELATIONS_BATCH_ERROR_MESSAGE, e);
+      log.warn(String.format("%s %s", SAVE_RELATIONS_BATCH_ERROR_MESSAGE, e.getMessage()));
       for (var entityRelation : entityRelations) {
         jdbcTemplate.update(relationsSql, entityRelation.get("instanceId"), entityRelation.get("contributorId"),
           entityRelation.get(CONTRIBUTOR_TYPE_FIELD), entityRelation.get("tenantId"), entityRelation.get("shared"));

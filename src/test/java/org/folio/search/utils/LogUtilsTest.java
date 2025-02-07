@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
+
 class LogUtilsTest {
 
   private static final List<String> BIG_LIST = Arrays.asList("One", "Two", "Three");
@@ -47,4 +48,6 @@ class LogUtilsTest {
     var actual = collectionToLogMsg(null, true);
     assertThat(actual).isEqualTo(MSG + 0);
   }
+
+
 }

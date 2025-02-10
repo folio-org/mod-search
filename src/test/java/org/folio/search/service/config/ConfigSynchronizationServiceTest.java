@@ -45,6 +45,14 @@ class ConfigSynchronizationServiceTest {
   }
 
   @Test
+  void shouldSyncCallNumberTypeResources() {
+    syncService.sync(resourceEvents, ResourceType.CALL_NUMBER_TYPE);
+
+    var expectedIds = resourceEvents.stream().map(ResourceEvent::getId).toList();
+    verify(configService).deleteTypeIdsFromConfigs(BrowseType.INSTANCE_CALL_NUMBER, expectedIds);
+  }
+
+  @Test
   void shouldNotSync_WhenNullResourceType() {
     syncService.sync(resourceEvents, null);
 
@@ -53,7 +61,7 @@ class ConfigSynchronizationServiceTest {
 
   @NullAndEmptySource
   @ParameterizedTest
-  void shouldNotSync_WhenNullResourceType(List<ResourceEvent> resourceEvents) {
+  void shouldNotSync_WhenNullResources(List<ResourceEvent> resourceEvents) {
     syncService.sync(resourceEvents, ResourceType.CLASSIFICATION_TYPE);
 
     verify(configService, never()).deleteTypeIdsFromConfigs(any(), anyList());

@@ -35,8 +35,8 @@ import org.opensearch.OpenSearchException;
 import org.opensearch.core.index.Index;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @UnitTest
@@ -44,9 +44,9 @@ import org.springframework.test.web.servlet.MockMvc;
 @WebMvcTest(SearchController.class)
 class SearchControllerTest {
 
-  @MockBean
+  @MockitoBean
   private SearchService searchService;
-  @MockBean
+  @MockitoBean
   private TenantProvider tenantProvider;
   @Autowired
   private MockMvc mockMvc;

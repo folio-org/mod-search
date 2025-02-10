@@ -34,13 +34,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @UnitTest
 @SpringBootTest(classes = {FeatureConfigService.class, TestContextConfiguration.class}, webEnvironment = NONE)
@@ -53,9 +53,9 @@ class FeatureConfigServiceTest {
   private CacheManager cacheManager;
   @Autowired
   private FeatureConfigService featureConfigService;
-  @MockBean
+  @MockitoBean
   private FeatureConfigRepository featureConfigRepository;
-  @MockBean
+  @MockitoBean
   private SearchConfigurationProperties searchConfigurationProperties;
 
   @BeforeEach

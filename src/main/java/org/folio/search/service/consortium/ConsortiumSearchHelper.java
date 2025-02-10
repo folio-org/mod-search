@@ -6,15 +6,15 @@ import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
 
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
+import org.folio.search.model.index.CallNumberResource;
 import org.folio.search.model.index.InstanceSubResource;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.types.ResourceType;
@@ -34,6 +34,7 @@ public class ConsortiumSearchHelper {
   private static final Logger logger = LoggerFactory.getLogger(ConsortiumSearchHelper.class);
   private static final String BROWSE_SHARED_FILTER_KEY = "instances.shared";
   private static final String BROWSE_TENANT_FILTER_KEY = "instances.tenantId";
+  private static final String BROWSE_LOCATION_FILTER_KEY = "instances.locationId";
 
   private final FolioExecutionContext folioExecutionContext;
   private final ConsortiumTenantService consortiumTenantService;
@@ -111,7 +112,9 @@ public class ConsortiumSearchHelper {
     var contextTenantId = folioExecutionContext.getTenantId();
     var centralTenantId = consortiumTenantService.getCentralTenant(contextTenantId);
     if (centralTenantId.isEmpty()) {
-      return subResources;
+      return subResources.stream()
+        .filter(instanceSubResource -> filterForCallNumbers(context, resource, instanceSubResource))
+        .collect(Collectors.toSet());
     } else if (contextTenantId.equals(centralTenantId.get())) {
       return subResources.stream()
         .filter(InstanceSubResource::getShared)
@@ -138,22 +141,29 @@ public class ConsortiumSearchHelper {
     }
     return subResources.stream()
       .filter(subResourcesFilter)
+      .filter(instanceSubResource -> filterForCallNumbers(context, resource, instanceSubResource))
       .collect(Collectors.toSet());
   }
 
-  public static Optional<TermQueryBuilder> getBrowseFilter(BrowseContext context, String filterKey) {
+  protected Optional<TermQueryBuilder> getBrowseFilter(BrowseContext context, String filterKey) {
     return context.getFilters().stream()
       .map(filter -> getTermFilterForKey(filter, filterKey))
       .filter(Objects::nonNull)
       .findFirst();
   }
 
-  public static List<Object> getBrowseFilterValues(BrowseContext context, String filterKey) {
-    return context.getFilters().stream()
-      .flatMap(filter -> getTermFiltersForKey(filter, filterKey))
-      .filter(Objects::nonNull)
-      .map(TermQueryBuilder::value)
-      .toList();
+  private <T> boolean filterForCallNumbers(BrowseContext context, T resource, InstanceSubResource instanceSubResource) {
+    if (resource instanceof CallNumberResource) {
+      var locationIds = context.getFilters().stream()
+        .map(filter -> getTermFilterForKey(filter, BROWSE_LOCATION_FILTER_KEY))
+        .filter(Objects::nonNull)
+        .map(TermQueryBuilder::value)
+        .map(String::valueOf)
+        .filter(StringUtils::isNotBlank)
+        .toList();
+      return locationIds.isEmpty() || locationIds.contains(instanceSubResource.getLocationId());
+    }
+    return true;
   }
 
   private BoolQueryBuilder prepareBoolQueryForActiveAffiliation(QueryBuilder query) {
@@ -224,15 +234,6 @@ public class ConsortiumSearchHelper {
            : null;
   }
 
-  private static Stream<TermQueryBuilder> getTermFiltersForKey(QueryBuilder filter, String filterKey) {
-    if (filter instanceof TermQueryBuilder termFilter && termFilter.fieldName().equals(filterKey)) {
-      return Stream.of(termFilter);
-    } else if (filter instanceof BoolQueryBuilder boolFilter) {
-      return boolFilter.should().stream().map(shouldFilter -> getTermFilterForKey(shouldFilter, filterKey));
-    }
-    return null;
-  }
-
   private boolean sharedFilterValue(TermQueryBuilder sharedQuery) {
     return sharedQuery.value() instanceof Boolean boolValue && boolValue
            || sharedQuery.value() instanceof String stringValue && Boolean.parseBoolean(stringValue);
@@ -241,6 +242,7 @@ public class ConsortiumSearchHelper {
   private String getFieldForResource(String fieldName, ResourceType resourceName) {
     if (resourceName.equals(ResourceType.INSTANCE_CONTRIBUTOR)
         || resourceName.equals(ResourceType.INSTANCE_SUBJECT)
+        || resourceName.equals(ResourceType.INSTANCE_CALL_NUMBER)
         || resourceName.equals(ResourceType.INSTANCE_CLASSIFICATION)) {
       return "instances." + fieldName;
     }

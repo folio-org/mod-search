@@ -54,15 +54,6 @@ public class BrowseContext {
   }
 
   /**
-   * Checks if anchor is included in the range query or not.
-   *
-   * @return {@code true} if anchor is included, {@code false} - otherwise
-   */
-  public boolean isAnchorIncluded() {
-    return isAnchorIncluded(true);
-  }
-
-  /**
    * Returns limit for browsing.
    */
   public int getLimit(boolean isForward) {

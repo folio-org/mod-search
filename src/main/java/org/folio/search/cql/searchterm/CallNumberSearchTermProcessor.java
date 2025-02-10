@@ -1,4 +1,4 @@
-package org.folio.search.cql;
+package org.folio.search.cql.searchterm;
 
 import static org.folio.search.utils.CallNumberUtils.normalizeCallNumberComponents;
 import static org.folio.search.utils.SearchUtils.ASTERISKS_SIGN;

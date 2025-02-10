@@ -1,0 +1,27 @@
+get:
+  operationId: browseInstancesByCallNumber
+  summary: Browse Instance Call Numbers
+  description: Provides list of call numbers
+  tags:
+    - browse
+  parameters:
+    - $ref: '../../parameters/browse-option-id.yaml'
+    - $ref: '../../parameters/instance-call-number-browse-cql-query.yaml'
+    - $ref: '../../parameters/browse-limit-param.yaml'
+    - $ref: '../../parameters/highlight-match.yaml'
+    - $ref: '../../parameters/preceding-records-count.yaml'
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+  responses:
+    '200':
+      description: 'Search result for browsing by call number'
+      content:
+        application/json:
+          examples:
+            browseResult:
+              $ref: '../../examples/result/browseCallNumberResult.yaml'
+          schema:
+            $ref: '../../schemas/response/callNumberBrowseResult.yaml'
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

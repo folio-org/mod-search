@@ -57,7 +57,6 @@ class UploadRangeRepositoriesIT {
   void getUploadRanges_shouldNotPopulateStatus() {
     // act
     var uploadRanges = uploadRepository.createUploadRanges();
-    System.out.println(uploadRanges.size());
 
     // assert
     assertThat(uploadRanges)

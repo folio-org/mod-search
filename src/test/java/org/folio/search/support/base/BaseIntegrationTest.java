@@ -539,6 +539,13 @@ public abstract class BaseIntegrationTest {
     return elasticClient.search(searchRequest, RequestOptions.DEFAULT).getHits().getHits();
   }
 
+  @SneakyThrows
+  public static void deleteAllDocuments(ResourceType resourceType, String tenantId) {
+    var request = new DeleteByQueryRequest(getIndexName(resourceType, tenantId));
+    request.setQuery(matchAllQuery());
+    elasticClient.deleteByQuery(request, DEFAULT);
+  }
+
   public static void assertCountByIds(String path, List<String> ids, int expected) {
     var query = exactMatchAny(CqlQueryParam.ID, ids).toString();
     awaitAssertion(() -> doSearch(path, query).andExpect(jsonPath("$.totalRecords", is(expected))));

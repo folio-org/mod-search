@@ -5,12 +5,12 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.folio.search.model.types.ReindexEntityType.HOLDINGS;
 import static org.folio.search.model.types.ReindexEntityType.INSTANCE;
 import static org.folio.search.model.types.ReindexEntityType.ITEM;
+import static org.folio.search.service.reindex.ReindexConstants.RESOURCE_NAME_MAP;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.sql.Timestamp;
@@ -127,11 +127,9 @@ class ReindexMergeRangeIndexServiceTest {
     service.saveEntities(event);
 
     verify(repositoryMap.get(recordType.getEntityType())).saveEntities(TENANT_ID, List.of(entities));
-    if (recordType == ReindexRecordsEvent.ReindexRecordType.INSTANCE) {
-      verify(instanceChildrenResourceService).persistChildrenOnReindex(TENANT_ID, List.of(entities));
-    } else {
-      verifyNoInteractions(instanceChildrenResourceService);
-    }
+    verify(instanceChildrenResourceService).persistChildrenOnReindex(TENANT_ID,
+      RESOURCE_NAME_MAP.get(recordType.getEntityType()),
+      List.of(entities));
   }
 
   @Test
@@ -143,3 +141,4 @@ class ReindexMergeRangeIndexServiceTest {
     verify(repositoryMap.values().iterator().next()).getFailedMergeRanges();
   }
 }
+

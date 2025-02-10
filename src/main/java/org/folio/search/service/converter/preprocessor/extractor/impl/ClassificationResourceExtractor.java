@@ -6,12 +6,16 @@ import static org.folio.search.utils.SearchUtils.CLASSIFICATION_NUMBER_FIELD;
 import static org.folio.search.utils.SearchUtils.CLASSIFICATION_TYPE_FIELD;
 import static org.folio.search.utils.SearchUtils.prepareForExpectedFormat;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.domain.dto.TenantConfiguredFeature;
+import org.folio.search.model.types.ResourceType;
+import org.folio.search.service.FeatureConfigService;
 import org.folio.search.service.converter.preprocessor.extractor.ChildResourceExtractor;
 import org.folio.search.service.reindex.jdbc.ClassificationRepository;
 import org.folio.search.utils.ShaUtils;
@@ -21,13 +25,22 @@ import org.springframework.stereotype.Component;
 @Component
 public class ClassificationResourceExtractor extends ChildResourceExtractor {
 
-  public ClassificationResourceExtractor(ClassificationRepository repository) {
+  private final FeatureConfigService featureConfigService;
+
+  public ClassificationResourceExtractor(ClassificationRepository repository,
+                                         FeatureConfigService featureConfigService) {
     super(repository);
+    this.featureConfigService = featureConfigService;
+  }
+
+  @Override
+  public ResourceType resourceType() {
+    return ResourceType.INSTANCE;
   }
 
   @Override
   protected List<Map<String, Object>> constructRelations(boolean shared, ResourceEvent event,
-                                                       List<Map<String, Object>> entities) {
+                                                         List<Map<String, Object>> entities) {
     return entities.stream()
       .map(entity -> Map.of("instanceId", event.getId(),
         "classificationId", entity.get("id"),
@@ -38,12 +51,12 @@ public class ClassificationResourceExtractor extends ChildResourceExtractor {
 
   @Override
   protected Map<String, Object> constructEntity(Map<String, Object> entityProperties) {
-    if (entityProperties == null) {
-      return null;
+    if (entityProperties == null || !featureConfigService.isEnabled(TenantConfiguredFeature.BROWSE_CLASSIFICATIONS)) {
+      return Collections.emptyMap();
     }
     var classificationNumber = prepareForExpectedFormat(entityProperties.get(CLASSIFICATION_NUMBER_FIELD), 50);
     if (classificationNumber.isEmpty()) {
-      return null;
+      return Collections.emptyMap();
     }
 
     var classificationTypeId = entityProperties.get(CLASSIFICATION_TYPE_FIELD);

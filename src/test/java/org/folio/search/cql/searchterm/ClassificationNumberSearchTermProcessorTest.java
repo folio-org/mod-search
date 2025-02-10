@@ -1,4 +1,4 @@
-package org.folio.search.cql;
+package org.folio.search.cql.searchterm;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

@@ -1,4 +1,4 @@
-package org.folio.search.cql;
+package org.folio.search.cql.searchterm;
 
 public interface SearchTermProcessor {
 

@@ -1,33 +1,16 @@
 value:
   items:
-    - fullCallNumber: "Bilingualism: a bibliography of 1000 references with special reference to Wales."
-      shelfKey: "Bilingualism: a bibliography of 1000 references with special reference to Wales."
+    - fullCallNumber: "NS 1 .B5"
+      callNumber: "NS 1 .B4"
+      callNumberTypeId: "2b94c631-fca9-4892-a730-03ee529ff6c3"
+      prefix: "pref1"
       isAnchor: true
       totalRecords: 1
-      instance:
-        id: "d20569a7-9bba-44dd-9ad5-6f8f1d24ee1f"
-        title: "Bilingualism: a bibliography of 1000 references with special reference to Wales."
-        contributors:
-          - name: "Eichhorst, Georg."
-        publication:
-          - publisher: "Duncker und Humblot"
-            dateOfPublication: "1976"
-        electronicAccess:
-          - uri: "http://www.example.com"
-        notes:
-          - note: "Staff note"
-        items:
-          - barcode: "12345"
-            notes:
-              - note: "Staff note"
-            electronicAccess:
-              - uri: "http://www.example.com"
-        holdings:
-          - callNumber: "FS 124.44"
-            notes:
-              - note: "Staff note"
-            electronicAccess:
-              - uri: "http://www.example.com"
-  prev: "string"
-  next: "string"
-  totalRecords: 1
+    - fullCallNumber: "NS 1 .B5 suf-1801"
+      callNumber: "NS 1 .B5"
+      suffix: "suf-1801"
+      isAnchor: true
+      totalRecords: 1
+  prev: "NS 1 .B4"
+  next: "NS 1 .B5 suf-1801"
+  totalRecords: 2

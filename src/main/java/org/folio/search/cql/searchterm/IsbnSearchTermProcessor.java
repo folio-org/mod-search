@@ -1,4 +1,4 @@
-package org.folio.search.cql;
+package org.folio.search.cql.searchterm;
 
 import lombok.RequiredArgsConstructor;
 import org.folio.search.service.setter.instance.IsbnProcessor;

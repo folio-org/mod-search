@@ -15,9 +15,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
+import org.folio.search.model.entity.ChildResourceEntityBatch;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.reindex.ReindexConstants;
 import org.folio.search.utils.JdbcUtils;
@@ -196,6 +196,48 @@ public class ClassificationRepository extends UploadRangeRepository implements I
     };
   }
 
+  @Override
+  public void deleteByInstanceIds(List<String> instanceIds) {
+    var sql = DELETE_QUERY.formatted(JdbcUtils.getSchemaName(context), getParamPlaceholderForUuid(instanceIds.size()));
+    jdbcTemplate.update(sql, instanceIds.toArray());
+  }
+
+  @Override
+  public void saveAll(ChildResourceEntityBatch entityBatch) {
+    var entitiesSql = INSERT_ENTITIES_SQL.formatted(JdbcUtils.getSchemaName(context));
+    try {
+      jdbcTemplate.batchUpdate(entitiesSql, entityBatch.resourceEntities(), BATCH_OPERATION_SIZE,
+        (statement, entity) -> {
+          statement.setString(1, (String) entity.get("id"));
+          statement.setString(2, (String) entity.get(CLASSIFICATION_NUMBER_FIELD));
+          statement.setObject(3, entity.get(CLASSIFICATION_TYPE_FIELD));
+        });
+    } catch (DataAccessException e) {
+      logWarnDebugError(SAVE_ENTITIES_BATCH_ERROR_MESSAGE, e);
+      for (var entity : entityBatch.resourceEntities()) {
+        jdbcTemplate.update(entitiesSql,
+          entity.get("id"), entity.get(CLASSIFICATION_NUMBER_FIELD), entity.get(CLASSIFICATION_TYPE_FIELD));
+      }
+    }
+
+    var relationsSql = INSERT_RELATIONS_SQL.formatted(JdbcUtils.getSchemaName(context));
+    try {
+      jdbcTemplate.batchUpdate(relationsSql, entityBatch.relationshipEntities(), BATCH_OPERATION_SIZE,
+        (statement, entityRelation) -> {
+          statement.setObject(1, entityRelation.get("instanceId"));
+          statement.setString(2, (String) entityRelation.get("classificationId"));
+          statement.setString(3, (String) entityRelation.get("tenantId"));
+          statement.setObject(4, entityRelation.get("shared"));
+        });
+    } catch (DataAccessException e) {
+      logWarnDebugError(SAVE_RELATIONS_BATCH_ERROR_MESSAGE, e);
+      for (var entityRelation : entityBatch.relationshipEntities()) {
+        jdbcTemplate.update(relationsSql, entityRelation.get("instanceId"), entityRelation.get("classificationId"),
+          entityRelation.get("tenantId"), entityRelation.get("shared"));
+      }
+    }
+  }
+
   protected RowMapper<Map<String, Object>> rowToMapMapper2() {
     return (rs, rowNum) -> {
       Map<String, Object> classification = new HashMap<>();
@@ -211,48 +253,6 @@ public class ClassificationRepository extends UploadRangeRepository implements I
 
       return classification;
     };
-  }
-
-  @Override
-  public void deleteByInstanceIds(List<String> instanceIds) {
-    var sql = DELETE_QUERY.formatted(JdbcUtils.getSchemaName(context), getParamPlaceholderForUuid(instanceIds.size()));
-    jdbcTemplate.update(sql, instanceIds.toArray());
-  }
-
-  @Override
-  public void saveAll(Set<Map<String, Object>> entities, List<Map<String, Object>> entityRelations) {
-    var entitiesSql = INSERT_ENTITIES_SQL.formatted(JdbcUtils.getSchemaName(context));
-    try {
-      jdbcTemplate.batchUpdate(entitiesSql, entities, BATCH_OPERATION_SIZE,
-        (statement, entity) -> {
-          statement.setString(1, (String) entity.get("id"));
-          statement.setString(2, (String) entity.get(CLASSIFICATION_NUMBER_FIELD));
-          statement.setObject(3, entity.get(CLASSIFICATION_TYPE_FIELD));
-        });
-    } catch (DataAccessException e) {
-      logWarnDebugError(SAVE_ENTITIES_BATCH_ERROR_MESSAGE, e);
-      for (var entity : entities) {
-        jdbcTemplate.update(entitiesSql,
-          entity.get("id"), entity.get(CLASSIFICATION_NUMBER_FIELD), entity.get(CLASSIFICATION_TYPE_FIELD));
-      }
-    }
-
-    var relationsSql = INSERT_RELATIONS_SQL.formatted(JdbcUtils.getSchemaName(context));
-    try {
-      jdbcTemplate.batchUpdate(relationsSql, entityRelations, BATCH_OPERATION_SIZE,
-        (statement, entityRelation) -> {
-          statement.setObject(1, entityRelation.get("instanceId"));
-          statement.setString(2, (String) entityRelation.get("classificationId"));
-          statement.setString(3, (String) entityRelation.get("tenantId"));
-          statement.setObject(4, entityRelation.get("shared"));
-        });
-    } catch (DataAccessException e) {
-      logWarnDebugError(SAVE_RELATIONS_BATCH_ERROR_MESSAGE, e);
-      for (var entityRelation : entityRelations) {
-        jdbcTemplate.update(relationsSql, entityRelation.get("instanceId"), entityRelation.get("classificationId"),
-          entityRelation.get("tenantId"), entityRelation.get("shared"));
-      }
-    }
   }
 
   private String getId(ResultSet rs) throws SQLException {

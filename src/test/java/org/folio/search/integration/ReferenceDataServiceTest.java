@@ -7,7 +7,6 @@ import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.client.InventoryReferenceDataClient.ReferenceDataType.IDENTIFIER_TYPES;
 import static org.folio.search.configuration.SearchCacheNames.REFERENCE_DATA_CACHE;
-import static org.folio.search.model.service.ReferenceRecord.referenceRecord;
 import static org.folio.search.model.service.ResultList.asSinglePage;
 import static org.folio.search.utils.TestConstants.INVALID_ISBN_IDENTIFIER_TYPE_ID;
 import static org.folio.search.utils.TestConstants.ISBN_IDENTIFIER_TYPE_ID;
@@ -40,13 +39,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @UnitTest
 @Import(TestContextConfiguration.class)
@@ -57,7 +56,7 @@ class ReferenceDataServiceTest {
   private CacheManager cacheManager;
   @Autowired
   private ReferenceDataService referenceDataService;
-  @MockBean
+  @MockitoBean
   private InventoryReferenceDataClient inventoryReferenceDataClient;
 
   @BeforeEach
@@ -114,12 +113,12 @@ class ReferenceDataServiceTest {
 
   private static ResultList<ReferenceRecord> identifiersFetchResponse() {
     return asSinglePage(
-      referenceRecord(ISBN_IDENTIFIER_TYPE_ID, "ISBN"),
-      referenceRecord(INVALID_ISBN_IDENTIFIER_TYPE_ID, "Invalid ISBN"));
+      ReferenceRecord.referenceRecord(ISBN_IDENTIFIER_TYPE_ID, "ISBN"),
+      ReferenceRecord.referenceRecord(INVALID_ISBN_IDENTIFIER_TYPE_ID, "Invalid ISBN"));
   }
 
   private static ResultList<ReferenceRecord> alternativeTitlesTypesFetchResponse() {
-    return asSinglePage(referenceRecord(UNIFORM_ALTERNATIVE_TITLE_ID, "Uniform Title"));
+    return asSinglePage(ReferenceRecord.referenceRecord(UNIFORM_ALTERNATIVE_TITLE_ID, "Uniform Title"));
   }
 
   private Optional<Object> getCachedValue(String cacheKey) {

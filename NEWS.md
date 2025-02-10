@@ -12,6 +12,12 @@
 * Extend reindex range tables with status, fail_cause columns ([MSEARCH-870](https://folio-org.atlassian.net/browse/MSEARCH-870))
 * Implement scheduled indexing for instance sub-resources ([MSEARCH-922](https://folio-org.atlassian.net/browse/MSEARCH-922))
 * Implement endpoint to run merge reindex stage only for failed ranges ([MSEARCH-906](https://folio-org.atlassian.net/browse/MSEARCH-906))
+* Call Numbers Browse: Implement Database Structure and Logic for Managing Call Numbers ([MSEARCH-862](https://folio-org.atlassian.net/browse/MSEARCH-862))
+* Call Numbers Browse: Implement Call Number Browse Config ([MSEARCH-863](https://folio-org.atlassian.net/browse/MSEARCH-863))
+* Call Numbers Browse: Implement Indexing and Re-indexing Mechanisms for Call-Numbers ([MSEARCH-864](https://folio-org.atlassian.net/browse/MSEARCH-864))
+* Call Numbers Browse: Implement Browsing Endpoint for Call-Numbers ([MSEARCH-865](https://folio-org.atlassian.net/browse/MSEARCH-865))
+* Call Numbers Browse: Support aliases for callNumberTypeId filters ([MSEARCH-942](https://folio-org.atlassian.net/browse/MSEARCH-942))
+* Call Numbers Browse: Support showing instance title in browse results list ([MSEARCH-948](https://folio-org.atlassian.net/browse/MSEARCH-948))
 
 ### Bug fixes
 * Remove shelving order calculation for local call-number types

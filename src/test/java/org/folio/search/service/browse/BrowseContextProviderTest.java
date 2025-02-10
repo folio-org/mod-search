@@ -3,7 +3,7 @@ package org.folio.search.service.browse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.model.types.ResourceType.INSTANCE;
-import static org.folio.search.utils.SearchUtils.CALL_NUMBER_BROWSING_FIELD;
+import static org.folio.search.utils.SearchUtils.LEGACY_CALL_NUMBER_BROWSING_FIELD;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.when;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
@@ -41,7 +41,7 @@ class BrowseContextProviderTest {
   @Test
   void get_positive_forward() {
     var rangeQuery = "callNumber > A";
-    var succeedingQuery = rangeQuery(CALL_NUMBER_BROWSING_FIELD).gt("A");
+    var succeedingQuery = rangeQuery(LEGACY_CALL_NUMBER_BROWSING_FIELD).gt("A");
     when(cqlSearchQueryConverter.convert(rangeQuery, INSTANCE)).thenReturn(
       searchSource().query(succeedingQuery));
 
@@ -55,7 +55,7 @@ class BrowseContextProviderTest {
   void get_positive_forwardWithFilters() {
     var rangeQuery = "callNumber > A and location == locationId";
     var filterQuery = termQuery("location", "locationId");
-    var succeedingQuery = rangeQuery(CALL_NUMBER_BROWSING_FIELD).gt("A");
+    var succeedingQuery = rangeQuery(LEGACY_CALL_NUMBER_BROWSING_FIELD).gt("A");
     when(cqlSearchQueryConverter.convert(rangeQuery, INSTANCE)).thenReturn(
       searchSource().query(boolQuery().must(succeedingQuery).filter(filterQuery)));
 
@@ -68,7 +68,7 @@ class BrowseContextProviderTest {
   @Test
   void get_positive_backward() {
     var query = "callNumber < A";
-    var precedingQuery = rangeQuery(CALL_NUMBER_BROWSING_FIELD).lt("A");
+    var precedingQuery = rangeQuery(LEGACY_CALL_NUMBER_BROWSING_FIELD).lt("A");
     when(cqlSearchQueryConverter.convert(query, INSTANCE)).thenReturn(searchSource().query(precedingQuery));
 
     var actual = browseContextProvider.get(request(query));
@@ -80,8 +80,8 @@ class BrowseContextProviderTest {
   @Test
   void get_positive_aroundIncluding() {
     var query = "callNumber < A or callNumber > A";
-    var precedingQuery = rangeQuery(CALL_NUMBER_BROWSING_FIELD).lt("A");
-    var succeedingQuery = rangeQuery(CALL_NUMBER_BROWSING_FIELD).gte("A");
+    var precedingQuery = rangeQuery(LEGACY_CALL_NUMBER_BROWSING_FIELD).lt("A");
+    var succeedingQuery = rangeQuery(LEGACY_CALL_NUMBER_BROWSING_FIELD).gte("A");
     when(cqlSearchQueryConverter.convert(query, INSTANCE)).thenReturn(
       searchSource().query(boolQuery().should(precedingQuery).should(succeedingQuery)));
 
@@ -96,8 +96,8 @@ class BrowseContextProviderTest {
   @Test
   void get_positive_aroundIncludingReverseDirections() {
     var query = "callNumber > A or callNumber < A";
-    var precedingQuery = rangeQuery(CALL_NUMBER_BROWSING_FIELD).lt("A");
-    var succeedingQuery = rangeQuery(CALL_NUMBER_BROWSING_FIELD).gte("A");
+    var precedingQuery = rangeQuery(LEGACY_CALL_NUMBER_BROWSING_FIELD).lt("A");
+    var succeedingQuery = rangeQuery(LEGACY_CALL_NUMBER_BROWSING_FIELD).gte("A");
     when(cqlSearchQueryConverter.convert(query, INSTANCE)).thenReturn(
       searchSource().query(boolQuery().should(succeedingQuery).should(precedingQuery)));
 
@@ -112,8 +112,8 @@ class BrowseContextProviderTest {
   @Test
   void get_positive_aroundWithFilters() {
     var query = "(callNumber > A or callNumber < A) and location == locationId";
-    var precedingQuery = rangeQuery(CALL_NUMBER_BROWSING_FIELD).lt("A");
-    var succeedingQuery = rangeQuery(CALL_NUMBER_BROWSING_FIELD).gte("A");
+    var precedingQuery = rangeQuery(LEGACY_CALL_NUMBER_BROWSING_FIELD).lt("A");
+    var succeedingQuery = rangeQuery(LEGACY_CALL_NUMBER_BROWSING_FIELD).gte("A");
     var filterQuery = termQuery("location", "locationId");
     when(cqlSearchQueryConverter.convert(query, INSTANCE)).thenReturn(searchSource().query(boolQuery()
       .must(boolQuery().should(succeedingQuery).should(precedingQuery)).filter(filterQuery)));
@@ -130,7 +130,7 @@ class BrowseContextProviderTest {
   @Test
   void get_negative_forwardWithSorting() {
     var query = "callNumber > A sortBy title";
-    var esQuery = rangeQuery(CALL_NUMBER_BROWSING_FIELD).gt("A");
+    var esQuery = rangeQuery(LEGACY_CALL_NUMBER_BROWSING_FIELD).gt("A");
     when(cqlSearchQueryConverter.convert(query, INSTANCE))
       .thenReturn(searchSource().query(esQuery).sort("title"));
 
@@ -149,8 +149,8 @@ class BrowseContextProviderTest {
   @Test
   void get_negative_aroundWithDifferentAnchors() {
     var query = "callNumber > A or callNumber > B";
-    var precedingQuery = rangeQuery(CALL_NUMBER_BROWSING_FIELD).lt("A");
-    var succeedingQuery = rangeQuery(CALL_NUMBER_BROWSING_FIELD).gt("B");
+    var precedingQuery = rangeQuery(LEGACY_CALL_NUMBER_BROWSING_FIELD).lt("A");
+    var succeedingQuery = rangeQuery(LEGACY_CALL_NUMBER_BROWSING_FIELD).gt("B");
     when(cqlSearchQueryConverter.convert(query, INSTANCE)).thenReturn(searchSource()
       .query(boolQuery().should(precedingQuery).should(succeedingQuery)));
 
@@ -186,29 +186,32 @@ class BrowseContextProviderTest {
   public static Stream<Arguments> invalidQueriesDataSource() {
     var filterQuery = termQuery("location", "locationId");
     return Stream.of(
-      arguments("callNumber == A", termQuery(CALL_NUMBER_BROWSING_FIELD, "A")),
+      arguments("callNumber == A", termQuery(LEGACY_CALL_NUMBER_BROWSING_FIELD, "A")),
       arguments("unknown > A", rangeQuery("unknown").gt("A")),
       arguments("unknown > A and unknown < A", boolQuery()
         .must(rangeQuery("unknown").lt("A")).must(rangeQuery("unknown").gt("A"))),
       arguments("callNumber > A or callNumber == A", boolQuery()
-        .should(rangeQuery(CALL_NUMBER_BROWSING_FIELD).gt("A")).should(termQuery(CALL_NUMBER_BROWSING_FIELD, "A"))),
+        .should(rangeQuery(LEGACY_CALL_NUMBER_BROWSING_FIELD).gt("A")).should(termQuery(
+          LEGACY_CALL_NUMBER_BROWSING_FIELD, "A"))),
       arguments("callNumber > A or callNumber > A", boolQuery()
-        .should(rangeQuery(CALL_NUMBER_BROWSING_FIELD).gt("A")).should(rangeQuery(CALL_NUMBER_BROWSING_FIELD).gt("A"))),
+        .should(rangeQuery(LEGACY_CALL_NUMBER_BROWSING_FIELD).gt("A")).should(rangeQuery(
+          LEGACY_CALL_NUMBER_BROWSING_FIELD).gt("A"))),
       arguments("callNumber < A or callNumber < A", boolQuery()
-        .should(rangeQuery(CALL_NUMBER_BROWSING_FIELD).lt("A")).should(rangeQuery(CALL_NUMBER_BROWSING_FIELD).lt("A"))),
+        .should(rangeQuery(LEGACY_CALL_NUMBER_BROWSING_FIELD).lt("A")).should(rangeQuery(
+          LEGACY_CALL_NUMBER_BROWSING_FIELD).lt("A"))),
       arguments("callNumber == (1 or 2) and location == locationId", boolQuery()
-        .must(boolQuery().should(termQuery(CALL_NUMBER_BROWSING_FIELD, "1"))
-          .should(termQuery(CALL_NUMBER_BROWSING_FIELD, "2"))).filter(filterQuery)),
+        .must(boolQuery().should(termQuery(LEGACY_CALL_NUMBER_BROWSING_FIELD, "1"))
+          .should(termQuery(LEGACY_CALL_NUMBER_BROWSING_FIELD, "2"))).filter(filterQuery)),
       arguments("callNumber == 1 and location == locationId", boolQuery()
-        .must(termQuery(CALL_NUMBER_BROWSING_FIELD, "1")).filter(filterQuery)),
+        .must(termQuery(LEGACY_CALL_NUMBER_BROWSING_FIELD, "1")).filter(filterQuery)),
       arguments("callNumber == (1 or 2)", boolQuery().must(boolQuery().must(boolQuery()
-        .should(termQuery(CALL_NUMBER_BROWSING_FIELD, "1"))
-        .should(termQuery(CALL_NUMBER_BROWSING_FIELD, "2")))))
+        .should(termQuery(LEGACY_CALL_NUMBER_BROWSING_FIELD, "1"))
+        .should(termQuery(LEGACY_CALL_NUMBER_BROWSING_FIELD, "2")))))
     );
   }
 
   private static BrowseRequest request(String query) {
-    return BrowseRequest.builder().targetField(CALL_NUMBER_BROWSING_FIELD)
+    return BrowseRequest.builder().targetField(LEGACY_CALL_NUMBER_BROWSING_FIELD)
       .limit(20).precedingRecordsCount(9).resource(INSTANCE).query(query).build();
   }
 }

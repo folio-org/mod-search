@@ -278,6 +278,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("notes.note == {value}", "Librarian private note"),
       arguments("notes.note == {value}", "The development of the Semantic Web,"),
       arguments("callNumber = {value}", "\"\""),
+      arguments("items.effectiveCallNumberComponents.typeId = {value}", "\"512173a7-bd09-490e-b773-17d83f2b63fe\""),
 
       // search by isbn10
       arguments("isbn = {value}", "047144250X"),
@@ -340,11 +341,6 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("item.electronicAccess.uri==\"{value}\"", "https://www.loc.gov/catdir/toc/ecip0718/2007020429.html"),
       arguments("item.electronicAccess.linkText all {value}", "links available"),
       arguments("item.electronicAccess.publicNote all {value}", "table of contents"),
-
-      arguments("item.effectiveShelvingOrder ==/string \"{value}\"",
-        "TK 45105.88815 A58 42004 FT MEADE V1 COPY 12 SUFFIX 510101"),
-      arguments("itemEffectiveShelvingOrder ==/string \"{value}\"",
-        "TK 45105.88815 A58 42004 FT MEADE V1 COPY 12 SUFFIX 510101"),
 
       // Search by item fields (Backward compatibility)
       arguments("items.hrid = {value}", "item000000000014"),
@@ -575,11 +571,6 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("item.electronicAccess.uri==\"{value}\"", "HTTPS://WWW.LOC.GOV/CATDIR/TOC/ECIP0718/2007020429.HTML"),
       arguments("item.electronicAccess.linkText all {value}", "LINKS AVAILABLE"),
       arguments("item.electronicAccess.publicNote all {value}", "TABLE OF CONTENTS"),
-
-      arguments("item.effectiveShelvingOrder ==/string \"{value}\"",
-        "TK 45105.88815 A58 42004 FT MEADE V1 COPY 12 SUFFIX 510101"),
-      arguments("itemEffectiveShelvingOrder ==/string \"{value}\"",
-        "TK 45105.88815 A58 42004 FT MEADE V1 COPY 12 SUFFIX 510101"),
 
       // Search by item fields (Backward compatibility)
       arguments("items.hrid = {value}", "ITEM000000000014"),

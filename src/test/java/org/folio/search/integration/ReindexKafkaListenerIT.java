@@ -49,13 +49,13 @@ import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @EnableKafka
 @IntegrationTest
@@ -68,11 +68,11 @@ class ReindexKafkaListenerIT {
   static final String FOLIO_ENV_VAL = "reindex-listener-it";
   static final String FOLIO_ENV = "folio.environment=" + FOLIO_ENV_VAL;
 
-  @MockBean
+  @MockitoBean
   private ConsortiumTenantExecutor executionService;
-  @MockBean
+  @MockitoBean
   private SystemUserScopedExecutionService systemUserScopedExecutionService;
-  @MockBean
+  @MockitoBean
   private ReindexOrchestrationService reindexService;
   @Autowired
   private KafkaTemplate<String, ReindexRangeIndexEvent> rangeKafkaTemplate;

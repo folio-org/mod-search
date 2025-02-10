@@ -1,4 +1,4 @@
-package org.folio.search.cql;
+package org.folio.search.cql.searchterm;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.CallNumberUtils.getShelfKeyFromCallNumber;
@@ -6,6 +6,7 @@ import static org.folio.search.utils.CallNumberUtils.normalizeEffectiveShelvingO
 
 import java.util.List;
 import java.util.stream.Collectors;
+import org.folio.search.cql.SuDocCallNumber;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -59,9 +60,9 @@ class EffectiveShelvingOrderTermProcessorTest {
 
   @ParameterizedTest
   @ValueSource(strings = {"782", "123", "185.25", "350.21", "362.82/92 / 20",
-    "591.52/63 / 20", "641.5943 M68l", "12", "11", "25", "1",
-    "3782", "3123", "3185.25", "3350.21", "3362.82 292 220",
-    "3591.52 263 220", "3641.5943 M68 L", "4123", "4782", "396.300"})
+                          "591.52/63 / 20", "641.5943 M68l", "12", "11", "25", "1",
+                          "3782", "3123", "3185.25", "3350.21", "3362.82 292 220",
+                          "3591.52 263 220", "3641.5943 M68 L", "4123", "4782", "396.300"})
   void getSearchTerm_dewey(String given) {
     var expected = new DeweyCallNumber(given).getShelfKey().trim();
     var actual = searchTermProcessor.getSearchTerm(given, "dewey");
@@ -97,7 +98,7 @@ class EffectiveShelvingOrderTermProcessorTest {
     var actual = searchTermProcessor.getSearchTerms(given);
 
     assertThat(callNumbers).extracting(CallNumber::isValid)
-        .containsExactly(false, true, false, true);
+      .containsExactly(false, true, false, true);
     assertThat(actual).isEqualTo(expected);
   }
 }

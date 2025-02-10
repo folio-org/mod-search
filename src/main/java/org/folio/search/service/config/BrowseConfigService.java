@@ -1,5 +1,6 @@
 package org.folio.search.service.config;
 
+import static org.folio.search.client.InventoryReferenceDataClient.ReferenceDataType.CALL_NUMBER_TYPES;
 import static org.folio.search.client.InventoryReferenceDataClient.ReferenceDataType.CLASSIFICATION_TYPES;
 
 import java.util.ArrayList;
@@ -32,7 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class BrowseConfigService {
 
   private static final String ID_VALIDATION_MSG = "Body doesn't match path parameter: %s";
-  private static final String TYPE_IDS_VALIDATION_MSG = "Classification type IDs don't exist";
+  private static final String TYPE_IDS_VALIDATION_MSG = "%s type IDs don't exist";
 
   private final ReferenceDataService referenceDataService;
   private final BrowseConfigEntityRepository repository;
@@ -57,7 +58,7 @@ public class BrowseConfigService {
   public void upsertConfig(@NonNull BrowseType type,
                            @NonNull BrowseOptionType optionType,
                            @NonNull BrowseConfig config) {
-    validateConfig(optionType, config);
+    validateConfig(type, optionType, config);
 
     log.debug("Update browse configuration option [browseType: {}, browseOptionType: {}, newValue: {}]",
       type.getValue(), optionType.getValue(), config);
@@ -82,17 +83,18 @@ public class BrowseConfigService {
     repository.saveAll(configs);
   }
 
-  private void validateConfig(BrowseOptionType optionType, BrowseConfig config) {
+  private void validateConfig(BrowseType type, BrowseOptionType optionType, BrowseConfig config) {
     validateOptionType(optionType, config);
-    validateTypeIds(config);
+    validateTypeIds(type, config);
   }
 
-  private void validateTypeIds(BrowseConfig config) {
+  private void validateTypeIds(BrowseType type, BrowseConfig config) {
     var ids = CollectionUtils.toStreamSafe(config.getTypeIds()).map(UUID::toString).collect(Collectors.toSet());
-    var existedIds = referenceDataService.fetchReferenceData(CLASSIFICATION_TYPES, CqlQueryParam.ID, ids);
+    var referenceDataType = BrowseType.INSTANCE_CLASSIFICATION.equals(type) ? CLASSIFICATION_TYPES : CALL_NUMBER_TYPES;
+    var existedIds = referenceDataService.fetchReferenceData(referenceDataType, CqlQueryParam.ID, ids);
     var difference = SetUtils.difference(ids, existedIds);
     if (!difference.isEmpty()) {
-      throw new RequestValidationException(TYPE_IDS_VALIDATION_MSG, "typeIds", difference.toString());
+      throw new RequestValidationException(TYPE_IDS_VALIDATION_MSG.formatted(type), "typeIds", difference.toString());
     }
   }
 

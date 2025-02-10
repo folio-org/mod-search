@@ -398,7 +398,7 @@
     },
     {
       "id": "browse",
-      "version": "1.4",
+      "version": "1.5",
       "handlers": [
         {
           "methods": [
@@ -407,6 +407,18 @@
           "pathPattern": "/browse/call-numbers/instances",
           "permissionsRequired": [
             "browse.call-numbers.instances.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "pathPattern": "/browse/call-numbers/{browseOptionId}/instances",
+          "permissionsRequired": [
+            "browse.call-numbers-new.instances.collection.get"
           ],
           "modulePermissions": [
             "user-tenants.collection.get"
@@ -488,7 +500,8 @@
           ],
           "modulePermissions": [
             "user-tenants.collection.get",
-            "inventory-storage.classification-types.collection.get"
+            "inventory-storage.classification-types.collection.get",
+            "inventory-storage.call-number-types.collection.get"
           ]
         }
       ]
@@ -745,6 +758,11 @@
     },
     {
       "permissionName": "browse.call-numbers.instances.collection.get",
+      "displayName": "Browse - provides collections of browse items for instance by call number",
+      "description": "Browse instances by given query"
+    },
+    {
+      "permissionName": "browse.call-numbers-new.instances.collection.get",
       "displayName": "Browse - provides collections of browse items for instance by call number",
       "description": "Browse instances by given query"
     },

@@ -1,0 +1,77 @@
+{
+  "name": "instance_call_number",
+  "eventBodyJavaClass": "org.folio.search.model.index.CallNumberResource",
+  "parent": "instance",
+  "fields": {
+    "fullCallNumber" : {
+      "index": "keyword_icu",
+      "showInResponse": [ "browse" ]
+    },
+    "callNumber": {
+      "index": "source",
+      "showInResponse": [ "browse" ]
+    },
+    "callNumberPrefix": {
+      "index": "source",
+      "showInResponse": [ "browse" ]
+    },
+    "callNumberSuffix": {
+      "index": "source",
+      "showInResponse": [ "browse" ]
+    },
+    "callNumberTypeId": {
+      "index": "keyword",
+      "searchTypes": [ "filter", "facet" ],
+      "showInResponse": [ "browse" ],
+      "searchTermProcessor": "callNumberTypeIdSearchTermProcessor"
+    },
+    "instances": {
+      "type": "object",
+      "properties": {
+        "tenantId": {
+          "index": "keyword",
+          "searchTypes": [ "facet", "filter" ]
+        },
+        "shared": {
+          "index": "bool",
+          "searchTypes": [ "facet", "filter" ],
+          "default": false
+        },
+        "instanceId": {
+          "index": "source"
+        },
+        "locationId": {
+          "index": "keyword",
+          "searchTypes": [ "facet", "filter" ]
+        }
+      }
+    }
+  },
+  "searchFields": {
+    "defaultShelvingOrder": {
+      "type": "search",
+      "index": "keyword_icu",
+      "processor": "defaultCallNumberShelvingOrderFieldProcessor"
+    },
+    "lcShelvingOrder": {
+      "type": "search",
+      "index": "keyword_icu",
+      "processor": "lcCallNumberShelvingOrderFieldProcessor"
+    },
+    "deweyShelvingOrder": {
+      "type": "search",
+      "index": "keyword_icu",
+      "processor": "deweyCallNumberShelvingOrderFieldProcessor"
+    },
+    "nlmShelvingOrder": {
+      "type": "search",
+      "index": "keyword_icu",
+      "processor": "nlmCallNumberShelvingOrderFieldProcessor"
+    },
+    "sudocShelvingOrder": {
+      "type": "search",
+      "index": "keyword_icu",
+      "processor": "sudocCallNumberShelvingOrderFieldProcessor"
+    }
+  }
+}

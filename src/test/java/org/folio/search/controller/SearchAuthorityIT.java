@@ -16,6 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.List;
 import java.util.stream.Stream;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.folio.search.domain.dto.AlternativeTitle;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthoritySearchResult;
@@ -96,7 +97,7 @@ class SearchAuthorityIT extends BaseIntegrationTest {
   void searchByAuthorities_parameterized_all(String query, String value) throws Exception {
     var response = doSearchByAuthorities(prepareQuery(query, value)).andExpect(jsonPath("$.totalRecords", is(30)));
     var actual = parseResponse(response, AuthoritySearchResult.class);
-    assertThat(actual.getAuthorities()).asList().containsOnly(
+    assertThat(actual.getAuthorities()).asInstanceOf(InstanceOfAssertFactories. LIST).containsOnly(
       authority("Personal Name", AUTHORIZED_TYPE, "Gary A. Wills", 4),
       authority("Personal Name", REFERENCE_TYPE, "a sft personal name", null),
       authority("Personal Name", AUTH_REF_TYPE, "a saft personal name", null),

@@ -41,7 +41,7 @@ class ConfigSynchronizationServiceTest {
     syncService.sync(resourceEvents, ResourceType.CLASSIFICATION_TYPE);
 
     var expectedIds = resourceEvents.stream().map(ResourceEvent::getId).toList();
-    verify(configService).deleteTypeIdsFromConfigs(BrowseType.CLASSIFICATION, expectedIds);
+    verify(configService).deleteTypeIdsFromConfigs(BrowseType.INSTANCE_CLASSIFICATION, expectedIds);
   }
 
   @Test
@@ -49,7 +49,7 @@ class ConfigSynchronizationServiceTest {
     syncService.sync(resourceEvents, ResourceType.CALL_NUMBER_TYPE);
 
     var expectedIds = resourceEvents.stream().map(ResourceEvent::getId).toList();
-    verify(configService).deleteTypeIdsFromConfigs(BrowseType.CALL_NUMBER, expectedIds);
+    verify(configService).deleteTypeIdsFromConfigs(BrowseType.INSTANCE_CALL_NUMBER, expectedIds);
   }
 
   @Test

@@ -1,7 +1,6 @@
 package org.folio.search.service.reindex.jdbc;
 
 import static org.folio.search.utils.JdbcUtils.getParamPlaceholderForUuid;
-import static org.folio.search.utils.SearchUtils.CLASSIFICATION_NUMBER_ENTITY_FIELD;
 import static org.folio.search.utils.LogUtils.logWarnDebugError;
 import static org.folio.search.utils.SearchUtils.CLASSIFICATION_NUMBER_ENTITY_FIELD;
 import static org.folio.search.utils.SearchUtils.CLASSIFICATION_NUMBER_FIELD;
@@ -197,23 +196,6 @@ public class ClassificationRepository extends UploadRangeRepository implements I
     };
   }
 
-  protected RowMapper<Map<String, Object>> rowToMapMapper2() {
-    return (rs, rowNum) -> {
-      Map<String, Object> classification = new HashMap<>();
-      classification.put("id", getId(rs));
-      classification.put(CLASSIFICATION_NUMBER_ENTITY_FIELD, getNumber(rs));
-      classification.put("typeId", getTypeId(rs));
-      classification.put(LAST_UPDATED_DATE_FIELD, rs.getTimestamp("last_updated_date"));
-
-      var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
-      if (!maps.isEmpty()) {
-        classification.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
-      }
-
-      return classification;
-    };
-  }
-
   @Override
   public void deleteByInstanceIds(List<String> instanceIds) {
     var sql = DELETE_QUERY.formatted(JdbcUtils.getSchemaName(context), getParamPlaceholderForUuid(instanceIds.size()));
@@ -231,7 +213,7 @@ public class ClassificationRepository extends UploadRangeRepository implements I
           statement.setObject(3, entity.get(CLASSIFICATION_TYPE_FIELD));
         });
     } catch (DataAccessException e) {
-      logWarnDebugError(SAVE_ENTITIES_BATCH_ERROR_MESSAGE, e);;
+      logWarnDebugError(SAVE_ENTITIES_BATCH_ERROR_MESSAGE, e);
       for (var entity : entityBatch.resourceEntities()) {
         jdbcTemplate.update(entitiesSql,
           entity.get("id"), entity.get(CLASSIFICATION_NUMBER_FIELD), entity.get(CLASSIFICATION_TYPE_FIELD));
@@ -254,6 +236,23 @@ public class ClassificationRepository extends UploadRangeRepository implements I
           entityRelation.get("tenantId"), entityRelation.get("shared"));
       }
     }
+  }
+
+  protected RowMapper<Map<String, Object>> rowToMapMapper2() {
+    return (rs, rowNum) -> {
+      Map<String, Object> classification = new HashMap<>();
+      classification.put("id", getId(rs));
+      classification.put(CLASSIFICATION_NUMBER_ENTITY_FIELD, getNumber(rs));
+      classification.put("typeId", getTypeId(rs));
+      classification.put(LAST_UPDATED_DATE_FIELD, rs.getTimestamp("last_updated_date"));
+
+      var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
+      if (!maps.isEmpty()) {
+        classification.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
+      }
+
+      return classification;
+    };
   }
 
   private String getId(ResultSet rs) throws SQLException {

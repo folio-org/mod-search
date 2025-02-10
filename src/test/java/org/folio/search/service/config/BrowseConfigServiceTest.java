@@ -6,7 +6,7 @@ import static org.folio.search.client.InventoryReferenceDataClient.ReferenceData
 import static org.folio.search.client.InventoryReferenceDataClient.ReferenceDataType.CLASSIFICATION_TYPES;
 import static org.folio.search.domain.dto.BrowseOptionType.ALL;
 import static org.folio.search.domain.dto.BrowseOptionType.LC;
-import static org.folio.search.domain.dto.BrowseType.CLASSIFICATION;
+import static org.folio.search.domain.dto.BrowseType.INSTANCE_CLASSIFICATION;
 import static org.folio.search.model.client.CqlQueryParam.ID;
 import static org.folio.search.utils.TestUtils.randomId;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -132,7 +132,7 @@ class BrowseConfigServiceTest {
     config.setId(ALL);
 
     var exception = assertThrows(RequestValidationException.class,
-      () -> service.upsertConfig(CLASSIFICATION, configId, config));
+      () -> service.upsertConfig(INSTANCE_CLASSIFICATION, configId, config));
 
     assertThat(exception)
       .hasMessage("Body doesn't match path parameter: %s", configId.getValue());
@@ -178,6 +178,6 @@ class BrowseConfigServiceTest {
   }
 
   private ReferenceDataType referenceDataType(BrowseType browseType) {
-    return CLASSIFICATION.equals(browseType) ? CLASSIFICATION_TYPES : CALL_NUMBER_TYPES;
+    return INSTANCE_CLASSIFICATION.equals(browseType) ? CLASSIFICATION_TYPES : CALL_NUMBER_TYPES;
   }
 }

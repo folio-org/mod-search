@@ -30,7 +30,7 @@ public class ClassificationBrowseService
 
   @Override
   protected BrowseType getBrowseType() {
-    return BrowseType.CLASSIFICATION;
+    return BrowseType.INSTANCE_CLASSIFICATION;
   }
 
   @Override

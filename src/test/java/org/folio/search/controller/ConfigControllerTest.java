@@ -44,8 +44,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
@@ -56,11 +56,11 @@ class ConfigControllerTest {
 
   @Autowired
   private MockMvc mockMvc;
-  @MockBean
+  @MockitoBean
   private LanguageConfigServiceDecorator languageConfigService;
-  @MockBean
+  @MockitoBean
   private FeatureConfigServiceDecorator featureConfigService;
-  @MockBean
+  @MockitoBean
   private BrowseConfigServiceDecorator browseConfigService;
 
   @Test

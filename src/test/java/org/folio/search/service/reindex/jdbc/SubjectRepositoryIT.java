@@ -172,7 +172,7 @@ class SubjectRepositoryIT {
       subjectRelation("b3bae8a9-cfb1-4afe-83d5-2cdae4580e07", "2"),
       subjectRelation("9ec55e4f-6a76-427c-b47b-197046f44a54", "2"));
 
-    repository.saveAll(entities, entityRelations);
+    repository.saveAll(new ChildResourceEntityBatch(entities, entityRelations));
 
     verify(jdbcTemplate, times(2)).update(any(), any(), any(), any(), any(), any());
   }

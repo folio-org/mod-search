@@ -16,7 +16,7 @@ public class CallNumberTypeIdSearchTermProcessor implements SearchTermProcessor 
   public Object getSearchTerm(String inputTerm) {
     try {
       var browseOptionType = BrowseOptionType.fromValue(inputTerm);
-      var browseConfig = configService.getConfig(BrowseType.CALL_NUMBER, browseOptionType);
+      var browseConfig = configService.getConfig(BrowseType.INSTANCE_CALL_NUMBER, browseOptionType);
       return browseConfig.getTypeIds() == null
              ? new String[0]
              : browseConfig.getTypeIds().stream().map(Object::toString).toArray(String[]::new);

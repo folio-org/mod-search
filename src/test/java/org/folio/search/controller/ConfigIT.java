@@ -5,6 +5,8 @@ import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.ONE_MINUTE;
 import static org.awaitility.Durations.TWO_SECONDS;
 import static org.folio.search.configuration.SearchCacheNames.REFERENCE_DATA_CACHE;
+import static org.folio.search.domain.dto.BrowseType.INSTANCE_CALL_NUMBER;
+import static org.folio.search.domain.dto.BrowseType.INSTANCE_CLASSIFICATION;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.SEARCH_ALL_FIELDS;
 import static org.folio.search.sample.SampleInstances.getSemanticWebAsMap;
 import static org.folio.search.support.base.ApiEndpoints.featureConfigPath;
@@ -36,7 +38,6 @@ import lombok.SneakyThrows;
 import org.folio.search.domain.dto.BrowseConfig;
 import org.folio.search.domain.dto.BrowseConfigCollection;
 import org.folio.search.domain.dto.BrowseOptionType;
-import org.folio.search.domain.dto.BrowseType;
 import org.folio.search.domain.dto.FeatureConfig;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.LanguageConfig;
@@ -238,13 +239,13 @@ class ConfigIT extends BaseIntegrationTest {
 
   @Test
   void getBrowseConfigs_positive_classification() throws Exception {
-    doGet(ApiEndpoints.browseConfigPath(BrowseType.CLASSIFICATION))
+    doGet(ApiEndpoints.browseConfigPath(INSTANCE_CLASSIFICATION))
       .andExpect(jsonPath("$.totalRecords", is(3)));
   }
 
   @Test
   void getBrowseConfigs_positive_callNumber() throws Exception {
-    doGet(ApiEndpoints.browseConfigPath(BrowseType.CALL_NUMBER))
+    doGet(ApiEndpoints.browseConfigPath(INSTANCE_CALL_NUMBER))
       .andExpect(jsonPath("$.totalRecords", is(6)));
   }
 
@@ -258,9 +259,9 @@ class ConfigIT extends BaseIntegrationTest {
 
     var stub = mockClassificationTypes(okapi.wireMockServer(), typeId1, typeId2);
 
-    doPut(ApiEndpoints.browseConfigPath(BrowseType.CLASSIFICATION, BrowseOptionType.LC), config);
+    doPut(ApiEndpoints.browseConfigPath(INSTANCE_CLASSIFICATION, BrowseOptionType.LC), config);
 
-    var result = doGet(ApiEndpoints.browseConfigPath(BrowseType.CLASSIFICATION))
+    var result = doGet(ApiEndpoints.browseConfigPath(INSTANCE_CLASSIFICATION))
       .andExpect(jsonPath("$.totalRecords", is(3)));
 
     var configCollection = parseResponse(result, BrowseConfigCollection.class);
@@ -280,9 +281,9 @@ class ConfigIT extends BaseIntegrationTest {
 
     var stub = mockCallNumberTypes(okapi.wireMockServer(), typeId1, typeId2);
 
-    doPut(ApiEndpoints.browseConfigPath(BrowseType.CALL_NUMBER, BrowseOptionType.SUDOC), config);
+    doPut(ApiEndpoints.browseConfigPath(INSTANCE_CALL_NUMBER, BrowseOptionType.SUDOC), config);
 
-    var result = doGet(ApiEndpoints.browseConfigPath(BrowseType.CALL_NUMBER))
+    var result = doGet(ApiEndpoints.browseConfigPath(INSTANCE_CALL_NUMBER))
       .andExpect(jsonPath("$.totalRecords", is(6)));
 
     var configCollection = parseResponse(result, BrowseConfigCollection.class);
@@ -302,7 +303,7 @@ class ConfigIT extends BaseIntegrationTest {
 
     final var stub = mockClassificationTypes(okapi.wireMockServer(), typeId1, typeId2);
 
-    doPut(ApiEndpoints.browseConfigPath(BrowseType.CLASSIFICATION, BrowseOptionType.LC), config);
+    doPut(ApiEndpoints.browseConfigPath(INSTANCE_CLASSIFICATION, BrowseOptionType.LC), config);
 
     kafkaTemplate.send(inventoryClassificationTopic(), typeId1.toString(), new ResourceEvent()
       .type(ResourceEventType.DELETE)
@@ -312,7 +313,7 @@ class ConfigIT extends BaseIntegrationTest {
     );
 
     await().atMost(ONE_MINUTE).pollInterval(TWO_SECONDS).untilAsserted(() -> {
-      var result = doGet(ApiEndpoints.browseConfigPath(BrowseType.CLASSIFICATION));
+      var result = doGet(ApiEndpoints.browseConfigPath(INSTANCE_CLASSIFICATION));
 
       var configCollection = parseResponse(result, BrowseConfigCollection.class);
       for (BrowseConfig browseConfig : configCollection.getConfigs()) {
@@ -337,7 +338,7 @@ class ConfigIT extends BaseIntegrationTest {
 
     final var stub = mockCallNumberTypes(okapi.wireMockServer(), typeId1, typeId2);
 
-    doPut(ApiEndpoints.browseConfigPath(BrowseType.CALL_NUMBER, BrowseOptionType.SUDOC), config);
+    doPut(ApiEndpoints.browseConfigPath(INSTANCE_CALL_NUMBER, BrowseOptionType.SUDOC), config);
 
     kafkaTemplate.send(inventoryCallNumberTopic(), typeId1.toString(), new ResourceEvent()
       .type(ResourceEventType.DELETE)
@@ -347,7 +348,7 @@ class ConfigIT extends BaseIntegrationTest {
     );
 
     await().atMost(ONE_MINUTE).pollInterval(TWO_SECONDS).untilAsserted(() -> {
-      var result = doGet(ApiEndpoints.browseConfigPath(BrowseType.CALL_NUMBER));
+      var result = doGet(ApiEndpoints.browseConfigPath(INSTANCE_CALL_NUMBER));
 
       var configCollection = parseResponse(result, BrowseConfigCollection.class);
       for (var browseConfig : configCollection.getConfigs()) {

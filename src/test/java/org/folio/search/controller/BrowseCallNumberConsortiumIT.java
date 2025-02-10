@@ -155,10 +155,6 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
     return new CallNumberBrowseResult().prev(prev).next(next).items(items).totalRecords(total);
   }
 
-  private static CallNumberBrowseItem cnEmptyBrowseItem(String callNumber) {
-    return new CallNumberBrowseItem().fullCallNumber(callNumber).isAnchor(true).totalRecords(0);
-  }
-
   private static CallNumberBrowseItem cnBrowseItem(CallNumberResource resource, int instanceIndex, int count) {
     return cnBrowseItem(resource, instanceIndex, count, null);
   }
@@ -214,7 +210,7 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
       .typeIds(typeIds);
 
     var stub = mockCallNumberTypes(okapi.wireMockServer(), typeIds.toArray(new UUID[0]));
-    doPut(browseConfigPath(BrowseType.CALL_NUMBER, BrowseOptionType.LC), CENTRAL_TENANT_ID, config);
+    doPut(browseConfigPath(BrowseType.INSTANCE_CALL_NUMBER, BrowseOptionType.LC), CENTRAL_TENANT_ID, config);
     okapi.wireMockServer().removeStub(stub);
   }
 

@@ -24,8 +24,8 @@ public class ConfigSynchronizationService {
 
     Optional.ofNullable(resourceType)
       .map(resource -> switch (resourceType) {
-        case CLASSIFICATION_TYPE -> BrowseType.CLASSIFICATION;
-        case CALL_NUMBER_TYPE -> BrowseType.CALL_NUMBER;
+        case CLASSIFICATION_TYPE -> BrowseType.INSTANCE_CLASSIFICATION;
+        case CALL_NUMBER_TYPE -> BrowseType.INSTANCE_CALL_NUMBER;
         default -> null; })
       .ifPresentOrElse(browseType -> {
         var ids = resourceEvent.stream().map(ResourceEvent::getId).toList();

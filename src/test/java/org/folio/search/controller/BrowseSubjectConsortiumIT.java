@@ -47,7 +47,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.opensearch.action.search.SearchRequest;
 import org.opensearch.client.RequestOptions;
-import org.opensearch.search.SearchHit;
 
 @IntegrationTest
 class BrowseSubjectConsortiumIT extends BaseConsortiumIntegrationTest {
@@ -78,10 +77,6 @@ class BrowseSubjectConsortiumIT extends BaseConsortiumIntegrationTest {
         .indices(getIndexName(INSTANCE_SUBJECT, CENTRAL_TENANT_ID));
       var searchResponse = elasticClient.search(searchRequest, RequestOptions.DEFAULT);
       assertThat(searchResponse.getHits().getTotalHits().value).isEqualTo(28);
-      System.out.println("Resulted subjects");
-      for (SearchHit hit : searchResponse.getHits()) {
-        System.out.println(hit.getSourceAsMap());
-      }
     });
   }
 

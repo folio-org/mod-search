@@ -56,8 +56,7 @@ class UploadRangeRepositoriesIT {
   @Sql({"/sql/populate-instances.sql"})
   void getUploadRanges_shouldNotPopulateStatus() {
     // act
-    var uploadRanges = uploadRepository.getUploadRanges(true);
-    System.out.println(uploadRanges.size());
+    var uploadRanges = uploadRepository.createUploadRanges();
 
     // assert
     assertThat(uploadRanges)

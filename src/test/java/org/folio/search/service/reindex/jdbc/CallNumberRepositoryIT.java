@@ -46,11 +46,10 @@ class CallNumberRepositoryIT {
   private @MockitoSpyBean JdbcTemplate jdbcTemplate;
   private @MockitoBean FolioExecutionContext context;
   private CallNumberRepository repository;
-  private ReindexConfigurationProperties properties;
 
   @BeforeEach
   void setUp() {
-    properties = new ReindexConfigurationProperties();
+    var properties = new ReindexConfigurationProperties();
     var jsonConverter = new JsonConverter(new ObjectMapper());
     repository = spy(new CallNumberRepository(jdbcTemplate, jsonConverter, context, properties));
     when(context.getFolioModuleMetadata()).thenReturn(new FolioModuleMetadata() {

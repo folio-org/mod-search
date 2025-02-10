@@ -55,10 +55,10 @@ import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @UnitTest
 @SpringBootTest(classes = {CqlSearchQueryConverter.class, ConverterTestConfiguration.class}, webEnvironment = NONE)
@@ -70,15 +70,15 @@ class CqlSearchQueryConverterTest {
 
   @Autowired
   private CqlSearchQueryConverter cqlSearchQueryConverter;
-  @MockBean
+  @MockitoBean
   private LocalSearchFieldProvider searchFieldProvider;
-  @MockBean
+  @MockitoBean
   private CqlSortProvider cqlSortProvider;
-  @MockBean
+  @MockitoBean
   private FolioExecutionContext folioExecutionContext;
-  @MockBean
+  @MockitoBean
   private ConsortiumTenantService consortiumTenantService;
-  @MockBean
+  @MockitoBean
   private ConsortiumSearchHelper consortiumSearchHelper;
 
   @BeforeEach

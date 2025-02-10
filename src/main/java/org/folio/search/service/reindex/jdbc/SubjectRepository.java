@@ -11,7 +11,6 @@ import static org.folio.search.utils.SearchUtils.SUB_RESOURCE_INSTANCES_FIELD;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -207,25 +206,6 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
     };
   }
 
-  protected RowMapper<Map<String, Object>> rowToMapMapper2() {
-    return (rs, rowNum) -> {
-      Map<String, Object> subject = new HashMap<>();
-      subject.put("id", getId(rs));
-      subject.put(SUBJECT_VALUE_FIELD, getValue(rs));
-      subject.put(AUTHORITY_ID_FIELD, getAuthorityId(rs));
-      subject.put("sourceId", getSourceId(rs));
-      subject.put("typeId", getTypeId(rs));
-      subject.put(LAST_UPDATED_DATE_FIELD, rs.getTimestamp("last_updated_date"));
-
-      var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
-      if (!maps.isEmpty()) {
-        subject.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
-      }
-
-      return subject;
-    };
-  }
-
   @Override
   public void deleteByInstanceIds(List<String> instanceIds) {
     var sql = DELETE_QUERY.formatted(JdbcUtils.getSchemaName(context), getParamPlaceholderForUuid(instanceIds.size()));
@@ -268,6 +248,25 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
           entityRelation.get("tenantId"), entityRelation.get("shared"));
       }
     }
+  }
+
+  protected RowMapper<Map<String, Object>> rowToMapMapper2() {
+    return (rs, rowNum) -> {
+      Map<String, Object> subject = new HashMap<>();
+      subject.put("id", getId(rs));
+      subject.put(SUBJECT_VALUE_FIELD, getValue(rs));
+      subject.put(AUTHORITY_ID_FIELD, getAuthorityId(rs));
+      subject.put("sourceId", getSourceId(rs));
+      subject.put("typeId", getTypeId(rs));
+      subject.put(LAST_UPDATED_DATE_FIELD, rs.getTimestamp("last_updated_date"));
+
+      var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
+      if (!maps.isEmpty()) {
+        subject.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
+      }
+
+      return subject;
+    };
   }
 
   private String getId(ResultSet rs) throws SQLException {

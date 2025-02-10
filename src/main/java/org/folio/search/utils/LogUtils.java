@@ -49,6 +49,6 @@ public final class LogUtils {
    */
   public static void logWarnDebugError(String message, Exception e) {
     log.debug(message, e);
-    log.warn(String.format("%s %s", message, e.getMessage()));
+    log.warn("{} {}", message, e.getMessage());
   }
 }

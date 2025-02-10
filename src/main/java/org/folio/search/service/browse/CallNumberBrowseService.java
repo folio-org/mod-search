@@ -34,7 +34,7 @@ public class CallNumberBrowseService
 
   @Override
   protected BrowseType getBrowseType() {
-    return BrowseType.CALL_NUMBER;
+    return BrowseType.INSTANCE_CALL_NUMBER;
   }
 
   @Override

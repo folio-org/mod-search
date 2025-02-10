@@ -240,7 +240,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
       .typeIds(typeIds);
 
     var stub = mockCallNumberTypes(okapi.wireMockServer(), typeIds.toArray(new UUID[0]));
-    doPut(browseConfigPath(BrowseType.CALL_NUMBER, BrowseOptionType.LC), config);
+    doPut(browseConfigPath(BrowseType.INSTANCE_CALL_NUMBER, BrowseOptionType.LC), config);
     okapi.wireMockServer().removeStub(stub);
   }
 

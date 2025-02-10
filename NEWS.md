@@ -3,7 +3,7 @@
 * Description ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))
 
 ### New APIs versions
-* Provides `API_NAME vX.Y`
+* Provides `indices v1.1`
 * Requires `API_NAME vX.Y`
 
 ### Features
@@ -11,6 +11,7 @@
 * Update reindex merge failed status only for failed entity type ([MSEARCH-909](https://folio-org.atlassian.net/browse/MSEARCH-909))
 * Extend reindex range tables with status, fail_cause columns ([MSEARCH-870](https://folio-org.atlassian.net/browse/MSEARCH-870))
 * Implement scheduled indexing for instance sub-resources ([MSEARCH-922](https://folio-org.atlassian.net/browse/MSEARCH-922))
+* Implement endpoint to run merge reindex stage only for failed ranges ([MSEARCH-906](https://folio-org.atlassian.net/browse/MSEARCH-906))
 * Call Numbers Browse: Implement Database Structure and Logic for Managing Call Numbers ([MSEARCH-862](https://folio-org.atlassian.net/browse/MSEARCH-862))
 * Call Numbers Browse: Implement Call Number Browse Config ([MSEARCH-863](https://folio-org.atlassian.net/browse/MSEARCH-863))
 * Call Numbers Browse: Implement Indexing and Re-indexing Mechanisms for Call-Numbers ([MSEARCH-864](https://folio-org.atlassian.net/browse/MSEARCH-864))
@@ -27,10 +28,17 @@
 * Fix generation of IDs ranges in Reindex Upload for Subject, Classification and Contributor ([MSEARCH-907](https://folio-org.atlassian.net/browse/MSEARCH-907))
 * Remove browse config caching ([MSEARCH-897](https://folio-org.atlassian.net/browse/MSEARCH-897))
 * Fix the "Invalid reference" appears after updating ownership ([MSEARCH-915](https://folio-org.atlassian.net/browse/MSEARCH-915))
-* Adjust logic to scheduled sub-resource indexing ([MSEARCH-936](https://folio-org.atlassian.net/browse/MSEARCH-936))
+* Update tenant_id in database during event processing ([MSEARCH-877](https://folio-org.atlassian.net/browse/MSEARCH-877))
+* Fix an issue with interrupting the batch event processing due to SystemUserAuthorizationException ([MSEARCH-925](https://folio-org.atlassian.net/browse/MSEARCH-925))
+* Use 'lccnSearchTermProcessor' in linked-data search APIs ([MSEARCH-935](https://folio-org.atlassian.net/browse/MSEARCH-935))
+* Fix documentation not being updated ([MSEARCH-937](https://folio-org.atlassian.net/browse/MSEARCH-937))
+* Fix "Fix dead link" api-docs workflow step for release builds ([MSEARCH-947](https://folio-org.atlassian.net/browse/MSEARCH-947))
 
 ### Tech Dept
-* Description ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))
+* Recreate upload ranges each upload execution ([MSEARCH-934](https://folio-org.atlassian.net/browse/MSEARCH-934))
+* Remove unnecessary LccnNormalizerStructureB ([MSEARCH-926](https://folio-org.atlassian.net/browse/MSEARCH-926))
+* Add users.item.put to tenant endpoint module permissions ([MSEARCH-952](https://folio-org.atlassian.net/browse/MSEARCH-952))
+* Simplify bulk failure error logs ([MSEARCH-932](https://folio-org.atlassian.net/browse/MSEARCH-932))
 
 ### Dependencies
 * Bump `opensearch` from `2.17.1` to `2.18.0` fixing protobuf-java CVE-2024-7254 ([MSEARCH-889](https://folio-org.atlassian.net/browse/MSEARCH-889))

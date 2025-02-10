@@ -131,5 +131,14 @@ class ReindexMergeRangeIndexServiceTest {
       RESOURCE_NAME_MAP.get(recordType.getEntityType()),
       List.of(entities));
   }
+
+  @Test
+  void fetchFailedMergeRanges() {
+    // act
+    service.fetchFailedMergeRanges();
+
+    // assert
+    verify(repositoryMap.values().iterator().next()).getFailedMergeRanges();
+  }
 }
 

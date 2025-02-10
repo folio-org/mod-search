@@ -11,9 +11,12 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.sql.BatchUpdateException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,6 +35,8 @@ import org.springframework.boot.test.autoconfigure.json.AutoConfigureJson;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
+import org.springframework.dao.PessimisticLockingFailureException;
+import org.springframework.jdbc.core.AggregatedBatchUpdateException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.jdbc.Sql;
 
@@ -111,6 +116,19 @@ class ClassificationRepositoryIT {
       .when(jdbcTemplate).batchUpdate(anyString(), anyCollection(), anyInt(), any());
 
     saveAll();
+  }
+
+  @Test
+  void saveAll_throwPessimisticLockingFailureException() {
+    BatchUpdateException batchUpdateException = new BatchUpdateException("Nested exception", new int[0]);
+    var aggregatedException = new AggregatedBatchUpdateException(new int[0][0], batchUpdateException);
+    var exception = new PessimisticLockingFailureException("Test exception", aggregatedException);
+    doThrow(exception)
+      .when(jdbcTemplate).batchUpdate(anyString(), anyCollection(), anyInt(), any());
+
+    saveAll();
+
+    verify(jdbcTemplate, times(2)).update(any(), any(), any(), any());
   }
 
   private Map<String, Object> classificationEntity(String id) {

@@ -11,9 +11,12 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.sql.BatchUpdateException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,6 +35,8 @@ import org.springframework.boot.test.autoconfigure.json.AutoConfigureJson;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
+import org.springframework.dao.PessimisticLockingFailureException;
+import org.springframework.jdbc.core.AggregatedBatchUpdateException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.jdbc.Sql;
 
@@ -107,6 +112,25 @@ class ContributorRepositoryIT {
           "typeId", List.of("b7df83a1-8b15-46c1-9a4c-9d2dbb3cf4d5")))),
         tuple("name2", List.of(Map.of("count", 2, "shared", false, "tenantId", TENANT_ID,
           "typeId", List.of("b7df83a1-8b15-46c1-9a4c-9d2dbb3cf4d5")))));
+  }
+
+  @Test
+  void saveAll_throwPessimisticLockingFailureException() {
+    BatchUpdateException batchUpdateException = new BatchUpdateException("Nested exception", new int[0]);
+    var aggregatedException = new AggregatedBatchUpdateException(new int[0][0], batchUpdateException);
+    var exception = new PessimisticLockingFailureException("Test exception", aggregatedException);
+    doThrow(exception)
+      .when(jdbcTemplate).batchUpdate(anyString(), anyCollection(), anyInt(), any());
+
+    var entities = Set.of(contributorEntity("1"), contributorEntity("2"));
+    var entityRelations = List.of(
+      contributorRelation("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", "1"),
+      contributorRelation("b3bae8a9-cfb1-4afe-83d5-2cdae4580e07", "2"),
+      contributorRelation("9ec55e4f-6a76-427c-b47b-197046f44a54", "2"));
+
+    repository.saveAll(entities, entityRelations);
+
+    verify(jdbcTemplate, times(2)).update(any(), any(), any(), any(), any());
   }
 
   @Test

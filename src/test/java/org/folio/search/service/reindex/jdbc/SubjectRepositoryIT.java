@@ -13,9 +13,12 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.sql.BatchUpdateException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,6 +38,8 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.boot.test.autoconfigure.json.AutoConfigureJson;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
+import org.springframework.dao.PessimisticLockingFailureException;
+import org.springframework.jdbc.core.AggregatedBatchUpdateException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
@@ -72,22 +77,12 @@ class SubjectRepositoryIT {
   }
 
   @Test
-  void getUploadRanges_returnEmptyList_whenNoUploadRangesAndNotPopulate() {
-    // act
-    var ranges = repository.getUploadRanges(false);
-
-    // assert
-    assertThat(ranges).isEmpty();
-  }
-
-  @Test
-  @Sql("/sql/populate-subjects.sql")
-  void getUploadRanges_returnList_whenNoUploadRangesAndNotPopulate() {
+  void getUploadRanges_returnList() {
     // arrange
     properties.setUploadRangeLevel(1);
 
     // act
-    var ranges = repository.getUploadRanges(true);
+    var ranges = repository.createUploadRanges();
 
     // assert
     assertThat(ranges)
@@ -140,7 +135,7 @@ class SubjectRepositoryIT {
       .contains(
         tuple("Sci-Fi", List.of(
           Map.of("count", 1, "shared", true, "tenantId", "consortium"),
-            Map.of("count", 1, "shared", false, "tenantId", "member_tenant"))));
+          Map.of("count", 1, "shared", false, "tenantId", "member_tenant"))));
   }
 
   @Test
@@ -161,6 +156,25 @@ class SubjectRepositoryIT {
       .contains(
         tuple("value1", List.of(Map.of("count", 1, "shared", false, "tenantId", TENANT_ID))),
         tuple("value2", List.of(Map.of("count", 2, "shared", false, "tenantId", TENANT_ID))));
+  }
+
+  @Test
+  void saveAll_throwPessimisticLockingFailureException() {
+    BatchUpdateException batchUpdateException = new BatchUpdateException("Nested exception", new int[0]);
+    var aggregatedException = new AggregatedBatchUpdateException(new int[0][0], batchUpdateException);
+    var exception = new PessimisticLockingFailureException("Test exception", aggregatedException);
+    doThrow(exception)
+      .when(jdbcTemplate).batchUpdate(anyString(), anyCollection(), anyInt(), any());
+
+    var entities = Set.of(subjectEntity("1"), subjectEntity("2"));
+    var entityRelations = List.of(
+      subjectRelation("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", "1"),
+      subjectRelation("b3bae8a9-cfb1-4afe-83d5-2cdae4580e07", "2"),
+      subjectRelation("9ec55e4f-6a76-427c-b47b-197046f44a54", "2"));
+
+    repository.saveAll(entities, entityRelations);
+
+    verify(jdbcTemplate, times(2)).update(any(), any(), any(), any(), any(), any());
   }
 
   @Test

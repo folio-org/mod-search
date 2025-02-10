@@ -20,6 +20,7 @@ public class HoldingRepository extends MergeRangeRepository {
       ON CONFLICT (id, tenant_id)
       DO UPDATE SET
       instance_id = EXCLUDED.instance_id,
+      tenant_id = EXCLUDED.tenant_id,
       json = EXCLUDED.json;
     """;
 

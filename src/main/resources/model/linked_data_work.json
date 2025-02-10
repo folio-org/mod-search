@@ -183,7 +183,8 @@
     "lccn": {
       "type": "search",
       "index": "standard",
-      "processor": "linkedDataWorkLccnProcessor"
+      "processor": "linkedDataWorkLccnProcessor",
+      "searchTermProcessor": "lccnSearchTermProcessor"
     },
     "note": {
       "type": "search",

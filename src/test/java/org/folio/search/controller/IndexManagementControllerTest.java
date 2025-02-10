@@ -1,6 +1,7 @@
 package org.folio.search.controller;
 
 import static org.folio.search.support.base.ApiEndpoints.createIndicesPath;
+import static org.folio.search.support.base.ApiEndpoints.reindexFailedPath;
 import static org.folio.search.support.base.ApiEndpoints.reindexFullPath;
 import static org.folio.search.support.base.ApiEndpoints.reindexInstanceRecordsStatus;
 import static org.folio.search.support.base.ApiEndpoints.reindexUploadPath;
@@ -117,6 +118,15 @@ class IndexManagementControllerTest {
     when(reindexService.submitUploadReindex(TENANT_ID, requestBody)).thenReturn(new CompletableFuture<>());
 
     mockMvc.perform(preparePostRequest(reindexUploadPath(), asJsonString(requestBody))
+        .header(XOkapiHeaders.TENANT, TENANT_ID))
+      .andExpect(status().isOk());
+  }
+
+  @Test
+  void submitReindexMergeFailed_positive() throws Exception {
+    when(reindexService.submitFailedMergeRangesReindex(TENANT_ID)).thenReturn(new CompletableFuture<>());
+
+    mockMvc.perform(post(reindexFailedPath())
         .header(XOkapiHeaders.TENANT, TENANT_ID))
       .andExpect(status().isOk());
   }

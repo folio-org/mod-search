@@ -139,6 +139,21 @@ class MergeRangeRepositoriesIT {
   }
 
   @Test
+  @Sql("/sql/populate-merge-ranges.sql")
+  void getFailedMergeRanges() {
+    // act
+    var failedRanges = instanceRepository.getFailedMergeRanges();
+
+    // assert
+    assertThat(failedRanges)
+      .hasSize(3)
+      .anyMatch(range -> range.getEntityType() == ReindexEntityType.INSTANCE
+        || range.getEntityType() == ReindexEntityType.HOLDINGS)
+      .allMatch(range -> range.getStatus() == ReindexRangeStatus.FAIL
+        && "Some error".equals(range.getFailCause()));
+  }
+
+  @Test
   @SuppressWarnings("unchecked")
   void saveEntities() {
     var mainInstanceId = UUID.randomUUID();

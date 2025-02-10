@@ -4,7 +4,7 @@
   "provides": [
     {
       "id": "indices",
-      "version": "1.0",
+      "version": "1.1",
       "handlers": [
         {
           "methods": [
@@ -107,6 +107,18 @@
           "pathPattern": "/search/index/instance-records/reindex/upload",
           "permissionsRequired": [
             "search.index.instance-records.reindex.upload.post"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
+        },
+        {
+          "methods": [
+            "POST"
+          ],
+          "pathPattern": "/search/index/instance-records/reindex/merge/failed",
+          "permissionsRequired": [
+            "search.index.instance-records.reindex.merge.failed.post"
           ],
           "modulePermissions": [
             "user-tenants.collection.get"
@@ -586,6 +598,7 @@
             "user-tenants.collection.get",
             "users.collection.get",
             "users.item.post",
+            "users.item.put",
             "login.item.post",
             "login.item.delete",
             "perms.users.get",
@@ -630,6 +643,14 @@
     {
       "id": "inventory-reindex-records",
       "version": "1.0"
+    },
+    {
+      "id": "locations",
+      "version": "3.0"
+    },
+    {
+      "id": "location-units",
+      "version": "2.0"
     }
   ],
   "requires": [
@@ -672,10 +693,6 @@
     {
       "id": "classification-types",
       "version": "1.2"
-    },
-    {
-      "id": "locations",
-      "version": "3.0"
     }
   ],
   "permissionSets": [
@@ -708,6 +725,11 @@
       "permissionName": "search.index.instance-records.reindex.upload.post",
       "displayName": "Search - starts inventory instance records reindex upload operation",
       "description": "Starts inventory instance records reindex upload operation"
+    },
+    {
+      "permissionName": "search.index.instance-records.reindex.merge.failed.post",
+      "displayName": "Search - starts inventory instance records reindex merge failed operation",
+      "description": "Starts inventory instance records reindexing for failed merge ranges"
     },
     {
       "permissionName": "search.instances.collection.get",
@@ -914,7 +936,8 @@
       "subPermissions": [
         "search.index.instance-records.reindex.status.get",
         "search.index.instance-records.reindex.full.post",
-        "search.index.instance-records.reindex.upload.post"
+        "search.index.instance-records.reindex.upload.post",
+        "search.index.instance-records.reindex.failed.post"
       ]
     }
 

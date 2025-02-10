@@ -7,6 +7,7 @@ import static org.folio.search.model.types.ReindexEntityType.CONTRIBUTOR;
 import static org.folio.search.model.types.ReindexEntityType.INSTANCE;
 import static org.folio.search.model.types.ReindexEntityType.SUBJECT;
 import static org.folio.search.model.types.ReindexStatus.MERGE_COMPLETED;
+import static org.folio.search.model.types.ReindexStatus.MERGE_IN_PROGRESS;
 import static org.folio.search.model.types.ReindexStatus.UPLOAD_COMPLETED;
 import static org.folio.search.model.types.ReindexStatus.UPLOAD_FAILED;
 import static org.folio.search.model.types.ReindexStatus.UPLOAD_IN_PROGRESS;
@@ -14,6 +15,7 @@ import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.Mockito.when;
 
 import java.sql.Timestamp;
+import java.util.Set;
 import org.assertj.core.api.Condition;
 import org.folio.search.model.reindex.ReindexStatusEntity;
 import org.folio.spring.FolioExecutionContext;
@@ -120,5 +122,20 @@ class ReindexStatusRepositoryIT {
       .filteredOn(reindexStatus -> SUBJECT.equals(reindexStatus.getEntityType()))
       .anyMatch(reindexStatus -> UPLOAD_COMPLETED.equals(reindexStatus.getStatus())
         && reindexStatus.getEndTimeUpload() != null);
+  }
+
+  @Test
+  @Sql("/sql/populate-reindex-status.sql")
+  void setMergeInProgress() {
+    var entityTypes = Set.of(INSTANCE);
+
+    repository.setMergeInProgress(entityTypes);
+
+    var statuses = repository.getReindexStatuses();
+    assertThat(statuses)
+      .hasSize(4)
+      .filteredOn(reindexStatus -> entityTypes.contains(reindexStatus.getEntityType()))
+      .hasSize(1)
+      .allMatch(reindexStatus -> reindexStatus.getStatus() == MERGE_IN_PROGRESS);
   }
 }

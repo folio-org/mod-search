@@ -21,6 +21,7 @@ public class ItemRepository extends MergeRangeRepository {
       DO UPDATE SET
       instance_id = EXCLUDED.instance_id,
       holding_id = EXCLUDED.holding_id,
+      tenant_id = EXCLUDED.tenant_id,
       json = EXCLUDED.json;
     """;
 

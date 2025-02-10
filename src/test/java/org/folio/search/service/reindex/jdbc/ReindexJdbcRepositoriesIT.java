@@ -77,15 +77,15 @@ class ReindexJdbcRepositoriesIT {
     var mergeRange = mergeRepository.getMergeRanges().stream()
       .filter(range -> range.getEntityType().equals(ReindexEntityType.INSTANCE))
       .findFirst();
-    var uploadRange = uploadRepository.getUploadRanges(false).stream()
+    var uploadRange = uploadRepository.getUploadRanges().stream()
       .filter(range -> range.getEntityType().equals(ReindexEntityType.INSTANCE))
       .findFirst();
 
     assertThat(mergeRange).isPresent().get()
       .matches(range -> timestamp.getTime() == range.getFinishedAt().getTime()
-        && ReindexRangeStatus.SUCCESS == range.getStatus() && failCause.equals(range.getFailCause()));
+                        && ReindexRangeStatus.SUCCESS == range.getStatus() && failCause.equals(range.getFailCause()));
     assertThat(uploadRange).isPresent().get()
       .matches(range -> timestamp.getTime() == range.getFinishedAt().getTime()
-        && ReindexRangeStatus.FAIL == range.getStatus() && failCause.equals(range.getFailCause()));
+                        && ReindexRangeStatus.FAIL == range.getStatus() && failCause.equals(range.getFailCause()));
   }
 }

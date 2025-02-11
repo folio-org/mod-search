@@ -72,12 +72,20 @@
       <groupId>org.folio</groupId>
       <artifactId>folio-spring-system-user</artifactId>
       <version>${folio-spring-support.version}</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/lib/folio-spring-system-user-8.3.0-SNAPSHOT.jar</systemPath>
       <exclusions>
         <exclusion>
           <groupId>software.amazon.ion</groupId>
           <artifactId>ion-java</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.folio</groupId>
+      <artifactId>util</artifactId>
+      <version>35.3.0</version>
     </dependency>
 
     <dependency>

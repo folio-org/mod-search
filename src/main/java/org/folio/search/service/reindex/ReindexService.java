@@ -1,5 +1,6 @@
 package org.folio.search.service.reindex;
 
+import static org.folio.search.configuration.SearchCacheNames.USER_TENANTS_CACHE;
 import static org.folio.search.model.types.ReindexStatus.MERGE_FAILED;
 import static org.folio.search.model.types.ReindexStatus.MERGE_IN_PROGRESS;
 
@@ -22,6 +23,7 @@ import org.folio.search.model.types.ReindexStatus;
 import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
 @Log4j2
@@ -64,6 +66,7 @@ public class ReindexService {
     this.reindexCommonService = reindexCommonService;
   }
 
+  @CacheEvict(cacheNames = USER_TENANTS_CACHE, allEntries = true, beforeInvocation = true)
   public CompletableFuture<Void> submitFullReindex(String tenantId, IndexSettings indexSettings) {
     log.info("submitFullReindex:: for [tenantId: {}]", tenantId);
 

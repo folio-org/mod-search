@@ -406,7 +406,7 @@
           ],
           "pathPattern": "/browse/call-numbers/instances",
           "permissionsRequired": [
-            "browse.call-numbers.instances.collection.get"
+            "browse.call-numbers-legacy.instances.collection.get"
           ],
           "modulePermissions": [
             "user-tenants.collection.get"
@@ -418,7 +418,7 @@
           ],
           "pathPattern": "/browse/call-numbers/{browseOptionId}/instances",
           "permissionsRequired": [
-            "browse.call-numbers-new.instances.collection.get"
+            "browse.call-numbers.instances.collection.get"
           ],
           "modulePermissions": [
             "user-tenants.collection.get"
@@ -762,7 +762,7 @@
       "description": "Browse instances by given query"
     },
     {
-      "permissionName": "browse.call-numbers-new.instances.collection.get",
+      "permissionName": "browse.call-numbers-legacy.instances.collection.get",
       "displayName": "Browse - provides collections of browse items for instance by call number",
       "description": "Browse instances by given query"
     },

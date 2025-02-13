@@ -2,6 +2,7 @@ package org.folio.search.integration.message.interceptor;
 
 import static java.util.Collections.emptyList;
 import static java.util.function.Function.identity;
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 import static org.apache.commons.collections4.MapUtils.getString;
 import static org.apache.commons.lang3.StringUtils.startsWith;
 import static org.folio.search.utils.SearchConverterUtils.getEventPayload;
@@ -107,6 +108,12 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
         var noShadowCopiesInstanceEvents = recordByOperation.values().stream().flatMap(Collection::stream).toList();
         instanceChildrenResourceService.persistChildren(tenant, ResourceType.byName(recordCollection.getKey()),
           noShadowCopiesInstanceEvents);
+
+        var instanceRecordsForSharing = getInstanceRecordsForSharing(recordCollection);
+        if (isNotEmpty(instanceRecordsForSharing)) {
+          instanceChildrenResourceService.persistChildren(tenant, ResourceType.byName(recordCollection.getKey()),
+            instanceRecordsForSharing);
+        }
       }
 
     }
@@ -133,6 +140,15 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
         return true;
       })
       .collect(Collectors.groupingBy(resourceEvent -> resourceEvent.getType() != ResourceEventType.DELETE));
+  }
+
+  private List<ResourceEvent> getInstanceRecordsForSharing(
+    Map.Entry<String, List<ResourceEvent>> recordCollection) {
+
+    return recordCollection.getValue().stream()
+      .filter(resourceEvent -> ResourceType.INSTANCE.getName().equals(resourceEvent.getResourceName()))
+      .filter(SearchConverterUtils::isUpdateEventForResourceSharing)
+      .toList();
   }
 
   private void saveEntities(String tenant, Map<Boolean, List<ResourceEvent>> recordByOperation,

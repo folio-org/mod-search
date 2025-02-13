@@ -4,6 +4,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static org.apache.commons.collections4.MapUtils.getObject;
 import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
+import static org.folio.search.utils.SearchConverterUtils.isUpdateEventForResourceSharing;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -44,6 +45,7 @@ public abstract class ChildResourceExtractor {
 
     var eventsForSaving = events.stream()
       .filter(event -> event.getType() != ResourceEventType.DELETE)
+      .filter(event -> !isUpdateEventForResourceSharing(event))
       .toList();
     if (eventsForSaving.isEmpty()) {
       return;

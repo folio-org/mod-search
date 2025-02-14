@@ -34,6 +34,7 @@
 * Fix documentation not being updated ([MSEARCH-937](https://folio-org.atlassian.net/browse/MSEARCH-937))
 * Fix "Fix dead link" api-docs workflow step for release builds ([MSEARCH-947](https://folio-org.atlassian.net/browse/MSEARCH-947))
 * Fix issue with using member tenant postgres schema on reindexing ([MSEARCH-957](https://folio-org.atlassian.net/browse/MSEARCH-957))
+* Fix processing batch of updates to the same instance ([MSEARCH-951](https://folio-org.atlassian.net/browse/MSEARCH-951))
 
 ### Tech Dept
 * Recreate upload ranges each upload execution ([MSEARCH-934](https://folio-org.atlassian.net/browse/MSEARCH-934))

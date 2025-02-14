@@ -2,8 +2,6 @@ package org.folio.search.service.converter.preprocessor.extractor;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
-import static java.util.stream.Collectors.mapping;
-import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.MapUtils.getObject;
 import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
 import static org.folio.search.utils.SearchConverterUtils.isUpdateEventForResourceSharing;
@@ -15,14 +13,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.entity.ChildResourceEntityBatch;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.reindex.jdbc.InstanceChildResourceRepository;
-import org.folio.search.utils.SearchConverterUtils;
 
 @RequiredArgsConstructor
 public abstract class ChildResourceExtractor {
@@ -41,18 +37,10 @@ public abstract class ChildResourceExtractor {
   public void persistChildren(boolean shared, List<ResourceEvent> events) {
     var instanceIdsForDeletion = events.stream()
       .filter(event -> event.getType() != ResourceEventType.CREATE && event.getType() != ResourceEventType.REINDEX)
-      .filter(event -> !isUpdateEventForResourceSharing(event))
       .map(ResourceEvent::getId)
       .toList();
     if (!instanceIdsForDeletion.isEmpty()) {
-      repository.deleteByInstanceIds(instanceIdsForDeletion, null);
-    }
-
-    var sharedInstanceIdsForDeletion = events.stream()
-      .filter(SearchConverterUtils::isUpdateEventForResourceSharing)
-      .collect(Collectors.groupingBy(ResourceEvent::getTenant, mapping(ResourceEvent::getId, toList())));
-    if (!sharedInstanceIdsForDeletion.isEmpty()) {
-      sharedInstanceIdsForDeletion.forEach((key, value) -> repository.deleteByInstanceIds(value, key));
+      repository.deleteByInstanceIds(instanceIdsForDeletion);
     }
 
     var eventsForSaving = events.stream()

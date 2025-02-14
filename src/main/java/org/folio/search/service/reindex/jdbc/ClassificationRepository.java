@@ -119,7 +119,7 @@ public class ClassificationRepository extends UploadRangeRepository implements I
     )
     UPDATE %1$s.classification
     SET last_updated_date = CURRENT_TIMESTAMP
-    WHERE id IN (SELECT * FROM deleted_ids);
+    WHERE id IN (SELECT * FROM deleted_ids) %3$s;
     """;
 
   private static final String INSERT_ENTITIES_SQL = """
@@ -197,9 +197,18 @@ public class ClassificationRepository extends UploadRangeRepository implements I
   }
 
   @Override
-  public void deleteByInstanceIds(List<String> instanceIds) {
-    var sql = DELETE_QUERY.formatted(JdbcUtils.getSchemaName(context), getParamPlaceholderForUuid(instanceIds.size()));
-    jdbcTemplate.update(sql, instanceIds.toArray());
+  public void deleteByInstanceIds(List<String> instanceIds, String tenantId) {
+    var sql = DELETE_QUERY.formatted(
+      JdbcUtils.getSchemaName(context),
+      getParamPlaceholderForUuid(instanceIds.size()),
+      tenantId == null ? "" : "AND tenant_id = ?");
+
+    if (tenantId == null) {
+      jdbcTemplate.update(sql, instanceIds.toArray());
+      return;
+    }
+
+    jdbcTemplate.update(sql, instanceIds.toArray(), tenantId);
   }
 
   @Override

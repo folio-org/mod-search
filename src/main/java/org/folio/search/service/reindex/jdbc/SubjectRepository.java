@@ -211,12 +211,7 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
     var sql = DELETE_QUERY.formatted(
       JdbcUtils.getSchemaName(context),
       getParamPlaceholderForUuid(instanceIds.size()),
-      tenantId == null ? "" : "AND tenant_id = ?");
-
-    if (tenantId != null) {
-      jdbcTemplate.update(sql, instanceIds.toArray(), tenantId);
-      return;
-    }
+      tenantId == null ? "" : "AND tenant_id = '%s'".formatted(tenantId));
 
     jdbcTemplate.update(sql, instanceIds.toArray());
   }

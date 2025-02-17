@@ -76,7 +76,7 @@ class ClassificationRepositoryIT {
     var instanceIds = List.of("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", "b3bae8a9-cfb1-4afe-83d5-2cdae4580e07");
 
     // act
-    repository.deleteByInstanceIds(instanceIds);
+    repository.deleteByInstanceIds(instanceIds, null);
 
     // assert
     var ranges = repository.fetchByIdRange("0", "50");

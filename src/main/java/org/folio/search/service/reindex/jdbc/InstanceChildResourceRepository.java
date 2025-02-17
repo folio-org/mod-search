@@ -6,7 +6,7 @@ import org.folio.search.model.types.ReindexEntityType;
 
 public interface InstanceChildResourceRepository {
 
-  void deleteByInstanceIds(List<String> instanceIds);
+  void deleteByInstanceIds(List<String> instanceIds, String tenantId);
 
   void saveAll(ChildResourceEntityBatch childResourceEntityBatch);
 

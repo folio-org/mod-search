@@ -114,7 +114,7 @@ public class ClassificationRepository extends UploadRangeRepository implements I
     WITH deleted_ids as (
         DELETE
         FROM %1$s.instance_classification
-        WHERE instance_id IN (%2$s)
+        WHERE instance_id IN (%2$s) %3$s
         RETURNING classification_id
     )
     UPDATE %1$s.classification
@@ -197,8 +197,17 @@ public class ClassificationRepository extends UploadRangeRepository implements I
   }
 
   @Override
-  public void deleteByInstanceIds(List<String> instanceIds) {
-    var sql = DELETE_QUERY.formatted(JdbcUtils.getSchemaName(context), getParamPlaceholderForUuid(instanceIds.size()));
+  public void deleteByInstanceIds(List<String> instanceIds, String tenantId) {
+    var sql = DELETE_QUERY.formatted(
+      JdbcUtils.getSchemaName(context),
+      getParamPlaceholderForUuid(instanceIds.size()),
+      tenantId == null ? "" : "AND tenant_id = ?");
+
+    if (tenantId != null) {
+      jdbcTemplate.update(sql, instanceIds.toArray(), tenantId);
+      return;
+    }
+
     jdbcTemplate.update(sql, instanceIds.toArray());
   }
 

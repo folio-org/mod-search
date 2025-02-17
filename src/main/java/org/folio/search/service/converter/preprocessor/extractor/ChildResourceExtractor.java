@@ -40,7 +40,7 @@ public abstract class ChildResourceExtractor {
       .map(ResourceEvent::getId)
       .toList();
     if (!instanceIdsForDeletion.isEmpty()) {
-      repository.deleteByInstanceIds(instanceIdsForDeletion);
+      repository.deleteByInstanceIds(instanceIdsForDeletion, null);
     }
 
     var eventsForSaving = events.stream()

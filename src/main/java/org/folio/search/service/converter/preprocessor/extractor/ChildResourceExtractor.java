@@ -2,6 +2,9 @@ package org.folio.search.service.converter.preprocessor.extractor;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.MapUtils.getObject;
 import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
 import static org.folio.search.utils.SearchConverterUtils.isUpdateEventForResourceSharing;
@@ -19,6 +22,7 @@ import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.entity.ChildResourceEntityBatch;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.reindex.jdbc.InstanceChildResourceRepository;
+import org.folio.search.utils.SearchConverterUtils;
 
 @RequiredArgsConstructor
 public abstract class ChildResourceExtractor {
@@ -42,6 +46,12 @@ public abstract class ChildResourceExtractor {
     if (!instanceIdsForDeletion.isEmpty()) {
       repository.deleteByInstanceIds(instanceIdsForDeletion, null);
     }
+
+    var eventsForSharingByTenant = events.stream()
+      .filter(SearchConverterUtils::isUpdateEventForResourceSharing)
+      .collect(groupingBy(ResourceEvent::getTenant, mapping(ResourceEvent::getId, toList())));
+    eventsForSharingByTenant.forEach((tenant, instanceIds) ->
+      repository.deleteByInstanceIds(instanceIds, tenant));
 
     var eventsForSaving = events.stream()
       .filter(event -> event.getType() != ResourceEventType.DELETE)

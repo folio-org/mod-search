@@ -9,6 +9,7 @@ import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.consortium.ConsortiumTenantProvider;
 import org.folio.search.service.converter.preprocessor.extractor.ChildResourceExtractor;
+import org.folio.search.utils.SearchConverterUtils;
 import org.springframework.stereotype.Component;
 
 /**
@@ -34,8 +35,14 @@ public class InstanceChildrenResourceService {
     if (extractors == null) {
       return;
     }
+    var eventsByInstanceSharing = events.stream()
+      .collect(Collectors.groupingBy(SearchConverterUtils::isUpdateEventForResourceSharing));
     var shared = consortiumTenantProvider.isCentralTenant(tenantId);
-    extractors.forEach(resourceExtractor -> resourceExtractor.persistChildren(shared, events));
+
+    extractors.forEach(resourceExtractor ->
+      resourceExtractor.persistChildren(shared, eventsByInstanceSharing.get(false)));
+    extractors.forEach(resourceExtractor ->
+      resourceExtractor.persistChildrenForResourceSharing(shared, eventsByInstanceSharing.get(true)));
   }
 
   public void persistChildrenOnReindex(String tenantId, ResourceType resourceType,
@@ -50,5 +57,4 @@ public class InstanceChildrenResourceService {
       .toList();
     persistChildren(tenantId, resourceType, events);
   }
-
 }

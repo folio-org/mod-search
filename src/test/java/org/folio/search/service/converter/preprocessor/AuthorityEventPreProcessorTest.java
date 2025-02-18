@@ -79,7 +79,10 @@ class AuthorityEventPreProcessorTest {
       event("saftCorporateNameTitle1", expectedAuthorityAsMap(authority, "saftCorporateNameTitle[1]")),
       event("uniformTitle0", expectedAuthorityAsMap(authority, "uniformTitle")),
       event("sftUniformTitle0", expectedAuthorityAsMap(authority, "sftUniformTitle[0]")),
-      event("saftUniformTitle0", expectedAuthorityAsMap(authority, "saftUniformTitle[0]"))
+      event("saftUniformTitle0", expectedAuthorityAsMap(authority, "saftUniformTitle[0]")),
+      event("namedEvent0", expectedAuthorityAsMap(authority, "namedEvent")),
+      event("sftNamedEvent0", expectedAuthorityAsMap(authority, "sftNamedEvent[0]")),
+      event("saftNamedEvent0", expectedAuthorityAsMap(authority, "saftNamedEvent[0]"))
     ));
   }
 
@@ -162,6 +165,9 @@ class AuthorityEventPreProcessorTest {
       .uniformTitle("an uniform title")
       .sftUniformTitle(List.of("a sft uniform title"))
       .saftUniformTitle(List.of("a saft uniform title"))
+      .namedEvent("a named event")
+      .sftNamedEvent(List.of("a sft named event"))
+      .saftNamedEvent(List.of("a saft named event"))
       .subjectHeadings("a subject heading")
       .identifiers(List.of(new Identifier()
         .value("an identifier value")
@@ -191,6 +197,9 @@ class AuthorityEventPreProcessorTest {
       "uniformTitle", authorityField("uniformTitle"),
       "sftUniformTitle", authorityField("sftUniformTitle"),
       "saftUniformTitle", authorityField("saftUniformTitle"),
+      "namedEvent", authorityField("namedEvent"),
+      "sftNamedEvent", authorityField("sftNamedEvent"),
+      "saftNamedEvent", authorityField("saftNamedEvent"),
       "shared", standardField()
     ));
   }

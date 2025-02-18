@@ -216,6 +216,30 @@
       "headingType": "Uniform Title",
       "authRefType": "Auth/Ref"
     },
+    "namedEvent": {
+      "type": "authority",
+      "index": "standard",
+      "searchAliases": [ "keyword" ],
+      "distinctType": "namedEvent",
+      "headingType": "Named Event",
+      "authRefType": "Authorized"
+    },
+    "sftNamedEvent": {
+      "type": "authority",
+      "index": "standard",
+      "searchAliases": [ "keyword" ],
+      "distinctType": "sftNamedEvent",
+      "headingType": "Named Event",
+      "authRefType": "Reference"
+    },
+    "saftNamedEvent": {
+      "type": "authority",
+      "index": "standard",
+      "searchAliases": [ "keyword" ],
+      "distinctType": "saftNamedEvent",
+      "headingType": "Named Event",
+      "authRefType": "Auth/Ref"
+    },
     "topicalTerm": {
       "type": "authority",
       "index": "standard",

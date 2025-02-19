@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class FacetService {
 
-  private static final String ITEMS_EFFECTIVE_LOCATION_ID = "items.effectiveLocationId";
   private static final String TENANT_ID = "holdings.tenantId";
   private final SearchRepository searchRepository;
   private final CqlSearchQueryConverter cqlSearchQueryConverter;
@@ -39,7 +38,7 @@ public class FacetService {
     searchSource.size(0).from(0).fetchSource(false);
 
     facetQueryBuilder.getFacetAggregations(request, searchSource.query()).forEach(searchSource::aggregation);
-    cleanUpFacetSearchSource(searchSource, List.of(ITEMS_EFFECTIVE_LOCATION_ID, TENANT_ID));
+    cleanUpFacetSearchSource(searchSource, List.of(TENANT_ID));
 
     var searchResponse = searchRepository.search(request, searchSource);
     return facetConverter.convert(searchResponse.getAggregations());

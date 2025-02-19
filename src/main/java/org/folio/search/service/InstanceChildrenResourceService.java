@@ -1,5 +1,9 @@
 package org.folio.search.service;
 
+import static org.apache.commons.lang3.StringUtils.startsWith;
+import static org.folio.search.utils.SearchConverterUtils.getResourceSource;
+import static org.folio.search.utils.SearchUtils.SOURCE_CONSORTIUM_PREFIX;
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -35,14 +39,22 @@ public class InstanceChildrenResourceService {
     if (extractors == null) {
       return;
     }
-    var eventsByInstanceSharing = events.stream()
-      .collect(Collectors.groupingBy(SearchConverterUtils::isUpdateEventForResourceSharing));
-    var shared = consortiumTenantProvider.isCentralTenant(tenantId);
 
+    var shared = consortiumTenantProvider.isCentralTenant(tenantId);
+    var noShadowCopiesInstanceEvents = events.stream()
+      .filter(resourceEvent -> {
+        if (ResourceType.INSTANCE.getName().equals(resourceEvent.getResourceName())) {
+          return !startsWith(getResourceSource(resourceEvent), SOURCE_CONSORTIUM_PREFIX);
+        }
+        return true;
+      })
+      .toList();
+    var eventsForResourceSharing = events.stream()
+      .filter(SearchConverterUtils::isUpdateEventForResourceSharing)
+      .toList();
+    extractors.forEach(resourceExtractor -> resourceExtractor.persistChildren(shared, noShadowCopiesInstanceEvents));
     extractors.forEach(resourceExtractor ->
-      resourceExtractor.persistChildren(shared, eventsByInstanceSharing.get(false)));
-    extractors.forEach(resourceExtractor ->
-      resourceExtractor.persistChildrenForResourceSharing(shared, eventsByInstanceSharing.get(true)));
+      resourceExtractor.persistChildrenForResourceSharing(shared, eventsForResourceSharing));
   }
 
   public void persistChildrenOnReindex(String tenantId, ResourceType resourceType,

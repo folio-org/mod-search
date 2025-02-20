@@ -1,6 +1,5 @@
 package org.folio.search.service;
 
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
@@ -11,7 +10,6 @@ import org.folio.search.model.service.CqlFacetRequest;
 import org.folio.search.repository.SearchRepository;
 import org.folio.search.service.converter.ElasticsearchFacetConverter;
 import org.opensearch.index.query.BoolQueryBuilder;
-import org.opensearch.index.query.TermQueryBuilder;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.stereotype.Service;
 
@@ -38,17 +36,16 @@ public class FacetService {
     searchSource.size(0).from(0).fetchSource(false);
 
     facetQueryBuilder.getFacetAggregations(request, searchSource.query()).forEach(searchSource::aggregation);
-    cleanUpFacetSearchSource(searchSource, List.of(TENANT_ID));
+    cleanUpFacetSearchSource(searchSource);
 
     var searchResponse = searchRepository.search(request, searchSource);
     return facetConverter.convert(searchResponse.getAggregations());
   }
 
-  private static void cleanUpFacetSearchSource(SearchSourceBuilder searchSource, List<String> filterNamesToKeep) {
+  private static void cleanUpFacetSearchSource(SearchSourceBuilder searchSource) {
     var query = searchSource.query();
     if (query instanceof BoolQueryBuilder boolQuery) {
-      boolQuery.filter().removeIf(filter -> !(filter instanceof TermQueryBuilder termFilter
-                                              && filterNamesToKeep.contains(termFilter.fieldName())));
+      boolQuery.filter().clear();
     }
 
     if (CollectionUtils.isNotEmpty(searchSource.sorts())) {

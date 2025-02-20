@@ -3,6 +3,9 @@ package org.folio.search.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.model.types.ResourceType.UNKNOWN;
 import static org.folio.search.utils.TestUtils.defaultFacetServiceRequest;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.matchQuery;
@@ -24,6 +27,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.action.search.SearchResponse;
+import org.opensearch.index.query.BoolQueryBuilder;
 import org.opensearch.search.aggregations.AggregationBuilders;
 import org.opensearch.search.aggregations.Aggregations;
 
@@ -68,15 +72,15 @@ class FacetServiceTest {
   }
 
   @Test
-  void getFacets_positive_keepGivenFilters() {
+  void getFacets_positive_clearGivenFilters() {
     var matchQuery = matchQuery("title", "value");
-    var filterToKeep1 = "items.effectiveLocationId";
-    var filterToKeep2 = "holdings.tenantId";
+    var filter1 = "items.effectiveLocationId";
+    var filter2 = "holdings.tenantId";
     var tenant = "college";
     var uuid = UUID.randomUUID();
-    String query = "%s==(\"%s\") and %s==(\"%s\")".formatted(filterToKeep1, uuid, filterToKeep2, tenant);
-    var boolQuery = boolQuery().must(matchQuery).filter(termQuery(filterToKeep1, uuid.toString()))
-      .must(matchQuery).filter(termQuery(filterToKeep1, uuid.toString()));
+    String query = "%s==(\"%s\") and %s==(\"%s\")".formatted(filter1, uuid, filter2, tenant);
+    var boolQuery = boolQuery().must(matchQuery).filter(termQuery(filter1, uuid.toString()))
+      .must(matchQuery).filter(termQuery(filter1, uuid.toString()));
     var request = defaultFacetServiceRequest(UNKNOWN, query, "holdings.tenantId:6");
     var sourceAggregation = AggregationBuilders.terms("source").field("source").size(Integer.MAX_VALUE);
     var searchSource = searchSource().size(0).from(0).fetchSource(false).aggregation(sourceAggregation)
@@ -88,7 +92,12 @@ class FacetServiceTest {
     when(searchResponse.getAggregations()).thenReturn(aggregations);
     when(facetConverter.convert(aggregations)).thenReturn(new FacetResult());
 
+    assertEquals(2, ((BoolQueryBuilder) searchSource.query()).filter().size());
+
     var actual = facetService.getFacets(request);
+
+    verify(searchRepository).search(request, searchSource);
+    assertTrue(((BoolQueryBuilder) searchSource.query()).filter().isEmpty());
     assertThat(actual).isEqualTo(new FacetResult());
   }
 

@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class FacetService {
 
-  private static final String TENANT_ID = "holdings.tenantId";
   private final SearchRepository searchRepository;
   private final CqlSearchQueryConverter cqlSearchQueryConverter;
   private final FacetQueryBuilder facetQueryBuilder;

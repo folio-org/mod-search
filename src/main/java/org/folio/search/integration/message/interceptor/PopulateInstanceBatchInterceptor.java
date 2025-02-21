@@ -10,7 +10,6 @@ import static org.folio.search.utils.SearchUtils.INSTANCE_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.SOURCE_CONSORTIUM_PREFIX;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -93,22 +92,21 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
   private void process(String tenant, List<ResourceEvent> batch) {
     var recordByResource = batch.stream().collect(Collectors.groupingBy(ResourceEvent::getResourceName));
     for (Map.Entry<String, List<ResourceEvent>> recordCollection : recordByResource.entrySet()) {
-      if (ResourceType.BOUND_WITH.getName().equals(recordCollection.getKey())) {
+      var resourceType = recordCollection.getKey();
+      if (ResourceType.BOUND_WITH.getName().equals(resourceType)) {
         processBoundWithEvents(tenant, recordCollection);
         continue;
       }
 
-      var repository = repositories.get(ReindexEntityType.fromValue(recordCollection.getKey()));
+      var repository = repositories.get(ReindexEntityType.fromValue(resourceType));
       if (repository != null) {
         var recordByOperation = getRecordByOperation(recordCollection);
-        saveEntities(tenant, recordByOperation, repository);
-        deleteEntities(tenant, recordCollection.getKey(), recordByOperation, repository);
+        saveEntities(tenant, recordByOperation.getOrDefault(true, emptyList()), repository);
+        deleteEntities(tenant, resourceType, recordByOperation.getOrDefault(false, emptyList()), repository);
 
-        var noShadowCopiesInstanceEvents = recordByOperation.values().stream().flatMap(Collection::stream).toList();
-        instanceChildrenResourceService.persistChildren(tenant, ResourceType.byName(recordCollection.getKey()),
-          noShadowCopiesInstanceEvents);
+        instanceChildrenResourceService.persistChildren(tenant, ResourceType.byName(resourceType),
+          recordCollection.getValue());
       }
-
     }
   }
 
@@ -135,9 +133,8 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
       .collect(Collectors.groupingBy(resourceEvent -> resourceEvent.getType() != ResourceEventType.DELETE));
   }
 
-  private void saveEntities(String tenant, Map<Boolean, List<ResourceEvent>> recordByOperation,
-                            MergeRangeRepository repository) {
-    var resourceToSave = recordByOperation.getOrDefault(true, emptyList()).stream()
+  private void saveEntities(String tenant, List<ResourceEvent> resourceEvents, MergeRangeRepository repository) {
+    var resourceToSave = resourceEvents.stream()
       .map(SearchConverterUtils::getNewAsMap)
       .toList();
     if (!resourceToSave.isEmpty()) {
@@ -146,8 +143,8 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
   }
 
   private void deleteEntities(String tenant, String resourceType,
-                              Map<Boolean, List<ResourceEvent>> recordByOperation, MergeRangeRepository repository) {
-    var idsToDrop = recordByOperation.getOrDefault(false, emptyList()).stream()
+                              List<ResourceEvent> resourceEvents, MergeRangeRepository repository) {
+    var idsToDrop = resourceEvents.stream()
       .map(ResourceEvent::getId)
       .toList();
     if (!idsToDrop.isEmpty()) {

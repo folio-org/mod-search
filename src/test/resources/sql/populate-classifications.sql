@@ -7,6 +7,7 @@ VALUES
 INSERT INTO instance_classification (instance_id, classification_id, tenant_id, shared)
 VALUES
     ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'::uuid, '1', 'member_tenant', false),
+    ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'::uuid, '1', 'consortium', true),
     ('b3bae8a9-cfb1-4afe-83d5-2cdae4580e07'::uuid, '2', 'consortium', true),
     ('9ec55e4f-6a76-427c-b47b-197046f44a54'::uuid, '2', 'member_tenant', false),
     ('aab8fff4-49c6-4578-979e-439b6ba3600a'::uuid, '2', 'consortium', true);

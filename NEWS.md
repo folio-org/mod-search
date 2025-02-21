@@ -18,6 +18,7 @@
 * Call Numbers Browse: Implement Browsing Endpoint for Call-Numbers ([MSEARCH-865](https://folio-org.atlassian.net/browse/MSEARCH-865))
 * Call Numbers Browse: Support aliases for callNumberTypeId filters ([MSEARCH-942](https://folio-org.atlassian.net/browse/MSEARCH-942))
 * Call Numbers Browse: Support showing instance title in browse results list ([MSEARCH-948](https://folio-org.atlassian.net/browse/MSEARCH-948))
+* Authority search: Add namedEvent, sftNamedEvent, saftNamedEvent to possible search options ([MSEARCH-958](https://folio-org.atlassian.net/browse/MSEARCH-958))
 
 ### Bug fixes
 * Remove shelving order calculation for local call-number types

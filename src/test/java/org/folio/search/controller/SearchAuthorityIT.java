@@ -43,7 +43,7 @@ class SearchAuthorityIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void prepare() {
-    setUpTenant(Authority.class, 30, getAuthoritySampleAsMap());
+    setUpTenant(Authority.class, 33, getAuthoritySampleAsMap());
 
     //set up linked instances
     var instance1 = new Instance().id(randomId()).title("test-resource")
@@ -95,7 +95,7 @@ class SearchAuthorityIT extends BaseIntegrationTest {
   @ParameterizedTest(name = "[{index}] query={0}, value=''{1}''")
   @DisplayName("search by authorities (check that they are divided correctly)")
   void searchByAuthorities_parameterized_all(String query, String value) throws Exception {
-    var response = doSearchByAuthorities(prepareQuery(query, value)).andExpect(jsonPath("$.totalRecords", is(30)));
+    var response = doSearchByAuthorities(prepareQuery(query, value)).andExpect(jsonPath("$.totalRecords", is(33)));
     var actual = parseResponse(response, AuthoritySearchResult.class);
     assertThat(actual.getAuthorities()).asInstanceOf(InstanceOfAssertFactories. LIST).containsOnly(
       authority("Personal Name", AUTHORIZED_TYPE, "Gary A. Wills", 4),
@@ -130,6 +130,10 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       authority("Uniform Title", REFERENCE_TYPE, "a sft uniform title", null),
       authority("Uniform Title", AUTH_REF_TYPE, "a saft uniform title", null),
 
+      authority("Named Event", AUTHORIZED_TYPE, "a named event", 4),
+      authority("Named Event", REFERENCE_TYPE, "a sft named event", null),
+      authority("Named Event", AUTH_REF_TYPE, "a saft named event", null),
+
       authority("Topical", AUTHORIZED_TYPE, "a topical term", 4),
       authority("Topical", REFERENCE_TYPE, "a sft topical term", null),
       authority("Topical", AUTH_REF_TYPE, "a saft topical term", null),
@@ -157,6 +161,9 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       arguments("keyword == {value}", "\"an uniform title\""),
       arguments("keyword all {value}", "\"a sft uniform title\""),
       arguments("keyword all {value}", "\"a saft uniform title\""),
+      arguments("keyword == {value}", "\"a named event\""),
+      arguments("keyword all {value}", "\"a sft named event\""),
+      arguments("keyword all {value}", "\"a saft named event\""),
       arguments("keyword == {value}", "\"a topical term\""),
       arguments("keyword all {value}", "\"a sft topical term\""),
       arguments("keyword all {value}", "\"a saft topical term\""),
@@ -227,6 +234,16 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       arguments("sftUniformTitle == {value}", "\"sft uniform\""),
       arguments("saftUniformTitle = {value} ", "\"title saft\""),
       arguments("saftUniformTitle == {value} ", "\"saft uniform title\""),
+
+      arguments("namedEvent all {value}", "\"a named event\""),
+      arguments("namedEvent all {value}", "named"),
+      arguments("namedEvent == {value}", "\"a nam*\""),
+      arguments("namedEvent == {value} and headingType==\"Named Event\"", "\"a nam*\""),
+      arguments("sftNamedEvent = {value}", "\"sft named event\""),
+      arguments("sftNamedEvent == {value}", "\"sft named event\""),
+      arguments("sftNamedEvent == {value}", "\"*nam*\""),
+      arguments("saftNamedEvent = {value}", "\"saft event\""),
+      arguments("saftNamedEvent == {value}", "\"*saft nam*\""),
 
       arguments("topicalTerm all {value}", "\"a topical term\""),
       arguments("topicalTerm all {value}", "topical"),
@@ -344,6 +361,14 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       arguments("sftUniformTitle == {value}", "\"SFT UNIFORM\""),
       arguments("saftUniformTitle = {value} ", "\"TITLE SAFT\""),
       arguments("saftUniformTitle == {value} ", "\"SAFT UNIFORM TITLE\""),
+
+      arguments("namedEvent all {value}", "\"A NAMED EVENT\""),
+      arguments("namedEvent all {value}", "NAMED"),
+      arguments("namedEvent == {value}", "\"A NAM*\""),
+      arguments("sftNamedEvent = {value}", "\"SFT NAMED EVENT\""),
+      arguments("sftNamedEvent == {value}", "\"*NAM*\""),
+      arguments("saftNamedEvent = {value}", "\"SAFT EVENT\""),
+      arguments("saftNamedEvent == {value}", "\"*SAFT NAM*\""),
 
       arguments("topicalTerm all {value}", "\"A TOPICAL TERM\""),
       arguments("topicalTerm all {value}", "TOPICAL"),

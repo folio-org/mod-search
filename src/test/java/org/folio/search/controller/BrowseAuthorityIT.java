@@ -31,7 +31,7 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void prepare() {
-    setUpTenant(25, authorities());
+    setUpTenant(28, authorities());
   }
 
   @AfterAll
@@ -78,7 +78,7 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
       .param("precedingRecordsCount", "2");
     var actual = parseResponse(doGet(request), AuthorityBrowseResult.class);
     assertThat(actual).isEqualTo(new AuthorityBrowseResult()
-      .totalRecords(17).prev("Harry Potter").next("Ĵämes Röllins test")
+      .totalRecords(19).prev("Harry Potter").next("Ĵämes Röllins test")
       .items(List.of(
         authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED, 0),
         authorityBrowseItem("Ĵämes Röllins", 2, "Personal Name", REFERENCE, null),
@@ -94,7 +94,7 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
       .param("precedingRecordsCount", "2");
     var actual = parseResponse(doGet(request), AuthorityBrowseResult.class);
     assertThat(actual).isEqualTo(new AuthorityBrowseResult()
-      .totalRecords(17).prev("Fantasy").next("Science")
+      .totalRecords(19).prev("Fantasy").next("Revolution")
       .items(List.of(
         authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE, null),
         authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED, 0),
@@ -102,7 +102,7 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
         authorityBrowseItem("North America", 11, "Geographic Name", REFERENCE, null),
         authorityBrowseItem("Novel", 19, "Genre", AUTHORIZED, 0),
         authorityBrowseItem("Poetry", 20, "Genre", REFERENCE, null),
-        authorityBrowseItem("Science", 16, "Topical", AUTHORIZED, 0))));
+        authorityBrowseItem("Revolution", 26, "Named Event", REFERENCE, null))));
   }
 
   @Test
@@ -112,7 +112,7 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
       .param("limit", "3");
     var actual = parseResponse(doGet(request), AuthorityBrowseResult.class);
     assertThat(actual).isEqualTo(new AuthorityBrowseResult()
-      .totalRecords(17).prev("War and Peace").next(null)
+      .totalRecords(19).prev("War and Peace").next(null)
       .items(List.of(
         authorityBrowseItem("War and Peace", 14, "Uniform Title", REFERENCE, null),
         authorityBrowseItem("Zappa Frank", 23, "Personal Name", AUTHORIZED, 0).isAnchor(true),
@@ -129,10 +129,10 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
     var actual = parseResponse(doGet(request), AuthorityBrowseResult.class);
 
     assertThat(actual).isEqualTo(new AuthorityBrowseResult()
-      .totalRecords(17).prev("Comic-Con").next("Ĵämes Röllins")
+      .totalRecords(19).prev("Disney").next("Ĵämes Röllins")
       .items(List.of(
-        authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED, 0),
         authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED, 0),
+        authorityBrowseItem("Eruption of Vesuvius", 25, "Named Event", AUTHORIZED, 0),
         authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE, null),
         authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED, 0),
         authorityBrowseItem("Ĵämes Röllins", 2, "Personal Name", REFERENCE, null))));
@@ -148,7 +148,7 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
 
     return Stream.of(
       arguments(aroundQuery, "Brian K. Vaughan", 5, new AuthorityBrowseResult()
-        .totalRecords(17).prev("Biomedical Symposium").next("Comic-Con")
+        .totalRecords(19).prev("Biomedical Symposium").next("Comic-Con")
         .items(List.of(
           authorityBrowseItem("Biomedical Symposium", 8, "Conference Name", REFERENCE, null),
           authorityBrowseItem("Blumberg Green Beauty", 5, "Corporate Name", REFERENCE, null),
@@ -157,30 +157,30 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
           authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED, 0)))),
 
       arguments(aroundQuery, "harry", 5, new AuthorityBrowseResult()
-        .totalRecords(17).prev("Disney").next("Ĵämes Röllins")
+        .totalRecords(19).prev("Eruption of Vesuvius").next("Ĵämes Röllins")
         .items(List.of(
-          authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED, 0),
+          authorityBrowseItem("Eruption of Vesuvius", 25, "Named Event", AUTHORIZED, 0),
           authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE, null),
           emptyAuthorityBrowseItem("harry"),
           authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED, 0),
           authorityBrowseItem("Ĵämes Röllins", 2, "Personal Name", REFERENCE, null)))),
 
       arguments(aroundQuery, "a", 5, new AuthorityBrowseResult()
-        .totalRecords(17).prev(null).next("Biomedical Symposium")
+        .totalRecords(19).prev(null).next("Biomedical Symposium")
         .items(List.of(
           emptyAuthorityBrowseItem("a"),
           authorityBrowseItem("Asia Pacific", 10, "Geographic Name", AUTHORIZED, 0),
           authorityBrowseItem("Biomedical Symposium", 8, "Conference Name", REFERENCE, null)))),
 
       arguments(aroundQuery, "zz", 5, new AuthorityBrowseResult()
-        .totalRecords(17).prev("Zappa Frank").next(null)
+        .totalRecords(19).prev("Zappa Frank").next(null)
         .items(List.of(
           authorityBrowseItem("Zappa Frank", 24, "Topical", AUTHORIZED, 0),
           authorityBrowseItem("Zappa Frank", 23, "Personal Name", AUTHORIZED, 0),
           emptyAuthorityBrowseItem("zz")))),
 
       arguments(aroundIncludingQuery, "Brian K. Vaughan", 5, new AuthorityBrowseResult()
-        .totalRecords(17).prev("Biomedical Symposium").next("Comic-Con")
+        .totalRecords(19).prev("Biomedical Symposium").next("Comic-Con")
         .items(List.of(
           authorityBrowseItem("Biomedical Symposium", 8, "Conference Name", REFERENCE, null),
           authorityBrowseItem("Blumberg Green Beauty", 5, "Corporate Name", REFERENCE, null),
@@ -189,16 +189,16 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
           authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED, 0)))),
 
       arguments(aroundIncludingQuery, "harry", 5, new AuthorityBrowseResult()
-        .totalRecords(17).prev("Disney").next("Ĵämes Röllins")
+        .totalRecords(19).prev("Eruption of Vesuvius").next("Ĵämes Röllins")
         .items(List.of(
-          authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED, 0),
+          authorityBrowseItem("Eruption of Vesuvius", 25, "Named Event", AUTHORIZED, 0),
           authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE, null),
           emptyAuthorityBrowseItem("harry"),
           authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED, 0),
           authorityBrowseItem("Ĵämes Röllins", 2, "Personal Name", REFERENCE, null)))),
 
       arguments(aroundIncludingQuery, "music", 5, new AuthorityBrowseResult()
-        .totalRecords(17).prev("Harry Potter").next("Novel")
+        .totalRecords(19).prev("Harry Potter").next("Novel")
         .items(List.of(
           authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED, 0),
           authorityBrowseItem("Ĵämes Röllins", 2, "Personal Name", REFERENCE, null),
@@ -207,7 +207,7 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
           authorityBrowseItem("Novel", 19, "Genre", AUTHORIZED, 0)))),
 
       arguments(aroundIncludingQuery, "music", 25, new AuthorityBrowseResult()
-        .totalRecords(17).prev(null).next(null)
+        .totalRecords(19).prev(null).next(null)
         .items(List.of(
           authorityBrowseItem("Asia Pacific", 10, "Geographic Name", AUTHORIZED, 0),
           authorityBrowseItem("Biomedical Symposium", 8, "Conference Name", REFERENCE, null),
@@ -216,6 +216,7 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
           authorityBrowseItem("Brian K. Vaughan Title", 1, "Personal Name", AUTHORIZED, 0),
           authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED, 0),
           authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED, 0),
+          authorityBrowseItem("Eruption of Vesuvius", 25, "Named Event", AUTHORIZED, 0),
           authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE, null),
           authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED, 0),
           authorityBrowseItem("Ĵämes Röllins", 2, "Personal Name", REFERENCE, null),
@@ -223,6 +224,7 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
           authorityBrowseItem("North America", 11, "Geographic Name", REFERENCE, null),
           authorityBrowseItem("Novel", 19, "Genre", AUTHORIZED, 0),
           authorityBrowseItem("Poetry", 20, "Genre", REFERENCE, null),
+          authorityBrowseItem("Revolution", 26, "Named Event", REFERENCE, null),
           authorityBrowseItem("Science", 16, "Topical", AUTHORIZED, 0),
           authorityBrowseItem("War and Peace", 14, "Uniform Title", REFERENCE, null),
           authorityBrowseItem("Zappa Frank", 23, "Personal Name", AUTHORIZED, 0),
@@ -230,10 +232,10 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
         ))),
 
       arguments(aroundIncludingQuery, "music", 11, new AuthorityBrowseResult()
-        .totalRecords(17).prev("Comic-Con").next("War and Peace")
+        .totalRecords(19).prev("Disney").next("Science")
         .items(List.of(
-          authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED, 0),
           authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED, 0),
+          authorityBrowseItem("Eruption of Vesuvius", 25, "Named Event", AUTHORIZED, 0),
           authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE, null),
           authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED, 0),
           authorityBrowseItem("Ĵämes Röllins", 2, "Personal Name", REFERENCE, null),
@@ -241,13 +243,13 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
           authorityBrowseItem("North America", 11, "Geographic Name", REFERENCE, null),
           authorityBrowseItem("Novel", 19, "Genre", AUTHORIZED, 0),
           authorityBrowseItem("Poetry", 20, "Genre", REFERENCE, null),
-          authorityBrowseItem("Science", 16, "Topical", AUTHORIZED, 0),
-          authorityBrowseItem("War and Peace", 14, "Uniform Title", REFERENCE, null)))),
+          authorityBrowseItem("Revolution", 26, "Named Event", REFERENCE, null),
+          authorityBrowseItem("Science", 16, "Topical", AUTHORIZED, 0)))),
 
       arguments(aroundIncludingQuery, "FC", 5, new AuthorityBrowseResult()
-        .totalRecords(17).prev("Disney").next("Ĵämes Röllins")
+        .totalRecords(19).prev("Eruption of Vesuvius").next("Ĵämes Röllins")
         .items(List.of(
-          authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED, 0),
+          authorityBrowseItem("Eruption of Vesuvius", 25, "Named Event", AUTHORIZED, 0),
           authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE, null),
           emptyAuthorityBrowseItem("FC"),
           authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED, 0),
@@ -255,16 +257,16 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
 
       // browsing forward
       arguments(forwardQuery, "Brian K. Vaughan", 5, new AuthorityBrowseResult()
-        .totalRecords(17).prev("Brian K. Vaughan Title").next("Harry Potter")
+        .totalRecords(19).prev("Brian K. Vaughan Title").next("Fantasy")
         .items(List.of(
           authorityBrowseItem("Brian K. Vaughan Title", 1, "Personal Name", AUTHORIZED, 0),
           authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED, 0),
           authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED, 0),
-          authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE, null),
-          authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED, 0)))),
+          authorityBrowseItem("Eruption of Vesuvius", 25, "Named Event", AUTHORIZED, 0),
+          authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE, null)))),
 
       arguments(forwardQuery, "biology", 5, new AuthorityBrowseResult()
-        .totalRecords(17).prev("Biomedical Symposium").next("Comic-Con")
+        .totalRecords(19).prev("Biomedical Symposium").next("Comic-Con")
         .items(List.of(
           authorityBrowseItem("Biomedical Symposium", 8, "Conference Name", REFERENCE, null),
           authorityBrowseItem("Blumberg Green Beauty", 5, "Corporate Name", REFERENCE, null),
@@ -274,7 +276,7 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
 
       // checks if collapsing works in forward direction
       arguments(forwardQuery, "F", 5, new AuthorityBrowseResult()
-        .totalRecords(17).prev("Fantasy").next("Novel")
+        .totalRecords(19).prev("Fantasy").next("Novel")
         .items(List.of(
           authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE, null),
           authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED, 0),
@@ -283,20 +285,20 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
           authorityBrowseItem("Novel", 19, "Genre", AUTHORIZED, 0)))),
 
       arguments(forwardQuery, "ZZ", 10, new AuthorityBrowseResult()
-        .totalRecords(17).prev(null).next(null)
+        .totalRecords(19).prev(null).next(null)
         .items(emptyList())),
 
       arguments(forwardIncludingQuery, "Brian K. Vaughan", 5, new AuthorityBrowseResult()
-        .totalRecords(17).prev("Brian K. Vaughan").next("Fantasy")
+        .totalRecords(19).prev("Brian K. Vaughan").next("Eruption of Vesuvius")
         .items(List.of(
           authorityBrowseItem("Brian K. Vaughan", 22, "Personal Name", AUTHORIZED, 0),
           authorityBrowseItem("Brian K. Vaughan Title", 1, "Personal Name", AUTHORIZED, 0),
           authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED, 0),
           authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED, 0),
-          authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE, null)))),
+          authorityBrowseItem("Eruption of Vesuvius", 25, "Named Event", AUTHORIZED, 0)))),
 
       arguments(forwardIncludingQuery, "biology", 5, new AuthorityBrowseResult()
-        .totalRecords(17).prev("Biomedical Symposium").next("Comic-Con")
+        .totalRecords(19).prev("Biomedical Symposium").next("Comic-Con")
         .items(List.of(
           authorityBrowseItem("Biomedical Symposium", 8, "Conference Name", REFERENCE, null),
           authorityBrowseItem("Blumberg Green Beauty", 5, "Corporate Name", REFERENCE, null),
@@ -306,36 +308,36 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
 
       // browsing backward
       arguments(backwardQuery, "Brian K. Vaughan", 5, new AuthorityBrowseResult()
-        .totalRecords(17).prev(null).next("Blumberg Green Beauty")
+        .totalRecords(19).prev(null).next("Blumberg Green Beauty")
         .items(List.of(
           authorityBrowseItem("Asia Pacific", 10, "Geographic Name", AUTHORIZED, 0),
           authorityBrowseItem("Biomedical Symposium", 8, "Conference Name", REFERENCE, null),
           authorityBrowseItem("Blumberg Green Beauty", 5, "Corporate Name", REFERENCE, null)))),
 
       arguments(backwardQuery, "fun", 5, new AuthorityBrowseResult()
-        .totalRecords(17).prev("Brian K. Vaughan").next("Fantasy")
+        .totalRecords(19).prev("Brian K. Vaughan Title").next("Fantasy")
         .items(List.of(
-          authorityBrowseItem("Brian K. Vaughan", 22, "Personal Name", AUTHORIZED, 0),
           authorityBrowseItem("Brian K. Vaughan Title", 1, "Personal Name", AUTHORIZED, 0),
           authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED, 0),
           authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED, 0),
+          authorityBrowseItem("Eruption of Vesuvius", 25, "Named Event", AUTHORIZED, 0),
           authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE, null)))),
 
       arguments(backwardQuery, "G", 5, new AuthorityBrowseResult()
-        .totalRecords(17).prev("Brian K. Vaughan").next("Fantasy")
+        .totalRecords(19).prev("Brian K. Vaughan Title").next("Fantasy")
         .items(List.of(
-          authorityBrowseItem("Brian K. Vaughan", 22, "Personal Name", AUTHORIZED, 0),
           authorityBrowseItem("Brian K. Vaughan Title", 1, "Personal Name", AUTHORIZED, 0),
           authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED, 0),
           authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED, 0),
+          authorityBrowseItem("Eruption of Vesuvius", 25, "Named Event", AUTHORIZED, 0),
           authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE, null)))),
 
       arguments(backwardQuery, "A", 10, new AuthorityBrowseResult()
-        .totalRecords(17).prev(null).next(null)
+        .totalRecords(19).prev(null).next(null)
         .items(emptyList())),
 
       arguments(backwardIncludingQuery, "Brian K. Vaughan", 5, new AuthorityBrowseResult()
-        .totalRecords(17).prev(null).next("Brian K. Vaughan")
+        .totalRecords(19).prev(null).next("Brian K. Vaughan")
         .items(List.of(
           authorityBrowseItem("Asia Pacific", 10, "Geographic Name", AUTHORIZED, 0),
           authorityBrowseItem("Biomedical Symposium", 8, "Conference Name", REFERENCE, null),
@@ -343,12 +345,12 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
           authorityBrowseItem("Brian K. Vaughan", 22, "Personal Name", AUTHORIZED, 0)))),
 
       arguments(backwardIncludingQuery, "fun", 5, new AuthorityBrowseResult()
-        .totalRecords(17).prev("Brian K. Vaughan").next("Fantasy")
+        .totalRecords(19).prev("Brian K. Vaughan Title").next("Fantasy")
         .items(List.of(
-          authorityBrowseItem("Brian K. Vaughan", 22, "Personal Name", AUTHORIZED, 0),
           authorityBrowseItem("Brian K. Vaughan Title", 1, "Personal Name", AUTHORIZED, 0),
           authorityBrowseItem("Comic-Con", 7, "Conference Name", AUTHORIZED, 0),
           authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED, 0),
+          authorityBrowseItem("Eruption of Vesuvius", 25, "Named Event", AUTHORIZED, 0),
           authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE, null))))
     );
   }
@@ -380,6 +382,9 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
         authority(22).personalName("Brian K. Vaughan"),
         authority(23).personalName("Zappa Frank"),
         authority(24).topicalTerm("Zappa Frank"),
+        authority(25).namedEvent("Eruption of Vesuvius"),
+        authority(26).sftNamedEvent(List.of("Revolution")),
+        authority(27).saftNamedEvent(List.of("Stock Market Crash"))
         };
   }
 

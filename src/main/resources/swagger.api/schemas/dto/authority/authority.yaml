@@ -118,6 +118,19 @@ properties:
     items:
       type: "string"
       description: "See also from tracing uniform title"
+  namedEvent:
+    type: "string"
+    description: "Heading named event"
+  sftNamedEvent:
+    type: "array"
+    description: "See from tracing named event"
+    items:
+      type: "string"
+  saftNamedEvent:
+    type: "array"
+    description: "See also from tracing named event"
+    items:
+      type: "string"
   topicalTerm:
     type: "string"
     description: "Heading topical term"

@@ -36,6 +36,7 @@
 * Fix "Fix dead link" api-docs workflow step for release builds ([MSEARCH-947](https://folio-org.atlassian.net/browse/MSEARCH-947))
 * Fix issue with using member tenant postgres schema on reindexing ([MSEARCH-957](https://folio-org.atlassian.net/browse/MSEARCH-957))
 * Fix processing batch of updates to the same instance ([MSEARCH-951](https://folio-org.atlassian.net/browse/MSEARCH-951))
+* Fix shared facet count for Classifications/Contributors/Subjects ([MSEARCH-941](https://folio-org.atlassian.net/browse/MSEARCH-941))
 * Fix "Effective location (item)" facet hide facets options which should be available for performed search term ([MSEARCH-817](https://folio-org.atlassian.net/browse/MSEARCH-817))
 
 ### Tech Dept

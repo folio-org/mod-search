@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.entity.ChildResourceEntityBatch;
@@ -122,7 +123,7 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
     WITH deleted_ids as (
         DELETE
         FROM %1$s.instance_subject
-        WHERE instance_id IN (%2$s)
+        WHERE instance_id IN (%2$s) %3$s
         RETURNING subject_id
     )
     UPDATE %1$s.subject
@@ -207,8 +208,18 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
   }
 
   @Override
-  public void deleteByInstanceIds(List<String> instanceIds) {
-    var sql = DELETE_QUERY.formatted(JdbcUtils.getSchemaName(context), getParamPlaceholderForUuid(instanceIds.size()));
+  public void deleteByInstanceIds(List<String> instanceIds, String tenantId) {
+    var sql = DELETE_QUERY.formatted(
+      JdbcUtils.getSchemaName(context),
+      getParamPlaceholderForUuid(instanceIds.size()),
+      tenantId == null ? "" : "AND tenant_id = ?");
+
+    if (tenantId != null) {
+      var params = Stream.of(instanceIds, List.of(tenantId)).flatMap(List::stream).toArray();
+      jdbcTemplate.update(sql, params);
+      return;
+    }
+
     jdbcTemplate.update(sql, instanceIds.toArray());
   }
 

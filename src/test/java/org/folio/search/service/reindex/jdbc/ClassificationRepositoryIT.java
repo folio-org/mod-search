@@ -76,7 +76,7 @@ class ClassificationRepositoryIT {
     var instanceIds = List.of("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", "b3bae8a9-cfb1-4afe-83d5-2cdae4580e07");
 
     // act
-    repository.deleteByInstanceIds(instanceIds);
+    repository.deleteByInstanceIds(instanceIds, null);
 
     // assert
     var ranges = repository.fetchByIdRange("0", "50");
@@ -86,7 +86,33 @@ class ClassificationRepositoryIT {
       .contains(
         tuple("Sci-Fi", List.of(
           Map.of("count", 1, "shared", true, "tenantId", "consortium"),
-            Map.of("count", 1, "shared", false, "tenantId", "member_tenant"))));
+          Map.of("count", 1, "shared", false, "tenantId", "member_tenant"))
+        )
+      );
+  }
+
+  @Test
+  @Sql("/sql/populate-classifications.sql")
+  void deleteByInstanceIds_OneInstanceCounterDecrementedForSharedInstance() {
+    var instanceIds = List.of("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11");
+
+    // act
+    repository.deleteByInstanceIds(instanceIds, "member_tenant");
+
+    // assert
+    var ranges = repository.fetchByIdRange("0", "50");
+    assertThat(ranges)
+      .hasSize(2)
+      .extracting("number", "instances")
+      .contains(
+        tuple("Sci-Fi", List.of(
+          Map.of("count", 2, "shared", true, "tenantId", "consortium"),
+          Map.of("count", 1, "shared", false, "tenantId", "member_tenant"))
+        ),
+        tuple("Genre", List.of(
+          Map.of("count", 1, "shared", true, "tenantId", "consortium"))
+        )
+      );
   }
 
   @Test

@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.entity.ChildResourceEntityBatch;
@@ -226,10 +227,11 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
     var sql = DELETE_QUERY.formatted(
       JdbcUtils.getSchemaName(context),
       getParamPlaceholderForUuid(instanceIds.size()),
-      tenantId == null ? "" : "AND tenant_id = '?'");
+      tenantId == null ? "" : "AND tenant_id = ?");
 
     if (tenantId != null) {
-      jdbcTemplate.update(sql, instanceIds.toArray(), tenantId);
+      var params = Stream.of(instanceIds, List.of(tenantId)).flatMap(List::stream).toArray();
+      jdbcTemplate.update(sql, params);
       return;
     }
 

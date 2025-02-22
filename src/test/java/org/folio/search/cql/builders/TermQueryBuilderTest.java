@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.utils.TestConstants.EMPTY_TERM_MODIFIERS;
 
+import java.util.List;
 import java.util.Set;
 import org.folio.search.model.types.ResourceType;
 import org.folio.spring.testing.type.UnitTest;
@@ -24,7 +25,8 @@ class TermQueryBuilderTest {
 
   @Test
   void getFulltextQuery_positive() {
-    assertThatThrownBy(() -> queryBuilder.getFulltextQuery("val", "field", ResourceType.UNKNOWN, emptyList()))
+    List<String> modifiers = emptyList();
+    assertThatThrownBy(() -> queryBuilder.getFulltextQuery("val", "field", ResourceType.UNKNOWN, modifiers))
       .isInstanceOf(UnsupportedOperationException.class)
       .hasMessage("Query is not supported yet [operator(s): [op], field(s): [field]]");
   }

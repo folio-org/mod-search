@@ -15,6 +15,7 @@ import static org.folio.search.utils.TestUtils.kafkaResourceEvent;
 import static org.folio.search.utils.TestUtils.parseResponse;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 import org.assertj.core.groups.Tuple;
 import org.folio.search.domain.dto.ConsortiumInstitution;
@@ -59,11 +60,11 @@ class ConsortiumSearchInstitutionsIT extends BaseConsortiumIntegrationTest {
     assertThat(actual.getTotalRecords()).isEqualTo(EXPECTED_WITH_TWO_TENANTS);
 
     assertThat(actual.getInstitutions())
-      .filteredOn(location -> location.getTenantId().equals(MEMBER_TENANT_ID))
+      .filteredOn(location -> Objects.equals(location.getTenantId(), MEMBER_TENANT_ID))
       .hasSize(EXPECTED_WITH_SINGLE_TENANT);
 
     assertThat(actual.getInstitutions())
-      .filteredOn(location -> location.getTenantId().equals(CENTRAL_TENANT_ID))
+      .filteredOn(location -> Objects.equals(location.getTenantId(), CENTRAL_TENANT_ID))
       .hasSize(EXPECTED_WITH_SINGLE_TENANT);
 
     assertThat(actual.getInstitutions())
@@ -114,9 +115,9 @@ class ConsortiumSearchInstitutionsIT extends BaseConsortiumIntegrationTest {
 
     assertThat(actual.getInstitutions()).hasSize(1);
     assertThat(actual.getTotalRecords()).isEqualTo(1);
-    assertThat(actual.getInstitutions().get(0).getTenantId()).isEqualTo(CENTRAL_TENANT_ID);
-    assertThat(actual.getInstitutions().get(0).getName()).isEqualTo("My institution 1");
-    assertThat(actual.getInstitutions().get(0).getCode()).isEqualTo("MI1");
+    assertThat(actual.getInstitutions().getFirst().getTenantId()).isEqualTo(CENTRAL_TENANT_ID);
+    assertThat(actual.getInstitutions().getFirst().getName()).isEqualTo("My institution 1");
+    assertThat(actual.getInstitutions().getFirst().getCode()).isEqualTo("MI1");
   }
 
   private static void saveInstitutionRecords() {

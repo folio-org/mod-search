@@ -38,7 +38,7 @@ class IndexingInstanceIT extends BaseIntegrationTest {
     var itemIdToDelete = ITEM_IDS.get(1);
     inventoryApi.deleteItem(TENANT_ID, itemIdToDelete);
     assertCountByQuery(instanceSearchPath(), "items.id=={value}", itemIdToDelete, 0);
-    assertCountByQuery(instanceSearchPath(), "items.id=={value}", ITEM_IDS.get(0), 1);
+    assertCountByQuery(instanceSearchPath(), "items.id=={value}", ITEM_IDS.getFirst(), 1);
   }
 
   @Test
@@ -74,8 +74,8 @@ class IndexingInstanceIT extends BaseIntegrationTest {
   void shouldRemoveHolding() {
     createInstances();
     HOLDING_IDS.forEach(id -> assertCountByQuery(instanceSearchPath(), "holdings.id=={value}", id, 1));
-    inventoryApi.deleteHolding(TENANT_ID, HOLDING_IDS.get(0));
-    assertCountByIds(instanceSearchPath(), List.of(HOLDING_IDS.get(0)), 0);
+    inventoryApi.deleteHolding(TENANT_ID, HOLDING_IDS.getFirst());
+    assertCountByIds(instanceSearchPath(), List.of(HOLDING_IDS.getFirst()), 0);
     HOLDING_IDS.subList(1, 4)
       .forEach(id -> assertCountByQuery(instanceSearchPath(), "holdings.id=={value}", id, 1));
   }
@@ -83,7 +83,7 @@ class IndexingInstanceIT extends BaseIntegrationTest {
   @Test
   void shouldRemoveInstance() {
     createInstances();
-    var instanceIdToDelete = INSTANCE_IDS.get(0);
+    var instanceIdToDelete = INSTANCE_IDS.getFirst();
 
     assertCountByIds(instanceSearchPath(), INSTANCE_IDS, INSTANCE_IDS.size());
 

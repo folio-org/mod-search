@@ -47,7 +47,7 @@ public class FolioMessageBatchProcessor {
       executeWithRetryTemplate(retryTemplate, batch, batchConsumer);
     } catch (Exception e) {
       if (batch.size() == 1) {
-        failedValueConsumer.accept(batch.iterator().next(), e);
+        failedValueConsumer.accept(batch.getFirst(), e);
       } else {
         log.warn("Failed to process batch, attempting to process resources one by one", e);
         processMessagesOneByOne(batch, retryTemplate, batchConsumer, failedValueConsumer);

@@ -69,7 +69,7 @@ public class BrowseContextProvider {
 
     if (isBoolQueryWithFilters(boolQuery)) {
       var mustClauses = boolQuery.must();
-      var firstMustClause = mustClauses.get(0);
+      var firstMustClause = mustClauses.getFirst();
       if (firstMustClause instanceof RangeQueryBuilder rangeQuery) {
         log.trace("Attempts to create browsingContext with filters [request: {}, filters.size: {}]",
           request, logMsg);

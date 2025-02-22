@@ -50,7 +50,7 @@ class FacetQueryBuilderTest {
 
   @BeforeEach
   void setUp() {
-    when(searchFieldProvider.getModifiedField(any(), any())).thenAnswer(f -> f.getArguments()[0]);
+    when(searchFieldProvider.getModifiedField(any(), any())).thenAnswer(inv -> inv.getArgument(0));
   }
 
   @Test

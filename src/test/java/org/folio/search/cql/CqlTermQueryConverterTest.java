@@ -56,7 +56,7 @@ class CqlTermQueryConverterTest {
 
   @BeforeEach
   void setUp() {
-    lenient().when(searchFieldProvider.getModifiedField(any(), any())).thenAnswer(f -> f.getArguments()[0]);
+    lenient().when(searchFieldProvider.getModifiedField(any(), any())).thenAnswer(inv -> inv.getArgument(0));
     when(termQueryBuilder.getSupportedComparators()).thenReturn(Set.of("all"));
     when(wildcardQueryBuilder.getSupportedComparators()).thenReturn(Set.of("wildcard"));
     var searchTermProcessors = Map.of("processor", searchTermProcessor);
@@ -208,9 +208,9 @@ class CqlTermQueryConverterTest {
 
   @Test
   void constructCqlTermQueryConverter_negative_processorWithSameComparators() {
-    var termQueryBuilder = List.of(new QueryBuilder1(), new QueryBuilder2());
+    var queryBuilders = List.of(new QueryBuilder1(), new QueryBuilder2());
     var searchTermProcessors = Collections.<String, SearchTermProcessor>emptyMap();
-    assertThatThrownBy(() -> new CqlTermQueryConverter(null, termQueryBuilder, searchTermProcessors))
+    assertThatThrownBy(() -> new CqlTermQueryConverter(null, queryBuilders, searchTermProcessors))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Multiple TermQueryBuilder objects cannot be responsible for the same comparator."
         + " Found issues: [comparator '=': QueryBuilder1, QueryBuilder2]");

@@ -216,7 +216,7 @@ class ConsortiumSearchItemsIT extends BaseConsortiumIntegrationTest {
     } else if (identifierName == BatchIdsDto.IdentifierTypeEnum.ACCESSION_NUMBER) {
       return item.getAccessionNumber();
     } else if (identifierName == BatchIdsDto.IdentifierTypeEnum.FORMER_IDS) {
-      return CollectionUtils.isNotEmpty(item.getFormerIds()) ? item.getFormerIds().get(0) : null;
+      return CollectionUtils.isNotEmpty(item.getFormerIds()) ? item.getFormerIds().getFirst() : null;
     } else {
       throw new UnsupportedOperationException(
         format("Item identifier type %s isn't supported", identifierName.getValue()));

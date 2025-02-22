@@ -66,7 +66,7 @@ public final class CallNumberSearchResponsePostProcessor implements SearchRespon
       var instanceId = searchHit.getId();
       var instanceTitle = MapUtils.getString(searchHit.getSourceAsMap(), INSTANCE_TITLE_FIELD);
       for (var authority : authorities) {
-        if (authority.getInstanceId().size() == 1 && authority.getInstanceId().get(0).equals(instanceId)) {
+        if (authority.getInstanceId().size() == 1 && authority.getInstanceId().getFirst().equals(instanceId)) {
           authority.setInstanceTitle(instanceTitle);
         }
       }

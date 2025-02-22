@@ -61,7 +61,7 @@ class ResourcesIdsControllerTest {
     var request = CqlResourceIdsRequest.of(ResourceType.INSTANCE, TENANT_ID, cqlQuery, HOLDINGS_ID_PATH);
 
     doAnswer(inv -> {
-      var out = (OutputStream) inv.getArgument(1);
+      var out = inv.<OutputStream>getArgument(1);
       var resourceIds = new ResourceIds().totalRecords(1).ids(List.of(new ResourceId().id(holdingId)));
       out.write(OBJECT_MAPPER.writeValueAsBytes(resourceIds));
       return null;
@@ -86,7 +86,7 @@ class ResourcesIdsControllerTest {
     var request = CqlResourceIdsRequest.of(ResourceType.INSTANCE, TENANT_ID, cqlQuery, HOLDINGS_ID_PATH);
 
     doAnswer(inv -> {
-      var out = (OutputStream) inv.getArgument(1);
+      var out = inv.<OutputStream>getArgument(1);
       out.write(OBJECT_MAPPER.writeValueAsBytes(holdingId));
       return null;
     }).when(resourceIdService).streamResourceIdsAsText(eq(request), any(OutputStream.class));
@@ -109,7 +109,7 @@ class ResourcesIdsControllerTest {
     var request = CqlResourceIdsRequest.of(ResourceType.INSTANCE, TENANT_ID, cqlQuery, INSTANCE_ID_PATH);
 
     doAnswer(inv -> {
-      var out = (OutputStream) inv.getArgument(1);
+      var out = inv.<OutputStream>getArgument(1);
       var resourceIds = new ResourceIds().totalRecords(1).ids(List.of(new ResourceId().id(instanceId)));
       out.write(OBJECT_MAPPER.writeValueAsBytes(resourceIds));
       return null;
@@ -134,7 +134,7 @@ class ResourcesIdsControllerTest {
     var request = CqlResourceIdsRequest.of(ResourceType.INSTANCE, TENANT_ID, cqlQuery, INSTANCE_ID_PATH);
 
     doAnswer(inv -> {
-      var out = (OutputStream) inv.getArgument(1);
+      var out = inv.<OutputStream>getArgument(1);
       out.write(instanceId.getBytes(StandardCharsets.UTF_8));
       return null;
     }).when(resourceIdService).streamResourceIdsAsText(eq(request), any(OutputStream.class));

@@ -28,6 +28,7 @@ import static org.mockito.Mockito.when;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
 import lombok.extern.log4j.Log4j2;
@@ -117,7 +118,7 @@ class KafkaMessageListenerIT {
 
   @BeforeEach
   void setUp() {
-    lenient().doAnswer(invocation -> ((Callable<?>) invocation.getArgument(1)).call())
+    lenient().doAnswer(invocation -> invocation.<Callable<?>>getArgument(1).call())
       .when(executionService).executeSystemUserScoped(any(), any());
   }
 
@@ -172,7 +173,7 @@ class KafkaMessageListenerIT {
       if (eventBodies.size() == 2) {
         throw new SearchOperationException("Failed to save bulk");
       }
-      if (eventBodies.get(0).getId().equals(authorityIds.get(1))) {
+      if (Objects.equals(eventBodies.getFirst().getId(), authorityIds.get(1))) {
         throw new SearchOperationException("Failed to save single resource");
       }
       return getSuccessIndexOperationResponse();

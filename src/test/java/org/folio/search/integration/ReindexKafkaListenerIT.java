@@ -89,9 +89,9 @@ class ReindexKafkaListenerIT {
   @BeforeEach
   void setUp() {
     lenient().when(systemUserScopedExecutionService.executeSystemUserScoped(eq(TENANT_ID), any()))
-        .thenAnswer(invocation -> ((Callable<?>) invocation.getArgument(1)).call());
+        .thenAnswer(invocation -> invocation.<Callable<?>>getArgument(1).call());
     lenient().when(executionService.execute(any()))
-      .thenAnswer(invocation -> ((Supplier<?>) invocation.getArgument(0)).get());
+      .thenAnswer(invocation -> invocation.<Supplier<?>>getArgument(0).get());
   }
 
   @Test

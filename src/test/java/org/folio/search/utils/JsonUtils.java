@@ -45,38 +45,17 @@ public class JsonUtils {
   }
 
   public static JsonNode jsonNode(Object value) {
-    if (value == null) {
-      return NullNode.instance;
-    }
+    return switch (value) {
+      case null -> NullNode.instance;
+      case JsonNode jsonNode -> jsonNode;
+      case String s -> TextNode.valueOf(s);
+      case Float v -> DoubleNode.valueOf(v);
+      case Double v -> DoubleNode.valueOf(v);
+      case Integer i -> IntNode.valueOf(i);
+      case Long l -> LongNode.valueOf(l);
+      case Boolean b -> BooleanNode.valueOf(b);
+      default -> jsonObject();
+    };
 
-    if (value instanceof JsonNode) {
-      return (JsonNode) value;
-    }
-
-    if (value instanceof String) {
-      return TextNode.valueOf((String) value);
-    }
-
-    if (value instanceof Float) {
-      return DoubleNode.valueOf((Float) value);
-    }
-
-    if (value instanceof Double) {
-      return DoubleNode.valueOf((Double) value);
-    }
-
-    if (value instanceof Integer) {
-      return IntNode.valueOf((Integer) value);
-    }
-
-    if (value instanceof Long) {
-      return LongNode.valueOf((Long) value);
-    }
-
-    if (value instanceof Boolean) {
-      return BooleanNode.valueOf((Boolean) value);
-    }
-
-    return jsonObject();
   }
 }

@@ -75,7 +75,7 @@ class ContributorBrowseServiceTest {
 
     var browseResult = service.mapToBrowseResult(browseContext, searchResult, false);
 
-    assertThat(browseResult.getRecords().get(0))
+    assertThat(browseResult.getRecords().getFirst())
       .isEqualTo(expected);
   }
 

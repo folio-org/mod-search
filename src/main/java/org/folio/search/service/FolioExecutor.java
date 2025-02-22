@@ -12,7 +12,8 @@ import org.jetbrains.annotations.NotNull;
  * */
 public class FolioExecutor extends ThreadPoolExecutor {
   public FolioExecutor(int corePoolSize, int maximumPoolSize) {
-    super(corePoolSize, maximumPoolSize, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
+    super(corePoolSize, maximumPoolSize, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(),
+      Thread.ofVirtual().factory());
   }
 
   @Override

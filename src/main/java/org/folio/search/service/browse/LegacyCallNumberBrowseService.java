@@ -46,7 +46,7 @@ public class LegacyCallNumberBrowseService extends AbstractBrowseService<LegacyC
         .totalRecords(browseResult.getTotalRecords());
     }
 
-    var callNumberBrowseItemFirst = browseItems.get(0);
+    var callNumberBrowseItemFirst = browseItems.getFirst();
     searchSource.sorts().clear();
     searchSource.searchAfter(new Object[]{callNumberBrowseItemFirst.getShelfKey()})
       .sort("itemEffectiveShelvingOrder", SortOrder.DESC)
@@ -60,7 +60,7 @@ public class LegacyCallNumberBrowseService extends AbstractBrowseService<LegacyC
       prev = callNumberBrowseItemFirst.getShelfKey();
     }
     searchSource.sorts().clear();
-    var callNumberBrowseItemLast = browseItems.get(browseItems.size() - 1);
+    var callNumberBrowseItemLast = browseItems.getLast();
     searchSource.searchAfter(new Object[]{callNumberBrowseItemLast.getShelfKey()})
       .sort("itemEffectiveShelvingOrder", SortOrder.ASC)
       .from(0)
@@ -110,7 +110,7 @@ public class LegacyCallNumberBrowseService extends AbstractBrowseService<LegacyC
     }
 
     String prev = null;
-    var callNumberBrowseItemFirst = browseItems.get(0);
+    var callNumberBrowseItemFirst = browseItems.getFirst();
     precedingQuery.searchAfter(new Object[]{callNumberBrowseItemFirst.getShelfKey()})
       .from(0).size(5);
     var precedingResponse = searchRepository.search(request, precedingQuery);
@@ -120,7 +120,7 @@ public class LegacyCallNumberBrowseService extends AbstractBrowseService<LegacyC
       prev = callNumberBrowseItemFirst.getShelfKey();
     }
     String next = null;
-    var callNumberBrowseItemLast = browseItems.get(browseItems.size() - 1);
+    var callNumberBrowseItemLast = browseItems.getLast();
     succeedingQuery.searchAfter(new Object[]{callNumberBrowseItemLast.getShelfKey()})
       .from(0).size(5);
     var succeedingResponse = searchRepository.search(request, succeedingQuery);
@@ -180,7 +180,7 @@ public class LegacyCallNumberBrowseService extends AbstractBrowseService<LegacyC
       return;
     }
 
-    var firstBrowseItem = items.get(0);
+    var firstBrowseItem = items.getFirst();
     if (!StringUtils.equals(firstBrowseItem.getShelfKey(), anchor)) {
       var browseItemsWithEmptyValue = new ArrayList<LegacyCallNumberBrowseItem>();
       browseItemsWithEmptyValue.add(getEmptyCallNumberBrowseItem(callNumber, anchor));

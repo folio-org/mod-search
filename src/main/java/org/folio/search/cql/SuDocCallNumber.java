@@ -11,8 +11,9 @@ public class SuDocCallNumber extends AbstractCallNumber {
   private static final String GROUP3 = "(\\.(?:[A-Za-z]+\\d*|\\d+))";
   private static final String GROUP4 = "(/(?:[A-Za-z]+(?:\\d+(?:-\\d+)?)?|\\d+(?:-\\d+)?))?";
   private static final String GROUP5 = "(.*)";
-  public static final String SU_DOC_PATTERN = "^(?:" + GROUP1 + GROUP2 + GROUP3 + GROUP4 + ")?:?" + GROUP5;
-  protected static Pattern stemPattern = Pattern.compile(SU_DOC_PATTERN);
+  private static final String SU_DOC_PATTERN = "^(?:" + GROUP1 + GROUP2 + GROUP3 + GROUP4 + ")?:?" + GROUP5;
+  private static final Pattern STEM_PATTERN = Pattern.compile(SU_DOC_PATTERN);
+
   protected String authorSymbol;
   protected String subordinateOffice;
   protected String series;
@@ -55,7 +56,7 @@ public class SuDocCallNumber extends AbstractCallNumber {
   }
 
   protected void parseCallNumber() {
-    var stemMatcher = stemPattern.matcher(rawCallNum);
+    var stemMatcher = STEM_PATTERN.matcher(rawCallNum);
     if (stemMatcher.matches()) {
       authorSymbol = stemMatcher.group(1);
       subordinateOffice = stemMatcher.group(2);

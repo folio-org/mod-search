@@ -81,8 +81,8 @@ public class ApiExceptionHandler {
     logException(DEBUG, exception);
 
     var cause = exception.getCause();
-    return cause instanceof OpenSearchException
-           ? handleOpenSearchException((OpenSearchException) cause)
+    return cause instanceof OpenSearchException openSearchException
+           ? handleOpenSearchException(openSearchException)
            : buildResponseEntity(exception, INTERNAL_SERVER_ERROR, exception.getErrorCode());
   }
 

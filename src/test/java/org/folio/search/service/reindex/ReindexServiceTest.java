@@ -48,6 +48,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.Answer;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -96,10 +97,7 @@ class ReindexServiceTest {
     when(executionService.executeSystemUserScoped(anyString(), any())).thenReturn(List.of());
     when(consortiumService.getConsortiumTenants(tenant)).thenReturn(List.of(member));
     when(mergeRangeService.fetchMergeRanges(any(ReindexEntityType.class))).thenReturn(List.of(rangeEntity));
-    doAnswer(invocation -> {
-      ((Runnable) invocation.getArgument(0)).run();
-      return null;
-    }).when(reindexExecutor).execute(any());
+    doAnswer(executeRunnable()).when(reindexExecutor).execute(any());
     final var expectedCallsCount = ReindexEntityType.supportMergeTypes().size();
     final var indexSettings = new IndexSettings().refreshInterval(1).numberOfShards(2).numberOfReplicas(3);
 
@@ -110,8 +108,8 @@ class ReindexServiceTest {
     verify(statusService).recreateMergeStatusRecords();
     verify(mergeRangeService).createMergeRanges(tenant);
     verify(mergeRangeService).saveMergeRanges(anyList());
-    verify(executionService).executeSystemUserScoped(eq(member), any(Callable.class));
-    verify(executionService, times(expectedCallsCount)).executeSystemUserScoped(eq(tenant), any(Callable.class));
+    verify(executionService).executeSystemUserScoped(eq(member), any());
+    verify(executionService, times(expectedCallsCount)).executeSystemUserScoped(eq(tenant), any());
     verify(statusService, times(expectedCallsCount))
       .updateReindexMergeStarted(any(ReindexEntityType.class), eq(1));
     verify(mergeRangeService, times(expectedCallsCount)).fetchMergeRanges(any(ReindexEntityType.class));
@@ -137,10 +135,7 @@ class ReindexServiceTest {
       .thenReturn(List.of()); // when creating ranges for one member tenant
     when(mergeRangeService.fetchMergeRanges(any(ReindexEntityType.class))).thenReturn(List.of(rangeEntity));
 
-    doAnswer(invocation -> {
-      ((Runnable) invocation.getArgument(0)).run();
-      return null;
-    })
+    doAnswer(executeRunnable())
       .doThrow(FolioIntegrationException.class)
       .when(reindexExecutor).execute(any());
 
@@ -201,10 +196,7 @@ class ReindexServiceTest {
   @Test
   void submitUploadReindex_positive() {
     when(consortiumService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(TENANT_ID));
-    doAnswer(invocation -> {
-      ((Runnable) invocation.getArgument(0)).run();
-      return null;
-    }).when(reindexExecutor).execute(any());
+    doAnswer(executeRunnable()).when(reindexExecutor).execute(any());
 
     reindexService.submitUploadReindex(TENANT_ID, List.of(ReindexEntityType.INSTANCE));
 
@@ -217,10 +209,7 @@ class ReindexServiceTest {
     var uploadDto = new ReindexUploadDto().entityTypes(List.of(ReindexUploadDto.EntityTypesEnum.INSTANCE));
     when(consortiumService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(TENANT_ID));
     when(entityTypeMapper.convert(uploadDto.getEntityTypes())).thenReturn(List.of(INSTANCE));
-    doAnswer(invocation -> {
-      ((Runnable) invocation.getArgument(0)).run();
-      return null;
-    }).when(reindexExecutor).execute(any());
+    doAnswer(executeRunnable()).when(reindexExecutor).execute(any());
 
     reindexService.submitUploadReindex(TENANT_ID, uploadDto);
 
@@ -233,10 +222,7 @@ class ReindexServiceTest {
     when(consortiumService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(TENANT_ID));
     doThrow(RuntimeException.class).when(uploadRangeService).prepareAndSendIndexRanges(INSTANCE);
 
-    doAnswer(invocation -> {
-      ((Runnable) invocation.getArgument(0)).run();
-      return null;
-    }).when(reindexExecutor).execute(any());
+    doAnswer(executeRunnable()).when(reindexExecutor).execute(any());
 
     reindexService.submitUploadReindex(TENANT_ID, List.of(ReindexEntityType.INSTANCE));
 
@@ -276,11 +262,8 @@ class ReindexServiceTest {
 
     when(consortiumService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(TENANT_ID));
     when(mergeRangeService.fetchFailedMergeRanges()).thenReturn(failedRanges);
-    doAnswer(invocation -> {
-      ((Runnable) invocation.getArgument(0)).run();
-      return null;
-    }).when(reindexExecutor).execute(any());
-    doAnswer(invocation -> ((Callable) invocation.getArgument(1)).call())
+    doAnswer(executeRunnable()).when(reindexExecutor).execute(any());
+    doAnswer(invocation -> invocation.<Callable<?>>getArgument(1).call())
       .when(executionService).executeSystemUserScoped(any(), any());
 
     reindexService.submitFailedMergeRangesReindex(TENANT_ID).get();
@@ -295,5 +278,12 @@ class ReindexServiceTest {
     var id = UUID.randomUUID();
     return new MergeRangeEntity(id, entityType, TENANT_ID, id.toString(), id.toString(),
       Timestamp.from(Instant.now()), null, null);
+  }
+
+  private Answer<?> executeRunnable() {
+    return invocation -> {
+      invocation.<Runnable>getArgument(0).run();
+      return null;
+    };
   }
 }

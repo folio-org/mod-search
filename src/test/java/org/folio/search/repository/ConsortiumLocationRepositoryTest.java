@@ -80,8 +80,8 @@ class ConsortiumLocationRepositoryTest {
         assertThat(source.from()).isEqualTo(offset);
 
         assertThat(source.sorts()).hasSize(1);
-        assertThat(source.sorts().get(0)).isInstanceOf(FieldSortBuilder.class);
-        var sort = (FieldSortBuilder) source.sorts().get(0);
+        assertThat(source.sorts().getFirst()).isInstanceOf(FieldSortBuilder.class);
+        var sort = (FieldSortBuilder) source.sorts().getFirst();
         assertThat(sort.getFieldName()).isEqualTo(sortBy);
         assertThat(sort.order()).isEqualTo(SortOrder.ASC);
 
@@ -111,8 +111,8 @@ class ConsortiumLocationRepositoryTest {
           assertThat(source.from()).isEqualTo(offset);
 
           assertThat(source.sorts()).hasSize(1);
-          assertThat(source.sorts().get(0)).isInstanceOf(FieldSortBuilder.class);
-          var sort = (FieldSortBuilder) source.sorts().get(0);
+          assertThat(source.sorts().getFirst()).isInstanceOf(FieldSortBuilder.class);
+          var sort = (FieldSortBuilder) source.sorts().getFirst();
           assertThat(sort.getFieldName()).isEqualTo(sortBy);
           assertThat(sort.order()).isEqualTo(SortOrder.ASC);
 
@@ -144,8 +144,8 @@ class ConsortiumLocationRepositoryTest {
         assertThat(source.from()).isEqualTo(offset);
 
         assertThat(source.sorts()).hasSize(1);
-        assertThat(source.sorts().get(0)).isInstanceOf(FieldSortBuilder.class);
-        var sort = (FieldSortBuilder) source.sorts().get(0);
+        assertThat(source.sorts().getFirst()).isInstanceOf(FieldSortBuilder.class);
+        var sort = (FieldSortBuilder) source.sorts().getFirst();
         assertThat(sort.getFieldName()).isEqualTo(sortBy);
         assertThat(sort.order()).isEqualTo(SortOrder.ASC);
 
@@ -178,8 +178,8 @@ class ConsortiumLocationRepositoryTest {
         assertThat(source.from()).isEqualTo(offset);
 
         assertThat(source.sorts()).hasSize(1);
-        assertThat(source.sorts().get(0)).isInstanceOf(FieldSortBuilder.class);
-        var sort = (FieldSortBuilder) source.sorts().get(0);
+        assertThat(source.sorts().getFirst()).isInstanceOf(FieldSortBuilder.class);
+        var sort = (FieldSortBuilder) source.sorts().getFirst();
         assertThat(sort.getFieldName()).isEqualTo(sortBy);
         assertThat(sort.order()).isEqualTo(SortOrder.DESC);
 

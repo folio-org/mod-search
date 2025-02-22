@@ -118,10 +118,10 @@ class BrowseCallNumberAroundIT extends BaseIntegrationTest {
       .toArray(Instance[]::new);
   }
 
-  @SuppressWarnings("unchecked")
   private static Instance instance(List<Object> data) {
     var holding = new Holding().id(randomId()).tenantId(TENANT_ID).discoverySuppress(false);
 
+    @SuppressWarnings("unchecked")
     var items = ((List<String>) data.get(1)).stream()
       .map(callNumber -> new Item()
         .id(randomId())

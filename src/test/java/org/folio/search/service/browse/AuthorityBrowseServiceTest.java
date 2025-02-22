@@ -23,7 +23,6 @@ import static org.opensearch.search.sort.SortOrder.DESC;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthorityBrowseItem;
 import org.folio.search.model.BrowseResult;
@@ -35,7 +34,6 @@ import org.folio.search.repository.SearchRepository;
 import org.folio.search.service.consortium.ConsortiumSearchHelper;
 import org.folio.search.service.converter.ElasticsearchDocumentConverter;
 import org.folio.search.service.metadata.SearchFieldProvider;
-import org.folio.search.service.setter.SearchResponsePostProcessor;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -71,8 +69,6 @@ class AuthorityBrowseServiceTest {
   private ConsortiumSearchHelper consortiumSearchHelper;
   @Mock
   private SearchResponse searchResponse;
-  @Mock
-  private Map<Class<?>, SearchResponsePostProcessor<?>> searchResponsePostProcessors = Collections.emptyMap();
 
   @BeforeEach
   void setUp() {
@@ -81,7 +77,7 @@ class AuthorityBrowseServiceTest {
     authorityBrowseService.setDocumentConverter(documentConverter);
     authorityBrowseService.setSearchRepository(searchRepository);
     authorityBrowseService.setBrowseContextProvider(browseContextProvider);
-    authorityBrowseService.setSearchResponsePostProcessors(searchResponsePostProcessors);
+    authorityBrowseService.setSearchResponsePostProcessors(Collections.emptyMap());
     lenient().when(searchRepository.analyze(any(), any(), any(), any()))
       .thenAnswer(invocation -> invocation.getArgument(0));
   }
@@ -344,9 +340,9 @@ class AuthorityBrowseServiceTest {
     var query = disMaxQuery();
     when(consortiumSearchHelper.filterQueryForActiveAffiliation(any(), any())).thenReturn(query);
 
-    var actual = authorityBrowseService.getSearchQuery(
+    var actual = authorityBrowseService.getAnchorSearchQuery(
       BrowseRequest.builder().targetField("test").build(),
-      BrowseContext.builder().anchor("test").succeedingLimit(1).build(), true);
+      BrowseContext.builder().anchor("test").succeedingLimit(1).precedingLimit(1).build());
     assertThat(actual.query()).isEqualTo(query);
   }
 
@@ -375,9 +371,9 @@ class AuthorityBrowseServiceTest {
     var items = new MultiSearchResponse.Item[results.size()];
     for (int i = 0; i < results.size(); i++) {
       items[i] = mock(MultiSearchResponse.Item.class);
-      var searchResponse = mock(SearchResponse.class);
-      when(items[i].getResponse()).thenReturn(searchResponse);
-      when(documentConverter.convertToSearchResult(searchResponse, Authority.class)).thenReturn(results.get(i));
+      var searchResponseMock = mock(SearchResponse.class);
+      when(items[i].getResponse()).thenReturn(searchResponseMock);
+      when(documentConverter.convertToSearchResult(searchResponseMock, Authority.class)).thenReturn(results.get(i));
     }
 
     when(searchRepository.msearch(request, queries)).thenReturn(multiSearchResponse);

@@ -117,14 +117,14 @@ class PopulateInstanceBatchInterceptorTest {
 
   private void mockExecutionServices() {
     doAnswer(invocation -> {
-      Supplier<?> operation = invocation.getArgument(0);
+      var operation = invocation.<Supplier<?>>getArgument(0);
       return operation.get();
-    }).when(executionService).execute(any(Supplier.class));
+    }).when(executionService).execute(any());
 
     doAnswer(invocation -> {
-      Callable<?> action = invocation.getArgument(1);
+      var action = invocation.<Callable<?>>getArgument(1);
       return action.call();
-    }).when(systemUserScopedExecutionService).executeSystemUserScoped(any(String.class), any(Callable.class));
+    }).when(systemUserScopedExecutionService).executeSystemUserScoped(any(String.class), any());
   }
 
   private ConsumerRecord<String, ResourceEvent> createConsumerRecord(Map<String, Object> resourceNew, long timestamp) {

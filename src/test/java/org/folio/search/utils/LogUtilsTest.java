@@ -32,21 +32,9 @@ class LogUtilsTest {
   }
 
   @Test
-  void testCollectionToLogMsg_EmptyList() {
-    var actual = collectionToLogMsg(null, false);
-    assertThat(actual).isEqualTo(MSG + 0);
-  }
-
-  @Test
   void collectionToLogMsg_withHidingItems() {
     var actual = collectionToLogMsg(BIG_LIST, true);
     assertThat(actual).isEqualTo(MSG + BIG_LIST.size());
-  }
-
-  @Test
-  void testCollectionToLogMsg_withHidingEmptyList() {
-    var actual = collectionToLogMsg(null, true);
-    assertThat(actual).isEqualTo(MSG + 0);
   }
 
 

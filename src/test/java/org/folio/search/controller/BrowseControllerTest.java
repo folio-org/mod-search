@@ -76,7 +76,7 @@ class BrowseControllerTest {
   private Map<Class<?>, SearchResponsePostProcessor<?>> searchResponsePostProcessors = Collections.emptyMap();
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     lenient().when(tenantProvider.getTenant(TENANT_ID))
       .thenReturn(TENANT_ID);
   }

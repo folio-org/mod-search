@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.utils.TestConstants.EMPTY_TERM_MODIFIERS;
 import static org.opensearch.index.query.QueryBuilders.rangeQuery;
 
+import java.util.List;
 import org.folio.search.model.types.ResourceType;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
@@ -30,7 +31,8 @@ class LteTermQueryBuilderTest {
 
   @Test
   void getFulltextQuery_positive() {
-    assertThatThrownBy(() -> queryBuilder.getFulltextQuery("val", "field", ResourceType.UNKNOWN, emptyList()))
+    List<String> modifiers = emptyList();
+    assertThatThrownBy(() -> queryBuilder.getFulltextQuery("val", "field", ResourceType.UNKNOWN, modifiers))
       .isInstanceOf(UnsupportedOperationException.class)
       .hasMessage("Query is not supported yet [operator(s): [<=], field(s): [field]]");
   }

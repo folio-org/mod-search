@@ -1,4 +1,4 @@
-FROM folioci/alpine-jre-openjdk17:latest
+FROM folioci/alpine-jre-openjdk21:latest
 
 # Copy your fat jar to the container
 ENV APP_FILE mod-search-fat.jar

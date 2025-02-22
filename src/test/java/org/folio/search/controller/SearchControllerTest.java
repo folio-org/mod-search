@@ -52,7 +52,7 @@ class SearchControllerTest {
   private MockMvc mockMvc;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     lenient().when(tenantProvider.getTenant(TENANT_ID))
       .thenReturn(TENANT_ID);
   }

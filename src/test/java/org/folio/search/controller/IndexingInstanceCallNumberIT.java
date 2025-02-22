@@ -83,7 +83,7 @@ class IndexingInstanceCallNumberIT extends BaseIntegrationTest {
       .allSatisfy(map -> assertThat(map).containsEntry("shared", false))
       .allSatisfy(map -> assertThat(map).containsEntry("tenantId", TENANT_ID));
     @SuppressWarnings("unchecked")
-    var ids = (List<String>) instances.get(0).get("instanceId");
+    var ids = (List<String>) instances.getFirst().get("instanceId");
     assertThat(ids).containsExactlyInAnyOrder(INSTANCE_ID_1, INSTANCE_ID_2);
   }
 

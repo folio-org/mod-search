@@ -97,7 +97,7 @@ class IndexServiceTest {
   void setUp() {
     lenient().when(tenantProvider.getTenant(TENANT_ID)).thenReturn(TENANT_ID);
     lenient().when(indexNameProvider.getIndexName(any(ResourceType.class), any()))
-      .thenAnswer(invocation -> getIndexName((ResourceType) invocation.getArgument(0), invocation.getArgument(1)));
+      .thenAnswer(invocation -> getIndexName(invocation.<ResourceType>getArgument(0), invocation.getArgument(1)));
   }
 
   @Test

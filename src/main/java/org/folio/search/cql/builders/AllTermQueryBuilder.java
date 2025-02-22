@@ -34,7 +34,7 @@ public class AllTermQueryBuilder extends FulltextQueryBuilder {
       }
 
       if (terms.size() == 1) {
-        return getMultiMatchQuery(terms.get(0), fields);
+        return getMultiMatchQuery(terms.getFirst(), fields);
       } else {
         return getBoolQuery(terms, fields);
       }

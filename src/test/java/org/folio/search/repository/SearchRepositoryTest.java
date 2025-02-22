@@ -79,7 +79,7 @@ class SearchRepositoryTest {
   @BeforeEach
   void setUp() {
     lenient().when(indexNameProvider.getIndexName(any(ResourceRequest.class)))
-      .thenAnswer(invocation -> SearchUtils.getIndexName((ResourceRequest) invocation.getArgument(0)));
+      .thenAnswer(invocation -> SearchUtils.getIndexName(invocation.<ResourceRequest>getArgument(0)));
   }
 
   @Test

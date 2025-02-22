@@ -231,7 +231,7 @@ public final class CollectionUtils {
    * @return {@link Optional} of the latest element of the list, it will be empty if the given list is empty.
    */
   public static <T> Optional<T> findLast(List<T> list) {
-    return isEmpty(list) ? Optional.empty() : Optional.ofNullable(list.get(list.size() - 1));
+    return isEmpty(list) ? Optional.empty() : Optional.ofNullable(list.getLast());
   }
 
   /**
@@ -242,7 +242,7 @@ public final class CollectionUtils {
    * @return {@link Optional} of the first element of the list, it will be empty if the given list is empty.
    */
   public static <T> Optional<T> findFirst(List<T> list) {
-    return isEmpty(list) ? Optional.empty() : Optional.ofNullable(list.get(0));
+    return isEmpty(list) ? Optional.empty() : Optional.ofNullable(list.getFirst());
   }
 
   /**

@@ -55,11 +55,11 @@ public class ConsortiumInstanceSearchService {
   public ConsortiumHolding getConsortiumHolding(String id, CqlSearchRequest<Instance> searchRequest) {
     var result = searchService.search(searchRequest);
 
-    if (isEmpty(result.getRecords()) || isEmpty(result.getRecords().iterator().next().getHoldings())) {
+    if (isEmpty(result.getRecords()) || isEmpty(result.getRecords().getFirst().getHoldings())) {
       return new ConsortiumHolding();
     }
 
-    var instance = result.getRecords().iterator().next();
+    var instance = result.getRecords().getFirst();
     var holding = instance.getHoldings().stream()
       .filter(hol -> Objects.equals(id, hol.getId()))
       .findFirst().orElse(null);
@@ -74,11 +74,11 @@ public class ConsortiumInstanceSearchService {
   public ConsortiumItem getConsortiumItem(String id, CqlSearchRequest<Instance> searchRequest) {
     var result = searchService.search(searchRequest);
 
-    if (isEmpty(result.getRecords()) || isEmpty(result.getRecords().iterator().next().getItems())) {
+    if (isEmpty(result.getRecords()) || isEmpty(result.getRecords().getFirst().getItems())) {
       return new ConsortiumItem();
     }
 
-    var instance = result.getRecords().iterator().next();
+    var instance = result.getRecords().getFirst();
     var item = instance.getItems().stream()
       .filter(it -> Objects.equals(id, it.getId()))
       .findFirst().orElse(null);
@@ -173,7 +173,7 @@ public class ConsortiumInstanceSearchService {
       return instance.getItems().stream()
         .filter(item -> identifierValues.contains(item.getBarcode()))
         .flatMap(item -> instance.getHoldings().stream()
-          .filter(holding -> item.getHoldingsRecordId().equals(holding.getId()))
+          .filter(holding -> Objects.equals(item.getHoldingsRecordId(), holding.getId()))
         )
         .map(holding -> toConsortiumHolding(instance.getId(), holding))
         .distinct()

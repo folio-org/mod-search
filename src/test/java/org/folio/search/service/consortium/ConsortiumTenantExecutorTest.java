@@ -56,7 +56,7 @@ class ConsortiumTenantExecutorTest {
 
     when(folioExecutionContext.getTenantId()).thenReturn(TENANT_ID);
     when(tenantProvider.getTenant(TENANT_ID)).thenReturn(CENTRAL_TENANT_ID);
-    doAnswer(invocationOnMock -> ((Callable<String>) invocationOnMock.getArgument(1)).call())
+    doAnswer(invocationOnMock -> invocationOnMock.<Callable<String>>getArgument(1).call())
       .when(scopedExecutionService).executeSystemUserScoped(eq(CENTRAL_TENANT_ID), any());
 
     var actual = consortiumTenantExecutor.execute(operation);
@@ -71,7 +71,7 @@ class ConsortiumTenantExecutorTest {
     var operation = Mockito.spy(operation());
 
     when(tenantProvider.getTenant(TENANT_ID)).thenReturn(CENTRAL_TENANT_ID);
-    doAnswer(invocationOnMock -> ((Callable<String>) invocationOnMock.getArgument(1)).call())
+    doAnswer(invocationOnMock -> invocationOnMock.<Callable<String>>getArgument(1).call())
       .when(scopedExecutionService).executeSystemUserScoped(eq(CENTRAL_TENANT_ID), any());
 
     var actual = consortiumTenantExecutor.execute(TENANT_ID, operation);
@@ -108,6 +108,7 @@ class ConsortiumTenantExecutorTest {
     return new Runnable() {
       @Override
       public void run() {
+        // do nothing
       }
     };
   }

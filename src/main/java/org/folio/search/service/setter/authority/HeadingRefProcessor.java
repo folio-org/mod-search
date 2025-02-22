@@ -18,11 +18,11 @@ public class HeadingRefProcessor extends AbstractAuthorityProcessor {
   }
 
   private static String getStringValue(Object value) {
-    if (value instanceof String) {
-      return (String) value;
+    if (value instanceof String string) {
+      return string;
     }
-    if (value instanceof Iterable<?>) {
-      return getStringValue(((Iterable<?>) value).iterator().next());
+    if (value instanceof Iterable<?> iterable) {
+      return getStringValue(iterable.iterator().next());
     }
     return null;
   }

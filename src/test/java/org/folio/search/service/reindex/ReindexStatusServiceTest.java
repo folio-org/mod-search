@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -47,6 +48,9 @@ class ReindexStatusServiceTest {
   @InjectMocks
   private ReindexStatusService service;
 
+  @Captor
+  private ArgumentCaptor<List<ReindexStatusEntity>> reindexStatusEntitiesCaptor;
+
   @Test
   void updateReindexUploadFailed() {
     // given
@@ -65,7 +69,7 @@ class ReindexStatusServiceTest {
     var expected = List.of(new ReindexStatusItem());
 
     when(statusRepository.getReindexStatuses()).thenReturn(statusEntities);
-    when(reindexStatusMapper.convert(statusEntities.get(0))).thenReturn(expected.get(0));
+    when(reindexStatusMapper.convert(statusEntities.getFirst())).thenReturn(expected.getFirst());
 
     var actual = service.getReindexStatuses(TENANT_ID);
 
@@ -151,12 +155,11 @@ class ReindexStatusServiceTest {
   void shouldRecreateMergeReindexStatusEntities() {
     // act
     service.recreateMergeStatusRecords();
-    var captor = ArgumentCaptor.forClass(List.class);
 
     // assert
     verify(statusRepository).truncate();
-    verify(statusRepository).saveReindexStatusRecords(captor.capture());
-    var savedEntities = (List<ReindexStatusEntity>) captor.getValue();
+    verify(statusRepository).saveReindexStatusRecords(reindexStatusEntitiesCaptor.capture());
+    var savedEntities = reindexStatusEntitiesCaptor.getValue();
     assertThat(savedEntities)
       .hasSize(ReindexEntityType.supportMergeTypes().size())
       .are(new Condition<>(statusEntity ->

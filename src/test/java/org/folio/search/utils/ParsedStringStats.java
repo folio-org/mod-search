@@ -24,23 +24,23 @@ public final class ParsedStringStats extends ParsedAggregation {
 
   public static final ConstructingObjectParser<ParsedStringStats, String> PARSER =
     new ConstructingObjectParser<>("string_stats", true, (args, name) -> {
-      long count = (Long) args[0];
+      long countArg = (Long) args[0];
       boolean disributionWasExplicitNull = args[5] == NULL_DISTRIBUTION_MARKER;
-      if (count == 0L) {
-        return new ParsedStringStats(name, count, 0, 0, 0.0, 0.0, disributionWasExplicitNull, null);
+      if (countArg == 0L) {
+        return new ParsedStringStats(name, countArg, 0, 0, 0.0, 0.0, disributionWasExplicitNull, null);
       } else {
-        int minLength = (Integer) args[1];
-        int maxLength = (Integer) args[2];
-        double averageLength = (Double) args[3];
-        double entropy = (Double) args[4];
+        int minLengthArg = (Integer) args[1];
+        int maxLengthArg = (Integer) args[2];
+        double averageLengthArg = (Double) args[3];
+        double entropyArg = (Double) args[4];
         if (disributionWasExplicitNull) {
-          return new ParsedStringStats(name, count, minLength, maxLength, averageLength, entropy,
+          return new ParsedStringStats(name, countArg, minLengthArg, maxLengthArg, averageLengthArg, entropyArg,
             disributionWasExplicitNull, null);
         } else {
           @SuppressWarnings("unchecked")
           Map<String, Double> distribution = (Map<String, Double>) args[5];
-          return new ParsedStringStats(name, count, minLength, maxLength, averageLength, entropy, distribution != null,
-            distribution);
+          return new ParsedStringStats(name, countArg, minLengthArg, maxLengthArg, averageLengthArg, entropyArg,
+            distribution != null, distribution);
         }
       }
     });

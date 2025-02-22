@@ -74,7 +74,7 @@ class SearchDocumentConverterTest {
   @Mock
   private ResourceDescriptionService descriptionService;
   @Spy
-  private SearchConfigurationProperties searchConfigurationProperties = getSearchConfigurationProperties();
+  private SearchConfigurationProperties configurationPropertiesSpy = getSearchConfigurationProperties();
 
   @Test
   void convert_positive() {
@@ -93,7 +93,7 @@ class SearchDocumentConverterTest {
   void convert_positive_json() {
     var searchConfig = getSearchConfigurationProperties();
     searchConfig.getIndexing().setDataFormat(IndexingDataFormat.JSON);
-    searchConfigurationProperties = spy(searchConfig);
+    configurationPropertiesSpy = spy(searchConfig);
     documentMapper = new SearchDocumentConverter(searchFieldsProcessor,
       languageConfigService, descriptionService, searchConfig, jsonConverter::toJsonBytes);
 

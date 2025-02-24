@@ -1,6 +1,6 @@
 ## v4.0.9 2025-02-24
 ### Bug fixes
-* Fix "Fix dead link" api-docs workflow step for release builds ([MSEARCH-947](https://folio-org.atlassian.net/browse/MSEARCH-947))
+* Fix "Fix dead link" api-docs workflow step ([MSEARCH-947](https://folio-org.atlassian.net/browse/MSEARCH-947))
 * Fix processing batch of updates to the same instance ([MSEARCH-951](https://folio-org.atlassian.net/browse/MSEARCH-951))
 
 ## v4.0.8 2025-01-21

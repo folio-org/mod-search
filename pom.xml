@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.4.2</version>
+    <version>3.4.3</version>
     <relativePath />
   </parent>
 
@@ -52,14 +52,14 @@
     <maven-openapi-generator-plugin.version>7.11.0</maven-openapi-generator-plugin.version>
     <maven-copy-rename-plugin.version>1.0.1</maven-copy-rename-plugin.version>
     <maven-build-helper-plugin.version>3.6.0</maven-build-helper-plugin.version>
-    <maven-clean-plugin.version>3.4.0</maven-clean-plugin.version>
+    <maven-clean-plugin.version>3.4.1</maven-clean-plugin.version>
     <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
     <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
-    <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+    <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
     <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
     <maven-failsafe-plugin.version>3.5.2</maven-failsafe-plugin.version>
     <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
-    <checkstyle.version>10.21.2</checkstyle.version>
+    <checkstyle.version>10.21.3</checkstyle.version>
   </properties>
 
   <dependencies>

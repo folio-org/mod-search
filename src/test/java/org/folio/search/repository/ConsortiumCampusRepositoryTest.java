@@ -80,9 +80,9 @@ class ConsortiumCampusRepositoryTest {
         assertThat(source.size()).isEqualTo(limit);
         assertThat(source.from()).isEqualTo(offset);
         assertThat(source.sorts()).hasSize(1);
-        assertThat(source.sorts().get(0)).isInstanceOf(FieldSortBuilder.class);
+        assertThat(source.sorts().getFirst()).isInstanceOf(FieldSortBuilder.class);
 
-        var sort = (FieldSortBuilder) source.sorts().get(0);
+        var sort = (FieldSortBuilder) source.sorts().getFirst();
         assertThat(sort.getFieldName()).isEqualTo(sortBy);
         assertThat(sort.order()).isEqualTo(SortOrder.ASC);
 
@@ -112,9 +112,9 @@ class ConsortiumCampusRepositoryTest {
         assertThat(source.size()).isEqualTo(limit);
         assertThat(source.from()).isEqualTo(offset);
         assertThat(source.sorts()).hasSize(1);
-        assertThat(source.sorts().get(0)).isInstanceOf(FieldSortBuilder.class);
+        assertThat(source.sorts().getFirst()).isInstanceOf(FieldSortBuilder.class);
 
-        var sort = (FieldSortBuilder) source.sorts().get(0);
+        var sort = (FieldSortBuilder) source.sorts().getFirst();
         assertThat(sort.getFieldName()).isEqualTo(sortBy);
         assertThat(sort.order()).isEqualTo(SortOrder.ASC);
         assertThat(source.query()).isInstanceOf(BoolQueryBuilder.class);
@@ -147,9 +147,9 @@ class ConsortiumCampusRepositoryTest {
           assertThat(source.size()).isEqualTo(limit);
           assertThat(source.from()).isEqualTo(offset);
           assertThat(source.sorts()).hasSize(1);
-          assertThat(source.sorts().get(0)).isInstanceOf(FieldSortBuilder.class);
+          assertThat(source.sorts().getFirst()).isInstanceOf(FieldSortBuilder.class);
 
-          var sort = (FieldSortBuilder) source.sorts().get(0);
+          var sort = (FieldSortBuilder) source.sorts().getFirst();
           assertThat(sort.getFieldName()).isEqualTo(sortBy);
           assertThat(sort.order()).isEqualTo(SortOrder.ASC);
           assertThat(source.query()).isInstanceOf(BoolQueryBuilder.class);
@@ -183,9 +183,9 @@ class ConsortiumCampusRepositoryTest {
         assertThat(source.size()).isEqualTo(limit);
         assertThat(source.from()).isEqualTo(offset);
         assertThat(source.sorts()).hasSize(1);
-        assertThat(source.sorts().get(0)).isInstanceOf(FieldSortBuilder.class);
+        assertThat(source.sorts().getFirst()).isInstanceOf(FieldSortBuilder.class);
 
-        var sort = (FieldSortBuilder) source.sorts().get(0);
+        var sort = (FieldSortBuilder) source.sorts().getFirst();
         assertThat(sort.getFieldName()).isEqualTo(sortBy);
         assertThat(sort.order()).isEqualTo(SortOrder.DESC);
         assertThat(source.query()).isNull();

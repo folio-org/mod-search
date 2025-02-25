@@ -129,7 +129,7 @@ class CallNumberRepositoryIT {
     List<UUID> itemIdList = ITEM_IDS.get(callNumberId);
     return Map.of(
       "instanceId", INSTANCE_ID,
-      "itemId", itemIdList.remove(0).toString(),
+      "itemId", itemIdList.removeFirst().toString(),
       "callNumberId", callNumberId,
       "tenantId", TENANT_ID,
       "shared", false

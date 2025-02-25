@@ -1,6 +1,9 @@
 spring:
   application:
     name: mod-search
+  threads:
+    virtual:
+      enabled: true
   jackson:
     default-property-inclusion: non_null
     deserialization:
@@ -163,4 +166,8 @@ management:
       base-path: /admin
   endpoint:
     loggers:
-      enabled: true
+      access: unrestricted
+
+logging:
+  level:
+    org.folio.spring.filter.LoggingRequestFilter: debug

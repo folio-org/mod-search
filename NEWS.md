@@ -1,6 +1,6 @@
-## v4.1.0 YYYY-mm-DD
+## v5.0.0 YYYY-mm-DD
 ### Breaking changes
-* Description ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))
+* Upgrade to Java 21 ([MSEARCH-969](https://folio-org.atlassian.net/browse/MSEARCH-969))
 
 ### New APIs versions
 * Provides `indices v1.1`

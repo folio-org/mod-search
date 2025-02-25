@@ -142,7 +142,7 @@ public class IndexService {
    */
   public ReindexJob reindexInventory(String tenantId, ReindexRequest reindexRequest) {
     var resources = getResourceNamesToReindex(reindexRequest);
-    var resource = normalizeResourceName(resources.get(0));
+    var resource = normalizeResourceName(resources.getFirst());
     if (reindexRequest != null && TRUE.equals(reindexRequest.getRecreateIndex())
         && notConsortiumMemberTenant(tenantId)) {
       resources.forEach(resourceName -> {

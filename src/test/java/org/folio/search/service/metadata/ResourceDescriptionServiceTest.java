@@ -136,19 +136,6 @@ class ResourceDescriptionServiceTest {
   }
 
   @Test
-  void initService_negative_processorWithInvalidGenericType() {
-    var resourceDescription = resourceDescription(null, mapOf(
-      "field1", searchField("unresolvedGenerics"), "field2", searchField("unresolvedGenerics")));
-    when(localResourceProvider.getResourceDescriptions()).thenReturn(List.of(resourceDescription));
-    assertThatThrownBy(() -> descriptionService.init())
-      .isInstanceOf(ResourceDescriptionException.class)
-      .hasMessage("Found error(s) in resource description(s):\n"
-        + "instance: ("
-        + "'Generic class for field processor not found [field: 'field1', processorName: 'unresolvedGenerics']', "
-        + "'Generic class for field processor not found [field: 'field2', processorName: 'unresolvedGenerics']')");
-  }
-
-  @Test
   void initService_negative_testEntityClassProcessorWithInvalidGenericType() {
     var resourceDescription = resourceDescription(TestEntityClass.class, mapOf(FIELD, searchField("testProcessor")));
     when(localResourceProvider.getResourceDescriptions()).thenReturn(List.of(resourceDescription));

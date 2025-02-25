@@ -17,6 +17,7 @@ import static org.folio.search.utils.TestUtils.kafkaResourceEvent;
 import static org.folio.search.utils.TestUtils.parseResponse;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 import org.assertj.core.groups.Tuple;
 import org.folio.search.domain.dto.ConsortiumLocation;
@@ -55,10 +56,10 @@ class ConsortiumSearchLocationsIT extends BaseConsortiumIntegrationTest {
     assertThat(actual.getLocations()).hasSize(14);
     assertThat(actual.getTotalRecords()).isEqualTo(14);
     assertThat(actual.getLocations())
-      .filteredOn(location -> location.getTenantId().equals(MEMBER_TENANT_ID))
+      .filteredOn(location -> Objects.equals(location.getTenantId(), MEMBER_TENANT_ID))
       .hasSize(7);
     assertThat(actual.getLocations())
-      .filteredOn(location -> location.getTenantId().equals(CENTRAL_TENANT_ID))
+      .filteredOn(location -> Objects.equals(location.getTenantId(), CENTRAL_TENANT_ID))
       .hasSize(7);
     assertThat(actual.getLocations())
       .extracting(ConsortiumLocation::getId, ConsortiumLocation::getName, ConsortiumLocation::getTenantId,
@@ -114,9 +115,9 @@ class ConsortiumSearchLocationsIT extends BaseConsortiumIntegrationTest {
 
     assertThat(actual.getLocations()).hasSize(1);
     assertThat(actual.getTotalRecords()).isEqualTo(1);
-    assertThat(actual.getLocations().get(0).getTenantId()).isEqualTo(CENTRAL_TENANT_ID);
-    assertThat(actual.getLocations().get(0).getName()).isEqualTo("Annex");
-    assertThat(actual.getLocations().get(0).getCode()).isEqualTo("KU/CC/DI/A");
+    assertThat(actual.getLocations().getFirst().getTenantId()).isEqualTo(CENTRAL_TENANT_ID);
+    assertThat(actual.getLocations().getFirst().getName()).isEqualTo("Annex");
+    assertThat(actual.getLocations().getFirst().getCode()).isEqualTo("KU/CC/DI/A");
   }
 
   private static void saveLocationRecords() {

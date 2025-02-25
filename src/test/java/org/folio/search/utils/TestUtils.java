@@ -266,14 +266,14 @@ public class TestUtils {
   }
 
   public static String getShelfKeyFromCallNumber(String callNumber) {
-    return CallNumberUtils.getShelfKeyFromCallNumber(callNumber).get();
+    return CallNumberUtils.getShelfKeyFromCallNumber(callNumber).orElse("");
   }
 
   public static String getShelfKeyFromCallNumber(String callNumber, String typeId) {
     var callNumberType = CallNumberType.fromId(typeId);
     return callNumberType.flatMap(numberType -> Optional.ofNullable(SHELVING_ORDER_GENERATORS.get(numberType))
         .map(generator -> generator.apply(callNumber)).map(AbstractCallNumber::getShelfKey))
-      .orElse(CallNumberUtils.getShelfKeyFromCallNumber(callNumber).get()).trim();
+      .orElse(CallNumberUtils.getShelfKeyFromCallNumber(callNumber).orElse("")).trim();
   }
 
   public static SubjectBrowseResult subjectBrowseResult(int total, List<SubjectBrowseItem> items) {

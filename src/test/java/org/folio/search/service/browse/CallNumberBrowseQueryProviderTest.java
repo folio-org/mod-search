@@ -64,7 +64,7 @@ class CallNumberBrowseQueryProviderTest {
   private CallNumberBrowseQueryProvider queryProvider;
 
   @BeforeEach
-  public void setUpMocks() {
+  void setUpMocks() {
     lenient().doAnswer(invocation -> invocation.getArgument(0))
       .when(consortiumSearchHelper).filterQueryForActiveAffiliation(any(), any());
   }

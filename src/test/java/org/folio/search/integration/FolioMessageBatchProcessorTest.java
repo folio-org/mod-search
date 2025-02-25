@@ -103,7 +103,7 @@ class FolioMessageBatchProcessorTest {
       attemptThrowingConsumer(consumedMessages, attemptsCounter, 3),
       (value, err) -> failedMessages.add(Pair.of(value, err)));
     assertThat(consumedMessages).isEmpty();
-    assertThat(failedMessages).hasSize(1).satisfies(list -> verifyFailedMessage(list.get(0), 1));
+    assertThat(failedMessages).hasSize(1).satisfies(list -> verifyFailedMessage(list.getFirst(), 1));
   }
 
   @Test

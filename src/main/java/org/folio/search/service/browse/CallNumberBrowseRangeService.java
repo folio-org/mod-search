@@ -93,8 +93,8 @@ public class CallNumberBrowseRangeService {
 
   private static boolean isRangeBoundaryCanBeProvided(
     String anchor, boolean isBrowsingForward, List<CallNumberBrowseRangeValue> ranges) {
-    return anchor.compareTo(ranges.get(0).getKey()) > 0 && !isBrowsingForward
-           || anchor.compareTo(ranges.get(ranges.size() - 1).getKey()) < 0 && isBrowsingForward;
+    return anchor.compareTo(ranges.getFirst().getKey()) > 0 && !isBrowsingForward
+           || anchor.compareTo(ranges.getLast().getKey()) < 0 && isBrowsingForward;
   }
 
   private List<CallNumberBrowseRangeValue> getCallNumberRanges(String cacheKey) {
@@ -152,7 +152,7 @@ public class CallNumberBrowseRangeService {
         callNumbersMap.get(next).doubleValue()));
     }
 
-    var lastCharacter = callNumbers.get(callNumbers.size() - 1);
+    var lastCharacter = callNumbers.getLast();
     rangeAggregation.addRange(new Range(lastCharacter, callNumbersMap.get(lastCharacter).doubleValue(), null));
     return rangeAggregation;
   }

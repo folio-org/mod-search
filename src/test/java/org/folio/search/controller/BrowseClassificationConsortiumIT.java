@@ -154,12 +154,13 @@ class BrowseClassificationConsortiumIT extends BaseConsortiumIntegrationTest {
       .toArray(Instance[]::new);
   }
 
-  @SuppressWarnings("unchecked")
   private static Instance instance(List<Object> data) {
+    @SuppressWarnings("unchecked")
+    var pairs = (List<Pair<String, String>>) data.get(1);
     return new Instance()
       .id(randomId())
       .title((String) data.get(0))
-      .classifications(((List<Pair<String, String>>) data.get(1)).stream()
+      .classifications(pairs.stream()
         .map(pair -> new Classification()
           .classificationNumber(String.valueOf(pair.getFirst()))
           .classificationTypeId(String.valueOf(pair.getSecond())))

@@ -44,10 +44,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import lombok.extern.log4j.Log4j2;
 import org.awaitility.Awaitility;
 import org.awaitility.core.ThrowingRunnable;
 import org.folio.search.domain.dto.Authority;
@@ -91,7 +88,6 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
-@Log4j2
 @EnableOkapi
 @EnableKafka
 @EnablePostgres
@@ -107,6 +103,80 @@ public abstract class BaseIntegrationTest {
   protected static OkapiConfiguration okapi;
   protected static RestHighLevelClient elasticClient;
   protected static CacheManager cacheManager;
+
+  public static HttpHeaders defaultHeaders() {
+    return defaultHeaders(TENANT_ID);
+  }
+
+  public static HttpHeaders defaultHeaders(String tenant) {
+    var httpHeaders = new HttpHeaders();
+
+    httpHeaders.setContentType(APPLICATION_JSON);
+    httpHeaders.add(XOkapiHeaders.TENANT, tenant);
+    httpHeaders.add(XOkapiHeaders.URL, okapi.getOkapiUrl());
+
+    return httpHeaders;
+  }
+
+  @SneakyThrows
+  public static ResultActions attemptGet(String uri, Object... args) {
+    return attemptGet(uri, TENANT_ID, args);
+  }
+
+  @SneakyThrows
+  public static ResultActions attemptGet(String uri, String tenantId, Object... args) {
+    return mockMvc.perform(get(uri, args)
+      .headers(defaultHeaders(tenantId))
+      .accept("application/json;charset=UTF-8"));
+  }
+
+  @SneakyThrows
+  public static ResultActions doGet(String uri, Object... args) {
+    return mockMvc.perform(get(uri, args)
+        .headers(defaultHeaders())
+        .accept("application/json;charset=UTF-8"))
+      .andExpect(status().isOk());
+  }
+
+  @SneakyThrows
+  public static ResultActions doGet(MockHttpServletRequestBuilder request) {
+    return mockMvc.perform(request
+        .headers(defaultHeaders())
+        .accept("application/json;charset=UTF-8"))
+      .andExpect(status().isOk());
+  }
+
+  @SneakyThrows
+  public static SearchHit[] fetchAllDocuments(ResourceType resourceType, String tenantId) {
+    var searchRequest = new SearchRequest()
+      .source(searchSource().query(matchAllQuery()))
+      .indices(getIndexName(resourceType, tenantId));
+    return elasticClient.search(searchRequest, RequestOptions.DEFAULT).getHits().getHits();
+  }
+
+  @SneakyThrows
+  public static void deleteAllDocuments(ResourceType resourceType, String tenantId) {
+    var request = new DeleteByQueryRequest(getIndexName(resourceType, tenantId));
+    request.setQuery(matchAllQuery());
+    elasticClient.deleteByQuery(request, DEFAULT);
+  }
+
+  public static void assertCountByIds(String path, List<String> ids, int expected) {
+    var query = exactMatchAny(CqlQueryParam.ID, ids).toString();
+    awaitAssertion(() -> doSearch(path, query).andExpect(jsonPath("$.totalRecords", is(expected))));
+  }
+
+  public static void assertCountByQuery(String path, String template, String value, int expected) {
+    awaitAssertion(() -> doSearch(path, prepareQuery(template, value))
+      .andExpect(jsonPath("$.totalRecords", is(expected))));
+  }
+
+  public static void awaitAssertion(ThrowingRunnable runnable) {
+    Awaitility.await()
+      .atMost(ONE_MINUTE)
+      .pollInterval(ONE_HUNDRED_MILLISECONDS)
+      .untilAsserted(runnable);
+  }
 
   @SneakyThrows
   protected static ResultActions attemptPost(String uri, Object body) {
@@ -295,9 +365,9 @@ public abstract class BaseIntegrationTest {
   protected static void setUpTenant(List<TestData> testDataList, String tenant) {
     enableTenant(tenant);
     for (TestData testData : testDataList) {
-      var type = testData.getType();
-      var testRecords = testData.getTestRecords();
-      var expectedCount = testData.getExpectedCount();
+      var type = testData.type();
+      var testRecords = testData.testRecords();
+      var expectedCount = testData.expectedCount();
 
       if (type.equals(Instance.class)) {
         saveRecords(tenant, instanceSearchPath(), testRecords, expectedCount,
@@ -393,7 +463,7 @@ public abstract class BaseIntegrationTest {
   protected static <T> void saveRecords(String tenant, String validationPath, List<T> records, Integer expectedCount,
                                         List<ResultMatcher> matchers, Consumer<T> consumer) {
     records.forEach(consumer);
-    if (! records.isEmpty()) {
+    if (!records.isEmpty()) {
       checkThatEventsFromKafkaAreIndexed(tenant, validationPath, expectedCount, matchers);
     }
   }
@@ -455,7 +525,7 @@ public abstract class BaseIntegrationTest {
 
   protected static void checkThatEventsFromKafkaAreIndexed(String tenantId, String path, int size,
                                                            List<ResultMatcher> matchers) {
-    Awaitility.await().logging().atMost(TWO_MINUTES).pollInterval(TWO_HUNDRED_MILLISECONDS).untilAsserted(() ->
+    Awaitility.await().atMost(TWO_MINUTES).pollInterval(TWO_HUNDRED_MILLISECONDS).untilAsserted(() ->
       doSearch(path, tenantId, Map.of("query", "cql.allRecords=1", "expandAll", "true"))
         .andExpect(jsonPath("$.totalRecords", is(size)))
         .andExpectAll(matchers.toArray(new ResultMatcher[0])));
@@ -489,87 +559,6 @@ public abstract class BaseIntegrationTest {
     removeEnvProperty();
   }
 
-  public static HttpHeaders defaultHeaders() {
-    return defaultHeaders(TENANT_ID);
-  }
-
-  public static HttpHeaders defaultHeaders(String tenant) {
-    var httpHeaders = new HttpHeaders();
-
-    httpHeaders.setContentType(APPLICATION_JSON);
-    httpHeaders.add(XOkapiHeaders.TENANT, tenant);
-    httpHeaders.add(XOkapiHeaders.URL, okapi.getOkapiUrl());
-
-    return httpHeaders;
-  }
-
-  @SneakyThrows
-  public static ResultActions attemptGet(String uri, Object... args) {
-    return attemptGet(uri, TENANT_ID, args);
-  }
-
-  @SneakyThrows
-  public static ResultActions attemptGet(String uri, String tenantId, Object... args) {
-    return mockMvc.perform(get(uri, args)
-      .headers(defaultHeaders(tenantId))
-      .accept("application/json;charset=UTF-8"));
-  }
-
-  @SneakyThrows
-  public static ResultActions doGet(String uri, Object... args) {
-    return mockMvc.perform(get(uri, args)
-        .headers(defaultHeaders())
-        .accept("application/json;charset=UTF-8"))
-      .andExpect(status().isOk());
-  }
-
-  @SneakyThrows
-  public static ResultActions doGet(MockHttpServletRequestBuilder request) {
-    return mockMvc.perform(request
-        .headers(defaultHeaders())
-        .accept("application/json;charset=UTF-8"))
-      .andExpect(status().isOk());
-  }
-
-  @SneakyThrows
-  public static SearchHit[] fetchAllDocuments(ResourceType resourceType, String tenantId) {
-    var searchRequest = new SearchRequest()
-      .source(searchSource().query(matchAllQuery()))
-      .indices(getIndexName(resourceType, tenantId));
-    return elasticClient.search(searchRequest, RequestOptions.DEFAULT).getHits().getHits();
-  }
-
-  @SneakyThrows
-  public static void deleteAllDocuments(ResourceType resourceType, String tenantId) {
-    var request = new DeleteByQueryRequest(getIndexName(resourceType, tenantId));
-    request.setQuery(matchAllQuery());
-    elasticClient.deleteByQuery(request, DEFAULT);
-  }
-
-  public static void assertCountByIds(String path, List<String> ids, int expected) {
-    var query = exactMatchAny(CqlQueryParam.ID, ids).toString();
-    awaitAssertion(() -> doSearch(path, query).andExpect(jsonPath("$.totalRecords", is(expected))));
-  }
-
-  public static void assertCountByQuery(String path, String template, String value, int expected) {
-    awaitAssertion(() -> doSearch(path, prepareQuery(template, value))
-      .andExpect(jsonPath("$.totalRecords", is(expected))));
-  }
-
-  public static void awaitAssertion(ThrowingRunnable runnable) {
-    Awaitility.await()
-      .atMost(ONE_MINUTE)
-      .pollInterval(ONE_HUNDRED_MILLISECONDS)
-      .untilAsserted(runnable);
-  }
-
-  @Getter
-  @RequiredArgsConstructor
-  protected static class TestData {
-
-    private final Class<?> type;
-    private final List<Map<String, Object>> testRecords;
-    private final int expectedCount;
-  }
+  public record TestData(Class<?> type, List<Map<String, Object>> testRecords, int expectedCount) { }
 
 }

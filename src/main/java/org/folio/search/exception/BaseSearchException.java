@@ -6,9 +6,9 @@ import org.folio.search.model.types.ErrorCode;
 /**
  * Abstract class that should be used for all exception, produced in mod-search service.
  */
+@Getter
 public abstract class BaseSearchException extends RuntimeException {
 
-  @Getter
   private final ErrorCode errorCode;
 
   /**

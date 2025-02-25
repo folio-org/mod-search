@@ -45,7 +45,6 @@ public class ConsortiumInstitutionServiceTest {
   private ConsortiumInstitutionService service;
 
   @ParameterizedTest
-  @SuppressWarnings("unchecked")
   @ValueSource(strings = {SORT_BY_ID, SORT_BT_NAME, SORT_BY_TENANT_ID})
   void fetchInstitutions_ValidSortBy(String sortBy) {
     var tenantHeader = CONSORTIUM_TENANT;
@@ -58,14 +57,14 @@ public class ConsortiumInstitutionServiceTest {
 
     when(repository.fetchInstitutions(tenantHeader, tenantId, institutionId, limit, offset, sortBy, sortOrder))
       .thenReturn(searchResult);
-    when(executor.execute(eq(tenantId), any(Supplier.class)))
-      .thenAnswer(invocation -> ((Supplier<ConsortiumInstitution>) invocation.getArgument(1)).get());
+    when(executor.execute(eq(tenantId), any()))
+      .thenAnswer(invocation -> invocation.<Supplier<ConsortiumInstitution>>getArgument(1).get());
 
     var actual = service.fetchInstitutions(tenantHeader, tenantId, institutionId, limit, offset, sortBy, sortOrder);
 
     assertThat(actual).isEqualTo(searchResult);
     verify(repository).fetchInstitutions(tenantHeader, tenantId, institutionId, limit, offset, sortBy, sortOrder);
-    verify(executor).execute(eq(tenantId), any(Supplier.class));
+    verify(executor).execute(eq(tenantId), any());
   }
 
   @Test

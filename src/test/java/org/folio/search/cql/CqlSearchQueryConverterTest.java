@@ -83,8 +83,8 @@ class CqlSearchQueryConverterTest {
 
   @BeforeEach
   void setUp() {
-    when(searchFieldProvider.getModifiedField(any(), any())).thenAnswer(f -> f.getArguments()[0]);
-    doAnswer(invocation -> invocation.getArgument(0))
+    when(searchFieldProvider.getModifiedField(any(), any())).thenAnswer(inv -> inv.getArgument(0));
+    doAnswer(inv -> inv.getArgument(0))
       .when(consortiumSearchHelper).filterQueryForActiveAffiliation(any(), any());
   }
 

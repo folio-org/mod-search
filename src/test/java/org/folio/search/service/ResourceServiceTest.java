@@ -85,14 +85,14 @@ class ResourceServiceTest {
   private ResourceService indexService;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     lenient().when(consortiumTenantService.getCentralTenant(any())).thenReturn(Optional.empty());
     lenient().when(consortiumTenantExecutor.execute(any(), any()))
-      .thenAnswer(invocation -> ((Callable<?>) invocation.getArgument(1)).call());
+      .thenAnswer(invocation -> invocation.<Callable<?>>getArgument(1).call());
     lenient().when(consortiumTenantExecutor.execute(any()))
-      .thenAnswer(invocation -> ((Supplier<?>) invocation.getArgument(0)).get());
+      .thenAnswer(invocation -> invocation.<Supplier<?>>getArgument(0).get());
     lenient().when(indexNameProvider.getIndexName(any(ResourceEvent.class)))
-      .thenAnswer(invocation -> SearchUtils.getIndexName((ResourceEvent) invocation.getArgument(0)));
+      .thenAnswer(invocation -> SearchUtils.getIndexName(invocation.<ResourceEvent>getArgument(0)));
   }
 
   @Test

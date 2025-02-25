@@ -190,23 +190,23 @@ class BrowseCallNumberTypedIT extends BaseIntegrationTest {
       .toArray(Instance[]::new);
   }
 
-  @SuppressWarnings("unchecked")
   private static Instance instance(List<Object> data) {
     var holding = new Holding().id(randomId());
+    @SuppressWarnings("unchecked")
     var items = ((List<List<String>>) data.get(1)).stream()
       .map(callNumber -> new Item()
         .id(randomId())
         .holdingsRecordId(holding.getId())
         .discoverySuppress(false)
         .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents()
-          .callNumber(callNumber.get(0)).typeId(callNumber.get(1)))
-        .effectiveShelvingOrder(getShelfKeyFromCallNumber(callNumber.get(0), callNumber.get(1)))
+          .callNumber(callNumber.getFirst()).typeId(callNumber.get(1)))
+        .effectiveShelvingOrder(getShelfKeyFromCallNumber(callNumber.getFirst(), callNumber.get(1)))
         .effectiveLocationId(callNumber.get(1)))
       .toList();
 
     return new Instance()
       .id(randomId())
-      .title((String) data.get(0))
+      .title((String) data.getFirst())
       .staffSuppress(false)
       .discoverySuppress(false)
       .isBoundWith(false)

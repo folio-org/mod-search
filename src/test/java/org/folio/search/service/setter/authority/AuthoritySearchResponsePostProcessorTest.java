@@ -82,10 +82,10 @@ class AuthoritySearchResponsePostProcessorTest {
     assertThat(searchSources)
       .hasSize(2)
       .extracting(SearchSourceBuilder::query)
-      .map(query -> (BoolQueryBuilder) query)
+      .map(BoolQueryBuilder.class::cast)
       .allMatch(query -> query.should().size() == 2)
       .allMatch(query -> query.minimumShouldMatch().equals("1"))
-      .allMatch(query -> query.must().get(0).equals(affiliationQuery(TENANT_ID, true)));
+      .allMatch(query -> query.must().getFirst().equals(affiliationQuery(TENANT_ID, true)));
   }
 
   @Test
@@ -121,7 +121,7 @@ class AuthoritySearchResponsePostProcessorTest {
     assertThat(searchSources)
       .hasSize(2)
       .extracting(SearchSourceBuilder::query)
-      .map(query -> (BoolQueryBuilder) query)
+      .map(BoolQueryBuilder.class::cast)
       .allMatch(query -> query.should().size() == 2)
       .allMatch(query -> query.must().isEmpty());
   }
@@ -144,10 +144,10 @@ class AuthoritySearchResponsePostProcessorTest {
     assertThat(searchSources)
       .hasSize(2)
       .extracting(SearchSourceBuilder::query)
-      .map(query -> (BoolQueryBuilder) query)
+      .map(BoolQueryBuilder.class::cast)
       .allMatch(query -> query.should().size() == 2)
       .allMatch(query -> query.minimumShouldMatch().equals("1"))
-      .allMatch(query -> query.must().get(0).equals(affiliationQuery(CENTRAL_TENANT_ID, null)));
+      .allMatch(query -> query.must().getFirst().equals(affiliationQuery(CENTRAL_TENANT_ID, null)));
   }
 
   private static Authority getAuthority(String id, AuthRefType reference) {

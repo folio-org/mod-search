@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ItemAllFieldValuesProcessor extends AbstractAllValuesProcessor {
 
-  private final Set<String> includedFieldNames = Set.of("formerIds");
+  private static final Set<String> INCLUDED_FIELD_NAMES = Set.of("formerIds");
 
   @Override
   public MultilangValue getFieldValue(Map<String, Object> eventBody) {
@@ -27,6 +27,6 @@ public class ItemAllFieldValuesProcessor extends AbstractAllValuesProcessor {
 
   @Override
   protected boolean isIncludedField(String fieldName) {
-    return includedFieldNames.contains(fieldName) || noneMatch(super.excludedFieldEndings, fieldName::endsWith);
+    return INCLUDED_FIELD_NAMES.contains(fieldName) || noneMatch(super.excludedFieldEndings, fieldName::endsWith);
   }
 }

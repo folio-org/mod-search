@@ -24,6 +24,7 @@ import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
 import org.folio.spring.testing.extension.EnablePostgres;
 import org.folio.spring.testing.type.IntegrationTest;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -154,7 +155,6 @@ class MergeRangeRepositoriesIT {
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   void saveEntities() {
     var mainInstanceId = UUID.randomUUID();
     var holdingId1 = UUID.randomUUID();
@@ -185,11 +185,17 @@ class MergeRangeRepositoriesIT {
       "ffffffffffffffffffffffffffffffff");
     assertThat(actual)
       .hasSize(2);
-    var mainInstance = actual.stream().filter(map -> map.get("id").equals(mainInstanceId.toString())).findFirst().get();
+    var optionalMap = actual.stream().filter(map -> map.get("id").equals(mainInstanceId.toString())).findFirst();
+    if (optionalMap.isEmpty()) {
+      Assertions.fail();
+    }
+    var mainInstance = optionalMap.get();
+    @SuppressWarnings("unchecked")
     var instanceItems = (List<Map<String, Object>>) mainInstance.get("items");
     assertThat(instanceItems)
       .hasSize(2);
     assertThat(extractMapValues(instanceItems)).contains(holdingId1.toString(), holdingId2.toString());
+    @SuppressWarnings("unchecked")
     var instanceHoldings = (List<Map<String, Object>>) mainInstance.get("holdings");
     assertThat(instanceHoldings)
       .hasSize(2);

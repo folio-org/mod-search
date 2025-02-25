@@ -22,7 +22,7 @@ public final class SortContributorsProcessor implements FieldProcessor<Instance,
     return contributors.stream()
       .filter(contributor -> isTrue(contributor.getPrimary()))
       .findFirst()
-      .orElse(contributors.get(0))
+      .orElse(contributors.getFirst())
       .getName();
   }
 }

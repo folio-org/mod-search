@@ -93,7 +93,7 @@ class KafkaMessageListenerTest {
 
   @BeforeEach
   void setUp() {
-    lenient().doAnswer(invocation -> ((Callable<?>) invocation.getArgument(1)).call())
+    lenient().doAnswer(invocation -> invocation.<Callable<?>>getArgument(1).call())
       .when(executionService).executeSystemUserScoped(any(), any());
   }
 
@@ -215,7 +215,8 @@ class KafkaMessageListenerTest {
     var expectedEvents = List.of(resourceEvent(RESOURCE_ID, AUTHORITY, UPDATE, payload, null));
 
     doAnswer(inv -> {
-      inv.<BiConsumer<ResourceEvent, Exception>>getArgument(3).accept(expectedEvents.get(0), new Exception("error"));
+      inv.<BiConsumer<ResourceEvent, Exception>>getArgument(3)
+        .accept(expectedEvents.getFirst(), new Exception("error"));
       return null;
     }).when(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
 
@@ -246,7 +247,8 @@ class KafkaMessageListenerTest {
     var expectedEvents = List.of(resourceEvent(RESOURCE_ID, LINKED_DATA_INSTANCE, UPDATE, payload, null));
 
     doAnswer(inv -> {
-      inv.<BiConsumer<ResourceEvent, Exception>>getArgument(3).accept(expectedEvents.get(0), new Exception("error"));
+      inv.<BiConsumer<ResourceEvent, Exception>>getArgument(3)
+        .accept(expectedEvents.getFirst(), new Exception("error"));
       return null;
     }).when(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
 
@@ -276,7 +278,8 @@ class KafkaMessageListenerTest {
     var expectedEvents = List.of(resourceEvent(RESOURCE_ID, LINKED_DATA_WORK, UPDATE, payload, null));
 
     doAnswer(inv -> {
-      inv.<BiConsumer<ResourceEvent, Exception>>getArgument(3).accept(expectedEvents.get(0), new Exception("error"));
+      inv.<BiConsumer<ResourceEvent, Exception>>getArgument(3)
+        .accept(expectedEvents.getFirst(), new Exception("error"));
       return null;
     }).when(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
 
@@ -307,7 +310,8 @@ class KafkaMessageListenerTest {
     var expectedEvents = List.of(resourceEvent(RESOURCE_ID, LINKED_DATA_HUB, UPDATE, payload, null));
 
     doAnswer(inv -> {
-      inv.<BiConsumer<ResourceEvent, Exception>>getArgument(3).accept(expectedEvents.get(0), new Exception("error"));
+      inv.<BiConsumer<ResourceEvent, Exception>>getArgument(3)
+        .accept(expectedEvents.getFirst(), new Exception("error"));
       return null;
     }).when(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
 

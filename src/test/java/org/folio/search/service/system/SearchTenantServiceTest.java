@@ -36,6 +36,7 @@ import org.folio.tenant.domain.dto.Parameter;
 import org.folio.tenant.domain.dto.TenantAttributes;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -195,7 +196,7 @@ class SearchTenantServiceTest {
     when(context.getTenantId()).thenReturn(TENANT_ID);
     when(resourceDescriptionService.getResourceTypes()).thenReturn(List.of(UNKNOWN));
     when(context.getFolioModuleMetadata()).thenReturn(metadata);
-    when(jdbcTemplate.query(anyString(), any(ResultSetExtractor.class), any())).thenReturn(true);
+    when(jdbcTemplate.query(anyString(), ArgumentMatchers.<ResultSetExtractor<Boolean>>any(), any())).thenReturn(true);
 
     searchTenantService.deleteTenant(tenantAttributes());
 

@@ -199,7 +199,7 @@ class LegacyCallNumberBrowseServiceTest {
       BrowseResult.empty(),
       BrowseResult.of(1, List.of(browseItemWithSuffix("B", "2005"))));
 
-    var actual = legacyCallNumberBrowseService.browse(request).getRecords().get(0);
+    var actual = legacyCallNumberBrowseService.browse(request).getRecords().getFirst();
 
     assertThat(actual.getInstance()).isNotNull();
     assertThat(actual.getIsAnchor()).isTrue();
@@ -377,7 +377,7 @@ class LegacyCallNumberBrowseServiceTest {
     var query = rangeQuery(SHELVING_ORDER_BROWSING_FIELD).lt(ANCHOR);
     var context = BrowseContext.builder().precedingQuery(query).precedingLimit(5).anchor(ANCHOR).build();
     var browseItems = browseItems("A1", "A2");
-    browseItems.forEach(browseItem -> browseItem.getInstance().getItems().get(0).getEffectiveCallNumberComponents()
+    browseItems.forEach(browseItem -> browseItem.getInstance().getItems().getFirst().getEffectiveCallNumberComponents()
       .setTypeId(CallNumberType.LC.getId()));
     var browseResult = BrowseResult.of(2, browseItems).next("A2");
 
@@ -435,9 +435,9 @@ class LegacyCallNumberBrowseServiceTest {
     var query = rangeQuery(LEGACY_CALL_NUMBER_BROWSING_FIELD).lt(ANCHOR);
     var context = BrowseContext.builder().precedingQuery(query).precedingLimit(5).anchor(ANCHOR).build();
     var browseItems = browseItems("A1", "A2");
-    browseItems.get(0).getInstance().getItems().get(0).getEffectiveCallNumberComponents()
+    browseItems.get(0).getInstance().getItems().getFirst().getEffectiveCallNumberComponents()
       .setTypeId(CallNumberType.NLM.getId());
-    browseItems.get(1).getInstance().getItems().get(0).getEffectiveCallNumberComponents()
+    browseItems.get(1).getInstance().getItems().getFirst().getEffectiveCallNumberComponents()
       .setTypeId(CallNumberType.LC.getId());
     var browseResult = BrowseResult.of(2, browseItems);
     var expected = BrowseResult.of(2, singletonList(browseItems.get(1))).next("A2");
@@ -591,7 +591,7 @@ class LegacyCallNumberBrowseServiceTest {
 
   private static LegacyCallNumberBrowseItem browseItemWithSuffix(String callNumber, String suffix) {
     var instance = instance(callNumber);
-    instance.getItems().get(0).getEffectiveCallNumberComponents().setSuffix(suffix);
+    instance.getItems().getFirst().getEffectiveCallNumberComponents().setSuffix(suffix);
     return new LegacyCallNumberBrowseItem()
       .fullCallNumber(callNumber + " " + suffix)
       .shelfKey(getShelfKeyFromCallNumber(callNumber) + " " + suffix)

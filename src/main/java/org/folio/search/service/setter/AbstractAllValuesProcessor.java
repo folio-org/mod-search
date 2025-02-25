@@ -75,19 +75,20 @@ public abstract class AbstractAllValuesProcessor implements FieldProcessor<Map<S
     }
   }
 
-  @SuppressWarnings("unchecked")
   private void collectFieldValuesFromEventBody(String path, MultilangValue ctx, Object v, Predicate<String> filter) {
-    if (v instanceof String) {
-      ctx.addValue(StringUtils.strip((String) v),
+    if (v instanceof String string) {
+      ctx.addValue(StringUtils.strip(string),
         searchFieldProvider.isFullTextField(ResourceType.INSTANCE, path));
     }
 
-    if (v instanceof Collection<?>) {
-      collectFieldValuesFromEventBody(path, ctx, (Collection<?>) v, filter);
+    if (v instanceof Collection<?> collection) {
+      collectFieldValuesFromEventBody(path, ctx, collection, filter);
     }
 
-    if (v instanceof Map<?, ?>) {
-      collectFieldValuesFromEventBody(path, ctx, (Map<String, Object>) v, filter);
+    if (v instanceof Map<?, ?> map) {
+      @SuppressWarnings("unchecked")
+      var stringObjectMap = (Map<String, Object>) map;
+      collectFieldValuesFromEventBody(path, ctx, stringObjectMap, filter);
     }
   }
 }

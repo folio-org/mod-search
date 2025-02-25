@@ -150,8 +150,8 @@ public class InventoryApi {
     };
   }
 
-  @SuppressWarnings("unchecked")
   private void createNestedResources(Map<String, Object> instance, String key, Consumer<Map<String, Object>> consumer) {
+    @SuppressWarnings("unchecked")
     var resourcesByKey = (List<Map<String, Object>>) MapUtils.getObject(instance, key);
     if (CollectionUtils.isNotEmpty(resourcesByKey)) {
       resourcesByKey.forEach(consumer);

@@ -143,7 +143,7 @@ class BrowseConfigServiceTest {
   @ParameterizedTest
   void shouldThrowExceptionWhenIdIsNotInReferenceData(BrowseType type) {
     given(referenceDataService.fetchReferenceData(referenceDataType(type), ID, new HashSet<>(typeIds)))
-      .willReturn(Set.of(typeIds.get(0)));
+      .willReturn(Set.of(typeIds.getFirst()));
 
     var exception = assertThrows(RequestValidationException.class, () -> service.upsertConfig(type, configId, config));
 

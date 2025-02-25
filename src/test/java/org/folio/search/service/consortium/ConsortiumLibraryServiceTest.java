@@ -45,7 +45,6 @@ public class ConsortiumLibraryServiceTest {
   private ConsortiumLibraryService service;
 
   @ParameterizedTest
-  @SuppressWarnings("unchecked")
   @ValueSource(strings = {SORT_BY_ID, SORT_BT_NAME, SORT_BY_TENANT_ID})
   void fetchLibraries_ValidSortBy(String sortBy) {
     var tenantHeader = CONSORTIUM_TENANT;
@@ -58,8 +57,8 @@ public class ConsortiumLibraryServiceTest {
 
     when(repository.fetchLibraries(tenantHeader, tenantId, libraryId, limit, offset, sortBy, sortOrder))
       .thenReturn(searchResult);
-    when(executor.execute(eq(tenantId), any(Supplier.class)))
-      .thenAnswer(invocation -> ((Supplier<ConsortiumLibrary>) invocation.getArgument(1)).get());
+    when(executor.execute(eq(tenantId), any()))
+      .thenAnswer(invocation -> invocation.<Supplier<ConsortiumLibrary>>getArgument(1).get());
 
     var actual = service.fetchLibraries(tenantHeader, tenantId, libraryId, limit, offset, sortBy, sortOrder);
 

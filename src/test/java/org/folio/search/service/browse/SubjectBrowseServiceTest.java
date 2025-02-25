@@ -75,10 +75,10 @@ class SubjectBrowseServiceTest {
   private Map<Class<?>, SearchResponsePostProcessor<?>> searchResponsePostProcessors = Collections.emptyMap();
 
   @BeforeEach
-  public void setUpMocks() {
+  void setUpMocks() {
     doAnswer(invocation -> invocation.getArgument(1))
       .when(consortiumSearchHelper).filterBrowseQueryForActiveAffiliation(any(), any(), any());
-    lenient().doAnswer(invocation -> ((SubjectResource) invocation.getArgument(1)).instances())
+    lenient().doAnswer(invocation -> invocation.<SubjectResource>getArgument(1).instances())
       .when(consortiumSearchHelper).filterSubResourcesForConsortium(any(), any(), any());
     lenient().when(searchRepository.analyze(any(), any(), any(), any()))
       .thenAnswer(invocation -> invocation.getArgument(0));

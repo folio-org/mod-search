@@ -11,10 +11,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class InstanceAllFieldValuesProcessor extends AbstractAllValuesProcessor {
 
-  private final Set<String> nestedResourcePrefixes = Set.of("item", "holding");
+  private static final Set<String> NESTED_RESOURCE_PREFIXES = Set.of("item", "holding");
 
   @Override
   public MultilangValue getFieldValue(Map<String, Object> event) {
-    return getAllFieldValues(event, null, key -> noneMatch(nestedResourcePrefixes, key::startsWith));
+    return getAllFieldValues(event, null, key -> noneMatch(NESTED_RESOURCE_PREFIXES, key::startsWith));
   }
 }

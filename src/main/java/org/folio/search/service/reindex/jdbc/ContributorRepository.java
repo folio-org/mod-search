@@ -176,7 +176,7 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
   public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp) {
     var sql = SELECT_BY_UPDATED_QUERY.formatted(JdbcUtils.getSchemaName(tenant, context.getFolioModuleMetadata()));
     var records = jdbcTemplate.query(sql, rowToMapMapper2(), timestamp);
-    var lastUpdateDate = records.isEmpty() ? null : records.get(records.size() - 1).get(LAST_UPDATED_DATE_FIELD);
+    var lastUpdateDate = records.isEmpty() ? null : records.getLast().get(LAST_UPDATED_DATE_FIELD);
     return new SubResourceResult(records, (Timestamp) lastUpdateDate);
   }
 

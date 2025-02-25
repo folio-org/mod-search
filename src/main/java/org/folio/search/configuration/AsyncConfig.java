@@ -27,6 +27,7 @@ public class AsyncConfig {
     executor.setQueueCapacity(streamIdsProperties.getQueueCapacity());
     executor.setThreadNamePrefix("StreamResourceIds-");
     executor.setTaskDecorator(FolioExecutionScopeExecutionContextManager::getRunnableWithCurrentFolioContext);
+    executor.setVirtualThreads(true);
     executor.initialize();
     return executor;
   }

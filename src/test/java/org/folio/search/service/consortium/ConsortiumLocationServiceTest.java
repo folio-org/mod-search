@@ -1,7 +1,6 @@
 package org.folio.search.service.consortium;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -19,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -37,7 +37,7 @@ public class ConsortiumLocationServiceTest {
   private ConsortiumTenantExecutor executor;
 
   @InjectMocks
-  private  ConsortiumLocationService service;
+  private ConsortiumLocationService service;
 
   @Test
   void fetchLocations_ValidSortBy() {
@@ -52,14 +52,14 @@ public class ConsortiumLocationServiceTest {
 
     when(repository.fetchLocations(tenantHeader, tenantId, locationId, limit, offset, sortBy, sortOrder))
       .thenReturn(searchResult);
-    when(executor.execute(eq(tenantId), any(Supplier.class)))
-      .thenAnswer(invocation -> ((Supplier<ConsortiumLocation>) invocation.getArgument(1)).get());
+    when(executor.execute(eq(tenantId), ArgumentMatchers.<Supplier<ConsortiumLocation>>any()))
+      .thenAnswer(invocation -> invocation.<Supplier<ConsortiumLocation>>getArgument(1).get());
 
     var actual = service.fetchLocations(tenantHeader, tenantId, locationId, limit, offset, sortBy, sortOrder);
 
     assertThat(actual).isEqualTo(searchResult);
     verify(repository).fetchLocations(tenantHeader, tenantId, locationId, limit, offset, sortBy, sortOrder);
-    verify(executor).execute(eq(tenantId), any(Supplier.class));
+    verify(executor).execute(eq(tenantId), ArgumentMatchers.<Supplier<ConsortiumLocation>>any());
   }
 
   @Test

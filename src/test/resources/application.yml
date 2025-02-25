@@ -1,6 +1,9 @@
 spring:
   application:
     name: mod-search
+  threads:
+    virtual:
+      enabled: true
   main:
      banner-mode: off
      allow-bean-definition-overriding: true
@@ -177,4 +180,4 @@ folio:
 logging:
   level:
     org.apache.kafka.clients.consumer.*: warn
-    org.folio: debug
+    org.folio.spring.config.*: debug

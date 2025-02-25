@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.model.Pair;
@@ -67,16 +66,16 @@ public class FacetQueryBuilder {
 
   private List<AggregationBuilder> getFacetAggregation(CqlFacetRequest request,
                                                        QueryBuilder query, Facet facet) {
-    var field = facet.getField();
+    var field = facet.field();
     validateFacetField(facet, request.getResource());
     var filterAndFacetTerms = getFilterQueryAndFacetTerms(field, query);
     return filterAndFacetTerms.getFirst() != null
            ? singletonList(getFilterAggregation(filterAndFacetTerms, facet))
-           : getTermsAggs(facet.getAggregationName(), facet, filterAndFacetTerms.getSecond());
+           : getTermsAggs(facet.aggregationName(), facet, filterAndFacetTerms.getSecond());
   }
 
   private void validateFacetField(Facet facet, ResourceType resource) {
-    var facetField = facet.getField();
+    var facetField = facet.field();
     var facetFieldDescription = findFirst(searchFieldProvider.getFields(resource, facetField))
       .flatMap(fieldName -> getPlainFieldByPath(resource, fieldName))
       .or(() -> getPlainFieldByPath(resource, facetField))
@@ -102,7 +101,7 @@ public class FacetQueryBuilder {
       var facetName = matcher.group(1);
       var field = findFirst(searchFieldProvider.getFields(resource, facetName)).orElse(facetName);
       var size = matcher.group(3) == null ? DEFAULT_FACET_SIZE : parseInt(matcher.group(3));
-      return Facet.of(field, facetName, size);
+      return new Facet(field, facetName, size);
     }
 
     throw new RequestValidationException(
@@ -136,14 +135,14 @@ public class FacetQueryBuilder {
 
   private static AggregationBuilder getFilterAggregation(
     Pair<BoolQueryBuilder, List<String>> filterAndTerms, Facet facet) {
-    var filterAggregation = filter(facet.getAggregationName(), filterAndTerms.getFirst());
+    var filterAggregation = filter(facet.aggregationName(), filterAndTerms.getFirst());
     getTermsAggs(NESTED_TERMS_AGG_NAME, facet, filterAndTerms.getSecond()).forEach(filterAggregation::subAggregation);
     return filterAggregation;
   }
 
   private static List<AggregationBuilder> getTermsAggs(String name, Facet facet, List<String> terms) {
-    var size = facet.getSize();
-    var field = facet.getField();
+    var size = facet.size();
+    var field = facet.field();
     if (isEmpty(terms)) {
       return singletonList(termsAgg(name, field, size));
     }
@@ -168,12 +167,5 @@ public class FacetQueryBuilder {
     return query instanceof TermQueryBuilder ? ofNullable((String) ((TermQueryBuilder) query).value()) : empty();
   }
 
-  @Data
-  @RequiredArgsConstructor(staticName = "of")
-  private static final class Facet {
-
-    private final String field;
-    private final String aggregationName;
-    private final Integer size;
-  }
+  private record Facet(String field, String aggregationName, Integer size) {  }
 }

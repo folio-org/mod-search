@@ -8,7 +8,6 @@ import java.util.function.Function;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.commons.collections4.CollectionUtils;
 
 @Data
 @NoArgsConstructor
@@ -113,15 +112,6 @@ public class BrowseResult<T> {
   }
 
   /**
-   * Checks if search result is empty or not.
-   *
-   * @return true - if search result is empty, false - otherwise.
-   */
-  public boolean isEmpty() {
-    return CollectionUtils.isEmpty(records);
-  }
-
-  /**
    * Maps search result records using given mapping function.
    *
    * @param mappingFunction - mapping function for result element conversion
@@ -130,8 +120,8 @@ public class BrowseResult<T> {
    */
   public <R> BrowseResult<R> map(Function<T, R> mappingFunction) {
     var resultList = new ArrayList<R>();
-    for (T record : this.records) {
-      resultList.add(mappingFunction.apply(record));
+    for (T recordObj : this.records) {
+      resultList.add(mappingFunction.apply(recordObj));
     }
 
     return new BrowseResult<>(this.totalRecords, this.prev, this.next, resultList);

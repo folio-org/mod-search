@@ -73,8 +73,6 @@ folio:
     search-consortium-records-page-size: ${SEARCH_CONSORTIUM_RECORDS_PAGE_SIZE:5000}
     search-features:
       search-all-fields: ${SEARCH_BY_ALL_FIELDS_ENABLED:false}
-      browse-cn-intermediate-values: ${BROWSE_CN_INTERMEDIATE_VALUES_ENABLED:true}
-      browse-cn-intermediate-remove-duplicates: ${BROWSE_CN_INTERMEDIATE_REMOVE_DUPLICATES:true}
       browse-classifications: ${BROWSE_CLASSIFICATIONS_ENABLED:true}
       browse-call-numbers: ${BROWSE_CALL_NUMBERS_ENABLED:true}
     indexing:
@@ -93,8 +91,6 @@ folio:
     properties:
       request-timeout: ${SEARCH_QUERY_TIMEOUT:25s}
       call-number-browse-optimization-enabled: ${CN_BROWSE_OPTIMIZATION_ENABLED:true}
-  cache:
-    call-number-browse-ranges-cache-spec: maximumSize=50,expireAfterWrite=60s
   system-user:
     enabled: ${SYSTEM_USER_ENABLED:true}
     username: ${SYSTEM_USER_USERNAME:mod-search}

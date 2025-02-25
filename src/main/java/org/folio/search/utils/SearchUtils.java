@@ -44,11 +44,8 @@ public class SearchUtils {
   public static final String CALL_NUMBER_PREFIX_FIELD = "callNumberPrefix";
   public static final String CALL_NUMBER_SUFFIX_FIELD = "callNumberSuffix";
   public static final String CALL_NUMBER_FIELD = "callNumber";
-  public static final String COPY_NUMBER_FIELD = "copyNumber";
   public static final String CLASSIFICATION_NUMBER_BROWSING_FIELD = "number";
   public static final String CLASSIFICATION_TYPE_ID_FIELD = "typeId";
-  public static final String TYPED_CALL_NUMBER_BROWSING_FIELD = "typedCallNumber";
-  public static final String SHELVING_ORDER_BROWSING_FIELD = "itemEffectiveShelvingOrder";
   public static final String DEFAULT_SHELVING_ORDER_BROWSING_FIELD = "defaultShelvingOrder";
   public static final String LC_SHELVING_ORDER_BROWSING_FIELD = "lcShelvingOrder";
   public static final String DEWEY_SHELVING_ORDER_BROWSING_FIELD = "deweyShelvingOrder";

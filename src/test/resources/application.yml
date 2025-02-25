@@ -55,22 +55,17 @@ folio:
     max-search-batch-request-ids-count: ${MAX_SEARCH_BATCH_REQUEST_IDS_COUNT:500}
     search-features:
       search-all-fields: false
-      browse-cn-intermediate-values: true
-      browse-cn-intermediate-remove-duplicates: true
       browse-classifications: true
       browse-call-numbers: true
     indexing:
       data-format: ${INDEXING_DATA_FORMAT:json}
       instance-children-index-delay-ms: 2000
-      instance-children-index-batch-size: 500
   reindex:
     location-batch-size: ${REINDEX_LOCATION_BATCH_SIZE:2}
   query:
     properties:
       request-timeout: 25s
       call-number-browse-optimization-enabled: true
-  cache:
-    call-number-browse-ranges-cache-spec: maximumSize=50,expireAfterWrite=60s
   system-user:
     username: mod-search
     password: Mod-search-1-0-0

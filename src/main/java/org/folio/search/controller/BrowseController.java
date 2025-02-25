@@ -2,7 +2,6 @@ package org.folio.search.controller;
 
 import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 import static org.folio.search.model.types.ResourceType.AUTHORITY;
-import static org.folio.search.model.types.ResourceType.INSTANCE;
 import static org.folio.search.model.types.ResourceType.INSTANCE_CALL_NUMBER;
 import static org.folio.search.model.types.ResourceType.INSTANCE_CLASSIFICATION;
 import static org.folio.search.model.types.ResourceType.INSTANCE_CONTRIBUTOR;
@@ -11,21 +10,16 @@ import static org.folio.search.utils.SearchUtils.AUTHORITY_BROWSING_FIELD;
 import static org.folio.search.utils.SearchUtils.CALL_NUMBER_BROWSING_FIELD;
 import static org.folio.search.utils.SearchUtils.CLASSIFICATION_NUMBER_BROWSING_FIELD;
 import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_BROWSING_FIELD;
-import static org.folio.search.utils.SearchUtils.LEGACY_CALL_NUMBER_BROWSING_FIELD;
-import static org.folio.search.utils.SearchUtils.SHELVING_ORDER_BROWSING_FIELD;
 import static org.folio.search.utils.SearchUtils.SUBJECT_BROWSING_FIELD;
-import static org.folio.search.utils.SearchUtils.TYPED_CALL_NUMBER_BROWSING_FIELD;
 
 import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.AuthorityBrowseResult;
 import org.folio.search.domain.dto.BrowseOptionType;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.CallNumberBrowseResult;
-import org.folio.search.domain.dto.CallNumberType;
 import org.folio.search.domain.dto.ClassificationNumberBrowseItem;
 import org.folio.search.domain.dto.ClassificationNumberBrowseResult;
 import org.folio.search.domain.dto.ContributorBrowseResult;
-import org.folio.search.domain.dto.LegacyCallNumberBrowseResult;
 import org.folio.search.domain.dto.SubjectBrowseResult;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.model.BrowseResult;
@@ -36,7 +30,6 @@ import org.folio.search.service.browse.AuthorityBrowseService;
 import org.folio.search.service.browse.CallNumberBrowseService;
 import org.folio.search.service.browse.ClassificationBrowseService;
 import org.folio.search.service.browse.ContributorBrowseService;
-import org.folio.search.service.browse.LegacyCallNumberBrowseService;
 import org.folio.search.service.browse.SubjectBrowseService;
 import org.folio.search.service.consortium.TenantProvider;
 import org.springframework.http.ResponseEntity;
@@ -52,7 +45,6 @@ public class BrowseController implements BrowseApi {
 
   private final SubjectBrowseService subjectBrowseService;
   private final AuthorityBrowseService authorityBrowseService;
-  private final LegacyCallNumberBrowseService legacyCallNumberBrowseService;
   private final ContributorBrowseService contributorBrowseService;
   private final ClassificationBrowseService classificationBrowseService;
   private final CallNumberBrowseService callNumberBrowseService;
@@ -85,28 +77,6 @@ public class BrowseController implements BrowseApi {
 
     var browseResult = callNumberBrowseService.browse(browseRequest);
     return ResponseEntity.ok(toCallNumberBrowseResultDto(browseResult));
-  }
-
-  @Override
-  public ResponseEntity<LegacyCallNumberBrowseResult> browseInstancesByCallNumberLegacy(String query, String tenant,
-                                                                                        Integer limit,
-                                                                                        Boolean expandAll,
-                                                                                        Boolean highlightMatch,
-                                                                                        Integer precedingRecordsCount,
-                                                                                        CallNumberType callNumberType) {
-    var browseRequest = getBrowseRequestBuilder(query, tenant, limit, expandAll, highlightMatch, precedingRecordsCount)
-      .resource(INSTANCE)
-      .targetField(SHELVING_ORDER_BROWSING_FIELD)
-      .subField(callNumberType == null ? LEGACY_CALL_NUMBER_BROWSING_FIELD : TYPED_CALL_NUMBER_BROWSING_FIELD)
-      .refinedCondition(callNumberType != null ? callNumberType.getValue() : null)
-      .build();
-
-    var instanceByCallNumber = legacyCallNumberBrowseService.browse(browseRequest);
-    return ResponseEntity.ok(new LegacyCallNumberBrowseResult()
-      .items(instanceByCallNumber.getRecords())
-      .totalRecords(instanceByCallNumber.getTotalRecords())
-      .prev(instanceByCallNumber.getPrev())
-      .next(instanceByCallNumber.getNext()));
   }
 
   @Override

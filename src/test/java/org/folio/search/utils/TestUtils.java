@@ -14,10 +14,6 @@ import static java.util.stream.Collectors.toCollection;
 import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
 import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIELD_TYPE;
-import static org.folio.search.model.types.CallNumberType.DEWEY;
-import static org.folio.search.model.types.CallNumberType.LC;
-import static org.folio.search.model.types.CallNumberType.NLM;
-import static org.folio.search.model.types.CallNumberType.SUDOC;
 import static org.folio.search.model.types.FieldType.OBJECT;
 import static org.folio.search.model.types.FieldType.PLAIN;
 import static org.folio.search.model.types.FieldType.SEARCH;
@@ -52,21 +48,15 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
-import org.folio.search.cql.SuDocCallNumber;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthorityBrowseItem;
-import org.folio.search.domain.dto.CallNumberBrowseItem;
-import org.folio.search.domain.dto.CallNumberBrowseResult;
 import org.folio.search.domain.dto.ClassificationNumberBrowseItem;
 import org.folio.search.domain.dto.ClassificationNumberBrowseResult;
 import org.folio.search.domain.dto.Facet;
@@ -75,17 +65,13 @@ import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.domain.dto.Identifier;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceContributorBrowseItem;
-import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.domain.dto.LanguageConfigs;
-import org.folio.search.domain.dto.LegacyCallNumberBrowseItem;
-import org.folio.search.domain.dto.LegacyCallNumberBrowseResult;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.domain.dto.SubjectBrowseItem;
 import org.folio.search.domain.dto.SubjectBrowseResult;
 import org.folio.search.domain.dto.Tags;
-import org.folio.search.model.BrowseResult;
 import org.folio.search.model.SearchResult;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.FieldDescription;
@@ -95,14 +81,9 @@ import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.SearchFieldDescriptor;
 import org.folio.search.model.service.CqlFacetRequest;
 import org.folio.search.model.service.CqlSearchRequest;
-import org.folio.search.model.types.CallNumberType;
 import org.folio.search.model.types.IndexingDataFormat;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.model.types.SearchType;
-import org.marc4j.callnum.AbstractCallNumber;
-import org.marc4j.callnum.DeweyCallNumber;
-import org.marc4j.callnum.LCCallNumber;
-import org.marc4j.callnum.NlmCallNumber;
 import org.opensearch.action.search.SearchResponse;
 import org.opensearch.core.ParseField;
 import org.opensearch.core.common.bytes.BytesArray;
@@ -128,9 +109,6 @@ public class TestUtils {
 
   public static final NamedXContentRegistry NAMED_XCONTENT_REGISTRY =
     new NamedXContentRegistry(TestUtils.elasticsearchClientNamedContentRegistryEntries());
-
-  private static final Map<CallNumberType, Function<String, AbstractCallNumber>> SHELVING_ORDER_GENERATORS =
-    Map.of(NLM, NlmCallNumber::new, LC, LCCallNumber::new, DEWEY, DeweyCallNumber::new, SUDOC, SuDocCallNumber::new);
 
   @SneakyThrows
   public static String asJsonString(Object value) {
@@ -194,86 +172,6 @@ public class TestUtils {
   public static CqlFacetRequest facetServiceRequest(String tenantId, ResourceType resource, String query,
                                                     String... facets) {
     return CqlFacetRequest.of(resource, tenantId, query, asList(facets));
-  }
-
-  public static CallNumberBrowseResult cnBrowseResult(int total, List<CallNumberBrowseItem> items) {
-    return new CallNumberBrowseResult().totalRecords(total).items(items);
-  }
-
-  public static LegacyCallNumberBrowseItem cnBrowseItem(Instance instance, String callNumber) {
-    return cnBrowseItem(instance, callNumber, 0);
-  }
-
-  public static LegacyCallNumberBrowseItem cnBrowseItem(Instance instance, String callNumber,
-                                                        Integer itemNumberForCallNumberType) {
-    return cnBrowseItem(instance, callNumber, itemNumberForCallNumberType, null);
-  }
-
-  public static LegacyCallNumberBrowseItem cnBrowseItem(Instance instance, String shelfKey, String callNumber) {
-    return new LegacyCallNumberBrowseItem().fullCallNumber(callNumber)
-      .shelfKey(shelfKey).instance(instance).totalRecords(1);
-  }
-
-  public static LegacyCallNumberBrowseItem cnBrowseItem(Instance instance, String callNumber, boolean isAnchor) {
-    return cnBrowseItem(instance, callNumber, 0, isAnchor);
-  }
-
-  public static LegacyCallNumberBrowseItem cnBrowseItem(Instance instance, String callNumber,
-                                                        Integer itemNumberForCallNumberType, Boolean isAnchor) {
-    var callNumberType = Optional.ofNullable(instance.getItems().get(itemNumberForCallNumberType)).flatMap(
-      item -> Optional.ofNullable(item.getEffectiveCallNumberComponents())
-        .map(ItemEffectiveCallNumberComponents::getTypeId));
-    var shelfKey = callNumberType.map(s -> getShelfKeyFromCallNumber(callNumber))
-      .orElseGet(() -> getShelfKeyFromCallNumber(callNumber));
-    var ins = new Instance().id(instance.getId()).title(instance.getTitle())
-      .tenantId(instance.getTenantId()).shared(instance.getShared())
-      .staffSuppress(instance.getStaffSuppress())
-      .discoverySuppress(instance.getDiscoverySuppress())
-      .isBoundWith(instance.getIsBoundWith())
-      .items(null)
-      .holdings(null);
-    return new LegacyCallNumberBrowseItem().fullCallNumber(callNumber).shelfKey(shelfKey).instance(ins).totalRecords(1)
-      .isAnchor(isAnchor);
-  }
-
-  public static LegacyCallNumberBrowseItem cnBrowseItem(CallNumberType callNumberType, String callNumber,
-                                                        Integer totalRecords, Boolean isAnchor) {
-    var shelfKey = getShelfKeyFromCallNumber(callNumber, callNumberType.getId());
-    return new LegacyCallNumberBrowseItem().fullCallNumber(callNumber).shelfKey(shelfKey).instance(null)
-      .totalRecords(totalRecords).isAnchor(isAnchor);
-  }
-
-  public static LegacyCallNumberBrowseItem cnBrowseItem(int totalRecords, String callNumber) {
-    var shelfKey = getShelfKeyFromCallNumber(callNumber);
-    return new LegacyCallNumberBrowseItem().totalRecords(totalRecords).shelfKey(shelfKey).fullCallNumber(callNumber);
-  }
-
-  public static LegacyCallNumberBrowseItem cnBrowseItem(int totalRecords, String callNumber, boolean isAnchor) {
-    var shelfKey = getShelfKeyFromCallNumber(callNumber);
-    return new LegacyCallNumberBrowseItem().totalRecords(totalRecords).shelfKey(shelfKey).fullCallNumber(callNumber)
-      .isAnchor(isAnchor);
-  }
-
-  public static LegacyCallNumberBrowseItem cnBrowseItemWithNoType(Instance instance, String callNumber) {
-    return cnBrowseItemWithNoType(instance, callNumber, null);
-  }
-
-  public static LegacyCallNumberBrowseItem cnBrowseItemWithNoType(Instance instance, String callNumber,
-                                                                  Boolean isAnchor) {
-    var shelfKey = getShelfKeyFromCallNumber(callNumber);
-    return new LegacyCallNumberBrowseItem().fullCallNumber(callNumber)
-      .shelfKey(shelfKey).instance(instance).totalRecords(1).isAnchor(isAnchor);
-  }
-
-  public static String getShelfKeyFromCallNumber(String callNumber) {
-    return CallNumberUtils.getShelfKeyFromCallNumber(callNumber).orElse("");
-  }
-
-  public static String getShelfKeyFromCallNumber(String callNumber, String typeId) {
-    var callNumberType = CallNumberType.fromId(typeId);
-    return callNumberType.flatMap(numberType -> Optional.ofNullable(SHELVING_ORDER_GENERATORS.get(numberType))
-        .map(generator -> generator.apply(callNumber)).map(AbstractCallNumber::getShelfKey))
-      .orElse(CallNumberUtils.getShelfKeyFromCallNumber(callNumber).orElse("")).trim();
   }
 
   public static SubjectBrowseResult subjectBrowseResult(int total, List<SubjectBrowseItem> items) {
@@ -374,18 +272,6 @@ public class TestUtils {
 
   public static SearchDocumentBody searchDocumentBodyToDelete() {
     return SearchDocumentBody.of(null, null, resourceEvent(), DELETE);
-  }
-
-  public static void cleanupActual(LegacyCallNumberBrowseResult actual) {
-    for (var item : actual.getItems()) {
-      cleanupCallNumberItem(item);
-    }
-  }
-
-  public static void cleanupActual(BrowseResult<LegacyCallNumberBrowseItem> actual) {
-    for (var item : actual.getRecords()) {
-      cleanupCallNumberItem(item);
-    }
   }
 
   @SuppressWarnings("unchecked")
@@ -611,12 +497,6 @@ public class TestUtils {
     return OBJECT_MAPPER.convertValue(value, new TypeReference<>() { });
   }
 
-  public static <T> void doIfNotNull(T value, Consumer<T> valueConsumer) {
-    if (value != null) {
-      valueConsumer.accept(value);
-    }
-  }
-
   public static void setEnvProperty(String value) {
     setProperty("env", value);
   }
@@ -697,14 +577,6 @@ public class TestUtils {
         """.formatted(String.join(",", strings))));
     wireMockServer.stubFor(stub);
     return stub;
-  }
-
-  private static void cleanupCallNumberItem(LegacyCallNumberBrowseItem item) {
-    var instance = item.getInstance();
-    if (instance != null) {
-      instance.setItems(null);
-      instance.setHoldings(null);
-    }
   }
 
   private static JsonNode searchResponseWithAggregation(JsonNode aggregationValue) {

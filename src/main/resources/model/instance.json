@@ -373,10 +373,6 @@
             }
           }
         },
-        "effectiveShelvingOrder": {
-          "index": "source",
-          "showInResponse": [ "search", "call-number-browse" ]
-        },
         "tags": {
           "type": "object",
           "properties": {
@@ -679,29 +675,6 @@
       "type": "search",
       "index": "multilang",
       "processor": "uniformTitleProcessor"
-    },
-    "callNumber": {
-      "type": "search",
-      "index": "long",
-      "searchTermProcessor": "effectiveShelvingOrderTermProcessor",
-      "processor": "itemCallNumberProcessor"
-    },
-    "typedCallNumber": {
-      "type": "search",
-      "index": "long",
-      "searchTermProcessor": "effectiveShelvingOrderTermProcessor",
-      "processor": "itemTypedCallNumberProcessor"
-    },
-    "callNumberType": {
-      "type": "search",
-      "index": "keyword_lowercase",
-      "processor": "callNumberTypeProcessor"
-    },
-    "itemEffectiveShelvingOrder": {
-      "type": "search",
-      "index": "keyword_icu",
-      "searchAliases": [ "items.effectiveShelvingOrder" ],
-      "processor": "itemEffectiveShelvingOrderProcessor"
     },
     "allInstances": {
       "type": "search",

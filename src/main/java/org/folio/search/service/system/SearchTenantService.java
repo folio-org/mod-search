@@ -12,7 +12,6 @@ import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.model.entity.TenantEntity;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.IndexService;
-import org.folio.search.service.browse.CallNumberBrowseRangeService;
 import org.folio.search.service.consortium.LanguageConfigServiceDecorator;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.service.reindex.ReindexService;
@@ -42,7 +41,6 @@ public class SearchTenantService extends TenantService {
   private final PrepareSystemUserService prepareSystemUserService;
   private final LanguageConfigServiceDecorator languageConfigService;
   private final ResourceDescriptionService resourceDescriptionService;
-  private final CallNumberBrowseRangeService callNumberBrowseRangeService;
   private final SearchConfigurationProperties searchConfigurationProperties;
   private final TenantRepository tenantRepository;
 
@@ -51,7 +49,6 @@ public class SearchTenantService extends TenantService {
                              IndexService indexService, ReindexService reindexService,
                              PrepareSystemUserService prepareSystemUserService,
                              LanguageConfigServiceDecorator languageConfigService,
-                             CallNumberBrowseRangeService callNumberBrowseRangeService,
                              ResourceDescriptionService resourceDescriptionService,
                              SearchConfigurationProperties searchConfigurationProperties,
                              TenantRepository tenantRepository) {
@@ -61,7 +58,6 @@ public class SearchTenantService extends TenantService {
     this.reindexService = reindexService;
     this.prepareSystemUserService = prepareSystemUserService;
     this.languageConfigService = languageConfigService;
-    this.callNumberBrowseRangeService = callNumberBrowseRangeService;
     this.resourceDescriptionService = resourceDescriptionService;
     this.searchConfigurationProperties = searchConfigurationProperties;
     this.tenantRepository = tenantRepository;
@@ -155,7 +151,6 @@ public class SearchTenantService extends TenantService {
   @Override
   protected void afterTenantDeletion(TenantAttributes tenantAttributes) {
     var tenantId = context.getTenantId();
-    callNumberBrowseRangeService.evictRangeCache(tenantId);
     resourceDescriptionService.getResourceTypes().forEach(name -> {
       log.info("Removing elasticsearch index [resourceName={}, tenant={}]", name, tenantId);
       indexService.dropIndex(name, tenantId);

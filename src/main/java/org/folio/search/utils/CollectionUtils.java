@@ -10,7 +10,6 @@ import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -18,11 +17,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -147,47 +144,6 @@ public final class CollectionUtils {
   }
 
   /**
-   * Collects elements from the given {@link Iterable} object into the new {@link LinkedHashMap} object.
-   *
-   * @param keyMapper - key mapper as {@link Function} object
-   * @param <K>       - generic type for map keys
-   * @param <V>       - generic type for map values
-   * @return {@link LinkedHashMap} object with elements from iterable in encounter order.
-   */
-  public static <K, V> Map<K, V> toLinkedHashMap(Iterable<V> iterable, Function<V, K> keyMapper) {
-    var resultMap = new LinkedHashMap<K, V>();
-    iterable.forEach(value -> resultMap.put(keyMapper.apply(value), value));
-    return resultMap;
-  }
-
-  /**
-   * Returns a Collector that accumulates the input elements into a new {@link LinkedHashMap} in encounter order.
-   *
-   * @param keyMapper - key mapper as {@link Function} object
-   * @param <K>       - generic type for map keys
-   * @param <V>       - generic type for map values
-   * @return a {@link Collector} which collects all the input elements into a {@link LinkedHashMap} in encounter order
-   */
-  public static <K, V> Collector<V, ?, Map<K, V>> toLinkedHashMap(Function<V, K> keyMapper) {
-    return toLinkedHashMap(keyMapper, Function.identity());
-  }
-
-  /**
-   * Returns a Collector that accumulates the input elements into a new {@link LinkedHashMap} in encounter order.
-   *
-   * @param keyMapper   - key mapper as {@link Function} object
-   * @param valueMapper - value mapper as {@link Function} object
-   * @param <T>         - generic type for input values
-   * @param <K>         - generic type for map keys
-   * @param <V>         - generic type for map values
-   * @return a {@link Collector} which collects all the input elements into a {@link LinkedHashMap} in encounter order
-   */
-  public static <T, K, V> Collector<T, ?, Map<K, V>> toLinkedHashMap(
-    Function<T, K> keyMapper, Function<T, V> valueMapper) {
-    return Collectors.toMap(keyMapper, valueMapper, (o, n) -> n, LinkedHashMap::new);
-  }
-
-  /**
    * Returns nullableList if it is not null or empty, defaultList otherwise.
    *
    * @param nullableList nullable value to check
@@ -196,31 +152,6 @@ public final class CollectionUtils {
    */
   public static <T> Stream<T> toStreamSafe(List<T> nullableList) {
     return (nullableList != null && !nullableList.isEmpty()) ? nullableList.stream().filter(Objects::nonNull) : empty();
-  }
-
-  /**
-   * Returns list if set is not null or empty, null otherwise.
-   *
-   * @param nullableSet nullable value to check
-   * @param <T>         generic type for value
-   * @return list if it is not null or empty, null otherwise.
-   */
-  public static <T> List<T> toListSafe(Set<T> nullableSet) {
-    return isEmpty(nullableSet) ? null : new ArrayList<>(nullableSet);
-  }
-
-  /**
-   * Returns filtered list if set is not null or empty after filtration, null otherwise.
-   *
-   * @param nullableSet nullable value to check
-   * @param filter      predicate for filtering incoming set
-   * @param <T>         generic type for value
-   * @return list if it is not null or empty, null otherwise.
-   */
-  public static <T> List<T> toListSafe(Set<T> nullableSet, Predicate<T> filter) {
-    var filteredSet = Optional.ofNullable(nullableSet).orElse(Collections.emptySet()).stream()
-      .filter(filter).collect(Collectors.toSet());
-    return isEmpty(filteredSet) ? null : new ArrayList<>(filteredSet);
   }
 
   /**
@@ -289,18 +220,6 @@ public final class CollectionUtils {
       }
     }
     return true;
-  }
-
-  /**
-   * Return {@link Predicate} to distinct objects by single key.
-   *
-   * @param keyExtractor - function to extract value
-   * @param <T>      generic type of object to distinct
-   * @return {@link Predicate} that maintains a state about what it has seen before
-   */
-  public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
-    Set<Object> seen = ConcurrentHashMap.newKeySet();
-    return t -> seen.add(keyExtractor.apply(t));
   }
 
   /**

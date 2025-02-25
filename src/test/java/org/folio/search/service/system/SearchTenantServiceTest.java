@@ -22,7 +22,6 @@ import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.model.entity.TenantEntity;
 import org.folio.search.service.IndexService;
-import org.folio.search.service.browse.CallNumberBrowseRangeService;
 import org.folio.search.service.consortium.LanguageConfigServiceDecorator;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.service.reindex.jdbc.TenantRepository;
@@ -68,8 +67,6 @@ class SearchTenantServiceTest {
   private PrepareSystemUserService prepareSystemUserService;
   @Mock
   private LanguageConfigServiceDecorator languageConfigService;
-  @Mock
-  private CallNumberBrowseRangeService callNumberBrowseRangeService;
   @Mock
   private ResourceDescriptionService resourceDescriptionService;
   @Mock
@@ -202,7 +199,6 @@ class SearchTenantServiceTest {
 
     verify(tenantRepository).saveTenant(new TenantEntity(TENANT_ID, null, false));
     verify(jdbcTemplate).execute(anyString());
-    verify(callNumberBrowseRangeService).evictRangeCache(TENANT_ID);
     verify(indexService).dropIndex(UNKNOWN, TENANT_ID);
     verify(kafkaAdminService).deleteTopics(TENANT_ID);
   }
@@ -216,7 +212,6 @@ class SearchTenantServiceTest {
     verify(tenantRepository).saveTenant(new TenantEntity(TENANT_ID, CENTRAL_TENANT_ID, false));
     verify(kafkaAdminService).deleteTopics(TENANT_ID);
     verifyNoInteractions(jdbcTemplate);
-    verifyNoInteractions(callNumberBrowseRangeService);
     verifyNoInteractions(indexService);
   }
 
@@ -224,7 +219,6 @@ class SearchTenantServiceTest {
   void disableTenant_positive() {
     when(context.getTenantId()).thenReturn(TENANT_ID);
     when(resourceDescriptionService.getResourceTypes()).thenReturn(List.of(UNKNOWN));
-    doNothing().when(callNumberBrowseRangeService).evictRangeCache(TENANT_ID);
 
     searchTenantService.afterTenantDeletion(tenantAttributes());
 

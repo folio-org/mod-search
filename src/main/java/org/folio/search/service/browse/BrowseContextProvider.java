@@ -47,7 +47,7 @@ public class BrowseContextProvider {
 
     var query = searchSource.query();
     if (!isBoolQuery(query)) {
-      if (!isValidRangeQuery(request.getTargetField(), request.getSubField(), query)) {
+      if (!isValidRangeQuery(request.getTargetField(), query)) {
         throw new RequestValidationException("Invalid CQL query for browsing.", QUERY_ERROR_PARAM, cqlQuery);
       }
       log.trace(
@@ -61,7 +61,7 @@ public class BrowseContextProvider {
     var shouldClauses = boolQuery.should();
     String logMsg = collectionToLogMsg(filters, true);
 
-    if (isValidAroundQuery(request.getTargetField(), request.getSubField(), shouldClauses)) {
+    if (isValidAroundQuery(request.getTargetField(), shouldClauses)) {
       log.trace("Attempts to create context browsingAround [request: {}, filters.size: {}]",
         request, logMsg);
       return createContextForBrowsingAround(request, filters, shouldClauses);
@@ -78,7 +78,7 @@ public class BrowseContextProvider {
 
       if (isBoolQuery(firstMustClause)) {
         var subShouldClauses = ((BoolQueryBuilder) firstMustClause).should();
-        if (isValidAroundQuery(request.getTargetField(), request.getSubField(), subShouldClauses)) {
+        if (isValidAroundQuery(request.getTargetField(), subShouldClauses)) {
           log.trace("Attempts to create context browsingAround with filters [request: {}, filters: {}]",
             request, logMsg);
           return createContextForBrowsingAround(request, filters, subShouldClauses);
@@ -128,21 +128,17 @@ public class BrowseContextProvider {
     return predicate.test(firstQuery) ? firstQuery : (RangeQueryBuilder) queries.get(1);
   }
 
-  static boolean isValidRangeQuery(String targetField, String subField, QueryBuilder q) {
+  static boolean isValidRangeQuery(String targetField, QueryBuilder q) {
     if (q instanceof RangeQueryBuilder rangeQuery) {
       var fieldName = rangeQuery.fieldName();
-      var isTargetValid = targetField.equals(fieldName);
-      if (!isTargetValid && subField != null) {
-        return subField.equals(fieldName);
-      }
-      return isTargetValid;
+      return targetField.equals(fieldName);
     }
     log.warn("isValidRangeQuery:: not valid range");
     return false;
   }
 
-  private static boolean isValidAroundQuery(String targetField, String subField, List<QueryBuilder> queries) {
-    if (queries.size() == 2 && allMatch(queries, query -> isValidRangeQuery(targetField, subField, query))) {
+  private static boolean isValidAroundQuery(String targetField, List<QueryBuilder> queries) {
+    if (queries.size() == 2 && allMatch(queries, query -> isValidRangeQuery(targetField, query))) {
       log.debug("isValidAroundQuery:: queries.size() == 2 && allMatch by queries");
       var firstClause = (RangeQueryBuilder) queries.get(0);
       var secondClause = (RangeQueryBuilder) queries.get(1);

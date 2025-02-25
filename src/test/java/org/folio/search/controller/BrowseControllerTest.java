@@ -2,15 +2,12 @@ package org.folio.search.controller;
 
 import static java.util.Collections.emptyList;
 import static org.folio.search.model.types.ResourceType.AUTHORITY;
-import static org.folio.search.model.types.ResourceType.INSTANCE;
 import static org.folio.search.model.types.ResourceType.INSTANCE_CALL_NUMBER;
 import static org.folio.search.model.types.ResourceType.INSTANCE_SUBJECT;
 import static org.folio.search.support.base.ApiEndpoints.authorityBrowsePath;
 import static org.folio.search.support.base.ApiEndpoints.instanceCallNumberBrowsePath;
 import static org.folio.search.support.base.ApiEndpoints.instanceSubjectBrowsePath;
 import static org.folio.search.utils.SearchUtils.CALL_NUMBER_BROWSING_FIELD;
-import static org.folio.search.utils.SearchUtils.LEGACY_CALL_NUMBER_BROWSING_FIELD;
-import static org.folio.search.utils.SearchUtils.SHELVING_ORDER_BROWSING_FIELD;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.authorityBrowseItem;
@@ -36,7 +33,6 @@ import org.folio.search.service.browse.AuthorityBrowseService;
 import org.folio.search.service.browse.CallNumberBrowseService;
 import org.folio.search.service.browse.ClassificationBrowseService;
 import org.folio.search.service.browse.ContributorBrowseService;
-import org.folio.search.service.browse.LegacyCallNumberBrowseService;
 import org.folio.search.service.browse.SubjectBrowseService;
 import org.folio.search.service.consortium.TenantProvider;
 import org.folio.search.service.setter.SearchResponsePostProcessor;
@@ -63,8 +59,6 @@ class BrowseControllerTest {
   @MockitoBean
   private AuthorityBrowseService authorityBrowseService;
   @MockitoBean
-  private LegacyCallNumberBrowseService legacyCallNumberBrowseService;
-  @MockitoBean
   private ContributorBrowseService contributorBrowseService;
   @MockitoBean
   private ClassificationBrowseService classificationBrowseService;
@@ -82,48 +76,9 @@ class BrowseControllerTest {
   }
 
   @Test
-  void browseInstancesByCallNumberLegacy_positive() throws Exception {
-    var query = "callNumber > PR4034 .P7 2019";
-    var request = browseRequest(query);
-    when(legacyCallNumberBrowseService.browse(request)).thenReturn(BrowseResult.empty());
-    var requestBuilder = get(instanceCallNumberBrowsePath())
-      .queryParam("query", query)
-      .queryParam("limit", "5")
-      .contentType(APPLICATION_JSON)
-      .header(XOkapiHeaders.TENANT, TENANT_ID);
-
-    mockMvc.perform(requestBuilder)
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.totalRecords", is(0)))
-      .andExpect(jsonPath("$.items", is(emptyList())));
-  }
-
-  @Test
-  void browseInstancesByCallNumberLegacy_positive_allFields() throws Exception {
-    var query = "callNumber > B";
-    var request = BrowseRequest.of(INSTANCE, TENANT_ID,
-      query, 20, SHELVING_ORDER_BROWSING_FIELD, LEGACY_CALL_NUMBER_BROWSING_FIELD, true, true, 5);
-    when(legacyCallNumberBrowseService.browse(request)).thenReturn(BrowseResult.empty());
-
-    var requestBuilder = get(instanceCallNumberBrowsePath())
-      .queryParam("query", query)
-      .queryParam("limit", "20")
-      .queryParam("expandAll", "true")
-      .queryParam("highlightMatch", "true")
-      .queryParam("precedingRecordsCount", "5")
-      .contentType(APPLICATION_JSON)
-      .header(XOkapiHeaders.TENANT, TENANT_ID);
-
-    mockMvc.perform(requestBuilder)
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.totalRecords", is(0)))
-      .andExpect(jsonPath("$.items", is(emptyList())));
-  }
-
-  @Test
   void browseInstancesBySubject_positive() throws Exception {
     var query = "value > water";
-    var request = BrowseRequest.of(INSTANCE_SUBJECT, TENANT_ID, query, 25, "value", null, null, true, 12);
+    var request = BrowseRequest.of(INSTANCE_SUBJECT, TENANT_ID, query, 25, "value", null, true, 12);
     var browseResult = BrowseResult.of(1, List.of(subjectBrowseItem(10, "water treatment")));
     when(subjectBrowseService.browse(request)).thenReturn(browseResult);
     var requestBuilder = get(instanceSubjectBrowsePath())
@@ -142,7 +97,7 @@ class BrowseControllerTest {
   @Test
   void browseAuthoritiesByHeadingRef_positive() throws Exception {
     var query = "headingRef > mark";
-    var request = BrowseRequest.of(AUTHORITY, TENANT_ID, query, 25, "headingRef", null, false, true, 12);
+    var request = BrowseRequest.of(AUTHORITY, TENANT_ID, query, 25, "headingRef", false, true, 12);
     var authority = new Authority().id(RESOURCE_ID).headingRef("mark twain");
     var browseResult = BrowseResult.of(1, List.of(authorityBrowseItem("mark twain", authority)));
     when(authorityBrowseService.browse(request)).thenReturn(browseResult);
@@ -217,7 +172,7 @@ class BrowseControllerTest {
   void browseInstancesByCallNumber_positive() throws Exception {
     var query = "fullCallNumber > PR4034 .P7 2019";
     var browseRequest = BrowseRequest.of(INSTANCE_CALL_NUMBER, TENANT_ID, BrowseOptionType.ALL, query, 5,
-      CALL_NUMBER_BROWSING_FIELD, null, false, true, 2);
+      CALL_NUMBER_BROWSING_FIELD, false, true, 2);
     when(callNumberBrowseService.browse(browseRequest)).thenReturn(BrowseResult.of(1, "PR3", "PR5",
       List.of(new CallNumberBrowseItem().callNumber("PR4034 .P7 2019"))));
     var requestBuilder = get(instanceCallNumberBrowsePath(BrowseOptionType.ALL))
@@ -304,8 +259,4 @@ class BrowseControllerTest {
         "browseInstancesByCallNumber.precedingRecordsCount must be greater than or equal to 1")));
   }
 
-  private BrowseRequest browseRequest(String query) {
-    return BrowseRequest.of(INSTANCE, TENANT_ID, query, 5,
-      SHELVING_ORDER_BROWSING_FIELD, LEGACY_CALL_NUMBER_BROWSING_FIELD, false, true, 5 / 2);
-  }
 }

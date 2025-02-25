@@ -284,14 +284,14 @@ class SearchDocumentConverterTest {
   void convert_positive_instanceWithItems() {
     var event = resourceEvent(UNKNOWN, mapOf("id", RESOURCE_ID, "tenantId", TENANT_ID, "items", List.of(
       mapOf("id", "item#1"),
-      mapOf("id", "item#2", "effectiveShelvingOrder", "F10"),
-      mapOf("id", "item#3", "effectiveShelvingOrder", "C5"),
+      mapOf("id", "item#2"),
+      mapOf("id", "item#3"),
       mapOf("id", "item#4"))));
 
     when(languageConfigService.getAllLanguageCodes()).thenReturn(emptySet());
     when(descriptionService.get(UNKNOWN)).thenReturn(
       resourceDescription(mapOf("id", keywordField(), "tenantId", keywordField(),
-        "items", objectField(mapOf("id", keywordField(), "effectiveShelvingOrder", keywordField())))));
+        "items", objectField(mapOf("id", keywordField())))));
 
     var actual = documentMapper.convert(event);
 
@@ -300,8 +300,8 @@ class SearchDocumentConverterTest {
       "tenantId", TENANT_ID,
       "items", jsonArray(
         jsonObject("id", "item#1"),
-        jsonObject("id", "item#2", "effectiveShelvingOrder", "F10"),
-        jsonObject("id", "item#3", "effectiveShelvingOrder", "C5"),
+        jsonObject("id", "item#2"),
+        jsonObject("id", "item#3"),
         jsonObject("id", "item#4")));
     assertThat(actual).isEqualTo(expectedSearchDocument(event, expectedJson));
   }

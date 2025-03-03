@@ -85,10 +85,6 @@ public class ApiEndpoints {
     return "/search/authorities";
   }
 
-  public static String instanceCallNumberBrowsePath() {
-    return "/browse/call-numbers/instances";
-  }
-
   public static String instanceCallNumberBrowsePath(BrowseOptionType optionType) {
     return "/browse/call-numbers/" + optionType.getValue() + "/instances";
   }

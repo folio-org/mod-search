@@ -15,14 +15,11 @@ import static org.folio.search.utils.SearchUtils.SUBJECT_BROWSING_FIELD;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.AuthorityBrowseResult;
 import org.folio.search.domain.dto.BrowseOptionType;
-import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.CallNumberBrowseResult;
-import org.folio.search.domain.dto.ClassificationNumberBrowseItem;
 import org.folio.search.domain.dto.ClassificationNumberBrowseResult;
 import org.folio.search.domain.dto.ContributorBrowseResult;
 import org.folio.search.domain.dto.SubjectBrowseResult;
 import org.folio.search.exception.RequestValidationException;
-import org.folio.search.model.BrowseResult;
 import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.model.service.BrowseRequest.BrowseRequestBuilder;
 import org.folio.search.rest.resource.BrowseApi;
@@ -76,7 +73,11 @@ public class BrowseController implements BrowseApi {
       .build();
 
     var browseResult = callNumberBrowseService.browse(browseRequest);
-    return ResponseEntity.ok(toCallNumberBrowseResultDto(browseResult));
+    return ResponseEntity.ok(new CallNumberBrowseResult()
+      .totalRecords(browseResult.getTotalRecords())
+      .items(browseResult.getRecords())
+      .prev(browseResult.getPrev())
+      .next(browseResult.getNext()));
   }
 
   @Override
@@ -91,15 +92,21 @@ public class BrowseController implements BrowseApi {
       .build();
 
     var browseResult = classificationBrowseService.browse(browseRequest);
-    return ResponseEntity.ok(toClassificationBrowseResultDto(browseResult));
+    return ResponseEntity.ok(new ClassificationNumberBrowseResult()
+      .totalRecords(browseResult.getTotalRecords())
+      .items(browseResult.getRecords())
+      .prev(browseResult.getPrev())
+      .next(browseResult.getNext()));
   }
 
   @Override
   public ResponseEntity<ContributorBrowseResult> browseInstancesByContributor(String query, String tenant,
                                                                               Integer limit, Boolean highlightMatch,
                                                                               Integer precedingRecordsCount) {
-    var browseRequest = getBrowseRequestBuilder(query, tenant, limit, null, highlightMatch, precedingRecordsCount)
-      .resource(INSTANCE_CONTRIBUTOR).targetField(CONTRIBUTOR_BROWSING_FIELD).build();
+    var browseRequest = getBrowseRequestBuilder(query, tenant, limit, false, highlightMatch, precedingRecordsCount)
+      .resource(INSTANCE_CONTRIBUTOR)
+      .targetField(CONTRIBUTOR_BROWSING_FIELD)
+      .build();
 
     var browseResult = contributorBrowseService.browse(browseRequest);
     return ResponseEntity.ok(new ContributorBrowseResult()
@@ -113,8 +120,10 @@ public class BrowseController implements BrowseApi {
   public ResponseEntity<SubjectBrowseResult> browseInstancesBySubject(String query, String tenant,
                                                                       Integer limit, Boolean highlightMatch,
                                                                       Integer precedingRecordsCount) {
-    var browseRequest = getBrowseRequestBuilder(query, tenant, limit, null, highlightMatch, precedingRecordsCount)
-      .resource(INSTANCE_SUBJECT).targetField(SUBJECT_BROWSING_FIELD).build();
+    var browseRequest = getBrowseRequestBuilder(query, tenant, limit, false, highlightMatch, precedingRecordsCount)
+      .resource(INSTANCE_SUBJECT)
+      .targetField(SUBJECT_BROWSING_FIELD)
+      .build();
 
     var browseResult = subjectBrowseService.browse(browseRequest);
     return ResponseEntity.ok(new SubjectBrowseResult()
@@ -122,23 +131,6 @@ public class BrowseController implements BrowseApi {
       .totalRecords(browseResult.getTotalRecords())
       .prev(browseResult.getPrev())
       .next(browseResult.getNext()));
-  }
-
-  private ClassificationNumberBrowseResult toClassificationBrowseResultDto(
-    BrowseResult<ClassificationNumberBrowseItem> result) {
-    return new ClassificationNumberBrowseResult()
-      .totalRecords(result.getTotalRecords())
-      .items(result.getRecords())
-      .prev(result.getPrev())
-      .next(result.getNext());
-  }
-
-  private CallNumberBrowseResult toCallNumberBrowseResultDto(BrowseResult<CallNumberBrowseItem> result) {
-    return new CallNumberBrowseResult()
-      .totalRecords(result.getTotalRecords())
-      .items(result.getRecords())
-      .prev(result.getPrev())
-      .next(result.getNext());
   }
 
   private BrowseRequestBuilder getBrowseRequestBuilder(String query, String tenant, Integer limit,

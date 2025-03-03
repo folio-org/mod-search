@@ -16,13 +16,13 @@
       "searchTypes": [ "facet", "filter" ],
       "index": "bool",
       "default": false,
-      "showInResponse": [ "search", "call-number-browse" ]
+      "showInResponse": [ "search" ]
     }
   },
   "fields": {
     "id": {
       "index": "keyword_lowercase",
-      "showInResponse": [ "search", "call-number-browse" ]
+      "showInResponse": [ "search" ]
     },
     "tenantId": {
       "index": "keyword",
@@ -40,7 +40,7 @@
       "searchTypes": "sort",
       "searchAliases": [ "title", "keyword" ],
       "index": "multilang",
-      "showInResponse": [ "search", "call-number-browse" ]
+      "showInResponse": [ "search" ]
     },
     "alternativeTitles": {
       "type": "object",
@@ -93,24 +93,24 @@
         "name": {
           "searchAliases": [ "contributors", "keyword" ],
           "index": "standard",
-          "showInResponse": [ "search", "call-number-browse" ]
+          "showInResponse": [ "search" ]
         },
         "primary": {
           "index": "bool",
-          "showInResponse": [ "search", "call-number-browse" ]
+          "showInResponse": [ "search" ]
         },
         "contributorNameTypeId": {
           "index": "keyword_lowercase",
-          "showInResponse": [ "search", "call-number-browse" ]
+          "showInResponse": [ "search" ]
         },
         "contributorTypeId": {
           "index": "keyword_lowercase",
-          "showInResponse": [ "search", "call-number-browse" ]
+          "showInResponse": [ "search" ]
         },
         "authorityId": {
           "index": "keyword_lowercase",
           "searchAliases": [ "authorityId" ],
-          "showInResponse": [ "search", "call-number-browse" ]
+          "showInResponse": [ "search" ]
         }
       }
     },
@@ -205,11 +205,11 @@
         "publisher": {
           "searchAliases": [ "publisher" ],
           "index": "multilang",
-          "showInResponse": [ "search", "call-number-browse" ]
+          "showInResponse": [ "search" ]
         },
         "dateOfPublication": {
           "index": "source",
-          "showInResponse": [ "search", "call-number-browse" ]
+          "showInResponse": [ "search" ]
         },
         "place": {
           "index": "standard"
@@ -281,7 +281,7 @@
       "searchTypes": [ "facet", "filter" ],
       "index": "bool",
       "default": false,
-      "showInResponse": [ "search", "call-number-browse" ]
+      "showInResponse": [ "search" ]
     },
     "shared": {
       "searchTypes": [ "facet", "filter" ],
@@ -296,8 +296,7 @@
           "index": "keyword_lowercase"
         },
         "tenantId": {
-          "index": "keyword",
-          "showInResponse": [ "call-number-browse" ]
+          "index": "keyword"
         },
         "holdingsRecordId": {
           "index": "keyword"
@@ -319,8 +318,7 @@
         },
         "effectiveLocationId": {
           "searchTypes": [ "facet", "filter" ],
-          "index": "keyword_lowercase",
-          "showInResponse": [ "call-number-browse" ]
+          "index": "keyword_lowercase"
         },
         "statisticalCodeIds": {
           "searchTypes": [ "facet", "filter" ],
@@ -357,19 +355,19 @@
           "properties": {
             "callNumber": {
               "index": "source",
-              "showInResponse": [ "search", "call-number-browse" ]
+              "showInResponse": [ "search" ]
             },
             "prefix": {
               "index": "source",
-              "showInResponse": [ "search", "call-number-browse" ]
+              "showInResponse": [ "search" ]
             },
             "suffix": {
               "index": "source",
-              "showInResponse": [ "search", "call-number-browse" ]
+              "showInResponse": [ "search" ]
             },
             "typeId": {
               "index": "keyword",
-              "showInResponse": [ "search", "call-number-browse" ]
+              "showInResponse": [ "search" ]
             }
           }
         },
@@ -721,9 +719,6 @@
 
       "sort_title", "sort_contributors",
       "normalizedDate1",
-      "callNumber",
-      "typedCallNumber",
-      "callNumberType",
 
       "alternativeTitles.alternativeTitle",
       "contributors.name",

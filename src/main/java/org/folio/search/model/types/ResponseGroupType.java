@@ -16,12 +16,7 @@ public enum ResponseGroupType {
   /**
    * General response group type to return field for browse endpoints.
    */
-  BROWSE("browse"),
-
-  /**
-   * Response group type for fields returning only for call-number browsing.
-   */
-  CN_BROWSE("call-number-browse");
+  BROWSE("browse");
 
   @JsonValue
   private final String value;

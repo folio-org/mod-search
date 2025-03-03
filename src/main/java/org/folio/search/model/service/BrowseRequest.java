@@ -56,18 +56,4 @@ public class BrowseRequest implements ResourceRequest {
    * Number of preceding records for virtual shelf browsing. Works only when browsing around.
    */
   private final Integer precedingRecordsCount;
-
-  public static BrowseRequest of(ResourceType resource, String tenantId, String query, Integer limit,
-                                 String targetField, Boolean expandAll, Boolean highlightMatch,
-                                 Integer precedingRecordsCount) {
-    return new BrowseRequest(resource, tenantId, null, query, limit, targetField, expandAll,
-      highlightMatch, precedingRecordsCount);
-  }
-
-  public static BrowseRequest of(ResourceType resource, String tenantId, BrowseOptionType optionType, String query,
-                                 Integer limit, String targetField, Boolean expandAll,
-                                 Boolean highlightMatch, Integer precedingRecordsCount) {
-    return new BrowseRequest(resource, tenantId, optionType, query, limit, targetField, expandAll,
-      highlightMatch, precedingRecordsCount);
-  }
 }

@@ -78,7 +78,7 @@ class BrowseControllerTest {
   @Test
   void browseInstancesBySubject_positive() throws Exception {
     var query = "value > water";
-    var request = BrowseRequest.of(INSTANCE_SUBJECT, TENANT_ID, query, 25, "value", null, true, 12);
+    var request = BrowseRequest.of(INSTANCE_SUBJECT, TENANT_ID, null, query, 25, "value", false, true, 12);
     var browseResult = BrowseResult.of(1, List.of(subjectBrowseItem(10, "water treatment")));
     when(subjectBrowseService.browse(request)).thenReturn(browseResult);
     var requestBuilder = get(instanceSubjectBrowsePath())
@@ -97,7 +97,7 @@ class BrowseControllerTest {
   @Test
   void browseAuthoritiesByHeadingRef_positive() throws Exception {
     var query = "headingRef > mark";
-    var request = BrowseRequest.of(AUTHORITY, TENANT_ID, query, 25, "headingRef", false, true, 12);
+    var request = BrowseRequest.of(AUTHORITY, TENANT_ID, null, query, 25, "headingRef", false, true, 12);
     var authority = new Authority().id(RESOURCE_ID).headingRef("mark twain");
     var browseResult = BrowseResult.of(1, List.of(authorityBrowseItem("mark twain", authority)));
     when(authorityBrowseService.browse(request)).thenReturn(browseResult);
@@ -113,59 +113,6 @@ class BrowseControllerTest {
       .andExpect(jsonPath("$.items[0].headingRef", is("mark twain")))
       .andExpect(jsonPath("$.items[0].authority.id", is(RESOURCE_ID)))
       .andExpect(jsonPath("$.items[0].authority.headingRef", is("mark twain")));
-  }
-
-  @Test
-  void browseInstancesByCallNumberLegacy_negative_missingQueryParameter() throws Exception {
-    var requestBuilder = get(instanceCallNumberBrowsePath())
-      .queryParam("limit", "5")
-      .contentType(APPLICATION_JSON)
-      .header(XOkapiHeaders.TENANT, TENANT_ID);
-
-    var expectedErrorMessage = "Required request parameter 'query' for method parameter type String is not present";
-    mockMvc.perform(requestBuilder)
-      .andExpect(status().isBadRequest())
-      .andExpect(jsonPath("$.total_records", is(1)))
-      .andExpect(jsonPath("$.errors[0].message", is(expectedErrorMessage)))
-      .andExpect(jsonPath("$.errors[0].type", is("MissingServletRequestParameterException")))
-      .andExpect(jsonPath("$.errors[0].code", is("validation_error")));
-  }
-
-  @Test
-  void browseInstancesByCallNumberLegacy_negative_precedingRecordsMoreThatLimit() throws Exception {
-    var requestBuilder = get(instanceCallNumberBrowsePath())
-      .queryParam("query", "callNumber > A")
-      .queryParam("limit", "5")
-      .queryParam("precedingRecordsCount", "10")
-      .contentType(APPLICATION_JSON)
-      .header(XOkapiHeaders.TENANT, TENANT_ID);
-
-    mockMvc.perform(requestBuilder)
-      .andExpect(status().isBadRequest())
-      .andExpect(jsonPath("$.total_records", is(1)))
-      .andExpect(jsonPath("$.errors[0].message", is("Preceding records count must be less than request limit")))
-      .andExpect(jsonPath("$.errors[0].parameters[0].key", is("precedingRecordsCount")))
-      .andExpect(jsonPath("$.errors[0].parameters[0].value", is("10")))
-      .andExpect(jsonPath("$.errors[0].type", is("RequestValidationException")))
-      .andExpect(jsonPath("$.errors[0].code", is("validation_error")));
-  }
-
-  @Test
-  void browseInstancesByCallNumberLegacy_negative_precedingRecordsCountIsZero() throws Exception {
-    var requestBuilder = get(instanceCallNumberBrowsePath())
-      .queryParam("query", "callNumber >= A or callNumber < A")
-      .queryParam("limit", "5")
-      .queryParam("precedingRecordsCount", "0")
-      .contentType(APPLICATION_JSON)
-      .header(XOkapiHeaders.TENANT, TENANT_ID);
-
-    mockMvc.perform(requestBuilder)
-      .andExpect(status().isBadRequest())
-      .andExpect(jsonPath("$.total_records", is(1)))
-      .andExpect(jsonPath("$.errors[0].type", is("ConstraintViolationException")))
-      .andExpect(jsonPath("$.errors[0].code", is("validation_error")))
-      .andExpect(jsonPath("$.errors[0].message", is(
-        "browseInstancesByCallNumberLegacy.precedingRecordsCount must be greater than or equal to 1")));
   }
 
   @Test

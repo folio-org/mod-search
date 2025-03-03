@@ -38,7 +38,7 @@
     <folio-service-tools.version>5.0.0</folio-service-tools.version>
     <folio-isbn-utils.version>1.8.0-SNAPSHOT</folio-isbn-utils.version>
     <folio-cql2pgjson.version>35.4.0</folio-cql2pgjson.version>
-    <opensearch.version>2.19.0</opensearch.version>
+    <opensearch.version>2.19.1</opensearch.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <apache-commons-io.version>2.18.0</apache-commons-io.version>
     <apache-commons-collections.version>4.4</apache-commons-collections.version>
@@ -49,7 +49,7 @@
 
     <!-- Plugins versions -->
     <folio-module-descriptor-validator.version>1.0.1</folio-module-descriptor-validator.version>
-    <maven-openapi-generator-plugin.version>7.11.0</maven-openapi-generator-plugin.version>
+    <maven-openapi-generator-plugin.version>7.12.0</maven-openapi-generator-plugin.version>
     <maven-copy-rename-plugin.version>1.0.1</maven-copy-rename-plugin.version>
     <maven-build-helper-plugin.version>3.6.0</maven-build-helper-plugin.version>
     <maven-clean-plugin.version>3.4.1</maven-clean-plugin.version>

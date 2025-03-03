@@ -26,7 +26,7 @@
       "searchTermProcessor": "callNumberTypeIdSearchTermProcessor"
     },
     "instances": {
-      "type": "object",
+      "type": "nested",
       "properties": {
         "tenantId": {
           "index": "keyword",

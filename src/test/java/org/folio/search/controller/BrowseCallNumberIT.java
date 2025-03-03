@@ -13,6 +13,9 @@ import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.search.support.base.ApiEndpoints.recordFacetsPath;
 import static org.folio.search.utils.CallNumberTestData.CallNumberTypeId.LC;
 import static org.folio.search.utils.CallNumberTestData.callNumbers;
+import static org.folio.search.utils.CallNumberTestData.cnBrowseItem;
+import static org.folio.search.utils.CallNumberTestData.cnBrowseResult;
+import static org.folio.search.utils.CallNumberTestData.cnEmptyBrowseItem;
 import static org.folio.search.utils.CallNumberTestData.locations;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.folio.search.utils.TestUtils.array;
@@ -32,14 +35,12 @@ import java.util.stream.Stream;
 import org.folio.search.domain.dto.BrowseConfig;
 import org.folio.search.domain.dto.BrowseOptionType;
 import org.folio.search.domain.dto.BrowseType;
-import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.CallNumberBrowseResult;
 import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.RecordType;
 import org.folio.search.domain.dto.ShelvingOrderAlgorithmType;
-import org.folio.search.model.index.CallNumberResource;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.reindex.jdbc.SubResourcesLockRepository;
@@ -242,32 +243,6 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
     var stub = mockCallNumberTypes(okapi.wireMockServer(), typeIds.toArray(new UUID[0]));
     doPut(browseConfigPath(BrowseType.INSTANCE_CALL_NUMBER, BrowseOptionType.LC), config);
     okapi.wireMockServer().removeStub(stub);
-  }
-
-  private static CallNumberBrowseResult cnBrowseResult(String prev, String next, int total,
-                                                       List<CallNumberBrowseItem> items) {
-    return new CallNumberBrowseResult().prev(prev).next(next).items(items).totalRecords(total);
-  }
-
-  private static CallNumberBrowseItem cnEmptyBrowseItem(String callNumber) {
-    return new CallNumberBrowseItem().fullCallNumber(callNumber).isAnchor(true).totalRecords(0);
-  }
-
-  private static CallNumberBrowseItem cnBrowseItem(CallNumberResource resource, int count, String instanceTitle) {
-    return cnBrowseItem(resource, count, instanceTitle, null);
-  }
-
-  private static CallNumberBrowseItem cnBrowseItem(CallNumberResource resource, int count,
-                                                   String instanceTitle, Boolean isAnchor) {
-    return new CallNumberBrowseItem()
-      .fullCallNumber(resource.fullCallNumber())
-      .callNumber(resource.callNumber())
-      .callNumberPrefix(resource.callNumberPrefix())
-      .callNumberSuffix(resource.callNumberSuffix())
-      .callNumberTypeId(resource.callNumberTypeId())
-      .instanceTitle(instanceTitle)
-      .totalRecords(count)
-      .isAnchor(isAnchor);
   }
 
 }

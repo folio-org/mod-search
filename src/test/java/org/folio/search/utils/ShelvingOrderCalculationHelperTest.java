@@ -13,7 +13,7 @@ class ShelvingOrderCalculationHelperTest {
 
   @Test
   void shouldCalculateLcNumber() {
-    var input = "HD1691 .I5 1967";
+    var input = "HD1  691 .I5 1967";
     var expectedShelfKey = "HD 41691 I5 41967";
 
     var result = calculate(input, ShelvingOrderAlgorithmType.LC);

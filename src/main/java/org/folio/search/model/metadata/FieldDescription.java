@@ -18,6 +18,7 @@ import org.folio.search.model.types.FieldType;
   @Type(value = PlainFieldDescription.class, name = "plain"),
   @Type(value = SearchFieldDescriptor.class, name = "search"),
   @Type(value = ObjectFieldDescription.class, name = "object"),
+  @Type(value = NestedFieldDescription.class, name = "nested"),
   @Type(value = AuthorityFieldDescription.class, name = "authority"),
 })
 public abstract class FieldDescription {

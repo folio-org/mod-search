@@ -277,7 +277,6 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("publicNotes all {value}", "development"),
       arguments("notes.note == {value}", "Librarian private note"),
       arguments("notes.note == {value}", "The development of the Semantic Web,"),
-      arguments("callNumber = {value}", "\"\""),
       arguments("items.effectiveCallNumberComponents.typeId = {value}", "\"512173a7-bd09-490e-b773-17d83f2b63fe\""),
 
       // search by isbn10
@@ -508,7 +507,6 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("publicNotes all {value}", "DEVELOPMENT"),
       arguments("notes.note == {value}", "LIBRARIAN PRIVATE NOTE"),
       arguments("notes.note == {value}", "THE DEVELOPMENT OF THE SEMANTIC WEB,"),
-      arguments("callNumber = {value}", "\"\""),
 
       // search by isbn10
       arguments("isbn = {value}", "047144250X"),

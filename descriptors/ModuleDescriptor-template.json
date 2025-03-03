@@ -398,20 +398,8 @@
     },
     {
       "id": "browse",
-      "version": "1.5",
+      "version": "2.0",
       "handlers": [
-        {
-          "methods": [
-            "GET"
-          ],
-          "pathPattern": "/browse/call-numbers/instances",
-          "permissionsRequired": [
-            "browse.call-numbers-legacy.instances.collection.get"
-          ],
-          "modulePermissions": [
-            "user-tenants.collection.get"
-          ]
-        },
         {
           "methods": [
             "GET"
@@ -758,11 +746,6 @@
     },
     {
       "permissionName": "browse.call-numbers.instances.collection.get",
-      "displayName": "Browse - provides collections of browse items for instance by call number",
-      "description": "Browse instances by given query"
-    },
-    {
-      "permissionName": "browse.call-numbers-legacy.instances.collection.get",
       "displayName": "Browse - provides collections of browse items for instance by call number",
       "description": "Browse instances by given query"
     },

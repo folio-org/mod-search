@@ -12,22 +12,16 @@ import static org.folio.search.utils.CollectionUtils.mergeSafely;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToList;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToSet;
 import static org.folio.search.utils.CollectionUtils.nullIfEmpty;
-import static org.folio.search.utils.CollectionUtils.toLinkedHashMap;
 import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.search.utils.TestUtils.setOf;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.DisplayName;
@@ -111,80 +105,6 @@ class CollectionUtilsTest {
       arguments(asList("4", "2", "3", "1"), asList("2", "1", "10"), setOf("3", "4")),
       arguments(asList("4", "2", null, "1"), asList(null, "1", "10"), setOf("2", "4"))
     );
-  }
-
-  @Test
-  void testToListSafeWithNonNullSetAndFilterReturnsExpectedList() {
-    // Arrange
-    Set<String> set = new HashSet<>();
-    set.add("hello");
-    set.add("world");
-    Predicate<String> filter = s -> s.startsWith("h");
-
-    // Act
-    List<String> result = CollectionUtils.toListSafe(set, filter);
-
-    // Assert
-    assertThat(result)
-      .isNotNull()
-      .hasSize(1)
-      .containsExactly("hello");
-  }
-
-  @Test
-  void testToListSafeWithNonNullSetAndNoFilterReturnsExpectedList() {
-    // Arrange
-    Set<String> set = new HashSet<>();
-    set.add("hello");
-    set.add("world");
-
-    // Act
-    List<String> result = CollectionUtils.toListSafe(set, s -> true);
-
-    // Assert
-    assertThat(result)
-      .isNotNull()
-      .hasSize(2)
-      .containsExactlyInAnyOrder("hello", "world");
-  }
-
-  @Test
-  void testToListSafeWithNullSetReturnsNull() {
-    // Arrange
-    Set<String> set = null;
-
-    // Act
-    List<String> result = CollectionUtils.toListSafe(set, s -> true);
-
-    // Assert
-    assertNull(result);
-  }
-
-  @Test
-  void testToListSafeWithEmptySetReturnsNull() {
-    // Arrange
-    Set<String> set = new HashSet<>();
-
-    // Act
-    List<String> result = CollectionUtils.toListSafe(set, s -> true);
-
-    // Assert
-    assertNull(result);
-  }
-
-  @Test
-  void testToListSafeWithNonNullSetAndFilterThatRemovesAllReturnsNull() {
-    // Arrange
-    Set<String> set = new HashSet<>();
-    set.add("hello");
-    set.add("world");
-    Predicate<String> filter = s -> false;
-
-    // Act
-    List<String> result = CollectionUtils.toListSafe(set, filter);
-
-    // Assert
-    assertNull(result);
   }
 
   @Test
@@ -314,12 +234,6 @@ class CollectionUtilsTest {
   void getValueByPath_positive(String path, Map<String, Object> map, List<String> expected) {
     var actual = CollectionUtils.getValuesByPath(map, path);
     assertThat(actual).isEqualTo(expected);
-  }
-
-  @Test
-  void toLinkedHashMap_positive() {
-    var actual = Stream.of(1, 1, 2, 2).collect(toLinkedHashMap(Function.identity(), String::valueOf));
-    assertThat(actual).isInstanceOf(LinkedHashMap.class).isEqualTo(mapOf(1, "1", 2, "2"));
   }
 
   @ParameterizedTest

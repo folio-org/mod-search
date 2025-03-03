@@ -43,16 +43,6 @@ public class BrowseRequest implements ResourceRequest {
   private final String targetField;
 
   /**
-   * Sub-field for browsing.
-   */
-  private final String subField;
-
-  /**
-   * Refined condition for browse.
-   */
-  private final String refinedCondition;
-
-  /**
    * Whether to return only basic properties or entire instance.
    */
   private final Boolean expandAll;
@@ -66,18 +56,4 @@ public class BrowseRequest implements ResourceRequest {
    * Number of preceding records for virtual shelf browsing. Works only when browsing around.
    */
   private final Integer precedingRecordsCount;
-
-  public static BrowseRequest of(ResourceType resource, String tenantId, String query, Integer limit,
-                                 String targetField, String subField, Boolean expandAll, Boolean highlightMatch,
-                                 Integer precedingRecordsCount) {
-    return new BrowseRequest(resource, tenantId, null, query, limit, targetField, subField, null, expandAll,
-      highlightMatch, precedingRecordsCount);
-  }
-
-  public static BrowseRequest of(ResourceType resource, String tenantId, BrowseOptionType optionType, String query,
-                                 Integer limit, String targetField, String subField, Boolean expandAll,
-                                 Boolean highlightMatch, Integer precedingRecordsCount) {
-    return new BrowseRequest(resource, tenantId, optionType, query, limit, targetField, subField, null, expandAll,
-      highlightMatch, precedingRecordsCount);
-  }
 }

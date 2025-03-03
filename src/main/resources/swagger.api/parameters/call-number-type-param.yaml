@@ -1,6 +1,0 @@
-in: query
-name: callNumberType
-description: Type of call number
-required: false
-schema:
-  $ref: '../schemas/entity/callNumberType.yaml'

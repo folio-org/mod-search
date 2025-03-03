@@ -145,9 +145,6 @@ paths:
   /search/linked-data/instances:
     $ref: 'paths/search-linked-data/search-linked-data-instances.yaml'
 
-  /browse/call-numbers/instances:
-    $ref: 'paths/browse-call-numbers/browse-call-numbers-instances.yaml'
-
   /browse/call-numbers/{browseOptionId}/instances:
     $ref: 'paths/browse-call-numbers/browse-instance-call-numbers.yaml'
 

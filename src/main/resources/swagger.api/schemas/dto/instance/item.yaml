@@ -67,9 +67,6 @@ properties:
     type: string
   copyNumber:
     type: string
-  effectiveShelvingOrder:
-    type: string
-    description: "A system generated normalization of the call number that allows for call number sorting in reports and search results"
   itemLevelCallNumberTypeId:
     type: string
     description: "Call number type id"

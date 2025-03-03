@@ -2,7 +2,6 @@ package org.folio.search.configuration;
 
 import org.folio.search.domain.dto.BrowseOptionType;
 import org.folio.search.domain.dto.BrowseType;
-import org.folio.search.domain.dto.CallNumberType;
 import org.folio.search.domain.dto.RecordType;
 import org.folio.search.domain.dto.SortOrder;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +15,6 @@ public class WebConfig implements WebMvcConfigurer {
   @Override
   public void addFormatters(FormatterRegistry registry) {
     registry.addConverter(new StringToRecordTypeEnumConverter());
-    registry.addConverter(new StringToCallNumberTypeEnumConverter());
     registry.addConverter(new StringToBrowseTypeConverter());
     registry.addConverter(new StringToBrowseOptionTypeConverter());
     registry.addConverter(new StringToSortOrderTypeConverter());
@@ -26,13 +24,6 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public RecordType convert(String source) {
       return RecordType.valueOf(source.toUpperCase().replace('-', '_'));
-    }
-  }
-
-  private static final class StringToCallNumberTypeEnumConverter implements Converter<String, CallNumberType> {
-    @Override
-    public CallNumberType convert(String source) {
-      return CallNumberType.valueOf(source.toUpperCase());
     }
   }
 

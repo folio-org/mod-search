@@ -1,9 +1,11 @@
 ## v5.0.0 YYYY-mm-DD
 ### Breaking changes
 * Upgrade to Java 21 ([MSEARCH-969](https://folio-org.atlassian.net/browse/MSEARCH-969))
+* Call Numbers Browse: Clean-Up of Legacy Call-Number Browse Logic ([MSEARCH-866](https://folio-org.atlassian.net/browse/MSEARCH-866))
 
 ### New APIs versions
 * Provides `indices v1.1`
+* Provides `browse v2.0`
 * Requires `API_NAME vX.Y`
 
 ### Features

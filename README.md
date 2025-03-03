@@ -711,7 +711,6 @@ does not produce any values, so the following search options will return an empt
 | `itemLevelCallNumberTypeId`                                  |   term    | `itemLevelCallNumberTypeId="81ae0f60-f2bc-450c-84c8-5a21096daed9"`                    | Matches instances that have item with given call number type id                                                                                         |
 | `itemTags`                                                   |   term    | `itemTags="important"`                                                                | Matches instances that have item with given tag                                                                                                         |
 | `item.electronicAccess`                                      | full-text | `item.electronicAccess any "resource"`                                                | An alias for all `electronicAccess` fields - `uri`, `linkText`, `materialsSpecification`, `publicNote`                                                  |
-| `item.effectiveShelvingOrder`                                |   term    | `item.effectiveShelvingOrder="A 12"`                                                  | Matches instances that have item with given `effectiveShelvingOrder` value                                                                              |
 | `item.electronicAccess.uri`                                  |   term    | `item.electronicAccess.uri="http://folio.org*"`                                       | Search by electronic access URI                                                                                                                         |
 | `item.electronicAccess.linkText`                             | full-text | `item.electronicAccess.linkText="Folio website"`                                      | Search by electronic access link text                                                                                                                   |
 | `item.electronicAccess.publicNote`                           | full-text | `item.electronicAccess.publicNote="a rare book"`                                      | Search by electronic access public note                                                                                                                 |
@@ -723,7 +722,6 @@ does not produce any values, so the following search options will return an empt
 | `item.effectiveCallNumberComponents.typeId = {value}`        |   term    | `item.effectiveCallNumberComponents.typeId == "81ae0f60-f2bc-450c-84c8-5a21096daed9"` | Search by item call-number typeId  `81ae0f60-f2bc-450c-84c8-5a21096daed9`                                                                               |
 | `item.metadata.createdDate`                                  |   term    | `item.metadata.createdDate > "2020-12-12"`                                            | Matches instances with item that were created after  `2020-12-12`                                                                                       |
 | `item.metadata.updatedDate`                                  |   term    | `item.metadata.updatedDate > "2020-12-12"`                                            | Matches instances with item that were updated after  `2020-12-12`                                                                                       |
-| `callNumberType`                                             |   term    | `callNumberType = "lc"`                                                               | Matches instances with item that has call number with type `Library of Congress classification`. Supported values: lc, dewey, nlm, sudoc, other, local. |
 
 ##### Authority search options
 
@@ -936,7 +934,6 @@ In case where options are similar, secondary sort is used
 | limit                 | integer | 100           |                                     | Number of records in response                                                        |
 | highlightMatch        | boolean | true          |                                     | Whether to highlight matched resource (or add empty object containing anchor) or not |
 | precedingRecordsCount | integer | limit / 2     |                                     | Amount of preceding records for browsing around                                      |
-| callNumberType        | string  | -             | lc, dewey, nlm, sudoc, other, local | Filters the result of call-number browse by it's type                                |
 
 The query operator works as it described in [CQL Query operators](#cql-query-operators) section. Anchor will be included
 only if `<=` or `>=` are used in the query. Otherwise, the empty row will be added if `highlightMatch` is equal

@@ -29,12 +29,6 @@ public abstract class BaseConsortiumIntegrationTest extends BaseIntegrationTest 
     return doSearch(instanceSearchPath(), MEMBER_TENANT_ID, Map.of("query", query));
   }
 
-  @SneakyThrows
-  protected static ResultActions doSearchByInstances(String query, Boolean expandAll) {
-    return doSearch(instanceSearchPath(), MEMBER_TENANT_ID,
-      Map.of("query", query, "expandAll", expandAll.toString()));
-  }
-
   @AfterAll
   static void cleanUp() {
     removeTenant();

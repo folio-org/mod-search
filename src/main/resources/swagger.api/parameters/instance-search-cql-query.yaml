@@ -554,14 +554,6 @@ description: |
         </td>
     </tr>
     <tr>
-        <td>item.effectiveShelvingOrder</td>
-        <td>term</td>
-        <td>item.effectiveShelvingOrder=&quot;A 12&quot;</td>
-        <td>Matches instances that have item with given effectiveShelvingOrder
-            value
-        </td>
-    </tr>
-    <tr>
         <td>item.electronicAccess.uri</td>
         <td>term</td>
         <td>item.electronicAccess.uri=&quot;http://folio.org*&quot;</td>

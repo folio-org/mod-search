@@ -43,6 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 import lombok.SneakyThrows;
 import org.awaitility.Awaitility;
@@ -295,7 +296,7 @@ public abstract class BaseIntegrationTest {
       .source(searchSource().query(matchAllQuery()).trackTotalHits(true).from(0).size(0))
       .indices(getIndexName(resource.getName(), tenantId));
     var searchResponse = elasticClient.search(searchRequest, RequestOptions.DEFAULT);
-    return searchResponse.getHits().getTotalHits().value;
+    return Objects.requireNonNull(searchResponse.getHits().getTotalHits()).value;
   }
 
   protected static String getIndexId(ResourceType resource) throws IOException {
@@ -480,21 +481,6 @@ public abstract class BaseIntegrationTest {
         .headers(defaultHeaders(tenantId))
         .content(asJsonString(new FeatureConfig().feature(feature).enabled(true))))
       .andExpect(status().isOk());
-  }
-
-  @SneakyThrows
-  @SuppressWarnings("SameParameterValue")
-  protected static void disableFeature(TenantConfiguredFeature feature) {
-    disableFeature(TENANT_ID, feature);
-  }
-
-  @SneakyThrows
-  @SuppressWarnings("SameParameterValue")
-  protected static void disableFeature(String tenantId, TenantConfiguredFeature feature) {
-    mockMvc.perform(delete(ApiEndpoints.featureConfigPath(feature))
-        .headers(defaultHeaders(tenantId))
-        .content(asJsonString(new FeatureConfig().feature(feature).enabled(false))))
-      .andExpect(status().isNoContent());
   }
 
   @SneakyThrows

@@ -3,6 +3,7 @@ package org.folio.search.service.consortium;
 import static org.folio.search.utils.SearchUtils.SHARED_FIELD_NAME;
 import static org.folio.search.utils.SearchUtils.TENANT_ID_FIELD_NAME;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
+import static org.opensearch.index.query.QueryBuilders.nestedQuery;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
 
 import java.util.LinkedList;
@@ -14,6 +15,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.lucene.search.join.ScoreMode;
 import org.folio.search.model.index.CallNumberResource;
 import org.folio.search.model.index.InstanceSubResource;
 import org.folio.search.model.service.BrowseContext;
@@ -31,17 +33,21 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ConsortiumSearchHelper {
 
+  public static final String INSTANCES_PREFIX = "instances.";
   private static final Logger logger = LoggerFactory.getLogger(ConsortiumSearchHelper.class);
   private static final String BROWSE_SHARED_FILTER_KEY = "instances.shared";
   private static final String BROWSE_TENANT_FILTER_KEY = "instances.tenantId";
   private static final String BROWSE_LOCATION_FILTER_KEY = "instances.locationId";
-
   private final FolioExecutionContext folioExecutionContext;
   private final ConsortiumTenantService consortiumTenantService;
 
   public QueryBuilder filterQueryForActiveAffiliation(QueryBuilder query, ResourceType resource) {
     var contextTenantId = folioExecutionContext.getTenantId();
-    return filterQueryForActiveAffiliation(query, resource, contextTenantId);
+    var queryBuilder = filterQueryForActiveAffiliation(query, resource, contextTenantId);
+    if (resource == ResourceType.INSTANCE_CALL_NUMBER) {
+      modifyForCallNumbers(queryBuilder);
+    }
+    return queryBuilder;
   }
 
   /**
@@ -83,6 +89,8 @@ public class ConsortiumSearchHelper {
       return query;
     }
 
+    QueryBuilder queryBuilder;
+
     removeOriginalSharedFilterFromQuery(query);
 
     var boolQuery = prepareBoolQueryForActiveAffiliation(query);
@@ -92,16 +100,63 @@ public class ConsortiumSearchHelper {
 
     var shared = sharedFilter.map(this::sharedFilterValue).orElse(null);
     if (shared == null) {
-      return filterQueryForActiveAffiliation(query, contextTenantId, centralTenantId.get(), resource);
+      queryBuilder = filterQueryForActiveAffiliation(query, contextTenantId, centralTenantId.get(), resource);
     } else if (!shared) {
       boolQuery.must(termQuery(BROWSE_TENANT_FILTER_KEY, contextTenantId));
+      sharedFilter
+        .map(this::sharedFilterValue)
+        .ifPresent(sharedValue -> boolQuery.must(termQuery(BROWSE_SHARED_FILTER_KEY, sharedValue)));
+      queryBuilder = boolQuery;
+    } else {
+      sharedFilter
+        .map(this::sharedFilterValue)
+        .ifPresent(sharedValue -> boolQuery.must(termQuery(BROWSE_SHARED_FILTER_KEY, sharedValue)));
+      queryBuilder = boolQuery;
     }
 
-    sharedFilter
-      .map(this::sharedFilterValue)
-      .ifPresent(sharedValue -> boolQuery.must(termQuery(BROWSE_SHARED_FILTER_KEY, sharedValue)));
+    if (resource == ResourceType.INSTANCE_CALL_NUMBER) {
+      modifyForCallNumbers(queryBuilder);
+    }
 
-    return boolQuery;
+    return queryBuilder;
+  }
+
+  private void modifyForCallNumbers(QueryBuilder queryBuilder) {
+    if (queryBuilder instanceof BoolQueryBuilder bqb) {
+      var should = bqb.should().stream()
+        .filter(TermQueryBuilder.class::isInstance)
+        .filter(qb -> ((TermQueryBuilder) qb).fieldName().startsWith(INSTANCES_PREFIX))
+        .toList();
+      var filter = bqb.filter().stream()
+        .filter(TermQueryBuilder.class::isInstance)
+        .filter(qb -> ((TermQueryBuilder) qb).fieldName().startsWith(INSTANCES_PREFIX))
+        .toList();
+      var must = bqb.must().stream()
+        .filter(TermQueryBuilder.class::isInstance)
+        .filter(qb -> ((TermQueryBuilder) qb).fieldName().startsWith(INSTANCES_PREFIX))
+        .toList();
+      if (should.size() + filter.size() > 1) {
+        var innerBoolQuery = boolQuery();
+        innerBoolQuery.minimumShouldMatch(1);
+        should.forEach(innerBoolQuery::should);
+        filter.forEach(innerBoolQuery::filter);
+        var nestedQuery = nestedQuery("instances", innerBoolQuery, ScoreMode.None);
+        filter.forEach(queryBuilder1 -> bqb.filter().remove(queryBuilder1));
+        should.forEach(queryBuilder1 -> bqb.should().remove(queryBuilder1));
+        if (bqb.should().isEmpty()) {
+          bqb.minimumShouldMatch(null);
+        }
+        bqb.must(nestedQuery);
+      } else if (must.size() + filter.size() > 1) {
+        var innerBoolQuery = boolQuery();
+        must.forEach(innerBoolQuery::must);
+        filter.forEach(innerBoolQuery::filter);
+        var nestedQuery = nestedQuery("instances", innerBoolQuery, ScoreMode.None);
+        filter.forEach(queryBuilder1 -> bqb.filter().remove(queryBuilder1));
+        must.forEach(queryBuilder1 -> bqb.must().remove(queryBuilder1));
+        bqb.must(nestedQuery);
+      }
+    }
   }
 
   public <T> Set<InstanceSubResource> filterSubResourcesForConsortium(
@@ -244,7 +299,7 @@ public class ConsortiumSearchHelper {
         || resourceName.equals(ResourceType.INSTANCE_SUBJECT)
         || resourceName.equals(ResourceType.INSTANCE_CALL_NUMBER)
         || resourceName.equals(ResourceType.INSTANCE_CLASSIFICATION)) {
-      return "instances." + fieldName;
+      return INSTANCES_PREFIX + fieldName;
     }
     return fieldName;
   }

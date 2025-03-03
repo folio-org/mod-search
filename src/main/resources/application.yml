@@ -1,6 +1,8 @@
 spring:
   application:
     name: mod-search
+  profiles:
+    default: "prod"
   threads:
     virtual:
       enabled: true
@@ -168,6 +170,27 @@ management:
     loggers:
       access: unrestricted
 
+---
+
+spring:
+  config:
+    activate:
+      on-profile: dev
+  opensearch:
+    compression-enabled: false
+logging:
+  level:
+    org.folio.spring.filter.LoggingRequestFilter: debug
+    org.opensearch.client: trace
+    org.opensearch.client.sniffer: trace
+    tracer: trace
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: prod
 logging:
   level:
     org.folio.spring.filter.LoggingRequestFilter: debug

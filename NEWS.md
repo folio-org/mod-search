@@ -2,6 +2,7 @@
 ### Breaking changes
 * Upgrade to Java 21 ([MSEARCH-969](https://folio-org.atlassian.net/browse/MSEARCH-969))
 * Call Numbers Browse: Clean-Up of Legacy Call-Number Browse Logic ([MSEARCH-866](https://folio-org.atlassian.net/browse/MSEARCH-866))
+* Call Numbers Browse: Use nested mappings for instances field ([MSEARCH-983](https://folio-org.atlassian.net/browse/MSEARCH-983))
 
 ### New APIs versions
 * Provides `indices v1.1`

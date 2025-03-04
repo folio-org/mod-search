@@ -47,8 +47,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @UnitTest
@@ -58,19 +58,19 @@ class BrowseControllerTest {
 
   @Autowired
   private MockMvc mockMvc;
-  @MockitoBean
+  @MockBean
   private SubjectBrowseService subjectBrowseService;
-  @MockitoBean
+  @MockBean
   private AuthorityBrowseService authorityBrowseService;
-  @MockitoBean
+  @MockBean
   private LegacyCallNumberBrowseService legacyCallNumberBrowseService;
-  @MockitoBean
+  @MockBean
   private ContributorBrowseService contributorBrowseService;
-  @MockitoBean
+  @MockBean
   private ClassificationBrowseService classificationBrowseService;
-  @MockitoBean
+  @MockBean
   private CallNumberBrowseService callNumberBrowseService;
-  @MockitoBean
+  @MockBean
   private TenantProvider tenantProvider;
   @Mock
   private Map<Class<?>, SearchResponsePostProcessor<?>> searchResponsePostProcessors = Collections.emptyMap();

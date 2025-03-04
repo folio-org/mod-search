@@ -27,9 +27,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.boot.test.autoconfigure.json.AutoConfigureJson;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.jdbc.Sql;
 
 @IntegrationTest
@@ -43,8 +43,8 @@ class CallNumberRepositoryIT {
   private static final String INSTANCE_ID = "9f8febd1-e96c-46c4-a5f4-84a45cc499a2";
   private static final Map<String, List<UUID>> ITEM_IDS =
     Map.of("1", getList(1), "2", getList(2));
-  private @MockitoSpyBean JdbcTemplate jdbcTemplate;
-  private @MockitoBean FolioExecutionContext context;
+  private @SpyBean JdbcTemplate jdbcTemplate;
+  private @MockBean FolioExecutionContext context;
   private CallNumberRepository repository;
   private ReindexConfigurationProperties properties;
 

@@ -1,3 +1,12 @@
+## v4.0.10 2025-03-06
+### Features
+* Call Numbers Browse: Implement Database Structure and Logic for Managing Call Numbers ([MSEARCH-862](https://folio-org.atlassian.net/browse/MSEARCH-862))
+* Call Numbers Browse: Implement Call Number Browse Config ([MSEARCH-863](https://folio-org.atlassian.net/browse/MSEARCH-863))
+* Call Numbers Browse: Implement Indexing and Re-indexing Mechanisms for Call-Numbers ([MSEARCH-864](https://folio-org.atlassian.net/browse/MSEARCH-864))
+* Call Numbers Browse: Implement Browsing Endpoint for Call-Numbers ([MSEARCH-865](https://folio-org.atlassian.net/browse/MSEARCH-865))
+* Call Numbers Browse: Support aliases for callNumberTypeId filters ([MSEARCH-942](https://folio-org.atlassian.net/browse/MSEARCH-942))
+* Call Numbers Browse: Support showing instance title in browse results list ([MSEARCH-948](https://folio-org.atlassian.net/browse/MSEARCH-948))
+
 ## v4.0.9 2025-02-24
 ### Bug fixes
 * Fix "Fix dead link" api-docs workflow step ([MSEARCH-947](https://folio-org.atlassian.net/browse/MSEARCH-947))
@@ -46,12 +55,6 @@
 ## v4.0.2 2024-12-06
 ### Features
 * Move Instance sub-entities population from database trigger to code ([MSEARCH-887](https://folio-org.atlassian.net/browse/MSEARCH-887))
-* Call Numbers Browse: Implement Database Structure and Logic for Managing Call Numbers ([MSEARCH-862](https://folio-org.atlassian.net/browse/MSEARCH-862))
-* Call Numbers Browse: Implement Call Number Browse Config ([MSEARCH-863](https://folio-org.atlassian.net/browse/MSEARCH-863))
-* Call Numbers Browse: Implement Indexing and Re-indexing Mechanisms for Call-Numbers ([MSEARCH-864](https://folio-org.atlassian.net/browse/MSEARCH-864))
-* Call Numbers Browse: Implement Browsing Endpoint for Call-Numbers ([MSEARCH-865](https://folio-org.atlassian.net/browse/MSEARCH-865))
-* Call Numbers Browse: Support aliases for callNumberTypeId filters ([MSEARCH-942](https://folio-org.atlassian.net/browse/MSEARCH-942))
-* Call Numbers Browse: Support showing instance title in browse results list ([MSEARCH-948](https://folio-org.atlassian.net/browse/MSEARCH-948))
 
 ### Bug fixes
 * Populate typeId and sourceId on subjects re-indexing ([MSEARCH-891](https://folio-org.atlassian.net/browse/MSEARCH-891))

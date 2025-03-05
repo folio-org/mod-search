@@ -16,6 +16,7 @@ public class TestConstants {
   public static final String ENV = "folio";
   public static final String TENANT_ID = "test_tenant";
   public static final String MEMBER_TENANT_ID = "member_tenant";
+  public static final String MEMBER2_TENANT_ID = "member2_tenant";
   public static final String CENTRAL_TENANT_ID = "consortium";
   public static final String RESOURCE_ID = "d148dd82-56b0-4ddb-a638-83ca1ee97e0a";
   public static final String RESOURCE_ID_SECOND = "d148dd82-56b0-4ddb-a638-83ca1ee97e0b";

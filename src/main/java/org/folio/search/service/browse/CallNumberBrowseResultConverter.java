@@ -24,9 +24,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
+import org.folio.search.domain.dto.LegacyCallNumberBrowseItem;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.SearchResult;
 import org.folio.search.model.service.BrowseContext;
@@ -53,10 +53,10 @@ public class CallNumberBrowseResultConverter {
    * @param ctx               - {@link BrowseContext} value
    * @param request           - initial request
    * @param isBrowsingForward - direction of browsing
-   * @return converted {@link SearchResult} object with {@link CallNumberBrowseItem} values
+   * @return converted {@link SearchResult} object with {@link LegacyCallNumberBrowseItem} values
    */
-  public BrowseResult<CallNumberBrowseItem> convert(SearchResponse resp, BrowseContext ctx, BrowseRequest request,
-                                                    boolean isBrowsingForward) {
+  public BrowseResult<LegacyCallNumberBrowseItem> convert(SearchResponse resp, BrowseContext ctx, BrowseRequest request,
+                                                          boolean isBrowsingForward) {
     var searchResult = documentConverter.convertToSearchResult(resp, Instance.class, this::mapToBrowseItem);
     var browseResult = BrowseResult.of(searchResult);
     var browseItems = browseResult.getRecords();
@@ -76,33 +76,35 @@ public class CallNumberBrowseResultConverter {
     return browseResult.records(collapseCallNumberBrowseItems(populatedItems));
   }
 
-  private CallNumberBrowseItem mapToBrowseItem(SearchHit searchHit, Instance instance) {
+  private LegacyCallNumberBrowseItem mapToBrowseItem(SearchHit searchHit, Instance instance) {
     var shelfKey = (String) searchHit.getSortValues()[0];
-    return new CallNumberBrowseItem().totalRecords(1).instance(instance).shelfKey(shelfKey);
+    return new LegacyCallNumberBrowseItem().totalRecords(1).instance(instance).shelfKey(shelfKey);
   }
 
-  private static List<CallNumberBrowseItem> populateItemsWithIntermediateResults(List<CallNumberBrowseItem> browseItems,
-                                                                                 BrowseContext ctx,
-                                                                                 boolean removeDuplicates,
-                                                                                 String typeId,
-                                                                                 boolean isBrowsingForward) {
+  private static List<LegacyCallNumberBrowseItem> populateItemsWithIntermediateResults(
+    List<LegacyCallNumberBrowseItem> browseItems,
+    BrowseContext ctx,
+    boolean removeDuplicates,
+    String typeId,
+    boolean isBrowsingForward) {
     return browseItems.stream()
       .map(item -> getCallNumberBrowseItemsBetween(item, typeId, removeDuplicates))
       .flatMap(Collection::stream)
       .filter(browseItem -> isValidBrowseItem(browseItem, ctx, isBrowsingForward))
-      .sorted(comparing(CallNumberBrowseItem::getShelfKey))
+      .sorted(comparing(LegacyCallNumberBrowseItem::getShelfKey))
       .toList();
   }
 
-  private static List<CallNumberBrowseItem> fillItemsWithFullCallNumbers(
-    List<CallNumberBrowseItem> items, BrowseContext ctx, boolean isBrowsingForward) {
+  private static List<LegacyCallNumberBrowseItem> fillItemsWithFullCallNumbers(
+    List<LegacyCallNumberBrowseItem> items, BrowseContext ctx, boolean isBrowsingForward) {
     return items.stream()
       .filter(item -> isValidBrowseItem(item, ctx, isBrowsingForward))
       .map(browseItem -> browseItem.fullCallNumber(getFullCallNumber(browseItem)))
       .toList();
   }
 
-  private static boolean isValidBrowseItem(CallNumberBrowseItem item, BrowseContext ctx, boolean isBrowsingForward) {
+  private static boolean isValidBrowseItem(LegacyCallNumberBrowseItem item, BrowseContext ctx,
+                                           boolean isBrowsingForward) {
     var comparisonResult = item.getShelfKey().compareTo(ctx.getAnchor());
     if (comparisonResult == 0 && ctx.isAnchorIncluded(isBrowsingForward)) {
       return true;
@@ -111,8 +113,9 @@ public class CallNumberBrowseResultConverter {
     return isBrowsingForward ? comparisonResult > 0 : comparisonResult < 0;
   }
 
-  private static List<CallNumberBrowseItem> getCallNumberBrowseItemsBetween(CallNumberBrowseItem browseItem,
-                                                                            String typeId, boolean removeDuplicates) {
+  private static List<LegacyCallNumberBrowseItem> getCallNumberBrowseItemsBetween(LegacyCallNumberBrowseItem browseItem,
+                                                                                  String typeId,
+                                                                                  boolean removeDuplicates) {
     var itemsByShelfKeys = toStreamSafe(browseItem.getInstance().getItems())
       .filter(item -> StringUtils.isNotBlank(item.getEffectiveShelvingOrder()))
       .collect(groupingBy(item -> toRootUpperCase(item.getEffectiveShelvingOrder()), LinkedHashMap::new, toList()));
@@ -126,21 +129,22 @@ public class CallNumberBrowseResultConverter {
       .map(shelfKey -> mapToCallNumberBrowseItem(browseItem, shelfKey, findFirst(itemsByShelfKeys.get(shelfKey))));
 
     if (removeDuplicates) {
-      callNumbersStream = callNumbersStream.filter(distinctByKey(CallNumberBrowseItem::getFullCallNumber));
+      callNumbersStream = callNumbersStream.filter(distinctByKey(LegacyCallNumberBrowseItem::getFullCallNumber));
     }
     return callNumbersStream.toList();
   }
 
-  private static CallNumberBrowseItem mapToCallNumberBrowseItem(CallNumberBrowseItem browseItem, String shelfKey,
-                                                                Optional<Item> optionalOfItem) {
-    return new CallNumberBrowseItem()
+  private static LegacyCallNumberBrowseItem mapToCallNumberBrowseItem(LegacyCallNumberBrowseItem browseItem,
+                                                                      String shelfKey,
+                                                                      Optional<Item> optionalOfItem) {
+    return new LegacyCallNumberBrowseItem()
       .shelfKey(normalizeEffectiveShelvingOrder(shelfKey))
       .fullCallNumber(getFullCallNumber(optionalOfItem))
       .instance(browseItem.getInstance())
       .totalRecords(1);
   }
 
-  private static String getFullCallNumber(CallNumberBrowseItem browseItem) {
+  private static String getFullCallNumber(LegacyCallNumberBrowseItem browseItem) {
     return getFullCallNumber(
       Optional.ofNullable(browseItem.getInstance())
         .map(Instance::getItems)
@@ -158,17 +162,18 @@ public class CallNumberBrowseResultConverter {
       .orElse(null);
   }
 
-  private static List<CallNumberBrowseItem> collapseCallNumberBrowseItems(List<CallNumberBrowseItem> items) {
+  private static List<LegacyCallNumberBrowseItem> collapseCallNumberBrowseItems(
+    List<LegacyCallNumberBrowseItem> items) {
     if (items.isEmpty()) {
       return emptyList();
     }
 
-    var collapsedItems = new ArrayList<CallNumberBrowseItem>();
+    var collapsedItems = new ArrayList<LegacyCallNumberBrowseItem>();
     var iterator = items.iterator();
     var prevItem = iterator.next();
     collapsedItems.add(prevItem);
 
-    CallNumberBrowseItem currItem;
+    LegacyCallNumberBrowseItem currItem;
     while (iterator.hasNext()) {
       currItem = iterator.next();
       if (Objects.equals(prevItem.getShelfKey(), currItem.getShelfKey())) {

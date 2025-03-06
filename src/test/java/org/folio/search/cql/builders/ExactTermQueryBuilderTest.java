@@ -12,6 +12,7 @@ import static org.opensearch.index.query.MultiMatchQueryBuilder.Type.PHRASE;
 import static org.opensearch.index.query.QueryBuilders.multiMatchQuery;
 import static org.opensearch.index.query.QueryBuilders.scriptQuery;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
+import static org.opensearch.index.query.QueryBuilders.termsQuery;
 
 import java.util.List;
 import java.util.Optional;
@@ -93,6 +94,19 @@ class ExactTermQueryBuilderTest {
   void getTermLevelQuery_positive_emptyArrayValueNonKeywordField() {
     var actual = queryBuilder.getTermLevelQuery("[]", "field", UNKNOWN, null);
     assertThat(actual).isEqualTo(termQuery("field", "[]"));
+  }
+
+  @Test
+  void getTermLevelQuery_positive_arrayOfTermsWithSizeLessThen1() {
+    var actual = queryBuilder.getTermLevelQuery(new String[]{"val1"}, "field", UNKNOWN, null);
+    assertThat(actual).isEqualTo(termQuery("field", "val1"));
+  }
+
+
+  @Test
+  void getTermLevelQuery_positive_arrayOfTermsWithSizeGreaterThen1() {
+    var actual = queryBuilder.getTermLevelQuery(new String[]{"val1", "val2"}, "field", UNKNOWN, null);
+    assertThat(actual).isEqualTo(termsQuery("field", "val1", "val2"));
   }
 
   @Test

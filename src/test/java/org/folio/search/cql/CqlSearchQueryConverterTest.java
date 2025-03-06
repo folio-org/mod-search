@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 import org.folio.search.cql.CqlSearchQueryConverterTest.ConverterTestConfiguration;
+import org.folio.search.cql.searchterm.SearchTermProcessor;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.metadata.PlainFieldDescription;

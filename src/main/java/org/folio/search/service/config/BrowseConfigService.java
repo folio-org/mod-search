@@ -1,9 +1,11 @@
 package org.folio.search.service.config;
 
+import static org.folio.search.client.InventoryReferenceDataClient.ReferenceDataType.CALL_NUMBER_TYPES;
 import static org.folio.search.client.InventoryReferenceDataClient.ReferenceDataType.CLASSIFICATION_TYPES;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.NonNull;
@@ -31,7 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class BrowseConfigService {
 
   private static final String ID_VALIDATION_MSG = "Body doesn't match path parameter: %s";
-  private static final String TYPE_IDS_VALIDATION_MSG = "Classification type IDs don't exist";
+  private static final String TYPE_IDS_VALIDATION_MSG = "%s type IDs don't exist";
 
   private final ReferenceDataService referenceDataService;
   private final BrowseConfigEntityRepository repository;
@@ -56,7 +58,7 @@ public class BrowseConfigService {
   public void upsertConfig(@NonNull BrowseType type,
                            @NonNull BrowseOptionType optionType,
                            @NonNull BrowseConfig config) {
-    validateConfig(optionType, config);
+    validateConfig(type, optionType, config);
 
     log.debug("Update browse configuration option [browseType: {}, browseOptionType: {}, newValue: {}]",
       type.getValue(), optionType.getValue(), config);
@@ -72,24 +74,27 @@ public class BrowseConfigService {
     }
     var configs = repository.findByConfigId_BrowseType(type.getValue());
     for (BrowseConfigEntity config : configs) {
-      var newTypeIds = new ArrayList<>(config.getTypeIds());
+      var newTypeIds = Optional.ofNullable(config.getTypeIds())
+        .map(ArrayList::new)
+        .orElse(new ArrayList<>());
       newTypeIds.removeAll(typeIds);
       config.setTypeIds(newTypeIds);
     }
     repository.saveAll(configs);
   }
 
-  private void validateConfig(BrowseOptionType optionType, BrowseConfig config) {
+  private void validateConfig(BrowseType type, BrowseOptionType optionType, BrowseConfig config) {
     validateOptionType(optionType, config);
-    validateTypeIds(config);
+    validateTypeIds(type, config);
   }
 
-  private void validateTypeIds(BrowseConfig config) {
+  private void validateTypeIds(BrowseType type, BrowseConfig config) {
     var ids = CollectionUtils.toStreamSafe(config.getTypeIds()).map(UUID::toString).collect(Collectors.toSet());
-    var existedIds = referenceDataService.fetchReferenceData(CLASSIFICATION_TYPES, CqlQueryParam.ID, ids);
+    var referenceDataType = BrowseType.CLASSIFICATION.equals(type) ? CLASSIFICATION_TYPES : CALL_NUMBER_TYPES;
+    var existedIds = referenceDataService.fetchReferenceData(referenceDataType, CqlQueryParam.ID, ids);
     var difference = SetUtils.difference(ids, existedIds);
     if (!difference.isEmpty()) {
-      throw new RequestValidationException(TYPE_IDS_VALIDATION_MSG, "typeIds", difference.toString());
+      throw new RequestValidationException(TYPE_IDS_VALIDATION_MSG.formatted(type), "typeIds", difference.toString());
     }
   }
 

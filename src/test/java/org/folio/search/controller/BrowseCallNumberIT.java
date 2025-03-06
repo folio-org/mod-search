@@ -1,51 +1,82 @@
 package org.folio.search.controller;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.toMap;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CN_INTERMEDIATE_VALUES;
+import static org.awaitility.Awaitility.await;
+import static org.awaitility.Durations.TWO_MINUTES;
+import static org.awaitility.Durations.TWO_SECONDS;
+import static org.folio.search.support.base.ApiEndpoints.browseConfigPath;
 import static org.folio.search.support.base.ApiEndpoints.instanceCallNumberBrowsePath;
+import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
+import static org.folio.search.support.base.ApiEndpoints.recordFacetsPath;
+import static org.folio.search.utils.CallNumberTestData.CallNumberTypeId.LC;
+import static org.folio.search.utils.CallNumberTestData.callNumbers;
+import static org.folio.search.utils.CallNumberTestData.locations;
 import static org.folio.search.utils.TestConstants.TENANT_ID;
-import static org.folio.search.utils.TestUtils.cleanupActual;
-import static org.folio.search.utils.TestUtils.cnBrowseItem;
-import static org.folio.search.utils.TestUtils.getShelfKeyFromCallNumber;
+import static org.folio.search.utils.TestUtils.array;
+import static org.folio.search.utils.TestUtils.facet;
+import static org.folio.search.utils.TestUtils.facetItem;
+import static org.folio.search.utils.TestUtils.mapOf;
+import static org.folio.search.utils.TestUtils.mockCallNumberTypes;
 import static org.folio.search.utils.TestUtils.parseResponse;
-import static org.folio.search.utils.TestUtils.randomId;
-import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.folio.search.domain.dto.BrowseConfig;
+import org.folio.search.domain.dto.BrowseOptionType;
+import org.folio.search.domain.dto.BrowseType;
+import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.CallNumberBrowseResult;
-import org.folio.search.domain.dto.Holding;
+import org.folio.search.domain.dto.Facet;
+import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.Item;
-import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
+import org.folio.search.domain.dto.RecordType;
+import org.folio.search.domain.dto.ShelvingOrderAlgorithmType;
+import org.folio.search.model.index.CallNumberResource;
+import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.model.types.ResourceType;
+import org.folio.search.service.reindex.jdbc.SubResourcesLockRepository;
 import org.folio.search.support.base.BaseIntegrationTest;
+import org.folio.search.utils.CallNumberTestData;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @IntegrationTest
 class BrowseCallNumberIT extends BaseIntegrationTest {
 
-  private static final Instance[] INSTANCES = instances();
-  private static final Map<String, Instance> INSTANCE_MAP =
-    Arrays.stream(INSTANCES).collect(toMap(Instance::getTitle, identity()));
+  private static final List<Instance> INSTANCES = CallNumberTestData.instances();
 
   @BeforeAll
-  static void prepare() {
-    setUpTenant(List.of(jsonPath("sum($.instances..items.length())", is(57.0))), INSTANCES);
+  static void prepare(@Autowired SubResourcesLockRepository subResourcesLockRepository) {
+    setUpTenant(TENANT_ID);
+
+    var timestamp = subResourcesLockRepository.lockSubResource(ReindexEntityType.CALL_NUMBER, TENANT_ID);
+    if (timestamp.isEmpty()) {
+      throw new IllegalStateException("Unexpected state of database: unable to lock call-number resource");
+    }
+    var instances = BrowseCallNumberIT.INSTANCES.toArray(Instance[]::new);
+    saveRecords(TENANT_ID, instanceSearchPath(), asList(instances), instances.length, emptyList(),
+      instance -> inventoryApi.createInstance(TENANT_ID, instance));
+    subResourcesLockRepository.unlockSubResource(ReindexEntityType.CALL_NUMBER, timestamp.get(), TENANT_ID);
+
+    await().atMost(TWO_MINUTES).pollInterval(TWO_SECONDS).untilAsserted(() -> {
+      var counted = countIndexDocument(ResourceType.INSTANCE_CALL_NUMBER, TENANT_ID);
+      assertThat(counted).isEqualTo(100);
+    });
   }
 
   @AfterAll
@@ -53,426 +84,190 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
     removeTenant();
   }
 
+  @BeforeEach
+  void setUp() {
+    updateLcConfig(List.of(UUID.fromString(LC.getId())));
+  }
+
   @MethodSource("callNumberBrowsingDataProvider")
   @DisplayName("browseByCallNumber_parameterized")
-  @ParameterizedTest(name = "[{index}] query={0}, value=''{1}'', limit={2}")
-  void browseByCallNumber_parameterized(String query, String anchor, Integer limit, CallNumberBrowseResult expected) {
-    var request = get(instanceCallNumberBrowsePath())
+  @ParameterizedTest(name = "[{0}] query={1}, option={2}, value=''{3}'', limit={4}")
+  void browseByCallNumber_parameterized(int index, String query, BrowseOptionType optionType, String input,
+                                        Integer limit, CallNumberBrowseResult expected) {
+    var request = get(instanceCallNumberBrowsePath(optionType))
       .param("expandAll", "true")
-      .param("query", prepareQuery(query, '"' + anchor + '"'))
+      .param("query", prepareQuery(query, '"' + input + '"'))
       .param("limit", String.valueOf(limit));
     var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
-    cleanupActual(actual);
-    actual.setTotalRecords(null);
     assertThat(actual).isEqualTo(expected);
   }
 
-  @Test
-  void browseByCallNumber_browsingAroundWhenPrecedingRecordsCountIsSpecified() {
-    var request = get(instanceCallNumberBrowsePath())
-      .param("query", prepareQuery("callNumber < {value} or callNumber >= {value}", "\"CE 16 B6713 X 41993\""))
-      .param("limit", "5")
-      .param("expandAll", "true")
-      .param("precedingRecordsCount", "4");
-    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
-    cleanupActual(actual);
-    assertThat(actual).isEqualTo(new CallNumberBrowseResult()
-      .totalRecords(37).prev("AB 214 C72 NO 3220").next("CE 216 B6713 X 541993").items(List.of(
-        cnBrowseItem(instance("instance #31"), "AB 14 C72 NO 220"),
-        cnBrowseItem(instance("instance #25"), "AC 11 A4 VOL 235"),
-        cnBrowseItem(instance("instance #08"), "AC 11 A67 X 42000"),
-        cnBrowseItem(instance("instance #18"), "AC 11 E8 NO 14 P S1487"),
-        cnBrowseItem(instance("instance #44"), "CE 16 B6713 X 41993", true)
-      )));
+  @MethodSource("facetQueriesProvider")
+  @ParameterizedTest(name = "[{index}] query={0}, facets={1}")
+  @DisplayName("getFacetsForCallNumbers_parameterized")
+  void getFacetsForSubjects_parameterized(String query, String[] facets, Map<String, Facet> expected) {
+    var actual = parseResponse(doGet(recordFacetsPath(RecordType.CALL_NUMBERS, query, facets)), FacetResult.class);
+
+    expected.forEach((facetName, expectedFacet) -> {
+      var actualFacet = actual.getFacets().get(facetName);
+
+      assertThat(actualFacet).isNotNull();
+      assertThat(actualFacet.getValues())
+        .containsExactlyInAnyOrderElementsOf(expectedFacet.getValues());
+    });
   }
 
-  //https://issues.folio.org/browse/MSEARCH-513
-  @Test
-  void browseByCallNumber_browsingVeryFirstCallNumberWithNoException() {
-    var request = get(instanceCallNumberBrowsePath())
-      .param("query", prepareQuery("callNumber >= {value} or callNumber < {value}", "\"AB 14 C72 NO 220\""))
-      .param("limit", "10")
-      .param("highlightMatch", "true")
-      .param("expandAll", "true")
-      .param("precedingRecordsCount", "5");
-    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
-    cleanupActual(actual);
-    assertThat(actual).isEqualTo(new CallNumberBrowseResult()
-      .totalRecords(32).prev("AB 214 C72 NO 3220").next("CE 216 B6713 X 541993").items(List.of(
-        cnBrowseItem(instance("instance #31"), "AB 14 C72 NO 220", true),
-        cnBrowseItem(instance("instance #25"), "AC 11 A4 VOL 235"),
-        cnBrowseItem(instance("instance #08"), "AC 11 A67 X 42000"),
-        cnBrowseItem(instance("instance #18"), "AC 11 E8 NO 14 P S1487"),
-        cnBrowseItem(instance("instance #44"), "CE 16 B6713 X 41993")
-      )));
-  }
-
-  @Test
-  void browseByCallNumber_browsingAroundWhenMultipleAnchors() {
-    var request = get(instanceCallNumberBrowsePath())
-      .param("query", prepareQuery("callNumber < {value} or callNumber >= {value}", "\"J29.29:M54/990\""))
-      .param("limit", "5")
-      .param("expandAll", "true")
-      .param("precedingRecordsCount", "4");
-    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
-    cleanupActual(actual);
-    var expected = new CallNumberBrowseResult()
-      .totalRecords(41).prev("GA 216 D64 541548A").next("J 229.29 M54 3990").items(List.of(
-        cnBrowseItem(instance("instance #39"), "GA 16 D64 41548A"),
-        cnBrowseItem(instance("instance #30"), "GA 16 G32 41557 V1"),
-        cnBrowseItem(instance("instance #30"), "GA 16 G32 41557 V2"),
-        cnBrowseItem(instance("instance #30"), "GA 16 G32 41557 V3"),
-        cnBrowseItem(instance("instance #47"), "J29.29:M54/990", true)
-      ));
-    assertThat(actual).isEqualTo(expected);
-  }
-
-  @Test
-  void browseByCallNumber_browsingAroundWithoutHighlightMatch() {
-    var request = get(instanceCallNumberBrowsePath())
-      .param("query", prepareQuery("callNumber < {value} or callNumber >= {value}", "\"CE 16 B6713 X 41993\""))
-      .param("limit", "5")
-      .param("expandAll", "true")
-      .param("highlightMatch", "false");
-    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
-    cleanupActual(actual);
-    assertThat(actual).isEqualTo(new CallNumberBrowseResult()
-      .totalRecords(37).prev("AC 211 A67 X 542000").next("CE 216 D86 X 541998").items(List.of(
-        cnBrowseItem(instance("instance #08"), "AC 11 A67 X 42000"),
-        cnBrowseItem(instance("instance #18"), "AC 11 E8 NO 14 P S1487"),
-        cnBrowseItem(instance("instance #44"), "CE 16 B6713 X 41993"),
-        cnBrowseItem(instance("instance #45"), "CE 16 B6724 41993"),
-        cnBrowseItem(instance("instance #04"), "CE 16 D86 X 41998")
-      )));
-  }
-
-  @Test
-  void browseByCalNumber_browseAroundWithEnabledIntermediateValues() throws InterruptedException {
-    enableFeature(BROWSE_CN_INTERMEDIATE_VALUES);
-
-    var request = get(instanceCallNumberBrowsePath())
-      .param("query", prepareQuery("callNumber < {value} or callNumber >= {value}", "\"DA 3880 O5 C3 V1\""))
-      .param("limit", "7")
-      .param("expandAll", "true");
-    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
-    cleanupActual(actual);
-    assertThat(actual).isEqualTo(new CallNumberBrowseResult()
-      .totalRecords(58).prev("DA 43870 B55 541868").next("DA 43880 O6 D5").items(List.of(
-        cnBrowseItem(instance("instance #41"), "DA 3870 B55 41868"),
-        cnBrowseItem(instance("instance #07"), "DA 3870 H47 41975"),
-        cnBrowseItem(instance("instance #11"), "DA 3880 K56 M27 41984"),
-        cnBrowseItem(instance("instance #32"), "DA 3880 O5 C3 V1", true),
-        cnBrowseItem(instance("instance #32"), "DA 3880 O5 C3 V2"),
-        cnBrowseItem(instance("instance #32"), "DA 3880 O5 C3 V3"),
-        cnBrowseItem(instance("instance #29"), "DA 3880 O6 D5")
-      )));
-
-    disableFeature(BROWSE_CN_INTERMEDIATE_VALUES);
+  private static Stream<Arguments> facetQueriesProvider() {
+    var locations = locations();
+    return Stream.of(
+      arguments("cql.allRecords=1", array("instances.locationId"), mapOf("instances.locationId",
+        facet(facetItem(locations.get(1), 42), facetItem(locations.get(2), 34), facetItem(locations.get(3), 24)))),
+      arguments("callNumberTypeId=\"" + LC.getId() + "\"", array("instances.locationId"), mapOf("instances.locationId",
+        facet(facetItem(locations.get(1), 8), facetItem(locations.get(2), 8), facetItem(locations.get(3), 4)))),
+      arguments("callNumberTypeId==lc", array("instances.locationId"), mapOf("instances.locationId",
+        facet(facetItem(locations.get(1), 8), facetItem(locations.get(2), 8), facetItem(locations.get(3), 4)))),
+      arguments("callNumberTypeId==all", array("instances.locationId"), mapOf("instances.locationId",
+        facet(facetItem(locations.get(1), 42), facetItem(locations.get(2), 34), facetItem(locations.get(3), 24))))
+    );
   }
 
   private static Stream<Arguments> callNumberBrowsingDataProvider() {
-    var aroundQuery = "callNumber > {value} or callNumber < {value}";
-    var aroundIncludingQuery = "callNumber >= {value} or callNumber < {value}";
-    var forwardQuery = "itemEffectiveShelvingOrder > {value}";
-    var forwardIncludingQuery = "itemEffectiveShelvingOrder >= {value}";
-    var backwardQuery = "itemEffectiveShelvingOrder < {value}";
-    var backwardIncludingQuery = "itemEffectiveShelvingOrder <= {value}";
+    var aroundQuery = "fullCallNumber >= {value} or fullCallNumber < {value}";
+    var forwardQuery = "fullCallNumber > {value}";
+    var backwardQuery = "fullCallNumber < {value}";
 
-    var firstAnchorCallNumber = "CE 210 K297 41858";
-    var secondAnchorCallNumber = "DA 3890 A1";
-    var firstAnchorShelfKey = getShelfKeyFromCallNumber(firstAnchorCallNumber);
-    var secondAnchorShelfKey = getShelfKeyFromCallNumber(secondAnchorCallNumber);
+    var callNumbers = callNumbers().stream()
+      .map(CallNumberTestData.CallNumberTestDataRecord::callNumber)
+      .collect(Collectors.toMap(callNumberResource -> Integer.parseInt(callNumberResource.id()), identity()));
 
     return Stream.of(
-      arguments(aroundQuery, firstAnchorCallNumber, 5, new CallNumberBrowseResult()
-        .prev("CE 216 B6724 541993").next("DA 43700 C95 NO 218").items(List.of(
-          cnBrowseItem(instance("instance #45"), "CE 16 B6724 41993"),
-          cnBrowseItem(instance("instance #04"), "CE 16 D86 X 41998"),
-          cnBrowseItem(0, "CE 210 K297 41858", true),
-          cnBrowseItem(instance("instance #36"), "DA 3700 B91 L79"),
-          cnBrowseItem(instance("instance #09"), "DA 3700 C95 NO 18")
+      // anchor call number appears in the middle of the result set
+      arguments(1, aroundQuery, BrowseOptionType.ALL, callNumbers.get(1).fullCallNumber(), 5,
+        cnBrowseResult(callNumbers.get(91).fullCallNumber(), callNumbers.get(68).fullCallNumber(), 100, List.of(
+          cnBrowseItem(callNumbers.get(91), 1, INSTANCES.get(45).getTitle()),
+          cnBrowseItem(callNumbers.get(25), 1, INSTANCES.get(15).getTitle()),
+          cnBrowseItem(callNumbers.get(1), 3, null, true),
+          cnBrowseItem(callNumbers.get(70), 1, INSTANCES.get(34).getTitle()),
+          cnBrowseItem(callNumbers.get(68), 1, INSTANCES.get(34).getTitle())
         ))),
 
-      arguments(aroundQuery, secondAnchorCallNumber, 5, new CallNumberBrowseResult()
-        .prev("DA 43880 O6 M81").next("DA 43890 A2 B76 542002").items(List.of(
-          cnBrowseItem(instance("instance #13"), "DA 3880 O6 M81"),
-          cnBrowseItem(instance("instance #02"), "DA 3880 O6 M96"),
-          cnBrowseItem(0, "DA 3890 A1", true),
-          cnBrowseItem(instance("instance #14"), "DA 3890 A1 I72 41885"),
-          cnBrowseItem(instance("instance #22"), "DA 3890 A2 B76 42002")
+      // not existed anchor call number appears in the middle of the result set
+      arguments(2, aroundQuery, BrowseOptionType.ALL, "TA357 .A78 2011", 5,
+        cnBrowseResult(callNumbers.get(25).fullCallNumber(), callNumbers.get(68).fullCallNumber(), 100, List.of(
+          cnBrowseItem(callNumbers.get(25), 1, INSTANCES.get(15).getTitle()),
+          cnBrowseItem(callNumbers.get(1), 3, null),
+          cnEmptyBrowseItem("TA357 .A78 2011"),
+          cnBrowseItem(callNumbers.get(70), 1, INSTANCES.get(34).getTitle()),
+          cnBrowseItem(callNumbers.get(68), 1, INSTANCES.get(34).getTitle())
         ))),
 
-      arguments(aroundIncludingQuery, firstAnchorCallNumber, 5, new CallNumberBrowseResult()
-        .prev("CE 216 B6724 541993").next("DA 43700 C95 NO 218").items(List.of(
-          cnBrowseItem(instance("instance #45"), "CE 16 B6724 41993"),
-          cnBrowseItem(instance("instance #04"), "CE 16 D86 X 41998"),
-          cnBrowseItem(instance("instance #38"), "CE 210 K297 41858", true),
-          cnBrowseItem(instance("instance #36"), "DA 3700 B91 L79"),
-          cnBrowseItem(instance("instance #09"), "DA 3700 C95 NO 18")
+      // anchor call number appears first in the result set
+      arguments(3, aroundQuery, BrowseOptionType.ALL, callNumbers.get(50).fullCallNumber(), 5,
+        cnBrowseResult(null, callNumbers.get(95).fullCallNumber(), 100, List.of(
+          cnBrowseItem(callNumbers.get(50), 1, INSTANCES.get(26).getTitle(), true),
+          cnBrowseItem(callNumbers.get(97), 1, INSTANCES.get(48).getTitle()),
+          cnBrowseItem(callNumbers.get(95), 1, INSTANCES.get(47).getTitle())
         ))),
 
-      arguments(aroundIncludingQuery, secondAnchorCallNumber, 5, new CallNumberBrowseResult()
-        .prev("DA 43880 O6 M81").next("DA 43890 A2 B76 542002").items(List.of(
-          cnBrowseItem(instance("instance #13"), "DA 3880 O6 M81"),
-          cnBrowseItem(instance("instance #02"), "DA 3880 O6 M96"),
-          cnBrowseItem(0, "DA 3890 A1", true),
-          cnBrowseItem(instance("instance #14"), "DA 3890 A1 I72 41885"),
-          cnBrowseItem(instance("instance #22"), "DA 3890 A2 B76 42002")
+      // not existed anchor call number appears first in the result set
+      arguments(4, aroundQuery, BrowseOptionType.ALL, "0.0", 5,
+        cnBrowseResult(null, callNumbers.get(97).fullCallNumber(), 100, List.of(
+          cnEmptyBrowseItem("0.0"),
+          cnBrowseItem(callNumbers.get(50), 1, INSTANCES.get(26).getTitle()),
+          cnBrowseItem(callNumbers.get(97), 1, INSTANCES.get(48).getTitle())
         ))),
 
-      // checks order of closely placed call-numbers
-      arguments(aroundIncludingQuery, secondAnchorCallNumber, 30, new CallNumberBrowseResult()
-        .prev("DA 43870 H47 541975").next("E 3211 N52 VOL 214").items(List.of(
-          cnBrowseItem(instance("instance #07"), "DA 3870 H47 41975"),
-          cnBrowseItem(instance("instance #11"), "DA 3880 K56 M27 41984"),
-          cnBrowseItem(instance("instance #32"), "DA 3880 O5 C3 V1"),
-          cnBrowseItem(instance("instance #32"), "DA 3880 O5 C3 V2"),
-          cnBrowseItem(instance("instance #32"), "DA 3880 O5 C3 V3"),
-          cnBrowseItem(instance("instance #29"), "DA 3880 O6 D5"),
-          cnBrowseItem(instance("instance #01"), "DA 3880 O6 J72"),
-          cnBrowseItem(instance("instance #03"), "DA 3880 O6 L5 41955"),
-          cnBrowseItem(instance("instance #06"), "DA 3880 O6 L6 V1"),
-          cnBrowseItem(instance("instance #06"), "DA 3880 O6 L6 V2"),
-          cnBrowseItem(instance("instance #20"), "DA 3880 O6 L75"),
-          cnBrowseItem(instance("instance #15"), "DA 3880 O6 L76"),
-          cnBrowseItem(instance("instance #05"), "DA 3880 O6 M15"),
-          cnBrowseItem(instance("instance #13"), "DA 3880 O6 M81"),
-          cnBrowseItem(instance("instance #02"), "DA 3880 O6 M96"),
-          cnBrowseItem(0, "DA 3890 A1", true),
-          cnBrowseItem(instance("instance #14"), "DA 3890 A1 I72 41885"),
-          cnBrowseItem(instance("instance #22"), "DA 3890 A2 B76 42002"),
-          cnBrowseItem(instance("instance #19"), "DA 3890 A2 F57 42011"),
-          cnBrowseItem(instance("instance #24"), "DA 3900 C39 NO 11"),
-          cnBrowseItem(instance("instance #34"), "DA 3900 C89 V1"),
-          cnBrowseItem(instance("instance #34"), "DA 3900 C89 V2"),
-          cnBrowseItem(instance("instance #34"), "DA 3900 C89 V3"),
-          cnBrowseItem(instance("instance #28"), "DB 11 A31 BD 3124"),
-          cnBrowseItem(instance("instance #23"), "DB 11 A66 SUPPL NO 11"),
-          cnBrowseItem(instance("instance #10"), "DC 3201 B34 41972"),
-          cnBrowseItem(instance("instance #35"), "E 12.11 I12 288 D"),
-          cnBrowseItem(instance("instance #33"), "E 12.11 I2 298"),
-          cnBrowseItem(instance("instance #27"), "E 211 A506"),
-          cnBrowseItem(instance("instance #12"), "E 211 N52 VOL 14")
+      // anchor call number appears last in the result set
+      arguments(5, aroundQuery, BrowseOptionType.ALL, callNumbers.get(11).fullCallNumber(), 5,
+        cnBrowseResult(callNumbers.get(49).fullCallNumber(), null, 100, List.of(
+          cnBrowseItem(callNumbers.get(49), 1, INSTANCES.get(26).getTitle()),
+          cnBrowseItem(callNumbers.get(44), 1, INSTANCES.get(24).getTitle()),
+          cnBrowseItem(callNumbers.get(11), 1, INSTANCES.get(5).getTitle(), true)
         ))),
 
-      // checks if collapsing by the same result works correctly
-      arguments(aroundIncludingQuery, "FC", 5, new CallNumberBrowseResult()
-        .prev("FA 542010 43546 3256").next("G 545831 S2").items(List.of(
-          cnBrowseItem(instance("instance #43"), "FA 42010 3546 256"),
-          cnBrowseItem(instance("instance #42"), "FA 46252 3977 12 237"),
-          cnBrowseItem(0, "FC", true),
-          cnBrowseItem(2, "FC 17 B89"),
-          cnBrowseItem(instance("instance #31"), "G 45831 S2")
+      // not existed anchor call number appears last in the result set
+      arguments(6, aroundQuery, BrowseOptionType.ALL, "ZZ", 5,
+        cnBrowseResult(callNumbers.get(44).fullCallNumber(), null, 100, List.of(
+          cnBrowseItem(callNumbers.get(44), 1, INSTANCES.get(24).getTitle()),
+          cnBrowseItem(callNumbers.get(11), 1, INSTANCES.get(5).getTitle()),
+          cnEmptyBrowseItem("ZZ")
         ))),
 
-      // checks if collapsing by the same result works correctly
-      arguments(aroundIncludingQuery, "fc", 5, new CallNumberBrowseResult()
-        .prev("FA 542010 43546 3256").next("G 545831 S2").items(List.of(
-          cnBrowseItem(instance("instance #43"), "FA 42010 3546 256"),
-          cnBrowseItem(instance("instance #42"), "FA 46252 3977 12 237"),
-          cnBrowseItem(0, "fc", true),
-          cnBrowseItem(2, "FC 17 B89"),
-          cnBrowseItem(instance("instance #31"), "G 45831 S2")
+      // anchor call number appears in the middle of the result set when filtering by type
+      arguments(7, aroundQuery, BrowseOptionType.LC, callNumbers.get(46).fullCallNumber(), 5,
+        cnBrowseResult(callNumbers.get(66).fullCallNumber(), callNumbers.get(21).fullCallNumber(), 20, List.of(
+          cnBrowseItem(callNumbers.get(66), 1, INSTANCES.get(32).getTitle()),
+          cnBrowseItem(callNumbers.get(96), 1, INSTANCES.get(47).getTitle()),
+          cnBrowseItem(callNumbers.get(46), 1, INSTANCES.get(25).getTitle(), true),
+          cnBrowseItem(callNumbers.get(86), 1, INSTANCES.get(42).getTitle()),
+          cnBrowseItem(callNumbers.get(21), 2, null)
         ))),
 
-      // browsing forward
-      arguments(forwardQuery, firstAnchorShelfKey, 5, new CallNumberBrowseResult()
-        .prev("DA 43700 B91 L79").next("DA 43880 K56 M27 541984").items(List.of(
-          cnBrowseItem(instance("instance #36"), "DA 3700 B91 L79"),
-          cnBrowseItem(instance("instance #09"), "DA 3700 C95 NO 18"),
-          cnBrowseItem(instance("instance #41"), "DA 3870 B55 41868"),
-          cnBrowseItem(instance("instance #07"), "DA 3870 H47 41975"),
-          cnBrowseItem(instance("instance #11"), "DA 3880 K56 M27 41984")
+      // forward browsing from the middle of the result set
+      arguments(8, forwardQuery, BrowseOptionType.ALL, callNumbers.get(22).fullCallNumber(), 5,
+        cnBrowseResult(callNumbers.get(47).fullCallNumber(), callNumbers.get(32).fullCallNumber(), 100, List.of(
+          cnBrowseItem(callNumbers.get(47), 1, INSTANCES.get(26).getTitle()),
+          cnBrowseItem(callNumbers.get(62), 1, INSTANCES.get(30).getTitle()),
+          cnBrowseItem(callNumbers.get(67), 1, INSTANCES.get(33).getTitle()),
+          cnBrowseItem(callNumbers.get(55), 1, INSTANCES.get(28).getTitle()),
+          cnBrowseItem(callNumbers.get(32), 1, INSTANCES.get(16).getTitle())
         ))),
 
-      arguments(forwardQuery, secondAnchorShelfKey, 5, new CallNumberBrowseResult()
-        .prev("DA 43890 A1 I72 541885").next("DA 43900 C89 V1").items(List.of(
-          cnBrowseItem(instance("instance #14"), "DA 3890 A1 I72 41885"),
-          cnBrowseItem(instance("instance #22"), "DA 3890 A2 B76 42002"),
-          cnBrowseItem(instance("instance #19"), "DA 3890 A2 F57 42011"),
-          cnBrowseItem(instance("instance #24"), "DA 3900 C39 NO 11"),
-          cnBrowseItem(instance("instance #34"), "DA 3900 C89 V1")
+      // forward browsing from the end of the result set
+      arguments(9, forwardQuery, BrowseOptionType.ALL, callNumbers.get(11).fullCallNumber(), 5,
+        cnBrowseResult(null, null, 100, emptyList())),
+
+      // backward browsing from the middle of the result set
+      arguments(10, backwardQuery, BrowseOptionType.ALL, callNumbers.get(22).fullCallNumber(), 5,
+        cnBrowseResult(callNumbers.get(92).fullCallNumber(), callNumbers.get(90).fullCallNumber(), 100, List.of(
+          cnBrowseItem(callNumbers.get(92), 1, INSTANCES.get(45).getTitle()),
+          cnBrowseItem(callNumbers.get(17), 1, INSTANCES.get(10).getTitle()),
+          cnBrowseItem(callNumbers.get(27), 1, INSTANCES.get(15).getTitle()),
+          cnBrowseItem(callNumbers.get(42), 1, INSTANCES.get(22).getTitle()),
+          cnBrowseItem(callNumbers.get(90), 1, INSTANCES.get(44).getTitle())
         ))),
 
-      // checks if collapsing works in forward direction
-      arguments(forwardQuery, "F", 5, new CallNumberBrowseResult()
-        .prev("F  PR1866.S63 V.1 C.1").next("FC 217 B89").items(List.of(
-          cnBrowseItem(instance("instance #46"), "F  PR1866.S63 V.1 C.1"),
-          cnBrowseItem(instance("instance #27"), "F 43733 L370 41992"),
-          cnBrowseItem(instance("instance #43"), "FA 42010 3546 256"),
-          cnBrowseItem(instance("instance #42"), "FA 46252 3977 12 237"),
-          cnBrowseItem(2, "FC 17 B89")
-        ))),
-
-      arguments(forwardQuery, "Z", 10, new CallNumberBrowseResult()
-        .prev(null).next(null).items(emptyList())),
-
-      arguments(forwardIncludingQuery, firstAnchorShelfKey, 5, new CallNumberBrowseResult()
-        .prev("CE 3210 K297 541858").next("DA 43870 H47 541975").items(List.of(
-          cnBrowseItem(instance("instance #38"), "CE 210 K297 41858"),
-          cnBrowseItem(instance("instance #36"), "DA 3700 B91 L79"),
-          cnBrowseItem(instance("instance #09"), "DA 3700 C95 NO 18"),
-          cnBrowseItem(instance("instance #41"), "DA 3870 B55 41868"),
-          cnBrowseItem(instance("instance #07"), "DA 3870 H47 41975")
-        ))),
-
-      arguments(forwardIncludingQuery, secondAnchorShelfKey, 5, new CallNumberBrowseResult()
-        .prev("DA 43890 A1 I72 541885").next("DA 43900 C89 V1").items(List.of(
-          cnBrowseItem(instance("instance #14"), "DA 3890 A1 I72 41885"),
-          cnBrowseItem(instance("instance #22"), "DA 3890 A2 B76 42002"),
-          cnBrowseItem(instance("instance #19"), "DA 3890 A2 F57 42011"),
-          cnBrowseItem(instance("instance #24"), "DA 3900 C39 NO 11"),
-          cnBrowseItem(instance("instance #34"), "DA 3900 C89 V1")
-        ))),
-
-      // browsing backward
-      arguments(backwardQuery, firstAnchorShelfKey, 5, new CallNumberBrowseResult()
-        .prev("AC 211 A67 X 542000").next("CE 216 D86 X 541998").items(List.of(
-          cnBrowseItem(instance("instance #08"), "AC 11 A67 X 42000"),
-          cnBrowseItem(instance("instance #18"), "AC 11 E8 NO 14 P S1487"),
-          cnBrowseItem(instance("instance #44"), "CE 16 B6713 X 41993"),
-          cnBrowseItem(instance("instance #45"), "CE 16 B6724 41993"),
-          cnBrowseItem(instance("instance #04"), "CE 16 D86 X 41998")
-        ))),
-
-      arguments(backwardQuery, secondAnchorShelfKey, 5, new CallNumberBrowseResult()
-        .prev("DA 43880 O6 L75").next("DA 43880 O6 M96").items(List.of(
-          cnBrowseItem(instance("instance #20"), "DA 3880 O6 L75"),
-          cnBrowseItem(instance("instance #15"), "DA 3880 O6 L76"),
-          cnBrowseItem(instance("instance #05"), "DA 3880 O6 M15"),
-          cnBrowseItem(instance("instance #13"), "DA 3880 O6 M81"),
-          cnBrowseItem(instance("instance #02"), "DA 3880 O6 M96")
-        ))),
-
-      // check that collapsing works for browsing backward
-      arguments(backwardQuery, "G", 5, new CallNumberBrowseResult()
-        .prev("F  PR1866.S63 V.1 C.1").next("FC 217 B89").items(List.of(
-          cnBrowseItem(instance("instance #46"), "F  PR1866.S63 V.1 C.1"),
-          cnBrowseItem(instance("instance #27"), "F 43733 L370 41992"),
-          cnBrowseItem(instance("instance #43"), "FA 42010 3546 256"),
-          cnBrowseItem(instance("instance #42"), "FA 46252 3977 12 237"),
-          cnBrowseItem(2, "FC 17 B89")
-        ))),
-
-      arguments(backwardQuery, "F 11", 5, new CallNumberBrowseResult()
-        .prev("E 212.11 I12 3288 D").next("F  PR1866.S63 V.1 C.1").items(List.of(
-          cnBrowseItem(instance("instance #35"), "E 12.11 I12 288 D"),
-          cnBrowseItem(instance("instance #33"), "E 12.11 I2 298"),
-          cnBrowseItem(instance("instance #27"), "E 211 A506"),
-          cnBrowseItem(instance("instance #12"), "E 211 N52 VOL 14"),
-          cnBrowseItem(instance("instance #46"), "F  PR1866.S63 V.1 C.1")
-        ))),
-
-      arguments(backwardQuery, "A", 10, new CallNumberBrowseResult()
-        .prev(null).next(null).items(emptyList())),
-
-      arguments(backwardIncludingQuery, firstAnchorShelfKey, 5, new CallNumberBrowseResult()
-        .prev("AC 211 E8 NO 214 P S1487").next("CE 3210 K297 541858").items(List.of(
-          cnBrowseItem(instance("instance #18"), "AC 11 E8 NO 14 P S1487"),
-          cnBrowseItem(instance("instance #44"), "CE 16 B6713 X 41993"),
-          cnBrowseItem(instance("instance #45"), "CE 16 B6724 41993"),
-          cnBrowseItem(instance("instance #04"), "CE 16 D86 X 41998"),
-          cnBrowseItem(instance("instance #38"), "CE 210 K297 41858")
-        ))),
-
-      arguments(backwardIncludingQuery, secondAnchorShelfKey, 5, new CallNumberBrowseResult()
-        .prev("DA 43880 O6 L75").next("DA 43880 O6 M96").items(List.of(
-          cnBrowseItem(instance("instance #20"), "DA 3880 O6 L75"),
-          cnBrowseItem(instance("instance #15"), "DA 3880 O6 L76"),
-          cnBrowseItem(instance("instance #05"), "DA 3880 O6 M15"),
-          cnBrowseItem(instance("instance #13"), "DA 3880 O6 M81"),
-          cnBrowseItem(instance("instance #02"), "DA 3880 O6 M96")
-        )))
+      // backward browsing from the end of the result set
+      arguments(11, backwardQuery, BrowseOptionType.ALL, callNumbers.get(50).fullCallNumber(), 5,
+        cnBrowseResult(null, null, 100, emptyList()))
     );
   }
 
-  private static Instance[] instances() {
-    return callNumberBrowseInstanceData().stream()
-      .map(BrowseCallNumberIT::instance)
-      .toArray(Instance[]::new);
+  private static void updateLcConfig(List<UUID> typeIds) {
+    var config = new BrowseConfig()
+      .id(BrowseOptionType.LC)
+      .shelvingAlgorithm(ShelvingOrderAlgorithmType.LC)
+      .typeIds(typeIds);
+
+    var stub = mockCallNumberTypes(okapi.wireMockServer(), typeIds.toArray(new UUID[0]));
+    doPut(browseConfigPath(BrowseType.CALL_NUMBER, BrowseOptionType.LC), config);
+    okapi.wireMockServer().removeStub(stub);
   }
 
-  @SuppressWarnings("unchecked")
-  private static Instance instance(List<Object> data) {
-    var holdingId = randomId();
-    var holding = new Holding().id(holdingId).discoverySuppress(false).tenantId(TENANT_ID);
-
-    var items = ((List<String>) data.get(1)).stream()
-      .map(callNumber -> new Item()
-        .tenantId(TENANT_ID)
-        .holdingsRecordId(holdingId)
-        .id(randomId())
-        .discoverySuppress(false)
-        .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents().callNumber(callNumber))
-        .effectiveShelvingOrder(getShelfKeyFromCallNumber(callNumber))
-      )
-      .toList();
-
-    return new Instance()
-      .id(randomId())
-      .title((String) data.get(0))
-      .staffSuppress(false)
-      .discoverySuppress(false)
-      .isBoundWith(false)
-      .shared(false)
-      .tenantId(TENANT_ID)
-      .items(items)
-      .holdings(List.of(holding));
+  private static CallNumberBrowseResult cnBrowseResult(String prev, String next, int total,
+                                                       List<CallNumberBrowseItem> items) {
+    return new CallNumberBrowseResult().prev(prev).next(next).items(items).totalRecords(total);
   }
 
-  private static Instance instance(String title) {
-    return INSTANCE_MAP.get(title);
+  private static CallNumberBrowseItem cnEmptyBrowseItem(String callNumber) {
+    return new CallNumberBrowseItem().fullCallNumber(callNumber).isAnchor(true).totalRecords(0);
   }
 
-  private static List<List<Object>> callNumberBrowseInstanceData() {
-    return List.of(
-      List.of("instance #01", List.of("DA 3880 O6 J72")),
-      List.of("instance #02", List.of("DA 3880 O6 M96")),
-      List.of("instance #03", List.of("DA 3880 O6 L5 41955")),
-      List.of("instance #04", List.of("CE 16 D86 X 41998")),
-      List.of("instance #05", List.of("DA 3880 O6 M15")),
-      List.of("instance #06", List.of("DA 3880 O6 L6 V2", "DA 3880 O6 L6 V1", "DA 3880 O6 L6 V2")),
-      List.of("instance #07", List.of("DA 3870 H47 41975")),
-      List.of("instance #08", List.of("AC 11 A67 X 42000")),
-      List.of("instance #09", List.of("DA 3700 C95 NO 18")),
-      List.of("instance #10", List.of("DC 3201 B34 41972")),
-      List.of("instance #11", List.of("DA 3880 K56 M27 41984")),
-      List.of("instance #12", List.of("E 211 N52 VOL 14")),
-      List.of("instance #13", List.of("DA 3880 O6 M81")),
-      List.of("instance #14", List.of("DA 3890 A1 I72 41885")),
-      List.of("instance #15", List.of("DA 3880 O6 L76")),
-      List.of("instance #16", List.of("PR 44034 B38 41993")),
-      List.of("instance #17", List.of("GA 16 A63 41581")),
-      List.of("instance #18", List.of("AC 11 E8 NO 14 P S1487")),
-      List.of("instance #19", List.of("DA 3890 A2 F57 42011")),
-      List.of("instance #20", List.of("DA 3880 O6 L75")),
-      List.of("instance #21", List.of("FC 17 B89")),
-      List.of("instance #22", List.of("DA 3890 A2 B76 42002")),
-      List.of("instance #23", List.of("DB 11 A66 SUPPL NO 11")),
-      List.of("instance #24", List.of("DA 3900 C39 NO 11")),
-      List.of("instance #25", List.of("AC 11 A4 VOL 235")),
-      List.of("instance #26", List.of("PR 17 I55 42006")),
-      List.of("instance #27", List.of("E 211 A506", "F 43733 L370 41992")),
-      List.of("instance #28", List.of("DB 11 A31 BD 3124")),
-      List.of("instance #29", List.of("DA 3880 O6 D5")),
-      List.of("instance #30", List.of("GA 16 G32 41557 V1", "GA 16 G32 41557 V2", "GA 16 G32 41557 V3")),
-      List.of("instance #31", List.of("AB 14 C72 NO 220", "G 45831 S2")),
-      List.of("instance #32", List.of("DA 3880 O5 C3 V1", "DA 3880 O5 C3 V2", "DA 3880 O5 C3 V3")),
-      List.of("instance #33", List.of("E 12.11 I2 298")),
-      List.of("instance #34", List.of("DA 3900 C89 V1", "DA 3900 C89 V2", "DA 3900 C89 V3")),
-      List.of("instance #35", List.of("E 12.11 I12 288 D")),
-      List.of("instance #36", List.of("DA 3700 B91 L79")),
-      List.of("instance #37", List.of("FC 17 B89")),
-      List.of("instance #38", List.of("CE 210 K297 41858")),
-      List.of("instance #39", List.of("GA 16 D64 41548A")),
-      List.of("instance #40", List.of("PR 213 E5 41999")),
-      List.of("instance #41", List.of("DA 3870 B55 41868")),
-      List.of("instance #42", List.of("FA 46252 3977 12 237")),
-      List.of("instance #43", List.of("FA 42010 3546 256")),
-      List.of("instance #44", List.of("CE 16 B6713 X 41993")),
-      List.of("instance #45", List.of("CE 16 B6724 41993")),
-      List.of("instance #47", List.of("J29.29:M54/990")),
-      List.of("instance #46", List.of("F  PR1866.S63 V.1 C.1"))
-    );
+  private static CallNumberBrowseItem cnBrowseItem(CallNumberResource resource, int count, String instanceTitle) {
+    return cnBrowseItem(resource, count, instanceTitle, null);
   }
+
+  private static CallNumberBrowseItem cnBrowseItem(CallNumberResource resource, int count,
+                                                   String instanceTitle, Boolean isAnchor) {
+    return new CallNumberBrowseItem()
+      .fullCallNumber(resource.fullCallNumber())
+      .callNumber(resource.callNumber())
+      .callNumberPrefix(resource.callNumberPrefix())
+      .callNumberSuffix(resource.callNumberSuffix())
+      .callNumberTypeId(resource.callNumberTypeId())
+      .instanceTitle(instanceTitle)
+      .totalRecords(count)
+      .isAnchor(isAnchor);
+  }
+
 }

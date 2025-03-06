@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+  <changeSet id="MSEARCH-862@@create-table:call_number" author="Pavlo_Smahin">
+    <preConditions>
+      <not>
+        <tableExists tableName="call_number"/>
+      </not>
+    </preConditions>
+
+    <comment>Create call_number table</comment>
+
+    <createTable tableName="call_number">
+      <column name="id" type="VARCHAR(40)">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_call_number"/>
+      </column>
+      <column name="call_number" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="call_number_prefix" type="VARCHAR(20)"/>
+      <column name="call_number_suffix" type="VARCHAR(25)"/>
+      <column name="call_number_type_id" type="VARCHAR(40)"/>
+      <column name="last_updated_date" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="MSEARCH-862@@create-table:instance_call_number" author="Pavlo_Smahin">
+    <preConditions>
+      <not>
+        <tableExists tableName="instance_call_number"/>
+      </not>
+    </preConditions>
+
+    <comment>Create instance_call_number table</comment>
+
+    <createTable tableName="instance_call_number">
+      <column name="call_number_id" type="VARCHAR(40)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="item_id" type="UUID">
+        <constraints nullable="false"/>
+      </column>
+      <column name="instance_id" type="UUID">
+        <constraints nullable="false"/>
+      </column>
+      <column name="tenant_id" type="VARCHAR(100)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="location_id" type="UUID"/>
+    </createTable>
+
+    <addPrimaryKey tableName="instance_call_number"
+                   columnNames="call_number_id, item_id, instance_id, tenant_id"/>
+
+  </changeSet>
+
+  <changeSet id="MSEARCH-936@@fill-sub_resources_lock-table" author="svitlana_kovalova1">
+    <preConditions onFail="MARK_RAN">
+      <tableExists tableName="sub_resources_lock"/>
+    </preConditions>
+
+    <comment>Fill sub_resources_lock table with initial records</comment>
+
+    <insert tableName="sub_resources_lock">
+      <column name="entity_type" value="call_number"/>
+      <column name="locked_flag" value="false"/>
+      <column name="last_updated_date" valueComputed="CURRENT_TIMESTAMP"/>
+    </insert>
+  </changeSet>
+
+</databaseChangeLog>

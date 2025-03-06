@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Objects;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.converter.preprocessor.extractor.ChildResourceExtractor;
 import org.folio.search.service.reindex.jdbc.ContributorRepository;
 import org.folio.search.utils.ShaUtils;
@@ -23,6 +24,11 @@ public class ContributorResourceExtractor extends ChildResourceExtractor {
 
   public ContributorResourceExtractor(ContributorRepository repository) {
     super(repository);
+  }
+
+  @Override
+  public ResourceType resourceType() {
+    return ResourceType.INSTANCE;
   }
 
   @Override

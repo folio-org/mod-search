@@ -1,5 +1,5 @@
 get:
-  operationId: browseInstancesByCallNumber
+  operationId: browseInstancesByCallNumberLegacy
   summary: Browse Call Numbers
   description: Provides list of instances for browsing by call number
   deprecated: true
@@ -22,7 +22,7 @@ get:
             browseResult:
               $ref: '../../examples/result/browseCallNumberResult.yaml'
           schema:
-            $ref: '../../schemas/response/callNumberBrowseResult.yaml'
+            $ref: '../../schemas/legacy/legacyCallNumberBrowseResult.yaml'
     '400':
       $ref: '../../responses/badRequestResponse.yaml'
     '500':

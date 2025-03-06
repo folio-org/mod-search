@@ -13,10 +13,10 @@ spring:
   opensearch:
     username: ${ELASTICSEARCH_USERNAME:}
     password: ${ELASTICSEARCH_PASSWORD:}
-    uris: ${ELASTICSEARCH_URL:http://elasticsearch:9200}
+    uris: ${ELASTICSEARCH_URL:http://localhost:9200}
     compression-enabled: ${ELASTICSEARCH_COMPRESSION_ENABLED:true}
   kafka:
-    bootstrap-servers: ${KAFKA_HOST:kafka}:${KAFKA_PORT:9092}
+    bootstrap-servers: ${KAFKA_HOST:localhost}:${KAFKA_PORT:9092}
     consumer:
       max-poll-records: ${KAFKA_CONSUMER_MAX_POLL_RECORDS:200}
       properties:
@@ -35,9 +35,9 @@ spring:
         max.in.flight.requests.per.connection: 5
         retries: 5
   datasource:
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:postgres}
-    url: jdbc:postgresql://${DB_HOST:postgres}:${DB_PORT:5432}/${DB_DATABASE:okapi_modules}
+    username: ${DB_USERNAME:folio_admin}
+    password: ${DB_PASSWORD:folio_admin}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_DATABASE:okapi_modules}
     hikari:
       data-source-properties:
         reWriteBatchedInserts: true
@@ -73,6 +73,7 @@ folio:
       browse-cn-intermediate-values: ${BROWSE_CN_INTERMEDIATE_VALUES_ENABLED:true}
       browse-cn-intermediate-remove-duplicates: ${BROWSE_CN_INTERMEDIATE_REMOVE_DUPLICATES:true}
       browse-classifications: ${BROWSE_CLASSIFICATIONS_ENABLED:true}
+      browse-call-numbers: ${BROWSE_CALL_NUMBERS_ENABLED:true}
     indexing:
       data-format: ${INDEXING_DATA_FORMAT:smile}
       instance-children-index-delay-ms: ${INSTANCE_CHILDREN_INDEX_DELAY_MS:60000}
@@ -126,10 +127,10 @@ folio:
         concurrency: ${KAFKA_AUTHORITIES_CONCURRENCY:1}
         topic-pattern: ${KAFKA_AUTHORITIES_CONSUMER_PATTERN:(${folio.environment}\.)(.*\.)authorities\.authority}
         group-id: ${folio.environment}-mod-search-authorities-group
-      classification-type:
-        concurrency: ${KAFKA_CLASSIFICATION_TYPE_CONCURRENCY:1}
-        topic-pattern: (${folio.environment}\.)(.*\.)inventory\.classification-type
-        group-id: ${folio.environment}-mod-search-classification-type-group
+      browse-config-data:
+        concurrency: ${KAFKA_BROWSE_CONFIG_DATA_CONCURRENCY:1}
+        topic-pattern: (${folio.environment}\.)(.*\.)inventory\.(classification-type|call-number-type)
+        group-id: ${folio.environment}-mod-search-browse-config-data-group
       location:
         concurrency: ${KAFKA_LOCATION_CONCURRENCY:1}
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.(location|campus|institution|library)
@@ -146,7 +147,7 @@ folio:
         concurrency: ${KAFKA_REINDEX_RECORDS_CONCURRENCY:2}
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.reindex-records
         group-id: ${folio.environment}-mod-search-reindex-records-group
-  okapiUrl: ${okapi.url}
+  okapiUrl: ${okapi.url:http://localhost:9130}
   logging:
     request:
       enabled: true

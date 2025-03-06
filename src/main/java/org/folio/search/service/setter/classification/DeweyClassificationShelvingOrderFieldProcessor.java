@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class DeweyClassificationShelvingOrderFieldProcessor extends ClassificationShelvingOrderFieldProcessor {
+
   protected DeweyClassificationShelvingOrderFieldProcessor() {
     super(number -> ShelvingOrderCalculationHelper.calculate(number, ShelvingOrderAlgorithmType.DEWEY));
   }

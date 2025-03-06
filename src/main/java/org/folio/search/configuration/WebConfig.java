@@ -25,7 +25,7 @@ public class WebConfig implements WebMvcConfigurer {
   private static final class StringToRecordTypeEnumConverter implements Converter<String, RecordType> {
     @Override
     public RecordType convert(String source) {
-      return RecordType.valueOf(source.toUpperCase());
+      return RecordType.valueOf(source.toUpperCase().replace('-', '_'));
     }
   }
 

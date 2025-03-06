@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.folio.search.cql.builders.TermQueryBuilder;
+import org.folio.search.cql.searchterm.SearchTermProcessor;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.exception.ValidationException;
 import org.folio.search.service.metadata.LocalSearchFieldProvider;

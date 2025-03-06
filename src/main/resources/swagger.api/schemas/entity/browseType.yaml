@@ -1,3 +1,4 @@
 type: string
 enum:
   - instance-classification
+  - instance-call-number

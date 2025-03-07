@@ -94,14 +94,14 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
       .param("precedingRecordsCount", "2");
     var actual = parseResponse(doGet(request), AuthorityBrowseResult.class);
     assertThat(actual).isEqualTo(new AuthorityBrowseResult()
-      .totalRecords(31).prev("Fantasy").next("Revolution")
+      .totalRecords(31).prev("Fantasy").next("Periodicals")
       .items(List.of(
         authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE, null),
         authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED, 0),
         authorityBrowseItem("Ĵämes Röllins", 2, "Personal Name", REFERENCE, null).isAnchor(true),
         authorityBrowseItem("Knowledge", 29, "General Subdivision", REFERENCE, null),
         authorityBrowseItem("North America", 11, "Geographic Name", REFERENCE, null),
-        authorityBrowseItem("Novel", 19, "Genre", AUTHORIZED, 0),
+        authorityBrowseItem("Novel", 31, "Genre", AUTHORIZED, 0),
         authorityBrowseItem("Periodicals", 28, "General Subdivision", AUTHORIZED, 0))));
   }
 
@@ -114,7 +114,7 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
     assertThat(actual).isEqualTo(new AuthorityBrowseResult()
       .totalRecords(31).prev("xsftMediumPerfTerm").next(null)
       .items(List.of(
-        authorityBrowseItem("xsftMediumPerfTerm", 32, "Medium of Performance Term", REFERENCE, null),
+        authorityBrowseItem("xsftMediumPerfTerm", 35, "Medium of Performance Term", REFERENCE, null),
         authorityBrowseItem("Zappa Frank", 23, "Personal Name", AUTHORIZED, 0).isAnchor(true),
         authorityBrowseItem("Zappa Frank", 24, "Topical", AUTHORIZED, 0).isAnchor(true)
       )));
@@ -204,10 +204,10 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
           authorityBrowseItem("Knowledge", 29, "General Subdivision", REFERENCE, null),
           emptyAuthorityBrowseItem("music"),
           authorityBrowseItem("North America", 11, "Geographic Name", REFERENCE, null),
-          authorityBrowseItem("Novel", 19, "Genre", AUTHORIZED, 0)))),
+          authorityBrowseItem("Novel", 31, "Genre", AUTHORIZED, 0)))),
 
       arguments(aroundIncludingQuery, "music", 25, new AuthorityBrowseResult()
-        .totalRecords(31).prev(null).next("xsftChronSubdivision")
+        .totalRecords(31).prev(null).next("xMediumPerfTerm")
         .items(List.of(
           authorityBrowseItem("Asia Pacific", 10, "Geographic Name", AUTHORIZED, 0),
           authorityBrowseItem("Biomedical Symposium", 8, "Conference Name", REFERENCE, null),
@@ -223,34 +223,33 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
           authorityBrowseItem("Knowledge", 29, "General Subdivision", REFERENCE, null),
           emptyAuthorityBrowseItem("music"),
           authorityBrowseItem("North America", 11, "Geographic Name", REFERENCE, null),
-          authorityBrowseItem("Novel", 19, "Genre", AUTHORIZED, 0),
+          authorityBrowseItem("Novel", 31, "Genre", AUTHORIZED, 0),
           authorityBrowseItem("Periodicals", 28, "General Subdivision", AUTHORIZED, 0),
           authorityBrowseItem("Poetry", 20, "Genre", REFERENCE, null),
           authorityBrowseItem("Revolution", 26, "Named Event", REFERENCE, null),
           authorityBrowseItem("Science", 16, "Topical", AUTHORIZED, 0),
           authorityBrowseItem("War and Peace", 14, "Uniform Title", REFERENCE, null),
-          authorityBrowseItem("xChronSubdivision", 37, "Chronological Subdivision", AUTHORIZED, 0),
-          authorityBrowseItem("xChronTerm", 28, "Chronological Term", AUTHORIZED, 0),
-          authorityBrowseItem("xFormSubdivision", 40, "Form Subdivision", AUTHORIZED, 0),
-          authorityBrowseItem("xGeographicSubdivision", 34, "Geographic Subdivision", AUTHORIZED, 0),
-          authorityBrowseItem("xMediumPerfTerm", 31, "Medium of Performance Term", AUTHORIZED, 0),
-          authorityBrowseItem("xsftChronSubdivision", 38, "Chronological Subdivision", REFERENCE, null)
+          authorityBrowseItem("xChronSubdivision", 40, "Chronological Subdivision", AUTHORIZED, 0),
+          authorityBrowseItem("xChronTerm", 31, "Chronological Term", AUTHORIZED, 0),
+          authorityBrowseItem("xFormSubdivision", 43, "Form Subdivision", AUTHORIZED, 0),
+          authorityBrowseItem("xGeographicSubdivision", 37, "Geographic Subdivision", AUTHORIZED, 0),
+          authorityBrowseItem("xMediumPerfTerm", 34, "Medium of Performance Term", AUTHORIZED, 0)
         ))),
 
       arguments(aroundIncludingQuery, "music", 11, new AuthorityBrowseResult()
-        .totalRecords(31).prev("Disney").next("Science")
+        .totalRecords(31).prev("Eruption of Vesuvius").next("Revolution")
         .items(List.of(
-          authorityBrowseItem("Disney", 4, "Corporate Name", AUTHORIZED, 0),
           authorityBrowseItem("Eruption of Vesuvius", 25, "Named Event", AUTHORIZED, 0),
           authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE, null),
           authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED, 0),
           authorityBrowseItem("Ĵämes Röllins", 2, "Personal Name", REFERENCE, null),
+          authorityBrowseItem("Knowledge", 29, "General Subdivision", REFERENCE, null),
           emptyAuthorityBrowseItem("music"),
           authorityBrowseItem("North America", 11, "Geographic Name", REFERENCE, null),
-          authorityBrowseItem("Novel", 19, "Genre", AUTHORIZED, 0),
+          authorityBrowseItem("Novel", 31, "Genre", AUTHORIZED, 0),
+          authorityBrowseItem("Periodicals", 28, "General Subdivision", AUTHORIZED, 0),
           authorityBrowseItem("Poetry", 20, "Genre", REFERENCE, null),
-          authorityBrowseItem("Revolution", 26, "Named Event", REFERENCE, null),
-          authorityBrowseItem("Science", 16, "Topical", AUTHORIZED, 0)))),
+          authorityBrowseItem("Revolution", 26, "Named Event", REFERENCE, null)))),
 
       arguments(aroundIncludingQuery, "FC", 5, new AuthorityBrowseResult()
         .totalRecords(31).prev("Eruption of Vesuvius").next("Ĵämes Röllins")
@@ -282,13 +281,13 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
 
       // checks if collapsing works in forward direction
       arguments(forwardQuery, "F", 5, new AuthorityBrowseResult()
-        .totalRecords(31).prev("Fantasy").next("Novel")
+        .totalRecords(31).prev("Fantasy").next("North America")
         .items(List.of(
           authorityBrowseItem("Fantasy", 17, "Topical", REFERENCE, null),
           authorityBrowseItem("Harry Potter", 13, "Uniform Title", AUTHORIZED, 0),
           authorityBrowseItem("Ĵämes Röllins", 2, "Personal Name", REFERENCE, null),
-          authorityBrowseItem("North America", 11, "Geographic Name", REFERENCE, null),
-          authorityBrowseItem("Novel", 19, "Genre", AUTHORIZED, 0)))),
+          authorityBrowseItem("Knowledge", 29, "General Subdivision", REFERENCE, null),
+          authorityBrowseItem("North America", 11, "Geographic Name", REFERENCE, null)))),
 
       arguments(forwardQuery, "ZZ", 10, new AuthorityBrowseResult()
         .totalRecords(31).prev(null).next(null)

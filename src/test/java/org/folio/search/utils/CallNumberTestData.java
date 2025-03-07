@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
+import org.folio.search.domain.dto.CallNumberBrowseItem;
+import org.folio.search.domain.dto.CallNumberBrowseResult;
 import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
@@ -46,21 +48,7 @@ public class CallNumberTestData {
     return readCsvEntities(instancesPath, instanceMapper(callNumbers));
   }
 
-  private static Function<Record, Instance> instanceMapper(List<CallNumberTestDataRecord> callNumbers) {
-    return csvRecord -> {
-      var id = csvRecord.getString(InstanceCsvHeader.ID.getHeader());
-      var callNumberList = Arrays.stream(csvRecord.getString(InstanceCsvHeader.CALL_NUMBER_NUMS.getHeader()).split(";"))
-        .map(callNumberId -> callNumbers.stream()
-          .filter(cn -> cn.callNumber().id().equals(callNumberId))
-          .findFirst())
-        .filter(Optional::isPresent)
-        .map(Optional::get)
-        .toList();
-      return instance(id, callNumberList);
-    };
-  }
-
-  private static Instance instance(String instanceNum, List<CallNumberTestDataRecord> callNumbers) {
+  public static Instance instance(String instanceNum, List<CallNumberTestDataRecord> callNumbers) {
     var holdingId = randomId();
     var holding = new Holding().id(holdingId).tenantId(TENANT_ID);
 
@@ -88,6 +76,46 @@ public class CallNumberTestData {
       .tenantId(TENANT_ID)
       .items(items)
       .holdings(List.of(holding));
+  }
+
+  public static CallNumberBrowseResult cnBrowseResult(String prev, String next, int total,
+                                                      List<CallNumberBrowseItem> items) {
+    return new CallNumberBrowseResult().prev(prev).next(next).items(items).totalRecords(total);
+  }
+
+  public static CallNumberBrowseItem cnEmptyBrowseItem(String callNumber) {
+    return new CallNumberBrowseItem().fullCallNumber(callNumber).isAnchor(true).totalRecords(0);
+  }
+
+  public static CallNumberBrowseItem cnBrowseItem(CallNumberResource resource, int count, String instanceTitle) {
+    return cnBrowseItem(resource, count, instanceTitle, null);
+  }
+
+  public static CallNumberBrowseItem cnBrowseItem(CallNumberResource resource, int count,
+                                                  String instanceTitle, Boolean isAnchor) {
+    return new CallNumberBrowseItem()
+      .fullCallNumber(resource.fullCallNumber())
+      .callNumber(resource.callNumber())
+      .callNumberPrefix(resource.callNumberPrefix())
+      .callNumberSuffix(resource.callNumberSuffix())
+      .callNumberTypeId(resource.callNumberTypeId())
+      .instanceTitle(instanceTitle)
+      .totalRecords(count)
+      .isAnchor(isAnchor);
+  }
+
+  private static Function<Record, Instance> instanceMapper(List<CallNumberTestDataRecord> callNumbers) {
+    return csvRecord -> {
+      var id = csvRecord.getString(InstanceCsvHeader.ID.getHeader());
+      var callNumberList = Arrays.stream(csvRecord.getString(InstanceCsvHeader.CALL_NUMBER_NUMS.getHeader()).split(";"))
+        .map(callNumberId -> callNumbers.stream()
+          .filter(cn -> cn.callNumber().id().equals(callNumberId))
+          .findFirst())
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .toList();
+      return instance(id, callNumberList);
+    };
   }
 
   private static Function<Record, CallNumberTestDataRecord> callNumberMapper(Map<Integer, String> locations) {

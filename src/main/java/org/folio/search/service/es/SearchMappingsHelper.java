@@ -18,6 +18,7 @@ import org.apache.commons.collections4.MapUtils;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.exception.ResourceDescriptionException;
 import org.folio.search.model.metadata.FieldDescription;
+import org.folio.search.model.metadata.NestedFieldDescription;
 import org.folio.search.model.metadata.ObjectFieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.types.ResourceType;
@@ -92,6 +93,9 @@ public class SearchMappingsHelper {
     if (fieldDescription instanceof PlainFieldDescription plainFieldDescription) {
       return getMappingsForPlainField(name, plainFieldDescription);
     }
+    if (fieldDescription instanceof NestedFieldDescription nestedFieldDescription) {
+      return getMappingForNestedField(name, nestedFieldDescription);
+    }
     return getMappingForObjectField(name, (ObjectFieldDescription) fieldDescription);
   }
 
@@ -120,6 +124,19 @@ public class SearchMappingsHelper {
     }
 
     return singletonMap(name, withCustomMappings(mappings, customMappings));
+  }
+
+
+  private Map<String, JsonNode> getMappingForNestedField(String fieldName, NestedFieldDescription fieldDescription) {
+    var mappingProps = new LinkedHashMap<String, JsonNode>();
+
+    fieldDescription.getProperties().forEach((name, desc) -> mappingProps.putAll(getMappingForField(name, desc)));
+    Map<String, Object> objectNodeMappings =
+      new java.util.HashMap<>(singletonMap(MAPPING_PROPERTIES_FIELD, mappingProps));
+    objectNodeMappings.put("type", "nested");
+    objectNodeMappings.put("include_in_parent", true);
+    objectNodeMappings.put(MAPPING_PROPERTIES_FIELD, mappingProps);
+    return singletonMap(fieldName, jsonConverter.toJsonTree(objectNodeMappings));
   }
 
   private ObjectNode getSearchFieldTypeMappings(String indexType) {

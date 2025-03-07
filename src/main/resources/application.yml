@@ -1,6 +1,8 @@
 spring:
   application:
     name: mod-search
+  profiles:
+    default: "prod"
   threads:
     virtual:
       enabled: true
@@ -81,7 +83,7 @@ folio:
   reindex:
     location-batch-size: ${REINDEX_LOCATION_BATCH_SIZE:1000}
     upload-range-size: ${REINDEX_UPLOAD_RANGE_SIZE:1000}
-    upload-range-level: ${REINDEX_UPLOAD_RANGE_LEVEL:3}
+    upload-range-level: ${REINDEX_UPLOAD_RANGE_LEVEL:1}
     merge-range-size: ${REINDEX_MERGE_RANGE_SIZE:500}
     merge-range-publisher-core-pool-size: ${REINDEX_MERGE_RANGE_PUBLISHER_CORE_POOL_SIZE:3}
     merge-range-publisher-max-pool-size: ${REINDEX_MERGE_RANGE_PUBLISHER_MAX_POOL_SIZE:6}
@@ -164,6 +166,27 @@ management:
     loggers:
       access: unrestricted
 
+---
+
+spring:
+  config:
+    activate:
+      on-profile: dev
+  opensearch:
+    compression-enabled: false
+logging:
+  level:
+    org.folio.spring.filter.LoggingRequestFilter: debug
+    org.opensearch.client: trace
+    org.opensearch.client.sniffer: trace
+    tracer: trace
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: prod
 logging:
   level:
     org.folio.spring.filter.LoggingRequestFilter: debug

@@ -192,6 +192,81 @@ properties:
     items:
       type: "string"
       description: "See also from tracing genre/form term"
+  chronTerm:
+    type: "string"
+    description: "Heading chronological term"
+  sftChronTerm:
+    type: "array"
+    description: "See from tracing chronological terms"
+    items:
+      type: "string"
+      description: "See from tracing chronological term"
+  saftChronTerm:
+    type: "array"
+    description: "See also from tracing chronological terms"
+    items:
+      type: "string"
+      description: "See also from tracing chronological term"
+  mediumPerfTerm:
+    type: "string"
+    description: "Heading medium of performance term"
+  sftMediumPerfTerm:
+    type: "array"
+    description: "See from tracing medium of performance terms"
+    items:
+      type: "string"
+      description: "See from tracing medium of performance term"
+  saftMediumPerfTerm:
+    type: "array"
+    description: "See also from tracing medium of performance terms"
+    items:
+      type: "string"
+      description: "See also from tracing medium of performance term"
+  geographicSubdivision:
+    type: "string"
+    description: "Heading geographic subdivision"
+  sftGeographicSubdivision:
+    type: "array"
+    description: "See from tracing geographic subdivisions"
+    items:
+      type: "string"
+      description: "See from tracing geographic subdivision"
+  saftGeographicSubdivision:
+    type: "array"
+    description: "See also from tracing geographic subdivisions"
+    items:
+      type: "string"
+      description: "See also from tracing geographic subdivision"
+  chronSubdivision:
+    type: "string"
+    description: "Heading chronological subdivision"
+  sftChronSubdivision:
+    type: "array"
+    description: "See from tracing chronological subdivisions"
+    items:
+      type: "string"
+      description: "See from tracing chronological subdivision"
+  saftChronSubdivision:
+    type: "array"
+    description: "See also from tracing chronological subdivisions"
+    items:
+      type: "string"
+      description: "See also from tracing chronological subdivision"
+  formSubdivision:
+    type: "string"
+    description: "Heading form subdivision"
+  sftFormSubdivision:
+    type: "array"
+    description: "See from tracing form subdivisions"
+    items:
+      type: "string"
+      description: "See from tracing form subdivision"
+  saftFormSubdivision:
+    type: "array"
+    description: "See also from tracing form subdivisions"
+    items:
+      type: "string"
+      description: "See also from tracing form subdivision"
   identifiers:
     type: "array"
     description: "An extensible set of name-value pairs of identifiers associated with the resource"

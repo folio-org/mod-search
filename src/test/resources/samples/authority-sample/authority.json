@@ -36,6 +36,21 @@
   "genreTerm": "a genre term",
   "sftGenreTerm": [ "a sft genre term" ],
   "saftGenreTerm": [ "a saft genre term" ],
+  "chronTerm": "a chron term",
+  "sftChronTerm": [ "a sft chron term" ],
+  "saftChronTerm": [ "a saft chron term" ],
+  "mediumPerfTerm": "a medium perf term",
+  "sftMediumPerfTerm": [ "a sft medium perf term" ],
+  "saftMediumPerfTerm": [ "a saft medium perf term" ],
+  "geographicSubdivision": "a geographic subdivision",
+  "sftGeographicSubdivision": [ "a sft geographic subdivision" ],
+  "saftGeographicSubdivision": [ "a saft geographic subdivision" ],
+  "chronSubdivision": "a chron subdivision",
+  "sftChronSubdivision": [ "a sft chron subdivision" ],
+  "saftChronSubdivision": [ "a saft chron subdivision" ],
+  "formSubdivision": "a form subdivision",
+  "sftFormSubdivision": [ "a sft form subdivision" ],
+  "saftFormSubdivision": [ "a saft form subdivision" ],
   "subjectHeadings": "a subject heading",
   "identifiers": [
     {
@@ -73,5 +88,5 @@
   ],
   "sourceFileId": "5de462a2-7a90-4467-b77f-b2057d6d69b6",
   "naturalId": "nbc123435",
-  "numberOfTitles" : 0
+  "numberOfTitles": 0
 }

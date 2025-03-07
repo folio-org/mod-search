@@ -24,6 +24,7 @@ Version 2.0. See the file "[LICENSE](LICENSE)" for more information.
   * [Tenant attributes](#tenant-attributes)
 - [Data Indexing](#data-indexing)
   * [Recreating Elasticsearch index](#recreating-elasticsearch-index)
+  * [Updating index settings](#updating-index-settings)
   * [Monitoring reindex process](#monitoring-reindex-process)
 - [Indexing of Instance Records](#indexing-of-instance-records)
 - [API](#api)
@@ -327,7 +328,12 @@ x-okapi-token: [JWT_TOKEN]
 
 {
   "recreateIndex": true,
-  "resourceName": "authority"
+  "resourceName": "authority",
+  "indexSettings": {
+    "numberOfShards": 2,
+    "numberOfReplicas": 4,
+    "refreshInterval": 1
+  }
 }
 ```
 
@@ -337,8 +343,39 @@ x-okapi-token: [JWT_TOKEN]
 * `recreateIndex` parameter is optional and equal to `false` by default. If it is equal to `true` then mod-search
   will drop existing indices for tenant and resource, creating them again. Executing request with this parameter
   equal to `true` in query will erase all the tenant data in mod-search.
+* `indexSettings` parameter is optional and defines the following Elasticsearch/Opensearch index settings:
+  - `numberOfShards` - the number (between 1 and 100) of primary shards for the index
+  - `numberOfReplicas` - the number of replicas (between 0 and 100) each primary shard has
+  - `refreshInterval` - the refresh interval reflecting how often to make new changes to the index visible to search (seconds). `-1` disables refresh.
 * Please note that for `linked-data-instance`, `linked-data-work` and `linked-data-hub` resources the endpoint is used only for index recreation
   purpose and actual reindex operation is triggered through mod-linked-data.
+
+### Updating index settings
+
+Elasticsearch/Opensearch index settings can be updated using the following request:
+
+```http
+PUT [OKAPI_URL]/search/index/settings
+
+x-okapi-tenant: [tenant]
+x-okapi-token: [JWT_TOKEN]
+
+{
+  "resourceName": "authority",
+  "indexSettings": {
+    "numberOfReplicas": 4,
+    "refreshInterval": 60
+  }
+}
+```
+
+* `resourceName` parameter is required. Possible values: `instance`, `authority`, `location`, `linked-data-instance`, `linked-data-work`, `linked-data-hub`.
+* `indexSettings` parameter is optional and defines the following Elasticsearch/Opensearch index settings:
+  - `numberOfReplicas` - the number of replicas (between 0 and 100) each primary shard has
+  - `refreshInterval` - the refresh interval reflecting how often to make new changes to the index visible to search (seconds). `-1` disables refresh.
+
+Index settings can also be specified during the running of reindex process which is described in [Recreating Elasticsearch index](#recreating-elasticsearch-index)
+and in [Indexing of Instance Records](#indexing-of-instance-records) sections.
 
 ### Monitoring reindex process
 
@@ -378,7 +415,24 @@ Upload step queries the aggregated data for the specific Instance resources type
 We can execute both Merge and Upload steps with so-called _full reindex_ API:
 ```http
 POST /search/index/instance-records/reindex/full
+
+x-okapi-tenant: [tenant]
+x-okapi-token: [JWT_TOKEN]
+
+{
+  "indexSettings": {
+    "numberOfShards": 2,
+    "numberOfReplicas": 4,
+    "refreshInterval": 1
+  }
+}
+
 ```
+* `indexSettings` parameter is optional and defines the following Elasticsearch/Opensearch index settings:
+  - `numberOfShards` - the number (between 1 and 100) of primary shards for the index
+  - `numberOfReplicas` - the number of replicas (between 0 and 100) each primary shard has
+  - `refreshInterval` - the refresh interval reflecting how often to make new changes to the index visible to search (seconds). `-1` disables refresh.
+
 It runs the async process which performs both steps described above.
 
 If Instances Indexing was performed in the past, we have aggregated data of instances stored in our models, and changes we made do not require

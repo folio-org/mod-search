@@ -40,7 +40,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 class StreamResourceIdsIT extends BaseIntegrationTest {
 
   private static final int SAVED_INSTANCES_AMOUNT = 1;
-  private static final int SAVED_AUTHORITIES_AMOUNT = 33;
+  private static final int SAVED_AUTHORITIES_AMOUNT = 36;
 
   @BeforeAll
   static void prepare() {

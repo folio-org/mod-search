@@ -82,7 +82,10 @@ class AuthorityEventPreProcessorTest {
       event("saftUniformTitle0", expectedAuthorityAsMap(authority, "saftUniformTitle[0]")),
       event("namedEvent0", expectedAuthorityAsMap(authority, "namedEvent")),
       event("sftNamedEvent0", expectedAuthorityAsMap(authority, "sftNamedEvent[0]")),
-      event("saftNamedEvent0", expectedAuthorityAsMap(authority, "saftNamedEvent[0]"))
+      event("saftNamedEvent0", expectedAuthorityAsMap(authority, "saftNamedEvent[0]")),
+      event("generalSubdivision0", expectedAuthorityAsMap(authority, "generalSubdivision")),
+      event("sftGeneralSubdivision0", expectedAuthorityAsMap(authority, "sftGeneralSubdivision[0]")),
+      event("saftGeneralSubdivision0", expectedAuthorityAsMap(authority, "saftGeneralSubdivision[0]"))
     ));
   }
 
@@ -168,6 +171,9 @@ class AuthorityEventPreProcessorTest {
       .namedEvent("a named event")
       .sftNamedEvent(List.of("a sft named event"))
       .saftNamedEvent(List.of("a saft named event"))
+      .generalSubdivision("a general subdivision")
+      .sftGeneralSubdivision(List.of("a sft general subdivision"))
+      .saftGeneralSubdivision(List.of("a saft general subdivision"))
       .subjectHeadings("a subject heading")
       .identifiers(List.of(new Identifier()
         .value("an identifier value")
@@ -200,6 +206,9 @@ class AuthorityEventPreProcessorTest {
       "namedEvent", authorityField("namedEvent"),
       "sftNamedEvent", authorityField("sftNamedEvent"),
       "saftNamedEvent", authorityField("saftNamedEvent"),
+      "generalSubdivision", authorityField("generalSubdivision"),
+      "sftGeneralSubdivision", authorityField("sftGeneralSubdivision"),
+      "saftGeneralSubdivision", authorityField("saftGeneralSubdivision"),
       "shared", standardField()
     ));
   }

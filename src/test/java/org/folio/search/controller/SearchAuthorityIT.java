@@ -43,7 +43,7 @@ class SearchAuthorityIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void prepare() {
-    setUpTenant(Authority.class, 33, getAuthoritySampleAsMap());
+    setUpTenant(Authority.class, 36, getAuthoritySampleAsMap());
 
     //set up linked instances
     var instance1 = new Instance().id(randomId()).title("test-resource")
@@ -95,7 +95,7 @@ class SearchAuthorityIT extends BaseIntegrationTest {
   @ParameterizedTest(name = "[{index}] query={0}, value=''{1}''")
   @DisplayName("search by authorities (check that they are divided correctly)")
   void searchByAuthorities_parameterized_all(String query, String value) throws Exception {
-    var response = doSearchByAuthorities(prepareQuery(query, value)).andExpect(jsonPath("$.totalRecords", is(33)));
+    var response = doSearchByAuthorities(prepareQuery(query, value)).andExpect(jsonPath("$.totalRecords", is(36)));
     var actual = parseResponse(response, AuthoritySearchResult.class);
     assertThat(actual.getAuthorities()).asInstanceOf(InstanceOfAssertFactories. LIST).containsOnly(
       authority("Personal Name", AUTHORIZED_TYPE, "Gary A. Wills", 4),
@@ -134,6 +134,10 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       authority("Named Event", REFERENCE_TYPE, "a sft named event", null),
       authority("Named Event", AUTH_REF_TYPE, "a saft named event", null),
 
+      authority("General Subdivision", AUTHORIZED_TYPE, "a general subdivision", 4),
+      authority("General Subdivision", REFERENCE_TYPE, "a sft general subdivision", null),
+      authority("General Subdivision", AUTH_REF_TYPE, "a saft general subdivision", null),
+
       authority("Topical", AUTHORIZED_TYPE, "a topical term", 4),
       authority("Topical", REFERENCE_TYPE, "a sft topical term", null),
       authority("Topical", AUTH_REF_TYPE, "a saft topical term", null),
@@ -164,6 +168,9 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       arguments("keyword == {value}", "\"a named event\""),
       arguments("keyword all {value}", "\"a sft named event\""),
       arguments("keyword all {value}", "\"a saft named event\""),
+      arguments("keyword == {value}", "\"a general subdivision\""),
+      arguments("keyword all {value}", "\"a sft general subdivision\""),
+      arguments("keyword all {value}", "\"a saft general subdivision\""),
       arguments("keyword == {value}", "\"a topical term\""),
       arguments("keyword all {value}", "\"a sft topical term\""),
       arguments("keyword all {value}", "\"a saft topical term\""),
@@ -244,6 +251,16 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       arguments("sftNamedEvent == {value}", "\"*nam*\""),
       arguments("saftNamedEvent = {value}", "\"saft event\""),
       arguments("saftNamedEvent == {value}", "\"*saft nam*\""),
+
+      arguments("generalSubdivision all {value}", "\"a general subdivision\""),
+      arguments("generalSubdivision all {value}", "general"),
+      arguments("generalSubdivision == {value}", "\"a gen*\""),
+      arguments("generalSubdivision == {value} and headingType==\"General Subdivision\"", "\"a gen*\""),
+      arguments("sftGeneralSubdivision = {value}", "\"sft general subdivision\""),
+      arguments("sftGeneralSubdivision == {value}", "\"sft general subdivision\""),
+      arguments("sftGeneralSubdivision == {value}", "\"*gen*\""),
+      arguments("saftGeneralSubdivision = {value}", "\"saft subdivision\""),
+      arguments("saftGeneralSubdivision == {value}", "\"*saft gen*\""),
 
       arguments("topicalTerm all {value}", "\"a topical term\""),
       arguments("topicalTerm all {value}", "topical"),
@@ -369,6 +386,14 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       arguments("sftNamedEvent == {value}", "\"*NAM*\""),
       arguments("saftNamedEvent = {value}", "\"SAFT EVENT\""),
       arguments("saftNamedEvent == {value}", "\"*SAFT NAM*\""),
+
+      arguments("generalSubdivision all {value}", "\"A GENERAL SUBDIVISION\""),
+      arguments("generalSubdivision all {value}", "GENERAL"),
+      arguments("generalSubdivision == {value}", "\"A GEN*\""),
+      arguments("sftGeneralSubdivision = {value}", "\"SFT GENERAL SUBDIVISION\""),
+      arguments("sftGeneralSubdivision == {value}", "\"*GEN*\""),
+      arguments("saftGeneralSubdivision = {value}", "\"SAFT SUBDIVISION\""),
+      arguments("saftGeneralSubdivision == {value}", "\"*SAFT GEN*\""),
 
       arguments("topicalTerm all {value}", "\"A TOPICAL TERM\""),
       arguments("topicalTerm all {value}", "TOPICAL"),

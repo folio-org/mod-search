@@ -10,10 +10,14 @@ import static org.folio.search.support.base.ApiEndpoints.browseConfigPath;
 import static org.folio.search.support.base.ApiEndpoints.instanceCallNumberBrowsePath;
 import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.search.support.base.ApiEndpoints.recordFacetsPath;
+import static org.folio.search.utils.CallNumberTestData.CallNumberTestDataRecord;
 import static org.folio.search.utils.CallNumberTestData.CallNumberTypeId.LC;
 import static org.folio.search.utils.CallNumberTestData.callNumbers;
+import static org.folio.search.utils.CallNumberTestData.instance;
+import static org.folio.search.utils.CallNumberTestData.instances;
 import static org.folio.search.utils.CallNumberTestData.locations;
 import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
+import static org.folio.search.utils.TestConstants.MEMBER2_TENANT_ID;
 import static org.folio.search.utils.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.search.utils.TestUtils.array;
 import static org.folio.search.utils.TestUtils.facet;
@@ -43,12 +47,12 @@ import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.reindex.jdbc.SubResourcesLockRepository;
 import org.folio.search.support.base.BaseConsortiumIntegrationTest;
-import org.folio.search.utils.CallNumberTestData;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -59,12 +63,14 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
 
   private static final String LOCATION_FACET = "instances.locationId";
   private static final String TENANT_FACET = "instances.tenantId";
-  private static final List<Instance> INSTANCES = CallNumberTestData.instances();
+  private static final List<Instance> INSTANCES = instances();
+  private static final String MEMBER2_LOCATION = UUID.randomUUID().toString();
 
   @BeforeAll
   static void prepare(@Autowired SubResourcesLockRepository subResourcesLockRepository) {
     setUpTenant(CENTRAL_TENANT_ID);
     setUpTenant(MEMBER_TENANT_ID);
+    setUpTenant(MEMBER2_TENANT_ID);
 
     var timestamp = subResourcesLockRepository.lockSubResource(ReindexEntityType.CALL_NUMBER, CENTRAL_TENANT_ID);
     if (timestamp.isEmpty()) {
@@ -76,6 +82,11 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
     var memberInstances = INSTANCES.subList(30, INSTANCES.size());
     saveRecords(MEMBER_TENANT_ID, instanceSearchPath(), memberInstances, INSTANCES.size(),
       instance -> inventoryApi.createInstance(MEMBER_TENANT_ID, instance));
+
+    var dataRecord = new CallNumberTestDataRecord(callNumbers().getLast().callNumber(), MEMBER2_LOCATION);
+    var member2Instance = instance("51", List.of(dataRecord));
+    saveRecords(MEMBER2_TENANT_ID, instanceSearchPath(), List.of(member2Instance), centralInstances.size() + 1,
+      instance -> inventoryApi.createInstance(MEMBER2_TENANT_ID, instance));
     subResourcesLockRepository.unlockSubResource(ReindexEntityType.CALL_NUMBER, timestamp.get(), CENTRAL_TENANT_ID);
 
     await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
@@ -96,7 +107,7 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
 
   @MethodSource("callNumberBrowsingDataProvider")
   @DisplayName("browseByCallNumber_parameterized")
-  @ParameterizedTest(name = "[{index}] tenant={0} query={1}, option={2}, value=''{3}'', limit={4}")
+  @ParameterizedTest(name = "[{index}] query={0} tenant={1}, option={2}, value=''{3}'', limit={4}")
   void browseByCallNumber_parameterized(String query, String tenant, BrowseOptionType optionType, String input,
                                         Integer limit, CallNumberBrowseResult expected) {
     var request = get(instanceCallNumberBrowsePath(optionType))
@@ -105,6 +116,17 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
       .param("limit", String.valueOf(limit));
     var actual = parseResponse(doGet(request, tenant), CallNumberBrowseResult.class);
     assertThat(actual).isEqualTo(expected);
+  }
+
+  @Test
+  void browseByCallNumber_withLocationFilter() {
+    var request = get(instanceCallNumberBrowsePath(BrowseOptionType.ALL))
+      .param("expandAll", "true")
+      .param("query", "(fullCallNumber>=\"a\" or fullCallNumber<\"a\") "
+                      + "and instances.locationId==(\"%s\")".formatted(MEMBER2_LOCATION))
+      .param("limit", String.valueOf(10));
+    var actual = parseResponse(doGet(request, MEMBER_TENANT_ID), CallNumberBrowseResult.class);
+    assertThat(actual).isEqualTo(cnBrowseResult(null, null, 0, List.of(cnEmptyBrowseItem("a"))));
   }
 
   @MethodSource("facetQueriesProvider")
@@ -126,7 +148,7 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
     var aroundQuery = "fullCallNumber >= {value} or fullCallNumber < {value}";
 
     var callNumbers = callNumbers().stream()
-      .map(CallNumberTestData.CallNumberTestDataRecord::callNumber)
+      .map(CallNumberTestDataRecord::callNumber)
       .collect(Collectors.toMap(callNumberResource -> Integer.parseInt(callNumberResource.id()), identity()));
 
     return Stream.of(
@@ -180,31 +202,35 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
     var locations = locations();
     return Stream.of(
       arguments(CENTRAL_TENANT_ID, "cql.allRecords=1", array(LOCATION_FACET),
-        expectedLocationFacet(locations, 27, 20, 13)),
+        expectedLocationFacet(locations, 27, 20, 13, false)),
       arguments(CENTRAL_TENANT_ID, "cql.allRecords=1", array(TENANT_FACET), mapOf(TENANT_FACET,
         facet(facetItem(CENTRAL_TENANT_ID, 60)))),
       arguments(CENTRAL_TENANT_ID, "callNumberTypeId=\"" + LC.getId() + "\"", array(LOCATION_FACET),
-        expectedLocationFacet(locations, 6, 4, 2)),
+        expectedLocationFacet(locations, 6, 4, 2, false)),
       arguments(MEMBER_TENANT_ID, "cql.allRecords=1", array(LOCATION_FACET),
-        expectedLocationFacet(locations, 42, 34, 24)),
+        expectedLocationFacet(locations, 42, 34, 24, true)),
       arguments(MEMBER_TENANT_ID, "cql.allRecords=1", array(TENANT_FACET), mapOf(TENANT_FACET,
-        facet(facetItem(CENTRAL_TENANT_ID, 60), facetItem(MEMBER_TENANT_ID, 40)))),
+        facet(facetItem(CENTRAL_TENANT_ID, 60), facetItem(MEMBER_TENANT_ID, 40),
+          facetItem(MEMBER2_TENANT_ID, 1)))),
       arguments(MEMBER_TENANT_ID, "instances.shared=false", array(LOCATION_FACET),
-        expectedLocationFacet(locations, 15, 14, 11)),
+        expectedLocationFacet(locations, 15, 14, 11, true)),
       arguments(MEMBER_TENANT_ID, "instances.shared=false", array(TENANT_FACET), mapOf(TENANT_FACET,
-        facet(facetItem(MEMBER_TENANT_ID, 40))))
+        facet(facetItem(MEMBER_TENANT_ID, 40), facetItem(MEMBER2_TENANT_ID, 1))))
     );
   }
 
   private static Map<String, Facet> expectedLocationFacet(Map<Integer, String> locations,
-                                                          int totalRecords1,
-                                                          int totalRecords2, int totalRecords3) {
-    return mapOf(LOCATION_FACET, facet(
-        facetItem(locations.get(1), totalRecords1),
-        facetItem(locations.get(2), totalRecords2),
-        facetItem(locations.get(3), totalRecords3)
-      )
+                                                          int totalRecords1, int totalRecords2, int totalRecords3,
+                                                          boolean includeMember2) {
+    var facet = facet(
+      facetItem(locations.get(1), totalRecords1),
+      facetItem(locations.get(2), totalRecords2),
+      facetItem(locations.get(3), totalRecords3)
     );
+    if (includeMember2) {
+      facet.addValuesItem(facetItem(MEMBER2_LOCATION, 1));
+    }
+    return mapOf(LOCATION_FACET, facet);
   }
 
   private static void updateLcConfig(List<UUID> typeIds) {

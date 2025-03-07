@@ -568,7 +568,11 @@ public class TestUtils {
   }
 
   public static Facet facet(FacetItem... items) {
-    return new Facet().values(asList(items)).totalRecords(items.length);
+    var facet = new Facet().totalRecords(items.length);
+    for (var item : items) {
+      facet.addValuesItem(item);
+    }
+    return facet;
   }
 
   public static FacetItem facetItem(String id, int totalRecords) {

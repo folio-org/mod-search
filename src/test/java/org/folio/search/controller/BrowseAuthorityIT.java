@@ -101,7 +101,7 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
         authorityBrowseItem("Ĵämes Röllins", 2, "Personal Name", REFERENCE, null).isAnchor(true),
         authorityBrowseItem("Knowledge", 29, "General Subdivision", REFERENCE, null),
         authorityBrowseItem("North America", 11, "Geographic Name", REFERENCE, null),
-        authorityBrowseItem("Novel", 31, "Genre", AUTHORIZED, 0),
+        authorityBrowseItem("Novel", 19, "Genre", AUTHORIZED, 0),
         authorityBrowseItem("Periodicals", 28, "General Subdivision", AUTHORIZED, 0))));
   }
 
@@ -204,7 +204,7 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
           authorityBrowseItem("Knowledge", 29, "General Subdivision", REFERENCE, null),
           emptyAuthorityBrowseItem("music"),
           authorityBrowseItem("North America", 11, "Geographic Name", REFERENCE, null),
-          authorityBrowseItem("Novel", 31, "Genre", AUTHORIZED, 0)))),
+          authorityBrowseItem("Novel", 19, "Genre", AUTHORIZED, 0)))),
 
       arguments(aroundIncludingQuery, "music", 25, new AuthorityBrowseResult()
         .totalRecords(31).prev(null).next("xMediumPerfTerm")
@@ -223,7 +223,7 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
           authorityBrowseItem("Knowledge", 29, "General Subdivision", REFERENCE, null),
           emptyAuthorityBrowseItem("music"),
           authorityBrowseItem("North America", 11, "Geographic Name", REFERENCE, null),
-          authorityBrowseItem("Novel", 31, "Genre", AUTHORIZED, 0),
+          authorityBrowseItem("Novel", 19, "Genre", AUTHORIZED, 0),
           authorityBrowseItem("Periodicals", 28, "General Subdivision", AUTHORIZED, 0),
           authorityBrowseItem("Poetry", 20, "Genre", REFERENCE, null),
           authorityBrowseItem("Revolution", 26, "Named Event", REFERENCE, null),
@@ -246,7 +246,7 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
           authorityBrowseItem("Knowledge", 29, "General Subdivision", REFERENCE, null),
           emptyAuthorityBrowseItem("music"),
           authorityBrowseItem("North America", 11, "Geographic Name", REFERENCE, null),
-          authorityBrowseItem("Novel", 31, "Genre", AUTHORIZED, 0),
+          authorityBrowseItem("Novel", 19, "Genre", AUTHORIZED, 0),
           authorityBrowseItem("Periodicals", 28, "General Subdivision", AUTHORIZED, 0),
           authorityBrowseItem("Poetry", 20, "Genre", REFERENCE, null),
           authorityBrowseItem("Revolution", 26, "Named Event", REFERENCE, null)))),
@@ -381,7 +381,7 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
         authority(16).topicalTerm("Science"),
         authority(17).sftTopicalTerm(List.of("Fantasy")),
         authority(18).saftTopicalTerm(List.of("History")),
-        authority(31).genreTerm("Novel"),
+        authority(19).genreTerm("Novel"),
         authority(20).sftGenreTerm(List.of("Poetry")),
         authority(21).saftGenreTerm(List.of("Prose", "Romance")),
         authority(22).personalName("Brian K. Vaughan"),

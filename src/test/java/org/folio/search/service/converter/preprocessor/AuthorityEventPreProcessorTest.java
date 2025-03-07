@@ -83,6 +83,9 @@ class AuthorityEventPreProcessorTest {
       event("namedEvent0", expectedAuthorityAsMap(authority, "namedEvent")),
       event("sftNamedEvent0", expectedAuthorityAsMap(authority, "sftNamedEvent[0]")),
       event("saftNamedEvent0", expectedAuthorityAsMap(authority, "saftNamedEvent[0]")),
+      event("generalSubdivision0", expectedAuthorityAsMap(authority, "generalSubdivision")),
+      event("sftGeneralSubdivision0", expectedAuthorityAsMap(authority, "sftGeneralSubdivision[0]")),
+      event("saftGeneralSubdivision0", expectedAuthorityAsMap(authority, "saftGeneralSubdivision[0]")),
       event("chronTerm0", expectedAuthorityAsMap(authority, "chronTerm")),
       event("sftChronTerm0", expectedAuthorityAsMap(authority, "sftChronTerm[0]")),
       event("saftChronTerm0", expectedAuthorityAsMap(authority, "saftChronTerm[0]")),
@@ -183,6 +186,9 @@ class AuthorityEventPreProcessorTest {
       .namedEvent("a named event")
       .sftNamedEvent(List.of("a sft named event"))
       .saftNamedEvent(List.of("a saft named event"))
+      .generalSubdivision("a general subdivision")
+      .sftGeneralSubdivision(List.of("a sft general subdivision"))
+      .saftGeneralSubdivision(List.of("a saft general subdivision"))
       .chronTerm("a chron term")
       .sftChronTerm(List.of("a sft chron term"))
       .saftChronTerm(List.of("a saft chron term"))
@@ -230,6 +236,9 @@ class AuthorityEventPreProcessorTest {
       "namedEvent", authorityField("namedEvent"),
       "sftNamedEvent", authorityField("sftNamedEvent"),
       "saftNamedEvent", authorityField("saftNamedEvent"),
+      "generalSubdivision", authorityField("generalSubdivision"),
+      "sftGeneralSubdivision", authorityField("sftGeneralSubdivision"),
+      "saftGeneralSubdivision", authorityField("saftGeneralSubdivision"),
       "chronTerm", authorityField("chronTerm"),
       "sftChronTerm", authorityField("sftChronTerm"),
       "saftChronTerm", authorityField("saftChronTerm"),

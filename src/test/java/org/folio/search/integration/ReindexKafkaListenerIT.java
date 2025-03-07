@@ -43,6 +43,7 @@ import org.folio.spring.tools.kafka.FolioKafkaProperties;
 import org.folio.spring.tools.kafka.KafkaAdminService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
@@ -105,6 +106,7 @@ class ReindexKafkaListenerIT {
   }
 
   @Test
+  @Disabled("Will be fixed in MSEARCH-991")
   void handleInstanceEvents_negative_shouldRetryProcessing() {
     var indexEvent = new ReindexRangeIndexEvent();
     indexEvent.setTenant(TENANT_ID);

@@ -82,7 +82,22 @@ class AuthorityEventPreProcessorTest {
       event("saftUniformTitle0", expectedAuthorityAsMap(authority, "saftUniformTitle[0]")),
       event("namedEvent0", expectedAuthorityAsMap(authority, "namedEvent")),
       event("sftNamedEvent0", expectedAuthorityAsMap(authority, "sftNamedEvent[0]")),
-      event("saftNamedEvent0", expectedAuthorityAsMap(authority, "saftNamedEvent[0]"))
+      event("saftNamedEvent0", expectedAuthorityAsMap(authority, "saftNamedEvent[0]")),
+      event("chronTerm0", expectedAuthorityAsMap(authority, "chronTerm")),
+      event("sftChronTerm0", expectedAuthorityAsMap(authority, "sftChronTerm[0]")),
+      event("saftChronTerm0", expectedAuthorityAsMap(authority, "saftChronTerm[0]")),
+      event("mediumPerfTerm0", expectedAuthorityAsMap(authority, "mediumPerfTerm")),
+      event("sftMediumPerfTerm0", expectedAuthorityAsMap(authority, "sftMediumPerfTerm[0]")),
+      event("saftMediumPerfTerm0", expectedAuthorityAsMap(authority, "saftMediumPerfTerm[0]")),
+      event("geographicSubdivision0", expectedAuthorityAsMap(authority, "geographicSubdivision")),
+      event("sftGeographicSubdivision0", expectedAuthorityAsMap(authority, "sftGeographicSubdivision[0]")),
+      event("saftGeographicSubdivision0", expectedAuthorityAsMap(authority, "saftGeographicSubdivision[0]")),
+      event("chronSubdivision0", expectedAuthorityAsMap(authority, "chronSubdivision")),
+      event("sftChronSubdivision0", expectedAuthorityAsMap(authority, "sftChronSubdivision[0]")),
+      event("saftChronSubdivision0", expectedAuthorityAsMap(authority, "saftChronSubdivision[0]")),
+      event("formSubdivision0", expectedAuthorityAsMap(authority, "formSubdivision")),
+      event("sftFormSubdivision0", expectedAuthorityAsMap(authority, "sftFormSubdivision[0]")),
+      event("saftFormSubdivision0", expectedAuthorityAsMap(authority, "saftFormSubdivision[0]"))
     ));
   }
 
@@ -168,6 +183,21 @@ class AuthorityEventPreProcessorTest {
       .namedEvent("a named event")
       .sftNamedEvent(List.of("a sft named event"))
       .saftNamedEvent(List.of("a saft named event"))
+      .chronTerm("a chron term")
+      .sftChronTerm(List.of("a sft chron term"))
+      .saftChronTerm(List.of("a saft chron term"))
+      .mediumPerfTerm("a medium of performance term")
+      .sftMediumPerfTerm(List.of("a sft medium of performance term"))
+      .saftMediumPerfTerm(List.of("a saft medium of performance term"))
+      .geographicSubdivision("a geographic subdivision")
+      .sftGeographicSubdivision(List.of("a sft geographic subdivision"))
+      .saftGeographicSubdivision(List.of("a saft geographic subdivision"))
+      .chronSubdivision("a chron subdivision")
+      .sftChronSubdivision(List.of("a sft chron subdivision"))
+      .saftChronSubdivision(List.of("a saft chron subdivision"))
+      .formSubdivision("a form subdivision")
+      .sftFormSubdivision(List.of("a sft form subdivision"))
+      .saftFormSubdivision(List.of("a saft form subdivision"))
       .subjectHeadings("a subject heading")
       .identifiers(List.of(new Identifier()
         .value("an identifier value")
@@ -200,6 +230,21 @@ class AuthorityEventPreProcessorTest {
       "namedEvent", authorityField("namedEvent"),
       "sftNamedEvent", authorityField("sftNamedEvent"),
       "saftNamedEvent", authorityField("saftNamedEvent"),
+      "chronTerm", authorityField("chronTerm"),
+      "sftChronTerm", authorityField("sftChronTerm"),
+      "saftChronTerm", authorityField("saftChronTerm"),
+      "mediumPerfTerm", authorityField("mediumPerfTerm"),
+      "sftMediumPerfTerm", authorityField("sftMediumPerfTerm"),
+      "saftMediumPerfTerm", authorityField("saftMediumPerfTerm"),
+      "geographicSubdivision", authorityField("geographicSubdivision"),
+      "sftGeographicSubdivision", authorityField("sftGeographicSubdivision"),
+      "saftGeographicSubdivision", authorityField("saftGeographicSubdivision"),
+      "chronSubdivision", authorityField("chronSubdivision"),
+      "sftChronSubdivision", authorityField("sftChronSubdivision"),
+      "saftChronSubdivision", authorityField("saftChronSubdivision"),
+      "formSubdivision", authorityField("formSubdivision"),
+      "sftFormSubdivision", authorityField("sftFormSubdivision"),
+      "saftFormSubdivision", authorityField("saftFormSubdivision"),
       "shared", standardField()
     ));
   }

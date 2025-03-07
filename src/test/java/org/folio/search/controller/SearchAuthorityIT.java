@@ -43,7 +43,7 @@ class SearchAuthorityIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void prepare() {
-    setUpTenant(Authority.class, 33, getAuthoritySampleAsMap());
+    setUpTenant(Authority.class, 48, getAuthoritySampleAsMap());
 
     //set up linked instances
     var instance1 = new Instance().id(randomId()).title("test-resource")
@@ -95,9 +95,9 @@ class SearchAuthorityIT extends BaseIntegrationTest {
   @ParameterizedTest(name = "[{index}] query={0}, value=''{1}''")
   @DisplayName("search by authorities (check that they are divided correctly)")
   void searchByAuthorities_parameterized_all(String query, String value) throws Exception {
-    var response = doSearchByAuthorities(prepareQuery(query, value)).andExpect(jsonPath("$.totalRecords", is(33)));
+    var response = doSearchByAuthorities(prepareQuery(query, value)).andExpect(jsonPath("$.totalRecords", is(48)));
     var actual = parseResponse(response, AuthoritySearchResult.class);
-    assertThat(actual.getAuthorities()).asInstanceOf(InstanceOfAssertFactories. LIST).containsOnly(
+    assertThat(actual.getAuthorities()).asInstanceOf(InstanceOfAssertFactories.LIST).containsOnly(
       authority("Personal Name", AUTHORIZED_TYPE, "Gary A. Wills", 4),
       authority("Personal Name", REFERENCE_TYPE, "a sft personal name", null),
       authority("Personal Name", AUTH_REF_TYPE, "a saft personal name", null),
@@ -140,7 +140,27 @@ class SearchAuthorityIT extends BaseIntegrationTest {
 
       authority("Genre", AUTHORIZED_TYPE, "a genre term", 4),
       authority("Genre", REFERENCE_TYPE, "a sft genre term", null),
-      authority("Genre", AUTH_REF_TYPE, "a saft genre term", null)
+      authority("Genre", AUTH_REF_TYPE, "a saft genre term", null),
+
+      authority("Chronological Term", AUTHORIZED_TYPE, "a chron term", 4),
+      authority("Chronological Term", REFERENCE_TYPE, "a sft chron term", null),
+      authority("Chronological Term", AUTH_REF_TYPE, "a saft chron term", null),
+
+      authority("Medium of Performance Term", AUTHORIZED_TYPE, "a medium perf term", 4),
+      authority("Medium of Performance Term", REFERENCE_TYPE, "a sft medium perf term", null),
+      authority("Medium of Performance Term", AUTH_REF_TYPE, "a saft medium perf term", null),
+
+      authority("Geographic Subdivision", AUTHORIZED_TYPE, "a geographic subdivision", 4),
+      authority("Geographic Subdivision", REFERENCE_TYPE, "a sft geographic subdivision", null),
+      authority("Geographic Subdivision", AUTH_REF_TYPE, "a saft geographic subdivision", null),
+
+      authority("Chronological Subdivision", AUTHORIZED_TYPE, "a chron subdivision", 4),
+      authority("Chronological Subdivision", REFERENCE_TYPE, "a sft chron subdivision", null),
+      authority("Chronological Subdivision", AUTH_REF_TYPE, "a saft chron subdivision", null),
+
+      authority("Form Subdivision", AUTHORIZED_TYPE, "a form subdivision", 4),
+      authority("Form Subdivision", REFERENCE_TYPE, "a sft form subdivision", null),
+      authority("Form Subdivision", AUTH_REF_TYPE, "a saft form subdivision", null)
     );
   }
 
@@ -170,6 +190,21 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       arguments("keyword == {value}", "\"a genre term\""),
       arguments("keyword all {value}", "\"a sft genre term\""),
       arguments("keyword all {value}", "\"a saft genre term\""),
+      arguments("keyword == {value}", "\"a chron term\""),
+      arguments("keyword all {value}", "\"a sft chron term\""),
+      arguments("keyword all {value}", "\"a saft chron term\""),
+      arguments("keyword == {value}", "\"a medium perf term\""),
+      arguments("keyword all {value}", "\"a sft medium perf term\""),
+      arguments("keyword all {value}", "\"a saft medium perf term\""),
+      arguments("keyword == {value}", "\"a geographic subdivision\""),
+      arguments("keyword all {value}", "\"a sft geographic subdivision\""),
+      arguments("keyword all {value}", "\"a saft geographic subdivision\""),
+      arguments("keyword == {value}", "\"a chron subdivision\""),
+      arguments("keyword all {value}", "\"a sft chron subdivision\""),
+      arguments("keyword all {value}", "\"a saft chron subdivision\""),
+      arguments("keyword == {value}", "\"a form subdivision\""),
+      arguments("keyword all {value}", "\"a sft form subdivision\""),
+      arguments("keyword all {value}", "\"a saft form subdivision\""),
 
       arguments("personalName all {value}", "\"Gary A. Wills\""),
       arguments("personalName all {value}", "gary"),
@@ -264,6 +299,56 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       arguments("sftGenreTerm == {value}", "\"*gen*\""),
       arguments("saftGenreTerm = {value}", "\"saft term\""),
       arguments("saftGenreTerm == {value}", "\"*saft gen*\""),
+
+      arguments("chronTerm all {value}", "\"a chron term\""),
+      arguments("chronTerm all {value}", "chron"),
+      arguments("chronTerm == {value}", "\"a chr*\""),
+      arguments("chronTerm == {value} and headingType==\"Chronological Term\"", "\"a chr*\""),
+      arguments("sftChronTerm = {value}", "\"sft chron term\""),
+      arguments("sftChronTerm == {value}", "\"sft chron term\""),
+      arguments("sftChronTerm == {value}", "\"*chron*\""),
+      arguments("saftChronTerm = {value}", "\"saft chron term\""),
+      arguments("saftChronTerm == {value}", "\"*saft chron*\""),
+
+      arguments("mediumPerfTerm all {value}", "\"a medium perf term\""),
+      arguments("mediumPerfTerm all {value}", "medium"),
+      arguments("mediumPerfTerm == {value}", "\"a med*\""),
+      arguments("mediumPerfTerm == {value} and headingType==\"Medium of Performance Term\"", "\"a med*\""),
+      arguments("sftMediumPerfTerm = {value}", "\"sft medium perf term\""),
+      arguments("sftMediumPerfTerm == {value}", "\"sft medium perf term\""),
+      arguments("sftMediumPerfTerm == {value}", "\"*medium*\""),
+      arguments("saftMediumPerfTerm = {value}", "\"saft medium perf term\""),
+      arguments("saftMediumPerfTerm == {value}", "\"*saft medium*\""),
+
+      arguments("geographicSubdivision all {value}", "\"a geographic subdivision\""),
+      arguments("geographicSubdivision all {value}", "geographic"),
+      arguments("geographicSubdivision == {value}", "\"a geo*\""),
+      arguments("geographicSubdivision == {value} and headingType==\"Geographic Subdivision\"", "\"a geo*\""),
+      arguments("sftGeographicSubdivision = {value}", "\"sft geographic subdivision\""),
+      arguments("sftGeographicSubdivision == {value}", "\"sft geographic subdivision\""),
+      arguments("sftGeographicSubdivision == {value}", "\"*geo*\""),
+      arguments("saftGeographicSubdivision = {value}", "\"saft geographic subdivision\""),
+      arguments("saftGeographicSubdivision == {value}", "\"*saft geo*\""),
+
+      arguments("chronSubdivision all {value}", "\"a chron subdivision\""),
+      arguments("chronSubdivision all {value}", "chron"),
+      arguments("chronSubdivision == {value}", "\"a chr*\""),
+      arguments("chronSubdivision == {value} and headingType==\"Chronological Subdivision\"", "\"a chr*\""),
+      arguments("sftChronSubdivision = {value}", "\"sft chron subdivision\""),
+      arguments("sftChronSubdivision == {value}", "\"sft chron subdivision\""),
+      arguments("sftChronSubdivision == {value}", "\"*chron*\""),
+      arguments("saftChronSubdivision = {value}", "\"saft chron subdivision\""),
+      arguments("saftChronSubdivision == {value}", "\"*saft chron*\""),
+
+      arguments("formSubdivision all {value}", "\"a form subdivision\""),
+      arguments("formSubdivision all {value}", "form"),
+      arguments("formSubdivision == {value}", "\"a for*\""),
+      arguments("formSubdivision == {value} and headingType==\"Form Subdivision\"", "\"a for*\""),
+      arguments("sftFormSubdivision = {value}", "\"sft form subdivision\""),
+      arguments("sftFormSubdivision == {value}", "\"sft form subdivision\""),
+      arguments("sftFormSubdivision == {value}", "\"*form*\""),
+      arguments("saftFormSubdivision = {value}", "\"saft form subdivision\""),
+      arguments("saftFormSubdivision == {value}", "\"*saft form*\""),
 
       // search by lccn
       arguments(specifyCommonField("lccn = {value}"), "2003065165"),
@@ -385,6 +470,46 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       arguments("sftGenreTerm == {value}", "\"*GEN*\""),
       arguments("saftGenreTerm = {value}", "\"SAFT TERM\""),
       arguments("saftGenreTerm == {value}", "\"*SAFT GEN*\""),
+
+      arguments("chronTerm all {value}", "\"A CHRON TERM\""),
+      arguments("chronTerm all {value}", "CHRON"),
+      arguments("chronTerm == {value}", "\"A CHR*\""),
+      arguments("sftChronTerm = {value}", "\"SFT CHRON TERM\""),
+      arguments("sftChronTerm == {value}", "\"*CHRON*\""),
+      arguments("saftChronTerm = {value}", "\"SAFT CHRON TERM\""),
+      arguments("saftChronTerm == {value}", "\"*SAFT CHRON*\""),
+
+      arguments("mediumPerfTerm all {value}", "\"A MEDIUM PERF TERM\""),
+      arguments("mediumPerfTerm all {value}", "MEDIUM"),
+      arguments("mediumPerfTerm == {value}", "\"A MED*\""),
+      arguments("sftMediumPerfTerm = {value}", "\"SFT MEDIUM PERF TERM\""),
+      arguments("sftMediumPerfTerm == {value}", "\"*MEDIUM*\""),
+      arguments("saftMediumPerfTerm = {value}", "\"SAFT MEDIUM PERF TERM\""),
+      arguments("saftMediumPerfTerm == {value}", "\"*SAFT MEDIUM*\""),
+
+      arguments("geographicSubdivision all {value}", "\"A GEOGRAPHIC SUBDIVISION\""),
+      arguments("geographicSubdivision all {value}", "GEOGRAPHIC"),
+      arguments("geographicSubdivision == {value}", "\"A GEO*\""),
+      arguments("sftGeographicSubdivision = {value}", "\"SFT GEOGRAPHIC SUBDIVISION\""),
+      arguments("sftGeographicSubdivision == {value}", "\"*GEO*\""),
+      arguments("saftGeographicSubdivision = {value}", "\"SAFT GEOGRAPHIC SUBDIVISION\""),
+      arguments("saftGeographicSubdivision == {value}", "\"*SAFT GEO*\""),
+
+      arguments("chronSubdivision all {value}", "\"A CHRON SUBDIVISION\""),
+      arguments("chronSubdivision all {value}", "CHRON"),
+      arguments("chronSubdivision == {value}", "\"A CHR*\""),
+      arguments("sftChronSubdivision = {value}", "\"SFT CHRON SUBDIVISION\""),
+      arguments("sftChronSubdivision == {value}", "\"*CHRON*\""),
+      arguments("saftChronSubdivision = {value}", "\"SAFT CHRON SUBDIVISION\""),
+      arguments("saftChronSubdivision == {value}", "\"*SAFT CHRON*\""),
+
+      arguments("formSubdivision all {value}", "\"A FORM SUBDIVISION\""),
+      arguments("formSubdivision all {value}", "FORM"),
+      arguments("formSubdivision == {value}", "\"A FOR*\""),
+      arguments("sftFormSubdivision = {value}", "\"SFT FORM SUBDIVISION\""),
+      arguments("sftFormSubdivision == {value}", "\"*FORM*\""),
+      arguments("saftFormSubdivision = {value}", "\"SAFT FORM SUBDIVISION\""),
+      arguments("saftFormSubdivision == {value}", "\"*SAFT FORM*\""),
 
       // search by lccn
       arguments(specifyCommonField("lccn = {value}"), "N 2003075732"),

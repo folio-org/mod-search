@@ -312,6 +312,126 @@
       "headingType": "Genre",
       "authRefType": "Auth/Ref"
     },
+    "chronTerm": {
+      "type": "authority",
+      "index": "standard",
+      "searchAliases": [ "keyword" ],
+      "distinctType": "chronTerm",
+      "headingType": "Chronological Term",
+      "authRefType": "Authorized"
+    },
+    "sftChronTerm": {
+      "type": "authority",
+      "index": "standard",
+      "searchAliases": [ "keyword" ],
+      "distinctType": "sftChronTerm",
+      "headingType": "Chronological Term",
+      "authRefType": "Reference"
+    },
+    "saftChronTerm": {
+      "type": "authority",
+      "index": "standard",
+      "searchAliases": [ "keyword" ],
+      "distinctType": "saftChronTerm",
+      "headingType": "Chronological Term",
+      "authRefType": "Auth/Ref"
+    },
+    "mediumPerfTerm": {
+      "type": "authority",
+      "index": "standard",
+      "searchAliases": [ "keyword" ],
+      "distinctType": "mediumPerfTerm",
+      "headingType": "Medium of Performance Term",
+      "authRefType": "Authorized"
+    },
+    "sftMediumPerfTerm": {
+      "type": "authority",
+      "index": "standard",
+      "searchAliases": [ "keyword" ],
+      "distinctType": "sftMediumPerfTerm",
+      "headingType": "Medium of Performance Term",
+      "authRefType": "Reference"
+    },
+    "saftMediumPerfTerm": {
+      "type": "authority",
+      "index": "standard",
+      "searchAliases": [ "keyword" ],
+      "distinctType": "saftMediumPerfTerm",
+      "headingType": "Medium of Performance Term",
+      "authRefType": "Auth/Ref"
+    },
+    "geographicSubdivision": {
+      "type": "authority",
+      "index": "standard",
+      "searchAliases": [ "keyword" ],
+      "distinctType": "geographicSubdivision",
+      "headingType": "Geographic Subdivision",
+      "authRefType": "Authorized"
+    },
+    "sftGeographicSubdivision": {
+      "type": "authority",
+      "index": "standard",
+      "searchAliases": [ "keyword" ],
+      "distinctType": "sftGeographicSubdivision",
+      "headingType": "Geographic Subdivision",
+      "authRefType": "Reference"
+    },
+    "saftGeographicSubdivision": {
+      "type": "authority",
+      "index": "standard",
+      "searchAliases": [ "keyword" ],
+      "distinctType": "saftGeographicSubdivision",
+      "headingType": "Geographic Subdivision",
+      "authRefType": "Auth/Ref"
+    },
+    "chronSubdivision": {
+      "type": "authority",
+      "index": "standard",
+      "searchAliases": [ "keyword" ],
+      "distinctType": "chronSubdivision",
+      "headingType": "Chronological Subdivision",
+      "authRefType": "Authorized"
+    },
+    "sftChronSubdivision": {
+      "type": "authority",
+      "index": "standard",
+      "searchAliases": [ "keyword" ],
+      "distinctType": "sftChronSubdivision",
+      "headingType": "Chronological Subdivision",
+      "authRefType": "Reference"
+    },
+    "saftChronSubdivision": {
+      "type": "authority",
+      "index": "standard",
+      "searchAliases": [ "keyword" ],
+      "distinctType": "saftChronSubdivision",
+      "headingType": "Chronological Subdivision",
+      "authRefType": "Auth/Ref"
+    },
+    "formSubdivision": {
+      "type": "authority",
+      "index": "standard",
+      "searchAliases": [ "keyword" ],
+      "distinctType": "formSubdivision",
+      "headingType": "Form Subdivision",
+      "authRefType": "Authorized"
+    },
+    "sftFormSubdivision": {
+      "type": "authority",
+      "index": "standard",
+      "searchAliases": [ "keyword" ],
+      "distinctType": "sftFormSubdivision",
+      "headingType": "Form Subdivision",
+      "authRefType": "Reference"
+    },
+    "saftFormSubdivision": {
+      "type": "authority",
+      "index": "standard",
+      "searchAliases": [ "keyword" ],
+      "distinctType": "saftFormSubdivision",
+      "headingType": "Form Subdivision",
+      "authRefType": "Auth/Ref"
+    },
     "subjectHeadings": {
       "index": "keyword_lowercase",
       "searchTypes": [ "facet", "filter" ]

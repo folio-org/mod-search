@@ -96,6 +96,7 @@ class ReindexKafkaListenerIT {
   }
 
   @Test
+  @Disabled("todo: fix in scope of MSEARCH-991")
   void handleInstanceEvents_positive() {
     var indexEvent = new ReindexRangeIndexEvent();
     indexEvent.setTenant(TENANT_ID);

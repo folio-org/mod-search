@@ -43,6 +43,7 @@
 * Fix processing batch of updates to the same instance ([MSEARCH-951](https://folio-org.atlassian.net/browse/MSEARCH-951))
 * Fix shared facet count for Classifications/Contributors/Subjects ([MSEARCH-941](https://folio-org.atlassian.net/browse/MSEARCH-941))
 * Fix "Effective location (item)" facet hide facets options which should be available for performed search term ([MSEARCH-817](https://folio-org.atlassian.net/browse/MSEARCH-817))
+* Call Numbers Browse: Fix incorrect count for same call-number in one instance  ([MSEARCH-992](https://folio-org.atlassian.net/browse/MSEARCH-992))
 
 ### Tech Dept
 * Recreate upload ranges each upload execution ([MSEARCH-934](https://folio-org.atlassian.net/browse/MSEARCH-934))

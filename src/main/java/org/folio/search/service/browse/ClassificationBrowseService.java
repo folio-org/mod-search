@@ -2,12 +2,15 @@ package org.folio.search.service.browse;
 
 import static org.folio.search.utils.SearchUtils.CLASSIFICATION_TYPE_ID_FIELD;
 
+import java.util.Set;
+import java.util.function.Function;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.BrowseType;
 import org.folio.search.domain.dto.ClassificationNumberBrowseItem;
 import org.folio.search.model.BrowseResult;
 import org.folio.search.model.SearchResult;
 import org.folio.search.model.index.ClassificationResource;
+import org.folio.search.model.index.InstanceSubResource;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.service.consortium.BrowseConfigServiceDecorator;
 import org.folio.search.service.consortium.ConsortiumSearchHelper;
@@ -56,6 +59,14 @@ public class ClassificationBrowseService
         .classificationTypeId(resource.typeId())
         .isAnchor(isAnchor ? true : null)
         .totalRecords(getTotalRecords(ctx, resource, ClassificationResource::instances)));
+  }
+
+  private Integer getTotalRecords(BrowseContext ctx, ClassificationResource resource,
+                                  Function<ClassificationResource, Set<InstanceSubResource>> func) {
+    return consortiumSearchHelper.filterSubResourcesForConsortium(ctx, resource, func)
+      .stream()
+      .map(InstanceSubResource::getCount)
+      .reduce(0, Integer::sum);
   }
 
 }

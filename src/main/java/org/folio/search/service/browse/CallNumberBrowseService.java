@@ -2,7 +2,7 @@ package org.folio.search.service.browse;
 
 import static org.folio.search.utils.SearchUtils.CALL_NUMBER_TYPE_ID_FIELD;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Set;
 import java.util.function.Function;
 import lombok.extern.log4j.Log4j2;
@@ -55,33 +55,35 @@ public class CallNumberBrowseService
                                                                  SearchResult<CallNumberResource> res,
                                                                  boolean isAnchor) {
     return BrowseResult.of(res)
-      .map(resource -> new CallNumberBrowseItem()
-        .fullCallNumber(resource.fullCallNumber())
-        .callNumber(resource.callNumber())
-        .callNumberPrefix(resource.callNumberPrefix())
-        .callNumberSuffix(resource.callNumberSuffix())
-        .callNumberTypeId(resource.callNumberTypeId())
-        .instanceTitle(getInstanceTitle(ctx, resource, CallNumberResource::instances))
-        .isAnchor(isAnchor ? true : null)
-        .totalRecords(getTotalRecords(ctx, resource, CallNumberResource::instances)));
+      .map(resource -> {
+        var totalRecords = getTotalRecords(ctx, resource, CallNumberResource::instances);
+        return new CallNumberBrowseItem()
+          .fullCallNumber(resource.fullCallNumber())
+          .callNumber(resource.callNumber())
+          .callNumberPrefix(resource.callNumberPrefix())
+          .callNumberSuffix(resource.callNumberSuffix())
+          .callNumberTypeId(resource.callNumberTypeId())
+          .instanceTitle(totalRecords == 1 ? getInstanceTitle(ctx, resource, CallNumberResource::instances) : null)
+          .isAnchor(isAnchor ? true : null)
+          .totalRecords(totalRecords);
+      });
   }
 
   private String getInstanceTitle(BrowseContext ctx, CallNumberResource resource,
                                   Function<CallNumberResource, Set<InstanceSubResource>> func) {
     var instanceSubResources = consortiumSearchHelper.filterSubResourcesForConsortium(ctx, resource, func);
-    if (instanceSubResources.size() == 1) {
-      return instanceSubResources.iterator().next().getInstanceTitle();
-    }
-    return null;
+    return instanceSubResources.iterator().next().getInstanceTitle();
   }
 
-  @Override
-  protected Integer getTotalRecords(BrowseContext ctx, CallNumberResource resource,
-                                    Function<CallNumberResource, Set<InstanceSubResource>> func) {
+
+  private Integer getTotalRecords(BrowseContext ctx, CallNumberResource resource,
+                                  Function<CallNumberResource, Set<InstanceSubResource>> func) {
     return consortiumSearchHelper.filterSubResourcesForConsortium(ctx, resource, func)
       .stream()
       .map(InstanceSubResource::getInstanceId)
-      .map(List::size)
-      .reduce(0, Integer::sum);
+      .flatMap(Collection::stream)
+      .distinct()
+      .mapToInt(id -> 1)
+      .sum();
   }
 }

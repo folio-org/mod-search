@@ -1,7 +1,8 @@
-## v4.0.11 2025-03-17
+## v4.0.11 2025-03-18
 ### Bug Fixes
 * Fix shared facet count for Classifications/Contributors/Subjects ([MSEARCH-941](https://folio-org.atlassian.net/browse/MSEARCH-941))
 * Call Numbers Browse: Use nested mappings for instances field ([MSEARCH-983](https://folio-org.atlassian.net/browse/MSEARCH-983))
+* Call Numbers Browse: Fix incorrect count for same call-number in one instance  ([MSEARCH-992](https://folio-org.atlassian.net/browse/MSEARCH-992))
 
 ## v4.0.10 2025-03-06
 ### Features

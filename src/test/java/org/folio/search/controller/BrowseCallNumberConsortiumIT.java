@@ -83,7 +83,8 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
     saveRecords(MEMBER_TENANT_ID, instanceSearchPath(), memberInstances, INSTANCES.size(),
       instance -> inventoryApi.createInstance(MEMBER_TENANT_ID, instance));
 
-    var dataRecord = new CallNumberTestDataRecord(callNumbers().getLast().callNumber(), MEMBER2_LOCATION);
+    var dataRecord = new CallNumberTestDataRecord(callNumbers()
+      .get(callNumbers().size() - 1).callNumber(), MEMBER2_LOCATION);
     var member2Instance = instance("51", List.of(dataRecord));
     saveRecords(MEMBER2_TENANT_ID, instanceSearchPath(), List.of(member2Instance), centralInstances.size() + 1,
       instance -> inventoryApi.createInstance(MEMBER2_TENANT_ID, instance));

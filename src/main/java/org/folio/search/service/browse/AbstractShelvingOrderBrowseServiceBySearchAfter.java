@@ -11,13 +11,10 @@ import static org.opensearch.search.sort.SortBuilders.fieldSort;
 import static org.opensearch.search.sort.SortOrder.ASC;
 import static org.opensearch.search.sort.SortOrder.DESC;
 
-import java.util.Set;
-import java.util.function.Function;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.domain.dto.BrowseConfig;
 import org.folio.search.domain.dto.BrowseType;
-import org.folio.search.model.index.InstanceSubResource;
 import org.folio.search.model.service.BrowseContext;
 import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.service.consortium.BrowseConfigServiceDecorator;
@@ -88,13 +85,6 @@ public abstract class AbstractShelvingOrderBrowseServiceBySearchAfter<T, R>
    * @return the type ID field name
    */
   protected abstract String getTypeIdField();
-
-  protected Integer getTotalRecords(BrowseContext ctx, R resource, Function<R, Set<InstanceSubResource>> func) {
-    return consortiumSearchHelper.filterSubResourcesForConsortium(ctx, resource, func)
-      .stream()
-      .map(InstanceSubResource::getCount)
-      .reduce(0, Integer::sum);
-  }
 
   private QueryBuilder getQuery(BrowseContext ctx, BrowseConfig config, TermQueryBuilder anchorQuery) {
     var typeIds = config.getTypeIds();

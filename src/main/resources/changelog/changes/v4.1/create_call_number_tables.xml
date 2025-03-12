@@ -5,7 +5,7 @@
                    https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
   <changeSet id="MSEARCH-862@@create-table:call_number" author="Pavlo_Smahin">
-    <preConditions>
+    <preConditions onFail="MARK_RAN">
       <not>
         <tableExists tableName="call_number"/>
       </not>
@@ -30,7 +30,7 @@
   </changeSet>
 
   <changeSet id="MSEARCH-862@@create-table:instance_call_number" author="Pavlo_Smahin">
-    <preConditions>
+    <preConditions onFail="MARK_RAN">
       <not>
         <tableExists tableName="instance_call_number"/>
       </not>
@@ -61,7 +61,12 @@
 
   <changeSet id="MSEARCH-936@@fill-sub_resources_lock-table" author="svitlana_kovalova1">
     <preConditions onFail="MARK_RAN">
-      <tableExists tableName="sub_resources_lock"/>
+      <and>
+        <tableExists tableName="sub_resources_lock"/>
+        <sqlCheck expectedResult="0">
+          SELECT count(1) FROM sub_resources_lock WHERE entity_type = 'call_number';
+        </sqlCheck>
+      </and>
     </preConditions>
 
     <comment>Fill sub_resources_lock table with initial records</comment>

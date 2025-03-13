@@ -13,12 +13,15 @@ properties:
     items:
       type: "object"
       properties:
+        type:
+          type: "string"
+          description: "The type of the classification"
         number:
           type: "string"
           description: "Classification number"
-        source:
+        additionalNumber:
           type: "string"
-          description: "The source of the classification"
+          description: "Additional classification number"
   contributors:
     type: "array"
     description: "Contributor array"

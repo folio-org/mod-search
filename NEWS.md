@@ -1,4 +1,28 @@
-## v5.0.0 YYYY-mm-DD
+## v5.1.0 YYYY-mm-DD
+### Breaking changes
+* Description ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))
+
+### New APIs versions
+* Provides `API_NAME vX.Y`
+* Requires `API_NAME vX.Y`
+
+### Features
+* Description ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))
+
+### Bug fixes
+* Description ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))
+
+### Tech Dept
+* Description ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))
+
+### Dependencies
+* Bump `LIB_NAME` from `OLD_VERSION` to `NEW_VERSION`
+* Add `LIB_NAME VERSION`
+* Remove `LIB_NAME`
+
+---
+
+## v5.0.0 2024-03-13
 ### Breaking changes
 * Upgrade to Java 21 ([MSEARCH-969](https://folio-org.atlassian.net/browse/MSEARCH-969))
 * Call Numbers Browse: Clean-Up of Legacy Call-Number Browse Logic ([MSEARCH-866](https://folio-org.atlassian.net/browse/MSEARCH-866))
@@ -7,7 +31,6 @@
 ### New APIs versions
 * Provides `indices v1.1`
 * Provides `browse v2.0`
-* Requires `API_NAME vX.Y`
 
 ### Features
 * Move Instance sub-entities population from database trigger to code ([MSEARCH-887](https://folio-org.atlassian.net/browse/MSEARCH-887))
@@ -54,9 +77,15 @@
 * Add missing documentation for specifying elasticsearch index settings ([MSEARCH-789](https://folio-org.atlassian.net/browse/MSEARCH-789))
 
 ### Dependencies
-* Bump `opensearch` from `2.17.1` to `2.18.0` fixing protobuf-java CVE-2024-7254 ([MSEARCH-889](https://folio-org.atlassian.net/browse/MSEARCH-889))
-* Add `LIB_NAME VERSION`
-* Remove `LIB_NAME`
+* Bump `spring-boot` from `3.3.5` to `3.4.3`
+* Bump `folio-spring-support` from `8.2.1` to `9.0.0`
+* Bump `folio-service-tools` from `4.1.1` to `5.0.0`
+* Bump `folio-isbn-utils` from `1.6.0` to `1.8.0`
+* Bump `folio-cql2pgjson` from `35.3.0` to `35.4.0`
+* Bump `opensearch` from `2.18.0` to `2.19.1`
+* Bump `mapstruct` from `1.6.2` to `1.6.3`
+* Bump `apache-commons-io` from `2.17.0` to `2.18.0`
+* Bump `lombok` from `1.18.34` to `1.18.36`
 
 ---
 

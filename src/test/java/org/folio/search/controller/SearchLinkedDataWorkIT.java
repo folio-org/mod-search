@@ -2,8 +2,9 @@ package org.folio.search.controller;
 
 import static org.folio.search.sample.SampleLinkedData.getWork2SampleAsMap;
 import static org.folio.search.sample.SampleLinkedData.getWorkSampleAsMap;
+import static org.folio.search.utils.LinkedDataTestUtils.toClassificationAdditionalNumber;
 import static org.folio.search.utils.LinkedDataTestUtils.toClassificationNumber;
-import static org.folio.search.utils.LinkedDataTestUtils.toClassificationSource;
+import static org.folio.search.utils.LinkedDataTestUtils.toClassificationType;
 import static org.folio.search.utils.LinkedDataTestUtils.toContributorIsCreator;
 import static org.folio.search.utils.LinkedDataTestUtils.toContributorName;
 import static org.folio.search.utils.LinkedDataTestUtils.toContributorType;
@@ -75,6 +76,9 @@ class SearchLinkedDataWorkIT extends BaseIntegrationTest {
     "19, title all \"titleAbc\" sortBy title",
     "20, title all \"titleAbc\" sortBy title/sort.ascending",
     "21, title all \"titleAbc\" sortBy title/sort.descending",
+    "22, classificationType <> \"aaa\"",
+    "23, classificationNumber <> \"000\"",
+    "24, classificationAdditionalNumber <> \"000\"",
   })
   void searchByLinkedDataWork_parameterized_allResults(int index, String query) throws Throwable {
     var asc = query.contains("titleAbc def") || query.contains("sortBy") && !query.contains("descending");
@@ -154,16 +158,21 @@ class SearchLinkedDataWorkIT extends BaseIntegrationTest {
     "65, publicationDate == 2024",
     "66, publicationDate ==/string 2023",
     "67, publicationDate == (\"2023\" or \"2024\" or \"2020\")",
-    "68, publicationDate all 2024"
+    "68, publicationDate all 2024",
+    "69, classificationType == \"ddc\"",
+    "70, classificationNumber == \"123\"",
+    "71, classificationAdditionalNumber == \"456\"",
   })
   void searchByLinkedDataWork_parameterized_singleResult(int index, String query) throws Throwable {
     doSearchByLinkedDataWork(query)
       .andExpect(jsonPath(toTotalRecords(), is(1)))
       .andExpect(jsonPath(toId(toRootContent()), is("123456123456")))
-      .andExpect(jsonPath(toClassificationNumber(toRootContent(), 0), is("1234")))
-      .andExpect(jsonPath(toClassificationSource(toRootContent(), 0), is("ddc")))
-      .andExpect(jsonPath(toClassificationNumber(toRootContent(), 1), is("5678")))
-      .andExpect(jsonPath(toClassificationSource(toRootContent(), 1), is("other")))
+      .andExpect(jsonPath(toClassificationType(toRootContent(), 0), is("ddc")))
+      .andExpect(jsonPath(toClassificationNumber(toRootContent(), 0), is("123")))
+      .andExpect(jsonPath(toClassificationAdditionalNumber(toRootContent(), 0), is("456")))
+      .andExpect(jsonPath(toClassificationType(toRootContent(), 1), is("llc")))
+      .andExpect(jsonPath(toClassificationNumber(toRootContent(), 1), is("789")))
+      .andExpect(jsonPath(toClassificationAdditionalNumber(toRootContent(), 1), is("012")))
       .andExpect(jsonPath(toContributorName(toRootContent(), 0), is("Family")))
       .andExpect(jsonPath(toContributorType(toRootContent(), 0), is("Family")))
       .andExpect(jsonPath(toContributorIsCreator(toRootContent(), 0), is(true)))
@@ -263,6 +272,9 @@ class SearchLinkedDataWorkIT extends BaseIntegrationTest {
     "28, contributor any \"comm\"",
     "29, contributor = \"comm\"",
     "30, contributor <> \"common\"",
+    "31, classificationType == \"aaa\"",
+    "31, classificationNumber == \"000\"",
+    "33, classificationAdditionalNumber == \"000\"",
   })
   void searchByLinkedDataWork_parameterized_zeroResults(int index, String query) throws Throwable {
     doSearchByLinkedDataWork(query)
@@ -311,10 +323,12 @@ class SearchLinkedDataWorkIT extends BaseIntegrationTest {
     doSearchByLinkedDataWorkWithoutInstances(query)
       .andExpect(jsonPath(toTotalRecords(), is(1)))
       .andExpect(jsonPath(toId(toRootContent()), is("123456123456")))
-      .andExpect(jsonPath(toClassificationNumber(toRootContent(), 0), is("1234")))
-      .andExpect(jsonPath(toClassificationSource(toRootContent(), 0), is("ddc")))
-      .andExpect(jsonPath(toClassificationNumber(toRootContent(), 1), is("5678")))
-      .andExpect(jsonPath(toClassificationSource(toRootContent(), 1), is("other")))
+      .andExpect(jsonPath(toClassificationType(toRootContent(), 0), is("ddc")))
+      .andExpect(jsonPath(toClassificationNumber(toRootContent(), 0), is("123")))
+      .andExpect(jsonPath(toClassificationAdditionalNumber(toRootContent(), 0), is("456")))
+      .andExpect(jsonPath(toClassificationType(toRootContent(), 1), is("llc")))
+      .andExpect(jsonPath(toClassificationNumber(toRootContent(), 1), is("789")))
+      .andExpect(jsonPath(toClassificationAdditionalNumber(toRootContent(), 1), is("012")))
       .andExpect(jsonPath(toContributorName(toRootContent(), 0), is("Family")))
       .andExpect(jsonPath(toContributorType(toRootContent(), 0), is("Family")))
       .andExpect(jsonPath(toContributorIsCreator(toRootContent(), 0), is(true)))

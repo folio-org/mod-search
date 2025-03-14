@@ -16,11 +16,17 @@
     "classifications": {
       "type": "object",
       "properties": {
-        "number": {
-          "index": "whitespace"
+        "type": {
+          "index": "whitespace",
+          "searchAliases": [ "classificationType" ]
         },
-        "source": {
-          "index": "whitespace"
+        "number": {
+          "index": "whitespace",
+          "searchAliases": [ "classificationNumber" ]
+        },
+        "additionalNumber": {
+          "index": "whitespace",
+          "searchAliases": [ "classificationAdditionalNumber" ]
         }
       }
     },

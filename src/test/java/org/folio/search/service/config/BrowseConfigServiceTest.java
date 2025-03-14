@@ -127,6 +127,18 @@ class BrowseConfigServiceTest {
     verify(repository).save(entity);
   }
 
+  @EnumSource(BrowseType.class)
+  @ParameterizedTest
+  void shouldUpsertConfigWhenTypeIdsEmpty(BrowseType type) {
+    var entity = getEntity(type);
+    given(mapper.convert(type, config)).willReturn(entity);
+    config.setTypeIds(emptyList());
+
+    assertDoesNotThrow(() -> service.upsertConfig(type, configId, config));
+    verify(repository).save(entity);
+    verifyNoInteractions(referenceDataService);
+  }
+
   @Test
   void shouldThrowExceptionWhenConfigIdNotMatches() {
     config.setId(ALL);

@@ -90,7 +90,12 @@ public class BrowseConfigService {
 
   private void validateTypeIds(BrowseType type, BrowseConfig config) {
     var ids = CollectionUtils.toStreamSafe(config.getTypeIds()).map(UUID::toString).collect(Collectors.toSet());
-    var referenceDataType = BrowseType.INSTANCE_CLASSIFICATION.equals(type) ? CLASSIFICATION_TYPES : CALL_NUMBER_TYPES;
+    if (ids.isEmpty()) {
+      return;
+    }
+    var referenceDataType = BrowseType.INSTANCE_CLASSIFICATION.equals(type)
+                            ? CLASSIFICATION_TYPES
+                            : CALL_NUMBER_TYPES;
     var existedIds = referenceDataService.fetchReferenceData(referenceDataType, CqlQueryParam.ID, ids);
     var difference = SetUtils.difference(ids, existedIds);
     if (!difference.isEmpty()) {

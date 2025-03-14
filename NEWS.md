@@ -1,3 +1,9 @@
+## v5.0.1 2024.03.25
+### Bug fixes
+* Browse Config: fix exception while trying to validate empty type ids ([MSEARCH-998](https://folio-org.atlassian.net/browse/MSEARCH-998))
+
+---
+
 ## v5.0.0 2024-03-13
 ### Breaking changes
 * Upgrade to Java 21 ([MSEARCH-969](https://folio-org.atlassian.net/browse/MSEARCH-969))

@@ -316,6 +316,20 @@ class ConsortiumSearchHelperTest {
   }
 
   @Test
+  void filterSubResourcesForConsortium_positive_centralTenant_withTenantFilter() {
+    when(context.getTenantId()).thenReturn(CENTRAL_TENANT_ID);
+    when(consortiumTenantService.getCentralTenant(CENTRAL_TENANT_ID)).thenReturn(Optional.of(CENTRAL_TENANT_ID));
+
+    var browseContext = browseContext(null, TENANT_ID);
+    var resource = new SubjectResource("id", "value", "authority", "source", "type", subResources());
+
+    var actual = consortiumSearchHelper.filterSubResourcesForConsortium(browseContext, resource,
+      SubjectResource::instances);
+
+    assertThat(actual).hasSize(1);
+  }
+
+  @Test
   void filterSubResourcesForConsortium_positive_memberTenant() {
     when(context.getTenantId()).thenReturn(TENANT_ID);
     when(consortiumTenantService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(CENTRAL_TENANT_ID));

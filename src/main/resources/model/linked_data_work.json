@@ -21,12 +21,10 @@
           "searchAliases": [ "classificationType" ]
         },
         "number": {
-          "index": "whitespace",
-          "searchAliases": [ "classificationNumber" ]
+          "index": "whitespace"
         },
         "additionalNumber": {
-          "index": "whitespace",
-          "searchAliases": [ "classificationAdditionalNumber" ]
+          "index": "whitespace"
         }
       }
     },
@@ -190,7 +188,7 @@
       "type": "search",
       "index": "standard",
       "processor": "linkedDataWorkLccnProcessor",
-      "searchTermProcessor": "lccnSearchTermProcessor"
+      "searchTermProcessor": "noSpaceSearchTermProcessor"
     },
     "note": {
       "type": "search",
@@ -209,6 +207,18 @@
       "type": "search",
       "index": "keyword_lowercase",
       "processor": "linkedDataWorkSortTitleProcessor"
+    },
+    "classificationNumber": {
+      "type": "search",
+      "index": "standard",
+      "processor": "linkedDataWorkClassificationNumberProcessor",
+      "searchTermProcessor": "noSpaceSearchTermProcessor"
+    },
+    "classificationAdditionalNumber": {
+      "type": "search",
+      "index": "standard",
+      "processor": "linkedDataWorkClassificationAdditionalNumberProcessor",
+      "searchTermProcessor": "noSpaceSearchTermProcessor"
     }
   },
   "indexMappings": { }

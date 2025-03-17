@@ -162,6 +162,8 @@ class SearchLinkedDataInstanceIT extends BaseIntegrationTest {
     "69, classificationType == \"ddc\"",
     "70, classificationNumber == \"123\"",
     "71, classificationAdditionalNumber == \"456\"",
+    "72, classificationNumber == \"1 2  3\"",
+    "73, classificationAdditionalNumber == \"45  6\"",
   })
   void searchByLinkedDataInstance_parameterized_singleResult(int index, String query) throws Throwable {
     doSearchByLinkedDataInstance(query)
@@ -170,7 +172,7 @@ class SearchLinkedDataInstanceIT extends BaseIntegrationTest {
       .andExpect(jsonPath(toClassificationType(toParentWork(), 0), is("ddc")))
       .andExpect(jsonPath(toClassificationNumber(toParentWork(), 0), is("123")))
       .andExpect(jsonPath(toClassificationAdditionalNumber(toParentWork(), 0), is("456")))
-      .andExpect(jsonPath(toClassificationType(toParentWork(), 1), is("llc")))
+      .andExpect(jsonPath(toClassificationType(toParentWork(), 1), is("lc")))
       .andExpect(jsonPath(toClassificationNumber(toParentWork(), 1), is("789")))
       .andExpect(jsonPath(toClassificationAdditionalNumber(toParentWork(), 1), is("012")))
       .andExpect(jsonPath(toContributorName(toRootContent(), 0), is("Instance1_Family")))

@@ -12,8 +12,9 @@ value:
       languages:
         - "eng"
       classifications:
-        - number: "1234"
-          source: "ddc"
+        - type: "ddc"
+          number: "1234"
+          additionalNumber: "5678"
       subjects:
         - "Subject"
       identifiers:

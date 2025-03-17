@@ -8,8 +8,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 @UnitTest
-class DefaultLccnNormalizerTest {
-  private final DefaultLccnNormalizer lccnNormalizer = new DefaultLccnNormalizer();
+class NoSpaceNormalizerTest {
+  private final NoSpaceNormalizer lccnNormalizer = new NoSpaceNormalizer();
 
   @DisplayName("LCCN value normalization")
   @CsvSource({"n 1234,n1234", "  N  1234 ,n1234", "*1234,*1234", "1234*,1234*"})

@@ -702,7 +702,7 @@
       "type": "search",
       "index": "keyword_icu",
       "processor": "lccnInstanceProcessor",
-      "searchTermProcessor": "lccnSearchTermProcessor"
+      "searchTermProcessor": "noSpaceSearchTermProcessor"
     },
     "normalizedClassificationNumber": {
       "type": "search",

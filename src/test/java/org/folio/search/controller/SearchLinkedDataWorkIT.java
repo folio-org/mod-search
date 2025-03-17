@@ -162,6 +162,8 @@ class SearchLinkedDataWorkIT extends BaseIntegrationTest {
     "69, classificationType == \"ddc\"",
     "70, classificationNumber == \"123\"",
     "71, classificationAdditionalNumber == \"456\"",
+    "72, classificationNumber == \"1 2 3\"",
+    "73, classificationAdditionalNumber == \"4  56\"",
   })
   void searchByLinkedDataWork_parameterized_singleResult(int index, String query) throws Throwable {
     doSearchByLinkedDataWork(query)
@@ -170,7 +172,7 @@ class SearchLinkedDataWorkIT extends BaseIntegrationTest {
       .andExpect(jsonPath(toClassificationType(toRootContent(), 0), is("ddc")))
       .andExpect(jsonPath(toClassificationNumber(toRootContent(), 0), is("123")))
       .andExpect(jsonPath(toClassificationAdditionalNumber(toRootContent(), 0), is("456")))
-      .andExpect(jsonPath(toClassificationType(toRootContent(), 1), is("llc")))
+      .andExpect(jsonPath(toClassificationType(toRootContent(), 1), is("lc")))
       .andExpect(jsonPath(toClassificationNumber(toRootContent(), 1), is("789")))
       .andExpect(jsonPath(toClassificationAdditionalNumber(toRootContent(), 1), is("012")))
       .andExpect(jsonPath(toContributorName(toRootContent(), 0), is("Family")))
@@ -326,7 +328,7 @@ class SearchLinkedDataWorkIT extends BaseIntegrationTest {
       .andExpect(jsonPath(toClassificationType(toRootContent(), 0), is("ddc")))
       .andExpect(jsonPath(toClassificationNumber(toRootContent(), 0), is("123")))
       .andExpect(jsonPath(toClassificationAdditionalNumber(toRootContent(), 0), is("456")))
-      .andExpect(jsonPath(toClassificationType(toRootContent(), 1), is("llc")))
+      .andExpect(jsonPath(toClassificationType(toRootContent(), 1), is("lc")))
       .andExpect(jsonPath(toClassificationNumber(toRootContent(), 1), is("789")))
       .andExpect(jsonPath(toClassificationAdditionalNumber(toRootContent(), 1), is("012")))
       .andExpect(jsonPath(toContributorName(toRootContent(), 0), is("Family")))

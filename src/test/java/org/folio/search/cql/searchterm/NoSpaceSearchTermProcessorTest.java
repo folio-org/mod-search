@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
-import org.folio.search.service.lccn.LccnNormalizer;
+import org.folio.search.service.lccn.StringNormalizer;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,11 +14,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
-class LccnSearchTermProcessorTest {
+class NoSpaceSearchTermProcessorTest {
   @Mock
-  private LccnNormalizer normalizer;
+  private StringNormalizer normalizer;
   @InjectMocks
-  private LccnSearchTermProcessor lccnSearchTermProcessor;
+  private NoSpaceSearchTermProcessor noSpaceSearchTermProcessor;
 
   @Test
   void getSearchTerm_positive() {
@@ -28,7 +28,7 @@ class LccnSearchTermProcessorTest {
     when(normalizer.apply(searchTerm)).thenReturn(Optional.of(normalizedTerm));
 
     // when
-    var actual = lccnSearchTermProcessor.getSearchTerm(searchTerm);
+    var actual = noSpaceSearchTermProcessor.getSearchTerm(searchTerm);
 
     // then
     assertThat(actual).isEqualTo(normalizedTerm);

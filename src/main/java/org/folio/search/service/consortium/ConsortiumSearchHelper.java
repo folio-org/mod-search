@@ -121,6 +121,59 @@ public class ConsortiumSearchHelper {
     return queryBuilder;
   }
 
+  public <T> Set<InstanceSubResource> filterSubResourcesForConsortium(
+    BrowseContext context, T resource,
+    Function<T, Set<InstanceSubResource>> subResourceExtractor) {
+
+    var tenantFilter = getBrowseTenantFilter(context);
+
+    var subResources = subResourceExtractor.apply(resource);
+    var contextTenantId = folioExecutionContext.getTenantId();
+    var centralTenantId = consortiumTenantService.getCentralTenant(contextTenantId);
+    if (centralTenantId.isEmpty()) {
+      return subResources.stream()
+        .filter(instanceSubResource -> filterForCallNumbers(context, resource, instanceSubResource))
+        .collect(Collectors.toSet());
+    } else if (contextTenantId.equals(centralTenantId.get())) {
+      return subResources.stream()
+        .filter(InstanceSubResource::getShared)
+        .filter(subResource -> tenantFilter.map(termQueryBuilder ->
+            subResource.getTenantId().equals(tenantFilterValue(termQueryBuilder)))
+          .orElse(true))
+        .filter(subResource -> filterForCallNumbers(context, resource, subResource))
+        .collect(Collectors.toSet());
+    }
+
+    var sharedFilter = getBrowseSharedFilter(context);
+
+    Predicate<InstanceSubResource> subResourcesFilter =
+      subResource -> subResource.getTenantId().equals(contextTenantId);
+    if (sharedFilter.isPresent()) {
+      if (sharedFilterValue(sharedFilter.get())) {
+        subResourcesFilter = InstanceSubResource::getShared;
+      } else {
+        subResourcesFilter = subResourcesFilter.and(instanceSubResource -> !instanceSubResource.getShared());
+      }
+    } else {
+      if (tenantFilter.isEmpty()) {
+        subResourcesFilter = subResourcesFilter.or(InstanceSubResource::getShared);
+      } else {
+        subResourcesFilter = subResource -> subResource.getTenantId().equals(tenantFilterValue(tenantFilter.get()));
+      }
+    }
+    return subResources.stream()
+      .filter(subResourcesFilter)
+      .filter(subResource -> filterForCallNumbers(context, resource, subResource))
+      .collect(Collectors.toSet());
+  }
+
+  protected Optional<TermQueryBuilder> getBrowseFilter(BrowseContext context, String filterKey) {
+    return context.getFilters().stream()
+      .map(filter -> getTermFilterForKey(filter, filterKey))
+      .filter(Objects::nonNull)
+      .findFirst();
+  }
+
   private void modifyForCallNumbers(QueryBuilder queryBuilder) {
     if (queryBuilder instanceof BoolQueryBuilder bqb) {
       var should = bqb.should().stream()
@@ -155,54 +208,6 @@ public class ConsortiumSearchHelper {
         bqb.must(nestedQuery("instances", innerBoolQuery, ScoreMode.None));
       }
     }
-  }
-
-  public <T> Set<InstanceSubResource> filterSubResourcesForConsortium(
-    BrowseContext context, T resource,
-    Function<T, Set<InstanceSubResource>> subResourceExtractor) {
-
-    var subResources = subResourceExtractor.apply(resource);
-    var contextTenantId = folioExecutionContext.getTenantId();
-    var centralTenantId = consortiumTenantService.getCentralTenant(contextTenantId);
-    if (centralTenantId.isEmpty()) {
-      return subResources.stream()
-        .filter(instanceSubResource -> filterForCallNumbers(context, resource, instanceSubResource))
-        .collect(Collectors.toSet());
-    } else if (contextTenantId.equals(centralTenantId.get())) {
-      return subResources.stream()
-        .filter(InstanceSubResource::getShared)
-        .collect(Collectors.toSet());
-    }
-
-    var sharedFilter = getBrowseSharedFilter(context);
-    var tenantFilter = getBrowseTenantFilter(context);
-
-    Predicate<InstanceSubResource> subResourcesFilter =
-      subResource -> subResource.getTenantId().equals(contextTenantId);
-    if (sharedFilter.isPresent()) {
-      if (sharedFilterValue(sharedFilter.get())) {
-        subResourcesFilter = InstanceSubResource::getShared;
-      } else {
-        subResourcesFilter = subResourcesFilter.and(instanceSubResource -> !instanceSubResource.getShared());
-      }
-    } else {
-      if (tenantFilter.isEmpty()) {
-        subResourcesFilter = subResourcesFilter.or(InstanceSubResource::getShared);
-      } else {
-        subResourcesFilter = subResource -> subResource.getTenantId().equals(tenantFilterValue(tenantFilter.get()));
-      }
-    }
-    return subResources.stream()
-      .filter(subResourcesFilter)
-      .filter(instanceSubResource -> filterForCallNumbers(context, resource, instanceSubResource))
-      .collect(Collectors.toSet());
-  }
-
-  protected Optional<TermQueryBuilder> getBrowseFilter(BrowseContext context, String filterKey) {
-    return context.getFilters().stream()
-      .map(filter -> getTermFilterForKey(filter, filterKey))
-      .filter(Objects::nonNull)
-      .findFirst();
   }
 
   private <T> boolean filterForCallNumbers(BrowseContext context, T resource, InstanceSubResource instanceSubResource) {

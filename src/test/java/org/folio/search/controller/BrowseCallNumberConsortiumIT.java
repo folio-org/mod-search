@@ -48,6 +48,7 @@ import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.reindex.jdbc.SubResourcesLockRepository;
 import org.folio.search.support.base.BaseConsortiumIntegrationTest;
+import org.folio.search.utils.SearchUtils;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -83,10 +84,15 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
     var memberInstances = INSTANCES.subList(30, INSTANCES.size());
     saveRecords(MEMBER_TENANT_ID, instanceSearchPath(), memberInstances, INSTANCES.size(),
       instance -> inventoryApi.createInstance(MEMBER_TENANT_ID, instance));
+    var instance1 = centralInstances.getFirst();
+    instance1.setSource(SearchUtils.SOURCE_CONSORTIUM_PREFIX + "FOLIO");
+    saveRecords(MEMBER_TENANT_ID, instanceSearchPath(), List.of(instance1), INSTANCES.size(),
+      instance -> inventoryApi.createInstance(MEMBER_TENANT_ID, instance));
 
     var dataRecord = new CallNumberTestDataRecord(callNumbers().getLast().callNumber(), MEMBER2_LOCATION);
     var member2Instance = instance("51", List.of(dataRecord));
-    saveRecords(MEMBER2_TENANT_ID, instanceSearchPath(), List.of(member2Instance), centralInstances.size() + 1,
+    saveRecords(MEMBER2_TENANT_ID, instanceSearchPath(), List.of(member2Instance, instance1),
+      centralInstances.size() + 1,
       instance -> inventoryApi.createInstance(MEMBER2_TENANT_ID, instance));
     subResourcesLockRepository.unlockSubResource(ReindexEntityType.CALL_NUMBER, timestamp.get(), CENTRAL_TENANT_ID);
 
@@ -128,6 +134,19 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
       .param("limit", String.valueOf(10));
     var actual = parseResponse(doGet(request, MEMBER_TENANT_ID), CallNumberBrowseResult.class);
     assertThat(actual).isEqualTo(cnBrowseResult(null, null, 0, List.of(cnEmptyBrowseItem("a"))));
+  }
+
+  @Test
+  void browseByCallNumber_fromCentralTenant_withTenantIdFacet_sameCallNumberInMemberTenantOfSharedInstance() {
+    var request = get(instanceCallNumberBrowsePath(BrowseOptionType.ALL))
+      .param("expandAll", "true")
+      .param("query", "(fullCallNumber>=\"TA357 .A78 2010\" or fullCallNumber<\"TA357 .A78 2010\") "
+                      + "and instances.tenantId==(\"%s\")".formatted(MEMBER2_TENANT_ID))
+      .param("limit", String.valueOf(10));
+    var actual = parseResponse(doGet(request, CENTRAL_TENANT_ID), CallNumberBrowseResult.class);
+    assertThat(actual).isEqualTo(cnBrowseResult(null, null, 2,
+      List.of(cnBrowseItem(callNumbers().get(1).callNumber(), 0, 1),
+        cnBrowseItem(callNumbers().getFirst().callNumber(), 0, 1, true))));
   }
 
   @MethodSource("facetQueriesProvider")
@@ -201,14 +220,14 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
       arguments(CENTRAL_TENANT_ID, "cql.allRecords=1", array(LOCATION_FACET),
         expectedLocationFacet(locations, 27, 20, 13, false)),
       arguments(CENTRAL_TENANT_ID, "cql.allRecords=1", array(TENANT_FACET), mapOf(TENANT_FACET,
-        facet(facetItem(CENTRAL_TENANT_ID, 60)))),
+        facet(facetItem(CENTRAL_TENANT_ID, 60), facetItem(MEMBER_TENANT_ID, 2), facetItem(MEMBER2_TENANT_ID, 2)))),
       arguments(CENTRAL_TENANT_ID, "callNumberTypeId=\"" + LC.getId() + "\"", array(LOCATION_FACET),
         expectedLocationFacet(locations, 6, 4, 2, false)),
       arguments(MEMBER_TENANT_ID, "cql.allRecords=1", array(LOCATION_FACET),
         expectedLocationFacet(locations, 42, 34, 24, true)),
       arguments(MEMBER_TENANT_ID, "cql.allRecords=1", array(TENANT_FACET), mapOf(TENANT_FACET,
-        facet(facetItem(CENTRAL_TENANT_ID, 60), facetItem(MEMBER_TENANT_ID, 40),
-          facetItem(MEMBER2_TENANT_ID, 1)))),
+        facet(facetItem(CENTRAL_TENANT_ID, 60), facetItem(MEMBER_TENANT_ID, 42),
+          facetItem(MEMBER2_TENANT_ID, 3)))),
       arguments(MEMBER_TENANT_ID, "instances.shared=false", array(LOCATION_FACET),
         expectedLocationFacet(locations, 15, 14, 11, true)),
       arguments(MEMBER_TENANT_ID, "instances.shared=false", array(TENANT_FACET), mapOf(TENANT_FACET,

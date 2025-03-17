@@ -15,7 +15,8 @@
 
 ### Bug fixes
 * Browse Config: fix exception while trying to validate empty type ids ([MSEARCH-998](https://folio-org.atlassian.net/browse/MSEARCH-998))
-* ECS: Modify filters for sub-resources during browse ([MSEARCH-1000](https://folio-org.atlassian.net/browse/MSEARCH-1000))
+* ECS: Modify filters for sub-resources during browse ([MSEARCH-990](https://folio-org.atlassian.net/browse/MSEARCH-990))
+* Facets: Modify facet queries to remove filters for nested queries ([MSEARCH-995](https://folio-org.atlassian.net/browse/MSEARCH-995))
 
 ### Tech Dept
 * Description ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))

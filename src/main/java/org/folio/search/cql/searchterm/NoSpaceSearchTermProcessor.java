@@ -1,18 +1,18 @@
 package org.folio.search.cql.searchterm;
 
 import lombok.RequiredArgsConstructor;
-import org.folio.search.service.lccn.LccnNormalizer;
+import org.folio.search.service.lccn.StringNormalizer;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class LccnSearchTermProcessor implements SearchTermProcessor {
+public class NoSpaceSearchTermProcessor implements SearchTermProcessor {
 
-  private final LccnNormalizer lccnNormalizer;
+  private final StringNormalizer stringNormalizer;
 
   @Override
   public String getSearchTerm(String inputTerm) {
-    return lccnNormalizer.apply(inputTerm)
+    return stringNormalizer.apply(inputTerm)
       .orElse(null);
   }
 }

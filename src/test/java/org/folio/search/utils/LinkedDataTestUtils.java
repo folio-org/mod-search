@@ -73,12 +73,16 @@ public class LinkedDataTestUtils {
     return join(".", base, arrayPath("classifications", number));
   }
 
+  public static String toClassificationType(String base, int number) {
+    return join(".", toClassification(base, number), path("type"));
+  }
+
   public static String toClassificationNumber(String base, int number) {
     return join(".", toClassification(base, number), path("number"));
   }
 
-  public static String toClassificationSource(String base, int number) {
-    return join(".", toClassification(base, number), path("source"));
+  public static String toClassificationAdditionalNumber(String base, int number) {
+    return join(".", toClassification(base, number), path("additionalNumber"));
   }
 
   public static String toSubject(String base, int number) {

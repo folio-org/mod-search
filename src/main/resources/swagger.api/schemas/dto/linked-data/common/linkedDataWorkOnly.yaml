@@ -11,14 +11,7 @@ properties:
     type: "array"
     description: "List of classification items"
     items:
-      type: "object"
-      properties:
-        number:
-          type: "string"
-          description: "Classification number"
-        source:
-          type: "string"
-          description: "The source of the classification"
+      $ref: "linkedDataClassification.yaml"
   contributors:
     type: "array"
     description: "Contributor array"

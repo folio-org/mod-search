@@ -2,12 +2,14 @@
   "id": "123456123456",
   "classifications": [
     {
-      "number": "1234",
-      "source": "ddc"
+      "type": "ddc",
+      "number": "123",
+      "additionalNumber": "456"
     },
     {
-      "number": "5678",
-      "source": "other"
+      "type": "lc",
+      "number": "789",
+      "additionalNumber": "012"
     }
   ],
   "contributors": [

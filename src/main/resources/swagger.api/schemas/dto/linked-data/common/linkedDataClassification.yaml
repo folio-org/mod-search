@@ -1,0 +1,18 @@
+description: "Linked data Classification DTO, contains type and numbers"
+type: "object"
+properties:
+  type:
+    type: "string"
+    enum:
+      - "ddc"
+      - "lc"
+    description: "The type of the classification number"
+  number:
+    type: "string"
+    description: "Classification number"
+  additionalNumber:
+    type: "string"
+    description: "Additional classification number"
+required:
+  - "type"
+  - "number"

@@ -16,10 +16,14 @@
     "classifications": {
       "type": "object",
       "properties": {
+        "type": {
+          "index": "whitespace",
+          "searchAliases": [ "classificationType" ]
+        },
         "number": {
           "index": "whitespace"
         },
-        "source": {
+        "additionalNumber": {
           "index": "whitespace"
         }
       }
@@ -115,10 +119,14 @@
         "classifications": {
           "type": "object",
           "properties": {
+            "type": {
+              "index": "whitespace",
+              "searchAliases": [ "classificationType" ]
+            },
             "number": {
               "index": "whitespace"
             },
-            "source": {
+            "additionalNumber": {
               "index": "whitespace"
             }
           }
@@ -191,7 +199,7 @@
       "type": "search",
       "index": "standard",
       "processor": "linkedDataInstanceLccnProcessor",
-      "searchTermProcessor": "lccnSearchTermProcessor"
+      "searchTermProcessor": "noSpaceSearchTermProcessor"
     },
     "note": {
       "type": "search",
@@ -210,6 +218,18 @@
       "type": "search",
       "index": "keyword_lowercase",
       "processor": "linkedDataInstanceSortTitleProcessor"
+    },
+    "classificationNumber": {
+      "type": "search",
+      "index": "standard",
+      "processor": "linkedDataInstanceClassificationNumberProcessor",
+      "searchTermProcessor": "noSpaceSearchTermProcessor"
+    },
+    "classificationAdditionalNumber": {
+      "type": "search",
+      "index": "standard",
+      "processor": "linkedDataInstanceClassificationAdditionalNumberProcessor",
+      "searchTermProcessor": "noSpaceSearchTermProcessor"
     }
   },
   "indexMappings": { }

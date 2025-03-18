@@ -1,3 +1,7 @@
+## v6.0.0 YYYY-mm-DD
+### Features
+* Linked Data Instance and Work: search by classification type/number/additionalNumber ([MSEARCH-989](https://folio-org.atlassian.net/browse/MSEARCH-989))
+
 ## v5.1.0 YYYY-mm-DD
 ### Breaking changes
 * Description ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))

@@ -16,7 +16,7 @@ import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.Identifier;
 import org.folio.search.integration.folio.ReferenceDataService;
 import org.folio.search.model.client.CqlQueryParam;
-import org.folio.search.service.lccn.DefaultLccnNormalizer;
+import org.folio.search.service.lccn.NoSpaceNormalizer;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -38,7 +38,7 @@ class LccnAuthorityProcessorTest {
 
   @BeforeEach
   void setup() {
-    var lccnNormalizer = new DefaultLccnNormalizer();
+    var lccnNormalizer = new NoSpaceNormalizer();
     lccnProcessor = new LccnAuthorityProcessor(referenceDataService, lccnNormalizer);
   }
 

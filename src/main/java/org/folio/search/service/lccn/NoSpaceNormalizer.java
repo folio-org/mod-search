@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Primary
-public class DefaultLccnNormalizer implements LccnNormalizer {
+public class NoSpaceNormalizer implements StringNormalizer {
 
   @Override
   public Optional<String> apply(String lccn) {

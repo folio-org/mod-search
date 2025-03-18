@@ -544,7 +544,7 @@
       "type": "search",
       "index": "keyword_lowercase",
       "processor": "lccnAuthorityProcessor",
-      "searchTermProcessor": "lccnSearchTermProcessor"
+      "searchTermProcessor": "noSpaceSearchTermProcessor"
     }
   },
   "mappingsSource": {

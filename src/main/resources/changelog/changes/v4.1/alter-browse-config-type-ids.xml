@@ -6,8 +6,17 @@
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
 
   <changeSet id="MSEARCH-890@@alter-browse_config-type_ids" author="viacheslav_kolesnyk">
-    <preConditions>
-      <tableExists tableName="browse_config"/>
+    <preConditions onFail="MARK_RAN">
+      <and>
+        <tableExists tableName="browse_config"/>
+        <sqlCheck expectedResult="character varying">
+          SELECT data_type
+          FROM information_schema.columns
+          WHERE table_schema = '${database.defaultSchemaName}'
+          AND table_name = 'browse_config'
+          AND column_name = 'type_ids';
+        </sqlCheck>
+      </and>
     </preConditions>
 
     <sql>

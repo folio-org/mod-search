@@ -221,6 +221,8 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
         expectedLocationFacet(locations, 27, 20, 13, false)),
       arguments(CENTRAL_TENANT_ID, "cql.allRecords=1", array(TENANT_FACET), mapOf(TENANT_FACET,
         facet(facetItem(CENTRAL_TENANT_ID, 60), facetItem(MEMBER_TENANT_ID, 2), facetItem(MEMBER2_TENANT_ID, 2)))),
+      arguments(CENTRAL_TENANT_ID, "instances.tenantId==" + MEMBER2_TENANT_ID, array(TENANT_FACET), mapOf(TENANT_FACET,
+        facet(facetItem(CENTRAL_TENANT_ID, 60), facetItem(MEMBER_TENANT_ID, 2), facetItem(MEMBER2_TENANT_ID, 2)))),
       arguments(CENTRAL_TENANT_ID, "callNumberTypeId=\"" + LC.getId() + "\"", array(LOCATION_FACET),
         expectedLocationFacet(locations, 6, 4, 2, false)),
       arguments(MEMBER_TENANT_ID, "cql.allRecords=1", array(LOCATION_FACET),
@@ -228,10 +230,11 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
       arguments(MEMBER_TENANT_ID, "cql.allRecords=1", array(TENANT_FACET), mapOf(TENANT_FACET,
         facet(facetItem(CENTRAL_TENANT_ID, 60), facetItem(MEMBER_TENANT_ID, 42),
           facetItem(MEMBER2_TENANT_ID, 3)))),
-      arguments(MEMBER_TENANT_ID, "instances.shared=false", array(LOCATION_FACET),
-        expectedLocationFacet(locations, 15, 14, 11, true)),
-      arguments(MEMBER_TENANT_ID, "instances.shared=false", array(TENANT_FACET), mapOf(TENANT_FACET,
-        facet(facetItem(MEMBER_TENANT_ID, 40), facetItem(MEMBER2_TENANT_ID, 1))))
+      arguments(MEMBER_TENANT_ID, "instances.shared==false", array(LOCATION_FACET),
+        expectedLocationFacet(locations, 42, 34, 24, true)),
+      arguments(MEMBER_TENANT_ID, "instances.shared==false", array(TENANT_FACET), mapOf(TENANT_FACET,
+        facet(facetItem(CENTRAL_TENANT_ID, 60), facetItem(MEMBER_TENANT_ID, 42),
+          facetItem(MEMBER2_TENANT_ID, 3))))
     );
   }
 

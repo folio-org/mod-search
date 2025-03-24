@@ -3,6 +3,7 @@
 * Browse Config: fix exception while trying to validate empty type ids ([MSEARCH-998](https://folio-org.atlassian.net/browse/MSEARCH-998))
 * ECS: Modify filters for sub-resources during browse ([MSEARCH-990](https://folio-org.atlassian.net/browse/MSEARCH-990))
 * Facets: Modify facet queries to remove filters for nested queries ([MSEARCH-995](https://folio-org.atlassian.net/browse/MSEARCH-995))
+* Move index recreation before merge range publishing on full reindex ([MSEARCH-1006](https://folio-org.atlassian.net/browse/MSEARCH-1006))
 
 ---
 

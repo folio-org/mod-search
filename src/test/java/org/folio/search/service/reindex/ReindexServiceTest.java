@@ -106,6 +106,8 @@ class ReindexServiceTest {
 
     verify(reindexCommonService).deleteAllRecords();
     verify(statusService).recreateMergeStatusRecords();
+    verify(reindexCommonService, times(ReindexEntityType.supportUploadTypes().size()))
+      .recreateIndex(any(), eq(tenant), eq(indexSettings));
     verify(mergeRangeService).createMergeRanges(tenant);
     verify(mergeRangeService).saveMergeRanges(anyList());
     verify(executionService).executeSystemUserScoped(eq(member), any());
@@ -114,8 +116,6 @@ class ReindexServiceTest {
       .updateReindexMergeStarted(any(ReindexEntityType.class), eq(1));
     verify(mergeRangeService, times(expectedCallsCount)).fetchMergeRanges(any(ReindexEntityType.class));
     verify(mergeRangeService).truncateMergeRanges();
-    verify(reindexCommonService, times(ReindexEntityType.supportUploadTypes().size()))
-      .recreateIndex(any(), eq(tenant), eq(indexSettings));
     verifyNoMoreInteractions(mergeRangeService);
   }
 

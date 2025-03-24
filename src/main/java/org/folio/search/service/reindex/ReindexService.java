@@ -74,6 +74,7 @@ public class ReindexService {
 
     reindexCommonService.deleteAllRecords();
     statusService.recreateMergeStatusRecords();
+    recreateIndices(tenantId, ReindexEntityType.supportUploadTypes(), indexSettings);
 
     var future = CompletableFuture.runAsync(() -> {
       mergeRangeService.truncateMergeRanges();
@@ -86,7 +87,6 @@ public class ReindexService {
       mergeRangeService.saveMergeRanges(rangesForAllTenants);
     }, reindexFullExecutor)
       .thenRun(() -> publishRecordsRange(tenantId))
-      .thenRun(() -> recreateIndices(tenantId, ReindexEntityType.supportUploadTypes(), indexSettings))
       .handle((unused, throwable) -> {
         if (throwable != null) {
           log.error("initFullReindex:: process failed [tenantId: {}, error: {}]", tenantId, throwable);

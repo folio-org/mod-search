@@ -8,24 +8,32 @@ import static org.folio.search.utils.SearchUtils.SUBJECT_TYPE_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.SUBJECT_VALUE_FIELD;
 import static org.folio.search.utils.SearchUtils.prepareForExpectedFormat;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.domain.dto.TenantConfiguredFeature;
 import org.folio.search.model.types.ResourceType;
+import org.folio.search.service.FeatureConfigService;
 import org.folio.search.service.converter.preprocessor.extractor.ChildResourceExtractor;
 import org.folio.search.service.reindex.jdbc.SubjectRepository;
 import org.folio.search.utils.ShaUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 @Log4j2
+@Lazy
 @Component
 public class SubjectResourceExtractor extends ChildResourceExtractor {
 
-  public SubjectResourceExtractor(SubjectRepository repository) {
+  private final FeatureConfigService featureConfigService;
+
+  public SubjectResourceExtractor(SubjectRepository repository, FeatureConfigService featureConfigService) {
     super(repository);
+    this.featureConfigService = featureConfigService;
   }
 
   @Override
@@ -46,12 +54,12 @@ public class SubjectResourceExtractor extends ChildResourceExtractor {
 
   @Override
   protected Map<String, Object> constructEntity(Map<String, Object> entityProperties) {
-    if (entityProperties == null) {
-      return null;
+    if (entityProperties == null || !featureConfigService.isEnabled(TenantConfiguredFeature.BROWSE_SUBJECTS)) {
+      return Collections.emptyMap();
     }
     var subjectValue = prepareForExpectedFormat(entityProperties.get(SUBJECT_VALUE_FIELD), 255);
     if (subjectValue.isEmpty()) {
-      return null;
+      return Collections.emptyMap();
     }
 
     var authorityId = entityProperties.get(AUTHORITY_ID_FIELD);

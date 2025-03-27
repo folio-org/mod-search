@@ -25,12 +25,14 @@ import org.folio.search.service.consortium.ConsortiumTenantExecutor;
 import org.folio.search.service.reindex.jdbc.MergeInstanceRepository;
 import org.folio.spring.exception.SystemUserAuthorizationException;
 import org.folio.spring.service.SystemUserScopedExecutionService;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+@UnitTest
 @ExtendWith(MockitoExtension.class)
 class PopulateInstanceBatchInterceptorTest {
 
@@ -55,9 +57,9 @@ class PopulateInstanceBatchInterceptorTest {
     populateInstanceBatchInterceptor = new PopulateInstanceBatchInterceptor(
       List.of(instanceRepository),
       executionService,
-      systemUserScopedExecutionService,
-      instanceChildrenResourceService
+      systemUserScopedExecutionService
     );
+    populateInstanceBatchInterceptor.setInstanceChildrenResourceService(instanceChildrenResourceService);
   }
 
   @Test

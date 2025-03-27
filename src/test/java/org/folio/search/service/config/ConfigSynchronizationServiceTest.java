@@ -1,6 +1,6 @@
 package org.folio.search.service.config;
 
-import static org.folio.search.utils.TestUtils.randomId;
+import static org.folio.support.utils.TestUtils.randomId;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.never;
@@ -11,6 +11,7 @@ import org.folio.search.domain.dto.BrowseType;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.consortium.BrowseConfigServiceDecorator;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,6 +21,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+@UnitTest
 @ExtendWith(MockitoExtension.class)
 class ConfigSynchronizationServiceTest {
 

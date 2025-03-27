@@ -3,8 +3,8 @@ package org.folio.search.service.setter.authority;
 import static org.apache.lucene.search.TotalHits.Relation.EQUAL_TO;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.model.types.ResourceType.INSTANCE;
-import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
-import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
+import static org.folio.support.TestConstants.TENANT_ID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -24,6 +24,7 @@ import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.service.consortium.TenantProvider;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.spring.FolioExecutionContext;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -37,6 +38,7 @@ import org.opensearch.index.query.BoolQueryBuilder;
 import org.opensearch.search.SearchHits;
 import org.opensearch.search.builder.SearchSourceBuilder;
 
+@UnitTest
 @ExtendWith(MockitoExtension.class)
 class AuthoritySearchResponsePostProcessorTest {
 

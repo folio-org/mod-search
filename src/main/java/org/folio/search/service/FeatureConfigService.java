@@ -68,7 +68,7 @@ public class FeatureConfigService {
   @CacheEvict(cacheNames = TENANT_FEATURES_CACHE,
     key = "@folioExecutionContext.tenantId + ':' + #featureConfig.feature.value")
   public FeatureConfig create(FeatureConfig featureConfig) {
-    log.debug("Attempting to create feature configuration [feature: {}]", featureConfig.getFeature().getValue());
+    log.info("Attempting to create feature configuration [feature: {}]", featureConfig.getFeature().getValue());
 
     var entity = featureConfigMapper.convert(featureConfig);
     var featureId = entity.getFeatureId();

@@ -1,8 +1,8 @@
 package org.folio.search.service.consortium;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
-import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
+import static org.folio.support.TestConstants.TENANT_ID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;

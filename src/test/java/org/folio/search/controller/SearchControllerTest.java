@@ -1,11 +1,11 @@
 package org.folio.search.controller;
 
 import static java.util.Collections.emptyList;
-import static org.folio.search.utils.TestConstants.INDEX_NAME;
-import static org.folio.search.utils.TestConstants.TENANT_ID;
-import static org.folio.search.utils.TestUtils.randomId;
-import static org.folio.search.utils.TestUtils.searchResult;
-import static org.folio.search.utils.TestUtils.searchServiceRequest;
+import static org.folio.support.TestConstants.INDEX_NAME;
+import static org.folio.support.TestConstants.TENANT_ID;
+import static org.folio.support.utils.TestUtils.randomId;
+import static org.folio.support.utils.TestUtils.searchResult;
+import static org.folio.support.utils.TestUtils.searchServiceRequest;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;

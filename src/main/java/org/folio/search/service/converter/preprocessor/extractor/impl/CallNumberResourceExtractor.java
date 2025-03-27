@@ -19,10 +19,12 @@ import org.folio.search.service.FeatureConfigService;
 import org.folio.search.service.converter.preprocessor.extractor.ChildResourceExtractor;
 import org.folio.search.service.reindex.jdbc.CallNumberRepository;
 import org.folio.search.utils.JsonConverter;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 @Log4j2
 @Component
+@Lazy
 public class CallNumberResourceExtractor extends ChildResourceExtractor {
 
   public static final String EFFECTIVE_CALL_NUMBER_COMPONENTS_FIELD = "effectiveCallNumberComponents";

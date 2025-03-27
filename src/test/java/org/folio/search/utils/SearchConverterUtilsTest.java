@@ -4,9 +4,9 @@ import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.model.types.ResourceType.INSTANCE;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
-import static org.folio.search.utils.TestConstants.RESOURCE_ID;
-import static org.folio.search.utils.TestUtils.mapOf;
-import static org.folio.search.utils.TestUtils.resourceEvent;
+import static org.folio.support.TestConstants.RESOURCE_ID;
+import static org.folio.support.utils.TestUtils.mapOf;
+import static org.folio.support.utils.TestUtils.resourceEvent;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.util.HashMap;

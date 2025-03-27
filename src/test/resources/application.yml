@@ -52,32 +52,34 @@ folio:
     change-log: classpath:changelog/changelog-system.xml
   search-config:
     initial-languages: eng,fre,ita,spa,ger
-    max-search-batch-request-ids-count: ${MAX_SEARCH_BATCH_REQUEST_IDS_COUNT:500}
+    max-search-batch-request-ids-count: 500
     search-features:
       search-all-fields: false
-      browse-classifications: true
-      browse-call-numbers: true
+      browse-contributors: false
+      browse-subjects: false
+      browse-classifications: false
+      browse-call-numbers: false
     indexing:
-      data-format: ${INDEXING_DATA_FORMAT:json}
+      data-format: json
+      instance-children-index-enabled: false
       instance-children-index-delay-ms: 2000
   reindex:
-    location-batch-size: ${REINDEX_LOCATION_BATCH_SIZE:2}
+    location-batch-size: 2
   query:
     properties:
       request-timeout: 25s
-      call-number-browse-optimization-enabled: true
   system-user:
     username: mod-search
     password: Mod-search-1-0-0
     lastname: System
     permissionsFilePath: permissions/test-permissions.csv
   stream-ids:
-    scroll-query-size: ${SCROLL_QUERY_SIZE:1000}
-    retry-interval-ms: ${STREAM_ID_RETRY_INTERVAL_MS:1000}
-    retry-attempts: ${STREAM_ID_RETRY_ATTEMPTS:3}
-    core-pool-size: ${STREAM_ID_CORE_POOL_SIZE:2}
-    max-pool-size: ${STREAM_ID_MAX_POOL_SIZE:2}
-    queue-capacity: ${STREAM_ID_QUEUE_CAPACITY:500}
+    scroll-query-size: 1000
+    retry-interval-ms: 1000
+    retry-attempts: 3
+    core-pool-size: 2
+    max-pool-size: 2
+    queue-capacity: 500
   kafka:
     retry-interval-ms: 100
     retry-delivery-attempts: 2
@@ -132,11 +134,11 @@ folio:
         replicationFactor: 1
     listener:
       events:
-        concurrency: 2
+        concurrency: 1
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.(instance|holdings-record|item|bound-with)
         group-id: ${folio.environment}-mod-search-events-group
-        max-poll-records: ${KAFKA_CONSUMER_EVENTS_MAX_POLL_RECORDS:5}
-        max-poll-interval-ms: ${KAFKA_CONSUMER_EVENTS_MAX_POLL_INTERVAL_MS:60000}
+        max-poll-records: 5
+        max-poll-interval-ms: 6000
       instances:
         concurrency: 1
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.instance

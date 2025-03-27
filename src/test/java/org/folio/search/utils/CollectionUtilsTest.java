@@ -12,8 +12,8 @@ import static org.folio.search.utils.CollectionUtils.mergeSafely;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToList;
 import static org.folio.search.utils.CollectionUtils.mergeSafelyToSet;
 import static org.folio.search.utils.CollectionUtils.nullIfEmpty;
-import static org.folio.search.utils.TestUtils.mapOf;
-import static org.folio.search.utils.TestUtils.setOf;
+import static org.folio.support.utils.TestUtils.mapOf;
+import static org.folio.support.utils.TestUtils.setOf;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.util.ArrayList;

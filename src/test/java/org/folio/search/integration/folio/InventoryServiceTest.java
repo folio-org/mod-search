@@ -2,7 +2,7 @@ package org.folio.search.integration.folio;
 
 import static org.folio.search.client.InventoryReindexRecordsClient.constructRequest;
 import static org.folio.search.model.types.ReindexEntityType.INSTANCE;
-import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.support.TestConstants.TENANT_ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;

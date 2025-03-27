@@ -15,6 +15,7 @@ import org.folio.search.domain.dto.BrowseOptionType;
 import org.folio.search.domain.dto.BrowseType;
 import org.folio.search.service.config.BrowseConfigService;
 import org.folio.spring.testing.type.UnitTest;
+import org.folio.support.base.DecoratorBaseTest;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;

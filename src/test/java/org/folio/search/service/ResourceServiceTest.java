@@ -10,15 +10,15 @@ import static org.folio.search.domain.dto.ResourceEventType.UPDATE;
 import static org.folio.search.model.types.ResourceType.INSTANCE;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
-import static org.folio.search.utils.TestConstants.RESOURCE_ID;
-import static org.folio.search.utils.TestConstants.RESOURCE_ID_SECOND;
-import static org.folio.search.utils.TestUtils.asJsonString;
-import static org.folio.search.utils.TestUtils.mapOf;
-import static org.folio.search.utils.TestUtils.randomId;
-import static org.folio.search.utils.TestUtils.resourceDescription;
-import static org.folio.search.utils.TestUtils.resourceEvent;
-import static org.folio.search.utils.TestUtils.searchDocumentBody;
-import static org.folio.search.utils.TestUtils.searchDocumentBodyToDelete;
+import static org.folio.support.TestConstants.RESOURCE_ID;
+import static org.folio.support.TestConstants.RESOURCE_ID_SECOND;
+import static org.folio.support.utils.JsonTestUtils.asJsonString;
+import static org.folio.support.utils.TestUtils.mapOf;
+import static org.folio.support.utils.TestUtils.randomId;
+import static org.folio.support.utils.TestUtils.resourceDescription;
+import static org.folio.support.utils.TestUtils.resourceEvent;
+import static org.folio.support.utils.TestUtils.searchDocumentBody;
+import static org.folio.support.utils.TestUtils.searchDocumentBodyToDelete;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
@@ -79,8 +79,6 @@ class ResourceServiceTest {
   private IndexNameProvider indexNameProvider;
   @Mock
   private Map<String, ResourceRepository> resourceRepositoryBeans;
-  @Mock
-  private InstanceChildrenResourceService instanceChildrenResourceService;
   @InjectMocks
   private ResourceService indexService;
 

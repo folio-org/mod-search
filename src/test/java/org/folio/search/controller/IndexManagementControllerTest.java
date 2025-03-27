@@ -1,17 +1,16 @@
 package org.folio.search.controller;
 
-import static org.folio.search.support.base.ApiEndpoints.createIndicesPath;
-import static org.folio.search.support.base.ApiEndpoints.reindexFailedPath;
-import static org.folio.search.support.base.ApiEndpoints.reindexFullPath;
-import static org.folio.search.support.base.ApiEndpoints.reindexInstanceRecordsStatus;
-import static org.folio.search.support.base.ApiEndpoints.reindexUploadPath;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessFolioCreateIndexResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
-import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
-import static org.folio.search.utils.TestUtils.asJsonString;
-import static org.folio.search.utils.TestUtils.mapOf;
-import static org.folio.search.utils.TestUtils.randomId;
-import static org.folio.search.utils.TestUtils.resourceEvent;
+import static org.folio.support.base.ApiEndpoints.createIndicesPath;
+import static org.folio.support.base.ApiEndpoints.reindexFailedPath;
+import static org.folio.support.base.ApiEndpoints.reindexFullPath;
+import static org.folio.support.base.ApiEndpoints.reindexInstanceRecordsStatus;
+import static org.folio.support.base.ApiEndpoints.reindexUploadPath;
+import static org.folio.support.utils.JsonTestUtils.asJsonString;
+import static org.folio.support.utils.TestUtils.mapOf;
+import static org.folio.support.utils.TestUtils.randomId;
+import static org.folio.support.utils.TestUtils.resourceEvent;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -223,8 +222,6 @@ class IndexManagementControllerTest {
 
   @Test
   void indexResources_positive() throws Exception {
-    var instanceData = OBJECT_MAPPER.createObjectNode();
-    instanceData.put("id", randomId());
     var resourceBody = resourceEvent(ResourceType.INSTANCE, mapOf("id", randomId()));
 
     when(resourceService.indexResources(List.of(resourceBody))).thenReturn(getSuccessIndexOperationResponse());

@@ -20,7 +20,7 @@
 * Move index recreation before merge range publishing on full reindex ([MSEARCH-1006](https://folio-org.atlassian.net/browse/MSEARCH-1006))
 
 ### Tech Dept
-* Description ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))
+* Stabilize test execution ([MSEARCH-991](https://folio-org.atlassian.net/browse/MSEARCH-991))
 
 ### Dependencies
 * Bump `LIB_NAME` from `OLD_VERSION` to `NEW_VERSION`

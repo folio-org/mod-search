@@ -10,6 +10,9 @@ import org.folio.search.domain.dto.FolioIndexOperationResponse.StatusEnum;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SearchResponseHelper {
 
+  public static final String REQUEST_NOT_ALLOWED_MSG =
+    "The request allowed only for central tenant of consortium environment";
+
   /**
    * Creates positive {@link FolioCreateIndexResponse} object with list of created indices.
    *

@@ -10,6 +10,7 @@ import org.folio.search.domain.dto.FeatureConfigs;
 import org.folio.search.domain.dto.TenantConfiguredFeature;
 import org.folio.search.service.FeatureConfigService;
 import org.folio.spring.testing.type.UnitTest;
+import org.folio.support.base.DecoratorBaseTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

@@ -1143,6 +1143,11 @@
         "description": "Format for passing data to elasticsearch (json/smile)"
       },
       {
+        "name": "INSTANCE_CHILDREN_INDEX_ENABLED",
+        "value": "true",
+        "description": "Defines if module should process subjects/contributors/classifications/call-numbers in a background"
+      },
+      {
         "name": "INSTANCE_CHILDREN_INDEX_DELAY_MS",
         "value": "60000",
         "description": "Scheduler delay for indexing subjects/contributors/classifications"
@@ -1183,14 +1188,24 @@
         "description": "Specifies if globally search by all field values must be enabled or not (tenant can override this setting)"
       },
       {
-        "name": "BROWSE_CN_INTERMEDIATE_VALUES_ENABLED",
+        "name": "BROWSE_SUBJECTS_ENABLED",
         "value": "true",
-        "description": "Specifies if globally intermediate values (nested instance items) must be populated or not (tenant can override this setting)"
+        "description": "Specifies if globally browse instance subject feature is enabled"
       },
       {
-        "name": "BROWSE_CN_INTERMEDIATE_REMOVE_DUPLICATES",
+        "name": "BROWSE_CONTRIBUTORS_ENABLED",
         "value": "true",
-        "description": "Specifies if globally intermediate duplicate values (fullCallNumber) should be removed or not (Active only with BROWSE_CN_INTERMEDIATE_VALUES_ENABLED)"
+        "description": "Specifies if globally browse instance contributor feature is enabled"
+      },
+      {
+        "name": "BROWSE_CLASSIFICATIONS_ENABLED",
+        "value": "true",
+        "description": "Specifies if globally browse instance classification feature is enabled"
+      },
+      {
+        "name": "BROWSE_CALL_NUMBERS_ENABLED",
+        "value": "true",
+        "description": "Specifies if globally browse instance call-number feature is enabled"
       },
       {
         "name": "SCROLL_QUERY_SIZE",
@@ -1221,11 +1236,6 @@
         "name": "STREAM_ID_QUEUE_CAPACITY",
         "value": "500",
         "description": "The capacity of the queue."
-      },
-      {
-        "name": "CN_BROWSE_OPTIMIZATION_ENABLED",
-        "value": "true",
-        "description": "Defines if call-number browse optimization is enabled or not"
       },
       {
         "name": "SEARCH_QUERY_TIMEOUT",

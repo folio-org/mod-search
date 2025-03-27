@@ -2,7 +2,7 @@ package org.folio.search.integration;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.utils.TestUtils.mapOf;
+import static org.folio.support.utils.TestUtils.mapOf;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;

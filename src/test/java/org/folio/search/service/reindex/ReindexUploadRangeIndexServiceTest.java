@@ -1,7 +1,7 @@
 package org.folio.search.service.reindex;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.support.TestConstants.TENANT_ID;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;

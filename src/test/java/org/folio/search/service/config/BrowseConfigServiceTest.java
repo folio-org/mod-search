@@ -8,7 +8,7 @@ import static org.folio.search.domain.dto.BrowseOptionType.ALL;
 import static org.folio.search.domain.dto.BrowseOptionType.LC;
 import static org.folio.search.domain.dto.BrowseType.INSTANCE_CLASSIFICATION;
 import static org.folio.search.model.client.CqlQueryParam.ID;
-import static org.folio.search.utils.TestUtils.randomId;
+import static org.folio.support.utils.TestUtils.randomId;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

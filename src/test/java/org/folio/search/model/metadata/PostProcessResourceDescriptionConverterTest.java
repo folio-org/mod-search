@@ -1,17 +1,17 @@
 package org.folio.search.model.metadata;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.folio.search.utils.TestUtils.mapOf;
-import static org.folio.search.utils.TestUtils.objectField;
-import static org.folio.search.utils.TestUtils.plainField;
+import static org.folio.support.utils.TestUtils.mapOf;
+import static org.folio.support.utils.TestUtils.objectField;
+import static org.folio.support.utils.TestUtils.plainField;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 
-import org.folio.search.utils.TestUtils;
 import org.folio.spring.testing.type.UnitTest;
+import org.folio.support.utils.TestUtils;
 import org.junit.jupiter.api.Test;
 
 @UnitTest

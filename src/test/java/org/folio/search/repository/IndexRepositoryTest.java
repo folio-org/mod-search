@@ -6,8 +6,8 @@ import static org.folio.search.utils.SearchResponseHelper.getErrorFolioCreateInd
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessFolioCreateIndexResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
-import static org.folio.search.utils.TestConstants.EMPTY_OBJECT;
-import static org.folio.search.utils.TestConstants.INDEX_NAME;
+import static org.folio.support.TestConstants.EMPTY_OBJECT;
+import static org.folio.support.TestConstants.INDEX_NAME;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;

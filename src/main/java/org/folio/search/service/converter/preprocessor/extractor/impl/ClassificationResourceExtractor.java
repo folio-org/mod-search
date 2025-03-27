@@ -19,9 +19,11 @@ import org.folio.search.service.FeatureConfigService;
 import org.folio.search.service.converter.preprocessor.extractor.ChildResourceExtractor;
 import org.folio.search.service.reindex.jdbc.ClassificationRepository;
 import org.folio.search.utils.ShaUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 @Log4j2
+@Lazy
 @Component
 public class ClassificationResourceExtractor extends ChildResourceExtractor {
 

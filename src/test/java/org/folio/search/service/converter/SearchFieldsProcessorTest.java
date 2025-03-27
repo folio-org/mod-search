@@ -9,10 +9,10 @@ import static org.folio.search.domain.dto.TenantConfiguredFeature.SEARCH_ALL_FIE
 import static org.folio.search.model.metadata.PlainFieldDescription.MULTILANG_FIELD_TYPE;
 import static org.folio.search.model.types.ResourceType.UNKNOWN;
 import static org.folio.search.utils.SearchUtils.getMultilangValue;
-import static org.folio.search.utils.TestConstants.TENANT_ID;
-import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
-import static org.folio.search.utils.TestUtils.mapOf;
-import static org.folio.search.utils.TestUtils.resourceEvent;
+import static org.folio.support.TestConstants.TENANT_ID;
+import static org.folio.support.utils.JsonTestUtils.OBJECT_MAPPER;
+import static org.folio.support.utils.TestUtils.mapOf;
+import static org.folio.support.utils.TestUtils.resourceEvent;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 

@@ -2,9 +2,9 @@ package org.folio.search.controller;
 
 import static org.folio.search.model.service.CqlResourceIdsRequest.HOLDINGS_ID_PATH;
 import static org.folio.search.model.service.CqlResourceIdsRequest.INSTANCE_ID_PATH;
-import static org.folio.search.utils.TestConstants.TENANT_ID;
-import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
-import static org.folio.search.utils.TestUtils.randomId;
+import static org.folio.support.TestConstants.TENANT_ID;
+import static org.folio.support.utils.JsonTestUtils.OBJECT_MAPPER;
+import static org.folio.support.utils.TestUtils.randomId;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;

@@ -8,7 +8,7 @@ import static org.folio.search.model.types.ResourceType.UNKNOWN;
 import static org.folio.search.model.types.SearchType.SORT;
 import static org.folio.search.model.types.SortFieldType.COLLECTION;
 import static org.folio.search.model.types.SortFieldType.SINGLE;
-import static org.folio.search.utils.TestUtils.keywordField;
+import static org.folio.support.utils.TestUtils.keywordField;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.opensearch.search.sort.SortBuilders.fieldSort;

@@ -1,7 +1,7 @@
 package org.folio.search.service.consortium;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.support.TestConstants.TENANT_ID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -12,6 +12,7 @@ import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.domain.dto.LanguageConfigs;
 import org.folio.search.service.LanguageConfigService;
 import org.folio.spring.testing.type.UnitTest;
+import org.folio.support.base.DecoratorBaseTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

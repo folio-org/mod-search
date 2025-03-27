@@ -11,7 +11,7 @@ import static org.folio.search.model.types.ReindexStatus.MERGE_IN_PROGRESS;
 import static org.folio.search.model.types.ReindexStatus.UPLOAD_COMPLETED;
 import static org.folio.search.model.types.ReindexStatus.UPLOAD_FAILED;
 import static org.folio.search.model.types.ReindexStatus.UPLOAD_IN_PROGRESS;
-import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.support.TestConstants.TENANT_ID;
 import static org.mockito.Mockito.when;
 
 import java.sql.Timestamp;

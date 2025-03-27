@@ -3,12 +3,12 @@ package org.folio.search.service.converter;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.utils.JsonUtils.jsonArray;
-import static org.folio.search.utils.JsonUtils.jsonObject;
-import static org.folio.search.utils.TestUtils.aggregationsFromJson;
-import static org.folio.search.utils.TestUtils.facet;
-import static org.folio.search.utils.TestUtils.facetResult;
-import static org.folio.search.utils.TestUtils.mapOf;
+import static org.folio.support.utils.JsonTestUtils.jsonArray;
+import static org.folio.support.utils.JsonTestUtils.jsonObject;
+import static org.folio.support.utils.TestUtils.aggregationsFromJson;
+import static org.folio.support.utils.TestUtils.facet;
+import static org.folio.support.utils.TestUtils.facetResult;
+import static org.folio.support.utils.TestUtils.mapOf;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import com.fasterxml.jackson.databind.JsonNode;

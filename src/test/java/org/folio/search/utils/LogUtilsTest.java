@@ -5,13 +5,14 @@ import static org.folio.search.utils.LogUtils.collectionToLogMsg;
 
 import java.util.Arrays;
 import java.util.List;
+import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 
+@UnitTest
 class LogUtilsTest {
 
   private static final List<String> BIG_LIST = Arrays.asList("One", "Two", "Three");
   private static final String MSG = "size of list ";
-
 
   @Test
   void collectionToLogMsg_withoutHidingItems() {
@@ -23,12 +24,6 @@ class LogUtilsTest {
   void testCollectionToLogMsg_withoutHidingEmptyList() {
     var actual = collectionToLogMsg(null, false);
     assertThat(actual).isEqualTo(MSG + 0);
-  }
-
-  @Test
-  void collectionToLogMsg_Items() {
-    var actual = collectionToLogMsg(BIG_LIST, false);
-    assertThat(actual).isEqualTo(BIG_LIST.toString());
   }
 
   @Test

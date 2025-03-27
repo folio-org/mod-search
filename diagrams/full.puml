@@ -1,0 +1,94 @@
+@startuml
+!theme plain
+title Reindex/Full Flow
+
+actor "Client" as client
+box "FOLIO Backend" #LightBlue
+participant "mod-search" as modSearch
+participant "mod-inventory-storage" as inventoryStorage
+participant "mod-consortia" as modConsortia
+participant "Kafka" as kafka
+database "Postgres" as postgres
+database "Elasticsearch" as elasticsearch
+end box
+
+autonumber
+
+' Initial API request reception
+client -> modSearch: POST /search/index/instance-records/reindex/full\n(IndexSettings)
+
+' Status initialization
+modSearch -> postgres: Initialize reindex_status for all entities\n(MERGE_IN_PROGRESS)
+
+' Consortium handling (conditional)
+alt Tenant is part of consortium
+  modSearch -> modConsortia: Get list of member tenants
+  modConsortia --> modSearch: Return member tenants
+  loop for each member tenant
+    modSearch -> modConsortia: Process for member tenant
+  end
+end
+
+' Get record count from storage
+modSearch -> inventoryStorage: Get total record count for entity types
+inventoryStorage --> modSearch: Return total counts
+
+' Create merge ranges
+modSearch -> postgres: Save merge ranges to merge_range table
+
+' Update total merge ranges count
+modSearch -> postgres: Update total_ranges in reindex_status
+
+' Publish events for merge ranges
+modSearch -> kafka: Publish ReindexRecordsEvent(s)
+
+' Asynchronous processing of merge phase
+kafka -> modSearch: Consume ReindexRecordsEvent
+
+' Fetch records from storage for merge
+modSearch -> inventoryStorage: GET records for merge range
+inventoryStorage --> modSearch: Return records
+
+' Store records in intermediate tables
+modSearch -> postgres: Save to intermediate tables\n(instance_reindex, holding_reindex, item_reindex)
+
+' Update merge range status
+modSearch -> postgres: Update merge_range status (SUCCESS/FAIL)
+
+' Update processed merge count
+modSearch -> postgres: Increment processed_ranges in reindex_status
+
+' Transition to upload phase (once merge is complete)
+modSearch -> modSearch: Check if merge phase complete
+
+' Recreate Elasticsearch indices
+modSearch -> elasticsearch: Delete and recreate indices
+
+' Create upload ranges from intermediate tables
+modSearch -> postgres: Save upload ranges to upload_range table
+
+' Update total upload ranges count
+modSearch -> postgres: Update total_ranges in reindex_status for upload phase
+
+' Publish events for upload ranges
+modSearch -> kafka: Publish ReindexRangeIndexEvent(s)
+
+' Asynchronous processing of upload phase
+kafka -> modSearch: Consume ReindexRangeIndexEvent
+
+' Fetch records from intermediate tables
+modSearch -> postgres: Fetch records from intermediate tables
+
+' Index to Elasticsearch
+modSearch -> elasticsearch: Bulk index documents
+
+' Update upload range status
+modSearch -> postgres: Update upload_range status (SUCCESS/FAIL)
+
+' Update processed upload count
+modSearch -> postgres: Increment processed_ranges in reindex_status
+
+' Final response to client
+client <-- modSearch: Return ReindexJob
+
+@enduml

@@ -1,0 +1,50 @@
+@startuml
+!theme plain
+title Reindex/Upload Phase
+
+actor "Client" as client
+box "FOLIO Backend" #LightBlue
+participant "mod-search" as modSearch
+participant "mod-inventory-storage" as inventoryStorage
+participant "Kafka" as kafka
+database "Postgres" as postgres
+database "Elasticsearch" as elasticsearch
+end box
+
+autonumber
+
+' Initial API request reception
+client -> modSearch: POST /search/index/instance-records/reindex/upload\n(ReindexUploadDto with entity types)
+
+' Status update in database
+modSearch -> postgres: Update reindex_status (UPLOAD_IN_PROGRESS)
+
+' Conditional index recreation
+modSearch -> elasticsearch: Delete and recreate index (if recreateIndex=true)
+
+' Create upload ranges
+modSearch -> postgres: Save upload ranges to upload_range table
+
+' Publish events for ranges to Kafka
+modSearch -> kafka: Publish ReindexRangeIndexEvent(s)
+
+' Asynchronous processing
+kafka -> modSearch: Consume ReindexRangeIndexEvent
+
+' Fetch records from storage
+modSearch -> inventoryStorage: GET records by ID range
+inventoryStorage --> modSearch: Return records
+
+' Index to Elasticsearch
+modSearch -> elasticsearch: Bulk index documents
+
+' Update range status
+modSearch -> postgres: Update upload_range status (SUCCESS/FAIL)
+
+' Update processed count
+modSearch -> postgres: Increment processed_ranges in reindex_status
+
+' Final response to client
+client <-- modSearch: Return ReindexJob
+
+@enduml

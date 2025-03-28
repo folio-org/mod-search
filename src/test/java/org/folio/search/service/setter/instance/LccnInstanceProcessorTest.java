@@ -3,9 +3,9 @@ package org.folio.search.service.setter.instance;
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.client.InventoryReferenceDataClient.ReferenceDataType.IDENTIFIER_TYPES;
-import static org.folio.search.utils.TestConstants.LCCN_IDENTIFIER_TYPE_ID;
-import static org.folio.search.utils.TestUtils.identifier;
-import static org.folio.search.utils.TestUtils.instanceWithIdentifiers;
+import static org.folio.support.TestConstants.LCCN_IDENTIFIER_TYPE_ID;
+import static org.folio.support.utils.TestUtils.identifier;
+import static org.folio.support.utils.TestUtils.instanceWithIdentifiers;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.when;
 

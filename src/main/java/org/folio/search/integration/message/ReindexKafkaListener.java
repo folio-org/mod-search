@@ -27,7 +27,8 @@ public class ReindexKafkaListener {
     topicPattern = "#{folioKafkaProperties.listener['reindex-range-index'].topicPattern}",
     groupId = "#{folioKafkaProperties.listener['reindex-range-index'].groupId}",
     concurrency = "#{folioKafkaProperties.listener['reindex-range-index'].concurrency}")
-  public void handleInstanceEvents(ReindexRangeIndexEvent event) {
+  public void handleReindexRangeEvents(ReindexRangeIndexEvent event) {
+    log.debug("handleReindexRangeEvents::received reindex event [id={}]", event.getId());
     systemUserScopedExecutionService.executeSystemUserScoped(event.getTenant(),
       () -> executionService.execute(() -> reindexService.process(event)));
   }
@@ -38,7 +39,8 @@ public class ReindexKafkaListener {
     topicPattern = "#{folioKafkaProperties.listener['reindex-records'].topicPattern}",
     groupId = "#{folioKafkaProperties.listener['reindex-records'].groupId}",
     concurrency = "#{folioKafkaProperties.listener['reindex-records'].concurrency}")
-  public void handleRecordsEvent(ConsumerRecord<String, ReindexRecordsEvent> consumerRecord) {
+  public void handleReindexRecordsEvent(ConsumerRecord<String, ReindexRecordsEvent> consumerRecord) {
+    log.debug("handleReindexRecordsEvent::received reindex event [id={}]", consumerRecord.key());
     var event = consumerRecord.value();
     event.setRangeId(consumerRecord.key());
     systemUserScopedExecutionService.executeSystemUserScoped(event.getTenant(),

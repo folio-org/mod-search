@@ -1,6 +1,6 @@
 package org.folio.search.service;
 
-import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.support.TestConstants.TENANT_ID;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;

@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
-import static org.folio.search.utils.TestConstants.TENANT_ID;
-import static org.folio.search.utils.TestUtils.randomId;
+import static org.folio.support.TestConstants.TENANT_ID;
+import static org.folio.support.utils.TestUtils.randomId;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
@@ -26,8 +26,8 @@ import org.folio.search.model.dto.locationunit.InstitutionDto;
 import org.folio.search.model.dto.locationunit.LibraryDto;
 import org.folio.search.model.service.ResultList;
 import org.folio.search.model.types.ResourceType;
-import org.folio.search.utils.TestUtils;
 import org.folio.spring.testing.type.UnitTest;
+import org.folio.support.utils.JsonTestUtils;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -127,7 +127,7 @@ class LocationServiceTest {
   private List<Map<String, Object>> locationsData(ResourceType resourceName, int count) {
     return Stream.iterate(0, i -> i < count, i -> ++i)
       .map(i -> locationsDataDto(resourceName, i))
-      .map(TestUtils::toMap)
+      .map(JsonTestUtils::toMap)
       .toList();
   }
 

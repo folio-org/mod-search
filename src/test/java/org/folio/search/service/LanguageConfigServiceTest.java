@@ -1,7 +1,7 @@
 package org.folio.search.service;
 
-import static org.folio.search.utils.TestConstants.TENANT_ID;
-import static org.folio.search.utils.TestUtils.languageConfig;
+import static org.folio.support.TestConstants.TENANT_ID;
+import static org.folio.support.utils.TestUtils.languageConfig;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;

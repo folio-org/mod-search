@@ -2,7 +2,7 @@ package org.folio.search.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.model.types.ResourceType.UNKNOWN;
-import static org.folio.search.utils.TestUtils.defaultFacetServiceRequest;
+import static org.folio.support.utils.TestUtils.defaultFacetServiceRequest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;

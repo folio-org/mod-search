@@ -5,7 +5,7 @@ import static org.folio.search.exception.RequestValidationException.REQUEST_NOT_
 import static org.folio.search.model.types.ReindexEntityType.HOLDINGS;
 import static org.folio.search.model.types.ReindexEntityType.INSTANCE;
 import static org.folio.search.model.types.ReindexEntityType.ITEM;
-import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.support.TestConstants.TENANT_ID;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;

@@ -70,6 +70,8 @@ public class SearchConfigurationProperties {
      */
     private IndexingDataFormat dataFormat;
 
+    private Boolean instanceChildrenIndexEnabled;
+
     /**
      * Scheduler delay for indexing subjects/contributors/classifications.
      * */

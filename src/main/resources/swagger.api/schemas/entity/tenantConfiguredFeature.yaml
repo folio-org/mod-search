@@ -2,5 +2,7 @@ type: string
 description: The feature name.
 enum:
   - search.all.fields
+  - browse.contributors
+  - browse.subjects
   - browse.classifications
   - browse.call-numbers

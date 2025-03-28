@@ -25,12 +25,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
-public class ConsortiumLocationServiceTest {
+class ConsortiumLocationServiceTest {
 
-  public static final String ID = UUID.randomUUID().toString();
-  public static final String LOCATION_NAME = "location name";
-  public static final String CONSORTIUM_TENANT = "consortium";
-  public static final String NAME = "name";
+  private static final String ID = UUID.randomUUID().toString();
+  private static final String LOCATION_NAME = "location name";
+  private static final String CONSORTIUM_TENANT = "consortium";
+  private static final String NAME = "name";
+
   @Mock
   private ConsortiumLocationRepository repository;
   @Mock

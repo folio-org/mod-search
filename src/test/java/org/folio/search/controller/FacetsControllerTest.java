@@ -1,11 +1,11 @@
 package org.folio.search.controller;
 
-import static org.folio.search.utils.TestConstants.TENANT_ID;
-import static org.folio.search.utils.TestUtils.defaultFacetServiceRequest;
-import static org.folio.search.utils.TestUtils.facet;
-import static org.folio.search.utils.TestUtils.facetItem;
-import static org.folio.search.utils.TestUtils.facetResult;
-import static org.folio.search.utils.TestUtils.mapOf;
+import static org.folio.support.TestConstants.TENANT_ID;
+import static org.folio.support.utils.TestUtils.defaultFacetServiceRequest;
+import static org.folio.support.utils.TestUtils.facet;
+import static org.folio.support.utils.TestUtils.facetItem;
+import static org.folio.support.utils.TestUtils.facetResult;
+import static org.folio.support.utils.TestUtils.mapOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.lenient;

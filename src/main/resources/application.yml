@@ -75,10 +75,13 @@ folio:
     search-consortium-records-page-size: ${SEARCH_CONSORTIUM_RECORDS_PAGE_SIZE:5000}
     search-features:
       search-all-fields: ${SEARCH_BY_ALL_FIELDS_ENABLED:false}
+      browse-contributors: ${BROWSE_CONTRIBUTORS_ENABLED:true}
+      browse-subjects: ${BROWSE_SUBJECTS_ENABLED:true}
       browse-classifications: ${BROWSE_CLASSIFICATIONS_ENABLED:true}
       browse-call-numbers: ${BROWSE_CALL_NUMBERS_ENABLED:true}
     indexing:
       data-format: ${INDEXING_DATA_FORMAT:smile}
+      instance-children-index-enabled: ${INSTANCE_CHILDREN_INDEX_ENABLED:true}
       instance-children-index-delay-ms: ${INSTANCE_CHILDREN_INDEX_DELAY_MS:60000}
   reindex:
     location-batch-size: ${REINDEX_LOCATION_BATCH_SIZE:1000}
@@ -92,7 +95,6 @@ folio:
   query:
     properties:
       request-timeout: ${SEARCH_QUERY_TIMEOUT:25s}
-      call-number-browse-optimization-enabled: ${CN_BROWSE_OPTIMIZATION_ENABLED:true}
   system-user:
     enabled: ${SYSTEM_USER_ENABLED:true}
     username: ${SYSTEM_USER_USERNAME:mod-search}

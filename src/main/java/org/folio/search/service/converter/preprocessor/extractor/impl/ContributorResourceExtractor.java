@@ -6,24 +6,32 @@ import static org.folio.search.utils.SearchUtils.CONTRIBUTORS_FIELD;
 import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_TYPE_FIELD;
 import static org.folio.search.utils.SearchUtils.prepareForExpectedFormat;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.domain.dto.TenantConfiguredFeature;
 import org.folio.search.model.types.ResourceType;
+import org.folio.search.service.FeatureConfigService;
 import org.folio.search.service.converter.preprocessor.extractor.ChildResourceExtractor;
 import org.folio.search.service.reindex.jdbc.ContributorRepository;
 import org.folio.search.utils.ShaUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 @Log4j2
+@Lazy
 @Component
 public class ContributorResourceExtractor extends ChildResourceExtractor {
 
-  public ContributorResourceExtractor(ContributorRepository repository) {
+  private final FeatureConfigService featureConfigService;
+
+  public ContributorResourceExtractor(ContributorRepository repository, FeatureConfigService featureConfigService) {
     super(repository);
+    this.featureConfigService = featureConfigService;
   }
 
   @Override
@@ -45,12 +53,12 @@ public class ContributorResourceExtractor extends ChildResourceExtractor {
 
   @Override
   protected Map<String, Object> constructEntity(Map<String, Object> entityProperties) {
-    if (entityProperties == null) {
-      return null;
+    if (entityProperties == null || !featureConfigService.isEnabled(TenantConfiguredFeature.BROWSE_CONTRIBUTORS)) {
+      return Collections.emptyMap();
     }
     var contributorName = prepareForExpectedFormat(entityProperties.get("name"), 255);
     if (contributorName.isBlank()) {
-      return null;
+      return Collections.emptyMap();
     }
 
     var nameTypeId = entityProperties.get("contributorNameTypeId");

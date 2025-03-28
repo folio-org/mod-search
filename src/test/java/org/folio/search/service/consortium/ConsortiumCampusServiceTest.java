@@ -26,7 +26,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
-public class ConsortiumCampusServiceTest {
+class ConsortiumCampusServiceTest {
 
   public static final String ID = UUID.randomUUID().toString();
   public static final String CAMPUS_NAME = "campus name";

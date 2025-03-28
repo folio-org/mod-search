@@ -3,7 +3,7 @@ package org.folio.search.service.setter.authority;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.model.metadata.PlainFieldDescription.STANDARD_FIELD_TYPE;
 import static org.folio.search.model.types.ResourceType.AUTHORITY;
-import static org.folio.search.utils.TestUtils.mapOf;
+import static org.folio.support.utils.TestUtils.mapOf;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;

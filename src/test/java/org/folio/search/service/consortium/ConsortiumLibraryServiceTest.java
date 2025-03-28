@@ -26,15 +26,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
-public class ConsortiumLibraryServiceTest {
+class ConsortiumLibraryServiceTest {
 
-  public static final String ID = UUID.randomUUID().toString();
-  public static final String LIBRARY_NAME = "library name";
-  public static final String CONSORTIUM_TENANT = "consortium";
+  private static final String ID = UUID.randomUUID().toString();
+  private static final String LIBRARY_NAME = "library name";
+  private static final String CONSORTIUM_TENANT = "consortium";
 
-  public static final String SORT_BY_ID = "id";
-  public static final String SORT_BT_NAME = "name";
-  public static final String SORT_BY_TENANT_ID = "tenantId";
+  private static final String SORT_BY_ID = "id";
+  private static final String SORT_BT_NAME = "name";
+  private static final String SORT_BY_TENANT_ID = "tenantId";
 
   @Mock
   private ConsortiumLibraryRepository repository;

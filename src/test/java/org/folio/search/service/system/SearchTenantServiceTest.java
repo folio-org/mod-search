@@ -2,9 +2,9 @@ package org.folio.search.service.system;
 
 import static org.folio.search.model.types.ResourceType.INSTANCE_SUBJECT;
 import static org.folio.search.model.types.ResourceType.UNKNOWN;
-import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
-import static org.folio.search.utils.TestConstants.TENANT_ID;
-import static org.folio.search.utils.TestUtils.resourceDescription;
+import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
+import static org.folio.support.TestConstants.TENANT_ID;
+import static org.folio.support.utils.TestUtils.resourceDescription;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;

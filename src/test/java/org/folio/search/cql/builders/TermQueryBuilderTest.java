@@ -3,7 +3,7 @@ package org.folio.search.cql.builders;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.folio.search.utils.TestConstants.EMPTY_TERM_MODIFIERS;
+import static org.folio.support.TestConstants.EMPTY_TERM_MODIFIERS;
 
 import java.util.List;
 import java.util.Set;

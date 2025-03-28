@@ -7,8 +7,8 @@ import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.client.InventoryReferenceDataClient.ReferenceDataType.ALTERNATIVE_TITLE_TYPES;
-import static org.folio.search.utils.TestConstants.RESOURCE_ID;
-import static org.folio.search.utils.TestUtils.randomId;
+import static org.folio.support.TestConstants.RESOURCE_ID;
+import static org.folio.support.utils.TestUtils.randomId;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.when;
 

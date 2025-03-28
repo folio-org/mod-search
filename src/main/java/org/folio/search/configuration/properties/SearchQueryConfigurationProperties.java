@@ -19,13 +19,4 @@ public class SearchQueryConfigurationProperties {
    */
   private Duration requestTimeout = Duration.ofSeconds(25);
 
-  /**
-   * Provides range query limit multiplier as double.
-   */
-  private double rangeQueryLimitMultiplier = 3d;
-
-  /**
-   * Defines if call-number browse optimization is enabled or not.
-   */
-  private boolean callNumberBrowseOptimizationEnabled = true;
 }

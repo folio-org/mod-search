@@ -6,5 +6,7 @@ schema:
   type: string
   enum:
     - search.all.fields
+    - browse.contributors
+    - browse.subjects
     - browse.classifications
     - browse.call-numbers

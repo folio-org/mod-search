@@ -6,7 +6,7 @@ import static org.folio.search.model.types.ReindexEntityType.HOLDINGS;
 import static org.folio.search.model.types.ReindexEntityType.INSTANCE;
 import static org.folio.search.model.types.ReindexEntityType.ITEM;
 import static org.folio.search.service.reindex.ReindexConstants.RESOURCE_NAME_MAP;
-import static org.folio.search.utils.TestConstants.TENANT_ID;
+import static org.folio.support.TestConstants.TENANT_ID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -63,8 +63,8 @@ class ReindexMergeRangeIndexServiceTest {
   void setUp() {
     var repositories = List.of(instanceRepository, itemRepository, holdingRepository);
     repositories.forEach(repository -> when(repository.entityType()).thenCallRealMethod());
-    service = new ReindexMergeRangeIndexService(
-      repositories, inventoryService, config, instanceChildrenResourceService);
+    service = new ReindexMergeRangeIndexService(repositories, inventoryService, config);
+    service.setInstanceChildrenResourceService(instanceChildrenResourceService);
     repositoryMap = repositories.stream()
       .collect(Collectors.toMap(ReindexJdbcRepository::entityType, Function.identity()));
   }

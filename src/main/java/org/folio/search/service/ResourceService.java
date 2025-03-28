@@ -54,7 +54,6 @@ public class ResourceService {
   private final MultiTenantSearchDocumentConverter searchDocumentConverter;
   private final Map<String, ResourceRepository> resourceRepositoryBeans;
   private final ConsortiumTenantExecutor consortiumTenantExecutor;
-  private final InstanceChildrenResourceService instanceChildrenResourceService;
 
   /**
    * Saves list of resourceEvents to elasticsearch.

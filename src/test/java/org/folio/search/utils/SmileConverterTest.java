@@ -2,13 +2,13 @@ package org.folio.search.utils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.folio.search.utils.TestUtils.SMILE_MAPPER;
+import static org.folio.support.utils.TestUtils.SMILE_MAPPER;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.SerializationException;
-import org.folio.search.utils.TestUtils.NonSerializableByJacksonClass;
-import org.folio.search.utils.TestUtils.TestClass;
 import org.folio.spring.testing.type.UnitTest;
+import org.folio.support.utils.TestUtils.NonSerializableByJacksonClass;
+import org.folio.support.utils.TestUtils.TestClass;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Spy;

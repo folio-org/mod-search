@@ -4,11 +4,11 @@ import static java.util.Collections.singletonList;
 import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.model.types.ResourceType.AUTHORITY;
-import static org.folio.search.utils.AuthoritySearchUtils.authorityField;
-import static org.folio.search.utils.TestConstants.RESOURCE_ID;
-import static org.folio.search.utils.TestUtils.keywordField;
-import static org.folio.search.utils.TestUtils.mapOf;
-import static org.folio.search.utils.TestUtils.toMap;
+import static org.folio.support.TestConstants.RESOURCE_ID;
+import static org.folio.support.utils.AuthoritySearchTestUtils.authorityField;
+import static org.folio.support.utils.JsonTestUtils.toMap;
+import static org.folio.support.utils.TestUtils.keywordField;
+import static org.folio.support.utils.TestUtils.mapOf;
 import static org.mockito.Mockito.when;
 
 import java.util.List;

@@ -2,8 +2,8 @@ package org.folio.search.service.es;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.folio.search.utils.JsonUtils.jsonObject;
-import static org.folio.search.utils.TestConstants.EMPTY_OBJECT;
+import static org.folio.support.TestConstants.EMPTY_OBJECT;
+import static org.folio.support.utils.JsonTestUtils.jsonObject;
 import static org.mockito.Mockito.when;
 
 import org.apache.commons.lang3.SerializationException;

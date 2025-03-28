@@ -2,9 +2,9 @@ package org.folio.search.service.metadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.folio.search.utils.TestUtils.array;
-import static org.folio.search.utils.TestUtils.mapOf;
-import static org.folio.search.utils.TestUtils.resourceDescription;
+import static org.folio.support.utils.TestUtils.array;
+import static org.folio.support.utils.TestUtils.mapOf;
+import static org.folio.support.utils.TestUtils.resourceDescription;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;

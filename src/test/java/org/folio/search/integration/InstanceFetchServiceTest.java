@@ -4,12 +4,10 @@ import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.domain.dto.ResourceEventType.UPDATE;
-import static org.folio.search.utils.JsonConverter.MAP_TYPE_REFERENCE;
-import static org.folio.search.utils.TestConstants.TENANT_ID;
-import static org.folio.search.utils.TestUtils.OBJECT_MAPPER;
-import static org.folio.search.utils.TestUtils.mapOf;
-import static org.folio.search.utils.TestUtils.randomId;
-import static org.folio.search.utils.TestUtils.resourceEvent;
+import static org.folio.support.TestConstants.TENANT_ID;
+import static org.folio.support.utils.TestUtils.mapOf;
+import static org.folio.support.utils.TestUtils.randomId;
+import static org.folio.support.utils.TestUtils.resourceEvent;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
@@ -27,6 +25,7 @@ import org.folio.search.service.reindex.InstanceFetchService;
 import org.folio.search.service.reindex.jdbc.UploadInstanceRepository;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.testing.type.UnitTest;
+import org.folio.support.utils.JsonTestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -158,7 +157,7 @@ class InstanceFetchServiceTest {
   }
 
   private static Map<String, Object> instanceMap(Instance instance) {
-    return OBJECT_MAPPER.convertValue(instance, MAP_TYPE_REFERENCE);
+    return JsonTestUtils.toMap(instance);
   }
 
 }

@@ -30,6 +30,7 @@ import org.folio.search.service.reindex.jdbc.ReindexJdbcRepository;
 import org.folio.search.utils.SearchConverterUtils;
 import org.folio.spring.exception.SystemUserAuthorizationException;
 import org.folio.spring.service.SystemUserScopedExecutionService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.kafka.listener.BatchInterceptor;
@@ -43,15 +44,19 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
   private final Map<ReindexEntityType, MergeRangeRepository> repositories;
   private final ConsortiumTenantExecutor executionService;
   private final SystemUserScopedExecutionService systemUserScopedExecutionService;
-  private final InstanceChildrenResourceService instanceChildrenResourceService;
+  private InstanceChildrenResourceService instanceChildrenResourceService;
 
   public PopulateInstanceBatchInterceptor(List<MergeRangeRepository> repositories,
                                           ConsortiumTenantExecutor executionService,
-                                          SystemUserScopedExecutionService systemUserScopedExecutionService,
-                                          InstanceChildrenResourceService instanceChildrenResourceService) {
+                                          SystemUserScopedExecutionService systemUserScopedExecutionService) {
     this.repositories = repositories.stream().collect(Collectors.toMap(ReindexJdbcRepository::entityType, identity()));
     this.executionService = executionService;
     this.systemUserScopedExecutionService = systemUserScopedExecutionService;
+    this.instanceChildrenResourceService = null;
+  }
+
+  @Autowired(required = false)
+  public void setInstanceChildrenResourceService(InstanceChildrenResourceService instanceChildrenResourceService) {
     this.instanceChildrenResourceService = instanceChildrenResourceService;
   }
 
@@ -104,8 +109,10 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
         saveEntities(tenant, recordByOperation.getOrDefault(true, emptyList()), repository);
         deleteEntities(tenant, resourceType, recordByOperation.getOrDefault(false, emptyList()), repository);
 
-        instanceChildrenResourceService.persistChildren(tenant, ResourceType.byName(resourceType),
-          recordCollection.getValue());
+        if (instanceChildrenResourceService != null) {
+          instanceChildrenResourceService.persistChildren(tenant, ResourceType.byName(resourceType),
+            recordCollection.getValue());
+        }
       }
     }
   }

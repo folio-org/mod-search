@@ -3,9 +3,9 @@ package org.folio.search.cql.builders;
 import static java.util.Collections.emptyList;
 import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.utils.TestConstants.EMPTY_TERM_MODIFIERS;
-import static org.folio.search.utils.TestUtils.keywordField;
-import static org.folio.search.utils.TestUtils.standardField;
+import static org.folio.support.TestConstants.EMPTY_TERM_MODIFIERS;
+import static org.folio.support.utils.TestUtils.keywordField;
+import static org.folio.support.utils.TestUtils.standardField;
 import static org.mockito.Mockito.when;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
 

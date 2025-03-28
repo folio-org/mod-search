@@ -7,10 +7,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.configuration.SearchCacheNames.TENANT_FEATURES_CACHE;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.SEARCH_ALL_FIELDS;
-import static org.folio.search.utils.TestConstants.TENANT_ID;
-import static org.folio.search.utils.TestUtils.cleanUpCaches;
-import static org.folio.search.utils.TestUtils.mapOf;
 import static org.folio.spring.integration.XOkapiHeaders.TENANT;
+import static org.folio.support.TestConstants.TENANT_ID;
+import static org.folio.support.utils.TestUtils.cleanUpCaches;
+import static org.folio.support.utils.TestUtils.mapOf;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 

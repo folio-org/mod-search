@@ -241,6 +241,7 @@ public class IndexService {
 
       updateNumberOfReplicas(indexSettingsJson, indexSettings.getNumberOfReplicas());
       updateRefreshInterval(indexSettingsJson, indexSettings.getRefreshInterval());
+      updateTranslogFlushThreshold(indexSettingsJson, indexSettings.getTranslogFlushThreshold());
     }
 
     return settings;
@@ -254,6 +255,7 @@ public class IndexService {
 
       updateNumberOfReplicas(indexSettingsJson, indexSettings.getNumberOfReplicas());
       updateRefreshInterval(indexSettingsJson, indexSettings.getRefreshInterval());
+      updateTranslogFlushThreshold(indexSettingsJson, indexSettings.getTranslogFlushThreshold());
     }
 
     return settings;
@@ -268,6 +270,11 @@ public class IndexService {
     if (refreshInt != null && refreshInt != 0) {
       settings.put("refresh_interval", refreshInt == -1 ? "-1" : refreshInt + "s");
     }
+  }
+
+  private void updateTranslogFlushThreshold(ObjectNode settings, String thresholdSize) {
+    Optional.ofNullable(thresholdSize)
+      .ifPresent(threshold -> settings.put("translog.flush_threshold_size", threshold));
   }
 
   private static ResourceType getReindexRequestResourceType(ReindexRequest req) {

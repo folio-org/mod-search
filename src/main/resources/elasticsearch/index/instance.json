@@ -3,7 +3,8 @@
     "number_of_shards": 4,
     "number_of_replicas": 2,
     "refresh_interval": "1s",
-    "codec": "best_compression",
+    "codec": "zstd_no_dict",
+    "codec.compression_level": 3,
     "mapping.total_fields.limit": 1000
   },
   "analysis": {

@@ -5,6 +5,8 @@
     "refresh_interval": "1s",
     "codec": "zstd_no_dict",
     "codec.compression_level": 3,
+    "translog.durability": "async",
+    "translog.sync_interval": "30s",
     "mapping.total_fields.limit": 1000
   },
   "analysis": {

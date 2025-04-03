@@ -7,6 +7,8 @@
     "codec.compression_level": 3,
     "translog.durability": "async",
     "translog.sync_interval": "30s",
+    "merge.scheduler.max_thread_count": "2",
+    "merge.policy.segments_per_tier": "20",
     "mapping.total_fields.limit": 1000
   },
   "analysis": {

@@ -1,6 +1,7 @@
 package org.folio.search.service.converter;
 
 import static java.util.Collections.emptyMap;
+import static java.util.stream.Collectors.groupingBy;
 import static org.folio.search.utils.LogUtils.collectionToLogMsg;
 import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
 
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;

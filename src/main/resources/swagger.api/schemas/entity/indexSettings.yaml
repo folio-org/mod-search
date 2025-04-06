@@ -16,6 +16,3 @@ properties:
     description: How often to make new changes to the index visible to search (seconds). '-1' disables refresh.
     minimum: -1
     maximum: 3600
-  translogFlushThreshold:
-    type: string
-    description: Amount of data that must be written to the translog before it is flushed to disk. e.g. 1024MB

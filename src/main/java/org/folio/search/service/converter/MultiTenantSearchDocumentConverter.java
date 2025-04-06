@@ -1,16 +1,17 @@
 package org.folio.search.service.converter;
 
 import static java.util.Collections.emptyMap;
-import static java.util.stream.Collectors.groupingBy;
 import static org.folio.search.utils.LogUtils.collectionToLogMsg;
 import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -50,27 +51,80 @@ public class MultiTenantSearchDocumentConverter {
       return emptyMap();
     }
 
-    var eventsByTenant = resourceEvents.stream().collect(groupingBy(ResourceEvent::getTenant));
-    return eventsByTenant.entrySet().stream()
-      .map(this::convertForTenant)
-      .flatMap(Collection::stream)
-      .collect(groupingBy(SearchDocumentBody::getResource));
+    Map<String, Map<String, List<ResourceEvent>>> resourcesByTenantAndType = new HashMap<>();
+    // Pre-allocate with expected capacity
+    Map<String, List<SearchDocumentBody>> result = new HashMap<>(resourceEvents.size());
+
+    // Process events in a single pass, grouping by tenant
+    for (ResourceEvent event : resourceEvents) {
+      resourcesByTenantAndType
+        .computeIfAbsent(event.getTenant(), k -> new HashMap<>())
+        .computeIfAbsent(event.getResourceName(), k -> new ArrayList<>())
+        .add(event);
+    }
+
+    // Process each tenant group
+    for (Entry<String, Map<String, List<ResourceEvent>>> tenantEntry : resourcesByTenantAndType.entrySet()) {
+      String tenantId = tenantEntry.getKey();
+      Map<String, List<ResourceEvent>> eventsByType = tenantEntry.getValue();
+
+      // Convert the events for this tenant (either directly or via executor)
+      List<SearchDocumentBody> convertedDocs;
+      if (tenantId.equals(folioExecutionContext.getTenantId())) {
+        convertedDocs = convertEventsForTenant(eventsByType);
+      } else {
+        convertedDocs = consortiumTenantExecutor.execute(tenantId,
+          () -> convertEventsForTenant(eventsByType));
+      }
+
+      // Group by resource and merge into result
+      for (SearchDocumentBody doc : convertedDocs) {
+        result.computeIfAbsent(doc.getResource(), k -> new ArrayList<>()).add(doc);
+      }
+    }
+
+    return result;
   }
 
-  private List<SearchDocumentBody> convertForTenant(Entry<String, List<ResourceEvent>> entry) {
-    var convert = (Supplier<List<SearchDocumentBody>>) () ->
-      entry.getValue().stream()
-        .flatMap(this::populateResourceEvents)
-        .map(event -> event.getId() != null ? event : event.id(getResourceEventId(event)))
-        .map(searchDocumentConverter::convert)
-        .flatMap(Optional::stream)
-        .toList();
+  // Helper method to convert events for a specific tenant
+  private List<SearchDocumentBody> convertEventsForTenant(Map<String, List<ResourceEvent>> eventsByType) {
+    List<SearchDocumentBody> results = new ArrayList<>();
 
-    if (entry.getKey().equals(folioExecutionContext.getTenantId())) {
-      return convert.get();
-    } else {
-      return consortiumTenantExecutor.execute(entry.getKey(), convert);
+    for (Entry<String, List<ResourceEvent>> entry : eventsByType.entrySet()) {
+      String resourceName = entry.getKey();
+      List<ResourceEvent> events = entry.getValue();
+      ResourceType resourceType = ResourceType.byName(resourceName);
+
+      // Get the event pre-processor once for all events of this type
+      Optional<EventPreProcessor> preProcessor = resourceDescriptionService.find(resourceType)
+        .map(ResourceDescription::getIndexingConfiguration)
+        .map(ResourceIndexingConfiguration::getEventPreProcessor)
+        .map(eventPreProcessorBeans::get);
+
+      for (ResourceEvent event : events) {
+        // Pre-process the event if needed
+        Collection<ResourceEvent> processedEvents;
+        if (preProcessor.isPresent()) {
+          processedEvents = preProcessor.get().preProcess(event);
+        } else {
+          processedEvents = Collections.singletonList(event);
+        }
+
+        // Convert each processed event
+        for (ResourceEvent processedEvent : processedEvents) {
+          // Ensure ID is present
+          if (processedEvent.getId() == null) {
+            processedEvent.id(getResourceEventId(processedEvent));
+          }
+
+          // Convert to document body
+          searchDocumentConverter.convert(processedEvent)
+            .ifPresent(results::add);
+        }
+      }
     }
+
+    return results;
   }
 
   private Stream<ResourceEvent> populateResourceEvents(ResourceEvent event) {

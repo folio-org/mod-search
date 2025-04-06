@@ -112,9 +112,6 @@ public class OpensearchRestClientConfiguration {
     @Override
     public void customize(HttpAsyncClientBuilder builder) {
       builder.setDefaultCredentialsProvider(new PropertiesCredentialsProvider(this.properties));
-      // Set connection pool sizes
-      builder.setMaxConnTotal(this.properties.getMaxConnTotal());
-      builder.setMaxConnPerRoute(this.properties.getMaxConnPerRoute());
     }
 
     @Override

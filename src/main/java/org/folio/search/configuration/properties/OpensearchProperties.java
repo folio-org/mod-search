@@ -43,8 +43,4 @@ public class OpensearchProperties {
 
   private boolean compressionEnabled = true;
 
-  private int maxConnTotal;
-
-  private int maxConnPerRoute;
-
 }

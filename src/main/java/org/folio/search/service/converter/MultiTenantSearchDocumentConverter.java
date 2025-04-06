@@ -32,11 +32,17 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class MultiTenantSearchDocumentConverter {
 
+  private static final int RANGE_SIZE;
+
   private final SearchDocumentConverter searchDocumentConverter;
   private final ResourceDescriptionService resourceDescriptionService;
   private final Map<String, EventPreProcessor> eventPreProcessorBeans;
   private final ConsortiumTenantExecutor consortiumTenantExecutor;
   private final FolioExecutionContext folioExecutionContext;
+
+  static {
+    RANGE_SIZE = Integer.parseInt(System.getenv("REINDEX_UPLOAD_RANGE_SIZE"));
+  }
 
   /**
    * Converts {@link ResourceEvent} objects to a list with {@link SearchDocumentBody} objects.
@@ -52,8 +58,9 @@ public class MultiTenantSearchDocumentConverter {
     }
 
     Map<String, Map<String, List<ResourceEvent>>> resourcesByTenantAndType = new HashMap<>();
+
     // Pre-allocate with expected capacity
-    Map<String, List<SearchDocumentBody>> result = new HashMap<>(resourceEvents.size());
+    Map<String, List<SearchDocumentBody>> result = new HashMap<>(RANGE_SIZE);
 
     // Process events in a single pass, grouping by tenant
     for (ResourceEvent event : resourceEvents) {

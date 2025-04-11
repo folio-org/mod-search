@@ -68,6 +68,7 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
 
   private static final String LOCATION_FACET = "instances.locationId";
   private static final String TENANT_FACET = "instances.tenantId";
+  private static final String SHARED_FACET = "instances.shared";
   private static final List<Instance> INSTANCES = instances();
   private static final String MEMBER2_LOCATION = UUID.randomUUID().toString();
 
@@ -239,7 +240,10 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
         expectedLocationFacet(locations, 42, 34, 24, true)),
       arguments(MEMBER_TENANT_ID, "instances.shared==false", array(TENANT_FACET), mapOf(TENANT_FACET,
         facet(facetItem(CENTRAL_TENANT_ID, 60), facetItem(MEMBER_TENANT_ID, 42),
-          facetItem(MEMBER2_TENANT_ID, 3))))
+          facetItem(MEMBER2_TENANT_ID, 3)))),
+      arguments(MEMBER_TENANT_ID, "instances.locationId==" + MEMBER2_LOCATION, array(SHARED_FACET, LOCATION_FACET),
+        mapOf(SHARED_FACET, facet(facetItem("false", 1))),
+        mapOf(LOCATION_FACET, expectedLocationFacet(locations, 42, 34, 24, true)))
     );
   }
 

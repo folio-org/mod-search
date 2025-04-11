@@ -1,7 +1,3 @@
-## v6.0.0 YYYY-mm-DD
-### Features
-* Linked Data Instance and Work: search by classification type/number/additionalNumber ([MSEARCH-989](https://folio-org.atlassian.net/browse/MSEARCH-989))
-
 ## v5.1.0 YYYY-mm-DD
 ### Breaking changes
 * Description ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))
@@ -11,13 +7,14 @@
 * Requires `API_NAME vX.Y`
 
 ### Features
-* Description ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))
+* Linked Data Instance and Work: search by classification type/number/additionalNumber ([MSEARCH-989](https://folio-org.atlassian.net/browse/MSEARCH-989))
 
 ### Bug fixes
 * Browse Config: fix exception while trying to validate empty type ids ([MSEARCH-998](https://folio-org.atlassian.net/browse/MSEARCH-998))
 * ECS: Modify filters for sub-resources during browse ([MSEARCH-990](https://folio-org.atlassian.net/browse/MSEARCH-990))
 * Facets: Modify facet queries to remove filters for nested queries ([MSEARCH-995](https://folio-org.atlassian.net/browse/MSEARCH-995))
 * Move index recreation before merge range publishing on full reindex ([MSEARCH-1006](https://folio-org.atlassian.net/browse/MSEARCH-1006))
+* Add facet filtering for nested queries ([MSEARCH-1012](https://folio-org.atlassian.net/browse/MSEARCH-1012))
 
 ### Tech Dept
 * Stabilize test execution ([MSEARCH-991](https://folio-org.atlassian.net/browse/MSEARCH-991))

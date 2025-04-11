@@ -29,6 +29,7 @@ import org.folio.search.model.types.ResourceType;
 import org.folio.search.model.types.SearchType;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.opensearch.index.query.BoolQueryBuilder;
+import org.opensearch.index.query.NestedQueryBuilder;
 import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.index.query.TermQueryBuilder;
 import org.opensearch.search.aggregations.AggregationBuilder;
@@ -116,7 +117,15 @@ public class FacetQueryBuilder {
     var facetFilterQuery = boolQuery();
     var facetTerms = new ArrayList<String>();
 
-    for (var filterQuery : ((BoolQueryBuilder) query).filter()) {
+    List<QueryBuilder> filters = new ArrayList<>(((BoolQueryBuilder) query).filter());
+    var musts = ((BoolQueryBuilder) query).must();
+    for (var must : musts) {
+      if (must instanceof NestedQueryBuilder nestedQueryBuilder
+          && nestedQueryBuilder.query() instanceof BoolQueryBuilder boolQueryBuilder) {
+        filters.addAll(boolQueryBuilder.filter());
+      }
+    }
+    for (var filterQuery : filters) {
       if (isFilterQuery(filterQuery, field::equals)) {
         getValueFromFilerQuery(filterQuery).ifPresent(facetTerms::add);
       } else if (isDisjunctionFilterQuery(filterQuery, field::equals)) {
@@ -167,5 +176,5 @@ public class FacetQueryBuilder {
     return query instanceof TermQueryBuilder ? ofNullable((String) ((TermQueryBuilder) query).value()) : empty();
   }
 
-  private record Facet(String field, String aggregationName, Integer size) {  }
+  private record Facet(String field, String aggregationName, Integer size) { }
 }

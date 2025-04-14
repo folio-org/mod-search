@@ -1,4 +1,10 @@
-## v5.0.1 2024.03.25
+## v5.0.2 2024-04-22
+### Bug fixes
+* Add facet filtering for nested queries ([MSEARCH-1012](https://folio-org.atlassian.net/browse/MSEARCH-1012))
+
+---
+
+## v5.0.1 2024-03-25
 ### Bug fixes
 * Browse Config: fix exception while trying to validate empty type ids ([MSEARCH-998](https://folio-org.atlassian.net/browse/MSEARCH-998))
 * ECS: Modify filters for sub-resources during browse ([MSEARCH-990](https://folio-org.atlassian.net/browse/MSEARCH-990))

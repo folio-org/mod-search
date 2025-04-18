@@ -1210,7 +1210,7 @@
       {
         "name": "SCROLL_QUERY_SIZE",
         "value": "1000",
-        "description": "The number of records to be loaded by each scroll query. 10_000 is a max value"
+        "description": "The number of records to be loaded by each scroll query. 10000 is a max value"
       },
       {
         "name": "STREAM_ID_RETRY_INTERVAL_MS",
@@ -1254,7 +1254,7 @@
       },
       {
         "name": "MAX_SEARCH_BATCH_REQUEST_IDS_COUNT",
-        "value": "20_000",
+        "value": "20000",
         "description": "Defines maximum batch request IDs count for searching consolidated items/holdings in consortium"
       },
       {
@@ -1264,7 +1264,7 @@
       },
       {
         "name": "REINDEX_UPLOAD_RANGE_SIZE",
-        "value": "1_000",
+        "value": "1000",
         "description": "The range size that represents the number of upload entities to process during the Upload process of reindex"
       },
       {

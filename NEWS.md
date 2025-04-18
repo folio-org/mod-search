@@ -1,3 +1,9 @@
+## v4.0.11 2025-04-22
+### Features
+* Index Management: allow to set numberOfReplicas to 0 ([MSEARCH-1015](https://folio-org.atlassian.net/browse/MSEARCH-1015))
+
+---
+
 ## v4.0.11 2025-03-18
 ### Bug Fixes
 * Fix shared facet count for Classifications/Contributors/Subjects ([MSEARCH-941](https://folio-org.atlassian.net/browse/MSEARCH-941))

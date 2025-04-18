@@ -9,7 +9,7 @@ properties:
   numberOfReplicas:
     type: integer
     description: The number of replicas each primary shard has.
-    minimum: 1
+    minimum: 0
     maximum: 100
   refreshInterval:
     type: integer

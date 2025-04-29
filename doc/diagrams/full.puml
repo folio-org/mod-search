@@ -8,7 +8,7 @@ box "FOLIO Backend" #LightBlue
   participant "mod-inventory-storage" as inventoryStorage
   participant "mod-consortia" as modConsortia
   participant "Kafka" as kafka
-  database "Postgres\n(Intermediate Tables:\ninstance, holding, item)" as postgres
+  database "Postgres\n(Intermediate Tables:\ninstance, holding, item, etc)" as postgres
   database "Elasticsearch" as elasticsearch
 end box
 

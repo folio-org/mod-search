@@ -70,7 +70,7 @@ records using filters, boolean conditions, etc.
 mod-search works with either Elasticsearch and OpenSearch, however,
 many variables still have Elasticsearch in their name for backwards compatibility.
 
-![Full Reindex](diagrams/full-reindex.png)
+![Full Reindex](doc/diagrams/full-reindex.png)
 
 ## Compiling
 

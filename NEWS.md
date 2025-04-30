@@ -1,4 +1,10 @@
-## v5.0.2 2024-04-22
+## v5.0.3 2025-05-15
+### Bug fixes
+* Authority search: make searching by all heading fields handled with separate/generated search field  ([MSEARCH-1020](https://folio-org.atlassian.net/browse/MSEARCH-1020))
+
+---
+
+## v5.0.2 2025-04-22
 ### Features
 * Index Management: allow to set numberOfReplicas to 0 ([MSEARCH-1015](https://folio-org.atlassian.net/browse/MSEARCH-1015))
 
@@ -7,7 +13,7 @@
 
 ---
 
-## v5.0.1 2024-03-25
+## v5.0.1 2025-03-25
 ### Bug fixes
 * Browse Config: fix exception while trying to validate empty type ids ([MSEARCH-998](https://folio-org.atlassian.net/browse/MSEARCH-998))
 * ECS: Modify filters for sub-resources during browse ([MSEARCH-990](https://folio-org.atlassian.net/browse/MSEARCH-990))
@@ -16,7 +22,7 @@
 
 ---
 
-## v5.0.0 2024-03-13
+## v5.0.0 2025-03-13
 ### Breaking changes
 * Upgrade to Java 21 ([MSEARCH-969](https://folio-org.atlassian.net/browse/MSEARCH-969))
 * Call Numbers Browse: Clean-Up of Legacy Call-Number Browse Logic ([MSEARCH-866](https://folio-org.atlassian.net/browse/MSEARCH-866))

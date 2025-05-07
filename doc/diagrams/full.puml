@@ -1,0 +1,81 @@
+@startuml
+!theme plain
+title Full Reindex(MERGE+UPLOAD) Phase
+
+actor "Client" as client
+box "FOLIO Backend" #LightBlue
+  participant "mod-search" as modSearch
+  participant "mod-inventory-storage" as inventoryStorage
+  participant "mod-consortia" as modConsortia
+  participant "Kafka" as kafka
+  database "Postgres\n(Intermediate Tables:\ninstance, holding, item, etc)" as postgres
+  database "Elasticsearch" as elasticsearch
+end box
+
+autonumber
+
+' Initial API request reception
+client -> modSearch: POST /search/index/instance-records/reindex/full\n(IndexSettings)
+
+modSearch -> postgres: cleanup intermediate tables
+
+' Status initialization
+modSearch -> postgres: Initialize reindex_status for all entities\n(MERGE_IN_PROGRESS)
+
+' Recreate Elasticsearch indices (Happens early in the process)
+modSearch -> elasticsearch: Delete and recreate indices
+
+' Final response to client (Happens immediately after initial request)
+client <-- modSearch: Return HTTP 200 OK (async process started)
+
+' Consortium handling (conditional)
+alt Tenant is part of consortium
+  modSearch -> modConsortia: Get list of member tenants
+  modConsortia --> modSearch: Return member tenants
+  loop for each member tenant
+    modSearch -> modConsortia: Process for member tenant (trigger range creation)
+  end
+end
+
+' Get record count from storage
+modSearch -> inventoryStorage: Get total record count for entity types
+inventoryStorage --> modSearch: Return total counts
+
+' Create merge ranges
+modSearch -> postgres: Save merge ranges to merge_range table
+
+' Update total merge ranges count in status
+modSearch -> postgres: Update total_merge_ranges in reindex_status
+
+' Trigger publishing of record batches by inventory-storage
+modSearch -> inventoryStorage: Trigger record batch publishing via Kafka\n(requests ReindexRecordsRequest publishing)
+inventoryStorage -> kafka: Publish record batches
+note right of kafka : Kafka event contains the actual\ninstance/holding/item records
+
+' --- Merge Phase Processing (Async) ---
+kafka -> modSearch: Consume ReindexRecordsEvent (contains record batch)
+modSearch -> postgres: Save record batch to intermediate tables\n(instance, holding, item)
+modSearch -> postgres: Update merge_range status (SUCCESS/FAIL)
+modSearch -> postgres: Increment processed_merge_ranges in reindex_status
+
+' --- Transition Check ---
+modSearch -> modSearch: Check if merge phase is complete for all types
+note left: Internal check, loops until\n`reindexStatusService.isMergeCompleted()` is true
+
+' --- Upload Phase Initialization (after Merge complete) ---
+' Create upload ranges from intermediate tables
+modSearch -> postgres: Create upload ranges from intermediate tables\n(querying instance, holding, item tables)
+modSearch -> postgres: Save upload ranges to upload_range table
+modSearch -> postgres: Update total_upload_ranges in reindex_status
+
+' Publish upload range events to Kafka
+modSearch -> kafka: Publish ReindexRangeIndexEvent(s)
+
+' --- Upload Phase Processing (Async) ---
+kafka -> modSearch: Consume ReindexRangeIndexEvent
+modSearch -> postgres: Fetch records from intermediate tables for range
+modSearch -> elasticsearch: Bulk index documents
+modSearch -> postgres: Update upload_range status (SUCCESS/FAIL)
+modSearch -> postgres: Increment processed_upload_ranges in reindex_status
+
+@enduml

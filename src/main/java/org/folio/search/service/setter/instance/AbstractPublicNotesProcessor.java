@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.CirculationNote;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Note;
@@ -18,7 +20,9 @@ public abstract class AbstractPublicNotesProcessor implements FieldProcessor<Ins
     var result = new LinkedHashSet<String>();
     result.addAll(getNotesAsList(getNotes(instance), note -> getNote(note.getStaffOnly(), note.getNote())));
     result.addAll(getNotesAsList(getCirculationNotes(instance), note -> getNote(note.getStaffOnly(), note.getNote())));
-    return result;
+    return result.stream()
+      .map(value -> StringUtils.abbreviate(value, MAX_FIELD_VALUE_LENGTH))
+      .collect(Collectors.toCollection(LinkedHashSet::new));
   }
 
   /**

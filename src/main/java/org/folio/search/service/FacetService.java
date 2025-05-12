@@ -48,7 +48,7 @@ public class FacetService {
   private static void cleanUpFacetSearchSource(SearchSourceBuilder searchSource) {
     var query = searchSource.query();
     if (query instanceof BoolQueryBuilder boolQuery) {
-      boolQuery.filter().clear();
+      //boolQuery.filter().clear();
       log.info("boolQuery query: {}", boolQuery.toString());
       for (var queryBuilder : boolQuery.must()) {
         if (queryBuilder instanceof NestedQueryBuilder nestedQueryBuilder

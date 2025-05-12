@@ -21,6 +21,8 @@ import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.index.query.QueryBuilders;
 import org.opensearch.index.query.RangeQueryBuilder;
 import org.opensearch.search.builder.SearchSourceBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.z3950.zing.cql.CQLBooleanNode;
 import org.z3950.zing.cql.CQLNode;
@@ -35,6 +37,7 @@ import org.z3950.zing.cql.CQLTermNode;
 @RequiredArgsConstructor
 public class CqlSearchQueryConverter {
 
+  private static final Logger log = LoggerFactory.getLogger(CqlSearchQueryConverter.class);
   private final CqlQueryParser cqlQueryParser;
   private final CqlSortProvider cqlSortProvider;
   private final SearchFieldProvider searchFieldProvider;
@@ -96,6 +99,7 @@ public class CqlSearchQueryConverter {
     }
 
     var queryBuilder = consortiumSearchHelper.filterQueryForActiveAffiliation(sourceBuilder.query(), resource);
+    log.info("Query after adding consortium filter: {}", queryBuilder);
     return sourceBuilder.query(queryBuilder);
   }
 

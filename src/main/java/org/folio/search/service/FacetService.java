@@ -34,8 +34,11 @@ public class FacetService {
     log.debug("getFacets:: by [query: {}, resource: {}]", request.getQuery(), request.getResource());
     var searchSource = cqlSearchQueryConverter.convertForConsortia(request.getQuery(), request.getResource());
     searchSource.size(0).from(0).fetchSource(false);
+    log.info("Facet query before FacetAggregations: {}", searchSource.toString());
 
     facetQueryBuilder.getFacetAggregations(request, searchSource.query()).forEach(searchSource::aggregation);
+
+    log.info("Facet query: {}", searchSource.toString());
     cleanUpFacetSearchSource(searchSource);
 
     var searchResponse = searchRepository.search(request, searchSource);
@@ -46,16 +49,19 @@ public class FacetService {
     var query = searchSource.query();
     if (query instanceof BoolQueryBuilder boolQuery) {
       boolQuery.filter().clear();
+      log.info("boolQuery query: {}", boolQuery.toString());
       for (var queryBuilder : boolQuery.must()) {
         if (queryBuilder instanceof NestedQueryBuilder nestedQueryBuilder
             && nestedQueryBuilder.query() instanceof BoolQueryBuilder nestedBoolQuery) {
           nestedBoolQuery.filter().clear();
+          log.info("nestedBoolQuery query: {}", nestedBoolQuery.toString());
         }
       }
     }
 
     if (CollectionUtils.isNotEmpty(searchSource.sorts())) {
       searchSource.sorts().clear();
+      log.info("searchSource after sorts clear: {}", searchSource.toString());
     }
   }
 }

@@ -9,6 +9,7 @@
 ### Features
 * Linked Data Instance and Work: search by classification type/number/additionalNumber ([MSEARCH-989](https://folio-org.atlassian.net/browse/MSEARCH-989))
 * Index Management: allow to set numberOfReplicas to 0 ([MSEARCH-1015](https://folio-org.atlassian.net/browse/MSEARCH-1015))
+* Add index on instance_call_number item_id ([MSEARCH-1025](https://folio-org.atlassian.net/browse/MSEARCH-1025))
 
 ### Bug fixes
 * Browse Config: fix exception while trying to validate empty type ids ([MSEARCH-998](https://folio-org.atlassian.net/browse/MSEARCH-998))

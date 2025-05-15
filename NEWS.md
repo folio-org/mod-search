@@ -1,3 +1,10 @@
+## v5.0.4 2025-05-15
+### Features
+* Index Management: remove mappingsSource configuration ([MSEARCH-1031](https://folio-org.atlassian.net/browse/MSEARCH-1031))
+* Add indexes for instance_(call_number/subject/classification/contributor) ([MSEARCH-1025](https://folio-org.atlassian.net/browse/MSEARCH-1025))
+
+---
+
 ## v5.0.3 2025-05-15
 ### Bug fixes
 * Authority search: make searching by all heading fields handled with separate/generated search field  ([MSEARCH-1020](https://folio-org.atlassian.net/browse/MSEARCH-1020))
@@ -7,7 +14,6 @@
 ## v5.0.2 2025-04-22
 ### Features
 * Index Management: allow to set numberOfReplicas to 0 ([MSEARCH-1015](https://folio-org.atlassian.net/browse/MSEARCH-1015))
-* Add indexes for instance_(call_number/subject/classification/contributor) ([MSEARCH-1025](https://folio-org.atlassian.net/browse/MSEARCH-1025))
 
 ### Bug fixes
 * Add facet filtering for nested queries ([MSEARCH-1012](https://folio-org.atlassian.net/browse/MSEARCH-1012))

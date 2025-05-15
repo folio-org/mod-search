@@ -711,45 +711,5 @@
       "searchTermProcessor": "classificationNumberSearchTermProcessor"
     }
   },
-  "mappingsSource": {
-    "excludes": [
-      "allInstances", "plain_allInstances",
-      "allItems", "plain_allItems",
-      "allHoldings", "plain_allHoldings",
-
-      "sort_title", "sort_contributors",
-      "normalizedDate1",
-
-      "alternativeTitles.alternativeTitle",
-      "contributors.name",
-      "electronicAccess.linkText",
-      "electronicAccess.publicNote",
-      "identifiers.value",
-      "indexTitle",
-      "notes.note",
-      "publication.publisher",
-      "publicNotes",
-      "subjects.value",
-      "series.value",
-      "tags.tagList",
-      "title",
-      "uniformTitle",
-      "lccn",
-
-      "holdings.electronicAccess.linkText",
-      "holdings.electronicAccess.publicNote",
-      "holdings.notes.note",
-      "holdings.tags.tagList",
-      "holdingsPublicNotes",
-      "holdingsPublicNotes",
-
-      "itemPublicNotes",
-      "items.circulationNotes.note",
-      "items.electronicAccess.linkText",
-      "items.electronicAccess.publicNote",
-      "items.notes.note",
-      "items.tags.tagList"
-    ]
-  },
   "indexMappings": { }
 }

@@ -95,8 +95,7 @@ class SearchMappingsHelperTest {
         "isbn", standardType.getMapping(),
         "issn", jsonObject("type", KEYWORD_FIELD_INDEX, "normalizer", "lowercase_normalizer"),
         "metadata", jsonObject("properties", jsonObject("createdDate", dateType.getMapping())),
-        "identifiers", keywordType.getMapping()),
-      "_source", jsonObject("excludes", jsonArray("plain_all"))
+        "identifiers", keywordType.getMapping())
     )));
     verify(jsonConverter).toJson(anyMap());
   }
@@ -245,7 +244,6 @@ class SearchMappingsHelperTest {
         "createdDate", plainField("date")
       ))));
     resourceDescription.setSearchFields(mapOf("identifiers", searchField("isbn_identifier")));
-    resourceDescription.setMappingsSource(mapOf("excludes", List.of("plain_all")));
     return resourceDescription;
   }
 

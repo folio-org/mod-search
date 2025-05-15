@@ -504,24 +504,6 @@
       "searchTermProcessor": "noSpaceSearchTermProcessor"
     }
   },
-  "mappingsSource": {
-    "excludes": [
-      "personalName", "sftPersonalName", "saftPersonalName",
-      "personalNameTitle", "sftPersonalNameTitle", "saftPersonalNameTitle",
-      "corporateName", "sftCorporateName", "saftCorporateName",
-      "corporateNameTitle", "sftCorporateNameTitle", "saftCorporateNameTitle",
-      "meetingName", "sftMeetingName", "saftMeetingName",
-      "meetingNameTitle", "sftMeetingNameTitle", "saftMeetingNameTitle",
-      "geographicName", "sftGeographicName", "saftGeographicName",
-      "uniformTitle", "sftUniformTitle", "saftUniformTitle",
-      "topicalTerm", "sftTopicalTerm", "saftTopicalTerm",
-      "genreTerm", "sftGenreTerm", "saftGenreTerm", "chronTerm", "sftChronTerm",
-      "saftChronTerm", "mediumPerfTerm", "sftMediumPerfTerm", "saftMediumPerfTerm",
-      "geographicSubdivision", "sftGeographicSubdivision", "saftGeographicSubdivision",
-      "chronSubdivision", "sftChronSubdivision", "saftChronSubdivision",
-      "formSubdivision", "sftFormSubdivision", "saftFormSubdivision"
-    ]
-  },
   "indexMappings": {
     "sort_headingRef": {
       "type": "keyword",

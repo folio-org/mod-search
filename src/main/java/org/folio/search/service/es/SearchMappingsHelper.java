@@ -55,11 +55,6 @@ public class SearchMappingsHelper {
     var mappingProperties = new LinkedHashMap<String, Object>();
     indexMappings.put(MAPPING_PROPERTIES_FIELD, mappingProperties);
 
-    var mappingsSource = description.getMappingsSource();
-    if (MapUtils.isNotEmpty(mappingsSource)) {
-      indexMappings.put("_source", mappingsSource);
-    }
-
     mappingProperties.putAll(createMappingsForFields(description.getFields()));
     mappingProperties.putAll(createMappingsForFields(description.getSearchFields()));
     var customIndexMappings = description.getIndexMappings();

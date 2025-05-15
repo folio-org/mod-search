@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+  <changeSet id="MSEARCH-1025@@create-instance_call_number_item_id_idx" author="Viacheslav_Kolesnyk">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <indexExists indexName="instance_call_number_item_id_idx"/>
+      </not>
+    </preConditions>
+
+    <comment>Create instance_call_number_item_id_idx index</comment>
+
+    <createIndex tableName="instance_call_number" indexName="instance_call_number_item_id_idx">
+      <column name="item_id"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="MSEARCH-1025@@create-instance_subject_instance_id_idx" author="Viacheslav_Kolesnyk">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <indexExists indexName="instance_subject_instance_id_idx"/>
+      </not>
+    </preConditions>
+
+    <comment>Create instance_subject_instance_id_idx index</comment>
+
+    <createIndex tableName="instance_subject" indexName="instance_subject_instance_id_idx">
+      <column name="instance_id"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="MSEARCH-1025@@create-instance_classification_instance_id_idx" author="Viacheslav_Kolesnyk">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <indexExists indexName="instance_classification_instance_id_idx"/>
+      </not>
+    </preConditions>
+
+    <comment>Create instance_classification_instance_id_idx index</comment>
+
+    <createIndex tableName="instance_classification" indexName="instance_classification_instance_id_idx">
+      <column name="instance_id"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="MSEARCH-1025@@create-instance_contributor_instance_id_idx" author="Viacheslav_Kolesnyk">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <indexExists indexName="instance_contributor_instance_id_idx"/>
+      </not>
+    </preConditions>
+
+    <comment>Create instance_contributor_instance_id_idx index</comment>
+
+    <createIndex tableName="instance_contributor" indexName="instance_contributor_instance_id_idx">
+      <column name="instance_id"/>
+    </createIndex>
+  </changeSet>
+</databaseChangeLog>

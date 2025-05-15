@@ -72,11 +72,6 @@ public class ResourceDescription {
   private Map<String, FieldDescription> fieldTypes = Collections.emptyMap();
 
   /**
-   * Mappings source definition.
-   */
-  private Map<String, List<String>> mappingsSource;
-
-  /**
    * Resource indexing configuration - pre-processing, resource repository settings etc.
    */
   private ResourceIndexingConfiguration indexingConfiguration;

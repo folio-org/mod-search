@@ -1,7 +1,12 @@
-## v4.0.11 2025-04-22
+## v4.0.13 2025-05-16
+### Features
+* Add indexes for instance_(call_number/subject/classification/contributor) ([MSEARCH-1025](https://folio-org.atlassian.net/browse/MSEARCH-1025))
+
+---
+
+## v4.0.12 2025-04-22
 ### Features
 * Index Management: allow to set numberOfReplicas to 0 ([MSEARCH-1015](https://folio-org.atlassian.net/browse/MSEARCH-1015))
-* Add indexes for instance_(call_number/subject/classification/contributor) ([MSEARCH-1025](https://folio-org.atlassian.net/browse/MSEARCH-1025))
 
 ---
 

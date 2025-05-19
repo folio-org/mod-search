@@ -21,7 +21,7 @@ public abstract class AbstractPublicNotesProcessor implements FieldProcessor<Ins
     result.addAll(getNotesAsList(getNotes(instance), note -> getNote(note.getStaffOnly(), note.getNote())));
     result.addAll(getNotesAsList(getCirculationNotes(instance), note -> getNote(note.getStaffOnly(), note.getNote())));
     return result.stream()
-      .map(value -> StringUtils.abbreviate(value, MAX_FIELD_VALUE_LENGTH))
+      .map(value -> StringUtils.left(value, MAX_FIELD_VALUE_LENGTH))
       .collect(Collectors.toCollection(LinkedHashSet::new));
   }
 

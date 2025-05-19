@@ -2,6 +2,7 @@ package org.folio.search.service.setter.instance;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.service.setter.FieldProcessor.MAX_FIELD_VALUE_LENGTH;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.util.Arrays;
@@ -39,7 +40,9 @@ class PublicNotesProcessorTest {
       arguments("2 notes(staffOnly=false and null)",
         instanceWithNotes(note("value1", null), note("value2", false)), List.of("value1", "value2")),
       arguments("note(staffOnly=true)", instanceWithNotes(note("value", true)), emptyList()),
-      arguments("note(value=null,staffOnly=false)", instanceWithNotes(note(null, false)), emptyList())
+      arguments("note(value=null,staffOnly=false)", instanceWithNotes(note(null, false)), emptyList()),
+      arguments("note(value=32001-length,staffOnly=false)", instanceWithNotes(note("a"
+        .repeat(MAX_FIELD_VALUE_LENGTH + 1), false)), List.of("a".repeat(MAX_FIELD_VALUE_LENGTH)))
     );
   }
 

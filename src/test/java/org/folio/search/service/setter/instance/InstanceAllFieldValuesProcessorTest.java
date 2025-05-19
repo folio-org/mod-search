@@ -7,6 +7,7 @@ import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.util.Sets.newLinkedHashSet;
 import static org.folio.search.model.types.ResourceType.INSTANCE;
+import static org.folio.search.service.setter.FieldProcessor.MAX_FIELD_VALUE_LENGTH;
 import static org.folio.support.utils.JsonTestUtils.toMap;
 import static org.folio.support.utils.TestUtils.mapOf;
 import static org.folio.support.utils.TestUtils.randomId;
@@ -146,6 +147,12 @@ class InstanceAllFieldValuesProcessorTest {
   void getFieldValue_positive_fieldWithEmptyListValue() {
     var actual = processor.getFieldValue(mapOf("subjects", emptyList()));
     assertThat(actual).isEqualTo(MultilangValue.empty());
+  }
+
+  @Test
+  void getFieldValue_positive_fieldWith32001Length() {
+    var actual = processor.getFieldValue(mapOf("title", "a".repeat(MAX_FIELD_VALUE_LENGTH + 1)));
+    assertThat(actual).isEqualTo(MultilangValue.of(List.of("a".repeat(MAX_FIELD_VALUE_LENGTH)), emptySet()));
   }
 
   @Test

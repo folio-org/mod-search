@@ -8,7 +8,7 @@ package org.folio.search.service.setter;
  */
 public interface FieldProcessor<T, R> {
 
-  Integer MAX_FIELD_VALUE_LENGTH = 32000;
+  int MAX_FIELD_VALUE_LENGTH = 32000;
 
   /**
    * Extract field value as {@link T} from {@link R} event body.

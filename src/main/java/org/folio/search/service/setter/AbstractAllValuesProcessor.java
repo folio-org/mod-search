@@ -77,7 +77,7 @@ public abstract class AbstractAllValuesProcessor implements FieldProcessor<Map<S
 
   private void collectFieldValuesFromEventBody(String path, MultilangValue ctx, Object v, Predicate<String> filter) {
     if (v instanceof String string) {
-      ctx.addValue(StringUtils.left(StringUtils.strip(string), MAX_FIELD_VALUE_LENGTH),
+      ctx.addValue(StringUtils.strip(string),
         searchFieldProvider.isFullTextField(ResourceType.INSTANCE, path));
     }
 

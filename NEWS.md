@@ -10,6 +10,7 @@
 * Linked Data Instance and Work: search by classification type/number/additionalNumber ([MSEARCH-989](https://folio-org.atlassian.net/browse/MSEARCH-989))
 * Index Management: allow to set numberOfReplicas to 0 ([MSEARCH-1015](https://folio-org.atlassian.net/browse/MSEARCH-1015))
 * Index Management: remove mappingsSource configuration ([MSEARCH-1031](https://folio-org.atlassian.net/browse/MSEARCH-1031))
+* Index Management: truncate fields more than 32 000 bytes long ([MSEARCH-1029](https://folio-org.atlassian.net/browse/MSEARCH-1029))
 * Add indexes for instance_(call_number/subject/classification/contributor) ([MSEARCH-1025](https://folio-org.atlassian.net/browse/MSEARCH-1025))
 
 ### Bug fixes

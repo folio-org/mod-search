@@ -58,6 +58,15 @@ class IndexingInstanceIT extends BaseIntegrationTest {
   }
 
   @Test
+  void shouldIndexInstanceThatHasFieldWithMoreThen32000Characters() {
+    var instanceId = randomId();
+    var instance = new Instance().id(instanceId).addAdministrativeNotesItem("🙂".repeat(32001));
+
+    inventoryApi.createInstance(TENANT_ID, instance);
+    assertCountByQuery(instanceSearchPath(), "id==\"{value}\"", instanceId, 1);
+  }
+
+  @Test
   void shouldUpdateBoundWith() {
     var instanceId = randomId();
     var instance = new Instance().id(instanceId).title("test-resource");

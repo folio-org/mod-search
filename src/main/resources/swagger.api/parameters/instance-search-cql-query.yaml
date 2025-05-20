@@ -243,6 +243,12 @@ description: |
         <td>Search by electronic access public note</td>
     </tr>
     <tr>
+        <td>electronicAccess.relationshipId</td>
+        <td>term</td>
+        <td>electronicAccess.relationshipId=&quot;47d563ed-1ae2-41dc-97f8-8ebefce904f0&quot;</td>
+        <td>Search by electronic access relationship type ID</td>
+    </tr>
+    <tr>
         <td>staffSuppress</td>
         <td>term</td>
         <td>staffSuppress==true</td>
@@ -411,6 +417,12 @@ description: |
         <td>Search by electronic access public note</td>
     </tr>
     <tr>
+        <td>holdings.electronicAccess.relationshipId</td>
+        <td>term</td>
+        <td>holdings.electronicAccess.relationshipId=&quot;0b460e53-aee9-41a8-a447-0755cdac22ca&quot;</td>
+        <td>Search by holdings electronic access relationship type ID</td>
+    </tr>
+    <tr>
         <td>holdings.administrativeNotes</td>
         <td>full-text</td>
         <td>holdings.administrativeNotes all &quot;librarian note&quot;</td>
@@ -570,6 +582,12 @@ description: |
         <td>full-text</td>
         <td>item.electronicAccess.publicNote=&quot;a rare book&quot;</td>
         <td>Search by electronic access public note</td>
+    </tr>
+    <tr>
+        <td>item.electronicAccess.relationshipId</td>
+        <td>term</td>
+        <td>item.electronicAccess.relationshipId=&quot;0b460e53-aee9-41a8-a447-0755cdac22ca&quot;</td>
+        <td>Search by item electronic access relationship type ID</td>
     </tr>
     <tr>
         <td>item.administrativeNotes</td>

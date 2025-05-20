@@ -127,7 +127,8 @@
       "uri": "https://testlibrary.sample.com/journal/10.1002/(ISSN)1938-3703",
       "linkText": "electronic access link text",
       "publicNote": "Online access via Wiley (1996-current)",
-      "materialsSpecification": "electronic access material"
+      "materialsSpecification": "electronic access material",
+      "relationshipId": "a1c0b4f2-3d8e-4b5f-8a7c-6d9e0f2b1c3d"
     }
   ],
   "dates": {

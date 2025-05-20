@@ -177,7 +177,8 @@
           "uri": "https://testlibrary.sample.com/journal/10.1002/(ISSN)1938-3703",
           "linkText": "electronic access link text",
           "materialsSpecification": null,
-          "publicNote": "Online access via Wiley (1996-current)"
+          "publicNote": "Online access via Wiley (1996-current)",
+          "relationshipId": "a1c0b4f2-3d8e-4b5f-8a7c-6d9e0f2b1c3d"
         }
       ],
       "notes": [
@@ -195,6 +196,47 @@
         }
       ],
       "items": [
+        {
+          "id": "49347f02-69ac-4c12-b6f2-2afb6059c94b",
+          "tenantId": "test_tenant",
+          "holdingsRecordId": "9550c935-401a-4a85-875e-4d1fe7678870",
+          "hrid": "it00000000001",
+          "accessionNumber": null,
+          "formerIds": [],
+          "itemIdentifier": null,
+          "barcode": "12345",
+          "effectiveLocationId": "cdd60388-0c75-4969-b3c5-2d04621ed26f",
+          "status": {
+            "name": "Available"
+          },
+          "materialTypeId": "5ee11d91-f7e8-481d-b079-65d708582ccc",
+          "discoverySuppress": false,
+          "effectiveCallNumberComponents": {
+            "callNumber": "332. 2",
+            "prefix": "prefix 2",
+            "suffix": "suff 2",
+            "typeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35"
+          },
+          "volume": null,
+          "enumeration": null,
+          "chronology": null,
+          "copyNumber": null,
+          "itemLevelCallNumberTypeId": null,
+          "tags": {
+            "tagList": []
+          },
+          "electronicAccess": [],
+          "administrativeNotes": [],
+          "notes": [],
+          "statisticalCodeIds": [],
+          "circulationNotes": [],
+          "metadata": {
+            "createdDate": "2024-03-14T13:05:09.406+00:00",
+            "createdByUserId": "93fc1367-7321-4836-b2a7-cbc7ffe8c20e",
+            "updatedDate": "2024-03-14T13:05:09.406+00:00",
+            "updatedByUserId": "93fc1367-7321-4836-b2a7-cbc7ffe8c20e"
+          }
+        },
         {
           "id": "7212ba6a-8dcf-45a1-be9a-ffaa847c4423",
           "tenantId": "test_tenant",
@@ -230,7 +272,8 @@
               "uri": "https://www.loc.gov/catdir/toc/ecip0718/2007020429.html",
               "linkText": "Links available",
               "materialsSpecification": null,
-              "publicNote": "Table of contents only"
+              "publicNote": "Table of contents only",
+              "relationshipId": "3b430592-2e09-4b48-9a0c-0636d66b9fb3"
             }
           ],
           "administrativeNotes": [
@@ -282,7 +325,8 @@
               "uri": "http://www.loc.gov/catdir/toc/ecip0718/2007020429.html",
               "linkText": "Links available",
               "materialsSpecification": null,
-              "publicNote": "Table of contents only"
+              "publicNote": "Table of contents only",
+              "relationshipId": "3b430592-2e09-4b48-9a0c-0636d66b9fb3"
             }
           ],
           "administrativeNotes": [
@@ -320,43 +364,6 @@
             "createdByUserId": null,
             "updatedDate": "2020-12-08T15:47:22.827+00:00",
             "updatedByUserId": null
-          }
-        },
-        {
-          "id": "49347f02-69ac-4c12-b6f2-2afb6059c94b",
-          "tenantId": "test_tenant",
-          "holdingsRecordId": "9550c935-401a-4a85-875e-4d1fe7678870",
-          "hrid": "it00000000001",
-          "accessionNumber": null,
-          "formerIds": [],
-          "itemIdentifier": null,
-          "barcode": "12345",
-          "effectiveLocationId": "cdd60388-0c75-4969-b3c5-2d04621ed26f",
-          "status": {
-            "name": "Available"
-          },
-          "materialTypeId": "5ee11d91-f7e8-481d-b079-65d708582ccc",
-          "discoverySuppress": false,
-          "effectiveCallNumberComponents": {
-            "callNumber": "332. 2",
-            "prefix": "prefix 2",
-            "suffix": "suff 2",
-            "typeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35"
-          },
-          "itemLevelCallNumberTypeId": null,
-          "tags": {
-            "tagList": []
-          },
-          "electronicAccess": [],
-          "administrativeNotes": [],
-          "notes": [],
-          "statisticalCodeIds": [],
-          "circulationNotes": [],
-          "metadata": {
-            "createdDate": "2024-03-14T13:05:09.406+00:00",
-            "createdByUserId": "93fc1367-7321-4836-b2a7-cbc7ffe8c20e",
-            "updatedDate": "2024-03-14T13:05:09.406+00:00",
-            "updatedByUserId": "93fc1367-7321-4836-b2a7-cbc7ffe8c20e"
           }
         }
       ],
@@ -413,7 +420,8 @@
               "uri": "https://testlibrary.sample.com/holdings?hrid=ho0000006",
               "linkText": "Holding's electronicAccess link Text",
               "materialsSpecification": null,
-              "publicNote": "Holding's electronicAccess public note"
+              "publicNote": "Holding's electronicAccess public note",
+              "relationshipId": "3b430592-2e09-4b48-9a0c-0636d66b9fb3"
             }
           ],
           "administrativeNotes": [],

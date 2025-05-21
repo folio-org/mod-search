@@ -13,3 +13,6 @@ properties:
   publicNote:
     type: "string"
     description: "URL public note to be displayed in the discovery"
+  relationshipId:
+    type: "string"
+    description: "UUID for the type of relationship between the electronic resource at the location identified and the item described in the record as a whole"

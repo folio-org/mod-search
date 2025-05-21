@@ -3,7 +3,7 @@
 * Description ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))
 
 ### New APIs versions
-* Provides `API_NAME vX.Y`
+* Provides `search v1.4`
 * Requires `API_NAME vX.Y`
 
 ### Features
@@ -11,6 +11,7 @@
 * Index Management: allow to set numberOfReplicas to 0 ([MSEARCH-1015](https://folio-org.atlassian.net/browse/MSEARCH-1015))
 * Index Management: remove mappingsSource configuration ([MSEARCH-1031](https://folio-org.atlassian.net/browse/MSEARCH-1031))
 * Index Management: truncate fields more than 32 000 bytes long ([MSEARCH-1029](https://folio-org.atlassian.net/browse/MSEARCH-1029))
+* Instance search: add support for searching by instance/holdings/item electronic access relationship ID ([MSEARCH-816](https://folio-org.atlassian.net/browse/MSEARCH-816))
 * Add indexes for instance_(call_number/subject/classification/contributor) ([MSEARCH-1025](https://folio-org.atlassian.net/browse/MSEARCH-1025))
 
 ### Bug fixes

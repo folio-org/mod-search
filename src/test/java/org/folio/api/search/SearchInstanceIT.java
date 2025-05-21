@@ -269,6 +269,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("electronicAccess.uri==\"{value}\"", "https://testlibrary.sample.com/journal/10.1002/(ISSN)1938-3703"),
       arguments("electronicAccess.linkText all {value}", "access"),
       arguments("electronicAccess.publicNote all {value}", "online"),
+      arguments("electronicAccess.relationshipId == \"{value}\"", "a1c0b4f2-3d8e-4b5f-8a7c-6d9e0f2b1c3d"),
       arguments("instanceFormatIds == {value}", "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"),
 
       arguments("administrativeNotes == {value}", "original + pcc"),
@@ -340,6 +341,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("item.electronicAccess.uri==\"{value}\"", "https://www.loc.gov/catdir/toc/ecip0718/2007020429.html"),
       arguments("item.electronicAccess.linkText all {value}", "links available"),
       arguments("item.electronicAccess.publicNote all {value}", "table of contents"),
+      arguments("item.electronicAccess.relationshipId == \"{value}\"", "3b430592-2e09-4b48-9a0c-0636d66b9fb3"),
 
       // Search by item fields (Backward compatibility)
       arguments("items.hrid = {value}", "item000000000014"),
@@ -377,6 +379,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("holdings.electronicAccess.uri==\"{value}\"", "https://testlibrary.sample.com/holdings?hrid=ho0000006"),
       arguments("holdings.electronicAccess.linkText all {value}", "link text"),
       arguments("holdings.electronicAccess.publicNote all {value}", "note"),
+      arguments("holdings.electronicAccess.relationshipId == \"{value}\"", "3b430592-2e09-4b48-9a0c-0636d66b9fb3"),
 
       arguments("holdingsIdentifiers all {value}", "hold000000000009"),
       arguments("holdingsIdentifiers == {value}", "1d76ee84-d776-48d2-ab96-140c24e39ac5"),

@@ -91,7 +91,7 @@ class BrowseClassificationConsortiumIT extends BaseConsortiumIntegrationTest {
         .source(searchSource().query(matchAllQuery()).trackTotalHits(true).from(0).size(100))
         .indices(getIndexName(ResourceType.INSTANCE_CLASSIFICATION, CENTRAL_TENANT_ID));
       var searchResponse = elasticClient.search(searchRequest, RequestOptions.DEFAULT);
-      assertThat(searchResponse.getHits().getTotalHits().value).isEqualTo(17);
+      assertThat(searchResponse.getHits().getTotalHits().value()).isEqualTo(17);
     });
   }
 

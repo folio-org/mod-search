@@ -38,10 +38,11 @@
     <folio-service-tools.version>5.1.0-SNAPSHOT</folio-service-tools.version>
     <folio-isbn-utils.version>1.9.0-SNAPSHOT</folio-isbn-utils.version>
     <folio-cql2pgjson.version>35.4.0</folio-cql2pgjson.version>
-    <opensearch.version>2.19.1</opensearch.version>
+    <opensearch.version>3.0.0</opensearch.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <apache-commons-io.version>2.19.0</apache-commons-io.version>
     <apache-commons-collections.version>4.5.0</apache-commons-collections.version>
+    <apache-httpcomponents-client5.version>5.4.4</apache-httpcomponents-client5.version>
     <marc4j.version>2.9.5</marc4j.version>
     <lombok.version>1.18.38</lombok.version>
     <lombok.mapstruct-binding.version>0.2.0</lombok.mapstruct-binding.version>
@@ -211,6 +212,12 @@
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
       <version>${apache-commons-io.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.httpcomponents.client5</groupId>
+      <artifactId>httpclient5</artifactId>
+      <version>${apache-httpcomponents-client5.version}</version>
     </dependency>
 
     <dependency>

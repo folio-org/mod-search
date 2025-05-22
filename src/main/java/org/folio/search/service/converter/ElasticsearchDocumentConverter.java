@@ -117,6 +117,6 @@ public class ElasticsearchDocumentConverter {
 
   private static int getTotalRecords(SearchHits hits) {
     var totalHits = hits.getTotalHits();
-    return totalHits != null ? (int) totalHits.value : 0;
+    return totalHits != null ? (int) totalHits.value() : 0;
   }
 }

@@ -16,16 +16,30 @@
 
 package org.folio.search.configuration;
 
+import static org.opensearch.client.RestClientBuilder.DEFAULT_MAX_CONN_PER_ROUTE;
+import static org.opensearch.client.RestClientBuilder.DEFAULT_MAX_CONN_TOTAL;
+
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
-import org.apache.http.HttpHost;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.Credentials;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
+import javax.net.ssl.SSLContext;
+import org.apache.hc.client5.http.auth.AuthScope;
+import org.apache.hc.client5.http.auth.Credentials;
+import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
+import org.apache.hc.client5.http.config.ConnectionConfig;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.async.HttpAsyncClientBuilder;
+import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
+import org.apache.hc.client5.http.impl.nio.PoolingAsyncClientConnectionManager;
+import org.apache.hc.client5.http.impl.nio.PoolingAsyncClientConnectionManagerBuilder;
+import org.apache.hc.client5.http.ssl.ClientTlsStrategyBuilder;
+import org.apache.hc.core5.http.EntityDetails;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
+import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.util.Timeout;
 import org.folio.search.configuration.opensearch.RestClientBuilderCustomizer;
 import org.folio.search.configuration.properties.OpensearchProperties;
 import org.opensearch.client.RestClient;
@@ -33,7 +47,6 @@ import org.opensearch.client.RestClientBuilder;
 import org.opensearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.PropertyMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -48,7 +61,6 @@ public class OpensearchRestClientConfiguration {
   }
 
   @Bean
-  @ConditionalOnMissingBean(RestClientBuilder.class)
   RestClientBuilder opensearchRestClientBuilder(ObjectProvider<RestClientBuilderCustomizer> builderCustomizers,
                                                 OpensearchProperties properties) {
     HttpHost[] hosts = properties.getUris().stream().map(this::createHttpHost).toArray(HttpHost[]::new);
@@ -83,15 +95,19 @@ public class OpensearchRestClientConfiguration {
     try {
       return createHttpHost(URI.create(uri));
     } catch (IllegalArgumentException ex) {
-      return HttpHost.create(uri);
+      try {
+        return HttpHost.create(uri);
+      } catch (URISyntaxException innerEx) {
+        throw new IllegalStateException(innerEx);
+      }
     }
   }
 
   private HttpHost createHttpHost(URI uri) {
-    if (!StringUtils.hasLength(uri.getUserInfo())) {
-      return HttpHost.create(uri.toString());
-    }
     try {
+      if (!StringUtils.hasLength(uri.getUserInfo())) {
+        return HttpHost.create(uri.toString());
+      }
       return HttpHost.create(new URI(uri.getScheme(), null, uri.getHost(), uri.getPort(), uri.getPath(),
         uri.getQuery(), uri.getFragment()).toString());
     } catch (URISyntaxException ex) {
@@ -112,24 +128,59 @@ public class OpensearchRestClientConfiguration {
     @Override
     public void customize(HttpAsyncClientBuilder builder) {
       builder.setDefaultCredentialsProvider(new PropertiesCredentialsProvider(this.properties));
+      builder.setConnectionManager(getPoolingAsyncClientConnectionManager());
+      if (properties.isElasticsearchServer()) {
+        builder.addRequestInterceptorFirst((HttpRequest request, EntityDetails entityDetails, HttpContext context) -> {
+          var uri = request.getRequestUri();
+          if (uri.contains("cluster_manager_timeout")) {
+            var newUri = uri.replaceAll("[&?]?cluster_manager_timeout=[^&]*", "");
+            request.setPath(newUri);
+          }
+        });
+      }
     }
 
     @Override
     public void customize(RequestConfig.Builder builder) {
-      MAPPER.from(this.properties::getConnectionTimeout).whenNonNull().asInt(Duration::toMillis)
-        .to(builder::setConnectTimeout);
       MAPPER.from(this.properties::getSocketTimeout).whenNonNull().asInt(Duration::toMillis)
-        .to(builder::setSocketTimeout);
+        .to(timeout -> builder.setResponseTimeout(Timeout.ofMilliseconds(timeout)));
     }
 
+    private PoolingAsyncClientConnectionManager getPoolingAsyncClientConnectionManager() {
+      return PoolingAsyncClientConnectionManagerBuilder.create()
+        .setDefaultConnectionConfig(getConnectionConfig(ConnectionConfig.custom()))
+        .setMaxConnPerRoute(DEFAULT_MAX_CONN_PER_ROUTE)
+        .setMaxConnTotal(DEFAULT_MAX_CONN_TOTAL)
+        .setTlsStrategy(getTlsStrategy())
+        .build();
+    }
+
+    private ConnectionConfig getConnectionConfig(ConnectionConfig.Builder builder) {
+      MAPPER.from(this.properties::getConnectionTimeout).whenNonNull().asInt(Duration::toMillis)
+        .to(timeout -> builder.setConnectTimeout(Timeout.ofMilliseconds(timeout)));
+      MAPPER.from(this.properties::getSocketTimeout).whenNonNull().asInt(Duration::toMillis)
+        .to(timeout -> builder.setSocketTimeout(Timeout.ofMilliseconds(timeout)));
+      return builder.build();
+    }
+
+    private static TlsStrategy getTlsStrategy() {
+      try {
+        return ClientTlsStrategyBuilder.create()
+          .setSslContext(SSLContext.getDefault())
+          .build();
+      } catch (NoSuchAlgorithmException e) {
+        throw new IllegalStateException("Could not create the default ssl context", e);
+      }
+    }
   }
 
   private static class PropertiesCredentialsProvider extends BasicCredentialsProvider {
 
     PropertiesCredentialsProvider(OpensearchProperties properties) {
       if (StringUtils.hasText(properties.getUsername())) {
-        var credentials = new UsernamePasswordCredentials(properties.getUsername(), properties.getPassword());
-        setCredentials(AuthScope.ANY, credentials);
+        var credentials = new UsernamePasswordCredentials(properties.getUsername(),
+          properties.getPassword().toCharArray());
+        setCredentials(new AuthScope(null, -1), credentials);
       }
       properties.getUris().stream().map(this::toUri).filter(this::hasUserInfo).forEach(this::addUserInfoCredentials);
     }
@@ -159,7 +210,7 @@ public class OpensearchRestClientConfiguration {
       }
       String username = userInfo.substring(0, delimiter);
       String password = userInfo.substring(delimiter + 1);
-      return new UsernamePasswordCredentials(username, password);
+      return new UsernamePasswordCredentials(username, password.toCharArray());
     }
 
   }

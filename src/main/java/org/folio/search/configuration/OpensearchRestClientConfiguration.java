@@ -16,16 +16,26 @@
 
 package org.folio.search.configuration;
 
+import static org.opensearch.client.RestClientBuilder.DEFAULT_MAX_CONN_PER_ROUTE;
+import static org.opensearch.client.RestClientBuilder.DEFAULT_MAX_CONN_TOTAL;
+
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
+import javax.net.ssl.SSLContext;
 import org.apache.hc.client5.http.auth.AuthScope;
 import org.apache.hc.client5.http.auth.Credentials;
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
+import org.apache.hc.client5.http.config.ConnectionConfig;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.async.HttpAsyncClientBuilder;
 import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
+import org.apache.hc.client5.http.impl.nio.PoolingAsyncClientConnectionManager;
+import org.apache.hc.client5.http.impl.nio.PoolingAsyncClientConnectionManagerBuilder;
+import org.apache.hc.client5.http.ssl.ClientTlsStrategyBuilder;
 import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.util.Timeout;
 import org.folio.search.configuration.opensearch.RestClientBuilderCustomizer;
 import org.folio.search.configuration.properties.OpensearchProperties;
@@ -117,16 +127,43 @@ public class OpensearchRestClientConfiguration {
     @Override
     public void customize(HttpAsyncClientBuilder builder) {
       builder.setDefaultCredentialsProvider(new PropertiesCredentialsProvider(this.properties));
+      builder.setConnectionManager(getPoolingAsyncClientConnectionManager());
     }
 
     @Override
     public void customize(RequestConfig.Builder builder) {
-      MAPPER.from(this.properties::getConnectionTimeout).whenNonNull().asInt(Duration::toMillis)
-        .to(timeout -> builder.setConnectTimeout(Timeout.ofMilliseconds(timeout)));
       MAPPER.from(this.properties::getSocketTimeout).whenNonNull().asInt(Duration::toMillis)
         .to(timeout -> builder.setResponseTimeout(Timeout.ofMilliseconds(timeout)));
     }
 
+    private PoolingAsyncClientConnectionManager getPoolingAsyncClientConnectionManager() {
+      return PoolingAsyncClientConnectionManagerBuilder.create()
+        .setDefaultConnectionConfig(getConnectionConfig(ConnectionConfig.custom()))
+        .setMaxConnPerRoute(DEFAULT_MAX_CONN_PER_ROUTE)
+        .setMaxConnTotal(DEFAULT_MAX_CONN_TOTAL)
+        .setTlsStrategy(getTlsStrategy())
+        .build();
+    }
+
+    private ConnectionConfig getConnectionConfig(ConnectionConfig.Builder builder) {
+      MAPPER.from(this.properties::getConnectionTimeout).whenNonNull().asInt(Duration::toMillis)
+        .to(timeout -> builder.setConnectTimeout(Timeout.ofMilliseconds(timeout)));
+      MAPPER.from(this.properties::getSocketTimeout).whenNonNull().asInt(Duration::toMillis)
+        .to(timeout -> builder.setSocketTimeout(Timeout.ofMilliseconds(timeout)));
+      return builder.build();
+    }
+
+    private static TlsStrategy getTlsStrategy() {
+      TlsStrategy tlsStrategy;
+      try {
+        tlsStrategy = ClientTlsStrategyBuilder.create()
+          .setSslContext(SSLContext.getDefault())
+          .build();
+      } catch (NoSuchAlgorithmException e) {
+        throw new IllegalStateException("could not create the default ssl context", e);
+      }
+      return tlsStrategy;
+    }
   }
 
   private static class PropertiesCredentialsProvider extends BasicCredentialsProvider {

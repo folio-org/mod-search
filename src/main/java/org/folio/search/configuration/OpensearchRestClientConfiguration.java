@@ -154,15 +154,13 @@ public class OpensearchRestClientConfiguration {
     }
 
     private static TlsStrategy getTlsStrategy() {
-      TlsStrategy tlsStrategy;
       try {
-        tlsStrategy = ClientTlsStrategyBuilder.create()
+        return ClientTlsStrategyBuilder.create()
           .setSslContext(SSLContext.getDefault())
           .build();
       } catch (NoSuchAlgorithmException e) {
-        throw new IllegalStateException("could not create the default ssl context", e);
+        throw new IllegalStateException("Could not create the default ssl context", e);
       }
-      return tlsStrategy;
     }
   }
 

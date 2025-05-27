@@ -296,7 +296,7 @@ public abstract class BaseIntegrationTest {
       .source(searchSource().query(matchAllQuery()).trackTotalHits(true).from(0).size(0))
       .indices(getIndexName(resource.getName(), tenantId));
     var searchResponse = elasticClient.search(searchRequest, RequestOptions.DEFAULT);
-    return Objects.requireNonNull(searchResponse.getHits().getTotalHits()).value();
+    return Objects.requireNonNull(searchResponse.getHits().getTotalHits()).value;
   }
 
   protected static String getIndexId(ResourceType resource) throws IOException {

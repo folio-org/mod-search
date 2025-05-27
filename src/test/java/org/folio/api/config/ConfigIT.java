@@ -386,7 +386,7 @@ class ConfigIT extends BaseIntegrationTest {
       .indices(getIndexName(ResourceType.INSTANCE, TENANT_ID));
 
     await().until(() -> elasticsearchClient.search(searchRequest, RequestOptions.DEFAULT)
-                          .getHits().getTotalHits().value() > 0);
+                          .getHits().getTotalHits().value > 0);
 
     return elasticsearchClient.search(searchRequest, RequestOptions.DEFAULT).getHits()
       .getAt(0).getSourceAsMap();

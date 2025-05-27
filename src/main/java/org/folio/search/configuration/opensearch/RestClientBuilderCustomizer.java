@@ -1,7 +1,7 @@
 package org.folio.search.configuration.opensearch;
 
-import org.apache.hc.client5.http.config.RequestConfig.Builder;
-import org.apache.hc.client5.http.impl.async.HttpAsyncClientBuilder;
+import org.apache.http.client.config.RequestConfig.Builder;
+import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 
 public interface RestClientBuilderCustomizer {
 

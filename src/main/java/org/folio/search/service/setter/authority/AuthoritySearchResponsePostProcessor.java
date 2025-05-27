@@ -65,7 +65,7 @@ public final class AuthoritySearchResponsePostProcessor implements SearchRespons
     for (int i = 0; i < responses.length; i++) {
       var count = Optional.ofNullable(responses[i].getResponse())
         .map(searchResponse -> searchResponse.getHits().getTotalHits())
-        .map(totalHits -> (int) totalHits.value())
+        .map(totalHits -> (int) totalHits.value)
         .orElse(0);
       authorities.get(i).setNumberOfTitles(count);
     }

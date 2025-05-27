@@ -129,7 +129,7 @@ class IndexingInstitutionsConsortiumIT extends BaseConsortiumIntegrationTest {
           .trackTotalHits(true).from(0).size(1))
         .indices(getIndexName(ResourceType.INSTITUTION, CENTRAL_TENANT_ID));
       var searchResponse = elasticClient.search(searchRequest, RequestOptions.DEFAULT);
-      var hitCount = Objects.requireNonNull(searchResponse.getHits().getTotalHits()).value();
+      var hitCount = Objects.requireNonNull(searchResponse.getHits().getTotalHits()).value;
 
       assertThat(hitCount).isEqualTo(expected);
     });

@@ -220,8 +220,7 @@ description: |
         <td>electronicAccess</td>
         <td>full-text</td>
         <td>electronicAccess any &quot;resource&quot;</td>
-        <td>An alias for all electronicAccess fields - uri, linkText,
-            materialsSpecification, publicNote
+        <td>An alias for electronicAccess fields - uri, linkText, publicNote
         </td>
     </tr>
     <tr>
@@ -394,8 +393,7 @@ description: |
         <td>holdings.electronicAccess</td>
         <td>full-text</td>
         <td>holdings.electronicAccess any &quot;resource&quot;</td>
-        <td>An alias for all electronicAccess fields - uri, linkText,
-            materialsSpecification, publicNote
+        <td>An alias for electronicAccess fields - uri, linkText, publicNote
         </td>
     </tr>
     <tr>
@@ -561,8 +559,7 @@ description: |
         <td>item.electronicAccess</td>
         <td>full-text</td>
         <td>item.electronicAccess any &quot;resource&quot;</td>
-        <td>An alias for all electronicAccess fields - uri, linkText,
-            materialsSpecification, publicNote
+        <td>An alias for electronicAccess fields - uri, linkText, publicNote
         </td>
     </tr>
     <tr>

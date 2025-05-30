@@ -14,7 +14,7 @@ public class ElasticsearchRequestInterceptor implements HttpRequestInterceptor {
 
   private static final String CLUSTER_MANAGER_TIMEOUT_PARAM = "cluster_manager_timeout";
   private static final String MASTER_TIMEOUT_PARAM = "master_timeout";
-  private static final Set<String> SUPPORTED_METHODS = Set.of("POST", "PUT", "DELETE");
+  private static final Set<String> SUPPORTED_METHODS = Set.of("GET", "POST", "PUT", "DELETE");
 
   @Override
   public void process(HttpRequest request, EntityDetails entityDetails, HttpContext context) {

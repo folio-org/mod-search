@@ -40,7 +40,7 @@ class ElasticsearchRequestInterceptorTest {
 
   @Test
   void shouldNotModifyUriForUnsupportedMethod() {
-    when(request.getMethod()).thenReturn("GET");
+    when(request.getMethod()).thenReturn("HEAD");
 
     interceptor.process(request, entityDetails, context);
 

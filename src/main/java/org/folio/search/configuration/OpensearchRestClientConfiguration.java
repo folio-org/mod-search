@@ -23,6 +23,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
+import java.util.List;
 import javax.net.ssl.SSLContext;
 import org.apache.hc.client5.http.auth.AuthScope;
 import org.apache.hc.client5.http.auth.Credentials;
@@ -34,11 +35,9 @@ import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
 import org.apache.hc.client5.http.impl.nio.PoolingAsyncClientConnectionManager;
 import org.apache.hc.client5.http.impl.nio.PoolingAsyncClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.ssl.ClientTlsStrategyBuilder;
-import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
-import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Timeout;
 import org.folio.search.configuration.opensearch.RestClientBuilderCustomizer;
 import org.folio.search.configuration.properties.OpensearchProperties;
@@ -56,8 +55,9 @@ import org.springframework.util.StringUtils;
 public class OpensearchRestClientConfiguration {
 
   @Bean
-  RestClientBuilderCustomizer defaultRestClientBuilderCustomizer(OpensearchProperties properties) {
-    return new DefaultRestClientBuilderCustomizer(properties);
+  RestClientBuilderCustomizer defaultRestClientBuilderCustomizer(OpensearchProperties properties,
+                                                                 List<HttpRequestInterceptor> interceptors) {
+    return new DefaultRestClientBuilderCustomizer(properties, interceptors);
   }
 
   @Bean
@@ -120,24 +120,18 @@ public class OpensearchRestClientConfiguration {
     private static final PropertyMapper MAPPER = PropertyMapper.get();
 
     private final OpensearchProperties properties;
+    private final List<HttpRequestInterceptor> interceptors;
 
-    DefaultRestClientBuilderCustomizer(OpensearchProperties properties) {
+    DefaultRestClientBuilderCustomizer(OpensearchProperties properties, List<HttpRequestInterceptor> interceptors) {
       this.properties = properties;
+      this.interceptors = interceptors;
     }
 
     @Override
     public void customize(HttpAsyncClientBuilder builder) {
       builder.setDefaultCredentialsProvider(new PropertiesCredentialsProvider(this.properties));
       builder.setConnectionManager(getPoolingAsyncClientConnectionManager());
-      if (properties.isElasticsearchServer()) {
-        builder.addRequestInterceptorFirst((HttpRequest request, EntityDetails entityDetails, HttpContext context) -> {
-          var uri = request.getRequestUri();
-          if (uri.contains("cluster_manager_timeout")) {
-            var newUri = uri.replaceAll("[&?]?cluster_manager_timeout=[^&]*", "");
-            request.setPath(newUri);
-          }
-        });
-      }
+      interceptors.forEach(builder::addRequestInterceptorFirst);
     }
 
     @Override

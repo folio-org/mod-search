@@ -20,7 +20,7 @@ spring:
     username: elastic
     password: s3cret
     compression-enabled: false
-    elasticsearch-server: true
+    elasticsearch-server: false
   datasource:
     hikari:
       data-source-properties:

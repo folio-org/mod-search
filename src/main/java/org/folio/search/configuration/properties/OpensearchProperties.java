@@ -43,6 +43,4 @@ public class OpensearchProperties {
 
   private boolean compressionEnabled = true;
 
-  private boolean elasticsearchServer;
-
 }

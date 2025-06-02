@@ -11,7 +11,6 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -19,8 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class ElasticsearchRequestInterceptorTest {
 
-  @InjectMocks
-  private ElasticsearchRequestInterceptor interceptor;
+  private final ElasticsearchRequestInterceptor interceptor = new ElasticsearchRequestInterceptor();
   @Mock
   private HttpRequest request;
   @Mock

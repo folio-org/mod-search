@@ -18,5 +18,4 @@ public class SearchResponsePostProcessorsConfig {
       .collect(Collectors
         .toMap(SearchResponsePostProcessor::getGeneric, Function.identity()));
   }
-
 }

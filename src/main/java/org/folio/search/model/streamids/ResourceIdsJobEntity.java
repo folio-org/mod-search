@@ -43,5 +43,4 @@ public class ResourceIdsJobEntity {
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "created_date")
   private Date createdDate;
-
 }

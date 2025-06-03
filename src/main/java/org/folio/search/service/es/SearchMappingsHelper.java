@@ -121,7 +121,6 @@ public class SearchMappingsHelper {
     return singletonMap(name, withCustomMappings(mappings, customMappings));
   }
 
-
   private Map<String, JsonNode> getMappingForNestedField(String fieldName, NestedFieldDescription fieldDescription) {
     var mappingProps = new LinkedHashMap<String, JsonNode>();
 
@@ -153,7 +152,7 @@ public class SearchMappingsHelper {
     var languageConfigsMap = languageConfigService.getAll().getLanguageConfigs().stream()
       .collect(toMap(LanguageConfig::getCode, Function.identity()));
 
-    var propertiesIterator = mappings.get(MAPPING_PROPERTIES_FIELD).fields();
+    var propertiesIterator = mappings.get(MAPPING_PROPERTIES_FIELD).properties().iterator();
     while (propertiesIterator.hasNext()) {
       var languageNode = propertiesIterator.next();
       var languageCode = languageNode.getKey();

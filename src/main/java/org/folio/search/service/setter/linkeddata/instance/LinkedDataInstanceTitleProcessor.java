@@ -32,5 +32,4 @@ public class LinkedDataInstanceTitleProcessor implements FieldProcessor<LinkedDa
     var titles = Stream.concat(instanceTitles, workTitles).toList();
     return linkedDataTitleProcessor.getFieldValue(titles);
   }
-
 }

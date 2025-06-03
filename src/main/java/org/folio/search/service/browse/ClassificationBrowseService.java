@@ -68,5 +68,4 @@ public class ClassificationBrowseService
       .map(InstanceSubResource::getCount)
       .reduce(0, Integer::sum);
   }
-
 }

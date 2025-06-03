@@ -24,7 +24,6 @@ import org.opensearch.search.builder.SearchSourceBuilder;
 import org.opensearch.search.sort.SortBuilders;
 import org.springframework.stereotype.Repository;
 
-
 @Log4j2
 @Repository
 @RequiredArgsConstructor
@@ -86,5 +85,4 @@ public class ConsortiumLocationRepository {
     return performExceptionalOperation(() -> client.search(searchRequest,
       RequestOptions.DEFAULT), index, OPERATION_TYPE);
   }
-
 }

@@ -51,6 +51,4 @@ public interface InventoryReferenceDataClient {
       return name().toLowerCase(Locale.ROOT);
     }
   }
-
-
 }

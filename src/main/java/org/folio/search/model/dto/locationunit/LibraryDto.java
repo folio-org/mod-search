@@ -28,5 +28,4 @@ public class LibraryDto {
   private String campusId;
   @JsonProperty("metadata")
   private Metadata metadata;
-
 }

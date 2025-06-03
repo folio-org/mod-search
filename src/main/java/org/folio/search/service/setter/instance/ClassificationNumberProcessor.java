@@ -24,5 +24,4 @@ public class ClassificationNumberProcessor implements FieldProcessor<Instance, S
       .filter(Objects::nonNull)
       .collect(Collectors.toSet());
   }
-
 }

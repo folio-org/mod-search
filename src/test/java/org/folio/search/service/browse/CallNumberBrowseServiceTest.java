@@ -141,5 +141,4 @@ class CallNumberBrowseServiceTest {
       .sort(fieldSort("defaultShelvingOrder").order(sortOrder))
       .sort(fieldSort("value").order(sortOrder));
   }
-
 }

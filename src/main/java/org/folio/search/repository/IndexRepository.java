@@ -55,7 +55,6 @@ public class IndexRepository {
     return createIndexResponse.isAcknowledged()
       ? getSuccessFolioCreateIndexResponse(List.of(index))
       : getErrorFolioCreateIndexResponse(List.of(index));
-
   }
 
   /**
@@ -76,7 +75,6 @@ public class IndexRepository {
     return updateIndexSettingsResponse.isAcknowledged()
       ? getSuccessIndexOperationResponse()
       : getErrorIndexOperationResponse("Failed to put settings");
-
   }
 
   /**

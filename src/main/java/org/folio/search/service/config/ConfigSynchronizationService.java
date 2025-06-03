@@ -24,13 +24,13 @@ public class ConfigSynchronizationService {
 
     Optional.ofNullable(resourceType)
       .map(resource -> switch (resourceType) {
-        case CLASSIFICATION_TYPE -> BrowseType.INSTANCE_CLASSIFICATION;
-        case CALL_NUMBER_TYPE -> BrowseType.INSTANCE_CALL_NUMBER;
-        default -> null; })
-      .ifPresentOrElse(browseType -> {
+          case CLASSIFICATION_TYPE -> BrowseType.INSTANCE_CLASSIFICATION;
+          case CALL_NUMBER_TYPE -> BrowseType.INSTANCE_CALL_NUMBER;
+          default -> null;
+        }
+      ).ifPresentOrElse(browseType -> {
         var ids = resourceEvent.stream().map(ResourceEvent::getId).toList();
         configService.deleteTypeIdsFromConfigs(browseType, ids);
       }, () -> log.warn("sync:: not supported resource type: [{}]", resourceType));
   }
-
 }

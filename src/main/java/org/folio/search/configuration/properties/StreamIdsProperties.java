@@ -42,5 +42,4 @@ public class StreamIdsProperties {
    * LinkedBlockingQueue capacity for the ThreadPoolExecutor.
    */
   private int queueCapacity = 500;
-
 }

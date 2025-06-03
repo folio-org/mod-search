@@ -143,5 +143,4 @@ class StreamResourceIdsIT extends BaseIntegrationTest {
         "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19"))
     );
   }
-
 }

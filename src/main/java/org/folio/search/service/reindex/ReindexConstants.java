@@ -32,5 +32,4 @@ public final class ReindexConstants {
   public static final String SUBJECT_TABLE = "subject";
   public static final String UPLOAD_RANGE_TABLE = "upload_range";
   public static final String REINDEX_STATUS_TABLE = "reindex_status";
-
 }

@@ -25,5 +25,4 @@ public class DeleteAllRecordFilterStrategy implements RecordFilterStrategy<Strin
     }
     return false;
   }
-
 }

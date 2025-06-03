@@ -31,6 +31,4 @@ class LogUtilsTest {
     var actual = collectionToLogMsg(BIG_LIST, true);
     assertThat(actual).isEqualTo(MSG + BIG_LIST.size());
   }
-
-
 }

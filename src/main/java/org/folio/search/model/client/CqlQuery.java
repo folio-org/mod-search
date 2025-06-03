@@ -32,5 +32,4 @@ public record CqlQuery(String query) {
   private static CqlQuery fromTemplate(String format, Object... args) {
     return new CqlQuery(String.format(format, args));
   }
-
 }

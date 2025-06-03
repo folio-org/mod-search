@@ -116,5 +116,4 @@ public abstract class AbstractShelvingOrderBrowseServiceBySearchAfter<T, R>
   private static String getBrowseField(BrowseConfig config) {
     return BROWSE_FIELDS_MAP.getOrDefault(config.getShelvingAlgorithm(), DEFAULT_SHELVING_ORDER_BROWSING_FIELD);
   }
-
 }

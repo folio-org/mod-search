@@ -25,8 +25,11 @@ public class UploadInstanceRepository extends UploadRangeRepository {
       || jsonb_build_object('tenantId', i.tenant_id,
                             'shared', i.shared,
                             'isBoundWith', i.is_bound_with,
-                            'holdings', COALESCE(jsonb_agg(DISTINCT h.json || jsonb_build_object('tenantId', h.tenant_id)) FILTER (WHERE h.json IS NOT NULL), '[]'::jsonb),
-                            'items', COALESCE(jsonb_agg(it.json || jsonb_build_object('tenantId', it.tenant_id)) FILTER (WHERE it.json IS NOT NULL), '[]'::jsonb)) as json
+                            'holdings', COALESCE(jsonb_agg(DISTINCT h.json ||
+                            jsonb_build_object('tenantId', h.tenant_id))
+                            FILTER (WHERE h.json IS NOT NULL), '[]'::jsonb),
+                            'items', COALESCE(jsonb_agg(it.json || jsonb_build_object('tenantId', it.tenant_id))
+                            FILTER (WHERE it.json IS NOT NULL), '[]'::jsonb)) as json
     FROM %s i
       LEFT JOIN %s h on h.instance_id = i.id
       LEFT JOIN %s it on it.holding_id = h.id

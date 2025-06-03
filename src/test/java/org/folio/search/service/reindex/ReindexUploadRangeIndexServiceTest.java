@@ -90,5 +90,4 @@ class ReindexUploadRangeIndexServiceTest {
       .extracting(ResourceEvent::getTenant, ResourceEvent::getNew, ResourceEvent::getResourceName)
       .containsExactly(Tuple.tuple(TENANT_ID, mockRecord, ResourceType.INSTANCE.getName()));
   }
-
 }

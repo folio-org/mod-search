@@ -50,5 +50,4 @@ class ClassificationShelvingOrderFieldProcessorTest {
       assertThat(fieldValue).isEqualTo(OUTPUT);
     }
   }
-
 }

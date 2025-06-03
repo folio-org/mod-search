@@ -28,7 +28,6 @@ public class RangeGenerator {
         fromBigint(cur)
       ));
       prev = cur;
-
     }
 
     return ranges;

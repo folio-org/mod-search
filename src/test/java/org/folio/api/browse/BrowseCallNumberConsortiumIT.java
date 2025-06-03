@@ -270,5 +270,4 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
     doPut(browseConfigPath(BrowseType.INSTANCE_CALL_NUMBER, BrowseOptionType.LC), CENTRAL_TENANT_ID, config);
     okapi.wireMockServer().removeStub(stub);
   }
-
 }

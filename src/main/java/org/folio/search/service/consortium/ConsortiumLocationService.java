@@ -58,5 +58,4 @@ public class ConsortiumLocationService {
       throw validationException;
     }
   }
-
 }

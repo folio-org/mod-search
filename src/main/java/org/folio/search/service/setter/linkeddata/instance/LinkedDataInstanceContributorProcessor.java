@@ -32,5 +32,4 @@ public class LinkedDataInstanceContributorProcessor implements FieldProcessor<Li
     var contributors = Stream.concat(instanceContributors, workContributors).toList();
     return linkedDataContributorProcessor.getFieldValue(contributors);
   }
-
 }

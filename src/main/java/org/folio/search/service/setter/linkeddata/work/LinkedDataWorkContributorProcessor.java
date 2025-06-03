@@ -33,5 +33,4 @@ public class LinkedDataWorkContributorProcessor implements FieldProcessor<Linked
     var contributors = Stream.concat(workContributors, instanceContributors).toList();
     return linkedDataContributorProcessor.getFieldValue(contributors);
   }
-
 }

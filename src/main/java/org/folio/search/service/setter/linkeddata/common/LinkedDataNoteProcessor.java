@@ -27,5 +27,4 @@ public class LinkedDataNoteProcessor implements FieldProcessor<List<LinkedDataNo
       .map(String::trim)
       .collect(toCollection(LinkedHashSet::new));
   }
-
 }

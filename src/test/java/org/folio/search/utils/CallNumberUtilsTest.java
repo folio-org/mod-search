@@ -53,5 +53,4 @@ class CallNumberUtilsTest {
       Arguments.of("callNumber", "", "callNumber")
     );
   }
-
 }

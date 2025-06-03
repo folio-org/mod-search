@@ -391,5 +391,4 @@ class ConfigIT extends BaseIntegrationTest {
     return elasticsearchClient.search(searchRequest, RequestOptions.DEFAULT).getHits()
       .getAt(0).getSourceAsMap();
   }
-
 }

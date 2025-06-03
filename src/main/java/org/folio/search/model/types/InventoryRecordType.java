@@ -9,7 +9,6 @@ public enum InventoryRecordType {
   ITEM("item", "http://item-storage/items"),
   HOLDING("holding", "http://holdings-storage/holdings");
 
-
   /**
    * record name.
    */

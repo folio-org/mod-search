@@ -70,5 +70,4 @@ public class OclcProcessor extends AbstractIdentifierProcessor<Instance> {
   private String normalizeOclcValue(String value) {
     return WHITESPACE_REGEX.matcher(trim(value)).replaceAll("-");
   }
-
 }

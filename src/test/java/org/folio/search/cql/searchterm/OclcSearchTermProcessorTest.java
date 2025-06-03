@@ -27,5 +27,4 @@ class OclcSearchTermProcessorTest {
     var actual = oclcSearchTermProcessor.getSearchTerm(searchTerm);
     assertThat(actual).isEqualTo(searchTerm);
   }
-
 }

@@ -105,5 +105,4 @@ public class CallNumberResourceExtractor extends ChildResourceExtractor {
     return (Map<String, Object>) getMap(entityProperties, EFFECTIVE_CALL_NUMBER_COMPONENTS_FIELD,
       Collections.<String, Object>emptyMap());
   }
-
 }

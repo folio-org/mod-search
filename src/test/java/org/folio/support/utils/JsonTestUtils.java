@@ -61,7 +61,6 @@ public class JsonTestUtils {
       case Boolean b -> BooleanNode.valueOf(b);
       default -> jsonObject();
     };
-
   }
 
   @SneakyThrows

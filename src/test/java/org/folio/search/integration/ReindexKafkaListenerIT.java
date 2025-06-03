@@ -155,6 +155,5 @@ class ReindexKafkaListenerIT {
     public FolioExecutionContext folioExecutionContext() {
       return new DefaultFolioExecutionContext(null, Map.of(TENANT, List.of(TENANT_ID)));
     }
-
   }
 }

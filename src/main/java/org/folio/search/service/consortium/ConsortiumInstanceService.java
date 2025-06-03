@@ -28,5 +28,4 @@ public class ConsortiumInstanceService {
     List<ConsortiumItem> itemList = repository.fetchItems(searchQueryBuilder);
     return new ConsortiumItemCollection().items(itemList).totalRecords(repository.count(searchQueryBuilder));
   }
-
 }

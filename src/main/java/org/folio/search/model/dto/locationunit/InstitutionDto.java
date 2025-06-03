@@ -26,5 +26,4 @@ public class InstitutionDto {
   private String code;
   @JsonProperty("metadata")
   private Metadata metadata;
-
 }

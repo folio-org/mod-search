@@ -234,5 +234,4 @@ class IndexManagementIT extends BaseIntegrationTest {
       .header(XOkapiHeaders.URL, okapi.getOkapiUrl())
       .contentType(MediaType.APPLICATION_JSON);
   }
-
 }

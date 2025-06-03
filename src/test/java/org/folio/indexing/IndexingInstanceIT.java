@@ -134,5 +134,4 @@ class IndexingInstanceIT extends BaseIntegrationTest {
       assertCountByQuery(instanceSearchPath(), "holdings.id=={value}", holdingId, 1);
     }
   }
-
 }

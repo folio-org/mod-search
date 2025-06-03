@@ -17,5 +17,4 @@ public class SampleInstitutions {
   public static List<Map<String, Object>> getInstitutionsSampleAsMap() {
     return INSTITUTIONS_RECORD_AS_MAP;
   }
-
 }

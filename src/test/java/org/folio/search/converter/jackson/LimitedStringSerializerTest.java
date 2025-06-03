@@ -89,5 +89,4 @@ class LimitedStringSerializerTest {
     verify(jsonGenerator).writeString(captor.capture());
     assertThat(captor.getValue().getBytes(StandardCharsets.UTF_8)).hasSizeLessThanOrEqualTo(MAX_BYTES);
   }
-
 }

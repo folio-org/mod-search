@@ -90,5 +90,4 @@ public class ConfigController implements ConfigApi {
   public ResponseEntity<LanguageConfig> updateLanguageConfig(String code, LanguageConfig languageConfig) {
     return ok(languageConfigService.update(code, languageConfig));
   }
-
 }

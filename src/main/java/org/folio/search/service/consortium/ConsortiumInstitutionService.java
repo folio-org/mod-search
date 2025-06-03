@@ -43,5 +43,4 @@ public class ConsortiumInstitutionService {
       throw new IllegalArgumentException("Invalid sortBy value: " + sortBy);
     }
   }
-
 }

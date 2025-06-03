@@ -23,5 +23,4 @@ public class LinkedDataWorkClassificationNumberProcessor implements FieldProcess
       .flatMap(i -> processor.getFieldValue(i).stream())
       .collect(Collectors.toSet());
   }
-
 }

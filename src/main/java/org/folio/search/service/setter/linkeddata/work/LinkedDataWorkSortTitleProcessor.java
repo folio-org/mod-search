@@ -16,5 +16,4 @@ public class LinkedDataWorkSortTitleProcessor implements FieldProcessor<LinkedDa
   public String getFieldValue(LinkedDataWork linkedDataWork) {
     return linkedDataSortTitleProcessor.getFieldValue(linkedDataWork.getTitles());
   }
-
 }

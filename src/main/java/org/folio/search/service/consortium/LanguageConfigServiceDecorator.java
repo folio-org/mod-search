@@ -37,5 +37,4 @@ public class LanguageConfigServiceDecorator {
   public Set<String> getAllLanguagesForTenant(String tenant) {
     return languageConfigService.getAllLanguagesForTenant(tenant);
   }
-
 }

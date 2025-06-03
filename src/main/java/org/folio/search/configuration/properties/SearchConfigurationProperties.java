@@ -76,7 +76,5 @@ public class SearchConfigurationProperties {
      * Scheduler delay for indexing subjects/contributors/classifications.
      * */
     private long instanceChildrenIndexDelayMs;
-
   }
-
 }

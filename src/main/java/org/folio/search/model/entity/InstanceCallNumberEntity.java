@@ -14,5 +14,4 @@ public class InstanceCallNumberEntity {
   private String instanceId;
   private String locationId;
   private String tenantId;
-
 }

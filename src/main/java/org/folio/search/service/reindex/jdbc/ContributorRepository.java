@@ -118,7 +118,6 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
           ORDER BY last_updated_date ASC;
     """;
 
-
   private static final String DELETE_QUERY = """
     WITH deleted_ids as (
         DELETE
@@ -295,5 +294,4 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
   private String getInstances(ResultSet rs) throws SQLException {
     return rs.getString(SUB_RESOURCE_INSTANCES_FIELD);
   }
-
 }

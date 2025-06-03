@@ -91,5 +91,4 @@ class FeatureConfigServiceDecoratorTest extends DecoratorBaseTest {
     verify(service).delete(feature);
     verify(consortiumTenantExecutor).run(any());
   }
-
 }

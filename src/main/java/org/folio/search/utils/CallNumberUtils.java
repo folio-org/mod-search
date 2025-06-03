@@ -51,5 +51,4 @@ public class CallNumberUtils {
       .filter(StringUtils::isNotBlank)
       .collect(joining(" "));
   }
-
 }

@@ -186,5 +186,4 @@ class ConsortiumLocationRepositoryTest {
         assertThat(source.query()).isNull();
       });
   }
-
 }

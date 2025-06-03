@@ -107,12 +107,10 @@ public class ResourceIdService {
       idsTemporaryRepository.createTableForIds(tableName);
       streamResourceIds(request, idsList -> idsTemporaryRepository.insertIds(idsList, tableName));
       job.setStatus(StreamJobStatus.COMPLETED);
-
     } catch (Exception e) {
       log.warn("Failed to process resource ids job with id = {}, msg: {}", job.getId(), e.getMessage());
       idsTemporaryRepository.dropTableForIds(tableName);
       job.setStatus(StreamJobStatus.ERROR);
-
     } finally {
       log.info("streamResourceIdsForJob:: Attempts to save [job: {}]", job);
       jobRepository.save(job);
@@ -184,7 +182,6 @@ public class ResourceIdService {
         json.writeEndObject();
       }
       json.flush();
-
     } catch (IOException e) {
       throw new SearchServiceException(
         format("Failed to write to id value into json stream [reason: %s]", e.getMessage()), e);
@@ -203,11 +200,9 @@ public class ResourceIdService {
         outputStreamWriter.write(recordId + '\n');
       }
       outputStreamWriter.flush();
-
     } catch (IOException e) {
       throw new SearchServiceException(
         format("Failed to write id value into output stream [reason: %s]", e.getMessage()), e);
     }
   }
-
 }

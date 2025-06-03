@@ -108,5 +108,4 @@ class IndexingLocationsConsortiumIT extends BaseConsortiumIntegrationTest {
         .updatedDate("2021-03-01T00:00:00.000+00:00"))
       .build();
   }
-
 }

@@ -105,5 +105,4 @@ class LanguageConfigServiceDecoratorTest extends DecoratorBaseTest {
     verify(service).getAllLanguagesForTenant(TENANT_ID);
     verifyNoInteractions(consortiumTenantExecutor);
   }
-
 }

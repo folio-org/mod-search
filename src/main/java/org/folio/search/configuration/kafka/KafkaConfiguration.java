@@ -69,5 +69,4 @@ public abstract class KafkaConfiguration {
       return FolioEnvironment.getFolioEnvName();
     }
   }
-
 }

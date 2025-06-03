@@ -32,5 +32,4 @@ public class ResourceIdsTemporaryRepository {
   public void streamIds(String tableName, RowCallbackHandler rowCallbackHandler) {
     jdbcTemplate.query(format("SELECT * FROM %s", tableName), rowCallbackHandler);
   }
-
 }

@@ -27,5 +27,4 @@ public class LinkedDataWorkLccnProcessor implements FieldProcessor<LinkedDataWor
       .flatMap(i -> linkedDataLccnProcessor.getFieldValue(i).stream())
       .collect(Collectors.toSet());
   }
-
 }

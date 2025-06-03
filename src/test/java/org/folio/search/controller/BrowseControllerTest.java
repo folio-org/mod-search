@@ -205,5 +205,4 @@ class BrowseControllerTest {
       .andExpect(jsonPath("$.errors[0].message", is(
         "browseInstancesByCallNumber.precedingRecordsCount must be greater than or equal to 1")));
   }
-
 }

@@ -75,7 +75,6 @@ public class CallNumberBrowseService
     return instanceSubResources.iterator().next().getInstanceTitle();
   }
 
-
   private Integer getTotalRecords(BrowseContext ctx, CallNumberResource resource,
                                   Function<CallNumberResource, Set<InstanceSubResource>> func) {
     return consortiumSearchHelper.filterSubResourcesForConsortium(ctx, resource, func)

@@ -42,5 +42,4 @@ public class OpensearchProperties {
   private String pathPrefix;
 
   private boolean compressionEnabled = true;
-
 }

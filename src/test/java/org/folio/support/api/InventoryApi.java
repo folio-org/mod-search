@@ -157,5 +157,4 @@ public class InventoryApi {
       resourcesByKey.forEach(consumer);
     }
   }
-
 }

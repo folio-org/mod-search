@@ -12,7 +12,6 @@ import org.folio.search.domain.dto.BatchIdsDto;
 import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.Item;
 
-
 @UtilityClass
 public class IdentifierUtils {
 

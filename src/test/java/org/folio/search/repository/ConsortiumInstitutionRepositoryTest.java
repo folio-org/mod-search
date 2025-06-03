@@ -191,5 +191,4 @@ class ConsortiumInstitutionRepositoryTest {
         assertThat(source.query()).isNull();
       });
   }
-
 }

@@ -33,5 +33,4 @@ public class LinkedDataWorkTitleProcessor implements FieldProcessor<LinkedDataWo
     var titles = Stream.concat(workTitles, instTitles).toList();
     return linkedDataTitleProcessor.getFieldValue(titles);
   }
-
 }

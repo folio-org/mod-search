@@ -32,5 +32,4 @@ public class LinkedDataInstanceNoteProcessor implements FieldProcessor<LinkedDat
     var notes = Stream.concat(instanceNotes, workNotes).toList();
     return linkedDataNoteProcessor.getFieldValue(notes);
   }
-
 }

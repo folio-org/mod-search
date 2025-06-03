@@ -27,5 +27,4 @@ public class LinkedDataTitleProcessor implements FieldProcessor<List<LinkedDataT
       .map(String::trim)
       .collect(toCollection(LinkedHashSet::new));
   }
-
 }

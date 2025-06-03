@@ -24,5 +24,4 @@ public class LinkedDataSortTitleProcessor implements FieldProcessor<List<LinkedD
       .filter(StringUtils::isNotBlank)
       .collect(Collectors.joining());
   }
-
 }

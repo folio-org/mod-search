@@ -64,7 +64,6 @@ public class LinkedDataTestUtils {
     return join(".", base, arrayPath("hubAAPs", number));
   }
 
-
   public static String toLanguage(String base, int number) {
     return join(".", base, arrayPath("languages", number));
   }

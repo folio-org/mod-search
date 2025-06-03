@@ -28,7 +28,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-
 @UnitTest
 @ExtendWith(MockitoExtension.class)
 class LccnInstanceProcessorTest {

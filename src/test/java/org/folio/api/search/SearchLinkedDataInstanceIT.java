@@ -284,5 +284,4 @@ class SearchLinkedDataInstanceIT extends BaseIntegrationTest {
     doSearchByLinkedDataInstance(query)
       .andExpect(jsonPath(toTotalRecords(), is(0)));
   }
-
 }

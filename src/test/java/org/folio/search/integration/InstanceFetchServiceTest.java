@@ -159,5 +159,4 @@ class InstanceFetchServiceTest {
   private static Map<String, Object> instanceMap(Instance instance) {
     return JsonTestUtils.toMap(instance);
   }
-
 }

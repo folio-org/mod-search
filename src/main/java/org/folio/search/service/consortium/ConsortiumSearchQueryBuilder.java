@@ -146,6 +146,5 @@ public class ConsortiumSearchQueryBuilder {
       })
       .toList();
   }
-
 }
 

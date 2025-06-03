@@ -190,5 +190,4 @@ class ConsortiumLibraryRepositoryTest {
         assertThat(source.query()).isNull();
       });
   }
-
 }

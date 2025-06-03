@@ -208,7 +208,5 @@ public class OpensearchRestClientConfiguration {
       String password = userInfo.substring(delimiter + 1);
       return new UsernamePasswordCredentials(username, password.toCharArray());
     }
-
   }
-
 }

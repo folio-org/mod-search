@@ -363,5 +363,4 @@ class SearchLinkedDataWorkIT extends BaseIntegrationTest {
       .andExpect(jsonPath(toInstance()).doesNotExist())
     ;
   }
-
 }

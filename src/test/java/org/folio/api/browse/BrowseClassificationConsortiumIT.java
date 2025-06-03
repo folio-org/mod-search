@@ -202,5 +202,4 @@ class BrowseClassificationConsortiumIT extends BaseConsortiumIntegrationTest {
         pair("SF991 .M94", null)))
     );
   }
-
 }

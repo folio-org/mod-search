@@ -87,5 +87,4 @@ public class ConsortiumCampusRepository {
     return performExceptionalOperation(() -> client.search(searchRequest,
       RequestOptions.DEFAULT), index, OPERATION_TYPE);
   }
-
 }

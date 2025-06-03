@@ -60,5 +60,4 @@ public class SearchDocumentBody {
   public String getResource() {
     return resourceEvent.getResourceName();
   }
-
 }

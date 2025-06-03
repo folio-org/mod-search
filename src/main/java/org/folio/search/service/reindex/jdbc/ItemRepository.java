@@ -54,7 +54,5 @@ public class ItemRepository extends MergeRangeRepository {
         statement.setObject(4, entity.get("holdingsRecordId"));
         statement.setString(5, jsonConverter.toJson(entity));
       });
-
   }
-
 }

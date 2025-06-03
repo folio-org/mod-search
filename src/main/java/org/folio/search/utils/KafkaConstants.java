@@ -12,6 +12,4 @@ public class KafkaConstants {
   public static final String LINKED_DATA_LISTENER_ID = "mod-search-linked-data-listener";
   public static final String REINDEX_RANGE_INDEX_LISTENER_ID = "mod-search-reindex-index-listener";
   public static final String REINDEX_RECORDS_LISTENER_ID = "mod-search-reindex-records-listener";
-  public static final String INSTANCE_SUB_RESOURCE_LISTENER_ID = "mod-search-instance-sub-resource-listener";
-
 }

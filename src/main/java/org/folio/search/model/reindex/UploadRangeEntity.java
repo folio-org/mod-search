@@ -26,5 +26,4 @@ public class UploadRangeEntity {
   private Timestamp finishedAt;
   private final ReindexRangeStatus status;
   private final String failCause;
-
 }

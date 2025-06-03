@@ -93,6 +93,5 @@ public class CallNumberEntity implements Comparable<CallNumberEntity> {
       return new CallNumberEntity(this.id, this.callNumber, this.callNumberPrefix, this.callNumberSuffix,
         this.callNumberTypeId);
     }
-
   }
 }

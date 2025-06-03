@@ -66,7 +66,6 @@ public class KafkaMessageListener {
         resourceService::indexInstancesById, KafkaMessageListener::logFailedEvent);
       return null;
     }));
-
   }
 
   /**
@@ -206,5 +205,4 @@ public class KafkaMessageListener {
       resourceName, eventType, event.getTenant(), event.getId()
     ), e);
   }
-
 }

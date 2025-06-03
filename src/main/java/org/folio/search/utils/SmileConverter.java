@@ -40,5 +40,4 @@ public class SmileConverter {
         SERIALIZATION_ERROR_MSG_TEMPLATE, e.getMessage()));
     }
   }
-
 }

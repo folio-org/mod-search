@@ -43,5 +43,4 @@ class IndexingAuthorityIT extends BaseIntegrationTest {
     kafkaTemplate.send(inventoryAuthorityTopic(TENANT_ID), deleteEvent);
     assertCountByIds(authoritySearchPath(), List.of(authorityId), 0);
   }
-
 }

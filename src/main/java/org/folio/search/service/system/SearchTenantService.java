@@ -210,5 +210,4 @@ public class SearchTenantService extends TenantService {
         .map(Parameter::getValue))
       .orElse(contextTenantId);
   }
-
 }

@@ -102,7 +102,6 @@ class ExactTermQueryBuilderTest {
     assertThat(actual).isEqualTo(termQuery("field", "val1"));
   }
 
-
   @Test
   void getTermLevelQuery_positive_arrayOfTermsWithSizeGreaterThen1() {
     var actual = queryBuilder.getTermLevelQuery(new String[]{"val1", "val2"}, "field", UNKNOWN, null);

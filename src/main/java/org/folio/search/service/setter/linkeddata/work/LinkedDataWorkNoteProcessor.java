@@ -31,5 +31,4 @@ public class LinkedDataWorkNoteProcessor implements FieldProcessor<LinkedDataWor
     var notes = Stream.concat(workNotes, instanceNotes).toList();
     return linkedDataNoteProcessor.getFieldValue(notes);
   }
-
 }

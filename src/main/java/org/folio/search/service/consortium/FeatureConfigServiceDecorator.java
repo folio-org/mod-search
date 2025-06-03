@@ -33,5 +33,4 @@ public class FeatureConfigServiceDecorator {
   public void delete(TenantConfiguredFeature feature) {
     consortiumTenantExecutor.run(() -> featureConfigService.delete(feature));
   }
-
 }

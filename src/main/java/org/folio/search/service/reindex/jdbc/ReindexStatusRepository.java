@@ -31,7 +31,8 @@ import org.springframework.stereotype.Repository;
 public class ReindexStatusRepository {
 
   private static final String INSERT_REINDEX_STATUS_SQL = """
-      INSERT INTO %s (entity_type, status, total_merge_ranges, processed_merge_ranges, total_upload_ranges, processed_upload_ranges, start_time_merge, end_time_merge, start_time_upload, end_time_upload)
+      INSERT INTO %s (entity_type, status, total_merge_ranges, processed_merge_ranges, total_upload_ranges,
+      processed_upload_ranges, start_time_merge, end_time_merge, start_time_upload, end_time_upload)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
     """;
 
@@ -62,7 +63,6 @@ public class ReindexStatusRepository {
 
   private final FolioExecutionContext context;
   private final JdbcTemplate jdbcTemplate;
-
 
   public List<ReindexStatusEntity> getReindexStatuses() {
     var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);

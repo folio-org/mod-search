@@ -264,7 +264,6 @@ public class JsonConverter {
     return convert(value, MAP_TYPE_REFERENCE);
   }
 
-
   private static RuntimeException deserializationException(String value, Throwable e) {
     log.warn(DESERIALIZATION_ERROR_MSG_TEMPLATE, value, e);
     return new SerializationException(String.format(

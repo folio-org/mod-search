@@ -28,5 +28,4 @@ class SearchLinkedDataInstanceConsortiumIT extends BaseConsortiumIntegrationTest
       .andExpect(jsonPath(toTotalRecords(), is(1)))
       .andExpect(jsonPath(toTitleValue(toRootContent(0), 0), is("titleAbc def")));
   }
-
 }

@@ -18,5 +18,4 @@ public class SearchQueryConfigurationProperties {
    * Search request timeout.
    */
   private Duration requestTimeout = Duration.ofSeconds(25);
-
 }

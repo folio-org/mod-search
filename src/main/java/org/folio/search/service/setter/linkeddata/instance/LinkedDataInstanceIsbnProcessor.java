@@ -17,5 +17,4 @@ public class LinkedDataInstanceIsbnProcessor implements FieldProcessor<LinkedDat
   public Set<String> getFieldValue(LinkedDataInstance linkedDataInstance) {
     return linkedDataIsbnProcessor.getFieldValue(linkedDataInstance.getIdentifiers());
   }
-
 }

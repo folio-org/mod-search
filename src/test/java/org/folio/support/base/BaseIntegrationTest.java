@@ -546,5 +546,4 @@ public abstract class BaseIntegrationTest {
   }
 
   public record TestData(Class<?> type, List<Map<String, Object>> testRecords, int expectedCount) { }
-
 }

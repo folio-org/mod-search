@@ -41,5 +41,4 @@ class ConsortiumTenantProviderTest {
     assertThat(actual)
       .isEqualTo(TENANT_ID);
   }
-
 }

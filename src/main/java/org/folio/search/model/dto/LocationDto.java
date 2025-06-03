@@ -42,5 +42,4 @@ public class LocationDto {
   private List<UUID> servicePointIds;
   @JsonProperty("metadata")
   private Metadata metadata;
-
 }

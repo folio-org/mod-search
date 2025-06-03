@@ -59,5 +59,4 @@ public abstract class ReindexJdbcRepository {
   }
 
   protected abstract String rangeTable();
-
 }

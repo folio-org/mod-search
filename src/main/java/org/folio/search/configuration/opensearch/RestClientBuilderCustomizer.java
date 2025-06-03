@@ -8,5 +8,4 @@ public interface RestClientBuilderCustomizer {
   void customize(HttpAsyncClientBuilder builder);
 
   void customize(Builder builder);
-
 }

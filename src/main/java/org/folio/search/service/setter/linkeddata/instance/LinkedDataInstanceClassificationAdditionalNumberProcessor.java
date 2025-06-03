@@ -26,5 +26,4 @@ public class LinkedDataInstanceClassificationAdditionalNumberProcessor
       .flatMap(i -> processor.getFieldValue(i).stream())
       .collect(Collectors.toSet());
   }
-
 }

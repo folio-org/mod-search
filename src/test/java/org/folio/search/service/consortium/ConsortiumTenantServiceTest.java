@@ -66,5 +66,4 @@ class ConsortiumTenantServiceTest {
     assertThat(actual)
       .isEmpty();
   }
-
 }

@@ -17,5 +17,4 @@ public class LinkedDataInstanceLccnProcessor implements FieldProcessor<LinkedDat
   public Set<String> getFieldValue(LinkedDataInstance linkedDataInstance) {
     return linkedDataLccnProcessor.getFieldValue(linkedDataInstance.getIdentifiers());
   }
-
 }

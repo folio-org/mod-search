@@ -51,5 +51,4 @@ public class ConsortiumInstanceRepository {
       searchQueryBuilder.getQueryArguments()
     );
   }
-
 }

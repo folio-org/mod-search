@@ -249,5 +249,4 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
     doPut(browseConfigPath(BrowseType.INSTANCE_CALL_NUMBER, BrowseOptionType.LC), config);
     okapi.wireMockServer().removeStub(stub);
   }
-
 }

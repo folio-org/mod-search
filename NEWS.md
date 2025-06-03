@@ -13,6 +13,7 @@
 * Index Management: truncate fields more than 32 000 bytes long ([MSEARCH-1029](https://folio-org.atlassian.net/browse/MSEARCH-1029))
 * Instance search: add support for searching by instance/holdings/item electronic access relationship ID ([MSEARCH-816](https://folio-org.atlassian.net/browse/MSEARCH-816))
 * Add indexes for instance_(call_number/subject/classification/contributor) ([MSEARCH-1025](https://folio-org.atlassian.net/browse/MSEARCH-1025))
+* Migrate to Opensearch 3.0.0 ([MSEARCH-1033](https://folio-org.atlassian.net/browse/MSEARCH-1033))
 
 ### Bug fixes
 * Browse Config: fix exception while trying to validate empty type ids ([MSEARCH-998](https://folio-org.atlassian.net/browse/MSEARCH-998))

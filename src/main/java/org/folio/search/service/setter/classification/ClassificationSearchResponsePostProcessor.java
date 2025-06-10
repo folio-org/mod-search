@@ -89,6 +89,7 @@ public final class ClassificationSearchResponsePostProcessor
   }
 
   private SearchSourceBuilder buildQuery(List<String> classificationIds) {
+    //todo: bool query with shoulds, each should is bool with must on id, tenant
     var queryBuilder = termsQuery(INSTANCE_CLASSIFICATION_IDS_FIELD, classificationIds.toArray(String[]::new));
 
     return new SearchSourceBuilder()

@@ -54,11 +54,24 @@ public class ClassificationBrowseService
                                                                            SearchResult<ClassificationResource> res,
                                                                            boolean isAnchor) {
     return BrowseResult.of(res)
-      .map(resource -> new ClassificationNumberBrowseItem()
-        .classificationNumber(resource.number())
-        .classificationTypeId(resource.typeId())
-        .isAnchor(isAnchor ? true : null)
-        .totalRecords(getTotalRecords(ctx, resource, ClassificationResource::instances)));
+      .map(resource -> {
+        var totalRecords = getTotalRecords(ctx, resource, ClassificationResource::instances);
+        var item = new ClassificationNumberBrowseItem()
+          .classificationNumber(resource.number())
+          .classificationTypeId(resource.typeId())
+          .isAnchor(isAnchor ? true : null)
+          .totalRecords(totalRecords);
+
+        if (totalRecords == 1) {
+          var subResource = consortiumSearchHelper.filterSubResourcesForConsortium(ctx, resource,
+            ClassificationResource::instances)
+            .iterator().next();
+          item.setInstanceTitle(subResource.getInstanceTitle());
+          item.setInstanceContributors(subResource.getInstanceContributors());
+        }
+
+        return item;
+      });
   }
 
   private Integer getTotalRecords(BrowseContext ctx, ClassificationResource resource,

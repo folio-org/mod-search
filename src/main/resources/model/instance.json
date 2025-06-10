@@ -718,6 +718,11 @@
       "index": "keyword_icu",
       "processor": "classificationNumberProcessor",
       "searchTermProcessor": "classificationNumberSearchTermProcessor"
+    },
+    "classificationIds": {
+      "type": "search",
+      "index": "keyword_lowercase",
+      "processor": "classificationIdsProcessor"
     }
   },
   "indexMappings": { }

@@ -4,7 +4,7 @@
   "parent": "instance",
   "fields": {
     "id": {
-      "index": "keyword"
+      "index": "source"
     },
     "number": {
       "index": "keyword_icu",

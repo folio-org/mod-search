@@ -49,8 +49,8 @@ public final class CallNumberSearchResponsePostProcessor implements SearchRespon
     countAndSetNumberOfLinkedInstances(subResources);
   }
 
-  private void countAndSetNumberOfLinkedInstances(List<InstanceSubResource> authorities) {
-    var ids = authorities.stream()
+  private void countAndSetNumberOfLinkedInstances(List<InstanceSubResource> callNumbers) {
+    var ids = callNumbers.stream()
       .map(InstanceSubResource::getInstanceId)
       .filter(instanceIds -> instanceIds.size() == 1)
       .flatMap(Collection::stream)
@@ -65,9 +65,9 @@ public final class CallNumberSearchResponsePostProcessor implements SearchRespon
     for (var searchHit : searchHits) {
       var instanceId = searchHit.getId();
       var instanceTitle = MapUtils.getString(searchHit.getSourceAsMap(), INSTANCE_TITLE_FIELD);
-      for (var authority : authorities) {
-        if (authority.getInstanceId().size() == 1 && authority.getInstanceId().getFirst().equals(instanceId)) {
-          authority.setInstanceTitle(instanceTitle);
+      for (var callNumber : callNumbers) {
+        if (callNumber.getInstanceId().size() == 1 && callNumber.getInstanceId().getFirst().equals(instanceId)) {
+          callNumber.setInstanceTitle(instanceTitle);
         }
       }
     }

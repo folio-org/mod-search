@@ -3,6 +3,9 @@
   "eventBodyJavaClass": "org.folio.search.model.index.ClassificationResource",
   "parent": "instance",
   "fields": {
+    "id": {
+      "index": "source"
+    },
     "number": {
       "index": "keyword_icu",
       "showInResponse": [ "browse" ]

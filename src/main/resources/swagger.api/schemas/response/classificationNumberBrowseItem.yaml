@@ -10,6 +10,16 @@ properties:
   isAnchor:
     type: boolean
     description: Marks if current value is anchor or not
+  instanceTitle:
+    type: string
+    description: Instance title
+  instanceContributors:
+    type: array
+    description: List of contributor names.
+    minItems: 0
+    items:
+      description: Contributor name
+      type: string
   totalRecords:
     type: integer
     description: Amount of records for the classification number value

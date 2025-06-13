@@ -7,6 +7,7 @@ import lombok.Data;
 @Data
 @Builder
 public class InstanceSubResource {
+  private String resourceId;
   private String tenantId;
   private Boolean shared;
   private int count;
@@ -14,4 +15,5 @@ public class InstanceSubResource {
   private String locationId;
   private List<String> instanceId;
   private String instanceTitle;
+  private List<String> instanceContributors;
 }

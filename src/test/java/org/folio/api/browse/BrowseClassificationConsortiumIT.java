@@ -33,6 +33,7 @@ import java.util.stream.Stream;
 import org.folio.search.domain.dto.BrowseOptionType;
 import org.folio.search.domain.dto.Classification;
 import org.folio.search.domain.dto.ClassificationNumberBrowseResult;
+import org.folio.search.domain.dto.Contributor;
 import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.domain.dto.Instance;
@@ -173,9 +174,10 @@ class BrowseClassificationConsortiumIT extends BaseConsortiumIntegrationTest {
   private static Instance instance(List<Object> data) {
     @SuppressWarnings("unchecked")
     var pairs = (List<Pair<String, String>>) data.get(1);
-    return new Instance()
+    var title = (String) data.get(0);
+    var instance = new Instance()
       .id(randomId())
-      .title((String) data.get(0))
+      .title(title)
       .classifications(pairs.stream()
         .map(pair -> new Classification()
           .classificationNumber(String.valueOf(pair.getFirst()))
@@ -184,6 +186,12 @@ class BrowseClassificationConsortiumIT extends BaseConsortiumIntegrationTest {
       .staffSuppress(false)
       .discoverySuppress(false)
       .holdings(emptyList());
+
+    if ("instance #10".equals(title)) {
+      instance.setContributors(List.of(new Contributor().name("Contributor #1"), new Contributor().name("Contributor #2")));
+    }
+
+    return instance;
   }
 
   private static List<List<Object>> classificationBrowseInstanceData() {

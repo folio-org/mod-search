@@ -4,6 +4,7 @@
 
 ### New APIs versions
 * Provides `search v1.4`
+* Provides `browse v2.1`
 * Requires `API_NAME vX.Y`
 
 ### Features
@@ -14,6 +15,7 @@
 * Instance search: add support for searching by instance/holdings/item electronic access relationship ID ([MSEARCH-816](https://folio-org.atlassian.net/browse/MSEARCH-816))
 * Add indexes for instance_(call_number/subject/classification/contributor) ([MSEARCH-1025](https://folio-org.atlassian.net/browse/MSEARCH-1025))
 * Migrate to Opensearch 3.0.0 ([MSEARCH-1033](https://folio-org.atlassian.net/browse/MSEARCH-1033))
+* Add title and contributors to classification browse response ([MSEARCH-1045](https://folio-org.atlassian.net/browse/MSEARCH-1045))
 
 ### Bug fixes
 * Browse Config: fix exception while trying to validate empty type ids ([MSEARCH-998](https://folio-org.atlassian.net/browse/MSEARCH-998))

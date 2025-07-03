@@ -182,13 +182,41 @@ public class TestUtils {
 
   public static ClassificationNumberBrowseItem classificationBrowseItem(String number, String typeId,
                                                                         Integer totalRecords) {
-    return classificationBrowseItem(number, typeId, totalRecords, null);
+    return classificationBrowseItem(number, typeId, totalRecords, null, null, null);
   }
 
   public static ClassificationNumberBrowseItem classificationBrowseItem(String number, String typeId,
                                                                         Integer totalRecords, Boolean isAnchor) {
-    return new ClassificationNumberBrowseItem().classificationNumber(number).classificationTypeId(typeId)
-      .totalRecords(totalRecords).isAnchor(isAnchor);
+    return classificationBrowseItem(number, typeId, totalRecords, null, isAnchor, null);
+  }
+
+  public static ClassificationNumberBrowseItem classificationBrowseItem(String number, String typeId,
+                                                                        Integer totalRecords, String instanceTitle,
+                                                                        Boolean isAnchor) {
+    return classificationBrowseItem(number, typeId, totalRecords, instanceTitle, isAnchor, null);
+  }
+
+  public static ClassificationNumberBrowseItem classificationBrowseItem(String number, String typeId,
+                                                                        Integer totalRecords, String instanceTitle) {
+    return classificationBrowseItem(number, typeId, totalRecords, instanceTitle, null, null);
+  }
+
+  public static ClassificationNumberBrowseItem classificationBrowseItem(String number, String typeId,
+                                                                        Integer totalRecords, String instanceTitle,
+                                                                        List<String> contributors) {
+    return classificationBrowseItem(number, typeId, totalRecords, instanceTitle, null, contributors);
+  }
+
+  public static ClassificationNumberBrowseItem classificationBrowseItem(String number, String typeId,
+                                                                        Integer totalRecords, String instanceTitle,
+                                                                        Boolean isAnchor, List<String> contributors) {
+    return new ClassificationNumberBrowseItem()
+      .classificationNumber(number)
+      .classificationTypeId(typeId)
+      .totalRecords(totalRecords)
+      .instanceTitle(instanceTitle)
+      .isAnchor(isAnchor)
+      .instanceContributors(contributors == null ? emptyList() : contributors);
   }
 
   public static InstanceContributorBrowseItem contributorBrowseItem(Integer totalRecords, String name,

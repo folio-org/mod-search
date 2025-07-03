@@ -1,7 +1,9 @@
 package org.folio.search.service.setter.classification;
 
+import static org.folio.search.utils.CollectionUtils.getValuesByPath;
 import static org.folio.search.utils.LogUtils.collectionToLogMsg;
-import static org.opensearch.index.query.QueryBuilders.termsQuery;
+import static org.opensearch.index.query.QueryBuilders.boolQuery;
+import static org.opensearch.index.query.QueryBuilders.matchQuery;
 
 import java.util.List;
 import java.util.Map;
@@ -57,44 +59,49 @@ public final class ClassificationSearchResponsePostProcessor
   }
 
   private void countAndSetInstanceProperties(List<InstanceSubResource> subResources) {
-    var classificationIds = subResources.stream()
+    var classificationTenantPairs = subResources.stream()
       .filter(subResource -> subResource.getCount() == 1)
-      .map(InstanceSubResource::getResourceId)
+      .map(subResource -> Map.entry(subResource.getResourceId(), subResource.getTenantId()))
       .distinct()
       .toList();
-    var queries = buildQuery(classificationIds);
+    var queries = buildQuery(classificationTenantPairs);
 
     var resourceRequest = SimpleResourceRequest.of(ResourceType.INSTANCE,
       tenantProvider.getTenant(context.getTenantId()));
     var searchHits = searchRepository.search(resourceRequest, queries).getHits().getHits();
 
-    for (var searchHit : searchHits) {
-      var source = searchHit.getSourceAsMap();
-      var tenantId = MapUtils.getString(source, INSTANCE_TENANT_FIELD);
-      var classificationIdsFromSource = (List<String>) MapUtils.getObject(source, INSTANCE_CLASSIFICATION_IDS_FIELD);
-      var instanceTitle = MapUtils.getString(source, INSTANCE_TITLE_FIELD);
-      var instanceContributors = ((List<Map<String, String>>)  MapUtils.getObject(source, INSTANCE_CONTRIBUTORS_FIELD))
-        .stream()
-        .map(contributor -> contributor.get("name"))
-        .toList();
-      for (var subResource : subResources) {
-        if (subResource.getCount() == 1
-          && classificationIdsFromSource.contains(subResource.getResourceId())
+    for (var subResource : subResources) {
+      if (subResource.getCount() != 1) {
+        continue;
+      }
+      for (var searchHit : searchHits) {
+        var source = searchHit.getSourceAsMap();
+        var tenantId = MapUtils.getString(source, INSTANCE_TENANT_FIELD);
+        var classificationIdsFromSource = getValuesByPath(source, INSTANCE_CLASSIFICATION_IDS_FIELD);
+        var instanceTitle = MapUtils.getString(source, INSTANCE_TITLE_FIELD);
+        var instanceContributors = getValuesByPath(source, "contributors.name");
+        if (classificationIdsFromSource.contains(subResource.getResourceId())
           && subResource.getTenantId().equals(tenantId)) {
           subResource.setInstanceTitle(instanceTitle);
           subResource.setInstanceContributors(instanceContributors);
+          break;
         }
       }
     }
   }
 
-  private SearchSourceBuilder buildQuery(List<String> classificationIds) {
-    //todo: bool query with shoulds, each should is bool with must on id, tenant
-    var queryBuilder = termsQuery(INSTANCE_CLASSIFICATION_IDS_FIELD, classificationIds.toArray(String[]::new));
+  private SearchSourceBuilder buildQuery(List<Map.Entry<String, String>> classificationTenantPairs) {
+    var boolQueryBuilder = boolQuery();
+    for (var pair : classificationTenantPairs) {
+      var shouldClause = boolQuery()
+        .must(matchQuery(INSTANCE_CLASSIFICATION_IDS_FIELD, pair.getKey()))
+        .must(matchQuery(INSTANCE_TENANT_FIELD, pair.getValue()));
+      boolQueryBuilder.should(shouldClause);
+    }
 
     return new SearchSourceBuilder()
-      .query(queryBuilder)
-//      .size(classificationIds.size())
+      .query(boolQueryBuilder)
+      .size(10_000)
       .fetchSource(new String[]{INSTANCE_TENANT_FIELD, INSTANCE_CLASSIFICATION_IDS_FIELD, INSTANCE_TITLE_FIELD,
         INSTANCE_CONTRIBUTORS_FIELD}, null)
       .trackTotalHits(true);

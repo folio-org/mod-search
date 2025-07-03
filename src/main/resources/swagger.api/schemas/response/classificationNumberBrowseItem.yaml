@@ -16,7 +16,6 @@ properties:
   instanceContributors:
     type: array
     description: List of contributor names.
-    minItems: 0
     items:
       description: Contributor name
       type: string

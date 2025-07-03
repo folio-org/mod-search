@@ -6,10 +6,11 @@ import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.matchQuery;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.MapUtils;
+import org.folio.search.model.Pair;
 import org.folio.search.model.SimpleResourceRequest;
 import org.folio.search.model.index.ClassificationResource;
 import org.folio.search.model.index.InstanceSubResource;
@@ -61,7 +62,7 @@ public final class ClassificationSearchResponsePostProcessor
   private void countAndSetInstanceProperties(List<InstanceSubResource> subResources) {
     var classificationTenantPairs = subResources.stream()
       .filter(subResource -> subResource.getCount() == 1)
-      .map(subResource -> Map.entry(subResource.getResourceId(), subResource.getTenantId()))
+      .map(subResource -> Pair.of(subResource.getResourceId(), subResource.getTenantId()))
       .distinct()
       .toList();
     var queries = buildQuery(classificationTenantPairs);
@@ -81,7 +82,7 @@ public final class ClassificationSearchResponsePostProcessor
         var instanceTitle = MapUtils.getString(source, INSTANCE_TITLE_FIELD);
         var instanceContributors = getValuesByPath(source, "contributors.name");
         if (classificationIdsFromSource.contains(subResource.getResourceId())
-          && subResource.getTenantId().equals(tenantId)) {
+          && Objects.equals(subResource.getTenantId(), tenantId)) {
           subResource.setInstanceTitle(instanceTitle);
           subResource.setInstanceContributors(instanceContributors);
           break;
@@ -90,12 +91,14 @@ public final class ClassificationSearchResponsePostProcessor
     }
   }
 
-  private SearchSourceBuilder buildQuery(List<Map.Entry<String, String>> classificationTenantPairs) {
+  private SearchSourceBuilder buildQuery(List<Pair<String, String>> classificationTenantPairs) {
     var boolQueryBuilder = boolQuery();
     for (var pair : classificationTenantPairs) {
       var shouldClause = boolQuery()
-        .must(matchQuery(INSTANCE_CLASSIFICATION_IDS_FIELD, pair.getKey()))
-        .must(matchQuery(INSTANCE_TENANT_FIELD, pair.getValue()));
+        .must(matchQuery(INSTANCE_CLASSIFICATION_IDS_FIELD, pair.getFirst()));
+      if (pair.getSecond() != null) {
+        shouldClause.must(matchQuery(INSTANCE_TENANT_FIELD, pair.getSecond()));
+      }
       boolQueryBuilder.should(shouldClause);
     }
 

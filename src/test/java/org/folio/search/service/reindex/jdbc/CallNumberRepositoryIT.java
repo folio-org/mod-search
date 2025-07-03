@@ -104,11 +104,11 @@ class CallNumberRepositoryIT {
         tuple("number1",
           List.of(mapOf("count", 0, "instanceContributors", null,
             "instanceId", List.of("9f8febd1-e96c-46c4-a5f4-84a45cc499a2"), "instanceTitle", null,
-            "instanceTitle", null, "locationId", null, "shared", false, "tenantId", TENANT_ID, "typeId", null))),
+            "locationId", null, "resourceId", null, "shared", false, "tenantId", TENANT_ID, "typeId", null))),
         tuple("number2",
           List.of(mapOf("count", 0, "instanceContributors", null,
             "instanceId", List.of("9f8febd1-e96c-46c4-a5f4-84a45cc499a2"), "instanceTitle", null,
-            "instanceTitle", null, "locationId", null, "shared", false, "tenantId", TENANT_ID, "typeId", null))));
+            "locationId", null, "resourceId", null, "shared", false, "tenantId", TENANT_ID, "typeId", null))));
   }
 
   private static List<UUID> getList(int size) {

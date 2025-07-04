@@ -87,14 +87,14 @@ class ClassificationSearchResponsePostProcessorTest {
     // Arrange
     var source1 = Map.of(
       "tenantId", "tenant1",
-      "classificationIds", List.of("classification1"),
+      "classificationId", List.of("classification1"),
       "plain_title", "Title 1",
       "contributors", List.of(Map.of("name", "Contributor 1"))
     );
 
     var source2 = Map.of(
       "tenantId", "tenant2",
-      "classificationIds", List.of("classification1"),
+      "classificationId", List.of("classification1"),
       "plain_title", "Title 2",
       "contributors", List.of(Map.of("name", "Contributor 2"))
     );
@@ -142,7 +142,7 @@ class ClassificationSearchResponsePostProcessorTest {
 
     var source = Map.of(
       "tenantId", "tenant1",
-      "classificationIds", List.of("classification1"),
+      "classificationId", List.of("classification1"),
       "plain_title", "Test Title",
       "contributors", List.of(Map.of("name", "Contributor Name"))
     );
@@ -197,7 +197,7 @@ class ClassificationSearchResponsePostProcessorTest {
       Set.of(instanceSubResource));
 
     var source = Map.of(
-      "classificationIds", List.of("classification1"),
+      "classificationId", List.of("classification1"),
       "plain_title", "Test Title",
       "contributors", List.of(Map.of("name", "Contributor Name"))
     );
@@ -214,7 +214,7 @@ class ClassificationSearchResponsePostProcessorTest {
     // Verify the query sent to the search repository
     verify(searchRepository).search(any(), argThat(query -> {
       var queryString = query.toString();
-      assertThat(queryString).contains("{\"match\":{\"classificationIds");
+      assertThat(queryString).contains("{\"match\":{\"classificationId");
       assertThat(queryString).doesNotContain("{\"match\":{\"tenantId");
       System.out.println("Query sent to search repository: " + queryString);
       return true;

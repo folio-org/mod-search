@@ -719,7 +719,7 @@
       "processor": "classificationNumberProcessor",
       "searchTermProcessor": "classificationNumberSearchTermProcessor"
     },
-    "classificationIds": {
+    "classificationId": {
       "type": "search",
       "index": "keyword_lowercase",
       "processor": "classificationIdsProcessor"

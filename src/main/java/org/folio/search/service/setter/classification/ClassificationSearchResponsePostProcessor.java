@@ -29,7 +29,7 @@ public final class ClassificationSearchResponsePostProcessor
   implements SearchResponsePostProcessor<ClassificationResource> {
 
   private static final String INSTANCE_TENANT_FIELD = "tenantId";
-  private static final String INSTANCE_CLASSIFICATION_IDS_FIELD = "classificationIds";
+  private static final String INSTANCE_CLASSIFICATION_IDS_FIELD = "classificationId";
   private static final String INSTANCE_TITLE_FIELD = "plain_title";
   private static final String INSTANCE_CONTRIBUTORS_FIELD = "contributors";
 

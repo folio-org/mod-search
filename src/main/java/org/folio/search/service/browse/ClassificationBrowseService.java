@@ -3,7 +3,6 @@ package org.folio.search.service.browse;
 import static org.folio.search.utils.SearchUtils.CLASSIFICATION_TYPE_ID_FIELD;
 
 import java.util.Set;
-import java.util.function.Function;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.BrowseType;
 import org.folio.search.domain.dto.ClassificationNumberBrowseItem;
@@ -54,17 +53,28 @@ public class ClassificationBrowseService
                                                                            SearchResult<ClassificationResource> res,
                                                                            boolean isAnchor) {
     return BrowseResult.of(res)
-      .map(resource -> new ClassificationNumberBrowseItem()
-        .classificationNumber(resource.number())
-        .classificationTypeId(resource.typeId())
-        .isAnchor(isAnchor ? true : null)
-        .totalRecords(getTotalRecords(ctx, resource, ClassificationResource::instances)));
+      .map(resource -> {
+        var subResources = consortiumSearchHelper.filterSubResourcesForConsortium(ctx, resource,
+          ClassificationResource::instances);
+        var totalRecords = getTotalRecords(subResources);
+        var item = new ClassificationNumberBrowseItem()
+          .classificationNumber(resource.number())
+          .classificationTypeId(resource.typeId())
+          .isAnchor(isAnchor ? true : null)
+          .totalRecords(totalRecords);
+
+        if (totalRecords == 1) {
+          var subResource = subResources.iterator().next();
+          item.setInstanceTitle(subResource.getInstanceTitle());
+          item.setInstanceContributors(subResource.getInstanceContributors());
+        }
+
+        return item;
+      });
   }
 
-  private Integer getTotalRecords(BrowseContext ctx, ClassificationResource resource,
-                                  Function<ClassificationResource, Set<InstanceSubResource>> func) {
-    return consortiumSearchHelper.filterSubResourcesForConsortium(ctx, resource, func)
-      .stream()
+  private Integer getTotalRecords(Set<InstanceSubResource> subResources) {
+    return subResources.stream()
       .map(InstanceSubResource::getCount)
       .reduce(0, Integer::sum);
   }

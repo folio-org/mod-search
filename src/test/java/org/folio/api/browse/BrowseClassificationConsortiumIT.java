@@ -33,6 +33,7 @@ import java.util.stream.Stream;
 import org.folio.search.domain.dto.BrowseOptionType;
 import org.folio.search.domain.dto.Classification;
 import org.folio.search.domain.dto.ClassificationNumberBrowseResult;
+import org.folio.search.domain.dto.Contributor;
 import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.domain.dto.Instance;
@@ -109,10 +110,11 @@ class BrowseClassificationConsortiumIT extends BaseConsortiumIntegrationTest {
       .param("precedingRecordsCount", "2");
     var actual = parseResponse(doGet(request), ClassificationNumberBrowseResult.class);
     assertThat(actual).isEqualTo(classificationBrowseResult("HQ536 .A565 2018", null, 8, List.of(
-      classificationBrowseItem("HQ536 .A565 2018", LC2_TYPE_ID, 1),
-      classificationBrowseItem("N6679.R64 G88 2010", LC_TYPE_ID, 1),
-      classificationBrowseItem("QD33 .O87", LC_TYPE_ID, 1, true),
-      classificationBrowseItem("QD453 .M8 1961", LC_TYPE_ID, 1)
+      classificationBrowseItem("HQ536 .A565 2018", LC2_TYPE_ID, 1, "instance #03"),
+      classificationBrowseItem("N6679.R64 G88 2010", LC_TYPE_ID, 1, "instance #03"),
+      classificationBrowseItem("QD33 .O87", LC_TYPE_ID, 1, "instance #04", true,
+        List.of("Contributor 1", "Contributor 2")),
+      classificationBrowseItem("QD453 .M8 1961", LC_TYPE_ID, 1, "instance #05")
 
     )));
   }
@@ -126,10 +128,11 @@ class BrowseClassificationConsortiumIT extends BaseConsortiumIntegrationTest {
       .param("precedingRecordsCount", "2");
     var actual = parseResponse(doGet(request), ClassificationNumberBrowseResult.class);
     assertThat(actual).isEqualTo(classificationBrowseResult("333.91", "SF433 .D47 2004", 11, List.of(
-      classificationBrowseItem("333.91", DEWEY_TYPE_ID, 1),
-      classificationBrowseItem("372.4", DEWEY_TYPE_ID, 1),
-      classificationBrowseItem("QD33 .O87", LC_TYPE_ID, 1, true),
-      classificationBrowseItem("SF433 .D47 2004", LC_TYPE_ID, 1)
+      classificationBrowseItem("333.91", DEWEY_TYPE_ID, 1, "instance #09"),
+      classificationBrowseItem("372.4", DEWEY_TYPE_ID, 1, "instance #09"),
+      classificationBrowseItem("QD33 .O87", LC_TYPE_ID, 1, "instance #10", true,
+        List.of("Contributor #3", "Contributor #4")),
+      classificationBrowseItem("SF433 .D47 2004", LC_TYPE_ID, 1, "instance #06")
     )));
   }
 
@@ -170,12 +173,13 @@ class BrowseClassificationConsortiumIT extends BaseConsortiumIntegrationTest {
       .toArray(Instance[]::new);
   }
 
+  @SuppressWarnings("unchecked")
   private static Instance instance(List<Object> data) {
-    @SuppressWarnings("unchecked")
     var pairs = (List<Pair<String, String>>) data.get(1);
-    return new Instance()
+    var title = (String) data.get(0);
+    var instance = new Instance()
       .id(randomId())
-      .title((String) data.get(0))
+      .title(title)
       .classifications(pairs.stream()
         .map(pair -> new Classification()
           .classificationNumber(String.valueOf(pair.getFirst()))
@@ -184,6 +188,15 @@ class BrowseClassificationConsortiumIT extends BaseConsortiumIntegrationTest {
       .staffSuppress(false)
       .discoverySuppress(false)
       .holdings(emptyList());
+
+    if (data.size() > 2) {
+      var contributors = (List<String>) data.get(2);
+      instance.setContributors(contributors.stream()
+        .map(name -> new Contributor().name(name))
+        .toList());
+    }
+
+    return instance;
   }
 
   private static List<List<Object>> classificationBrowseInstanceData() {
@@ -191,7 +204,7 @@ class BrowseClassificationConsortiumIT extends BaseConsortiumIntegrationTest {
       List.of("instance #01", List.of(pair("BJ1453 .I49 1983", LC_TYPE_ID), pair("HD1691 .I5 1967", LC_TYPE_ID))),
       List.of("instance #02", List.of(pair("BJ1453 .I49 1983", LC2_TYPE_ID))),
       List.of("instance #03", List.of(pair("HQ536 .A565 2018", LC2_TYPE_ID), pair("N6679.R64 G88 2010", LC_TYPE_ID))),
-      List.of("instance #04", List.of(pair("QD33 .O87", LC_TYPE_ID))),
+      List.of("instance #04", List.of(pair("QD33 .O87", LC_TYPE_ID)), List.of("Contributor 1", "Contributor 2")),
       List.of("instance #05", List.of(pair("QD453 .M8 1961", LC_TYPE_ID), pair("146.4", DEWEY_TYPE_ID))),
       List.of("instance #06", List.of(pair("SF433 .D47 2004", LC_TYPE_ID), pair("TX545 .M45", LC_TYPE_ID))),
       List.of("instance #07", List.of(pair("221.609", DEWEY_TYPE_ID), pair("SF991 .M94", LC2_TYPE_ID))),
@@ -199,7 +212,7 @@ class BrowseClassificationConsortiumIT extends BaseConsortiumIntegrationTest {
       List.of("instance #09", List.of(pair("292.07", DEWEY_TYPE_ID), pair("333.91", DEWEY_TYPE_ID),
         pair("372.4", DEWEY_TYPE_ID))),
       List.of("instance #10", List.of(pair("146.4", DEWEY_TYPE_ID), pair("QD33 .O87", LC_TYPE_ID),
-        pair("SF991 .M94", null)))
+        pair("SF991 .M94", null)), List.of("Contributor #3", "Contributor #4"))
     );
   }
 }

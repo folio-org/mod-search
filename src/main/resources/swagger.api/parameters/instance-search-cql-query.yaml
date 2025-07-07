@@ -315,13 +315,13 @@ description: |
         <td>normalizedDate1</td>
         <td>term</td>
         <td>normalizedDate1>=1990</td>
-        <td>Matches instances with the given Date1 (normalizes  alpha 'u' characters)</td>
+        <td>Matches instances with the given Date1 (normalizes  alpha u characters)</td>
     </tr>
     <tr>
         <td>classificationId</td>
         <td>term</td>
         <td>classificationId = &quot;c4f60d7413158e9466856f4c0250d91d312f86cf&quot;</td>
-        <td>Matches instances with the given Date1 (normalizes  alpha u characters)</td>
+        <td>Matches instances with the given classificationId</td>
     </tr>
     </tbody>
     </table>

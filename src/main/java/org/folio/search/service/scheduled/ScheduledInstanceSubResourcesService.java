@@ -1,4 +1,4 @@
-package org.folio.search.service;
+package org.folio.search.service.scheduled;
 
 import static java.util.function.UnaryOperator.identity;
 import static java.util.stream.Collectors.toMap;
@@ -11,6 +11,7 @@ import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.service.ResourceService;
 import org.folio.search.service.reindex.ReindexConstants;
 import org.folio.search.service.reindex.jdbc.InstanceChildResourceRepository;
 import org.folio.search.service.reindex.jdbc.SubResourceResult;

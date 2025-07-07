@@ -1,4 +1,4 @@
-package org.folio.search.service;
+package org.folio.search.service.id;
 
 import java.security.SecureRandom;
 import java.util.Date;

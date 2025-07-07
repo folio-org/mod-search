@@ -42,4 +42,9 @@ public class StreamIdsProperties {
    * LinkedBlockingQueue capacity for the ThreadPoolExecutor.
    */
   private int queueCapacity = 500;
+
+  /**
+   * Number of days after which the job will be considered expired and cleaned up.
+   */
+  private int jobExpirationDays = 7;
 }

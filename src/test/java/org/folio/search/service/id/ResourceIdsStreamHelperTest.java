@@ -1,4 +1,4 @@
-package org.folio.search.service;
+package org.folio.search.service.id;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

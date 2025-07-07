@@ -1,4 +1,4 @@
-package org.folio.search.service;
+package org.folio.search.service.id;
 
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -85,6 +85,7 @@ public class ResourceIdService {
     job.setStatus(StreamJobStatus.DEPRECATED);
     log.info("streamIdsFromDatabaseAsJson:: Attempting to save [job: {}]", job);
     jobRepository.save(job);
+    idsTemporaryRepository.dropTableForIds(job.getTemporaryTableName());
   }
 
   /**

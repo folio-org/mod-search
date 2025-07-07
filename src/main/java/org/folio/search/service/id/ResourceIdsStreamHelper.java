@@ -1,4 +1,4 @@
-package org.folio.search.service;
+package org.folio.search.service.id;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;

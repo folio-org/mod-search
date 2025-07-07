@@ -9,11 +9,8 @@ value:
         - "Michael Sipser"
         - "John Doe"
       isAnchor: true
-      totalRecords: 10
+      totalRecords: 1
     - classificationNumber: "TK5105.88815"
       classificationTypeId: "7e5684a9-c8c1-4c1e-85b9-d047f53eeb6d"
-      instanceTitle: "Computer Networking: A Top-Down Approach"
-      instanceContributors:
-        - "James Kurose"
       isAnchor: false
       totalRecords: 5

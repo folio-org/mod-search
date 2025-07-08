@@ -1,4 +1,4 @@
-package org.folio.search.service;
+package org.folio.search.service.id;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -8,16 +8,20 @@ import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.utils.JsonTestUtils.OBJECT_MAPPER;
 import static org.folio.support.utils.TestUtils.randomId;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.sql.ResultSet;
 import java.util.List;
 import java.util.function.Consumer;
 import org.folio.search.configuration.properties.StreamIdsProperties;
@@ -30,6 +34,7 @@ import org.folio.search.model.streamids.ResourceIdsJobEntity;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.model.types.StreamJobStatus;
 import org.folio.search.repository.ResourceIdsJobRepository;
+import org.folio.search.repository.ResourceIdsTemporaryRepository;
 import org.folio.search.repository.SearchRepository;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
@@ -41,6 +46,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.search.builder.SearchSourceBuilder;
+import org.springframework.jdbc.core.RowCallbackHandler;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -62,6 +68,8 @@ class ResourceIdServiceTest {
   private StreamIdsProperties properties;
   @Mock
   private ResourceIdsJobRepository jobRepository;
+  @Mock
+  private ResourceIdsTemporaryRepository idsTemporaryRepository;
 
   @Test
   void streamResourceIds() throws IOException {
@@ -174,6 +182,38 @@ class ResourceIdServiceTest {
 
     var actual = outputStream.toString();
     assertThat(actual).isEmpty();
+  }
+
+  @Test
+  void streamIdsFromDatabaseAsJson_positive() throws IOException {
+    // Arrange
+    final var jobId = randomId();
+    final var temporaryTableName = "temp_table";
+    final var resourceId = randomId();
+    var job = new ResourceIdsJobEntity();
+    job.setStatus(StreamJobStatus.COMPLETED);
+    job.setQuery("query");
+    job.setTemporaryTableName(temporaryTableName);
+
+    when(jobRepository.getReferenceById(jobId)).thenReturn(job);
+    doAnswer(invocation -> {
+      var resultSetConsumer = invocation.<RowCallbackHandler>getArgument(1);
+      var resultSet = mock(ResultSet.class);
+      when(resultSet.getString(1)).thenReturn(resourceId);
+      resultSetConsumer.processRow(resultSet);
+      return null;
+    }).when(idsTemporaryRepository).streamIds(eq(temporaryTableName), any());
+
+    var outputStream = new ByteArrayOutputStream();
+
+    // Act
+    resourceIdService.streamIdsFromDatabaseAsJson(jobId, outputStream);
+
+    // Assert
+    var actual = objectMapper.readValue(outputStream.toByteArray(), ResourceIds.class);
+    assertThat(actual).isEqualTo(new ResourceIds().ids(List.of(new ResourceId().id(resourceId))).totalRecords(1));
+    verify(jobRepository).save(argThat(savedJob -> savedJob.getStatus() == StreamJobStatus.DEPRECATED));
+    verify(idsTemporaryRepository).dropTableForIds(temporaryTableName);
   }
 
   private void mockSearchRepositoryCall(List<String> ids) {

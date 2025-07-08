@@ -150,10 +150,6 @@ public class ApiEndpoints {
     return "/search/index/indices";
   }
 
-  public static String instanceIdsPath(String query) {
-    return String.format("/search/instances/ids?query=%s", query);
-  }
-
   public static String resourcesIdsPath(String query) {
     return String.format("/search/resources/jobs/%s/ids", query);
   }
@@ -164,10 +160,6 @@ public class ApiEndpoints {
 
   public static String resourcesIdsJobPath(String id) {
     return String.format("/search/resources/jobs/%s", id);
-  }
-
-  public static String holdingIdsPath(String query) {
-    return String.format("/search/holdings/ids?query=%s", query);
   }
 
   public static String reindexPath() {

@@ -19,12 +19,12 @@ public class StreamIdsProperties {
   private int scrollQuerySize = 1000;
 
   /**
-   * Specifies time to wait before reattempting delivery.
+   * Specifies time to wait before reattempting search request.
    */
   private long retryIntervalMs = 1000;
 
   /**
-   * How many delivery attempts to perform when message failed.
+   * How many delivery attempts to perform when a search request failed.
    */
   private int retryAttempts = 3;
 

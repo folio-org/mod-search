@@ -1,8 +1,11 @@
 package org.folio.api.searchids;
 
 import static java.util.Collections.singletonList;
+import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.awaitility.Awaitility.await;
+import static org.folio.search.domain.dto.ResourceIdsJob.StatusEnum.COMPLETED;
+import static org.folio.search.domain.dto.ResourceIdsJob.StatusEnum.ERROR;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.resourcesIdsJobPath;
 import static org.folio.support.base.ApiEndpoints.resourcesIdsPath;
@@ -69,7 +72,7 @@ class StreamResourceIdsIT extends BaseIntegrationTest {
 
     await().atMost(Durations.FIVE_SECONDS).until(() -> {
       var response = doGet(resourcesIdsJobPath(postResponse.getId()));
-      return parseResponse(response, ResourceIdsJob.class).getStatus().equals(ResourceIdsJob.StatusEnum.COMPLETED);
+      return requireNonNull(parseResponse(response, ResourceIdsJob.class).getStatus()).equals(COMPLETED);
     });
 
     doGet(resourcesIdsPath(postResponse.getId()))
@@ -91,7 +94,7 @@ class StreamResourceIdsIT extends BaseIntegrationTest {
 
     await().atMost(Durations.FIVE_SECONDS).until(() -> {
       var response = doGet(resourcesIdsJobPath(postResponse.getId()));
-      return parseResponse(response, ResourceIdsJob.class).getStatus().equals(ResourceIdsJob.StatusEnum.COMPLETED);
+      return requireNonNull(parseResponse(response, ResourceIdsJob.class).getStatus()).equals(COMPLETED);
     });
   }
 
@@ -105,7 +108,7 @@ class StreamResourceIdsIT extends BaseIntegrationTest {
 
     await().atMost(Durations.FIVE_SECONDS).until(() -> {
       var response = doGet(resourcesIdsJobPath(postResponse.getId()));
-      return parseResponse(response, ResourceIdsJob.class).getStatus().equals(ResourceIdsJob.StatusEnum.COMPLETED);
+      return requireNonNull(parseResponse(response, ResourceIdsJob.class).getStatus()).equals(COMPLETED);
     });
 
     doGet(resourcesIdsPath(postResponse.getId()));
@@ -124,7 +127,7 @@ class StreamResourceIdsIT extends BaseIntegrationTest {
 
     await().atMost(Durations.FIVE_SECONDS).until(() -> {
       var response = doGet(resourcesIdsJobPath(postResponse.getId()));
-      return parseResponse(response, ResourceIdsJob.class).getStatus().equals(ResourceIdsJob.StatusEnum.ERROR);
+      return requireNonNull(parseResponse(response, ResourceIdsJob.class).getStatus()).equals(ERROR);
     });
   }
 
@@ -134,7 +137,7 @@ class StreamResourceIdsIT extends BaseIntegrationTest {
       .andExpect(status().is4xxClientError());
   }
 
-  public static Stream<Arguments> testDataProvider() {
+  private static Stream<Arguments> testDataProvider() {
     return Stream.of(
       arguments(EntityTypeEnum.INSTANCE, List.of("5bf370e0-8cca-4d9c-82e4-5170ab2a0a39")),
       arguments(EntityTypeEnum.AUTHORITY, List.of("55294032-fcf6-45cc-b6da-4420a61ef72c")),

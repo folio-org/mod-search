@@ -1,7 +1,6 @@
 package org.folio.api.search;
 
 import static org.folio.support.TestConstants.TENANT_ID;
-import static org.folio.support.base.ApiEndpoints.instanceIdsPath;
 import static org.folio.support.sample.SampleInstances.getSemanticWebAsMap;
 import static org.folio.support.sample.SampleInstances.getSemanticWebId;
 import static org.folio.support.sample.SampleInstances.getSemanticWebMatchers;
@@ -94,13 +93,6 @@ class SearchInstanceIT extends BaseIntegrationTest {
   @DisplayName("can search by instances (nothing found)")
   void searchByInstances_parameterized_zeroResults(String query, String value) throws Throwable {
     doSearchByInstances(prepareQuery(query, '"' + value + '"')).andExpect(jsonPath("$.totalRecords", is(0)));
-  }
-
-  @Test
-  void streamInstanceIds() throws Exception {
-    doGet(instanceIdsPath("cql.allRecords=1"))
-      .andExpect(jsonPath("totalRecords", is(1)))
-      .andExpect(jsonPath("ids[0].id", is(getSemanticWebId())));
   }
 
   @Test

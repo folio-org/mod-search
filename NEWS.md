@@ -1,9 +1,9 @@
-## v5.1.0 YYYY-mm-DD
+## v6.0.0 YYYY-mm-DD
 ### Breaking changes
-* Description ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))
+* Delete deprecated stream resource ids endpoints ([MSEARCH-1053](https://folio-org.atlassian.net/browse/MSEARCH-1053))
 
 ### New APIs versions
-* Provides `search v1.4`
+* Provides `search v2.0`
 * Provides `browse v2.1`
 * Requires `API_NAME vX.Y`
 

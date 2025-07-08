@@ -7,6 +7,7 @@ post:
   parameters:
     - $ref: '../../parameters/x-okapi-tenant-header.yaml'
   requestBody:
+    required: true
     content:
       application/json:
         examples:

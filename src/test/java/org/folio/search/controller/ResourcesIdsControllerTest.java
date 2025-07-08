@@ -1,152 +1,115 @@
 package org.folio.search.controller;
 
-import static org.folio.search.model.service.CqlResourceIdsRequest.HOLDINGS_ID_PATH;
-import static org.folio.search.model.service.CqlResourceIdsRequest.INSTANCE_ID_PATH;
+import static org.folio.search.domain.dto.ResourceIdsJob.EntityTypeEnum.INSTANCE;
+import static org.folio.search.domain.dto.ResourceIdsJob.StatusEnum.IN_PROGRESS;
 import static org.folio.support.TestConstants.TENANT_ID;
-import static org.folio.support.utils.JsonTestUtils.OBJECT_MAPPER;
+import static org.folio.support.base.ApiEndpoints.resourcesIdsJobPath;
+import static org.folio.support.base.ApiEndpoints.resourcesIdsPath;
 import static org.folio.support.utils.TestUtils.randomId;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.http.MediaType.TEXT_PLAIN;
-import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import org.folio.search.model.ResourceId;
-import org.folio.search.model.ResourceIds;
-import org.folio.search.model.service.CqlResourceIdsRequest;
-import org.folio.search.model.types.ResourceType;
-import org.folio.search.service.consortium.ConsortiumTenantExecutor;
-import org.folio.search.service.id.ResourceIdService;
+import org.folio.search.domain.dto.ResourceIdsJob;
 import org.folio.search.service.id.ResourceIdsJobService;
-import org.folio.search.service.id.ResourceIdsStreamHelper;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.testing.type.UnitTest;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @UnitTest
 @WebMvcTest(ResourcesIdsController.class)
-@Import({ApiExceptionHandler.class, ResourceIdsStreamHelper.class, ResourceIdsJobService.class,
-         ResourceIdService.class})
+@Import({ApiExceptionHandler.class})
 class ResourcesIdsControllerTest {
 
   @Autowired
   private MockMvc mockMvc;
   @MockitoBean
-  private ResourceIdService resourceIdService;
-  @MockitoBean
   private ResourceIdsJobService resourceIdsJobService;
-  @MockitoBean
-  private ConsortiumTenantExecutor consortiumTenantExecutor;
 
-  @Test
-  void getHoldingsIds_positive() throws Exception {
-    var cqlQuery = "id=*";
-    var holdingId = randomId();
-    var request = CqlResourceIdsRequest.of(ResourceType.INSTANCE, TENANT_ID, cqlQuery, HOLDINGS_ID_PATH);
+  @Nested
+  class GetResourceIdsTest {
 
-    doAnswer(inv -> {
-      var out = inv.<OutputStream>getArgument(1);
-      var resourceIds = new ResourceIds().totalRecords(1).ids(List.of(new ResourceId().id(holdingId)));
-      out.write(OBJECT_MAPPER.writeValueAsBytes(resourceIds));
-      return null;
-    }).when(resourceIdService).streamResourceIdsAsJson(eq(request), any(OutputStream.class));
+    @Test
+    void getResourceIds_shouldStreamResourceIds() throws Exception {
+      var jobId = "test-job-id";
 
-    var requestBuilder = get("/search/holdings/ids")
-      .queryParam("query", cqlQuery)
-      .contentType(APPLICATION_JSON)
-      .header(XOkapiHeaders.TENANT, TENANT_ID);
+      when(resourceIdsJobService.streamResourceIdsFromDb(jobId)).thenReturn(null);
 
-    mockMvc.perform(requestBuilder)
-      .andExpect(status().isOk())
-      .andExpect(content().contentType(APPLICATION_JSON))
-      .andExpect(jsonPath("$.totalRecords", is(1)))
-      .andExpect(jsonPath("$.ids[*].id", is(List.of(holdingId))));
+      mockMvc.perform(get(resourcesIdsPath(jobId))
+          .header(XOkapiHeaders.TENANT, TENANT_ID)
+          .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk());
+    }
   }
 
-  @Test
-  void getHoldingsIdsTextType_positive() throws Exception {
-    var cqlQuery = "id=*";
-    var holdingId = randomId();
-    var request = CqlResourceIdsRequest.of(ResourceType.INSTANCE, TENANT_ID, cqlQuery, HOLDINGS_ID_PATH);
+  @Nested
+  class GetJobsTest {
 
-    doAnswer(inv -> {
-      var out = inv.<OutputStream>getArgument(1);
-      out.write(OBJECT_MAPPER.writeValueAsBytes(holdingId));
-      return null;
-    }).when(resourceIdService).streamResourceIdsAsText(eq(request), any(OutputStream.class));
+    @Test
+    void getIdsJob_shouldReturnResourceIdsJob() throws Exception {
+      var jobId = "test-job-id";
+      var resourceIdsJob = new ResourceIdsJob().id(jobId).status(IN_PROGRESS);
 
-    var requestBuilder = get("/search/holdings/ids")
-      .queryParam("query", cqlQuery)
-      .contentType(TEXT_PLAIN)
-      .header(XOkapiHeaders.TENANT, TENANT_ID);
+      when(resourceIdsJobService.getJobById(jobId)).thenReturn(resourceIdsJob);
 
-    mockMvc.perform(requestBuilder)
-      .andExpect(status().isOk())
-      .andExpect(content().contentType(TEXT_PLAIN))
-      .andExpect(content().string(containsString(holdingId)));
+      mockMvc.perform(get(resourcesIdsJobPath(jobId))
+          .header(XOkapiHeaders.TENANT, TENANT_ID)
+          .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(jobId))
+        .andExpect(jsonPath("$.status").value("IN_PROGRESS"));
+    }
   }
 
-  @Test
-  void getInstanceIds_positive() throws Exception {
-    var cqlQuery = "id=*";
-    var instanceId = randomId();
-    var request = CqlResourceIdsRequest.of(ResourceType.INSTANCE, TENANT_ID, cqlQuery, INSTANCE_ID_PATH);
+  @Nested
+  class SubmitJobTest {
 
-    doAnswer(inv -> {
-      var out = inv.<OutputStream>getArgument(1);
-      var resourceIds = new ResourceIds().totalRecords(1).ids(List.of(new ResourceId().id(instanceId)));
-      out.write(OBJECT_MAPPER.writeValueAsBytes(resourceIds));
-      return null;
-    }).when(resourceIdService).streamResourceIdsAsJson(eq(request), any(OutputStream.class));
+    @Test
+    void submitIdsJob_positive_shouldCreateAndReturnResourceIdsJob() throws Exception {
+      var resourceIdsJob = new ResourceIdsJob().id(randomId()).query("id=*").entityType(INSTANCE);
 
-    var requestBuilder = get("/search/instances/ids")
-      .queryParam("query", cqlQuery)
-      .contentType(APPLICATION_JSON)
-      .header(XOkapiHeaders.TENANT, TENANT_ID);
+      when(resourceIdsJobService.createStreamJob(any(), eq(TENANT_ID))).thenReturn(resourceIdsJob);
 
-    mockMvc.perform(requestBuilder)
-      .andExpect(status().isOk())
-      .andExpect(content().contentType(APPLICATION_JSON_VALUE))
-      .andExpect(jsonPath("$.totalRecords", is(1)))
-      .andExpect(jsonPath("$.ids[0].id", is(instanceId)));
-  }
+      mockMvc.perform(post(resourcesIdsJobPath())
+          .contentType(MediaType.APPLICATION_JSON)
+          .header(XOkapiHeaders.TENANT, TENANT_ID)
+          .content("{\"query\":\"id=*\",\"entityType\":\"INSTANCE\"}")
+          .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(resourceIdsJob.getId()));
+    }
 
-  @Test
-  void getInstanceIdsTextType_positive() throws Exception {
-    var cqlQuery = "id=*";
-    var instanceId = randomId();
-    var request = CqlResourceIdsRequest.of(ResourceType.INSTANCE, TENANT_ID, cqlQuery, INSTANCE_ID_PATH);
+    @Test
+    void submitIdsJob_negative_bodyIsRequired() throws Exception {
+      mockMvc.perform(post(resourcesIdsJobPath())
+          .contentType(MediaType.APPLICATION_JSON)
+          .header(XOkapiHeaders.TENANT, TENANT_ID)
+          .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.errors[0].message", containsString("Required request body is missing")));
+    }
 
-    doAnswer(inv -> {
-      var out = inv.<OutputStream>getArgument(1);
-      out.write(instanceId.getBytes(StandardCharsets.UTF_8));
-      return null;
-    }).when(resourceIdService).streamResourceIdsAsText(eq(request), any(OutputStream.class));
-
-    var requestBuilder = get("/search/instances/ids")
-      .queryParam("query", cqlQuery)
-      .contentType(TEXT_PLAIN)
-      .header(XOkapiHeaders.TENANT, TENANT_ID);
-
-    mockMvc.perform(requestBuilder)
-      .andExpect(status().isOk())
-      .andExpect(content().contentType(TEXT_PLAIN_VALUE))
-      .andExpect(content().string(instanceId));
+    @Test
+    void submitIdsJob_negative_invalidEntityType() throws Exception {
+      mockMvc.perform(post(resourcesIdsJobPath())
+          .contentType(MediaType.APPLICATION_JSON)
+          .header(XOkapiHeaders.TENANT, TENANT_ID)
+          .content("{\"query\":\"id=*\",\"entityType\":\"BAD_TYPE\"}")
+          .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.errors[0].message", containsString("Unexpected value 'BAD_TYPE'")));
+    }
   }
 }

@@ -46,12 +46,6 @@ paths:
   /search/instances:
     $ref: 'paths/search-instances/search-instances.yaml'
 
-  /search/instances/ids:
-    $ref: 'paths/search-instances/search-instances-ids.yaml'
-
-  /search/holdings/ids:
-    $ref: 'paths/search-holdings/search-holdings-ids.yaml'
-
   /search/{recordType}/facets:
     $ref: 'paths/search-facets/search-record-type-facets.yaml'
 

@@ -127,8 +127,8 @@
       ]
     },
     {
-      "id": "search",
-      "version": "1.4",
+      "id": "search-inventory",
+      "version": "1.0",
       "handlers": [
         {
           "methods": [
@@ -141,7 +141,13 @@
           "modulePermissions": [
             "user-tenants.collection.get"
           ]
-        },
+        }
+      ]
+    },
+    {
+      "id": "search-authorities",
+      "version": "1.0",
+      "handlers": [
         {
           "methods": [
             "GET"
@@ -153,7 +159,13 @@
           "modulePermissions": [
             "user-tenants.collection.get"
           ]
-        },
+        }
+      ]
+    },
+    {
+      "id": "search-linked-data",
+      "version": "1.0",
+      "handlers": [
         {
           "methods": [
             "GET"
@@ -189,7 +201,13 @@
           "modulePermissions": [
             "user-tenants.collection.get"
           ]
-        },
+        }
+      ]
+    },
+    {
+      "id": "search-facets",
+      "version": "1.0",
+      "handlers": [
         {
           "methods": [
             "GET"
@@ -197,30 +215,6 @@
           "pathPattern": "/search/{recordType}/facets",
           "permissionsRequired": [
             "search.facets.collection.get"
-          ],
-          "modulePermissions": [
-            "user-tenants.collection.get"
-          ]
-        },
-        {
-          "methods": [
-            "GET"
-          ],
-          "pathPattern": "/search/instances/ids",
-          "permissionsRequired": [
-            "search.instances.ids.collection.get"
-          ],
-          "modulePermissions": [
-            "user-tenants.collection.get"
-          ]
-        },
-        {
-          "methods": [
-            "GET"
-          ],
-          "pathPattern": "/search/holdings/ids",
-          "permissionsRequired": [
-            "search.holdings.ids.collection.get"
           ],
           "modulePermissions": [
             "user-tenants.collection.get"
@@ -356,7 +350,7 @@
     },
     {
       "id": "resource-ids-streaming",
-      "version": "0.3",
+      "version": "1.0",
       "handlers": [
         {
           "methods": [
@@ -397,8 +391,8 @@
       ]
     },
     {
-      "id": "browse",
-      "version": "2.1",
+      "id": "browse-inventory",
+      "version": "1.0",
       "handlers": [
         {
           "methods": [
@@ -447,7 +441,13 @@
           "modulePermissions": [
             "user-tenants.collection.get"
           ]
-        },
+        }
+      ]
+    },
+    {
+      "id": "browse-authorities",
+      "version": "1.0",
+      "handlers": [
         {
           "methods": [
             "GET"
@@ -806,16 +806,6 @@
       "replaces": [
         "search.instances.facets.collection.get"
       ]
-    },
-    {
-      "permissionName": "search.instances.ids.collection.get",
-      "displayName": "Search - returns list of resource ids for a cql query",
-      "description": "Returns list of resource ids for a cql query"
-    },
-    {
-      "permissionName": "search.holdings.ids.collection.get",
-      "displayName": "Search - returns a list of holding ids found for the CQL query by instances",
-      "description": "Returns list of resource ids for a cql query"
     },
     {
       "permissionName": "search.resources.ids.collection.get",

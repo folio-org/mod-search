@@ -4,12 +4,14 @@ properties:
   id:
     type: string
     description: "Unique ID for the job record."
+    readOnly: true
   query:
     type: string
     description: "CQL query for getting ids."
   status:
     type: string
     description: "Ids streaming status."
+    readOnly: true
     enum:
       - "IN_PROGRESS"
       - "ERROR"
@@ -23,8 +25,9 @@ properties:
       - "AUTHORITY"
       - "HOLDINGS"
   createdDate:
-    description: "Date and time when the record was created."
     type: string
+    description: "Date and time when the record was created."
+    readOnly: true
 additionalProperties: false
 required:
   - query

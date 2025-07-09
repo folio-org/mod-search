@@ -589,8 +589,6 @@ Consortium feature on module enable is defined by 'centralTenantId' tenant param
 | GET    | `/search/linked-data/works`     | Search linked data graph work resource descriptions                                  |
 | GET    | `/search/linked-data/hubs`      | Search linked data graph hub resource descriptions                                   |
 | GET    | `/search/{recordType}/facets`   | Get facets where recordType could be: instances, authorities, contributors, subjects |
-| GET    | ~~`/search/instances/ids`~~     | (DEPRECATED) Stream instance ids as JSON or plain text                               |
-| GET    | ~~`/search/holdings/ids`~~      | (DEPRECATED) Stream holding record ids as JSON or plain text                         |
 
 #### Searching and filtering
 

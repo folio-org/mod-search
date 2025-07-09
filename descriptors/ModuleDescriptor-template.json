@@ -127,8 +127,8 @@
       ]
     },
     {
-      "id": "search",
-      "version": "2.0",
+      "id": "search-inventory",
+      "version": "1.0",
       "handlers": [
         {
           "methods": [
@@ -141,7 +141,13 @@
           "modulePermissions": [
             "user-tenants.collection.get"
           ]
-        },
+        }
+      ]
+    },
+    {
+      "id": "search-authorities",
+      "version": "1.0",
+      "handlers": [
         {
           "methods": [
             "GET"
@@ -153,7 +159,13 @@
           "modulePermissions": [
             "user-tenants.collection.get"
           ]
-        },
+        }
+      ]
+    },
+    {
+      "id": "search-linked-data",
+      "version": "1.0",
+      "handlers": [
         {
           "methods": [
             "GET"
@@ -189,7 +201,13 @@
           "modulePermissions": [
             "user-tenants.collection.get"
           ]
-        },
+        }
+      ]
+    },
+    {
+      "id": "search-facets",
+      "version": "1.0",
+      "handlers": [
         {
           "methods": [
             "GET"
@@ -332,7 +350,7 @@
     },
     {
       "id": "resource-ids-streaming",
-      "version": "0.3",
+      "version": "1.0",
       "handlers": [
         {
           "methods": [
@@ -373,8 +391,8 @@
       ]
     },
     {
-      "id": "browse",
-      "version": "2.1",
+      "id": "browse-inventory",
+      "version": "1.0",
       "handlers": [
         {
           "methods": [
@@ -423,7 +441,13 @@
           "modulePermissions": [
             "user-tenants.collection.get"
           ]
-        },
+        }
+      ]
+    },
+    {
+      "id": "browse-authorities",
+      "version": "1.0",
+      "handlers": [
         {
           "methods": [
             "GET"

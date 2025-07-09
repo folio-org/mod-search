@@ -3,9 +3,15 @@
 * Delete deprecated stream resource ids endpoints ([MSEARCH-1053](https://folio-org.atlassian.net/browse/MSEARCH-1053))
 
 ### New APIs versions
-* Provides `search v2.0`
-* Provides `browse v2.1`
-* Requires `API_NAME vX.Y`
+* Provides `search-inventory v1.0`
+* Provides `search-authorities v1.0`
+* Provides `search-linked-data v1.0`
+* Provides `search-facets v1.0`
+* Provides `resource-ids-streaming v1.0`
+* Provides `browse-inventory v1.0`
+* Provides `browse-authorities v1.0`
+* Removed `search`
+* Removed `browse`
 
 ### Features
 * Linked Data Instance and Work: search by classification type/number/additionalNumber ([MSEARCH-989](https://folio-org.atlassian.net/browse/MSEARCH-989))

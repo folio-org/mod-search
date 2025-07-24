@@ -450,6 +450,7 @@
       "processor": "headingTypeProcessor",
       "searchTypes": [ "facet", "filter", "sort" ],
       "rawProcessing": true,
+      "showInResponse": [ "search", "browse" ],
       "sort": {
         "fieldName": "headingType",
         "type": "collection",

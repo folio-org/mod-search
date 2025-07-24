@@ -5,11 +5,14 @@ import static org.apache.commons.lang3.BooleanUtils.isFalse;
 import static org.folio.search.model.types.ResponseGroupType.SEARCH;
 import static org.folio.search.utils.SearchUtils.buildPreferenceKey;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.folio.search.configuration.properties.SearchQueryConfigurationProperties;
 import org.folio.search.cql.CqlSearchQueryConverter;
 import org.folio.search.exception.RequestValidationException;
@@ -69,7 +72,16 @@ public class SearchService {
     if (isFalse(request.getExpandAll())) {
       var includes = searchFieldProvider.getSourceFields(resource, SEARCH);
       log.debug("search:: expandAll to include: {}]", (Object) includes);
-      queryBuilder.fetchSource(includes, null);
+
+      var includesAll = StringUtils.isNotBlank(request.getInclude())
+        ? Stream.concat(
+          Arrays.stream(includes),
+          Arrays.stream(request.getInclude().replace(" ", "").split(","))
+            .filter(StringUtils::isNotBlank))
+        .toArray(String[]::new)
+        : includes;
+
+      queryBuilder.fetchSource(includesAll, null);
     }
 
     var searchResponse = searchRepository.search(request, queryBuilder, preference);

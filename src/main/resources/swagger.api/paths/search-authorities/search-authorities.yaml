@@ -11,6 +11,7 @@ get:
     - $ref: '../../parameters/offset-param.yaml'
     - $ref: '../../parameters/expand-all-param.yaml'
     - $ref: '../../parameters/include-number-of-titles.yaml'
+    - $ref: '../../parameters/include-fields.yaml'
   responses:
     '200':
       description: 'Authorities search result'

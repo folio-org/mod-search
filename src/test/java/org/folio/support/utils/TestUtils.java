@@ -125,7 +125,7 @@ public class TestUtils {
 
   public static <T> CqlSearchRequest<T> searchServiceRequest(Class<T> resourceClass, String tenantId, String query,
                                                              boolean expandAll, int limit) {
-    return CqlSearchRequest.of(resourceClass, tenantId, query, limit, 0, expandAll);
+    return CqlSearchRequest.of(resourceClass, tenantId, query, limit, 0, expandAll, "");
   }
 
   public static CqlFacetRequest defaultFacetServiceRequest(ResourceType resource, String query, String... facets) {

@@ -21,13 +21,13 @@
     "volume": "v1",
     "enumeration": "",
     "chronology": "",
-    "yearCaption": [],
+    "yearCaption": null,
     "copyNumber": "Copy 2",
     "administrativeNotes": [
       "v1.1",
       "need attention"
     ],
-    "notes": [],
+    "notes": null,
     "circulationNotes": [
       {
         "note": "testCirculationNote"
@@ -66,7 +66,7 @@
     "id": "100d10bf-2f06-4aa0-be15-0b95b2d9f9e3",
     "hrid": "item000000000015",
     "holdingsRecordId": "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19",
-    "formerIds": [],
+    "formerIds": null,
     "barcode": "90000",
     "itemLevelCallNumber": "TK5105.88815 . A58 2004 FT MEADE",
     "effectiveCallNumberComponents": {
@@ -77,7 +77,7 @@
     },
     "enumeration": "",
     "chronology": "",
-    "yearCaption": [],
+    "yearCaption": null,
     "administrativeNotes": [
       "v1.2"
     ],
@@ -136,7 +136,7 @@
     "id": "49347f02-69ac-4c12-b6f2-2afb6059c94b",
     "hrid": "it00000000001",
     "holdingsRecordId": "9550c935-401a-4a85-875e-4d1fe7678870",
-    "formerIds": [],
+    "formerIds": null,
     "barcode": "12345",
     "effectiveCallNumberComponents": {
       "callNumber": "332. 2",
@@ -144,10 +144,10 @@
       "suffix": "suff 2",
       "typeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35"
     },
-    "yearCaption": [],
-    "administrativeNotes": [],
-    "notes": [],
-    "circulationNotes": [],
+    "yearCaption": null,
+    "administrativeNotes": null,
+    "notes": null,
+    "circulationNotes": null,
     "status": {
       "name": "Available",
       "date": "2024-03-14T13:05:09.407+00:00"
@@ -155,10 +155,10 @@
     "materialTypeId": "5ee11d91-f7e8-481d-b079-65d708582ccc",
     "permanentLoanTypeId": "e8b311a6-3b21-43f2-a269-dd9310cb2d0e",
     "effectiveLocationId": "cdd60388-0c75-4969-b3c5-2d04621ed26f",
-    "electronicAccess": [],
-    "statisticalCodeIds": [],
+    "electronicAccess": null,
+    "statisticalCodeIds": null,
     "tags": {
-      "tagList": []
+      "tagList": null
     },
     "metadata": {
       "createdDate": "2024-03-14T13:05:09.406+00:00",

@@ -48,6 +48,11 @@ public class BrowseRequest implements ResourceRequest {
   private final Boolean expandAll;
 
   /**
+   * Retrieves the fields listed in the specified parameter.
+   */
+  private final String include;
+
+  /**
    * Whether to highlight matched resources or not.
    */
   private final Boolean highlightMatch;

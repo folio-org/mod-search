@@ -202,7 +202,7 @@
           "holdingsRecordId": "9550c935-401a-4a85-875e-4d1fe7678870",
           "hrid": "it00000000001",
           "accessionNumber": null,
-          "formerIds": [],
+          "formerIds": null,
           "itemIdentifier": null,
           "barcode": "12345",
           "effectiveLocationId": "cdd60388-0c75-4969-b3c5-2d04621ed26f",
@@ -222,14 +222,12 @@
           "chronology": null,
           "copyNumber": null,
           "itemLevelCallNumberTypeId": null,
-          "tags": {
-            "tagList": []
-          },
-          "electronicAccess": [],
-          "administrativeNotes": [],
-          "notes": [],
-          "statisticalCodeIds": [],
-          "circulationNotes": [],
+          "tags": null,
+          "electronicAccess": null,
+          "administrativeNotes": null,
+          "notes": null,
+          "statisticalCodeIds": null,
+          "circulationNotes": null,
           "metadata": {
             "createdDate": "2024-03-14T13:05:09.406+00:00",
             "createdByUserId": "93fc1367-7321-4836-b2a7-cbc7ffe8c20e",
@@ -280,7 +278,7 @@
             "v1.1",
             "need attention"
           ],
-          "notes": [],
+          "notes": null,
           "statisticalCodeIds": [
             "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
           ],
@@ -303,7 +301,7 @@
           "holdingsRecordId": "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19",
           "hrid": "item000000000015",
           "accessionNumber": null,
-          "formerIds": [],
+          "formerIds": null,
           "itemIdentifier": null,
           "barcode": "90000",
           "effectiveLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
@@ -375,8 +373,8 @@
           "discoverySuppress": false,
           "hrid": "ho00000000007",
           "sourceId": "f32d531e-df79-46b3-8932-cdd35f7a2264",
-          "formerIds": [],
-          "statisticalCodeIds": [],
+          "formerIds": null,
+          "statisticalCodeIds": null,
           "tags": {
             "tagList": [
               "holdings-tag"
@@ -387,9 +385,9 @@
           "callNumber": null,
           "callNumberSuffix": null,
           "copyNumber": null,
-          "electronicAccess": [],
-          "administrativeNotes": [],
-          "notes": [],
+          "electronicAccess": null,
+          "administrativeNotes": null,
+          "notes": null,
           "metadata": {
             "createdDate": "2021-03-04T12:36:57.751+00:00",
             "createdByUserId": "d2533d6c-a42c-5bff-ad77-22f87c297925",
@@ -408,7 +406,7 @@
             "ac727d8c-f422-4c3f-815e-e85694095e71",
             "9b8ec096-fa2e-451b-8e7a-6d1c977ee946"
           ],
-          "statisticalCodeIds": [],
+          "statisticalCodeIds": null,
           "tags": null,
           "holdingsTypeId": null,
           "callNumberPrefix": null,
@@ -424,7 +422,7 @@
               "relationshipId": "3b430592-2e09-4b48-9a0c-0636d66b9fb3"
             }
           ],
-          "administrativeNotes": [],
+          "administrativeNotes": null,
           "notes": [
             {
               "note": "Includes bibliographical references and index of holdings.",
@@ -465,12 +463,12 @@
           "callNumber": null,
           "callNumberSuffix": null,
           "copyNumber": null,
-          "electronicAccess": [],
+          "electronicAccess": null,
           "administrativeNotes": [
             "v2.0",
             "for deletion"
           ],
-          "notes": [],
+          "notes": null,
           "metadata": {
             "createdDate": "2020-12-08T15:47:19.330+00:00",
             "createdByUserId": null,

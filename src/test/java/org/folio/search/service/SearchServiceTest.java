@@ -87,7 +87,7 @@ class SearchServiceTest {
 
   @Test
   void search_negative_sumOfOffsetAndLimitExceeds10000() {
-    var searchRequest = CqlSearchRequest.of(TestResource.class, TENANT_ID, SEARCH_QUERY, 500, 9600, false, true);
+    var searchRequest = CqlSearchRequest.of(TestResource.class, TENANT_ID, SEARCH_QUERY, 500, 9600, false, true, "");
     assertThatThrownBy(() -> searchService.search(searchRequest))
       .isInstanceOf(RequestValidationException.class)
       .hasMessage("The sum of limit and offset should not exceed 10000.");

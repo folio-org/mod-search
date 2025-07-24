@@ -30,7 +30,8 @@
       "showInResponse": [ "search" ]
     },
     "hrid": {
-      "index": "keyword_lowercase"
+      "index": "keyword_lowercase",
+      "showInResponse": [ "search" ]
     },
     "source": {
       "searchTypes": [ "facet", "filter" ],

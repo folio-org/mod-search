@@ -55,6 +55,11 @@ public class CqlSearchRequest<T> implements ResourceRequest {
   private final Boolean includeNumberOfTitles;
 
   /**
+   * Retrieves the fields listed in the specified parameter.
+   */
+  private final String include;
+
+  /**
    * Doesn't affect non-consortium. true means include all records, false means filter for active affiliation.
    */
   private final Boolean consortiumConsolidated;
@@ -62,34 +67,36 @@ public class CqlSearchRequest<T> implements ResourceRequest {
   /**
    * Creates {@link CqlSearchRequest} object for given variables.
    *
-   * @param resourceClass         - resource class
-   * @param tenantId              - tenant id
-   * @param query                 - CQL query
-   * @param limit                 - search result records limit
-   * @param offset                - search result offset
-   * @param expandAll             - whether to return only response properties or entire record
-   * @param <R>                   - generic type for {@link CqlSearchRequest} object.
-   * @param includeNumberOfTitles - indicates whether the number of titles should be counted.
+   * @param resourceClass          - resource class
+   * @param tenantId               - tenant id
+   * @param query                  - CQL query
+   * @param limit                  - search result records limit
+   * @param offset                 - search result offset
+   * @param expandAll              - whether to return only response properties or entire record
+   * @param <R>                    - generic type for {@link CqlSearchRequest} object.
+   * @param includeNumberOfTitles  - indicates whether the number of titles should be counted.
+   * @param include                - fields to include in the response.
    * @param consortiumConsolidated - indicates whether to return consortium consolidated records.
    * @return created {@link CqlSearchRequest} object
    */
   public static <R> CqlSearchRequest<R> of(Class<R> resourceClass, String tenantId, String query,
                                            Integer limit, Integer offset, Boolean expandAll,
-                                           Boolean includeNumberOfTitles, Boolean consortiumConsolidated) {
+                                           Boolean includeNumberOfTitles, String include,
+                                           Boolean consortiumConsolidated) {
     var resource = ResourceType.byName(SearchUtils.getResourceName(resourceClass));
     return new CqlSearchRequest<>(resource, resourceClass, tenantId, query, limit, offset, expandAll,
-      includeNumberOfTitles, consortiumConsolidated);
+      includeNumberOfTitles, include, consortiumConsolidated);
   }
 
   public static <R> CqlSearchRequest<R> of(Class<R> resourceClass, String tenantId, String query,
                                            Integer limit, Integer offset, Boolean expandAll,
-                                           Boolean includeNumberOfTitles) {
+                                           Boolean includeNumberOfTitles, String include) {
     return CqlSearchRequest.of(resourceClass, tenantId, query, limit, offset, expandAll,
-      includeNumberOfTitles, false);
+      includeNumberOfTitles, include, false);
   }
 
   public static <R> CqlSearchRequest<R> of(Class<R> resourceClass, String tenantId, String query,
-                                           Integer limit, Integer offset, Boolean expandAll) {
-    return CqlSearchRequest.of(resourceClass, tenantId, query, limit, offset, expandAll, true);
+                                           Integer limit, Integer offset, Boolean expandAll, String include) {
+    return CqlSearchRequest.of(resourceClass, tenantId, query, limit, offset, expandAll, true, include);
   }
 }

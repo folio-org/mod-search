@@ -27,7 +27,7 @@
       "alternativeTitle": "Der Preis der Verführung : die gesetzliche Schadensersatzklage wegen Ehebruchs in England zwischen 1857 und 1970 / Eike Götz Hosemann."
     }
   ],
-  "editions": [],
+  "editions": null,
   "series": [
     {
       "value": "Cooperative information systems",
@@ -120,8 +120,8 @@
       "role": "Publisher"
     }
   ],
-  "publicationFrequency": [],
-  "publicationRange": [],
+  "publicationFrequency": null,
+  "publicationRange": null,
   "electronicAccess": [
     {
       "uri": "https://testlibrary.sample.com/journal/10.1002/(ISSN)1938-3703",
@@ -140,7 +140,7 @@
   "instanceFormatIds": [
     "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
   ],
-  "instanceFormats": [],
+  "instanceFormats": null,
   "physicalDescriptions": [
     "xx, 238 p. : ill. ; 24 cm."
   ],
@@ -185,7 +185,7 @@
     "updatedDate": "2021-01-15T15:17:22.851+00:00",
     "updatedByUserId": "d2533d6c-a42c-5bff-ad77-22f87c297925"
   },
-  "holdingsRecords2": [],
+  "holdingsRecords2": null,
   "natureOfContentTermIds": [
     "85657646-6b6f-4e71-b54c-d47f3b95a5ed"
   ]

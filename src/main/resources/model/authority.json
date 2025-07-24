@@ -434,8 +434,7 @@
       "default": "NULL"
     },
     "naturalId": {
-      "index": "keyword_lowercase",
-      "showInResponse": [ "search", "browse" ]
+      "index": "keyword_lowercase"
     },
     "shared": {
       "searchTypes": [ "facet", "filter" ],
@@ -451,7 +450,6 @@
       "processor": "headingTypeProcessor",
       "searchTypes": [ "facet", "filter", "sort" ],
       "rawProcessing": true,
-      "showInResponse": [ "search", "browse" ],
       "sort": {
         "fieldName": "headingType",
         "type": "collection",
@@ -494,8 +492,7 @@
       "index": "standard",
       "searchAliases": [ "keyword" ],
       "processor": "headingRefProcessor",
-      "rawProcessing": true,
-      "showInResponse": [ "search", "browse" ]
+      "rawProcessing": true
     },
     "lccn": {
       "type": "search",

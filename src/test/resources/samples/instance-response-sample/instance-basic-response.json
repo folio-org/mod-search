@@ -5,6 +5,7 @@
       "id": "5bf370e0-8cca-4d9c-82e4-5170ab2a0a39",
       "tenantId": "test_tenant",
       "shared": false,
+      "hrid": "inst000000000022",
       "title": "A sem\\ntic web primer :0747-0850 & wolves",
       "contributors": [
         {
@@ -34,8 +35,8 @@
       "staffSuppress": false,
       "discoverySuppress": false,
       "isBoundWith": true,
-      "electronicAccess": [],
-      "notes": [],
+      "electronicAccess": null,
+      "notes": null,
       "items": [
         {
           "effectiveCallNumberComponents": {
@@ -44,7 +45,7 @@
             "suffix": "suffix-10101",
             "typeId": "512173a7-bd09-490e-b773-17d83f2b63fe"
           },
-          "notes": []
+          "notes": null
         },
         {
           "effectiveCallNumberComponents": {
@@ -53,7 +54,7 @@
             "suffix": "suffix-90000",
             "typeId": "512173a7-bd09-490e-b773-17d83f2b63fe"
           },
-          "notes": []
+          "notes": null
         },
         {
           "effectiveCallNumberComponents": {
@@ -62,10 +63,10 @@
             "suffix": "suff 2",
             "typeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35"
           },
-          "notes": []
+          "notes": null
         }
       ],
-      "holdings": []
+      "holdings": null
     }
   ]
 }

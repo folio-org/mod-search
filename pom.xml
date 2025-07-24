@@ -494,6 +494,7 @@
                 <useSpringBoot3>true</useSpringBoot3>
                 <requestMappingMode>api_interface</requestMappingMode>
                 <generatedConstructorWithRequiredArgs>false</generatedConstructorWithRequiredArgs>
+                <containerDefaultToNull>true</containerDefaultToNull>
               </configOptions>
             </configuration>
           </execution>

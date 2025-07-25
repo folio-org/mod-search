@@ -14,9 +14,12 @@ import static org.opensearch.search.sort.SortBuilders.fieldSort;
 import static org.opensearch.search.sort.SortOrder.ASC;
 import static org.opensearch.search.sort.SortOrder.DESC;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthorityBrowseItem;
 import org.folio.search.model.BrowseResult;
@@ -95,8 +98,19 @@ public class AuthorityBrowseService extends AbstractBrowseServiceBySearchAfter<A
   }
 
   private String[] getIncludedSourceFields(BrowseRequest request) {
-    return isFalse(request.getExpandAll())
-           ? searchFieldProvider.getSourceFields(request.getResource(), BROWSE)
-           : null;
+
+    if (isFalse(request.getExpandAll())) {
+      var includes = searchFieldProvider.getSourceFields(request.getResource(), BROWSE);
+      log.debug("search:: expandAll to include: {}]", (Object) includes);
+
+      return StringUtils.isNotBlank(request.getInclude())
+        ? Stream.concat(
+          Arrays.stream(includes),
+          Arrays.stream(request.getInclude().replace(" ", "").split(","))
+            .filter(StringUtils::isNotBlank))
+        .toArray(String[]::new)
+        : includes;
+    }
+    return null;
   }
 }

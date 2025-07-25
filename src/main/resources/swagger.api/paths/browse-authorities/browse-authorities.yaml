@@ -11,6 +11,7 @@ get:
     - $ref: '../../parameters/preceding-records-count.yaml'
     - $ref: '../../parameters/limit-param.yaml'
     - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+    - $ref: '../../parameters/include-fields.yaml'
   responses:
     '200':
       description: 'Search result for browsing by authorities'

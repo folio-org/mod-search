@@ -434,7 +434,8 @@
       "default": "NULL"
     },
     "naturalId": {
-      "index": "keyword_lowercase"
+      "index": "keyword_lowercase",
+      "showInResponse": [ "search", "browse" ]
     },
     "shared": {
       "searchTypes": [ "facet", "filter" ],

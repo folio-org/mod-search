@@ -1,4 +1,5 @@
 type: object
+x-class-extra-annotation: "@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)"
 description: "instance description"
 properties:
   id:

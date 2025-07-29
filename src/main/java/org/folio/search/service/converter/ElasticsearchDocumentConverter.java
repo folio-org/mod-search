@@ -12,7 +12,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.folio.search.model.SearchResult;
 import org.opensearch.action.search.SearchResponse;
@@ -104,13 +103,9 @@ public class ElasticsearchDocumentConverter {
   @SuppressWarnings("unchecked")
   private static Object processField(Object value) {
     if (value instanceof Map) {
-      var map = processMap((Map<String, Object>) value);
-      return map.isEmpty() ? null : map;
+      return processMap((Map<String, Object>) value);
     }
     if (value instanceof List) {
-      if (CollectionUtils.isEmpty((List<Object>) value)) {
-        return null;
-      }
       List<Object> listValue = (List<Object>) value;
       return listValue.stream()
         .map(ElasticsearchDocumentConverter::processField)

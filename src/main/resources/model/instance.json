@@ -358,20 +358,16 @@
           "type": "object",
           "properties": {
             "callNumber": {
-              "index": "source",
-              "showInResponse": [ "search" ]
+              "index": "source"
             },
             "prefix": {
-              "index": "source",
-              "showInResponse": [ "search" ]
+              "index": "source"
             },
             "suffix": {
-              "index": "source",
-              "showInResponse": [ "search" ]
+              "index": "source"
             },
             "typeId": {
-              "index": "keyword",
-              "showInResponse": [ "search" ]
+              "index": "keyword"
             }
           }
         },

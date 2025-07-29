@@ -124,31 +124,49 @@ public class ConsortiumInstanceSearchService {
       .totalRecords(searchRecords.stream().map(SearchResult::getTotalRecords).mapToInt(i -> i).sum());
   }
 
-  private <T> List<SearchResult<T>> getConsortiumBatchResults(String tenant,
-                                                              IdentifierTypeEnum identifierType,
-                                                              Set<String> identifierValues,
-                                                              String targetField,
-                                                              Mapper<Instance, IdentifierTypeEnum, Set<String>, List<T>>
-                                                                recordMapper) {
+  private <T> List<SearchResult<T>> getConsortiumBatchResults(
+    String tenant,
+    IdentifierTypeEnum identifierType,
+    Set<String> identifierValues,
+    String targetField,
+    Mapper<Instance, IdentifierTypeEnum, Set<String>, List<T>> recordMapper) {
     var request = CqlSearchRequest.of(Instance.class, tenant, "", 0, 0, true, false, true);
     var termsQuery = termsQuery(targetField, identifierValues);
 
     if (identifierValues.size() < DEFAULT_MAX_SEARCH_RESULT_WINDOW) {
-      var searchSourceBuilder = queryBuilder(termsQuery, identifierValues.size());
-      var response = searchRepository.search(request, searchSourceBuilder);
-      var searchResult = documentConverter.convertToSearchResult(response, request.getResourceClass(),
-        (hits, item) -> recordMapper.apply(item, identifierType, identifierValues));
-      var records = searchResult.getRecords().stream()
-        .flatMap(List::stream)
-        .toList();
-      return List.of(SearchResult.of(records.size(), records));
+      return executeSearch(request, termsQuery, recordMapper, identifierType, identifierValues);
     }
 
     var searchSourceBuilder = queryBuilder(termsQuery, properties.getSearchConsortiumRecordsPageSize())
       .sort(fieldSort(targetField).order(ASC))
-      .searchAfter(new Object[]{""});
+      .searchAfter(new Object[] {""});
+    return executePagedSearch(request, searchSourceBuilder, recordMapper, identifierType, identifierValues);
+  }
+
+  private <T> List<SearchResult<T>> executeSearch(
+    CqlSearchRequest<Instance> request,
+    QueryBuilder query,
+    Mapper<Instance, IdentifierTypeEnum, Set<String>, List<T>> recordMapper,
+    IdentifierTypeEnum identifierType,
+    Set<String> identifierValues) {
+    var searchSourceBuilder = queryBuilder(query, SearchService.DEFAULT_MAX_SEARCH_RESULT_WINDOW);
     var response = searchRepository.search(request, searchSourceBuilder);
+    var searchResult = documentConverter.convertToSearchResult(response, request.getResourceClass(),
+      (hits, item) -> recordMapper.apply(item, identifierType, identifierValues));
+    var records = searchResult.getRecords().stream()
+      .flatMap(List::stream)
+      .toList();
+    return List.of(SearchResult.of(records.size(), records));
+  }
+
+  private <T> List<SearchResult<T>> executePagedSearch(
+    CqlSearchRequest<Instance> request,
+    SearchSourceBuilder searchSourceBuilder,
+    Mapper<Instance, IdentifierTypeEnum, Set<String>, List<T>> recordMapper,
+    IdentifierTypeEnum identifierType,
+    Set<String> identifierValues) {
     List<SearchResult<T>> searchRecords = new ArrayList<>();
+    var response = searchRepository.search(request, searchSourceBuilder);
 
     while (response.getHits() != null && response.getHits().getHits().length > 0) {
       var searchResult = documentConverter.convertToSearchResult(response, request.getResourceClass(),
@@ -159,7 +177,7 @@ public class ConsortiumInstanceSearchService {
       searchRecords.add(SearchResult.of(records.size(), records));
       var searchAfterValue = response.getHits()
         .getAt(response.getHits().getHits().length - 1).getSortValues()[0];
-      searchSourceBuilder.searchAfter(new Object[]{searchAfterValue});
+      searchSourceBuilder.searchAfter(new Object[] {searchAfterValue});
       response = searchRepository.search(request, searchSourceBuilder);
     }
 
@@ -169,8 +187,8 @@ public class ConsortiumInstanceSearchService {
   private List<ConsortiumHolding> mapToConsortiumHolding(Instance instance,
                                                          IdentifierTypeEnum identifierType,
                                                          Set<String> identifierValues) {
-    if (identifierType == IdentifierTypeEnum.ITEM_BARCODE) {
-      return instance.getItems().stream()
+    return switch (identifierType) {
+      case IdentifierTypeEnum.ITEM_BARCODE -> instance.getItems().stream()
         .filter(item -> identifierValues.contains(item.getBarcode()))
         .flatMap(item -> instance.getHoldings().stream()
           .filter(holding -> Objects.equals(item.getHoldingsRecordId(), holding.getId()))
@@ -178,17 +196,15 @@ public class ConsortiumInstanceSearchService {
         .map(holding -> toConsortiumHolding(instance.getId(), holding))
         .distinct()
         .toList();
-    } else if (identifierType == IdentifierTypeEnum.INSTANCE_HRID || identifierType == IdentifierTypeEnum.INSTANCE_ID) {
-      return instance.getHoldings()
+      case IdentifierTypeEnum.INSTANCE_HRID, IdentifierTypeEnum.INSTANCE_ID -> instance.getHoldings()
         .stream()
         .map(holding -> toConsortiumHolding(instance.getId(), holding))
         .toList();
-    } else {
-      return instance.getHoldings().stream()
+      default -> instance.getHoldings().stream()
         .filter(holding -> containsAny(identifierValues, getHoldingIdentifierValue(identifierType, holding)))
         .map(holding -> toConsortiumHolding(instance.getId(), holding))
         .toList();
-    }
+    };
   }
 
   private List<ConsortiumItem> mapToConsortiumItem(Instance instance,

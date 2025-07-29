@@ -17,6 +17,7 @@ properties:
     description: "The metadata source and its format of the underlying record to the instance record. (e.g. FOLIO if it's a record created in Inventory;  MARC if it's a MARC record created in MARCcat or EPKB if it's a record coming from eHoldings)"
     type: string
   statisticalCodeIds:
+    x-field-extra-annotation: "@com.fasterxml.jackson.databind.annotation.JsonDeserialize(using = org.folio.search.utils.EmptyArrayToNullDeserializer.class)"
     description: "List of statistical code IDs"
     type: array
     items:
@@ -64,11 +65,13 @@ properties:
     description: "UUID of the unique term for the resource type whether it's from the RDA content term list of locally defined"
     type: string
   instanceFormatIds:
+    x-field-extra-annotation: "@com.fasterxml.jackson.databind.annotation.JsonDeserialize(using = org.folio.search.utils.EmptyArrayToNullDeserializer.class)"
     description: "UUIDs for the unique terms for the format whether it's from the RDA carrier term list of locally defined"
     type: array
     items:
       type: string
   languages:
+    x-field-extra-annotation: "@com.fasterxml.jackson.databind.annotation.JsonDeserialize(using = org.folio.search.utils.EmptyArrayToNullDeserializer.class)"
     description: "The set of languages used by the resource"
     type: array
     items:
@@ -76,6 +79,7 @@ properties:
   metadata:
     $ref: "../dto/common/metadata.yaml"
   administrativeNotes:
+    x-field-extra-annotation: "@com.fasterxml.jackson.databind.annotation.JsonDeserialize(using = org.folio.search.utils.EmptyArrayToNullDeserializer.class)"
     type: array
     description: "Administrative notes"
     items:
@@ -84,6 +88,7 @@ properties:
     description: "UUID of the RDA mode of issuance, a categorization reflecting whether a resource is issued in one or more parts, the way it is updated, and whether its termination is predetermined or not (e.g. monograph,  sequential monograph, serial; integrating Resource, other)"
     type: string
   natureOfContentTermIds:
+    x-field-extra-annotation: "@com.fasterxml.jackson.databind.annotation.JsonDeserialize(using = org.folio.search.utils.EmptyArrayToNullDeserializer.class)"
     description: "Array of UUID for the Instance nature of content (e.g. bibliography, biography, exhibition catalogue, festschrift, newspaper, proceedings, research report, thesis or website)"
     type: array
     items:

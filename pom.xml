@@ -495,7 +495,10 @@
                 <requestMappingMode>api_interface</requestMappingMode>
                 <generatedConstructorWithRequiredArgs>false</generatedConstructorWithRequiredArgs>
                 <containerDefaultToNull>true</containerDefaultToNull>
-                <additionalModelTypeAnnotations>@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)</additionalModelTypeAnnotations>
+                <useBeanValidation>false</useBeanValidation>
+                <additionalModelTypeAnnotations>
+                  @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)
+                </additionalModelTypeAnnotations>
               </configOptions>
             </configuration>
           </execution>

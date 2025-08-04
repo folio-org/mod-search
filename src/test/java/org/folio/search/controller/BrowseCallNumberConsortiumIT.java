@@ -1,33 +1,32 @@
-package org.folio.search.controller;
+package org.folio.api.browse;
 
 import static java.util.function.Function.identity;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
+import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
 import static org.awaitility.Durations.ONE_MINUTE;
-import static org.awaitility.Durations.ONE_SECOND;
 import static org.folio.search.domain.dto.RecordType.CALL_NUMBERS;
-import static org.folio.search.support.base.ApiEndpoints.browseConfigPath;
-import static org.folio.search.support.base.ApiEndpoints.instanceCallNumberBrowsePath;
-import static org.folio.search.support.base.ApiEndpoints.instanceSearchPath;
-import static org.folio.search.support.base.ApiEndpoints.recordFacetsPath;
-import static org.folio.search.utils.CallNumberTestData.CallNumberTestDataRecord;
-import static org.folio.search.utils.CallNumberTestData.CallNumberTypeId.LC;
-import static org.folio.search.utils.CallNumberTestData.callNumbers;
-import static org.folio.search.utils.CallNumberTestData.cnEmptyBrowseItem;
-import static org.folio.search.utils.CallNumberTestData.instance;
-import static org.folio.search.utils.CallNumberTestData.instances;
-import static org.folio.search.utils.CallNumberTestData.locations;
-import static org.folio.search.utils.TestConstants.CENTRAL_TENANT_ID;
-import static org.folio.search.utils.TestConstants.MEMBER2_TENANT_ID;
-import static org.folio.search.utils.TestConstants.MEMBER_TENANT_ID;
-import static org.folio.search.utils.TestUtils.array;
-import static org.folio.search.utils.TestUtils.facet;
-import static org.folio.search.utils.TestUtils.facetItem;
-import static org.folio.search.utils.TestUtils.mapOf;
-import static org.folio.search.utils.TestUtils.mockCallNumberTypes;
-import static org.folio.search.utils.TestUtils.parseResponse;
+import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CALL_NUMBERS;
+import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
+import static org.folio.support.TestConstants.MEMBER2_TENANT_ID;
+import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
+import static org.folio.support.base.ApiEndpoints.browseConfigPath;
+import static org.folio.support.base.ApiEndpoints.instanceCallNumberBrowsePath;
+import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
+import static org.folio.support.base.ApiEndpoints.recordFacetsPath;
+import static org.folio.support.utils.CallNumberTestData.CallNumberTestDataRecord;
+import static org.folio.support.utils.CallNumberTestData.CallNumberTypeId.LC;
+import static org.folio.support.utils.CallNumberTestData.callNumbers;
+import static org.folio.support.utils.CallNumberTestData.cnEmptyBrowseItem;
+import static org.folio.support.utils.CallNumberTestData.instance;
+import static org.folio.support.utils.CallNumberTestData.instances;
+import static org.folio.support.utils.CallNumberTestData.locations;
+import static org.folio.support.utils.JsonTestUtils.parseResponse;
+import static org.folio.support.utils.TestUtils.array;
+import static org.folio.support.utils.TestUtils.facet;
+import static org.folio.support.utils.TestUtils.facetItem;
+import static org.folio.support.utils.TestUtils.mapOf;
+import static org.folio.support.utils.TestUtils.mockCallNumberTypes;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import java.util.List;
 import java.util.Map;
@@ -47,9 +46,9 @@ import org.folio.search.model.index.CallNumberResource;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.reindex.jdbc.SubResourcesLockRepository;
-import org.folio.search.support.base.BaseConsortiumIntegrationTest;
 import org.folio.search.utils.SearchUtils;
 import org.folio.spring.testing.type.IntegrationTest;
+import org.folio.support.base.BaseConsortiumIntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,8 +58,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.TestPropertySource;
 
 @IntegrationTest
+@TestPropertySource(properties = "folio.search-config.indexing.instance-children-index-enabled=true")
 class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
 
   private static final String LOCATION_FACET = "instances.locationId";
@@ -75,29 +76,44 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
     setUpTenant(MEMBER_TENANT_ID);
     setUpTenant(MEMBER2_TENANT_ID);
 
-    var timestamp = subResourcesLockRepository.lockSubResource(ReindexEntityType.CALL_NUMBER, CENTRAL_TENANT_ID);
-    if (timestamp.isEmpty()) {
-      throw new IllegalStateException("Unexpected state of database: unable to lock call-number resource");
+    enableFeature(CENTRAL_TENANT_ID, BROWSE_CALL_NUMBERS);
+
+    // Lock all required resources: call numbers, instances, and items
+    var callNumberTimestamp = subResourcesLockRepository.lockSubResource(ReindexEntityType.CALL_NUMBER, CENTRAL_TENANT_ID);
+    var itemTimestamp = subResourcesLockRepository.lockSubResource(ReindexEntityType.ITEM, CENTRAL_TENANT_ID);
+    var instanceTimestamp = subResourcesLockRepository.lockSubResource(ReindexEntityType.INSTANCE, CENTRAL_TENANT_ID);
+
+    if (callNumberTimestamp.isEmpty() || instanceTimestamp.isEmpty() || itemTimestamp.isEmpty()) {
+      throw new IllegalStateException("Unexpected state of database: unable to lock required resources");
     }
+
     var centralInstances = INSTANCES.subList(0, 30);
     saveRecords(CENTRAL_TENANT_ID, instanceSearchPath(), centralInstances, centralInstances.size(),
       instance -> inventoryApi.createInstance(CENTRAL_TENANT_ID, instance));
+
     var memberInstances = INSTANCES.subList(30, INSTANCES.size());
     saveRecords(MEMBER_TENANT_ID, instanceSearchPath(), memberInstances, INSTANCES.size(),
       instance -> inventoryApi.createInstance(MEMBER_TENANT_ID, instance));
+
     var instance1 = centralInstances.getFirst();
     instance1.setSource(SearchUtils.SOURCE_CONSORTIUM_PREFIX + "FOLIO");
+    instance1.getItems().forEach(item -> item.setId(UUID.randomUUID().toString()));
     saveRecords(MEMBER_TENANT_ID, instanceSearchPath(), List.of(instance1), INSTANCES.size(),
       instance -> inventoryApi.createInstance(MEMBER_TENANT_ID, instance));
 
     var dataRecord = new CallNumberTestDataRecord(callNumbers().getLast().callNumber(), MEMBER2_LOCATION);
     var member2Instance = instance("51", List.of(dataRecord));
+    instance1.getItems().forEach(item -> item.setId(UUID.randomUUID().toString()));
     saveRecords(MEMBER2_TENANT_ID, instanceSearchPath(), List.of(member2Instance, instance1),
       centralInstances.size() + 1,
       instance -> inventoryApi.createInstance(MEMBER2_TENANT_ID, instance));
-    subResourcesLockRepository.unlockSubResource(ReindexEntityType.CALL_NUMBER, timestamp.get(), CENTRAL_TENANT_ID);
 
-    await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
+    // Unlock all resources in reverse order
+    subResourcesLockRepository.unlockSubResource(ReindexEntityType.INSTANCE, instanceTimestamp.get(), CENTRAL_TENANT_ID);
+    subResourcesLockRepository.unlockSubResource(ReindexEntityType.ITEM, itemTimestamp.get(), CENTRAL_TENANT_ID);
+    subResourcesLockRepository.unlockSubResource(ReindexEntityType.CALL_NUMBER, callNumberTimestamp.get(), CENTRAL_TENANT_ID);
+
+    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() -> {
       var counted = countIndexDocument(ResourceType.INSTANCE_CALL_NUMBER, CENTRAL_TENANT_ID);
       assertThat(counted).isEqualTo(100);
     });
@@ -265,5 +281,4 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
     doPut(browseConfigPath(BrowseType.INSTANCE_CALL_NUMBER, BrowseOptionType.LC), CENTRAL_TENANT_ID, config);
     okapi.wireMockServer().removeStub(stub);
   }
-
 }

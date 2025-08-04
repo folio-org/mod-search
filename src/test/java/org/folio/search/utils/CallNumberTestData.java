@@ -1,8 +1,7 @@
-package org.folio.search.utils;
+package org.folio.support.utils;
 
 import static org.folio.search.utils.CallNumberUtils.calculateFullCallNumber;
-import static org.folio.search.utils.TestConstants.TENANT_ID;
-import static org.folio.search.utils.TestUtils.randomId;
+import static org.folio.support.utils.TestUtils.randomId;
 
 import java.io.InputStream;
 import java.util.Arrays;
@@ -50,7 +49,7 @@ public class CallNumberTestData {
 
   public static Instance instance(String instanceNum, List<CallNumberTestDataRecord> callNumbers) {
     var holdingId = randomId();
-    var holding = new Holding().id(holdingId).tenantId(TENANT_ID);
+    var holding = new Holding().id(holdingId);
 
     var items = callNumbers.stream()
       .map(callNumberResource -> {
@@ -58,7 +57,6 @@ public class CallNumberTestData {
           var locationId = callNumberResource.locationId();
           return new Item()
             .id(randomId())
-            .tenantId(TENANT_ID)
             .holdingsRecordId(holdingId)
             .effectiveLocationId(locationId)
             .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents()
@@ -73,7 +71,6 @@ public class CallNumberTestData {
     return new Instance()
       .id(randomId())
       .title("Instance " + instanceNum)
-      .tenantId(TENANT_ID)
       .items(items)
       .holdings(List.of(holding));
   }

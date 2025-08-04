@@ -20,7 +20,6 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.header.internals.RecordHeaders;
 import org.apache.kafka.common.record.TimestampType;
 import org.folio.search.domain.dto.ResourceEvent;
-import org.folio.search.service.InstanceChildrenResourceService;
 import org.folio.search.service.consortium.ConsortiumTenantExecutor;
 import org.folio.search.service.reindex.jdbc.MergeInstanceRepository;
 import org.folio.spring.exception.SystemUserAuthorizationException;
@@ -43,8 +42,6 @@ class PopulateInstanceBatchInterceptorTest {
   @Mock
   private SystemUserScopedExecutionService systemUserScopedExecutionService;
   @Mock
-  private InstanceChildrenResourceService instanceChildrenResourceService;
-  @Mock
   private MergeInstanceRepository instanceRepository;
   @Mock
   private Consumer<String, ResourceEvent> consumer;
@@ -59,7 +56,6 @@ class PopulateInstanceBatchInterceptorTest {
       executionService,
       systemUserScopedExecutionService
     );
-    populateInstanceBatchInterceptor.setInstanceChildrenResourceService(instanceChildrenResourceService);
   }
 
   @Test

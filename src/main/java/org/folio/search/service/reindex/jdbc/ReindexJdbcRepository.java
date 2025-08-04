@@ -15,6 +15,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 public abstract class ReindexJdbcRepository {
 
   protected static final int BATCH_OPERATION_SIZE = 100;
+  protected static final String LAST_UPDATED_DATE_FIELD = "lastUpdatedDate";
+  
   private static final String COUNT_SQL = "SELECT COUNT(*) FROM %s;";
   private static final String UPDATE_STATUS_SQL = """
     UPDATE %s
@@ -48,6 +50,14 @@ public abstract class ReindexJdbcRepository {
   public void updateRangeStatus(UUID id, Timestamp timestamp, ReindexRangeStatus status, String failCause) {
     var sql = UPDATE_STATUS_SQL.formatted(getFullTableName(context, rangeTable()));
     jdbcTemplate.update(sql, timestamp, status.name(), failCause, id);
+  }
+
+  /**
+   * Fetch records updated after the given timestamp for background processing.
+   * Default implementation returns null - subclasses can override if they support timestamp-based fetching.
+   */
+  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp) {
+    return null;
   }
 
   public abstract ReindexEntityType entityType();

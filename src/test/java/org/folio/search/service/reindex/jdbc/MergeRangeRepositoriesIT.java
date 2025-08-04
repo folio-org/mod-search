@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.UUID;
 import org.assertj.core.api.Condition;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
+import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexRangeStatus;
@@ -46,6 +47,7 @@ class MergeRangeRepositoriesIT {
   private @MockitoBean FolioExecutionContext context;
   private @MockitoBean ConsortiumTenantProvider tenantProvider;
   private @MockitoBean ReindexConfigurationProperties reindexConfig;
+  private SearchConfigurationProperties searchConfig;
   private HoldingRepository holdingRepository;
   private ItemRepository itemRepository;
   private MergeInstanceRepository instanceRepository;
@@ -54,9 +56,11 @@ class MergeRangeRepositoriesIT {
   @BeforeEach
   void setUp() {
     var jsonConverter = new JsonConverter(new ObjectMapper());
-    holdingRepository = new HoldingRepository(jdbcTemplate, jsonConverter, context);
-    itemRepository = new ItemRepository(jdbcTemplate, jsonConverter, context);
-    instanceRepository = new MergeInstanceRepository(jdbcTemplate, jsonConverter, context, tenantProvider);
+    searchConfig = new SearchConfigurationProperties();
+    searchConfig.setIndexing(new SearchConfigurationProperties.IndexingSettings());
+    holdingRepository = new HoldingRepository(jdbcTemplate, jsonConverter, context, searchConfig);
+    itemRepository = new ItemRepository(jdbcTemplate, jsonConverter, context, searchConfig);
+    instanceRepository = new MergeInstanceRepository(jdbcTemplate, jsonConverter, context, tenantProvider, searchConfig);
     uploadInstanceRepository = new UploadInstanceRepository(jdbcTemplate, jsonConverter, context, reindexConfig);
     when(context.getFolioModuleMetadata()).thenReturn(new FolioModuleMetadata() {
       @Override

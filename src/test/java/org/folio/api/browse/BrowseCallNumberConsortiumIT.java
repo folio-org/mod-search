@@ -80,27 +80,40 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
 
     enableFeature(CENTRAL_TENANT_ID, BROWSE_CALL_NUMBERS);
 
-    var timestamp = subResourcesLockRepository.lockSubResource(ReindexEntityType.CALL_NUMBER, CENTRAL_TENANT_ID);
-    if (timestamp.isEmpty()) {
-      throw new IllegalStateException("Unexpected state of database: unable to lock call-number resource");
+    // Lock all required resources: call numbers, instances, and items
+    var callNumberTimestamp = subResourcesLockRepository.lockSubResource(ReindexEntityType.CALL_NUMBER, CENTRAL_TENANT_ID);
+    var itemTimestamp = subResourcesLockRepository.lockSubResource(ReindexEntityType.ITEM, CENTRAL_TENANT_ID);
+    var instanceTimestamp = subResourcesLockRepository.lockSubResource(ReindexEntityType.INSTANCE, CENTRAL_TENANT_ID);
+
+    if (callNumberTimestamp.isEmpty() || instanceTimestamp.isEmpty() || itemTimestamp.isEmpty()) {
+      throw new IllegalStateException("Unexpected state of database: unable to lock required resources");
     }
+
     var centralInstances = INSTANCES.subList(0, 30);
     saveRecords(CENTRAL_TENANT_ID, instanceSearchPath(), centralInstances, centralInstances.size(),
       instance -> inventoryApi.createInstance(CENTRAL_TENANT_ID, instance));
+
     var memberInstances = INSTANCES.subList(30, INSTANCES.size());
     saveRecords(MEMBER_TENANT_ID, instanceSearchPath(), memberInstances, INSTANCES.size(),
       instance -> inventoryApi.createInstance(MEMBER_TENANT_ID, instance));
+
     var instance1 = centralInstances.getFirst();
     instance1.setSource(SearchUtils.SOURCE_CONSORTIUM_PREFIX + "FOLIO");
+    instance1.getItems().forEach(item -> item.setId(UUID.randomUUID().toString()));
     saveRecords(MEMBER_TENANT_ID, instanceSearchPath(), List.of(instance1), INSTANCES.size(),
       instance -> inventoryApi.createInstance(MEMBER_TENANT_ID, instance));
 
     var dataRecord = new CallNumberTestDataRecord(callNumbers().getLast().callNumber(), MEMBER2_LOCATION);
     var member2Instance = instance("51", List.of(dataRecord));
+    instance1.getItems().forEach(item -> item.setId(UUID.randomUUID().toString()));
     saveRecords(MEMBER2_TENANT_ID, instanceSearchPath(), List.of(member2Instance, instance1),
       centralInstances.size() + 1,
       instance -> inventoryApi.createInstance(MEMBER2_TENANT_ID, instance));
-    subResourcesLockRepository.unlockSubResource(ReindexEntityType.CALL_NUMBER, timestamp.get(), CENTRAL_TENANT_ID);
+
+    // Unlock all resources in reverse order
+    subResourcesLockRepository.unlockSubResource(ReindexEntityType.INSTANCE, instanceTimestamp.get(), CENTRAL_TENANT_ID);
+    subResourcesLockRepository.unlockSubResource(ReindexEntityType.ITEM, itemTimestamp.get(), CENTRAL_TENANT_ID);
+    subResourcesLockRepository.unlockSubResource(ReindexEntityType.CALL_NUMBER, callNumberTimestamp.get(), CENTRAL_TENANT_ID);
 
     await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() -> {
       var counted = countIndexDocument(ResourceType.INSTANCE_CALL_NUMBER, CENTRAL_TENANT_ID);

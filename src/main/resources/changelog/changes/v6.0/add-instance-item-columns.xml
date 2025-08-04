@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
+
+  <changeSet id="MSEARCH-1056@@add-last-updated-date-to-instance" author="viacheslav_kolesnyk">
+    <preConditions onFail="MARK_RAN">
+      <tableExists tableName="instance"/>
+      <not>
+        <columnExists tableName="instance" columnName="last_updated_date"/>
+      </not>
+    </preConditions>
+
+    <comment>Add last_updated_date column to instance table for background sub-resource processing</comment>
+
+    <addColumn tableName="instance">
+      <column name="last_updated_date" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+
+    <createIndex tableName="instance" indexName="idx_instance_last_updated_date">
+      <column name="last_updated_date"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="MSEARCH-1056@@add-last-updated-date-to-item" author="viacheslav_kolesnyk">
+    <preConditions onFail="MARK_RAN">
+      <tableExists tableName="item"/>
+      <not>
+        <columnExists tableName="item" columnName="last_updated_date"/>
+      </not>
+    </preConditions>
+
+    <comment>Add last_updated_date column to item table for background sub-resource processing</comment>
+
+    <addColumn tableName="item">
+      <column name="last_updated_date" type="DATETIME" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+
+    <createIndex tableName="item" indexName="idx_item_last_updated_date">
+      <column name="last_updated_date"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="MSEARCH-1056@@add-is-deleted-to-instance" author="viacheslav_kolesnyk">
+    <preConditions onFail="MARK_RAN">
+      <tableExists tableName="instance"/>
+      <not>
+        <columnExists tableName="instance" columnName="is_deleted"/>
+      </not>
+    </preConditions>
+
+    <comment>Add is_deleted column to instance table for soft deletion</comment>
+
+    <addColumn tableName="instance">
+      <column name="is_deleted" type="BOOLEAN" defaultValueBoolean="false">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet id="MSEARCH-1056@@add-is-deleted-to-item" author="viacheslav_kolesnyk">
+    <preConditions onFail="MARK_RAN">
+      <tableExists tableName="item"/>
+      <not>
+        <columnExists tableName="item" columnName="is_deleted"/>
+      </not>
+    </preConditions>
+
+    <comment>Add is_deleted column to item table for soft deletion</comment>
+
+    <addColumn tableName="item">
+      <column name="is_deleted" type="BOOLEAN" defaultValueBoolean="false">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+</databaseChangeLog>

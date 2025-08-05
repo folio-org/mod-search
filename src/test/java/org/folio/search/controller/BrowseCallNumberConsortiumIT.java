@@ -71,7 +71,7 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
   private static final String MEMBER2_LOCATION = UUID.randomUUID().toString();
 
   @BeforeAll
-  static void prepare(@Autowired SubResourcesLockRepository subResourcesLockRepository) {
+  static void prepare(@Autowired SubResourcesLockRepository lockRepository) {
     setUpTenant(CENTRAL_TENANT_ID);
     setUpTenant(MEMBER_TENANT_ID);
     setUpTenant(MEMBER2_TENANT_ID);
@@ -79,9 +79,9 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
     enableFeature(CENTRAL_TENANT_ID, BROWSE_CALL_NUMBERS);
 
     // Lock all required resources: call numbers, instances, and items
-    var callNumberTimestamp = subResourcesLockRepository.lockSubResource(ReindexEntityType.CALL_NUMBER, CENTRAL_TENANT_ID);
-    var itemTimestamp = subResourcesLockRepository.lockSubResource(ReindexEntityType.ITEM, CENTRAL_TENANT_ID);
-    var instanceTimestamp = subResourcesLockRepository.lockSubResource(ReindexEntityType.INSTANCE, CENTRAL_TENANT_ID);
+    var callNumberTimestamp = lockRepository.lockSubResource(ReindexEntityType.CALL_NUMBER, CENTRAL_TENANT_ID);
+    var itemTimestamp = lockRepository.lockSubResource(ReindexEntityType.ITEM, CENTRAL_TENANT_ID);
+    var instanceTimestamp = lockRepository.lockSubResource(ReindexEntityType.INSTANCE, CENTRAL_TENANT_ID);
 
     if (callNumberTimestamp.isEmpty() || instanceTimestamp.isEmpty() || itemTimestamp.isEmpty()) {
       throw new IllegalStateException("Unexpected state of database: unable to lock required resources");
@@ -109,9 +109,9 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
       instance -> inventoryApi.createInstance(MEMBER2_TENANT_ID, instance));
 
     // Unlock all resources in reverse order
-    subResourcesLockRepository.unlockSubResource(ReindexEntityType.INSTANCE, instanceTimestamp.get(), CENTRAL_TENANT_ID);
-    subResourcesLockRepository.unlockSubResource(ReindexEntityType.ITEM, itemTimestamp.get(), CENTRAL_TENANT_ID);
-    subResourcesLockRepository.unlockSubResource(ReindexEntityType.CALL_NUMBER, callNumberTimestamp.get(), CENTRAL_TENANT_ID);
+    lockRepository.unlockSubResource(ReindexEntityType.INSTANCE, instanceTimestamp.get(), CENTRAL_TENANT_ID);
+    lockRepository.unlockSubResource(ReindexEntityType.ITEM, itemTimestamp.get(), CENTRAL_TENANT_ID);
+    lockRepository.unlockSubResource(ReindexEntityType.CALL_NUMBER, callNumberTimestamp.get(), CENTRAL_TENANT_ID);
 
     await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() -> {
       var counted = countIndexDocument(ResourceType.INSTANCE_CALL_NUMBER, CENTRAL_TENANT_ID);

@@ -48,9 +48,9 @@ public class ScheduledInstanceSubResourcesService {
     this.resourceService = resourceService;
     this.tenantRepository = tenantRepository;
     this.repositories = repositories.stream()
-      .filter(repo -> repo instanceof InstanceChildResourceRepository ||
-        (repo.entityType() == ReindexEntityType.INSTANCE && repo instanceof MergeRangeRepository) ||
-        repo.entityType() == ReindexEntityType.ITEM)
+      .filter(repo -> repo instanceof InstanceChildResourceRepository
+        || repo.entityType() == ReindexEntityType.INSTANCE && repo instanceof MergeRangeRepository
+        || repo.entityType() == ReindexEntityType.ITEM)
       .collect(toMap(ReindexJdbcRepository::entityType, identity()));
     this.subResourcesLockRepository = subResourcesLockRepository;
     this.executionService = executionService;
@@ -101,7 +101,7 @@ public class ScheduledInstanceSubResourcesService {
   private void processInstanceOrItemEntities(ReindexEntityType entityType, String tenant,
                                            List<Map<String, Object>> records) {
     if (instanceChildrenResourceService == null) {
-      log.warn("processInstanceOrItemEntities::InstanceChildrenResourceService not available for processing {} entities",
+      log.warn("processInstanceOrItemEntities::InstanceChildrenResourceService not available for processing {}.",
                entityType);
       return;
     }
@@ -133,7 +133,6 @@ public class ScheduledInstanceSubResourcesService {
       .collect(Collectors.groupingBy(ResourceEvent::getTenant)).forEach((eventsTenant, tenantEvents) ->
         instanceChildrenResourceService.persistChildren(eventsTenant, resourceType, tenantEvents));
 
-
     // Hard delete entities marked as deleted
     var deletedEntities = events.stream()
       .filter(event -> ResourceEventType.DELETE == event.getType())
@@ -148,7 +147,8 @@ public class ScheduledInstanceSubResourcesService {
         if (entityType == ReindexEntityType.ITEM) {
           // Items need tenant-specific deletion
           deletedEntities.stream()
-            .collect(Collectors.groupingBy(ResourceEvent::getTenant, Collectors.mapping(ResourceEvent::getId, Collectors.toList())))
+            .collect(Collectors.groupingBy(ResourceEvent::getTenant,
+              Collectors.mapping(ResourceEvent::getId, Collectors.toList())))
             .forEach((groupTenant, ids) ->
               repository.deleteEntitiesForTenant(ids, groupTenant)
             );

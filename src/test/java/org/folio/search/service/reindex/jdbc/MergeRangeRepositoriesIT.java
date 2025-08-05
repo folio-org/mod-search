@@ -47,7 +47,6 @@ class MergeRangeRepositoriesIT {
   private @MockitoBean FolioExecutionContext context;
   private @MockitoBean ConsortiumTenantProvider tenantProvider;
   private @MockitoBean ReindexConfigurationProperties reindexConfig;
-  private SearchConfigurationProperties searchConfig;
   private HoldingRepository holdingRepository;
   private ItemRepository itemRepository;
   private MergeInstanceRepository instanceRepository;
@@ -56,11 +55,12 @@ class MergeRangeRepositoriesIT {
   @BeforeEach
   void setUp() {
     var jsonConverter = new JsonConverter(new ObjectMapper());
-    searchConfig = new SearchConfigurationProperties();
+    var searchConfig = new SearchConfigurationProperties();
     searchConfig.setIndexing(new SearchConfigurationProperties.IndexingSettings());
     holdingRepository = new HoldingRepository(jdbcTemplate, jsonConverter, context, searchConfig);
     itemRepository = new ItemRepository(jdbcTemplate, jsonConverter, context, searchConfig);
-    instanceRepository = new MergeInstanceRepository(jdbcTemplate, jsonConverter, context, tenantProvider, searchConfig);
+    instanceRepository =
+      new MergeInstanceRepository(jdbcTemplate, jsonConverter, context, tenantProvider, searchConfig);
     uploadInstanceRepository = new UploadInstanceRepository(jdbcTemplate, jsonConverter, context, reindexConfig);
     when(context.getFolioModuleMetadata()).thenReturn(new FolioModuleMetadata() {
       @Override

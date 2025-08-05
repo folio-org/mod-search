@@ -100,9 +100,9 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
         saveEntities(tenant, recordByOperation.getOrDefault(true, emptyList()), repository);
         deleteEntities(tenant, resourceType, recordByOperation.getOrDefault(false, emptyList()), repository);
 
-        log.debug("process::Saved {} entities for resource type {} in tenant {}, " +
-                 "sub-resource processing will be handled by background job",
-                 recordCollection.getValue().size(), resourceType, tenant);
+        log.debug("process::Saved {} entities for resource type {} in tenant {}, "
+            + "sub-resource processing will be handled by background job",
+          recordCollection.getValue().size(), resourceType, tenant);
       }
     }
   }

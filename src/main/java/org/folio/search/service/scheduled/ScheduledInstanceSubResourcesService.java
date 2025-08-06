@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.collections4.MapUtils.getString;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -17,6 +18,8 @@ import org.folio.search.service.InstanceChildrenResourceService;
 import org.folio.search.service.ResourceService;
 import org.folio.search.service.reindex.ReindexConstants;
 import org.folio.search.service.reindex.jdbc.InstanceChildResourceRepository;
+import org.folio.search.service.reindex.jdbc.ItemRepository;
+import org.folio.search.service.reindex.jdbc.MergeInstanceRepository;
 import org.folio.search.service.reindex.jdbc.MergeRangeRepository;
 import org.folio.search.service.reindex.jdbc.ReindexJdbcRepository;
 import org.folio.search.service.reindex.jdbc.SubResourceResult;
@@ -44,14 +47,17 @@ public class ScheduledInstanceSubResourcesService {
                                               TenantRepository tenantRepository,
                                               List<ReindexJdbcRepository> repositories,
                                               SubResourcesLockRepository subResourcesLockRepository,
-                                              SystemUserScopedExecutionService executionService) {
+                                              SystemUserScopedExecutionService executionService,
+                                              MergeInstanceRepository instanceRepository,
+                                              ItemRepository itemRepository) {
     this.resourceService = resourceService;
     this.tenantRepository = tenantRepository;
-    this.repositories = repositories.stream()
-      .filter(repo -> repo instanceof InstanceChildResourceRepository
-        || repo.entityType() == ReindexEntityType.INSTANCE && repo instanceof MergeRangeRepository
-        || repo.entityType() == ReindexEntityType.ITEM)
-      .collect(toMap(ReindexJdbcRepository::entityType, identity()));
+    this.repositories = new LinkedHashMap<>();
+    this.repositories.put(ReindexEntityType.INSTANCE, instanceRepository);
+    this.repositories.put(ReindexEntityType.ITEM, itemRepository);
+    this.repositories.putAll(repositories.stream()
+      .filter(InstanceChildResourceRepository.class::isInstance)
+      .collect(toMap(ReindexJdbcRepository::entityType, identity())));
     this.subResourcesLockRepository = subResourcesLockRepository;
     this.executionService = executionService;
     this.instanceChildrenResourceService = null;

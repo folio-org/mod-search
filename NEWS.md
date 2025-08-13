@@ -1,6 +1,7 @@
 ## v6.0.0 YYYY-mm-DD
 ### Breaking changes
 * Delete deprecated stream resource ids endpoints ([MSEARCH-1053](https://folio-org.atlassian.net/browse/MSEARCH-1053))
+* Linked Data: Change 'Ean' Identifier to 'IAN' Identifier to be consistent with the terminology used in mod-linked-data ([MSEARCH-1061](https://folio-org.atlassian.net/browse/MSEARCH-1061))
 
 ### New APIs versions
 * Provides `search-inventory v1.0`

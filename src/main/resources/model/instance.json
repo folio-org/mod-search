@@ -609,7 +609,7 @@
     },
     "issn": {
       "type": "search",
-      "index": "keyword_uppercase",
+      "index": "keyword_no_space_dash",
       "processor": "issnProcessor"
     },
     "instanceTags": {

@@ -43,6 +43,12 @@
       "normalizer": "keyword_trimmed"
     }
   },
+  "keyword_no_space_dash": {
+    "mapping": {
+      "type": "keyword",
+      "normalizer": "keyword_no_space_dash"
+    }
+  },
   "whitespace": {
     "mapping": {
       "type": "text",

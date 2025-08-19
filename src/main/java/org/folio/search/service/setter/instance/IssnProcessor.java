@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class IssnProcessor extends AbstractIdentifierProcessor<Instance> {
 
-  private static final List<String> ISSN_IDENTIFIER_NAMES = List.of("ISSN", "Invalid ISSN", "Linking ISSN");
+  private static final List<String> IDENTIFIER_TYPE_NAMES = List.of("ISSN", "Invalid ISSN", "Linking ISSN");
 
   /**
    * Used by dependency injection.
@@ -18,7 +18,7 @@ public class IssnProcessor extends AbstractIdentifierProcessor<Instance> {
    * @param referenceDataService {@link ReferenceDataService} bean
    */
   public IssnProcessor(ReferenceDataService referenceDataService) {
-    super(referenceDataService, ISSN_IDENTIFIER_NAMES);
+    super(referenceDataService, IDENTIFIER_TYPE_NAMES);
   }
 
   @Override

@@ -43,6 +43,16 @@
           "icu_folding"
         ],
         "type": "custom"
+      },
+      "keyword_no_space_dash": {
+        "filter": [
+          "lowercase",
+          "trim"
+        ],
+        "char_filter": [
+          "remove_spaces_dashes"
+        ],
+        "type": "custom"
       }
     },
     "analyzer": {
@@ -72,6 +82,11 @@
         "type": "pattern_replace",
         "pattern": " & ",
         "replacement": " and "
+      },
+      "remove_spaces_dashes": {
+        "type": "pattern_replace",
+        "pattern": "[ -]",
+        "replacement": ""
       }
     }
   }

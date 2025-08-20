@@ -18,6 +18,9 @@ services:
     build:
       context: opensearch
       dockerfile: Dockerfile
+      args:
+        - --no-cache
+    pull_policy: always
     networks:
       - opensearch-net
       - mod-search-local
@@ -32,7 +35,7 @@ services:
 
   opensearch-dashboards:
     container_name: opensearch-dashboards_mod-search
-    image: opensearchproject/opensearch-dashboards:2
+    image: opensearchproject/opensearch-dashboards:3.0.0
     ports:
       - "5601:5601"
     expose:

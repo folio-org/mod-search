@@ -1,7 +1,7 @@
-package org.folio.support.utils;
+package org.folio.search.utils;
 
 import static org.folio.search.utils.CallNumberUtils.calculateFullCallNumber;
-import static org.folio.support.utils.TestUtils.randomId;
+import static org.folio.search.utils.TestUtils.randomId;
 
 import java.io.InputStream;
 import java.util.Arrays;

@@ -127,8 +127,8 @@
       ]
     },
     {
-      "id": "search-inventory",
-      "version": "1.0",
+      "id": "search",
+      "version": "1.3",
       "handlers": [
         {
           "methods": [
@@ -141,13 +141,7 @@
           "modulePermissions": [
             "user-tenants.collection.get"
           ]
-        }
-      ]
-    },
-    {
-      "id": "search-authorities",
-      "version": "1.0",
-      "handlers": [
+        },
         {
           "methods": [
             "GET"
@@ -159,13 +153,7 @@
           "modulePermissions": [
             "user-tenants.collection.get"
           ]
-        }
-      ]
-    },
-    {
-      "id": "search-linked-data",
-      "version": "1.0",
-      "handlers": [
+        },
         {
           "methods": [
             "GET"
@@ -201,13 +189,7 @@
           "modulePermissions": [
             "user-tenants.collection.get"
           ]
-        }
-      ]
-    },
-    {
-      "id": "search-facets",
-      "version": "1.0",
-      "handlers": [
+        },
         {
           "methods": [
             "GET"
@@ -215,6 +197,30 @@
           "pathPattern": "/search/{recordType}/facets",
           "permissionsRequired": [
             "search.facets.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "pathPattern": "/search/instances/ids",
+          "permissionsRequired": [
+            "search.instances.ids.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "pathPattern": "/search/holdings/ids",
+          "permissionsRequired": [
+            "search.holdings.ids.collection.get"
           ],
           "modulePermissions": [
             "user-tenants.collection.get"
@@ -350,7 +356,7 @@
     },
     {
       "id": "resource-ids-streaming",
-      "version": "1.0",
+      "version": "0.3",
       "handlers": [
         {
           "methods": [
@@ -391,8 +397,8 @@
       ]
     },
     {
-      "id": "browse-inventory",
-      "version": "1.0",
+      "id": "browse",
+      "version": "2.0",
       "handlers": [
         {
           "methods": [
@@ -441,13 +447,7 @@
           "modulePermissions": [
             "user-tenants.collection.get"
           ]
-        }
-      ]
-    },
-    {
-      "id": "browse-authorities",
-      "version": "1.0",
-      "handlers": [
+        },
         {
           "methods": [
             "GET"
@@ -808,6 +808,16 @@
       ]
     },
     {
+      "permissionName": "search.instances.ids.collection.get",
+      "displayName": "Search - returns list of resource ids for a cql query",
+      "description": "Returns list of resource ids for a cql query"
+    },
+    {
+      "permissionName": "search.holdings.ids.collection.get",
+      "displayName": "Search - returns a list of holding ids found for the CQL query by instances",
+      "description": "Returns list of resource ids for a cql query"
+    },
+    {
       "permissionName": "search.resources.ids.collection.get",
       "displayName": "Search - returns a list of authority ids found for the CQL query",
       "description": "Returns list of resource ids for a cql query"
@@ -1091,11 +1101,6 @@
         "description": "Specify if Elasticsearch request/response compression enabled"
       },
       {
-        "name": "ELASTICSEARCH_SERVER",
-        "value": "false",
-        "description": "Specify whether it is Elasticsearch(true) or Opensearch(false) "
-      },
-      {
         "name": "DB_HOST",
         "value": "postgres",
         "description": "Postgres hostname"
@@ -1138,11 +1143,6 @@
         "description": "Format for passing data to elasticsearch (json/smile)"
       },
       {
-        "name": "INSTANCE_CHILDREN_INDEX_ENABLED",
-        "value": "true",
-        "description": "Defines if module should process subjects/contributors/classifications/call-numbers in a background"
-      },
-      {
         "name": "INSTANCE_CHILDREN_INDEX_DELAY_MS",
         "value": "60000",
         "description": "Scheduler delay for indexing subjects/contributors/classifications"
@@ -1183,29 +1183,19 @@
         "description": "Specifies if globally search by all field values must be enabled or not (tenant can override this setting)"
       },
       {
-        "name": "BROWSE_SUBJECTS_ENABLED",
+        "name": "BROWSE_CN_INTERMEDIATE_VALUES_ENABLED",
         "value": "true",
-        "description": "Specifies if globally browse instance subject feature is enabled"
+        "description": "Specifies if globally intermediate values (nested instance items) must be populated or not (tenant can override this setting)"
       },
       {
-        "name": "BROWSE_CONTRIBUTORS_ENABLED",
+        "name": "BROWSE_CN_INTERMEDIATE_REMOVE_DUPLICATES",
         "value": "true",
-        "description": "Specifies if globally browse instance contributor feature is enabled"
-      },
-      {
-        "name": "BROWSE_CLASSIFICATIONS_ENABLED",
-        "value": "true",
-        "description": "Specifies if globally browse instance classification feature is enabled"
-      },
-      {
-        "name": "BROWSE_CALL_NUMBERS_ENABLED",
-        "value": "true",
-        "description": "Specifies if globally browse instance call-number feature is enabled"
+        "description": "Specifies if globally intermediate duplicate values (fullCallNumber) should be removed or not (Active only with BROWSE_CN_INTERMEDIATE_VALUES_ENABLED)"
       },
       {
         "name": "SCROLL_QUERY_SIZE",
         "value": "1000",
-        "description": "The number of records to be loaded by each scroll query. 10000 is a max value"
+        "description": "The number of records to be loaded by each scroll query. 10_000 is a max value"
       },
       {
         "name": "STREAM_ID_RETRY_INTERVAL_MS",
@@ -1233,6 +1223,11 @@
         "description": "The capacity of the queue."
       },
       {
+        "name": "CN_BROWSE_OPTIMIZATION_ENABLED",
+        "value": "true",
+        "description": "Defines if call-number browse optimization is enabled or not"
+      },
+      {
         "name": "SEARCH_QUERY_TIMEOUT",
         "value": "25s",
         "description": "The maximum time to wait for search query response"
@@ -1249,7 +1244,7 @@
       },
       {
         "name": "MAX_SEARCH_BATCH_REQUEST_IDS_COUNT",
-        "value": "20000",
+        "value": "20_000",
         "description": "Defines maximum batch request IDs count for searching consolidated items/holdings in consortium"
       },
       {
@@ -1259,7 +1254,7 @@
       },
       {
         "name": "REINDEX_UPLOAD_RANGE_SIZE",
-        "value": "1000",
+        "value": "1_000",
         "description": "The range size that represents the number of upload entities to process during the Upload process of reindex"
       },
       {

@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.UUID;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
+import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexRangeStatus;
 import org.folio.search.service.consortium.ConsortiumTenantProvider;
@@ -38,13 +39,17 @@ class ReindexJdbcRepositoriesIT {
   private @MockitoBean FolioExecutionContext context;
   private @MockitoBean ReindexConfigurationProperties reindexConfig;
   private @MockitoBean ConsortiumTenantProvider tenantProvider;
+  private SearchConfigurationProperties searchConfig;
   private MergeInstanceRepository mergeRepository;
   private UploadInstanceRepository uploadRepository;
 
   @BeforeEach
   void setUp() {
     var jsonConverter = new JsonConverter(new ObjectMapper());
-    mergeRepository = new MergeInstanceRepository(jdbcTemplate, jsonConverter, context, tenantProvider);
+    searchConfig = new SearchConfigurationProperties();
+    searchConfig.setIndexing(new SearchConfigurationProperties.IndexingSettings());
+    mergeRepository = new MergeInstanceRepository(jdbcTemplate, jsonConverter, context, tenantProvider,
+      searchConfig);
     uploadRepository = new UploadInstanceRepository(jdbcTemplate, jsonConverter, context, reindexConfig);
     when(context.getFolioModuleMetadata()).thenReturn(new FolioModuleMetadata() {
       @Override

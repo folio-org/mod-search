@@ -38,7 +38,6 @@ public abstract class UploadRangeRepository extends ReindexJdbcRepository {
     "saveAll::Failed to save relations batch. Starting processing one-by-one.";
 
   protected static final String SELECT_RECORD_SQL = "SELECT * from %s WHERE id >= ? AND id <= ?;";
-  protected static final String LAST_UPDATED_DATE_FIELD = "lastUpdatedDate";
   private static final String UPSERT_UPLOAD_RANGE_SQL = """
       INSERT INTO %s (id, entity_type, lower, upper, created_at, finished_at)
       VALUES (?, ?, ?, ?, ?, ?)
@@ -79,8 +78,6 @@ public abstract class UploadRangeRepository extends ReindexJdbcRepository {
     var sql = getFetchBySql();
     return jdbcTemplate.query(sql, rowToMapMapper(), lower, upper);
   }
-
-  public abstract SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp);
 
   protected String getFetchBySql() {
     return SELECT_RECORD_SQL.formatted(getFullTableName(context, entityTable()));

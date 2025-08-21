@@ -4,6 +4,7 @@ import static org.folio.search.utils.JdbcUtils.getFullTableName;
 
 import java.util.List;
 import java.util.Map;
+import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.reindex.ReindexConstants;
 import org.folio.search.utils.JsonConverter;
@@ -24,10 +25,9 @@ public class HoldingRepository extends MergeRangeRepository {
       json = EXCLUDED.json;
     """;
 
-  protected HoldingRepository(JdbcTemplate jdbcTemplate,
-                              JsonConverter jsonConverter,
-                              FolioExecutionContext context) {
-    super(jdbcTemplate, jsonConverter, context);
+  protected HoldingRepository(JdbcTemplate jdbcTemplate, JsonConverter jsonConverter, FolioExecutionContext context,
+                              SearchConfigurationProperties searchConfigurationProperties) {
+    super(jdbcTemplate, jsonConverter, context, searchConfigurationProperties);
   }
 
   @Override
@@ -47,6 +47,16 @@ public class HoldingRepository extends MergeRangeRepository {
         statement.setObject(3, entity.get("instanceId"));
         statement.setString(4, jsonConverter.toJson(entity));
       });
+  }
+
+  @Override
+  public void deleteEntitiesForTenant(List<String> ids, String tenantId) {
+    deleteEntitiesForTenant(ids, tenantId, true);
+  }
+
+  @Override
+  public void deleteEntities(List<String> ids) {
+    deleteEntities(ids, true);
   }
 
   @Override

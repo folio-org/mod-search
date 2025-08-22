@@ -713,6 +713,12 @@
       "processor": "lccnInstanceProcessor",
       "searchTermProcessor": "noSpaceSearchTermProcessor"
     },
+    "canceledLccn": {
+      "type": "search",
+      "index": "keyword_icu",
+      "processor": "canceledLccnInstanceProcessor",
+      "searchTermProcessor": "noSpaceSearchTermProcessor"
+    },
     "normalizedClassificationNumber": {
       "type": "search",
       "index": "keyword_icu",

@@ -36,6 +36,7 @@
 
 ### Tech Dept
 * Stabilize test execution ([MSEARCH-991](https://folio-org.atlassian.net/browse/MSEARCH-991))
+* Add missing `holdings-storage` and `item-storage` dependencies in module descriptor ([MSEARCH-1062](https://folio-org.atlassian.net/browse/MSEARCH-1062))
 
 ### Dependencies
 * Bump `LIB_NAME` from `OLD_VERSION` to `NEW_VERSION`

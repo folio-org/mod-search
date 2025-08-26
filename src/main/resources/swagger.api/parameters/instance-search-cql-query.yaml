@@ -304,6 +304,12 @@ description: |
         <td>Matches instances with the given lccn</td>
     </tr>
     <tr>
+        <td>canceledLccn</td>
+        <td>term</td>
+        <td>lccn = &quot;LCCN-OLD&quot;</td>
+        <td>Matches instances with the given canceled lccn</td>
+    </tr>
+    <tr>
         <td>normalizedClassificationNumber</td>
         <td>term</td>
         <td>normalizedClassificationNumber == &quot;LCCN&quot;</td>

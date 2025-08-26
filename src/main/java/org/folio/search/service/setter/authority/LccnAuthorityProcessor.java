@@ -1,32 +1,27 @@
 package org.folio.search.service.setter.authority;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import org.folio.search.domain.dto.Authority;
-import org.folio.search.domain.dto.Identifier;
 import org.folio.search.integration.folio.ReferenceDataService;
 import org.folio.search.service.lccn.StringNormalizer;
-import org.folio.search.service.setter.AbstractLccnProcessor;
 import org.springframework.stereotype.Component;
 
 @Component
-public class LccnAuthorityProcessor extends AbstractLccnProcessor<Authority> {
+public class LccnAuthorityProcessor extends AbstractAuthorityLccnProcessor {
+
+  private static final List<String> IDENTIFIER_NAMES = List.of("LCCN");
 
   /**
    * Used by dependency injection.
    *
    * @param referenceDataService {@link ReferenceDataService} bean
-   * @param stringNormalizer {@link StringNormalizer} bean
+   * @param stringNormalizer     {@link StringNormalizer} bean
    */
   public LccnAuthorityProcessor(ReferenceDataService referenceDataService, StringNormalizer stringNormalizer) {
     super(referenceDataService, stringNormalizer);
   }
 
   @Override
-  protected List<Identifier> getIdentifiers(Authority authority) {
-    return Optional.ofNullable(authority)
-      .map(Authority::getIdentifiers)
-      .orElse(Collections.emptyList());
+  public List<String> getIdentifierNames() {
+    return IDENTIFIER_NAMES;
   }
 }

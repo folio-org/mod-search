@@ -37,15 +37,27 @@ public class ElasticSearchContainerExtension implements BeforeAllCallback, After
   private static GenericContainer<?> createContainer() {
     var dockerfile = System.getenv().getOrDefault("SEARCH_ENGINE_DOCKERFILE", DEFAULT_DOCKERFILE);
     log.info("search engine dockerfile: {}", dockerfile);
-    var container = new GenericContainer<>(new ImageFromDockerfile(IMAGE_NAME, false)
-      .withDockerfile(Path.of(dockerfile)))
-      .withEnv("discovery.type", "single-node")
-      .withExposedPorts(9200);
-    if (dockerfile.contains("opensearch")) {
-      container.withEnv("DISABLE_SECURITY_PLUGIN", "true");
-    } else {  // elasticsearch
-      container.withEnv("xpack.security.enabled", "false");
+
+    // Verify dockerfile exists
+    Path dockerfilePath = Path.of(dockerfile);
+    if (!dockerfilePath.toFile().exists()) {
+      throw new RuntimeException("Dockerfile not found at: " + dockerfile);
     }
-    return container;
+
+    try {
+      var container = new GenericContainer<>(new ImageFromDockerfile(IMAGE_NAME, false)
+        .withDockerfile(dockerfilePath))
+        .withEnv("discovery.type", "single-node")
+        .withExposedPorts(9200);
+      if (dockerfile.contains("opensearch")) {
+        container.withEnv("DISABLE_SECURITY_PLUGIN", "true");
+      } else {  // elasticsearch
+        container.withEnv("xpack.security.enabled", "false");
+      }
+      return container;
+    } catch (Exception e) {
+      log.error("Failed to create container with dockerfile: {}", dockerfile, e);
+      throw e;
+    }
   }
 }

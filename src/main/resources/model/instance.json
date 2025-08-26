@@ -609,7 +609,7 @@
     },
     "issn": {
       "type": "search",
-      "index": "keyword_uppercase",
+      "index": "keyword_no_space_dash",
       "processor": "issnProcessor"
     },
     "instanceTags": {
@@ -711,6 +711,12 @@
       "type": "search",
       "index": "keyword_icu",
       "processor": "lccnInstanceProcessor",
+      "searchTermProcessor": "noSpaceSearchTermProcessor"
+    },
+    "canceledLccn": {
+      "type": "search",
+      "index": "keyword_icu",
+      "processor": "canceledLccnInstanceProcessor",
       "searchTermProcessor": "noSpaceSearchTermProcessor"
     },
     "normalizedClassificationNumber": {

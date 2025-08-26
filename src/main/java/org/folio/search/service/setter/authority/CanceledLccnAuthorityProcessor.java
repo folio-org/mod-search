@@ -6,9 +6,9 @@ import org.folio.search.service.lccn.LccnNormalizer;
 import org.springframework.stereotype.Component;
 
 @Component
-public class LccnAuthorityProcessor extends AbstractAuthorityLccnProcessor {
+public class CanceledLccnAuthorityProcessor extends AbstractAuthorityLccnProcessor {
 
-  private static final List<String> IDENTIFIER_NAMES = List.of("LCCN");
+  private static final List<String> IDENTIFIER_NAMES = List.of("Canceled LCCN");
 
   /**
    * Used by dependency injection.
@@ -16,7 +16,7 @@ public class LccnAuthorityProcessor extends AbstractAuthorityLccnProcessor {
    * @param referenceDataService {@link ReferenceDataService} bean
    * @param stringNormalizer     {@link LccnNormalizer} bean
    */
-  public LccnAuthorityProcessor(ReferenceDataService referenceDataService, LccnNormalizer stringNormalizer) {
+  public CanceledLccnAuthorityProcessor(ReferenceDataService referenceDataService, LccnNormalizer stringNormalizer) {
     super(referenceDataService, stringNormalizer);
   }
 

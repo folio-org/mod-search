@@ -11,14 +11,13 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.integration.folio.ReferenceDataService;
-import org.folio.search.service.setter.AbstractIdentifierProcessor;
 import org.springframework.stereotype.Component;
 
 /**
  * Identifier field processor, which normalize OCLC numbers.
  */
 @Component
-public class OclcProcessor extends AbstractIdentifierProcessor<Instance> {
+public class OclcProcessor extends AbstractInstanceIdentifierProcessor {
 
   private static final List<String> OCLC_IDENTIFIER_NAMES = List.of("OCLC", "Cancelled OCLC");
 
@@ -31,12 +30,12 @@ public class OclcProcessor extends AbstractIdentifierProcessor<Instance> {
    * @param referenceDataService {@link ReferenceDataService} bean
    */
   public OclcProcessor(ReferenceDataService referenceDataService) {
-    super(referenceDataService, OCLC_IDENTIFIER_NAMES);
+    super(referenceDataService);
   }
 
   @Override
   public Set<String> getFieldValue(Instance instance) {
-    return filterIdentifiersValue(instance.getIdentifiers()).stream()
+    return getIdentifierValuesStream(instance)
       .map(this::normalizeOclc)
       .filter(Objects::nonNull)
       .collect(toCollection(LinkedHashSet::new));
@@ -65,6 +64,11 @@ public class OclcProcessor extends AbstractIdentifierProcessor<Instance> {
     }
 
     return sb.toString();
+  }
+
+  @Override
+  public List<String> getIdentifierNames() {
+    return OCLC_IDENTIFIER_NAMES;
   }
 
   private String normalizeOclcValue(String value) {

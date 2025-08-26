@@ -8,7 +8,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import lombok.Getter;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.Identifier;
@@ -20,8 +20,18 @@ import org.folio.search.model.client.CqlQueryParam;
 public abstract class AbstractIdentifierProcessor<T> implements FieldProcessor<T, Set<String>> {
 
   private final ReferenceDataService referenceDataService;
-  @Getter
-  private final List<String> identifierNames;
+
+  public abstract List<String> getIdentifierNames();
+
+  protected Set<String> getIdentifierValues(T entity) {
+    return filterIdentifiersValue(getIdentifiers(entity));
+  }
+
+  protected Stream<String> getIdentifierValuesStream(T entity) {
+    return getIdentifierValues(entity).stream();
+  }
+
+  protected abstract List<Identifier> getIdentifiers(T entity);
 
   /**
    * Returns set of filtered identifiers value from event body by specified set of types.

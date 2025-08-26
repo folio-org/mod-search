@@ -17,7 +17,6 @@ import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.integration.folio.ReferenceDataService;
-import org.folio.search.service.setter.AbstractIdentifierProcessor;
 import org.springframework.stereotype.Component;
 
 /**
@@ -26,7 +25,7 @@ import org.springframework.stereotype.Component;
  * <p><a href="http://en.wikipedia.org/wiki/ISBN">Wikipedia - International Standard Book Number (ISBN)</a></p>
  */
 @Component
-public class IsbnProcessor extends AbstractIdentifierProcessor<Instance> {
+public class IsbnProcessor extends AbstractInstanceIdentifierProcessor {
 
   private static final List<String> ISBN_IDENTIFIER_NAMES = List.of("ISBN", "Invalid ISBN");
 
@@ -48,6 +47,7 @@ public class IsbnProcessor extends AbstractIdentifierProcessor<Instance> {
    */
   private static final Pattern ISBN13_REGEX = Pattern.compile(
     "^(978|979)(?:(\\d{10})|(" + SEP + GROUP_1 + SEP + GROUP_2 + SEP + GROUP_3 + SEP + "(\\d)))");
+  private static final Pattern WHITESPACE_PATTERN = Pattern.compile("\\s+");
 
   /**
    * Used by dependency injection.
@@ -55,12 +55,12 @@ public class IsbnProcessor extends AbstractIdentifierProcessor<Instance> {
    * @param referenceDataService {@link ReferenceDataService} bean
    */
   public IsbnProcessor(ReferenceDataService referenceDataService) {
-    super(referenceDataService, ISBN_IDENTIFIER_NAMES);
+    super(referenceDataService);
   }
 
   @Override
   public Set<String> getFieldValue(Instance instance) {
-    return filterIdentifiersValue(instance.getIdentifiers()).stream()
+    return getIdentifierValuesStream(instance)
       .map(this::normalizeIsbn)
       .flatMap(Collection::stream)
       .collect(toCollection(LinkedHashSet::new));
@@ -73,7 +73,7 @@ public class IsbnProcessor extends AbstractIdentifierProcessor<Instance> {
    * @return normalized isbn value
    */
   public List<String> normalizeIsbn(String value) {
-    String isbnValue = StringUtils.trim(value).replaceAll("\\s+", " ").toLowerCase();
+    var isbnValue = WHITESPACE_PATTERN.matcher(StringUtils.trim(value)).replaceAll(" ").toLowerCase();
     if (StringUtils.isEmpty(isbnValue)) {
       return emptyList();
     }
@@ -89,6 +89,11 @@ public class IsbnProcessor extends AbstractIdentifierProcessor<Instance> {
     }
 
     return List.of(replaceCharactersBetweenDigits(isbnValue));
+  }
+
+  @Override
+  public List<String> getIdentifierNames() {
+    return ISBN_IDENTIFIER_NAMES;
   }
 
   private static List<String> getNormalizedIsbnValue(Matcher isbnRegexMatcher, List<String> isbnValues) {

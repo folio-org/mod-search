@@ -94,7 +94,7 @@
     {
       "request": {
         "method": "GET",
-        "url": "/identifier-types?query=name%3D%3D%28%22LCCN%22%20or%20%22Canceled%20LCCN%22%29&limit=100"
+        "url": "/identifier-types?query=name%3D%3D%28%22LCCN%22%29&limit=100"
       },
       "response": {
         "status": 200,
@@ -102,11 +102,27 @@
           "identifierTypes": [
             {
               "id": "c858e4f2-2b6b-4385-842b-60732ee14abb",
-              "name": "Canceled LCCN"
-            },
-            {
-              "id": "c858e4f2-2b6b-4385-842b-60732ee14abb",
               "name": "LCCN"
+            }
+          ]
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "url": "/identifier-types?query=name%3D%3D%28%22Canceled%20LCCN%22%29&limit=100"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "identifierTypes": [
+            {
+              "id": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9",
+              "name": "Canceled LCCN"
             }
           ]
         },

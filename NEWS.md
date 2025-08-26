@@ -33,6 +33,7 @@
 * NumberFormatException: "1\_000" "20\_000" ([MSEARCH-1016](https://folio-org.atlassian.net/browse/MSEARCH-1016))
 * Authority search: make searching by all heading fields handled with separate/generated search field  ([MSEARCH-1020](https://folio-org.atlassian.net/browse/MSEARCH-1020))
 * Consortium Search: batch search returns less results for duplicate identifiers ([MSEARCH-804](https://folio-org.atlassian.net/browse/MSEARCH-804))
+* Indexing: proper handling of delete item events ([MSEARCH-1064](https://folio-org.atlassian.net/browse/MSEARCH-1064))
 
 ### Tech Dept
 * Stabilize test execution ([MSEARCH-991](https://folio-org.atlassian.net/browse/MSEARCH-991))

@@ -46,6 +46,7 @@
   * Modify facet queries to remove filters for nested queries ([MSEARCH-995](https://folio-org.atlassian.net/browse/MSEARCH-995))
 * **Indexing**
   * Move index recreation before merge range publishing on full reindex ([MSEARCH-1006](https://folio-org.atlassian.net/browse/MSEARCH-1006))
+  * Proper handling of delete item events ([MSEARCH-1064](https://folio-org.atlassian.net/browse/MSEARCH-1064))
 
 ### Tech Dept
 * Migrate to Opensearch 3.0.0 ([MSEARCH-1033](https://folio-org.atlassian.net/browse/MSEARCH-1033))

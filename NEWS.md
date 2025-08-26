@@ -1,6 +1,7 @@
 ## v5.0.5 YYYY-mm-DD
 ### Features
 * Refactor Sub-Resource Saving to Background Job to Prevent DB Deadlocks ([MSEARCH-1056](https://folio-org.atlassian.net/browse/MSEARCH-1056))
+* Separate LCCN and Canceled LCCN identifiers search to lccn and canceledLccn options ([MSEARCH-1065](https://folio-org.atlassian.net/browse/MSEARCH-1065))
 
 ### Bug fixes
 * Indexing: proper handling of delete item events ([MSEARCH-1064](https://folio-org.atlassian.net/browse/MSEARCH-1064))

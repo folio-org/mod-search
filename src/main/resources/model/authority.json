@@ -502,6 +502,12 @@
       "index": "keyword_lowercase",
       "processor": "lccnAuthorityProcessor",
       "searchTermProcessor": "lccnSearchTermProcessor"
+    },
+    "canceledLccn": {
+      "type": "search",
+      "index": "keyword_lowercase",
+      "processor": "canceledLccnAuthorityProcessor",
+      "searchTermProcessor": "lccnSearchTermProcessor"
     }
   },
   "indexMappings": {

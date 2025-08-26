@@ -539,6 +539,7 @@ class SearchAuthorityIT extends BaseIntegrationTest {
       // search by lccn
       arguments(specifyCommonField("lccn = {value}"), "N 2003075732"),
       arguments(specifyCommonField("lccn = {value}"), "N2003075732"),
+      arguments(specifyCommonField("canceledLccn = {value}"), "canceledlccn"),
 
 
       arguments(specifyCommonField("identifiers.value == {value}"), "AUTHORITY-IDENTIFIER"),

@@ -5,11 +5,13 @@ import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.collections4.MapUtils.getString;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
 
+import java.sql.Timestamp;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
+import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.types.ReindexEntityType;
@@ -41,6 +43,7 @@ public class ScheduledInstanceSubResourcesService {
   private final Map<ReindexEntityType, ReindexJdbcRepository> repositories;
   private final SubResourcesLockRepository subResourcesLockRepository;
   private final SystemUserScopedExecutionService executionService;
+  private final int subResourceBatchSize;
   private InstanceChildrenResourceService instanceChildrenResourceService;
 
   public ScheduledInstanceSubResourcesService(ResourceService resourceService,
@@ -49,7 +52,8 @@ public class ScheduledInstanceSubResourcesService {
                                               SubResourcesLockRepository subResourcesLockRepository,
                                               SystemUserScopedExecutionService executionService,
                                               MergeInstanceRepository instanceRepository,
-                                              ItemRepository itemRepository) {
+                                              ItemRepository itemRepository,
+                                              SearchConfigurationProperties searchConfigurationProperties) {
     this.resourceService = resourceService;
     this.tenantRepository = tenantRepository;
     this.repositories = new LinkedHashMap<>();
@@ -60,6 +64,7 @@ public class ScheduledInstanceSubResourcesService {
       .collect(toMap(ReindexJdbcRepository::entityType, identity())));
     this.subResourcesLockRepository = subResourcesLockRepository;
     this.executionService = executionService;
+    this.subResourceBatchSize = searchConfigurationProperties.getIndexing().getSubResourceBatchSize();
     this.instanceChildrenResourceService = null;
   }
 
@@ -77,25 +82,7 @@ public class ScheduledInstanceSubResourcesService {
         for (var entityType : entityTypes) {
           var timestamp = subResourcesLockRepository.lockSubResource(entityType, tenant);
           if (timestamp.isPresent()) {
-            SubResourceResult result = null;
-            try {
-              result = repositories.get(entityType).fetchByTimestamp(tenant, timestamp.get());
-              if (result != null && result.hasRecords()) {
-                if (entityType == ReindexEntityType.INSTANCE || entityType == ReindexEntityType.ITEM) {
-                  processInstanceOrItemEntities(entityType, tenant, result.records());
-                } else {
-                  var events = map(result.records(), entityType, tenant);
-                  resourceService.indexResources(events);
-                }
-              }
-            } catch (Exception e) {
-              log.error("persistChildren::Error processing instance children", e);
-            } finally {
-              var lastUpdatedDate = result == null || result.lastUpdateDate() == null
-                                    ? timestamp.get()
-                                    : result.lastUpdateDate();
-              subResourcesLockRepository.unlockSubResource(entityType, lastUpdatedDate, tenant);
-            }
+            processSubResources(entityType, tenant, timestamp.get());
           }
         }
         return null;
@@ -104,8 +91,52 @@ public class ScheduledInstanceSubResourcesService {
     log.debug("persistChildren::Finished instance children processing");
   }
 
+  private void processSubResources(ReindexEntityType entityType, String tenant, Timestamp timestamp) {
+    SubResourceResult result = null;
+    String lastId = null;
+
+    try {
+      do {
+        if (entityType == ReindexEntityType.INSTANCE || entityType == ReindexEntityType.ITEM) {
+          result = repositories.get(entityType).fetchByTimestamp(tenant, timestamp);
+          processInstanceOrItemEntities(entityType, tenant, result);
+          break;
+        } else {
+          result = lastId == null
+            ? repositories.get(entityType).fetchByTimestamp(tenant, timestamp, subResourceBatchSize)
+            : repositories.get(entityType).fetchByTimestamp(tenant, lastId, subResourceBatchSize);
+
+          if (result == null || !result.hasRecords()) {
+            break;
+          }
+
+          var events = map(result.records(), entityType, tenant);
+          resourceService.indexResources(events);
+
+          if (result.records().size() == subResourceBatchSize) {
+            var lastRecord = result.records().getLast();
+            lastId = (String) lastRecord.get("id");
+          } else {
+            break;
+          }
+        }
+      } while (result.hasRecords());
+    } catch (Exception e) {
+      log.error("processSubResources::Error processing {} entities", entityType, e);
+    } finally {
+      var lastUpdatedDate = result == null || result.lastUpdateDate() == null
+                            ? timestamp
+                            : result.lastUpdateDate();
+      subResourcesLockRepository.unlockSubResource(entityType, lastUpdatedDate, tenant);
+    }
+  }
+
   private void processInstanceOrItemEntities(ReindexEntityType entityType, String tenant,
-                                           List<Map<String, Object>> records) {
+                                           SubResourceResult result) {
+    if (result == null || !result.hasRecords()) {
+      return;
+    }
+
     if (instanceChildrenResourceService == null) {
       log.warn("processInstanceOrItemEntities::InstanceChildrenResourceService not available for processing {}.",
                entityType);
@@ -115,9 +146,9 @@ public class ScheduledInstanceSubResourcesService {
     var resourceType = entityType == ReindexEntityType.INSTANCE ? ResourceType.INSTANCE : ResourceType.ITEM;
 
     log.debug("processInstanceOrItemEntities::Processing {} {} entities for tenant {}",
-             records.size(), entityType, tenant);
+             result.records().size(), entityType, tenant);
 
-    var events = records.stream()
+    var events = result.records().stream()
       .map(recordMap -> {
         var isDeleted = Boolean.TRUE.equals(recordMap.get("isDeleted"));
         var eventType = isDeleted ? ResourceEventType.DELETE : ResourceEventType.UPDATE;

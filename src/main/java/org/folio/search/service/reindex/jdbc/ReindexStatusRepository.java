@@ -7,6 +7,7 @@ import static org.folio.search.model.reindex.ReindexStatusEntity.PROCESSED_UPLOA
 import static org.folio.search.model.reindex.ReindexStatusEntity.START_TIME_MERGE_COLUMN;
 import static org.folio.search.model.reindex.ReindexStatusEntity.START_TIME_UPLOAD_COLUMN;
 import static org.folio.search.model.reindex.ReindexStatusEntity.STATUS_COLUMN;
+import static org.folio.search.model.reindex.ReindexStatusEntity.TARGET_TENANT_ID_COLUMN;
 import static org.folio.search.model.reindex.ReindexStatusEntity.TOTAL_MERGE_RANGES_COLUMN;
 import static org.folio.search.model.reindex.ReindexStatusEntity.TOTAL_UPLOAD_RANGES_COLUMN;
 import static org.folio.search.service.reindex.ReindexConstants.REINDEX_STATUS_TABLE;
@@ -31,8 +32,9 @@ import org.springframework.stereotype.Repository;
 public class ReindexStatusRepository {
 
   private static final String INSERT_REINDEX_STATUS_SQL = """
-      INSERT INTO %s (entity_type, status, total_merge_ranges, processed_merge_ranges, total_upload_ranges, processed_upload_ranges, start_time_merge, end_time_merge, start_time_upload, end_time_upload)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+      INSERT INTO %s (entity_type, status, total_merge_ranges, processed_merge_ranges, total_upload_ranges,
+      processed_upload_ranges, start_time_merge, end_time_merge, start_time_upload, end_time_upload, target_tenant_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
     """;
 
   private static final String UPDATE_SQL = """
@@ -59,6 +61,8 @@ public class ReindexStatusRepository {
   private static final String QUERY_TWO_COLUMNS_PLACEHOLDER = "%s = ?, %s = ?";
 
   private static final String SELECT_MERGE_STATUS_SQL = "SELECT check_merge_completed_status()";
+  
+  private static final String SELECT_TARGET_TENANT_ID_SQL = "SELECT target_tenant_id FROM %s LIMIT 1";
 
   private final FolioExecutionContext context;
   private final JdbcTemplate jdbcTemplate;
@@ -149,11 +153,18 @@ public class ReindexStatusRepository {
         statement.setTimestamp(8, entity.getEndTimeMerge());
         statement.setTimestamp(9, entity.getStartTimeUpload());
         statement.setTimestamp(10, entity.getEndTimeUpload());
+        statement.setString(11, entity.getTargetTenantId());
       });
   }
 
   public boolean isMergeCompleted() {
     return Boolean.TRUE.equals(jdbcTemplate.queryForObject(SELECT_MERGE_STATUS_SQL, Boolean.class));
+  }
+
+  public String getTargetTenantId() {
+    var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
+    var sql = SELECT_TARGET_TENANT_ID_SQL.formatted(fullTableName);
+    return jdbcTemplate.queryForObject(sql, String.class);
   }
 
   private RowMapper<ReindexStatusEntity> reindexStatusRowMapper() {
@@ -170,6 +181,7 @@ public class ReindexStatusRepository {
       reindexStatus.setEndTimeMerge(rs.getTimestamp(END_TIME_MERGE_COLUMN));
       reindexStatus.setStartTimeUpload(rs.getTimestamp(START_TIME_UPLOAD_COLUMN));
       reindexStatus.setEndTimeUpload(rs.getTimestamp(END_TIME_UPLOAD_COLUMN));
+      reindexStatus.setTargetTenantId(rs.getString(TARGET_TENANT_ID_COLUMN));
       return reindexStatus;
     };
   }

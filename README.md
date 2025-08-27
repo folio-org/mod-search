@@ -420,6 +420,7 @@ x-okapi-tenant: [tenant]
 x-okapi-token: [JWT_TOKEN]
 
 {
+  "tenantId": "optional_specific_tenant",
   "indexSettings": {
     "numberOfShards": 2,
     "numberOfReplicas": 4,
@@ -428,6 +429,7 @@ x-okapi-token: [JWT_TOKEN]
 }
 
 ```
+* `tenantId` parameter is optional and allows reindexing a specific consortium member. If not provided, reindexes all consortium members or single non-consortium tenant
 * `indexSettings` parameter is optional and defines the following Elasticsearch/Opensearch index settings:
   - `numberOfShards` - the number (between 1 and 100) of primary shards for the index
   - `numberOfReplicas` - the number of replicas (between 0 and 100) each primary shard has
@@ -516,6 +518,78 @@ Only for entity type of ```instance``` we can have statuses of both Merge and Up
 
 ```status``` response field can have values of ```"MERGE_IN_PROGRESS"```, ```"MERGE_COMPLETED"``` or ```"MERGE_FAILED"``` for entity types
 representing Merge step and values of ```"UPLOAD_IN_PROGRESS"```, ```"UPLOAD_COMPLETED"``` or ```"UPLOAD_FAILED"``` for the entities of Upload step.
+
+### Tenant-Specific Reindexing in Consortia
+
+For consortium deployments, it's often necessary to reindex data for a specific member tenant without affecting other tenants' data or shared consortium instances. The tenant-specific reindex feature addresses this need by providing fine-grained control over which tenant's data gets reprocessed.
+
+#### When to Use Tenant-Specific Reindex
+
+- **Member tenant issues**: When a specific consortium member has data corruption or indexing problems
+- **Selective updates**: When configuration changes only affect certain tenants
+- **Maintenance operations**: When performing targeted maintenance without disrupting the entire consortium
+- **Testing and troubleshooting**: When diagnosing issues specific to a single tenant
+
+#### How It Works
+
+1. **Data Preservation**: Shared consortium instances are preserved during tenant-specific operations
+2. **Staging Process**: Data is processed through staging tables with built-in deduplication to ensure integrity
+3. **Selective Cleanup**: Only documents belonging to the specified tenant are removed from OpenSearch indices
+4. **Relationship Maintenance**: Instance-to-holdings/items relationships are properly maintained across the consortium
+
+#### Example Usage
+
+```http
+# Reindex only tenant "university_library" in a consortium
+POST /search/index/instance-records/reindex/full
+
+x-okapi-tenant: consortium
+x-okapi-token: [JWT_TOKEN]
+
+{
+  "tenantId": "university_library",
+  "indexSettings": {
+    "numberOfReplicas": 2,
+    "refreshInterval": 30
+  }
+}
+```
+
+This approach ensures that:
+- Shared instances from other consortium members remain untouched
+- The specified tenant's data is completely refreshed
+- Index integrity is maintained throughout the process
+- Other consortium members continue to have uninterrupted service
+
+### Staging Tables and Deduplication
+
+The reindexing process uses staging tables as a high-performance buffer to maximize throughput during large-scale data operations. The staging tables are specifically designed for optimal write performance and minimal contention.
+
+#### Performance-Optimized Design
+
+- **Unlogged Tables**: Staging tables are unlogged for maximum write performance (no WAL overhead)
+- **Partitioned Structure**: Data is partitioned to allow parallel processing across multiple workers
+- **No Indexes**: Absence of indexes eliminates index maintenance overhead during bulk inserts
+- **Minimal Contention**: Multiple processes can write concurrently without blocking each other
+
+#### Staging Process Flow
+
+1. **High-Speed Data Collection**: Multiple parallel processes load raw data from inventory services into staging tables without contention
+2. **Parallel Deduplication**: PostgreSQL functions process partitioned data in parallel to remove duplicates and resolve conflicts
+3. **Batch Migration**: Clean, deduplicated data is moved to operational tables in optimized batches
+4. **Automatic Cleanup**: Staging tables are truncated after successful completion
+
+#### Performance Benefits
+
+- **Maximum Throughput**: Unlogged, unindexed tables allow maximum write speed during data collection
+- **Reduced Contention**: Main operational tables experience minimal locking during the reindex process
+- **Parallel Processing**: Partitioned staging tables enable concurrent processing across multiple workers
+- **Rollback Capability**: Failed operations can be safely retried without data corruption
+- **Transparency**: Staging tables can be inspected for troubleshooting during development
+
+#### Automatic Cleanup
+
+Staging tables are automatically truncated after successful reindex operations. In case of failures, staging tables are preserved for analysis and debugging purposes.
 
 ## API
 

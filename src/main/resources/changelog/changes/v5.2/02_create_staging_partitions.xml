@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+  <changeSet id="MSEARCH-1057@@create-staging-instance-partitions" author="okolawole">
+    <preConditions onFail="MARK_RAN">
+      <tableExists tableName="staging_instance"/>
+    </preConditions>
+    <comment>Create partitions for staging_instance table</comment>
+    <sqlFile path="sql/create_staging_instance_partitions.sql" 
+             relativeToChangelogFile="true" 
+             splitStatements="false"/>
+  </changeSet>
+
+  <changeSet id="MSEARCH-1057@@create-staging-holding-partitions" author="okolawole">
+    <preConditions onFail="MARK_RAN">
+      <tableExists tableName="staging_holding"/>
+    </preConditions>
+    <comment>Create partitions for staging_holding table</comment>
+    <sqlFile path="sql/create_staging_holding_partitions.sql" 
+             relativeToChangelogFile="true" 
+             splitStatements="false"/>
+  </changeSet>
+
+  <changeSet id="MSEARCH-1057@@create-staging-item-partitions" author="okolawole">
+    <preConditions onFail="MARK_RAN">
+      <tableExists tableName="staging_item"/>
+    </preConditions>
+    <comment>Create partitions for staging_item table</comment>
+    <sqlFile path="sql/create_staging_item_partitions.sql" 
+             relativeToChangelogFile="true" 
+             splitStatements="false"/>
+  </changeSet>
+
+
+  <changeSet id="MSEARCH-1057@@create-staging-relationship-partitions" author="okolawole">
+    <preConditions onFail="MARK_RAN">
+      <and>
+        <tableExists tableName="staging_instance_subject"/>
+        <tableExists tableName="staging_instance_contributor"/>
+        <tableExists tableName="staging_instance_classification"/>
+        <tableExists tableName="staging_instance_call_number"/>
+      </and>
+    </preConditions>
+    <comment>Create partitions for staging relationship tables</comment>
+    <sqlFile path="sql/create_staging_relationship_partitions.sql" 
+             relativeToChangelogFile="true" 
+             splitStatements="false"/>
+  </changeSet>
+
+</databaseChangeLog>

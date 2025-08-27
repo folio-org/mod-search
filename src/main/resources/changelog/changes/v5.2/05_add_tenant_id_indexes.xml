@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+  <changeSet id="MSEARCH-1057@@create-instance-tenant-id-index" author="okolawole">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <indexExists indexName="idx_instance_tenant_id"/>
+      </not>
+    </preConditions>
+
+    <comment>Create index on instance.tenant_id for tenant deletion performance</comment>
+
+    <createIndex tableName="instance" indexName="idx_instance_tenant_id">
+      <column name="tenant_id"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="MSEARCH-1057@@create-holding-tenant-id-index" author="okolawole">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <indexExists indexName="idx_holding_tenant_id"/>
+      </not>
+    </preConditions>
+
+    <comment>Create index on holding.tenant_id for tenant deletion performance</comment>
+
+    <createIndex tableName="holding" indexName="idx_holding_tenant_id">
+      <column name="tenant_id"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="MSEARCH-1057@@create-item-tenant-id-index" author="okolawole">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <indexExists indexName="idx_item_tenant_id"/>
+      </not>
+    </preConditions>
+
+    <comment>Create index on item.tenant_id for tenant deletion performance</comment>
+
+    <createIndex tableName="item" indexName="idx_item_tenant_id">
+      <column name="tenant_id"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="MSEARCH-1057@@create-instance-subject-tenant-id-index" author="okolawole">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <indexExists indexName="idx_instance_subject_tenant_id"/>
+      </not>
+    </preConditions>
+
+    <comment>Create index on instance_subject.tenant_id for tenant deletion performance</comment>
+
+    <createIndex tableName="instance_subject" indexName="idx_instance_subject_tenant_id">
+      <column name="tenant_id"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="MSEARCH-1057@@create-instance-contributor-tenant-id-index" author="okolawole">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <indexExists indexName="idx_instance_contributor_tenant_id"/>
+      </not>
+    </preConditions>
+
+    <comment>Create index on instance_contributor.tenant_id for tenant deletion performance</comment>
+
+    <createIndex tableName="instance_contributor" indexName="idx_instance_contributor_tenant_id">
+      <column name="tenant_id"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="MSEARCH-1057@@create-instance-classification-tenant-id-index" author="okolawole">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <indexExists indexName="idx_instance_classification_tenant_id"/>
+      </not>
+    </preConditions>
+
+    <comment>Create index on instance_classification.tenant_id for tenant deletion performance</comment>
+
+    <createIndex tableName="instance_classification" indexName="idx_instance_classification_tenant_id">
+      <column name="tenant_id"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="MSEARCH-1057@@create-instance-call-number-tenant-id-index" author="okolawole">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <indexExists indexName="idx_instance_call_number_tenant_id"/>
+      </not>
+    </preConditions>
+
+    <comment>Create index on instance_call_number.tenant_id for tenant deletion performance</comment>
+
+    <createIndex tableName="instance_call_number" indexName="idx_instance_call_number_tenant_id">
+      <column name="tenant_id"/>
+    </createIndex>
+  </changeSet>
+
+</databaseChangeLog>

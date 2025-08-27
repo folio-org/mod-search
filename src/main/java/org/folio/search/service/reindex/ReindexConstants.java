@@ -32,5 +32,13 @@ public final class ReindexConstants {
   public static final String SUBJECT_TABLE = "subject";
   public static final String UPLOAD_RANGE_TABLE = "upload_range";
   public static final String REINDEX_STATUS_TABLE = "reindex_status";
-
+  
+  // Staging table names
+  public static final String STAGING_HOLDING_TABLE = "staging_holding";
+  public static final String STAGING_INSTANCE_TABLE = "staging_instance";
+  public static final String STAGING_INSTANCE_CALL_NUMBER_TABLE = "staging_instance_call_number";
+  public static final String STAGING_INSTANCE_CLASSIFICATION_TABLE = "staging_instance_classification";
+  public static final String STAGING_INSTANCE_CONTRIBUTOR_TABLE = "staging_instance_contributor";
+  public static final String STAGING_INSTANCE_SUBJECT_TABLE = "staging_instance_subject";
+  public static final String STAGING_ITEM_TABLE = "staging_item";
 }

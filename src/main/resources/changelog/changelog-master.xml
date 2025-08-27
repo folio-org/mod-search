@@ -15,4 +15,10 @@
   <include file="changes/v4.1/create_call_number_tables.xml" relativeToChangelogFile="true"/>
   <include file="changes/v4.1/populate-call-number-browse-config.xml" relativeToChangelogFile="true"/>
   <include file="changes/v4.1/alter-browse-config-type-ids.xml" relativeToChangelogFile="true"/>
+  <include file="changes/v5.2/01_create_staging_tables.xml" relativeToChangelogFile="true"/>
+  <include file="changes/v5.2/02_create_staging_partitions.xml" relativeToChangelogFile="true"/>
+  <include file="changes/v5.2/03_create_dedup_functions.xml" relativeToChangelogFile="true"/>
+  <include file="changes/v5.2/04_create_cleanup_functions.xml" relativeToChangelogFile="true"/>
+  <include file="changes/v5.2/05_add_tenant_id_indexes.xml" relativeToChangelogFile="true"/>
+  <include file="changes/v5.2/06_add_target_tenant_id_to_reindex_status.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

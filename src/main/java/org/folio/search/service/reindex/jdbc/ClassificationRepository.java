@@ -21,6 +21,7 @@ import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.entity.ChildResourceEntityBatch;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.reindex.ReindexConstants;
+import org.folio.search.service.reindex.ReindexContext;
 import org.folio.search.utils.JdbcUtils;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
@@ -133,6 +134,11 @@ public class ClassificationRepository extends UploadRangeRepository implements I
       VALUES (?::uuid, ?, ?, ?)
       ON CONFLICT DO NOTHING;
     """;
+  
+  private static final String INSERT_STAGING_RELATIONS_SQL = """
+      INSERT INTO %s.staging_instance_classification (instance_id, classification_id, tenant_id, shared, inserted_at)
+      VALUES (?::uuid, ?, ?, ?, CURRENT_TIMESTAMP);
+    """;
 
   private static final String ID_RANGE_INS_WHERE_CLAUSE = "ins.classification_id >= ? AND ins.classification_id <= ?";
   private static final String ID_RANGE_CLAS_WHERE_CLAUSE = "c.id >= ? AND c.id <= ?";
@@ -157,6 +163,22 @@ public class ClassificationRepository extends UploadRangeRepository implements I
   @Override
   protected Optional<String> subEntityTable() {
     return Optional.of(ReindexConstants.INSTANCE_CLASSIFICATION_TABLE);
+  }
+
+  @Override
+  protected Optional<String> stagingEntityTable() {
+    return Optional.empty();
+  }
+
+  @Override
+  protected Optional<String> subEntityStagingTable() {
+    return Optional.of(ReindexConstants.STAGING_INSTANCE_CLASSIFICATION_TABLE);
+  }
+
+  @Override
+  protected boolean supportsTenantSpecificDeletion() {
+    // Classification table doesn't have tenant_id column - it's shared across tenants
+    return false;
   }
 
   @Override
@@ -215,9 +237,21 @@ public class ClassificationRepository extends UploadRangeRepository implements I
 
   @Override
   public void saveAll(ChildResourceEntityBatch entityBatch) {
+    // Always save entities to main table (shared across tenants)
+    saveEntitiesToMain(entityBatch.resourceEntities().stream().toList());
+    
+    // Choose destination for relationships based on reindex context
+    if (ReindexContext.isReindexMode()) {
+      saveRelationshipsToStaging(entityBatch.relationshipEntities().stream().toList());
+    } else {
+      saveRelationshipsToMain(entityBatch.relationshipEntities().stream().toList());
+    }
+  }
+
+  private void saveEntitiesToMain(List<Map<String, Object>> entities) {
     var entitiesSql = INSERT_ENTITIES_SQL.formatted(JdbcUtils.getSchemaName(context));
     try {
-      jdbcTemplate.batchUpdate(entitiesSql, entityBatch.resourceEntities(), BATCH_OPERATION_SIZE,
+      jdbcTemplate.batchUpdate(entitiesSql, entities, BATCH_OPERATION_SIZE,
         (statement, entity) -> {
           statement.setString(1, (String) entity.get("id"));
           statement.setString(2, (String) entity.get(CLASSIFICATION_NUMBER_FIELD));
@@ -225,15 +259,21 @@ public class ClassificationRepository extends UploadRangeRepository implements I
         });
     } catch (DataAccessException e) {
       logWarnDebugError(SAVE_ENTITIES_BATCH_ERROR_MESSAGE, e);
-      for (var entity : entityBatch.resourceEntities()) {
-        jdbcTemplate.update(entitiesSql,
-          entity.get("id"), entity.get(CLASSIFICATION_NUMBER_FIELD), entity.get(CLASSIFICATION_TYPE_FIELD));
+      for (var entity : entities) {
+        try {
+          jdbcTemplate.update(entitiesSql,
+            entity.get("id"), entity.get(CLASSIFICATION_NUMBER_FIELD), entity.get(CLASSIFICATION_TYPE_FIELD));
+        } catch (DataAccessException ex) {
+          log.debug("Failed to save classification entity {}: {}", entity.get("id"), ex.getMessage());
+        }
       }
     }
+  }
 
+  private void saveRelationshipsToMain(List<Map<String, Object>> relationships) {
     var relationsSql = INSERT_RELATIONS_SQL.formatted(JdbcUtils.getSchemaName(context));
     try {
-      jdbcTemplate.batchUpdate(relationsSql, entityBatch.relationshipEntities(), BATCH_OPERATION_SIZE,
+      jdbcTemplate.batchUpdate(relationsSql, relationships, BATCH_OPERATION_SIZE,
         (statement, entityRelation) -> {
           statement.setObject(1, entityRelation.get("instanceId"));
           statement.setString(2, (String) entityRelation.get("classificationId"));
@@ -242,11 +282,41 @@ public class ClassificationRepository extends UploadRangeRepository implements I
         });
     } catch (DataAccessException e) {
       logWarnDebugError(SAVE_RELATIONS_BATCH_ERROR_MESSAGE, e);
-      for (var entityRelation : entityBatch.relationshipEntities()) {
-        jdbcTemplate.update(relationsSql, entityRelation.get("instanceId"), entityRelation.get("classificationId"),
-          entityRelation.get("tenantId"), entityRelation.get("shared"));
+      for (var entityRelation : relationships) {
+        try {
+          jdbcTemplate.update(relationsSql, entityRelation.get("instanceId"), entityRelation.get("classificationId"),
+            entityRelation.get("tenantId"), entityRelation.get("shared"));
+        } catch (DataAccessException ex) {
+          log.debug("Failed to save classification relationship for {}: {}",
+            entityRelation.get("classificationId"), ex.getMessage());
+        }
       }
     }
+  }
+
+  private void saveRelationshipsToStaging(List<Map<String, Object>> relationships) {
+    var stagingRelationsSql = INSERT_STAGING_RELATIONS_SQL.formatted(JdbcUtils.getSchemaName(context));
+    try {
+      jdbcTemplate.batchUpdate(stagingRelationsSql, relationships, BATCH_OPERATION_SIZE,
+        (statement, entityRelation) -> {
+          statement.setObject(1, entityRelation.get("instanceId"));
+          statement.setString(2, (String) entityRelation.get("classificationId"));
+          statement.setString(3, (String) entityRelation.get("tenantId"));
+          statement.setObject(4, entityRelation.get("shared"));
+        });
+    } catch (DataAccessException e) {
+      log.warn("saveRelationshipsToStaging::Failed to save relationships batch. Processing one-by-one", e);
+      for (var entityRelation : relationships) {
+        try {
+          jdbcTemplate.update(stagingRelationsSql, entityRelation.get("instanceId"),
+            entityRelation.get("classificationId"), entityRelation.get("tenantId"), entityRelation.get("shared"));
+        } catch (DataAccessException ex) {
+          log.debug("Failed to save staging classification relationship for {}: {}", 
+            entityRelation.get("classificationId"), ex.getMessage());
+        }
+      }
+    }
+    log.debug("Saved {} classification relationships to staging table", relationships.size());
   }
 
   protected RowMapper<Map<String, Object>> rowToMapMapper2() {

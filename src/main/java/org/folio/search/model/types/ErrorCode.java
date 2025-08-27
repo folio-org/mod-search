@@ -2,10 +2,8 @@ package org.folio.search.model.types;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 @Getter
-@RequiredArgsConstructor
 public enum ErrorCode {
 
   UNKNOWN_ERROR("unknown_error"),
@@ -18,4 +16,8 @@ public enum ErrorCode {
 
   @JsonValue
   private final String value;
+
+  ErrorCode(String value) {
+    this.value = value;
+  }
 }

@@ -4,6 +4,7 @@ import java.util.Collection;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.message.FormattedMessage;
+import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.exception.ReindexException;
 import org.folio.search.model.event.ReindexRangeIndexEvent;
@@ -28,6 +29,7 @@ public class ReindexOrchestrationService {
   private final ReindexService reindexService;
   private final MultiTenantSearchDocumentConverter documentConverter;
   private final FolioExecutionContext context;
+  private final ReindexConfigurationProperties reindexConfig;
 
   public boolean process(ReindexRangeIndexEvent event) {
     log.info("process:: ReindexRangeIndexEvent [id: {}, tenantId: {}, entityType: {}, lower: {}, upper: {}, ts: {}]",
@@ -61,7 +63,30 @@ public class ReindexOrchestrationService {
       log.info("process:: ReindexRecordsEvent processed [rangeId: {}, recordType: {}]",
         event.getRangeId(), event.getRecordType());
       if (reindexStatusService.isMergeCompleted()) {
-        reindexService.submitUploadReindex(context.getTenantId(), ReindexEntityType.supportUploadTypes());
+        // Get targetTenantId before deduplication
+        var targetTenantId = reindexStatusService.getTargetTenantId();
+        
+        // Perform deduplication of staging tables
+        log.info("Merge completed. Starting deduplication of staging tables");
+        try {
+          mergeRangeService.performDeduplication(targetTenantId);
+          log.info("Deduplication completed successfully. Starting upload phase");
+        } catch (Exception e) {
+          log.error("Deduplication failed", e);
+          reindexStatusService.updateReindexMergeFailed(entityType);
+          throw new ReindexException("Deduplication failed: " + e.getMessage());
+        }
+        // Check if this is a tenant-specific reindex that requires OpenSearch document cleanup
+        if (targetTenantId != null) {
+          log.info("process:: Starting tenant-specific upload phase with document cleanup [targetTenant: {}]",
+            targetTenantId);
+          reindexService.submitUploadReindexWithTenantCleanup(context.getTenantId(),
+                                                             ReindexEntityType.supportUploadTypes(),
+                                                             targetTenantId);
+        } else {
+          log.info("process:: Starting standard upload phase without tenant-specific cleanup");
+          reindexService.submitUploadReindex(context.getTenantId(), ReindexEntityType.supportUploadTypes());
+        }
       }
     } catch (PessimisticLockingFailureException ex) {
       log.warn(new FormattedMessage("process:: ReindexRecordsEvent indexing recoverable error"

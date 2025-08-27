@@ -21,25 +21,37 @@ import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexRangeStatus;
 import org.folio.search.service.InstanceChildrenResourceService;
 import org.folio.search.service.reindex.jdbc.MergeRangeRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Log4j2
 @Service
 public class ReindexMergeRangeIndexService {
 
+  private static final int STATS_LOG_INTERVAL = 100; // Log stats every 100 merge ranges
+
   private final Map<ReindexEntityType, MergeRangeRepository> repositories;
   private final InventoryService inventoryService;
   private final ReindexConfigurationProperties reindexConfig;
-  private final InstanceChildrenResourceService instanceChildrenResourceService;
+  private final StagingDeduplicationService deduplicationService;
+  private int mergeRangeCounter = 0;
+
+  private InstanceChildrenResourceService instanceChildrenResourceService;
 
   public ReindexMergeRangeIndexService(List<MergeRangeRepository> repositories,
                                        InventoryService inventoryService,
                                        ReindexConfigurationProperties reindexConfig,
-                                       InstanceChildrenResourceService instanceChildrenResourceService) {
+                                       @Autowired(required = false) StagingDeduplicationService deduplicationService) {
     this.repositories = repositories.stream()
       .collect(Collectors.toMap(MergeRangeRepository::entityType, Function.identity()));
     this.inventoryService = inventoryService;
     this.reindexConfig = reindexConfig;
+    this.deduplicationService = deduplicationService;
+    this.instanceChildrenResourceService = null;
+  }
+
+  @Autowired(required = false)
+  public void setInstanceChildrenResourceService(InstanceChildrenResourceService instanceChildrenResourceService) {
     this.instanceChildrenResourceService = instanceChildrenResourceService;
   }
 
@@ -85,9 +97,29 @@ public class ReindexMergeRangeIndexService {
       .map(entity -> (Map<String, Object>) entity)
       .toList();
 
-    repositories.get(event.getRecordType().getEntityType()).saveEntities(event.getTenant(), entities);
-    instanceChildrenResourceService.persistChildrenOnReindex(event.getTenant(),
-      RESOURCE_NAME_MAP.get(event.getRecordType().getEntityType()), entities);
+    try {
+      // Set reindex mode for context-aware repositories
+      ReindexContext.setReindexMode(true);
+
+      // Use unified repository which will route to staging based on context
+      var repository = repositories.get(event.getRecordType().getEntityType());
+      repository.saveEntities(event.getTenant(), entities);
+
+      if (instanceChildrenResourceService != null) {
+        instanceChildrenResourceService.persistChildrenOnReindex(event.getTenant(),
+          RESOURCE_NAME_MAP.get(event.getRecordType().getEntityType()), entities);
+      }
+    } finally {
+      // Always clear the reindex context to prevent memory leaks
+      ReindexContext.clear();
+    }
+
+    // Periodically log staging table stats
+    mergeRangeCounter++;
+    if (mergeRangeCounter % STATS_LOG_INTERVAL == 0) {
+      var stats = getStagingTableStats();
+      log.info("Staging table stats after {} merge ranges: {}", mergeRangeCounter, stats);
+    }
   }
 
   private List<MergeRangeEntity> constructMergeRangeRecords(int recordsCount,
@@ -127,5 +159,45 @@ public class ReindexMergeRangeIndexService {
     } else {
       return ReindexEntityType.ITEM;
     }
+  }
+
+  public void performDeduplication() {
+    performDeduplication(null);
+  }
+
+  public void performDeduplication(String targetTenantId) {
+    if (deduplicationService != null) {
+      // Log staging table stats before deduplication
+      var statsBeforeDedup = getStagingTableStats();
+      log.info("Staging table stats before deduplication: {}", statsBeforeDedup);
+
+      if (targetTenantId != null) {
+        log.info("Starting tenant-specific deduplication of staging tables for tenant: {}", targetTenantId);
+        var result = deduplicationService.deduplicateAllStagingTables(targetTenantId);
+        log.info("Tenant-specific deduplication completed for {}: instances={}, holdings={}, "
+            + "items={}, relationships={}",
+          targetTenantId, result.getTotalInstances(), result.getTotalHoldings(),
+          result.getTotalItems(), result.getTotalRelationships());
+      } else {
+        log.info("Starting full deduplication of staging tables");
+        var result = deduplicationService.deduplicateAllStagingTables();
+        log.info("Full deduplication completed successfully: instances={}, holdings={}, items={}, relationships={}",
+          result.getTotalInstances(), result.getTotalHoldings(),
+          result.getTotalItems(), result.getTotalRelationships());
+      }
+
+      // Log staging table stats after deduplication (should be empty)
+      var statsAfterDedup = getStagingTableStats();
+      log.info("Staging table stats after deduplication: {}", statsAfterDedup);
+    } else {
+      log.debug("Deduplication service not available");
+    }
+  }
+
+  public Map<String, Long> getStagingTableStats() {
+    if (deduplicationService != null) {
+      return deduplicationService.getStagingTableStats();
+    }
+    return Map.of();
   }
 }

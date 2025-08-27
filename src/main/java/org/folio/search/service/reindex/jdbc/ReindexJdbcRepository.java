@@ -60,6 +60,22 @@ public abstract class ReindexJdbcRepository {
     return null;
   }
 
+  /**
+   * Fetch records updated after the given timestamp with a limit for background processing.
+   * Default implementation returns null - subclasses can override if they support timestamp-based fetching with limit.
+   */
+  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp, int limit) {
+    return null;
+  }
+
+  /**
+   * Fetch records starting from a specific ID for background processing.
+   * Default implementation returns null - subclasses can override if they support ID-based seeking.
+   */
+  public SubResourceResult fetchByTimestamp(String tenant, String fromId, int limit) {
+    return null;
+  }
+
   public abstract ReindexEntityType entityType();
 
   protected abstract String entityTable();

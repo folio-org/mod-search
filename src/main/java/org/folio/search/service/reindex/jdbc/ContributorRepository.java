@@ -118,6 +118,102 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
           ORDER BY last_updated_date ASC;
     """;
 
+  private static final String SELECT_BY_UPDATED_WITH_LIMIT_QUERY = """
+    WITH cte AS (SELECT id,
+                        name,
+                        name_type_id,
+                        authority_id,
+                        last_updated_date
+                 FROM %1$s.contributor
+                 WHERE last_updated_date > ?
+                 ORDER BY last_updated_date, id
+                 LIMIT ?
+                 )
+    SELECT c.id,
+           c.name,
+           c.name_type_id,
+           c.authority_id,
+           c.last_updated_date,
+           json_agg(
+                   CASE
+                                    WHEN sub.instance_count IS NULL THEN NULL
+                                    ELSE json_build_object(
+                           'count', sub.instance_count,
+                           'typeId', sub.type_ids,
+                           'shared', sub.shared,
+                           'tenantId', sub.tenant_id
+                   )
+                   END
+           ) AS instances
+    FROM cte c
+             LEFT JOIN
+         (SELECT cte.id,
+                 ins.tenant_id,
+                 ins.shared,
+                 array_agg(DISTINCT ins.type_id) FILTER (WHERE ins.type_id <> '') AS type_ids,
+                 count(DISTINCT ins.instance_id)                                  AS instance_count
+          FROM %1$s.instance_contributor ins
+                   INNER JOIN cte
+                              ON ins.contributor_id = cte.id
+          GROUP BY cte.id,
+                   ins.tenant_id,
+                   ins.shared) sub ON c.id = sub.id
+    GROUP BY c.id,
+             c.name,
+             c.name_type_id,
+             c.authority_id,
+             c.last_updated_date
+          ORDER BY last_updated_date ASC, id ASC;
+    """;
+
+  private static final String SELECT_BY_UPDATED_FROM_ID_QUERY = """
+    WITH cte AS (SELECT id,
+                        name,
+                        name_type_id,
+                        authority_id,
+                        last_updated_date
+                 FROM %1$s.contributor
+                 WHERE id > ?::uuid
+                 ORDER BY last_updated_date, id
+                 LIMIT ?
+                 )
+    SELECT c.id,
+           c.name,
+           c.name_type_id,
+           c.authority_id,
+           c.last_updated_date,
+           json_agg(
+                   CASE
+                                    WHEN sub.instance_count IS NULL THEN NULL
+                                    ELSE json_build_object(
+                           'count', sub.instance_count,
+                           'typeId', sub.type_ids,
+                           'shared', sub.shared,
+                           'tenantId', sub.tenant_id
+                   )
+                   END
+           ) AS instances
+    FROM cte c
+             LEFT JOIN
+         (SELECT cte.id,
+                 ins.tenant_id,
+                 ins.shared,
+                 array_agg(DISTINCT ins.type_id) FILTER (WHERE ins.type_id <> '') AS type_ids,
+                 count(DISTINCT ins.instance_id)                                  AS instance_count
+          FROM %1$s.instance_contributor ins
+                   INNER JOIN cte
+                              ON ins.contributor_id = cte.id
+          GROUP BY cte.id,
+                   ins.tenant_id,
+                   ins.shared) sub ON c.id = sub.id
+    GROUP BY c.id,
+             c.name,
+             c.name_type_id,
+             c.authority_id,
+             c.last_updated_date
+          ORDER BY last_updated_date ASC, id ASC;
+    """;
+
   private static final String DELETE_QUERY = """
     WITH deleted_ids as (
         DELETE
@@ -175,6 +271,24 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
   public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp) {
     var sql = SELECT_BY_UPDATED_QUERY.formatted(JdbcUtils.getSchemaName(tenant, context.getFolioModuleMetadata()));
     var records = jdbcTemplate.query(sql, rowToMapMapper2(), timestamp);
+    var lastUpdateDate = records.isEmpty() ? null : records.getLast().get(LAST_UPDATED_DATE_FIELD);
+    return new SubResourceResult(records, (Timestamp) lastUpdateDate);
+  }
+
+  @Override
+  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp, int limit) {
+    var sql = SELECT_BY_UPDATED_WITH_LIMIT_QUERY.formatted(
+      JdbcUtils.getSchemaName(tenant, context.getFolioModuleMetadata()));
+    var records = jdbcTemplate.query(sql, rowToMapMapper2(), timestamp, limit);
+    var lastUpdateDate = records.isEmpty() ? null : records.getLast().get(LAST_UPDATED_DATE_FIELD);
+    return new SubResourceResult(records, (Timestamp) lastUpdateDate);
+  }
+
+  @Override
+  public SubResourceResult fetchByTimestamp(String tenant, String fromId, int limit) {
+    var sql = SELECT_BY_UPDATED_FROM_ID_QUERY.formatted(
+      JdbcUtils.getSchemaName(tenant, context.getFolioModuleMetadata()));
+    var records = jdbcTemplate.query(sql, rowToMapMapper2(), fromId, limit);
     var lastUpdateDate = records.isEmpty() ? null : records.getLast().get(LAST_UPDATED_DATE_FIELD);
     return new SubResourceResult(records, (Timestamp) lastUpdateDate);
   }

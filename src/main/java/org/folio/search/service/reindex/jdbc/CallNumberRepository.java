@@ -133,6 +133,126 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
         last_updated_date ASC;
     """;
 
+  private static final String SELECT_BY_UPDATED_WITH_LIMIT_QUERY = """
+    WITH cte AS (
+        SELECT
+            id,
+            call_number,
+            call_number_prefix,
+            call_number_suffix,
+            call_number_type_id,
+            last_updated_date
+        FROM %1$s.call_number
+        WHERE last_updated_date > ?
+        ORDER BY last_updated_date, id
+        LIMIT ?
+    )
+    SELECT
+        c.id,
+        c.call_number,
+        c.call_number_prefix,
+        c.call_number_suffix,
+        c.call_number_type_id,
+        c.last_updated_date,
+        json_agg(
+            CASE
+                WHEN sub.instance_ids IS NULL THEN NULL
+                ELSE json_build_object(
+                     'instanceId', sub.instance_ids,
+                     'tenantId', sub.tenant_id,
+                     'shared', sub.shared,
+                     'locationId', sub.location_id
+                )
+            END
+        ) AS instances
+    FROM cte c
+    LEFT JOIN (
+        SELECT
+            cte.id,
+            ins.tenant_id,
+            i.shared,
+            ins.location_id,
+            array_agg(DISTINCT i.id) AS instance_ids
+        FROM %1$s.instance_call_number ins
+        INNER JOIN cte ON ins.call_number_id = cte.id
+        INNER JOIN %1$s.instance i ON i.id = ins.instance_id
+        GROUP BY
+            cte.id,
+            ins.tenant_id,
+            i.shared,
+            ins.location_id
+    ) sub ON c.id = sub.id
+    GROUP BY
+        c.id,
+        c.call_number,
+        c.call_number_prefix,
+        c.call_number_suffix,
+        c.call_number_type_id,
+        c.last_updated_date
+    ORDER BY
+        last_updated_date ASC, id ASC;
+    """;
+
+  private static final String SELECT_BY_UPDATED_FROM_ID_QUERY = """
+    WITH cte AS (
+        SELECT
+            id,
+            call_number,
+            call_number_prefix,
+            call_number_suffix,
+            call_number_type_id,
+            last_updated_date
+        FROM %1$s.call_number
+        WHERE id > ?::uuid
+        ORDER BY last_updated_date, id
+        LIMIT ?
+    )
+    SELECT
+        c.id,
+        c.call_number,
+        c.call_number_prefix,
+        c.call_number_suffix,
+        c.call_number_type_id,
+        c.last_updated_date,
+        json_agg(
+            CASE
+                WHEN sub.instance_ids IS NULL THEN NULL
+                ELSE json_build_object(
+                     'instanceId', sub.instance_ids,
+                     'tenantId', sub.tenant_id,
+                     'shared', sub.shared,
+                     'locationId', sub.location_id
+                )
+            END
+        ) AS instances
+    FROM cte c
+    LEFT JOIN (
+        SELECT
+            cte.id,
+            ins.tenant_id,
+            i.shared,
+            ins.location_id,
+            array_agg(DISTINCT i.id) AS instance_ids
+        FROM %1$s.instance_call_number ins
+        INNER JOIN cte ON ins.call_number_id = cte.id
+        INNER JOIN %1$s.instance i ON i.id = ins.instance_id
+        GROUP BY
+            cte.id,
+            ins.tenant_id,
+            i.shared,
+            ins.location_id
+    ) sub ON c.id = sub.id
+    GROUP BY
+        c.id,
+        c.call_number,
+        c.call_number_prefix,
+        c.call_number_suffix,
+        c.call_number_type_id,
+        c.last_updated_date
+    ORDER BY
+        last_updated_date ASC, id ASC;
+    """;
+
   private static final String INSERT_ENTITIES_SQL = """
     INSERT INTO %s (
         id,
@@ -200,6 +320,24 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
   public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp) {
     var sql = SELECT_BY_UPDATED_QUERY.formatted(JdbcUtils.getSchemaName(tenant, context.getFolioModuleMetadata()));
     var records = jdbcTemplate.query(sql, rowToMapMapper2(), timestamp);
+    var lastUpdateDate = records.isEmpty() ? null : records.getLast().get(LAST_UPDATED_DATE_FIELD);
+    return new SubResourceResult(records, (Timestamp) lastUpdateDate);
+  }
+
+  @Override
+  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp, int limit) {
+    var sql = SELECT_BY_UPDATED_WITH_LIMIT_QUERY.formatted(
+      JdbcUtils.getSchemaName(tenant, context.getFolioModuleMetadata()));
+    var records = jdbcTemplate.query(sql, rowToMapMapper2(), timestamp, limit);
+    var lastUpdateDate = records.isEmpty() ? null : records.getLast().get(LAST_UPDATED_DATE_FIELD);
+    return new SubResourceResult(records, (Timestamp) lastUpdateDate);
+  }
+
+  @Override
+  public SubResourceResult fetchByTimestamp(String tenant, String fromId, int limit) {
+    var sql = SELECT_BY_UPDATED_FROM_ID_QUERY.formatted(
+      JdbcUtils.getSchemaName(tenant, context.getFolioModuleMetadata()));
+    var records = jdbcTemplate.query(sql, rowToMapMapper2(), fromId, limit);
     var lastUpdateDate = records.isEmpty() ? null : records.getLast().get(LAST_UPDATED_DATE_FIELD);
     return new SubResourceResult(records, (Timestamp) lastUpdateDate);
   }

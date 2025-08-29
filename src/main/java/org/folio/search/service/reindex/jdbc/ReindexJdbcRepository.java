@@ -69,10 +69,10 @@ public abstract class ReindexJdbcRepository {
   }
 
   /**
-   * Fetch records starting from a specific ID for background processing.
+   * Fetch records starting from a specific timestamp and ID for background processing.
    * Default implementation returns null - subclasses can override if they support ID-based seeking.
    */
-  public SubResourceResult fetchByTimestamp(String tenant, String fromId, int limit) {
+  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp, String fromId, int limit) {
     return null;
   }
 

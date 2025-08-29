@@ -94,6 +94,7 @@ public class ScheduledInstanceSubResourcesService {
   private void processSubResources(ReindexEntityType entityType, String tenant, Timestamp timestamp) {
     SubResourceResult result = null;
     String lastId = null;
+    Timestamp lastTimestamp = timestamp;
 
     try {
       do {
@@ -104,7 +105,7 @@ public class ScheduledInstanceSubResourcesService {
         } else {
           result = lastId == null
             ? repositories.get(entityType).fetchByTimestamp(tenant, timestamp, subResourceBatchSize)
-            : repositories.get(entityType).fetchByTimestamp(tenant, lastId, subResourceBatchSize);
+            : repositories.get(entityType).fetchByTimestamp(tenant, lastTimestamp, lastId, subResourceBatchSize);
 
           if (result == null || !result.hasRecords()) {
             break;
@@ -115,7 +116,8 @@ public class ScheduledInstanceSubResourcesService {
 
           if (result.records().size() == subResourceBatchSize) {
             var lastRecord = result.records().getLast();
-            lastId = (String) lastRecord.get("id");
+            lastId = getString(lastRecord, ID_FIELD);
+            lastTimestamp = result.lastUpdateDate();
           } else {
             break;
           }

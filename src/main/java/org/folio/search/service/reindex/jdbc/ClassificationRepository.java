@@ -160,7 +160,7 @@ public class ClassificationRepository extends UploadRangeRepository implements I
                              c.type_id,
                              c.last_updated_date
                       FROM %1$s.classification c
-                      WHERE id > ?::uuid
+                      WHERE (last_updated_date, id) > (?, ?)
                       ORDER BY last_updated_date, id
                       LIMIT ?
                       )
@@ -269,10 +269,10 @@ public class ClassificationRepository extends UploadRangeRepository implements I
   }
 
   @Override
-  public SubResourceResult fetchByTimestamp(String tenant, String fromId, int limit) {
+  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp, String fromId, int limit) {
     var sql = SELECT_BY_UPDATED_FROM_ID_QUERY.formatted(
       JdbcUtils.getSchemaName(tenant, context.getFolioModuleMetadata()));
-    var records = jdbcTemplate.query(sql, rowToMapMapper2(), fromId, limit);
+    var records = jdbcTemplate.query(sql, rowToMapMapper2(), timestamp, fromId, limit);
     var lastUpdateDate = records.isEmpty() ? null : records.getLast().get(LAST_UPDATED_DATE_FIELD);
     return new SubResourceResult(records, (Timestamp) lastUpdateDate);
   }

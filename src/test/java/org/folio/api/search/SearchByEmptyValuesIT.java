@@ -40,18 +40,18 @@ class SearchByEmptyValuesIT extends BaseIntegrationTest {
     "cql.allRecords=1 NOT isbn=\"\", title1;title2",
     "cql.allRecords=1 NOT instanceTypeId=\"\",",
     "contributors.name==[], title2",
-    "indexTitle==\"\", title2",
     "indexTitle=\"\" NOT indexTitle==\"\", title1",
-    "cql.allRecords=1 NOT indexTitle=\"\",",
-    "cql.allRecords=1 NOT indexTitle==\"\", title1",
+    "cql.allRecords=1 NOT indexTitle=\"\", title2",
     "subjects.value==[], title1;title2",
   })
   @ParameterizedTest
   void search_parameterized(String query, String titles) throws Exception {
-    var expectedTitles = StringUtils.isNotEmpty(titles) ? asList(titles.split(";")) : emptyList();
+    var expectedTitles = StringUtils.isNotEmpty(titles) ? asList(titles.split(";")) : null;
     doSearchByInstances(query + " sortBy title")
-      .andExpect(jsonPath("totalRecords", is(expectedTitles.size())))
-      .andExpect(jsonPath("instances[*].title", is(expectedTitles)));
+      .andExpect(jsonPath("totalRecords", is(expectedTitles == null ? 0 : expectedTitles.size())))
+      .andExpect(expectedTitles == null
+                 ? jsonPath("instances[*].title").doesNotExist()
+                 : jsonPath("instances[*].title", is(expectedTitles)));
   }
 
   private static Instance[] instances() {

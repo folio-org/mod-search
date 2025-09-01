@@ -39,7 +39,7 @@ public class IdentifierUtils {
       case BARCODE -> Objects.nonNull(item.getBarcode()) ? Set.of(item.getBarcode()) : Set.of();
       case ACCESSION_NUMBER -> Objects.nonNull(item.getAccessionNumber())
         ? Set.of(item.getAccessionNumber()) : Set.of();
-      case FORMER_IDS -> new HashSet<>(item.getFormerIds());
+      case FORMER_IDS -> Objects.nonNull(item.getFormerIds()) ? new HashSet<>(item.getFormerIds()) : Set.of();
       case HOLDINGS_RECORD_ID ->
         Objects.nonNull(item.getHoldingsRecordId()) ? Set.of(item.getHoldingsRecordId()) : Set.of();
       default -> Set.of();

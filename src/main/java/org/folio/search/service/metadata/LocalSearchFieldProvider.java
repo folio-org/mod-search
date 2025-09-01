@@ -22,6 +22,7 @@ import static org.folio.search.utils.SearchUtils.getPathToFulltextPlainValue;
 
 import jakarta.annotation.PostConstruct;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -39,6 +40,7 @@ import org.folio.search.exception.ResourceDescriptionException;
 import org.folio.search.model.Pair;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.metadata.ResourceDescription;
+import org.folio.search.model.metadata.SearchFieldDescriptor;
 import org.folio.search.model.metadata.SearchFieldType;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.model.types.ResponseGroupType;
@@ -62,6 +64,7 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
   private Map<ResourceType, Map<ResponseGroupType, String[]>> sourceFields;
   private Map<String, SearchFieldType> elasticsearchFieldTypes;
   private Map<ResourceType, Map<String, List<String>>> fieldsBySearchAlias;
+  private Map<ResourceType, Map<String, String>> sourceFieldsByResourceType;
 
   /**
    * Loads local defined elasticsearch field type from json.
@@ -73,6 +76,7 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
     var resourceDescriptions = metadataResourceProvider.getResourceDescriptions();
     elasticsearchFieldTypes = unmodifiableMap(metadataResourceProvider.getSearchFieldTypes());
     sourceFields = collectSourceFields(resourceDescriptions);
+    sourceFieldsByResourceType = collectSourceFieldsByResourceType(resourceDescriptions);
     supportedLanguages = getSupportedLanguages();
     fieldsBySearchAlias = resourceDescriptions.stream()
       .collect(toUnmodifiableMap(ResourceDescription::getName, LocalSearchFieldProvider::collectFieldsBySearchAlias));
@@ -108,6 +112,16 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
   }
 
   @Override
+  public String[] getSourceFields(ResourceType resource, ResponseGroupType groupType, List<String> requestedFields) {
+    var defaultSourceFields = getSourceFields(resource, groupType);
+    var requestedSourceFields = getValidSourceFields(resource, requestedFields);
+
+    return Stream.concat(Arrays.stream(defaultSourceFields), Arrays.stream(requestedSourceFields))
+      .distinct()
+      .toArray(String[]::new);
+  }
+
+  @Override
   public boolean isSupportedLanguage(String languageCode) {
     return supportedLanguages.contains(languageCode);
   }
@@ -137,6 +151,13 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
       );
 
     return queryWrapper.value;
+  }
+
+  private String[] getValidSourceFields(ResourceType resource, List<String> requestedFields) {
+    return sourceFieldsByResourceType.getOrDefault(resource, emptyMap()).entrySet().stream()
+      .filter(entry -> requestedFields.contains(entry.getKey()))
+      .map(Entry::getValue)
+      .toArray(String[]::new);
   }
 
   private static Map<String, List<String>> collectFieldsBySearchAlias(ResourceDescription resourceDescription) {
@@ -210,6 +231,27 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
     return searchAlias.startsWith(CQL_META_FIELD_PREFIX)
            ? List.of(path, PLAIN_FULLTEXT_PREFIX + path.substring(0, path.length() - 2))
            : singletonList(path);
+  }
+
+  private Map<ResourceType, Map<String, String>> collectSourceFieldsByResourceType(
+    List<ResourceDescription> descriptions) {
+    var fieldsMap = new LinkedHashMap<ResourceType, Map<String, String>>();
+    for (var desc : descriptions) {
+      var allSourceFields = new LinkedHashMap<String, String>();
+      desc.getFlattenFields().forEach((path, fieldDesc) -> {
+        if (!(fieldDesc instanceof SearchFieldDescriptor)) {
+          if (fieldDesc.hasFulltextIndex()) {
+            allSourceFields.put(path, getPathToFulltextPlainValue(path));
+          } else if (fieldDesc.isMultilang()) {
+            allSourceFields.put(path, getPathForMultilangField(path));
+          } else {
+            allSourceFields.put(path, path);
+          }
+        }
+      });
+      fieldsMap.put(desc.getName(), unmodifiableMap(allSourceFields));
+    }
+    return fieldsMap;
   }
 
   private static Map<ResourceType, Map<ResponseGroupType, String[]>> collectSourceFields(

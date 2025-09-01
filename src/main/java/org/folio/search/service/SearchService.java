@@ -67,8 +67,9 @@ public class SearchService {
     var preference = searchPreferenceService.getPreferenceForString(preferenceKey);
 
     if (isFalse(request.getExpandAll())) {
-      var includes = searchFieldProvider.getSourceFields(resource, SEARCH);
-      log.debug("search:: expandAll to include: {}]", (Object) includes);
+      var includes = searchFieldProvider.getSourceFields(resource, SEARCH, request.getIncludeFields());
+      log.debug("search:: include source fields: {}]", (Object) includes);
+
       queryBuilder.fetchSource(includes, null);
     }
 

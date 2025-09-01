@@ -227,6 +227,11 @@ public abstract class BaseIntegrationTest {
   }
 
   @SneakyThrows
+  protected static ResultActions doSearchByInstances(String query, String include) {
+    return doSearch(instanceSearchPath(), TENANT_ID, Map.of("query", query, "include", include));
+  }
+
+  @SneakyThrows
   protected static ResultActions doSearchByInstances(String query, boolean expandAll) {
     return doSearch(instanceSearchPath(), TENANT_ID, Map.of("query", query, "expandAll", String.valueOf(expandAll)));
   }

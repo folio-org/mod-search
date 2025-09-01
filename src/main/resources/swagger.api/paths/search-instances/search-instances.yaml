@@ -10,6 +10,7 @@ get:
     - $ref: '../../parameters/limit-param.yaml'
     - $ref: '../../parameters/offset-param.yaml'
     - $ref: '../../parameters/expand-all-param.yaml'
+    - $ref: '../../parameters/include-fields.yaml'
   responses:
     '200':
       description: 'Instance search result'

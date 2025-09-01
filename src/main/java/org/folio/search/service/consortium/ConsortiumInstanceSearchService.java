@@ -130,7 +130,7 @@ public class ConsortiumInstanceSearchService {
     Set<String> identifierValues,
     String targetField,
     Mapper<Instance, IdentifierTypeEnum, Set<String>, List<T>> recordMapper) {
-    var request = CqlSearchRequest.of(Instance.class, tenant, "", 0, 0, true, false, true);
+    var request = CqlSearchRequest.of(Instance.class, tenant, "", 0, 0, true, false, null,  true);
     var termsQuery = termsQuery(targetField, identifierValues);
 
     if (identifierValues.size() < DEFAULT_MAX_SEARCH_RESULT_WINDOW) {

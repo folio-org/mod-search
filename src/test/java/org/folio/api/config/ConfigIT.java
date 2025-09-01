@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.SneakyThrows;
+import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.domain.dto.BrowseConfig;
 import org.folio.search.domain.dto.BrowseConfigCollection;
 import org.folio.search.domain.dto.BrowseOptionType;
@@ -81,8 +82,8 @@ class ConfigIT extends BaseIntegrationTest {
 
   @BeforeEach
   void removeConfigs() {
-    parseResponse(doGet(ApiEndpoints.languageConfigPath()), LanguageConfigs.class)
-      .getLanguageConfigs()
+    var languageConfigs = parseResponse(doGet(ApiEndpoints.languageConfigPath()), LanguageConfigs.class);
+    CollectionUtils.emptyIfNull(languageConfigs.getLanguageConfigs())
       .forEach(config -> doDelete(ApiEndpoints.languageConfigPath() + "/{code}", config.getCode()));
   }
 

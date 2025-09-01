@@ -95,6 +95,13 @@ class LocalSearchFieldProviderTest {
   }
 
   @Test
+  void getSourceFields_positive2() {
+    var actual = getSearchFieldProvider().getSourceFields(INSTANCE, SEARCH, List.of("allItems"));
+    assertThat(actual).containsExactlyInAnyOrder("id", "plain_title1", "title2.sub1", "contributors.plain_name",
+      "title2.sub3.plain_sub5", "source", "plain_allItems");
+  }
+
+  @Test
   void getSourceFields_positive_nonExistingResource() {
     var actual = getSearchFieldProvider().getSourceFields(UNKNOWN, SEARCH);
     assertThat(actual).isNull();

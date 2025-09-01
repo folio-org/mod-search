@@ -34,11 +34,11 @@ public class SearchController implements SearchApi {
   @Override
   public ResponseEntity<AuthoritySearchResult> searchAuthorities(String tenant, String query, Integer limit,
                                                                  Integer offset, Boolean expandAll,
-                                                                 Boolean includeNumberOfTitles) {
+                                                                 Boolean includeNumberOfTitles, String include) {
 
     tenant = tenantProvider.getTenant(tenant);
-    var searchRequest = CqlSearchRequest.of(
-      Authority.class, tenant, query, limit, offset, expandAll, includeNumberOfTitles);
+    var searchRequest = CqlSearchRequest.of(Authority.class, tenant, query, limit, offset, expandAll,
+      includeNumberOfTitles, include);
     var result = searchService.search(searchRequest);
     return ResponseEntity.ok(new AuthoritySearchResult()
       .authorities(result.getRecords())
@@ -47,9 +47,9 @@ public class SearchController implements SearchApi {
 
   @Override
   public ResponseEntity<InstanceSearchResult> searchInstances(String tenantId, String query, Integer limit,
-                                                              Integer offset, Boolean expandAll) {
+                                                              Integer offset, Boolean expandAll, String include) {
     tenantId = tenantProvider.getTenant(tenantId);
-    var searchRequest = CqlSearchRequest.of(Instance.class, tenantId, query, limit, offset, expandAll);
+    var searchRequest = CqlSearchRequest.of(Instance.class, tenantId, query, limit, offset, expandAll, include);
     var result = searchService.search(searchRequest);
     return ResponseEntity.ok(new InstanceSearchResult()
       .instances(result.getRecords())
@@ -61,7 +61,7 @@ public class SearchController implements SearchApi {
                                                                                   String query,
                                                                                   Integer limit,
                                                                                   Integer offset) {
-    var searchRequest = CqlSearchRequest.of(LinkedDataInstance.class, tenantId, query, limit, offset, true);
+    var searchRequest = CqlSearchRequest.of(LinkedDataInstance.class, tenantId, query, limit, offset, true, null);
     var result = searchService.search(searchRequest);
     return ResponseEntity.ok(new LinkedDataInstanceSearchResult()
       .searchQuery(query)
@@ -78,7 +78,7 @@ public class SearchController implements SearchApi {
                                                                           Integer limit,
                                                                           Integer offset,
                                                                           Boolean omitInstances) {
-    var searchRequest = CqlSearchRequest.of(LinkedDataWork.class, tenantId, query, limit, offset, true);
+    var searchRequest = CqlSearchRequest.of(LinkedDataWork.class, tenantId, query, limit, offset, true, null);
     var result = searchService.search(searchRequest);
     if (TRUE.equals(omitInstances)) {
       result.getRecords().forEach(ldw -> ldw.setInstances(null));
@@ -98,7 +98,7 @@ public class SearchController implements SearchApi {
                                                                         Integer limit,
                                                                         Integer offset) {
     var searchRequest = CqlSearchRequest.of(
-      LinkedDataHub.class, tenantId, query, limit, offset, true);
+      LinkedDataHub.class, tenantId, query, limit, offset, true, null);
     var result = searchService.search(searchRequest);
     return ResponseEntity.ok(new LinkedDataHubSearchResult()
       .searchQuery(query)

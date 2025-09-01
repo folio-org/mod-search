@@ -212,6 +212,6 @@ public class SearchConsortiumController implements SearchConsortiumApi {
 
   private CqlSearchRequest<Instance> idCqlRequest(String tenant, String fieldName, String id) {
     var query = fieldName + ".id=" + id;
-    return CqlSearchRequest.of(Instance.class, tenant, query, 1, 0, true, false, true);
+    return CqlSearchRequest.of(Instance.class, tenant, query, 1, 0, true, false, null, true);
   }
 }

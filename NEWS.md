@@ -1,6 +1,7 @@
 ## v6.0.0 YYYY-mm-DD
 ### Breaking changes
 * Delete deprecated stream resource ids endpoints ([MSEARCH-1053](https://folio-org.atlassian.net/browse/MSEARCH-1053))
+* Remove unused fields from the response body and enhance fields handling in OpenSearch responses ([MSEARCH-1060](https://folio-org.atlassian.net/browse/MSEARCH-1060))
 * Linked Data: Change 'Ean' Identifier to 'IAN' Identifier to be consistent with the terminology used in mod-linked-data ([MSEARCH-1061](https://folio-org.atlassian.net/browse/MSEARCH-1061))
 
 ### New APIs versions

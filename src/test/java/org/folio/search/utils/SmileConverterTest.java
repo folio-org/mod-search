@@ -5,12 +5,14 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.support.utils.TestUtils.SMILE_MAPPER;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.dataformat.smile.databind.SmileMapper;
 import org.apache.commons.lang3.SerializationException;
 import org.folio.spring.testing.type.UnitTest;
 import org.folio.support.utils.TestUtils.NonSerializableByJacksonClass;
 import org.folio.support.utils.TestUtils.TestClass;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.core.common.bytes.BytesArray;
@@ -22,6 +24,8 @@ class SmileConverterTest {
   private static final String FIELD_VALUE = "value";
 
   @Spy
+  private final SmileMapper mapper = SMILE_MAPPER;
+  @InjectMocks
   private SmileConverter smileConverter;
 
   @Test

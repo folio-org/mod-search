@@ -125,7 +125,7 @@ public class TestUtils {
 
   public static <T> CqlSearchRequest<T> searchServiceRequest(Class<T> resourceClass, String tenantId, String query,
                                                              boolean expandAll, int limit) {
-    return CqlSearchRequest.of(resourceClass, tenantId, query, limit, 0, expandAll);
+    return CqlSearchRequest.of(resourceClass, tenantId, query, limit, 0, expandAll, null);
   }
 
   public static CqlFacetRequest defaultFacetServiceRequest(ResourceType resource, String query, String... facets) {
@@ -216,7 +216,7 @@ public class TestUtils {
       .totalRecords(totalRecords)
       .instanceTitle(instanceTitle)
       .isAnchor(isAnchor)
-      .instanceContributors(contributors == null ? emptyList() : contributors);
+      .instanceContributors(contributors);
   }
 
   public static InstanceContributorBrowseItem contributorBrowseItem(Integer totalRecords, String name,
@@ -234,7 +234,8 @@ public class TestUtils {
                                                                     String nameTypeId, String authorityId,
                                                                     String... typeIds) {
     return new InstanceContributorBrowseItem().name(name).contributorNameTypeId(nameTypeId).authorityId(authorityId)
-      .contributorTypeId(asList(typeIds)).totalRecords(totalRecords).isAnchor(isAnchor);
+      .contributorTypeId(typeIds == null || typeIds.length == 0 ? null : asList(typeIds))
+      .totalRecords(totalRecords).isAnchor(isAnchor);
   }
 
   public static AuthorityBrowseItem authorityBrowseItem(String heading, Authority authority) {

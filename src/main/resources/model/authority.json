@@ -494,8 +494,7 @@
       "index": "standard",
       "searchAliases": [ "keyword" ],
       "processor": "headingRefProcessor",
-      "rawProcessing": true,
-      "showInResponse": [ "search", "browse" ]
+      "rawProcessing": true
     },
     "lccn": {
       "type": "search",

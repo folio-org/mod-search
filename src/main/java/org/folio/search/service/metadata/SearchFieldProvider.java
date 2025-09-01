@@ -48,6 +48,8 @@ public interface SearchFieldProvider {
    */
   String[] getSourceFields(ResourceType resource, ResponseGroupType groupType);
 
+  String[] getSourceFields(ResourceType resource, ResponseGroupType groupType, List<String> requestedFields);
+
   /**
    * Checks if given language is supported.
    *

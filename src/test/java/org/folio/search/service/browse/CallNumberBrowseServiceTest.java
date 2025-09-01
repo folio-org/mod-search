@@ -86,7 +86,7 @@ class CallNumberBrowseServiceTest {
   @Test
   void browse_positive_forward() {
     var query = "value > s0";
-    var request = BrowseRequest.of(INSTANCE_CALL_NUMBER, TENANT_ID, ALL, query, 5, TARGET_FIELD, null, false, 5);
+    var request = BrowseRequest.of(INSTANCE_CALL_NUMBER, TENANT_ID, ALL, query, 5, TARGET_FIELD, null, null, false, 5);
     var esQuery = rangeQuery(TARGET_FIELD).gt("s0");
     var context = BrowseContext.builder().succeedingQuery(esQuery).succeedingLimit(5).anchor("s0").build();
     var expectedSearchSource = searchSource("s0", 6, ASC);

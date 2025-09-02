@@ -48,8 +48,14 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class LocalSearchFieldProvider implements SearchFieldProvider {
 
-  private static final String MORE_THEN_ONE_FIELD_MESSAGE =
+  private static final String FIELD_TYPE_NOT_FOUND_ERROR =
+    "Failed to find search field type [fieldType: %s]";
+  private static final String RESOURCE_DESCRIPTION_ERROR =
+    "Failed to create resource description for resource: '%s', errors: %s";
+  private static final String MORE_THAN_ONE_FIELD_MESSAGE =
     "Invalid plain field descriptor for search alias '%s'. Alias for field with %s can't group more than 1 field.";
+  private static final String FACET_VALIDATION_MESSAGE = "searchType='facet'";
+  private static final String SEARCH_TERM_PROCESSOR_VALIDATION_MESSAGE = "searchTermProcessor";
 
   private final MetadataResourceProvider metadataResourceProvider;
   private final Map<String, SearchFieldModifier> searchFieldModifiers;
@@ -65,15 +71,14 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
    */
   @PostConstruct
   public void init() {
-    log.debug("init::  Attempting to start loading defined e.s. fields from local");
+    log.debug("init:: Attempting to start loading defined e.s. fields from local");
 
     var resourceDescriptions = metadataResourceProvider.getResourceDescriptions();
     elasticsearchFieldTypes = unmodifiableMap(metadataResourceProvider.getSearchFieldTypes());
     defaultSourceFields = collectDefaultSourceFields(resourceDescriptions);
-    sourceFieldsByResourceType = collectSourceFieldsByResourceType(resourceDescriptions);
+    sourceFieldsByResourceType = collectSourceFields(resourceDescriptions);
     supportedLanguages = getSupportedLanguages();
-    fieldsBySearchAlias = resourceDescriptions.stream()
-      .collect(toUnmodifiableMap(ResourceDescription::getName, LocalSearchFieldProvider::collectFieldsBySearchAlias));
+    fieldsBySearchAlias = buildFieldsBySearchAliasMap(resourceDescriptions);
   }
 
   @Override
@@ -82,8 +87,7 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
 
     var indexFieldType = elasticsearchFieldTypes.get(fieldType);
     if (indexFieldType == null) {
-      throw new ResourceDescriptionException(String.format(
-        "Failed to find search field type [fieldType: %s]", fieldType));
+      throw new ResourceDescriptionException(String.format(FIELD_TYPE_NOT_FOUND_ERROR, fieldType));
     }
     return indexFieldType;
   }
@@ -127,19 +131,10 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
 
   @Override
   public String getModifiedField(String field, ResourceType resource) {
-    var queryWrapper = new Object() {
-      String value = field;
-    };
-
-    metadataResourceProvider.getResourceDescription(resource)
-      .ifPresent(description -> description.getSearchFieldModifiers().stream()
-        .map(searchFieldModifiers::get)
-        .filter(Objects::nonNull)
-        .forEach(modifier ->
-          queryWrapper.value = modifier.modify(queryWrapper.value))
-      );
-
-    return queryWrapper.value;
+    return metadataResourceProvider.getResourceDescription(resource)
+      .map(this::applyFieldModifications)
+      .map(modifiers -> applyModifiers(field, modifiers))
+      .orElse(field);
   }
 
   private String[] getValidSourceFields(ResourceType resource, List<String> requestedFields) {
@@ -149,50 +144,74 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
       .toArray(String[]::new);
   }
 
-  private static Map<String, List<String>> collectFieldsBySearchAlias(ResourceDescription resourceDescription) {
+  private Map<ResourceType, Map<String, List<String>>> buildFieldsBySearchAliasMap(
+    List<ResourceDescription> resourceDescriptions) {
+    return resourceDescriptions.stream()
+      .collect(toUnmodifiableMap(ResourceDescription::getName, this::collectFieldsBySearchAlias));
+  }
+
+  private Map<String, List<String>> collectFieldsBySearchAlias(ResourceDescription resourceDescription) {
     var searchFieldByAlias = new LinkedHashMap<String, List<String>>();
     var fields = resourceDescription.getFlattenFields();
 
-    for (var entry : fields.entrySet()) {
-      var fieldDescription = entry.getValue();
-      if (CollectionUtils.isEmpty(fieldDescription.getSearchAliases())) {
-        continue;
-      }
-
-      var fieldPath = entry.getKey();
-      var updatedPath = fieldDescription.isMultilang() ? getPathForMultilangField(fieldPath) : fieldPath;
-      for (String alias : fieldDescription.getSearchAliases()) {
-        var searchFieldsByAlias = getFieldsForSearchAlias(alias, updatedPath);
-        searchFieldByAlias.computeIfAbsent(alias, k -> new ArrayList<>()).addAll(searchFieldsByAlias);
-      }
-    }
+    fields.entrySet().stream()
+      .filter(entry -> hasSearchAliases(entry.getValue()))
+      .forEach(entry -> processFieldAliases(entry, searchFieldByAlias));
 
     validateSearchAliases(searchFieldByAlias, resourceDescription);
-
     return unmodifiableMap(searchFieldByAlias);
   }
 
-  private static void validateSearchAliases(LinkedHashMap<String, List<String>> fields, ResourceDescription desc) {
+  private boolean hasSearchAliases(PlainFieldDescription fieldDescription) {
+    return CollectionUtils.isNotEmpty(fieldDescription.getSearchAliases());
+  }
+
+  private void processFieldAliases(Entry<String, PlainFieldDescription> fieldEntry,
+                                   Map<String, List<String>> searchFieldByAlias) {
+    var fieldPath = fieldEntry.getKey();
+    var fieldDescription = fieldEntry.getValue();
+    var updatedPath = fieldDescription.isMultilang() ? getPathForMultilangField(fieldPath) : fieldPath;
+
+    fieldDescription.getSearchAliases().forEach(alias -> {
+      var searchFieldsByAlias = getFieldsForSearchAlias(alias, updatedPath);
+      searchFieldByAlias.computeIfAbsent(alias, k -> new ArrayList<>()).addAll(searchFieldsByAlias);
+    });
+  }
+
+  private static void validateSearchAliases(Map<String, List<String>> fields, ResourceDescription description) {
     var errors = new ArrayList<String>();
-    var flattenFields = desc.getFlattenFields();
+    var flattenFields = description.getFlattenFields();
+
     fields.forEach((alias, searchFields) -> {
-      var facetFieldDescriptionCount = getFacetFieldCount(flattenFields, searchFields);
-      if (facetFieldDescriptionCount != 0 && searchFields.size() > 1) {
-        errors.add(String.format(MORE_THEN_ONE_FIELD_MESSAGE, alias, "searchType='facet'"));
-      }
-      var searchTermProcessorFieldCount = getSearchTermProcessorFieldCount(flattenFields, searchFields);
-      if (searchTermProcessorFieldCount != 0 && searchFields.size() > 1) {
-        errors.add(String.format(MORE_THEN_ONE_FIELD_MESSAGE, alias, "searchTermProcessor"));
-      }
+      validateFacetFields(alias, searchFields, flattenFields, errors);
+      validateSearchTermProcessorFields(alias, searchFields, flattenFields, errors);
     });
 
     if (CollectionUtils.isNotEmpty(errors)) {
       throw new ResourceDescriptionException(String.format(
-        "Failed to create resource description for resource: '%s', errors: %s", desc.getName().getName(), errors));
+        RESOURCE_DESCRIPTION_ERROR, description.getName().getName(), errors));
     }
   }
 
-  private static long getFacetFieldCount(Map<String, PlainFieldDescription> fields, List<String> fieldNames) {
+  private static void validateFacetFields(String alias, List<String> searchFields,
+                                          Map<String, PlainFieldDescription> flattenFields,
+                                          List<String> errors) {
+    var facetFieldCount = countFieldsWithFacetType(flattenFields, searchFields);
+    if (facetFieldCount > 0 && searchFields.size() > 1) {
+      errors.add(String.format(MORE_THAN_ONE_FIELD_MESSAGE, alias, FACET_VALIDATION_MESSAGE));
+    }
+  }
+
+  private static void validateSearchTermProcessorFields(String alias, List<String> searchFields,
+                                                        Map<String, PlainFieldDescription> flattenFields,
+                                                        List<String> errors) {
+    var searchTermProcessorFieldCount = countFieldsWithSearchTermProcessor(flattenFields, searchFields);
+    if (searchTermProcessorFieldCount > 0 && searchFields.size() > 1) {
+      errors.add(String.format(MORE_THAN_ONE_FIELD_MESSAGE, alias, SEARCH_TERM_PROCESSOR_VALIDATION_MESSAGE));
+    }
+  }
+
+  private static long countFieldsWithFacetType(Map<String, PlainFieldDescription> fields, List<String> fieldNames) {
     return fieldNames.stream()
       .map(LocalSearchFieldProvider::cleanUpFieldNameForValidation)
       .map(fields::get)
@@ -200,12 +219,12 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
       .count();
   }
 
-  private static long getSearchTermProcessorFieldCount(Map<String, PlainFieldDescription> fields,
-                                                       List<String> fieldNames) {
+  private static long countFieldsWithSearchTermProcessor(Map<String, PlainFieldDescription> fields,
+                                                         List<String> fieldNames) {
     return fieldNames.stream()
       .map(LocalSearchFieldProvider::cleanUpFieldNameForValidation)
       .map(fields::get)
-      .filter(desc -> !Objects.isNull(desc.getSearchTermProcessor()))
+      .filter(desc -> Objects.nonNull(desc.getSearchTermProcessor()))
       .count();
   }
 
@@ -222,37 +241,66 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
            : singletonList(path);
   }
 
-  private Map<ResourceType, Map<String, String>> collectSourceFieldsByResourceType(
+  private Map<ResourceType, Map<String, String>> collectSourceFields(
     List<ResourceDescription> descriptions) {
     var fieldsMap = new LinkedHashMap<ResourceType, Map<String, String>>();
-    for (var desc : descriptions) {
-      var allSourceFields = new LinkedHashMap<String, String>();
-      desc.getFlattenFields().forEach((path, fieldDesc) -> {
-        if (!(fieldDesc instanceof SearchFieldDescriptor)) {
-          if (fieldDesc.hasFulltextIndex()) {
-            allSourceFields.put(path, getPathToFulltextPlainValue(path));
-          } else if (fieldDesc.isMultilang()) {
-            allSourceFields.put(path, getPathForMultilangField(path));
-          } else {
-            allSourceFields.put(path, path);
-          }
-        }
-      });
-      fieldsMap.put(desc.getName(), unmodifiableMap(allSourceFields));
-    }
+
+    descriptions.forEach(description -> {
+      var sourceFields = buildSourceFieldsMap(description);
+      fieldsMap.put(description.getName(), unmodifiableMap(sourceFields));
+    });
+
     return fieldsMap;
+  }
+
+  private Map<String, String> buildSourceFieldsMap(ResourceDescription description) {
+    var allSourceFields = new LinkedHashMap<String, String>();
+
+    description.getFlattenFields().forEach((path, fieldDesc) -> {
+      if (!(fieldDesc instanceof SearchFieldDescriptor)) {
+        var sourcePath = determineDefaultFieldPath(path, fieldDesc);
+        allSourceFields.put(path, sourcePath);
+      }
+    });
+
+    return allSourceFields;
+  }
+
+  private static String determineDefaultFieldPath(String path, PlainFieldDescription fieldDesc) {
+    return fieldDesc.hasFulltextIndex() ? getPathToFulltextPlainValue(path) : path;
   }
 
   private static Map<ResourceType, String[]> collectDefaultSourceFields(List<ResourceDescription> descriptions) {
     var sourceFieldPerResource = new LinkedHashMap<ResourceType, String[]>();
-    for (var desc : descriptions) {
-      var defaultFields = desc.getFlattenFields().entrySet().stream()
-        .filter(d -> d.getValue().isShowInResponse())
-        .map(d -> d.getValue().hasFulltextIndex() ? getPathToFulltextPlainValue(d.getKey()) : d.getKey())
-        .toArray(String[]::new);
-      sourceFieldPerResource.put(desc.getName(), defaultFields);
-    }
+
+    descriptions.forEach(description -> {
+      var defaultFields = extractDefaultFields(description);
+      sourceFieldPerResource.put(description.getName(), defaultFields);
+    });
+
     return unmodifiableMap(sourceFieldPerResource);
+  }
+
+  private static String[] extractDefaultFields(ResourceDescription description) {
+    return description.getFlattenFields().entrySet().stream()
+      .filter(entry -> entry.getValue().isShowInResponse())
+      .map(entry -> determineDefaultFieldPath(entry.getKey(), entry.getValue()))
+      .toArray(String[]::new);
+  }
+
+  private List<SearchFieldModifier> applyFieldModifications(ResourceDescription description) {
+    return description.getSearchFieldModifiers().stream()
+      .map(searchFieldModifiers::get)
+      .filter(Objects::nonNull)
+      .toList();
+  }
+
+  private String applyModifiers(String field, List<SearchFieldModifier> modifiers) {
+    var modifiedField = field;
+    for (var modifier : modifiers) {
+      modifiedField = modifier.modify(modifiedField);
+    }
+    return modifiedField;
   }
 
   private Set<String> getSupportedLanguages() {

@@ -45,39 +45,44 @@ public class SearchService {
    * @param request cql search request as {@link CqlSearchRequest} object
    * @return search result.
    */
-  public <T> SearchResult<T>  search(CqlSearchRequest<T> request) {
+  public <T> SearchResult<T> search(CqlSearchRequest<T> request) {
     log.debug("search:: by [query: {}, resource: {}]", request.getQuery(), request.getResource());
+    validateRequest(request);
 
+    var queryBuilder = cqlSearchQueryConverter
+      .convertForConsortia(request.getQuery(), request.getResource(), request.getConsortiumConsolidated())
+      .from(request.getOffset())
+      .size(request.getLimit())
+      .trackTotalHits(true)
+      .fetchSource(getIncludedSourceFields(request), null)
+      .timeout(new TimeValue(searchQueryConfiguration.getRequestTimeout().toMillis(), MILLISECONDS));
+
+    var searchResponse = searchRepository.search(request, queryBuilder, buildPreference(request));
+    var searchResult = documentConverter.convertToSearchResult(searchResponse, request.getResourceClass());
+
+    searchResultPostProcessing(request.getResourceClass(), request.getIncludeNumberOfTitles(), searchResult);
+
+    return searchResult;
+  }
+
+  private void validateRequest(CqlSearchRequest<?> request) {
     if (request.getOffset() + request.getLimit() > DEFAULT_MAX_SEARCH_RESULT_WINDOW) {
       var validationException = new RequestValidationException("The sum of limit and offset should not exceed 10000.",
         "offset + limit", String.valueOf(request.getOffset() + request.getLimit()));
       log.warn(validationException.getMessage());
       throw validationException;
     }
-    var resource = request.getResource();
-    var requestTimeout = searchQueryConfiguration.getRequestTimeout();
-    var queryBuilder = cqlSearchQueryConverter.convertForConsortia(request.getQuery(), resource,
-        request.getConsortiumConsolidated())
-      .from(request.getOffset())
-      .size(request.getLimit())
-      .trackTotalHits(true)
-      .timeout(new TimeValue(requestTimeout.toMillis(), MILLISECONDS));
-    var preferenceKey = buildPreferenceKey(request.getTenantId(), resource.getName(), request.getQuery());
-    var preference = searchPreferenceService.getPreferenceForString(preferenceKey);
+  }
 
-    if (isFalse(request.getExpandAll())) {
-      var includes = searchFieldProvider.getSourceFields(resource, request.getIncludeFields());
-      log.debug("search:: include source fields: {}]", (Object) includes);
+  private String[] getIncludedSourceFields(CqlSearchRequest<?> request) {
+    return isFalse(request.getExpandAll())
+           ? searchFieldProvider.getSourceFields(request.getResource(), request.getIncludeFields())
+           : new String[0];
+  }
 
-      queryBuilder.fetchSource(includes, null);
-    }
-
-    var searchResponse = searchRepository.search(request, queryBuilder, preference);
-    var searchResult = documentConverter.convertToSearchResult(searchResponse, request.getResourceClass());
-
-    searchResultPostProcessing(request.getResourceClass(), request.getIncludeNumberOfTitles(), searchResult);
-
-    return searchResult;
+  private String buildPreference(CqlSearchRequest<?> request) {
+    var preferenceKey = buildPreferenceKey(request.getTenantId(), request.getResource().getName(), request.getQuery());
+    return searchPreferenceService.getPreferenceForString(preferenceKey);
   }
 
   private <T> void searchResultPostProcessing(Class<?> resourceClass, boolean includeNumberOfTitles,

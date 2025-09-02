@@ -61,8 +61,6 @@ public class CqlSearchRequest<T> implements ResourceRequest {
   /**
    * Retrieves the fields listed in the specified parameter.
    */
-  private final String include;
-
   private final List<String> includeFields;
 
   /**
@@ -91,7 +89,7 @@ public class CqlSearchRequest<T> implements ResourceRequest {
                                            Boolean consortiumConsolidated) {
     var resource = ResourceType.byName(SearchUtils.getResourceName(resourceClass));
     return new CqlSearchRequest<>(resource, resourceClass, tenantId, query, limit, offset, expandAll,
-      includeNumberOfTitles, include, parseIncludeField(include), consortiumConsolidated);
+      includeNumberOfTitles, parseIncludeField(include), consortiumConsolidated);
   }
 
   public static <R> CqlSearchRequest<R> of(Class<R> resourceClass, String tenantId, String query,

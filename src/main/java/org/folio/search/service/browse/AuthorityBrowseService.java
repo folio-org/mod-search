@@ -94,12 +94,8 @@ public class AuthorityBrowseService extends AbstractBrowseServiceBySearchAfter<A
   }
 
   private String[] getIncludedSourceFields(BrowseRequest request) {
-    if (isFalse(request.getExpandAll())) {
-      var includes = searchFieldProvider.getSourceFields(request.getResource(), request.getIncludeFields());
-      log.debug("search:: expandAll to include: {}]", (Object) includes);
-
-      return includes;
-    }
-    return new String[0];
+    return isFalse(request.getExpandAll())
+           ? searchFieldProvider.getSourceFields(request.getResource(), request.getIncludeFields())
+           : new String[0];
   }
 }

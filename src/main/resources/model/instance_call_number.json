@@ -5,24 +5,24 @@
   "fields": {
     "fullCallNumber" : {
       "index": "keyword_icu",
-      "showInResponse": [ "browse" ]
+      "showInResponse": true
     },
     "callNumber": {
       "index": "source",
-      "showInResponse": [ "browse" ]
+      "showInResponse": true
     },
     "callNumberPrefix": {
       "index": "source",
-      "showInResponse": [ "browse" ]
+      "showInResponse": true
     },
     "callNumberSuffix": {
       "index": "source",
-      "showInResponse": [ "browse" ]
+      "showInResponse": true
     },
     "callNumberTypeId": {
       "index": "keyword",
       "searchTypes": [ "filter", "facet" ],
-      "showInResponse": [ "browse" ],
+      "showInResponse": true,
       "searchTermProcessor": "callNumberTypeIdSearchTermProcessor"
     },
     "instances": {

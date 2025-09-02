@@ -8,12 +8,12 @@
   "fields": {
     "id": {
       "index": "keyword_lowercase",
-      "showInResponse": [ "search", "browse" ]
+      "showInResponse": true
     },
     "tenantId": {
       "index": "keyword",
       "searchTypes": [ "facet", "filter" ],
-      "showInResponse": [ "search", "browse" ]
+      "showInResponse": true
     },
     "personalName": {
       "type": "authority",
@@ -430,18 +430,18 @@
     "sourceFileId": {
       "index": "keyword",
       "searchTypes": [ "facet", "filter" ],
-      "showInResponse": [ "search", "browse" ],
+      "showInResponse": true,
       "default": "NULL"
     },
     "naturalId": {
       "index": "keyword_lowercase",
-      "showInResponse": [ "search", "browse" ]
+      "showInResponse": true
     },
     "shared": {
       "searchTypes": [ "facet", "filter" ],
       "index": "bool",
       "default": false,
-      "showInResponse": [ "search", "browse" ]
+      "showInResponse": true
     }
   },
   "searchFields": {
@@ -451,7 +451,7 @@
       "processor": "headingTypeProcessor",
       "searchTypes": [ "facet", "filter", "sort" ],
       "rawProcessing": true,
-      "showInResponse": [ "search", "browse" ],
+      "showInResponse": true,
       "sort": {
         "fieldName": "headingType",
         "type": "collection",
@@ -471,7 +471,7 @@
       "processor": "authRefTypeProcessor",
       "searchTypes": [ "filter", "sort" ],
       "rawProcessing": true,
-      "showInResponse": [ "search", "browse" ],
+      "showInResponse": true,
       "sort": {
         "fieldName": "authRefType",
         "type": "collection",
@@ -484,7 +484,7 @@
       "processor": "headingRefProcessor",
       "searchTypes": "sort",
       "rawProcessing": true,
-      "showInResponse": [ "search", "browse" ],
+      "showInResponse": true,
       "mappings": {
         "copy_to": [ "sort_headingRef" ]
       }

@@ -10,7 +10,7 @@
     },
     "tenantId": {
       "index": "keyword_lowercase",
-      "showInResponse": [ "search" ],
+      "showInResponse": true,
       "isTenant": true
     },
     "classifications": {

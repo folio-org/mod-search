@@ -4,7 +4,6 @@ import static org.apache.commons.lang3.BooleanUtils.isFalse;
 import static org.folio.search.model.index.AuthRefType.AUTHORIZED;
 import static org.folio.search.model.index.AuthRefType.REFERENCE;
 import static org.folio.search.model.types.ResourceType.AUTHORITY;
-import static org.folio.search.model.types.ResponseGroupType.BROWSE;
 import static org.folio.search.utils.LogUtils.collectionToLogMsg;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
@@ -96,7 +95,7 @@ public class AuthorityBrowseService extends AbstractBrowseServiceBySearchAfter<A
 
   private String[] getIncludedSourceFields(BrowseRequest request) {
     if (isFalse(request.getExpandAll())) {
-      var includes = searchFieldProvider.getSourceFields(request.getResource(), BROWSE, request.getIncludeFields());
+      var includes = searchFieldProvider.getSourceFields(request.getResource(), request.getIncludeFields());
       log.debug("search:: expandAll to include: {}]", (Object) includes);
 
       return includes;

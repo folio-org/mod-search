@@ -5,7 +5,6 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.model.types.ResourceType.UNKNOWN;
-import static org.folio.search.model.types.ResponseGroupType.SEARCH;
 import static org.folio.support.TestConstants.RESOURCE_ID;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.utils.TestUtils.array;
@@ -73,7 +72,7 @@ class SearchServiceTest {
       .trackTotalHits(true).fetchSource(array("field1", "field2"), null).timeout(new TimeValue(25000, MILLISECONDS));
     var expectedSearchResult = searchResult(TestResource.of(RESOURCE_ID));
 
-    when(searchFieldProvider.getSourceFields(UNKNOWN, SEARCH, emptyList()))
+    when(searchFieldProvider.getSourceFields(UNKNOWN, emptyList()))
       .thenReturn(new String[] {"field1", "field2"});
     when(cqlSearchQueryConverter.convertForConsortia(SEARCH_QUERY, UNKNOWN, false))
       .thenReturn(searchSourceBuilder);

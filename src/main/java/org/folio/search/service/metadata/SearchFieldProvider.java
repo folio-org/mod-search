@@ -5,7 +5,6 @@ import java.util.Optional;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.metadata.SearchFieldType;
 import org.folio.search.model.types.ResourceType;
-import org.folio.search.model.types.ResponseGroupType;
 
 /**
  * Provides access to the index field type, which are used as reference in resource model and it's description in
@@ -40,15 +39,14 @@ public interface SearchFieldProvider {
   Optional<PlainFieldDescription> getPlainFieldByPath(ResourceType resource, String path);
 
   /**
-   * Provides list of fields of source fields for resource and response group type.
+   * Provides combined array of default source fields and requested source fields for the given resource.
    *
-   * @param resource  resource type as {@link ResourceType}
-   * @param groupType - response group type as {@link ResponseGroupType} object
-   * @return array of fields.
+   * @param resource        resource type as {@link ResourceType}
+   * @param requestedFields list of requested field names as {@link List} of {@link String}
+   *
+   * @return array of source field names
    */
-  String[] getSourceFields(ResourceType resource, ResponseGroupType groupType);
-
-  String[] getSourceFields(ResourceType resource, ResponseGroupType groupType, List<String> requestedFields);
+  String[] getSourceFields(ResourceType resource, List<String> requestedFields);
 
   /**
    * Checks if given language is supported.

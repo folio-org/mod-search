@@ -2,7 +2,6 @@ package org.folio.search.service;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.apache.commons.lang3.BooleanUtils.isFalse;
-import static org.folio.search.model.types.ResponseGroupType.SEARCH;
 import static org.folio.search.utils.SearchUtils.buildPreferenceKey;
 
 import java.util.List;
@@ -67,7 +66,7 @@ public class SearchService {
     var preference = searchPreferenceService.getPreferenceForString(preferenceKey);
 
     if (isFalse(request.getExpandAll())) {
-      var includes = searchFieldProvider.getSourceFields(resource, SEARCH, request.getIncludeFields());
+      var includes = searchFieldProvider.getSourceFields(resource, request.getIncludeFields());
       log.debug("search:: include source fields: {}]", (Object) includes);
 
       queryBuilder.fetchSource(includes, null);

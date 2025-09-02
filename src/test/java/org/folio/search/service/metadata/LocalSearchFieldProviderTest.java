@@ -1,12 +1,10 @@
 package org.folio.search.service.metadata;
 
-import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.model.types.ResourceType.INSTANCE;
 import static org.folio.search.model.types.ResourceType.UNKNOWN;
-import static org.folio.search.model.types.ResponseGroupType.SEARCH;
 import static org.folio.search.model.types.SearchType.FACET;
 import static org.folio.search.model.types.SearchType.FILTER;
 import static org.folio.support.utils.JsonTestUtils.jsonObject;
@@ -31,7 +29,6 @@ import org.folio.search.model.metadata.PostProcessResourceDescriptionConverter;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.SearchFieldDescriptor;
 import org.folio.search.model.metadata.SearchFieldType;
-import org.folio.search.model.types.ResponseGroupType;
 import org.folio.search.model.types.SearchType;
 import org.folio.spring.testing.type.UnitTest;
 import org.folio.support.utils.TestUtils;
@@ -89,22 +86,22 @@ class LocalSearchFieldProviderTest {
 
   @Test
   void getSourceFields_positive() {
-    var actual = getSearchFieldProvider().getSourceFields(INSTANCE, SEARCH);
+    var actual = getSearchFieldProvider().getSourceFields(INSTANCE, List.of());
     assertThat(actual).containsExactlyInAnyOrder("id", "plain_title1", "title2.sub1", "contributors.plain_name",
       "title2.sub3.plain_sub5", "source");
   }
 
   @Test
   void getSourceFields_positive2() {
-    var actual = getSearchFieldProvider().getSourceFields(INSTANCE, SEARCH, List.of("allItems"));
+    var actual = getSearchFieldProvider().getSourceFields(INSTANCE, List.of("allItems"));
     assertThat(actual).containsExactlyInAnyOrder("id", "plain_title1", "title2.sub1", "contributors.plain_name",
       "title2.sub3.plain_sub5", "source", "plain_allItems");
   }
 
   @Test
   void getSourceFields_positive_nonExistingResource() {
-    var actual = getSearchFieldProvider().getSourceFields(UNKNOWN, SEARCH);
-    assertThat(actual).isNull();
+    var actual = getSearchFieldProvider().getSourceFields(UNKNOWN, List.of());
+    assertThat(actual).isEmpty();
   }
 
   @Test
@@ -143,7 +140,7 @@ class LocalSearchFieldProviderTest {
   void getPlainFieldByPath_positive() {
     when(metadataResourceProvider.getResourceDescription(INSTANCE)).thenReturn(Optional.of(resourceDescription()));
     var actual = getSearchFieldProvider().getPlainFieldByPath(INSTANCE, "id");
-    assertThat(actual).isPresent().get().isEqualTo(plainField("keyword", List.of(SEARCH)));
+    assertThat(actual).isPresent().get().isEqualTo(plainField("keyword", true));
   }
 
   @DisplayName("getPlainFieldByPath_parameterized")
@@ -234,19 +231,19 @@ class LocalSearchFieldProviderTest {
 
   private ResourceDescription resourceDescription() {
     return resourceDescription(mapOf(
-        "id", plainField("keyword", List.of(SEARCH)),
+        "id", plainField("keyword", true),
         "allInstance", multilangField("cql.all", "cql.allInstance"),
         "allItems", multilangField("cql.all", "cql.allItems"),
         "allHoldings", multilangField("cql.all", "cql.allHoldings"),
-        "contributors", objectField(mapOf("name", plainField("standard", List.of(SEARCH)))),
-        "title1", plainField("multilang", List.of(SEARCH), TITLE_SEARCH_TYPE),
+        "contributors", objectField(mapOf("name", plainField("standard", true))),
+        "title1", plainField("multilang", true, TITLE_SEARCH_TYPE),
         "title2", objectField(mapOf(
-          "sub1", plainField("keyword", List.of(SEARCH), TITLE_SEARCH_TYPE),
-          "sub2", plainField("multilang", emptyList(), TITLE_SEARCH_TYPE),
+          "sub1", plainField("keyword", true, TITLE_SEARCH_TYPE),
+          "sub2", plainField("multilang", false, TITLE_SEARCH_TYPE),
           "sub3", objectField(mapOf(
-            "sub4", plainField("keyword", emptyList(), TITLE_SEARCH_TYPE),
-            "sub5", plainField("multilang", List.of(SEARCH)))))),
-        "source", plainField("keyword", List.of(SEARCH)),
+            "sub4", plainField("keyword", false, TITLE_SEARCH_TYPE),
+            "sub5", plainField("multilang", true))))),
+        "source", plainField("keyword", true),
         "oldFieldName", plainField(List.of("newFieldName"), FACET, FILTER)
       ),
       mapOf(
@@ -279,9 +276,9 @@ class LocalSearchFieldProviderTest {
 
   private static Stream<Arguments> getPlainFieldsByPathDataProvider() {
     return Stream.of(
-      arguments("id", plainField("keyword", List.of(SEARCH))),
-      arguments("title2.sub1", plainField("keyword", List.of(SEARCH), TITLE_SEARCH_TYPE)),
-      arguments("title2.sub3.sub4", plainField("keyword", emptyList(), TITLE_SEARCH_TYPE)),
+      arguments("id", plainField("keyword", true)),
+      arguments("title2.sub1", plainField("keyword", true, TITLE_SEARCH_TYPE)),
+      arguments("title2.sub3.sub4", plainField("keyword", false, TITLE_SEARCH_TYPE)),
       arguments("title2.sub3", null),
       arguments("title4", null),
       arguments("title1.subfield", null),
@@ -291,11 +288,11 @@ class LocalSearchFieldProviderTest {
   }
 
   private static PlainFieldDescription plainField(
-    String index, List<ResponseGroupType> responseGroupTypes, String... searchAliases) {
+    String index, boolean showInResponse, String... searchAliases) {
     var fieldDescription = new PlainFieldDescription();
     fieldDescription.setIndex(index);
     fieldDescription.setSearchAliases(List.of(searchAliases));
-    fieldDescription.setShowInResponse(responseGroupTypes);
+    fieldDescription.setShowInResponse(showInResponse);
     return fieldDescription;
   }
 

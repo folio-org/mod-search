@@ -3,7 +3,6 @@ package org.folio.search.service.browse;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.model.types.ResourceType.AUTHORITY;
-import static org.folio.search.model.types.ResponseGroupType.BROWSE;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.utils.TestUtils.authorityBrowseItem;
 import static org.folio.support.utils.TestUtils.searchResult;
@@ -111,7 +110,7 @@ class AuthorityBrowseServiceTest {
 
     when(browseContextProvider.get(request)).thenReturn(context);
     when(searchRepository.search(request, expectedSearchSource)).thenReturn(searchResponse);
-    when(searchFieldProvider.getSourceFields(AUTHORITY, BROWSE, emptyList()))
+    when(searchFieldProvider.getSourceFields(AUTHORITY, emptyList()))
       .thenReturn(new String[] {"id", "headingRef"});
     when(documentConverter.convertToSearchResult(searchResponse, Authority.class))
       .thenReturn(searchResult(authorities("s1", "s2", "s3", "s4", "s5")));

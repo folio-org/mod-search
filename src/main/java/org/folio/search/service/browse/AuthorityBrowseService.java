@@ -101,6 +101,6 @@ public class AuthorityBrowseService extends AbstractBrowseServiceBySearchAfter<A
 
       return includes;
     }
-    return null;
+    return new String[0];
   }
 }

@@ -1,20 +1,17 @@
-FROM opensearchproject/opensearch:3
+FROM opensearchproject/opensearch:3.0.0
 
-# Switch from /dev/random to /dev/urandom for faster random number generation
-RUN sed -i 's!^securerandom\.source=.*!securerandom.source=file:/dev/./urandom!' /usr/share/opensearch/jdk/conf/security/java.security && \
-    opensearch-plugin list | grep -q opensearch-security && \
-    opensearch-plugin remove opensearch-security || \
-    echo "opensearch-security plugin not installed or cannot be removed" && \
-    opensearch-plugin install --batch \
-        analysis-icu \
-        analysis-kuromoji \
-        analysis-smartcn \
-        analysis-nori \
-        analysis-phonetic
+# Switch from /dev/random to /dev/urandom, otherwise the plugin installer needs many minutes to get
+# random numbers to verify the signature of the downloaded plugins.
+# https://github.com/elastic/elasticsearch/pull/84766
+# https://stackoverflow.com/questions/137212/how-to-deal-with-a-slow-securerandom-generator
+# https://security.stackexchange.com/questions/3936/is-a-rand-from-dev-urandom-secure-for-a-login-key
+RUN sed -i 's!^securerandom\.source=.*!securerandom.source=file:/dev/./urandom!' /usr/share/opensearch/jdk/conf/security/java.security
 
-# Add a healthcheck to monitor the OpenSearch service
-HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD curl -f http://localhost:9200/_cluster/health || exit 1
+RUN opensearch-plugin install --batch \
+  analysis-icu \
+  analysis-kuromoji \
+  analysis-smartcn \
+  analysis-nori \
+  analysis-phonetic
 
-# Switch to a non-root user for better security
-USER opensearch
+RUN opensearch-plugin remove opensearch-security

@@ -19,9 +19,7 @@ import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexRangeStatus;
 import org.folio.search.service.ResourceService;
 import org.folio.search.service.consortium.ConsortiumTenantService;
-import org.folio.search.service.reindex.jdbc.UploadInstanceRepository;
 import org.folio.search.service.reindex.jdbc.UploadRangeRepository;
-import org.folio.search.utils.JdbcUtils;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.tools.kafka.FolioMessageProducer;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -82,69 +80,10 @@ public class ReindexUploadRangeIndexService {
     repository.updateRangeStatus(event.getId(), Timestamp.from(Instant.now()), status, failCause);
   }
 
-  public void reuploadSharedInstances(String tenantId) {
-    log.info("reuploadSharedInstances:: Starting shared instances re-upload for tenant: {}", tenantId);
-    
-    var instanceRepository = (UploadInstanceRepository) repositories.get(ReindexEntityType.INSTANCE);
-    if (instanceRepository == null) {
-      log.warn("reuploadSharedInstances:: No instance repository found, skipping shared instance re-upload");
-      return;
-    }
-    
-    // Get central tenant ID for consortium deployments
-    var centralTenantId = consortiumTenantService.getCentralTenant(tenantId);
-    if (centralTenantId.isEmpty()) {
-      log.info("reuploadSharedInstances:: No central tenant found - non-consortium deployment, "
-          + "skipping shared instance re-upload");
-      return;
-    }
-    
-    // Query central tenant's instance table for shared instances
-    var moduleMetadata = context.getFolioModuleMetadata();
-    var centralSchema = JdbcUtils.getSchemaName(centralTenantId.get(), moduleMetadata);
-    var centralInstanceTable = centralSchema + ".instance";
-    
-    String sql = "SELECT id FROM " + centralInstanceTable + " WHERE shared = true";
-    List<String> sharedInstanceIds = jdbcTemplate.query(sql, (rs, rowNum) -> rs.getString("id"));
-    
-    if (sharedInstanceIds.isEmpty()) {
-      log.info("reuploadSharedInstances:: No shared instances found to re-upload");
-      return;
-    }
-    
-    log.info("reuploadSharedInstances:: Found {} shared instances to re-upload", sharedInstanceIds.size());
-    
-    // Fetch shared instances with all tenant data (method handles batching internally)
-    var instances = instanceRepository.fetchSharedInstancesWithAllTenantData(sharedInstanceIds);
-    
-    // Convert to ResourceEvents for indexing
-    var events = instances.stream()
-        .map(instance -> new ResourceEvent()
-            .id(getString(instance, ID_FIELD))
-            .resourceName(ReindexConstants.RESOURCE_NAME_MAP.get(ReindexEntityType.INSTANCE).getName())
-            ._new(instance)
-            .tenant(tenantId))
-        .toList();
-    
-    // Index the shared instances directly using ResourceService
-    if (!events.isEmpty()) {
-      log.info("reuploadSharedInstances:: Indexing {} shared instances", events.size());
-      var response = resourceService.indexResources(events);
-      
-      if (response.getErrorMessage() != null) {
-        log.error("reuploadSharedInstances:: Failed to index shared instances: {}", 
-            response.getErrorMessage());
-        throw new RuntimeException("Failed to index shared instances: " + response.getErrorMessage());
-      }
-      
-      log.info("reuploadSharedInstances:: Successfully indexed {} shared instances", 
-          events.size());
-    }
-    
-    log.info("reuploadSharedInstances:: Completed shared instances re-upload");
-  }
 
   private List<ReindexRangeIndexEvent> prepareEvents(List<UploadRangeEntity> uploadRanges) {
+    String memberTenantId = ReindexContext.getMemberTenantId();
+    
     return uploadRanges.stream()
       .map(range -> {
         var event = new ReindexRangeIndexEvent();
@@ -152,6 +91,7 @@ public class ReindexUploadRangeIndexService {
         event.setEntityType(range.getEntityType());
         event.setLower(range.getLower());
         event.setUpper(range.getUpper());
+        event.setMemberTenantId(memberTenantId);  // Set member tenant context
         return event;
       })
       .toList();

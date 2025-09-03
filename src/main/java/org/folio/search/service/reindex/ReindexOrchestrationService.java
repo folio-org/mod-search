@@ -32,23 +32,37 @@ public class ReindexOrchestrationService {
   private final ReindexConfigurationProperties reindexConfig;
 
   public boolean process(ReindexRangeIndexEvent event) {
-    log.info("process:: ReindexRangeIndexEvent [id: {}, tenantId: {}, entityType: {}, lower: {}, upper: {}, ts: {}]",
-      event.getId(), event.getTenant(), event.getEntityType(), event.getLower(), event.getUpper(), event.getTs());
-    var resourceEvents = uploadRangeService.fetchRecordRange(event);
-    var documents = documentConverter.convert(resourceEvents).values().stream().flatMap(Collection::stream).toList();
-    var folioIndexOperationResponse = elasticRepository.indexResources(documents);
-    if (folioIndexOperationResponse.getStatus() == FolioIndexOperationResponse.StatusEnum.ERROR) {
-      log.warn("process:: ReindexRangeIndexEvent indexing error [id: {}, error: {}]",
-        event.getId(), folioIndexOperationResponse.getErrorMessage());
-      uploadRangeService.updateStatus(event, ReindexRangeStatus.FAIL, folioIndexOperationResponse.getErrorMessage());
-      reindexStatusService.updateReindexUploadFailed(event.getEntityType());
-      throw new ReindexException(folioIndexOperationResponse.getErrorMessage());
+    // Restore member tenant context for upload processing
+    if (event.getMemberTenantId() != null) {
+      ReindexContext.setMemberTenantId(event.getMemberTenantId());
     }
-    uploadRangeService.updateStatus(event, ReindexRangeStatus.SUCCESS, null);
+    
+    try {
+      log.info("process:: ReindexRangeIndexEvent [id: {}, tenantId: {}, memberTenantId: {}, "
+        + "entityType: {}, lower: {}, upper: {}]",
+        event.getId(), event.getTenant(), event.getMemberTenantId(), 
+        event.getEntityType(), event.getLower(), event.getUpper());
+      
+      var resourceEvents = uploadRangeService.fetchRecordRange(event);
+      var documents = documentConverter.convert(resourceEvents).values().stream().flatMap(Collection::stream).toList();
+      var folioIndexOperationResponse = elasticRepository.indexResources(documents);
+      if (folioIndexOperationResponse.getStatus() == FolioIndexOperationResponse.StatusEnum.ERROR) {
+        log.warn("process:: ReindexRangeIndexEvent indexing error [id: {}, error: {}]",
+          event.getId(), folioIndexOperationResponse.getErrorMessage());
+        uploadRangeService.updateStatus(event, ReindexRangeStatus.FAIL, folioIndexOperationResponse.getErrorMessage());
+        reindexStatusService.updateReindexUploadFailed(event.getEntityType());
+        throw new ReindexException(folioIndexOperationResponse.getErrorMessage());
+      }
+      uploadRangeService.updateStatus(event, ReindexRangeStatus.SUCCESS, null);
 
-    log.info("process:: ReindexRangeIndexEvent processed [id: {}]", event.getId());
-    reindexStatusService.addProcessedUploadRanges(event.getEntityType(), 1);
-    return true;
+      log.info("process:: ReindexRangeIndexEvent processed [id: {}]", event.getId());
+      reindexStatusService.addProcessedUploadRanges(event.getEntityType(), 1);
+      return true;
+    } finally {
+      if (event.getMemberTenantId() != null) {
+        ReindexContext.clearMemberTenantId();
+      }
+    }
   }
 
   public boolean process(ReindexRecordsEvent event) {

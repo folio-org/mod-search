@@ -12,6 +12,7 @@ import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.service.reindex.RangeGenerator;
 import org.folio.search.service.reindex.ReindexConstants;
+import org.folio.search.service.reindex.ReindexContext;
 import org.folio.search.utils.JdbcUtils;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
@@ -85,29 +86,29 @@ public class UploadInstanceRepository extends UploadRangeRepository {
     if (instanceIds == null || instanceIds.isEmpty()) {
       return Collections.emptyList();
     }
-    
+
     // Get central tenant ID for consortium deployments
     var centralTenantId = consortiumTenantService.getCentralTenant(context.getTenantId());
     if (centralTenantId.isEmpty()) {
       // Non-consortium deployment: no shared instances exist
       return Collections.emptyList();
     }
-    
+
     // Use central tenant's schema for instance table, but allow cross-tenant holdings/items
     var moduleMetadata = context.getFolioModuleMetadata();
     var centralSchema = JdbcUtils.getSchemaName(centralTenantId.get(), moduleMetadata);
     var centralInstanceTable = centralSchema + "." + entityTable();
-    
+
     // Reuse existing BATCH_OPERATION_SIZE for consistency
     List<Map<String, Object>> allResults = new ArrayList<>();
-    
+
     for (int i = 0; i < instanceIds.size(); i += BATCH_OPERATION_SIZE) {
-      List<String> batch = instanceIds.subList(i, 
+      List<String> batch = instanceIds.subList(i,
           Math.min(i + BATCH_OPERATION_SIZE, instanceIds.size()));
-      
+
       String whereClause = "i.id IN (" + JdbcUtils.getParamPlaceholderForUuid(batch.size())
                          + ") AND i.shared = true";
-      
+
       // Query central tenant's instances with cross-tenant holdings/items
       String sql = """
           SELECT i.json
@@ -129,17 +130,66 @@ public class UploadInstanceRepository extends UploadRangeRepository {
               getFullTableName(context, "holding"),
               getFullTableName(context, "item"),
               whereClause);
-          
+
       var batchResults = jdbcTemplate.query(sql, ps -> {
         for (int j = 0; j < batch.size(); j++) {
           ps.setObject(j + 1, batch.get(j));
         }
       }, rowToMapMapper());
-      
+
       allResults.addAll(batchResults);
     }
-    
+
     return allResults;
+  }
+
+  @Override
+  public List<Map<String, Object>> fetchByIdRange(String lower, String upper) {
+    String memberTenantId = ReindexContext.getMemberTenantId();
+
+    if (memberTenantId != null) {
+      // Member tenant reindex: Fetch from central tenant schema only
+      // All member tenant data is already in central tenant after merge phase
+      return fetchForMemberTenantReindex(lower, upper);
+    }
+
+    // Full reindex: Standard fetch from main tables
+    var sql = getFetchBySql();
+    return jdbcTemplate.query(sql, rowToMapMapper(), lower, upper);
+  }
+
+  private List<Map<String, Object>> fetchForMemberTenantReindex(String lower, String upper) {
+    // Get central tenant ID where all data (shared + member) now resides after merge
+    var centralTenantId = consortiumTenantService.getCentralTenant(context.getTenantId())
+        .orElseThrow(() -> new IllegalStateException("No central tenant found for member tenant reindex"));
+
+    // Since all member tenant data is now in the central tenant schema after the merge phase,
+    // we only need to query the central tenant's tables
+    return fetchWithTenantContext(centralTenantId, lower, upper);
+  }
+
+  /**
+   * Executes a fetch query using a different tenant's schema context.
+   * This is used during member tenant reindex to fetch from the central tenant's schema
+   * where all data has been merged.
+   */
+  private List<Map<String, Object>> fetchWithTenantContext(String targetTenantId, String lower, String upper) {
+    // Build the query using the target tenant's schema
+    var moduleMetadata = context.getFolioModuleMetadata();
+    var targetSchema = JdbcUtils.getSchemaName(targetTenantId, moduleMetadata);
+
+    // Use the standard SQL template but with the target tenant's schema
+    String sql = SELECT_SQL_TEMPLATE.formatted(
+      targetSchema + "." + entityTable(),
+      targetSchema + ".holding",
+      targetSchema + ".item",
+      IDS_RANGE_WHERE_CLAUSE
+    );
+
+    return jdbcTemplate.query(sql, ps -> {
+      ps.setObject(1, lower);
+      ps.setObject(2, upper);
+    }, rowToMapMapper());
   }
 
   @Override

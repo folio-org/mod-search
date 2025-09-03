@@ -8,11 +8,11 @@
     },
     "number": {
       "index": "keyword_icu",
-      "showInResponse": [ "browse" ]
+      "showInResponse": true
     },
     "typeId": {
       "index": "keyword",
-      "showInResponse": [ "browse" ]
+      "showInResponse": true
     },
     "instances": {
       "type": "object",

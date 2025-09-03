@@ -5,52 +5,52 @@
   "fields": {
     "id": {
       "index": "keyword_lowercase",
-      "showInResponse": [ "search" ]
+      "showInResponse": true
     },
     "tenantId": {
       "index": "keyword_lowercase",
-      "showInResponse": [ "search" ],
+      "showInResponse": true,
       "isTenant": true
     },
     "name": {
       "index": "keyword_lowercase",
-      "showInResponse": [ "search" ]
+      "showInResponse": true
     },
     "code": {
       "index": "keyword_lowercase",
-      "showInResponse": [ "search" ]
+      "showInResponse": true
     },
     "description": {
       "index": "keyword_lowercase",
-      "showInResponse": [ "search" ]
+      "showInResponse": true
     },
     "discoveryDisplayName": {
       "index": "keyword_lowercase",
-      "showInResponse": [ "search" ]
+      "showInResponse": true
     },
     "isActive": {
       "index": "bool",
-      "showInResponse": [ "search" ]
+      "showInResponse": true
     },
     "institutionId": {
       "index": "keyword_lowercase",
-      "showInResponse": [ "search" ]
+      "showInResponse": true
     },
     "campusId": {
       "index": "keyword_lowercase",
-      "showInResponse": [ "search" ]
+      "showInResponse": true
     },
     "libraryId": {
       "index": "keyword_lowercase",
-      "showInResponse": [ "search" ]
+      "showInResponse": true
     },
     "primaryServicePoint": {
       "index": "keyword_lowercase",
-      "showInResponse": [ "search" ]
+      "showInResponse": true
     },
     "servicePointIds": {
       "index": "keyword_lowercase",
-      "showInResponse": [ "search" ]
+      "showInResponse": true
     },
     "metadata": {
       "type": "object",

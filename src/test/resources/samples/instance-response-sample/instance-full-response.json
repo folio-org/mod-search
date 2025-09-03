@@ -21,27 +21,19 @@
       ],
       "alternativeTitles": [
         {
-          "alternativeTitleTypeId": null,
-          "alternativeTitle": "An alternative title",
-          "authorityId": null
+          "alternativeTitle": "An alternative title"
         },
         {
-          "alternativeTitleTypeId": null,
-          "alternativeTitle": "déjà vu",
-          "authorityId": null
+          "alternativeTitle": "déjà vu"
         },
         {
-          "alternativeTitleTypeId": null,
-          "alternativeTitle": "Le parler arabe de Cherchell, Algérie.",
-          "authorityId": null
+          "alternativeTitle": "Le parler arabe de Cherchell, Algérie."
         },
         {
           "alternativeTitleTypeId": "9d968396-0cce-4e9f-8867-c4d04c01f535",
-          "alternativeTitle": "An Uniform title",
-          "authorityId": null
+          "alternativeTitle": "An Uniform title"
         },
         {
-          "alternativeTitleTypeId": null,
           "alternativeTitle": "Pang'ok bangk'asyurangsŭ",
           "authorityId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
         },
@@ -103,15 +95,11 @@
         {
           "name": "Ant\\niou, Grigoris matthew",
           "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
-          "contributorTypeText": null,
-          "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
-          "authorityId": null,
-          "primary": null
+          "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a"
         },
         {
           "name": "Van Harmelen, Frank",
           "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
-          "contributorTypeText": null,
           "contributorNameTypeId": "9fb7f83e-260e-479f-9539-dfd9a628b858",
           "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72c",
           "primary": true
@@ -137,7 +125,6 @@
       ],
       "metadata": {
         "createdDate": "2020-12-08T15:47:13.625+00:00",
-        "createdByUserId": null,
         "updatedDate": "2021-01-15T15:17:22.851+00:00",
         "updatedByUserId": "d2533d6c-a42c-5bff-ad77-22f87c297925"
       },
@@ -180,7 +167,6 @@
         {
           "uri": "https://testlibrary.sample.com/journal/10.1002/(ISSN)1938-3703",
           "linkText": "electronic access link text",
-          "materialsSpecification": null,
           "publicNote": "Online access via Wiley (1996-current)",
           "relationshipId": "a1c0b4f2-3d8e-4b5f-8a7c-6d9e0f2b1c3d"
         }
@@ -205,9 +191,6 @@
           "tenantId": "test_tenant",
           "holdingsRecordId": "9550c935-401a-4a85-875e-4d1fe7678870",
           "hrid": "it00000000001",
-          "accessionNumber": null,
-          "formerIds": [],
-          "itemIdentifier": null,
           "barcode": "12345",
           "effectiveLocationId": "cdd60388-0c75-4969-b3c5-2d04621ed26f",
           "status": {
@@ -221,19 +204,7 @@
             "suffix": "suff 2",
             "typeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35"
           },
-          "volume": null,
-          "enumeration": null,
-          "chronology": null,
-          "copyNumber": null,
-          "itemLevelCallNumberTypeId": null,
-          "tags": {
-            "tagList": []
-          },
-          "electronicAccess": [],
-          "administrativeNotes": [],
-          "notes": [],
-          "statisticalCodeIds": [],
-          "circulationNotes": [],
+          "tags": {},
           "metadata": {
             "createdDate": "2024-03-14T13:05:09.406+00:00",
             "createdByUserId": "93fc1367-7321-4836-b2a7-cbc7ffe8c20e",
@@ -275,7 +246,6 @@
             {
               "uri": "https://www.loc.gov/catdir/toc/ecip0718/2007020429.html",
               "linkText": "Links available",
-              "materialsSpecification": null,
               "publicNote": "Table of contents only",
               "relationshipId": "3b430592-2e09-4b48-9a0c-0636d66b9fb3"
             }
@@ -284,7 +254,6 @@
             "v1.1",
             "need attention"
           ],
-          "notes": [],
           "statisticalCodeIds": [
             "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
           ],
@@ -296,7 +265,6 @@
           ],
           "metadata": {
             "createdDate": "2020-12-08T15:47:21.327+00:00",
-            "createdByUserId": null,
             "updatedDate": "2021-01-18T08:17:56.752+00:00",
             "updatedByUserId": "d2533d6c-a42c-5bff-ad77-22f87c297925"
           }
@@ -306,9 +274,6 @@
           "tenantId": "test_tenant",
           "holdingsRecordId": "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19",
           "hrid": "item000000000015",
-          "accessionNumber": null,
-          "formerIds": [],
-          "itemIdentifier": null,
           "barcode": "90000",
           "effectiveLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
           "status": {
@@ -322,13 +287,10 @@
             "suffix": "suffix-90000",
             "typeId": "512173a7-bd09-490e-b773-17d83f2b63fe"
           },
-          "itemLevelCallNumberTypeId": null,
-          "tags": null,
           "electronicAccess": [
             {
               "uri": "http://www.loc.gov/catdir/toc/ecip0718/2007020429.html",
               "linkText": "Links available",
-              "materialsSpecification": null,
               "publicNote": "Table of contents only",
               "relationshipId": "3b430592-2e09-4b48-9a0c-0636d66b9fb3"
             }
@@ -365,9 +327,7 @@
           ],
           "metadata": {
             "createdDate": "2020-12-08T15:47:22.827+00:00",
-            "createdByUserId": null,
-            "updatedDate": "2020-12-08T15:47:22.827+00:00",
-            "updatedByUserId": null
+            "updatedDate": "2020-12-08T15:47:22.827+00:00"
           }
         }
       ],
@@ -379,21 +339,11 @@
           "discoverySuppress": false,
           "hrid": "ho00000000007",
           "sourceId": "f32d531e-df79-46b3-8932-cdd35f7a2264",
-          "formerIds": [],
-          "statisticalCodeIds": [],
           "tags": {
             "tagList": [
               "holdings-tag"
             ]
           },
-          "holdingsTypeId": null,
-          "callNumberPrefix": null,
-          "callNumber": null,
-          "callNumberSuffix": null,
-          "copyNumber": null,
-          "electronicAccess": [],
-          "administrativeNotes": [],
-          "notes": [],
           "metadata": {
             "createdDate": "2021-03-04T12:36:57.751+00:00",
             "createdByUserId": "d2533d6c-a42c-5bff-ad77-22f87c297925",
@@ -412,23 +362,14 @@
             "ac727d8c-f422-4c3f-815e-e85694095e71",
             "9b8ec096-fa2e-451b-8e7a-6d1c977ee946"
           ],
-          "statisticalCodeIds": [],
-          "tags": null,
-          "holdingsTypeId": null,
-          "callNumberPrefix": null,
-          "callNumber": null,
-          "callNumberSuffix": null,
-          "copyNumber": null,
           "electronicAccess": [
             {
               "uri": "https://testlibrary.sample.com/holdings?hrid=ho0000006",
               "linkText": "Holding's electronicAccess link Text",
-              "materialsSpecification": null,
               "publicNote": "Holding's electronicAccess public note",
               "relationshipId": "3b430592-2e09-4b48-9a0c-0636d66b9fb3"
             }
           ],
-          "administrativeNotes": [],
           "notes": [
             {
               "note": "Includes bibliographical references and index of holdings.",
@@ -456,30 +397,20 @@
           "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
           "discoverySuppress": true,
           "hrid": "hold000000000009",
-          "sourceId": null,
           "formerIds": [
             "1d76ee84-d776-48d2-ab96-140c24e39ac5"
           ],
           "statisticalCodeIds": [
             "a2b01891-c9ab-4d04-8af8-8989af1c6aad"
           ],
-          "tags": null,
           "holdingsTypeId": "03c9c400-b9e3-4a07-ac0e-05ab470233ed",
-          "callNumberPrefix": null,
-          "callNumber": null,
-          "callNumberSuffix": null,
-          "copyNumber": null,
-          "electronicAccess": [],
           "administrativeNotes": [
             "v2.0",
             "for deletion"
           ],
-          "notes": [],
           "metadata": {
             "createdDate": "2020-12-08T15:47:19.330+00:00",
-            "createdByUserId": null,
-            "updatedDate": "2020-12-08T15:47:19.330+00:00",
-            "updatedByUserId": null
+            "updatedDate": "2020-12-08T15:47:19.330+00:00"
           }
         }
       ]

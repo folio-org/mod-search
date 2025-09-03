@@ -27,6 +27,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.dataformat.smile.databind.SmileMapper;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -62,7 +63,7 @@ class SearchDocumentConverterTest {
   @Spy
   private final JsonConverter jsonConverter = new JsonConverter(OBJECT_MAPPER);
   @Spy
-  private final SmileConverter smileConverter = new SmileConverter();
+  private final SmileConverter smileConverter = new SmileConverter(new SmileMapper());
   private final Function<Map<String, Object>, BytesReference> resultDocumentConverter =
     spyLambda(Function.class, smileConverter::toSmile);
   @InjectMocks

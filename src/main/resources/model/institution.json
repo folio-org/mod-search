@@ -5,20 +5,20 @@
   "fields": {
     "id": {
       "index": "keyword_lowercase",
-      "showInResponse": [ "search" ]
+      "showInResponse": true
     },
     "tenantId": {
       "index": "keyword_lowercase",
-      "showInResponse": [ "search" ],
+      "showInResponse": true,
       "isTenant": true
     },
     "name": {
       "index": "keyword_lowercase",
-      "showInResponse": [ "search" ]
+      "showInResponse": true
     },
     "code": {
       "index": "keyword_lowercase",
-      "showInResponse": [ "search" ]
+      "showInResponse": true
     },
     "metadata": {
       "type": "object",

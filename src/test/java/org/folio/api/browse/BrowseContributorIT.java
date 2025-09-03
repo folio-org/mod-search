@@ -227,7 +227,7 @@ class BrowseContributorIT extends BaseIntegrationTest {
           contributorBrowseItem(1, "Bon Jovi", NAME_TYPE_IDS[1], AUTHORITY_IDS[1], TYPE_IDS[0]),
           contributorBrowseItem(2, "George Harrison", NAME_TYPE_IDS[1], AUTHORITY_IDS[0], TYPE_IDS[2])))),
 
-      arguments(forwardQuery, "Z", 10, new ContributorBrowseResult().totalRecords(12).items(emptyList())),
+      arguments(forwardQuery, "Z", 10, new ContributorBrowseResult().totalRecords(12).items(null)),
 
       arguments(forwardIncludingQuery, "Ringo Starr", 5,
         new ContributorBrowseResult().totalRecords(12).prev("Ringo Starr").next(null).items(List.of(
@@ -259,7 +259,7 @@ class BrowseContributorIT extends BaseIntegrationTest {
           contributorBrowseItem(2, "Paul McCartney", NAME_TYPE_IDS[0], AUTHORITY_IDS[0], TYPE_IDS[0], TYPE_IDS[1]),
           contributorBrowseItem(1, "Paul McCartney", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[2])))),
 
-      arguments(backwardQuery, "A", 10, new ContributorBrowseResult().totalRecords(12).items(emptyList())),
+      arguments(backwardQuery, "A", 10, new ContributorBrowseResult().totalRecords(12).items(null)),
 
       arguments(backwardIncludingQuery, "ringo", 5,
         new ContributorBrowseResult().totalRecords(12).prev("John Lennon").next("Paul McCartney").items(List.of(

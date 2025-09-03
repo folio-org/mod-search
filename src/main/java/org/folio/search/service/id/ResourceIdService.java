@@ -85,7 +85,7 @@ public class ResourceIdService {
       var entityType = job.getEntityType();
       var resource = entityType.getResource();
       var sourceIdPath = entityType.getSourceIdPath();
-      var request = CqlResourceIdsRequest.of(resource, tenantId, job.getQuery(), sourceIdPath);
+      var request = new CqlResourceIdsRequest(resource, tenantId, job.getQuery(), sourceIdPath);
 
       log.info("streamResourceIdsForJob:: Attempting to create table for ids [tableName: {}]", tableName);
       idsTemporaryRepository.createTableForIds(tableName);
@@ -102,12 +102,12 @@ public class ResourceIdService {
   }
 
   private void streamIdsFromSearch(CqlResourceIdsRequest request, Consumer<List<String>> idsConsumer) {
-    log.info("streamResourceIds:: by [query: {}, resource: {}]", request.getQuery(), request.getResource());
+    log.info("streamResourceIds:: by [query: {}, resource: {}]", request.query(), request.resource());
 
     var searchSource = queryConverter
-      .convertForConsortia(request.getQuery(), request.getResource(), request.getTenantId())
+      .convertForConsortia(request.query(), request.resource(), request.tenantId())
       .size(streamIdsProperties.getScrollQuerySize())
-      .fetchSource(new String[] {request.getSourceFieldPath()}, null)
+      .fetchSource(new String[] {request.sourceFieldPath()}, null)
       .sort(fieldSort("_doc"));
 
     searchRepository.streamResourceIds(request, searchSource, idsConsumer);

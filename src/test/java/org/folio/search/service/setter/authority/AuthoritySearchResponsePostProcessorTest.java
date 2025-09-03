@@ -79,7 +79,7 @@ class AuthoritySearchResponsePostProcessorTest {
     assertThat(authority2).extracting(Authority::getNumberOfTitles).isEqualTo(11);
 
     verify(searchRepository).msearch(
-      eq(SimpleResourceRequest.of(INSTANCE, CENTRAL_TENANT_ID)), searchSourceCaptor.capture());
+      eq(new SimpleResourceRequest(INSTANCE, CENTRAL_TENANT_ID)), searchSourceCaptor.capture());
     var searchSources = searchSourceCaptor.getValue();
     assertThat(searchSources)
       .hasSize(2)
@@ -118,7 +118,7 @@ class AuthoritySearchResponsePostProcessorTest {
     processor.process(List.of(authority1, authority2));
 
     verify(searchRepository).msearch(
-      eq(SimpleResourceRequest.of(INSTANCE, TENANT_ID)), searchSourceCaptor.capture());
+      eq(new SimpleResourceRequest(INSTANCE, TENANT_ID)), searchSourceCaptor.capture());
     var searchSources = searchSourceCaptor.getValue();
     assertThat(searchSources)
       .hasSize(2)
@@ -141,7 +141,7 @@ class AuthoritySearchResponsePostProcessorTest {
     processor.process(List.of(authority1, authority2));
 
     verify(searchRepository).msearch(
-      eq(SimpleResourceRequest.of(INSTANCE, CENTRAL_TENANT_ID)), searchSourceCaptor.capture());
+      eq(new SimpleResourceRequest(INSTANCE, CENTRAL_TENANT_ID)), searchSourceCaptor.capture());
     var searchSources = searchSourceCaptor.getValue();
     assertThat(searchSources)
       .hasSize(2)
@@ -158,7 +158,7 @@ class AuthoritySearchResponsePostProcessorTest {
 
   private void mockSearchResponse(String tenantId, Integer... counts) {
     var searchResponse = mock(SearchResponse.class);
-    when(searchRepository.msearch(eq(SimpleResourceRequest.of(INSTANCE, tenantId)), any()))
+    when(searchRepository.msearch(eq(new SimpleResourceRequest(INSTANCE, tenantId)), any()))
       .thenReturn(multiSearchResponse);
     var hitsOngoingStubbing = when(searchResponse.getHits());
     var responses = new MultiSearchResponse.Item[counts.length];

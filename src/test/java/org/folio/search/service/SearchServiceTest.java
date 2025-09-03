@@ -1,10 +1,10 @@
 package org.folio.search.service;
 
+import static java.util.Collections.emptyList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.model.types.ResourceType.UNKNOWN;
-import static org.folio.search.model.types.ResponseGroupType.SEARCH;
 import static org.folio.support.TestConstants.RESOURCE_ID;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.utils.TestUtils.array;
@@ -72,7 +72,8 @@ class SearchServiceTest {
       .trackTotalHits(true).fetchSource(array("field1", "field2"), null).timeout(new TimeValue(25000, MILLISECONDS));
     var expectedSearchResult = searchResult(TestResource.of(RESOURCE_ID));
 
-    when(searchFieldProvider.getSourceFields(UNKNOWN, SEARCH)).thenReturn(new String[] {"field1", "field2"});
+    when(searchFieldProvider.getSourceFields(UNKNOWN, emptyList()))
+      .thenReturn(new String[] {"field1", "field2"});
     when(cqlSearchQueryConverter.convertForConsortia(SEARCH_QUERY, UNKNOWN, false))
       .thenReturn(searchSourceBuilder);
     when(searchRepository.search(eq(searchRequest), eq(expectedSourceBuilder), anyString())).thenReturn(searchResponse);
@@ -87,7 +88,12 @@ class SearchServiceTest {
 
   @Test
   void search_negative_sumOfOffsetAndLimitExceeds10000() {
-    var searchRequest = CqlSearchRequest.of(TestResource.class, TENANT_ID, SEARCH_QUERY, 500, 9600, false, true);
+    var searchRequest =  CqlSearchRequest.builder(TestResource.class)
+      .tenantId(TENANT_ID)
+      .query(SEARCH_QUERY)
+      .limit(500)
+      .offset(9600)
+      .build();
     assertThatThrownBy(() -> searchService.search(searchRequest))
       .isInstanceOf(RequestValidationException.class)
       .hasMessage("The sum of limit and offset should not exceed 10000.");
@@ -97,8 +103,8 @@ class SearchServiceTest {
   void search_positive_withExpandAll() {
     var searchRequest = searchServiceRequest(TestResource.class, SEARCH_QUERY, true);
     var searchSourceBuilder = searchSource().query(ES_TERM_QUERY);
-    var expectedSourceBuilder = searchSource().query(ES_TERM_QUERY).size(100).from(0)
-      .trackTotalHits(true).timeout(new TimeValue(1000, MILLISECONDS));
+    var expectedSourceBuilder = searchSource().query(ES_TERM_QUERY).size(100).from(0).trackTotalHits(true)
+      .timeout(new TimeValue(1000, MILLISECONDS)).fetchSource(new String[0], new String[0]);
     var expectedSearchResult = searchResult(TestResource.of(RESOURCE_ID));
 
     when(cqlSearchQueryConverter.convertForConsortia(SEARCH_QUERY, UNKNOWN, false))

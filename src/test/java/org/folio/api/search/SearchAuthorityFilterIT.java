@@ -1,6 +1,5 @@
 package org.folio.api.search;
 
-import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.support.base.ApiEndpoints.recordFacetsPath;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
@@ -72,7 +71,7 @@ class SearchAuthorityFilterIT extends BaseIntegrationTest {
       arguments("(isTitleHeadingRef==false and headingType==\"Personal Name\")",
         List.of(IDS[0], IDS[1], IDS[3], IDS[14])),
 
-      arguments("(id=* and authRefType==\"Auth/Ref\" and headingType==\"Other\")", emptyList()),
+      arguments("(id=* and authRefType==\"Auth/Ref\" and headingType==\"Other\")", null),
       arguments("(id=* and authRefType==\"Auth/Ref\" and headingType==\"Uniform Title\")", List.of(IDS[13])),
       arguments("(id=* and authRefType==\"Authorized\" and headingType==\"Personal Name\")",
         List.of(IDS[0], IDS[1], IDS[2], IDS[3])),
@@ -274,10 +273,16 @@ class SearchAuthorityFilterIT extends BaseIntegrationTest {
   @DisplayName("searchByAuthorities_parameterized")
   @ParameterizedTest(name = "[{index}] query={0}")
   void searchByAuthorities_parameterized(String query, List<String> expectedIds) throws Exception {
-    doSearchByAuthorities(query)
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("totalRecords", is(expectedIds.size())))
-      .andExpect(jsonPath("authorities[*].id", containsInAnyOrder(expectedIds.toArray(String[]::new))));
+    var resultActions = doSearchByAuthorities(query)
+      .andExpect(status().isOk());
+    if (expectedIds != null) {
+      resultActions
+        .andExpect(jsonPath("totalRecords", is(expectedIds.size())))
+        .andExpect(jsonPath("authorities[*].id", containsInAnyOrder(expectedIds.toArray(String[]::new))));
+    } else {
+      resultActions
+        .andExpect(jsonPath("totalRecords", is(0)));
+    }
   }
 
   @MethodSource("facetQueriesProvider")

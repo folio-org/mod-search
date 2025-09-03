@@ -125,7 +125,13 @@ public class TestUtils {
 
   public static <T> CqlSearchRequest<T> searchServiceRequest(Class<T> resourceClass, String tenantId, String query,
                                                              boolean expandAll, int limit) {
-    return CqlSearchRequest.of(resourceClass, tenantId, query, limit, 0, expandAll);
+    return CqlSearchRequest.builder(resourceClass)
+      .tenantId(tenantId)
+      .query(query)
+      .limit(limit)
+      .offset(0)
+      .expandAll(expandAll)
+      .build();
   }
 
   public static CqlFacetRequest defaultFacetServiceRequest(ResourceType resource, String query, String... facets) {
@@ -134,7 +140,7 @@ public class TestUtils {
 
   public static CqlFacetRequest facetServiceRequest(String tenantId, ResourceType resource, String query,
                                                     String... facets) {
-    return CqlFacetRequest.of(resource, tenantId, query, asList(facets));
+    return new CqlFacetRequest(resource, tenantId, query, asList(facets));
   }
 
   public static SubjectBrowseResult subjectBrowseResult(int total, List<SubjectBrowseItem> items) {
@@ -216,7 +222,7 @@ public class TestUtils {
       .totalRecords(totalRecords)
       .instanceTitle(instanceTitle)
       .isAnchor(isAnchor)
-      .instanceContributors(contributors == null ? emptyList() : contributors);
+      .instanceContributors(contributors);
   }
 
   public static InstanceContributorBrowseItem contributorBrowseItem(Integer totalRecords, String name,
@@ -234,7 +240,8 @@ public class TestUtils {
                                                                     String nameTypeId, String authorityId,
                                                                     String... typeIds) {
     return new InstanceContributorBrowseItem().name(name).contributorNameTypeId(nameTypeId).authorityId(authorityId)
-      .contributorTypeId(asList(typeIds)).totalRecords(totalRecords).isAnchor(isAnchor);
+      .contributorTypeId(typeIds == null || typeIds.length == 0 ? null : asList(typeIds))
+      .totalRecords(totalRecords).isAnchor(isAnchor);
   }
 
   public static AuthorityBrowseItem authorityBrowseItem(String heading, Authority authority) {

@@ -58,7 +58,7 @@ public final class CallNumberSearchResponsePostProcessor implements SearchRespon
       .toList();
     var queries = buildQuery(ids);
 
-    var resourceRequest = SimpleResourceRequest.of(ResourceType.INSTANCE,
+    var resourceRequest = new SimpleResourceRequest(ResourceType.INSTANCE,
       tenantProvider.getTenant(context.getTenantId()));
     var searchHits = searchRepository.search(resourceRequest, queries).getHits().getHits();
 

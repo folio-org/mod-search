@@ -119,6 +119,16 @@ class SearchInstanceIT extends BaseIntegrationTest {
   }
 
   @Test
+  void responseContainsRequestedProperties() throws Exception {
+    doSearchByInstances(prepareQuery("id=={value}", getSemanticWebId()), "subjects.value,items.volume")
+      .andExpect(jsonPath("$.instances[0].subjects[0].value", is("Semantic Web")))
+      // subjects.authorityId is not requested
+      .andExpect(jsonPath("$.instances[0].subjects[0].authorityId").doesNotExist())
+      // items.volume is not indexed
+      .andExpect(jsonPath("$.instances[0].items").doesNotExist());
+  }
+
+  @Test
   void responseContainsAllInstanceProperties() {
     var expected = getInstanceFullResponseSample();
     var response = doSearchByInstances(prepareQuery("id=={value}", getSemanticWebId()), true);

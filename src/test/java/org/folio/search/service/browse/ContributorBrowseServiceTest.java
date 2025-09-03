@@ -86,7 +86,7 @@ class ContributorBrowseServiceTest {
     var browseContext = BrowseContext.builder().anchor("test").succeedingLimit(1).precedingLimit(1).build();
     var queryMock = disMaxQuery();
 
-    when(searchRepository.analyze(eq(browseContext.getAnchor()), eq(browseRequest.getTargetField()), any(), any()))
+    when(searchRepository.analyze(eq(browseContext.getAnchor()), eq(browseRequest.targetField()), any(), any()))
       .thenReturn("test");
     when(consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(eq(browseContext), any(), any()))
       .thenReturn(queryMock);

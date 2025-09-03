@@ -57,9 +57,9 @@ public class FacetQueryBuilder {
    * @return {@link List} with elasticsearch {@link AggregationBuilder} values
    */
   public List<AggregationBuilder> getFacetAggregations(CqlFacetRequest request, QueryBuilder query) {
-    return request.getFacet().stream()
-      .map(facet -> searchFieldProvider.getModifiedField(facet, request.getResource()))
-      .map(facet -> getFacetFieldAndLimitAsPair(request.getResource(), facet))
+    return request.facet().stream()
+      .map(facet -> searchFieldProvider.getModifiedField(facet, request.resource()))
+      .map(facet -> getFacetFieldAndLimitAsPair(request.resource(), facet))
       .map(facet -> getFacetAggregation(request, query, facet))
       .flatMap(Collection::stream)
       .toList();
@@ -68,7 +68,7 @@ public class FacetQueryBuilder {
   private List<AggregationBuilder> getFacetAggregation(CqlFacetRequest request,
                                                        QueryBuilder query, Facet facet) {
     var field = facet.field();
-    validateFacetField(facet, request.getResource());
+    validateFacetField(facet, request.resource());
     var filterAndFacetTerms = getFilterQueryAndFacetTerms(field, query);
     return filterAndFacetTerms.getFirst() != null
            ? singletonList(getFilterAggregation(filterAndFacetTerms, facet))

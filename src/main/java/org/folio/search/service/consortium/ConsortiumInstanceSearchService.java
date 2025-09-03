@@ -130,7 +130,14 @@ public class ConsortiumInstanceSearchService {
     Set<String> identifierValues,
     String targetField,
     Mapper<Instance, IdentifierTypeEnum, Set<String>, List<T>> recordMapper) {
-    var request = CqlSearchRequest.of(Instance.class, tenant, "", 0, 0, true, false, null,  true);
+    var request = CqlSearchRequest.builder(Instance.class)
+      .tenantId(tenant)
+      .query("")
+      .limit(0)
+      .offset(0)
+      .expandAll(true)
+      .consortiumConsolidated(true)
+      .build();
     var termsQuery = termsQuery(targetField, identifierValues);
 
     if (identifierValues.size() < DEFAULT_MAX_SEARCH_RESULT_WINDOW) {
@@ -151,7 +158,7 @@ public class ConsortiumInstanceSearchService {
     Set<String> identifierValues) {
     var searchSourceBuilder = queryBuilder(query, SearchService.DEFAULT_MAX_SEARCH_RESULT_WINDOW);
     var response = searchRepository.search(request, searchSourceBuilder);
-    var searchResult = documentConverter.convertToSearchResult(response, request.getResourceClass(),
+    var searchResult = documentConverter.convertToSearchResult(response, request.resourceClass(),
       (hits, item) -> recordMapper.apply(item, identifierType, identifierValues));
     var records = searchResult.getRecords().stream()
       .flatMap(List::stream)
@@ -169,7 +176,7 @@ public class ConsortiumInstanceSearchService {
     var response = searchRepository.search(request, searchSourceBuilder);
 
     while (response.getHits() != null && response.getHits().getHits().length > 0) {
-      var searchResult = documentConverter.convertToSearchResult(response, request.getResourceClass(),
+      var searchResult = documentConverter.convertToSearchResult(response, request.resourceClass(),
         (hits, item) -> recordMapper.apply(item, identifierType, identifierValues));
       var records = searchResult.getRecords().stream()
         .flatMap(List::stream)

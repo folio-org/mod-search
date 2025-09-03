@@ -77,7 +77,7 @@ class BrowseControllerTest {
   @Test
   void browseInstancesBySubject_positive() throws Exception {
     var query = "value > water";
-    var request = BrowseRequest.of(INSTANCE_SUBJECT, TENANT_ID, null, query, 25, "value", false, null, true, 12);
+    var request = new BrowseRequest(INSTANCE_SUBJECT, TENANT_ID, null, query, 25, "value", false, null, true, 12);
     var browseResult = BrowseResult.of(1, List.of(subjectBrowseItem(10, "water treatment")));
     when(subjectBrowseService.browse(request)).thenReturn(browseResult);
     var requestBuilder = get(instanceSubjectBrowsePath())
@@ -96,7 +96,7 @@ class BrowseControllerTest {
   @Test
   void browseAuthoritiesByHeadingRef_positive() throws Exception {
     var query = "headingRef > mark";
-    var request = BrowseRequest.of(AUTHORITY, TENANT_ID, null, query, 25, "headingRef", false, null, true, 12);
+    var request = new BrowseRequest(AUTHORITY, TENANT_ID, null, query, 25, "headingRef", false, null, true, 12);
     var authority = new Authority().id(RESOURCE_ID).headingRef("mark twain");
     var browseResult = BrowseResult.of(1, List.of(authorityBrowseItem("mark twain", authority)));
     when(authorityBrowseService.browse(request)).thenReturn(browseResult);
@@ -117,7 +117,7 @@ class BrowseControllerTest {
   @Test
   void browseInstancesByCallNumber_positive() throws Exception {
     var query = "fullCallNumber > PR4034 .P7 2019";
-    var browseRequest = BrowseRequest.of(INSTANCE_CALL_NUMBER, TENANT_ID, BrowseOptionType.ALL, query, 5,
+    var browseRequest = new BrowseRequest(INSTANCE_CALL_NUMBER, TENANT_ID, BrowseOptionType.ALL, query, 5,
       CALL_NUMBER_BROWSING_FIELD, false, null, true, 2);
     when(callNumberBrowseService.browse(browseRequest)).thenReturn(BrowseResult.of(1, "PR3", "PR5",
       List.of(new CallNumberBrowseItem().callNumber("PR4034 .P7 2019"))));

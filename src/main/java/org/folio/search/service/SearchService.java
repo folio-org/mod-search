@@ -46,42 +46,42 @@ public class SearchService {
    * @return search result.
    */
   public <T> SearchResult<T> search(CqlSearchRequest<T> request) {
-    log.debug("search:: by [query: {}, resource: {}]", request.getQuery(), request.getResource());
+    log.debug("search:: by [query: {}, resource: {}]", request.query(), request.resource());
     validateRequest(request);
 
     var queryBuilder = cqlSearchQueryConverter
-      .convertForConsortia(request.getQuery(), request.getResource(), request.getConsortiumConsolidated())
-      .from(request.getOffset())
-      .size(request.getLimit())
+      .convertForConsortia(request.query(), request.resource(), request.consortiumConsolidated())
+      .from(request.offset())
+      .size(request.limit())
       .trackTotalHits(true)
       .fetchSource(getIncludedSourceFields(request), null)
       .timeout(new TimeValue(searchQueryConfiguration.getRequestTimeout().toMillis(), MILLISECONDS));
 
     var searchResponse = searchRepository.search(request, queryBuilder, buildPreference(request));
-    var searchResult = documentConverter.convertToSearchResult(searchResponse, request.getResourceClass());
+    var searchResult = documentConverter.convertToSearchResult(searchResponse, request.resourceClass());
 
-    searchResultPostProcessing(request.getResourceClass(), request.getIncludeNumberOfTitles(), searchResult);
+    searchResultPostProcessing(request.resourceClass(), request.includeNumberOfTitles(), searchResult);
 
     return searchResult;
   }
 
   private void validateRequest(CqlSearchRequest<?> request) {
-    if (request.getOffset() + request.getLimit() > DEFAULT_MAX_SEARCH_RESULT_WINDOW) {
+    if (request.offset() + request.limit() > DEFAULT_MAX_SEARCH_RESULT_WINDOW) {
       var validationException = new RequestValidationException("The sum of limit and offset should not exceed 10000.",
-        "offset + limit", String.valueOf(request.getOffset() + request.getLimit()));
+        "offset + limit", String.valueOf(request.offset() + request.limit()));
       log.warn(validationException.getMessage());
       throw validationException;
     }
   }
 
   private String[] getIncludedSourceFields(CqlSearchRequest<?> request) {
-    return isFalse(request.getExpandAll())
-           ? searchFieldProvider.getSourceFields(request.getResource(), request.getIncludeFields())
-           : new String[0];
+    return isFalse(request.expandAll())
+           ? searchFieldProvider.getSourceFields(request.resource(), request.includeFields())
+           : null;
   }
 
   private String buildPreference(CqlSearchRequest<?> request) {
-    var preferenceKey = buildPreferenceKey(request.getTenantId(), request.getResource().getName(), request.getQuery());
+    var preferenceKey = buildPreferenceKey(request.tenantId(), request.resource().getName(), request.query());
     return searchPreferenceService.getPreferenceForString(preferenceKey);
   }
 

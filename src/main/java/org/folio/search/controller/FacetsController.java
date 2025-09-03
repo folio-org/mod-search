@@ -38,7 +38,7 @@ public class FacetsController implements FacetsApi {
                                                List<String> facet, String tenantId) {
     var recordResource = RECORD_TYPE_TO_RESOURCE_MAP.getOrDefault(recordType, ResourceType.UNKNOWN);
     tenantId = tenantProvider.getTenant(tenantId);
-    var facetRequest = CqlFacetRequest.of(recordResource, tenantId, query, facet);
+    var facetRequest = new CqlFacetRequest(recordResource, tenantId, query, facet);
     return ResponseEntity.ok(facetService.getFacets(facetRequest));
   }
 }

@@ -36,10 +36,10 @@ public class BrowseContextProvider {
    * @throws RequestValidationException if given {@link QueryBuilder} does not satisfy required conditions
    */
   public BrowseContext get(BrowseRequest request) {
-    log.debug("get:: by [query: {}, resource: {}]", request.getQuery(), request.getResource());
+    log.debug("get:: by [query: {}, resource: {}]", request.query(), request.resource());
 
-    var searchSource = cqlSearchQueryConverter.convert(request.getQuery(), request.getResource());
-    var cqlQuery = request.getQuery();
+    var searchSource = cqlSearchQueryConverter.convert(request.query(), request.resource());
+    var cqlQuery = request.query();
     if (isNotEmpty(searchSource.sorts())) {
       throw new RequestValidationException(
         "Invalid CQL query for browsing, 'sortBy' is not supported", QUERY_ERROR_PARAM, cqlQuery);
@@ -47,7 +47,7 @@ public class BrowseContextProvider {
 
     var query = searchSource.query();
     if (!isBoolQuery(query)) {
-      if (!isValidRangeQuery(request.getTargetField(), query)) {
+      if (!isValidRangeQuery(request.targetField(), query)) {
         throw new RequestValidationException("Invalid CQL query for browsing.", QUERY_ERROR_PARAM, cqlQuery);
       }
       log.trace(
@@ -61,7 +61,7 @@ public class BrowseContextProvider {
     var shouldClauses = boolQuery.should();
     String logMsg = collectionToLogMsg(filters, true);
 
-    if (isValidAroundQuery(request.getTargetField(), shouldClauses)) {
+    if (isValidAroundQuery(request.targetField(), shouldClauses)) {
       log.trace("Attempts to create context browsingAround [request: {}, filters.size: {}]",
         request, logMsg);
       return createContextForBrowsingAround(request, filters, shouldClauses);
@@ -78,7 +78,7 @@ public class BrowseContextProvider {
 
       if (isBoolQuery(firstMustClause)) {
         var subShouldClauses = ((BoolQueryBuilder) firstMustClause).should();
-        if (isValidAroundQuery(request.getTargetField(), subShouldClauses)) {
+        if (isValidAroundQuery(request.targetField(), subShouldClauses)) {
           log.trace("Attempts to create context browsingAround with filters [request: {}, filters: {}]",
             request, logMsg);
           return createContextForBrowsingAround(request, filters, subShouldClauses);
@@ -99,8 +99,8 @@ public class BrowseContextProvider {
       .succeedingQuery(succeedingQuery)
       .filters(filters)
       .anchor(getAnchor(rangeQuery))
-      .precedingLimit(precedingQuery != null ? request.getLimit() : null)
-      .succeedingLimit(succeedingQuery != null ? request.getLimit() : null)
+      .precedingLimit(precedingQuery != null ? request.limit() : null)
+      .succeedingLimit(succeedingQuery != null ? request.limit() : null)
       .build();
   }
 
@@ -114,8 +114,8 @@ public class BrowseContextProvider {
       .succeedingQuery(succeedingQuery)
       .filters(filters)
       .anchor(validateAndGetAnchorForBrowsingAround(request, shouldClauses))
-      .precedingLimit(request.getPrecedingRecordsCount())
-      .succeedingLimit(request.getLimit() - request.getPrecedingRecordsCount())
+      .precedingLimit(request.precedingRecordsCount())
+      .succeedingLimit(request.limit() - request.precedingRecordsCount())
       .build();
   }
 
@@ -165,7 +165,7 @@ public class BrowseContextProvider {
     if (!Objects.equals(firstAnchor, secondAnchor)) {
       throw new RequestValidationException(
         "Invalid CQL query for browsing. Anchors must be the same in range conditions.",
-        QUERY_ERROR_PARAM, request.getQuery());
+        QUERY_ERROR_PARAM, request.query());
     }
 
     return firstAnchor;

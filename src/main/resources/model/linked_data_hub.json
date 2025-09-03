@@ -13,7 +13,6 @@
     },
     "tenantId": {
       "index": "keyword_lowercase",
-      "showInResponse": true,
       "isTenant": true
     },
     "hubAAP": {

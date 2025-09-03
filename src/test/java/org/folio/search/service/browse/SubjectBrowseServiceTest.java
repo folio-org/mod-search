@@ -87,7 +87,7 @@ class SubjectBrowseServiceTest {
   @Test
   void browse_positive_forward() {
     var query = "value > s0";
-    var request = BrowseRequest.of(INSTANCE_SUBJECT, TENANT_ID, null, query, 5, TARGET_FIELD, null, null, false, 5);
+    var request = new BrowseRequest(INSTANCE_SUBJECT, TENANT_ID, null, query, 5, TARGET_FIELD, null, null, false, 5);
     var esQuery = rangeQuery(TARGET_FIELD).gt("s0");
     var context = BrowseContext.builder().succeedingQuery(esQuery).succeedingLimit(5).anchor("s0").build();
     var expectedSearchSource = searchSource("s0", 6, ASC);
@@ -108,7 +108,7 @@ class SubjectBrowseServiceTest {
   @Test
   void browse_positive_emptySearchResult() {
     var query = "value > s0";
-    var request = BrowseRequest.of(INSTANCE_SUBJECT, TENANT_ID, null, query, 5, TARGET_FIELD, null, null, false, 5);
+    var request = new BrowseRequest(INSTANCE_SUBJECT, TENANT_ID, null, query, 5, TARGET_FIELD, null, null, false, 5);
     var esQuery = rangeQuery(TARGET_FIELD).gt("s0");
     var context = BrowseContext.builder().succeedingQuery(esQuery).succeedingLimit(5).anchor("s0").build();
     var expectedSearchSource = searchSource("s0", 6, ASC);
@@ -126,7 +126,7 @@ class SubjectBrowseServiceTest {
   @Test
   void browse_positive_backward() {
     var query = "value < s4";
-    var request = BrowseRequest.of(INSTANCE_SUBJECT, TENANT_ID, null, query, 3, TARGET_FIELD, null, null, false, 3);
+    var request = new BrowseRequest(INSTANCE_SUBJECT, TENANT_ID, null, query, 3, TARGET_FIELD, null, null, false, 3);
     var esQuery = rangeQuery(TARGET_FIELD).lt("s4");
     var context = BrowseContext.builder().precedingQuery(esQuery).precedingLimit(3).anchor("s4").build();
     var expectedSearchSource = backwardSearchSource("s4", 4, DESC);
@@ -146,7 +146,7 @@ class SubjectBrowseServiceTest {
   @ValueSource(booleans = {true, false})
   void browse_positive_forwardIncluding(boolean highlightMatch) {
     var query = TARGET_FIELD + " >= s0";
-    var request = BrowseRequest.of(INSTANCE_SUBJECT, TENANT_ID, null, query, 5, TARGET_FIELD, null, null,
+    var request = new BrowseRequest(INSTANCE_SUBJECT, TENANT_ID, null, query, 5, TARGET_FIELD, null, null,
       highlightMatch, 5);
     var esQuery = rangeQuery(TARGET_FIELD).gte("s0");
     var context = BrowseContext.builder().succeedingQuery(esQuery).succeedingLimit(5).anchor("s0").build();
@@ -168,7 +168,7 @@ class SubjectBrowseServiceTest {
   @ValueSource(booleans = {true, false})
   void browse_positive_forwardIncludingAnchorNotFound(boolean highlightMatch) {
     var query = TARGET_FIELD + " >= s0";
-    var request = BrowseRequest.of(INSTANCE_SUBJECT, TENANT_ID, null, query, 5, TARGET_FIELD, null, null,
+    var request = new BrowseRequest(INSTANCE_SUBJECT, TENANT_ID, null, query, 5, TARGET_FIELD, null, null,
       highlightMatch, 5);
     var esQuery = rangeQuery(TARGET_FIELD).gte("s0");
     var context = BrowseContext.builder().succeedingQuery(esQuery).succeedingLimit(5).anchor("s0").build();
@@ -189,7 +189,7 @@ class SubjectBrowseServiceTest {
   @ValueSource(booleans = {true, false})
   void browse_positive_backwardIncluding(boolean highlightMatch) {
     var query = TARGET_FIELD + " <= s4";
-    var request = BrowseRequest.of(INSTANCE_SUBJECT, TENANT_ID, null, query, 3, TARGET_FIELD, null, null,
+    var request = new BrowseRequest(INSTANCE_SUBJECT, TENANT_ID, null, query, 3, TARGET_FIELD, null, null,
       highlightMatch, 3);
     var browsingSearchResult = searchResult(browseItems("s3", "s2", "s1", "s0"));
     var esQuery = rangeQuery(TARGET_FIELD).lte("s4");
@@ -209,7 +209,7 @@ class SubjectBrowseServiceTest {
   @Test
   void browse_positive_forwardIncludingTermMissing() {
     var query = TARGET_FIELD + " >= s0";
-    var request = BrowseRequest.of(INSTANCE_SUBJECT, TENANT_ID, null, query, 5, TARGET_FIELD, null, null, false, 5);
+    var request = new BrowseRequest(INSTANCE_SUBJECT, TENANT_ID, null, query, 5, TARGET_FIELD, null, null, false, 5);
     var esQuery = rangeQuery(TARGET_FIELD).gte("s0");
     var context = BrowseContext.builder().succeedingQuery(esQuery).succeedingLimit(5).anchor("s0").build();
     var browsingSearchResult = searchResult(browseItems("s1", "s2"));
@@ -228,7 +228,7 @@ class SubjectBrowseServiceTest {
   @Test
   void browse_positive_around() {
     var query = TARGET_FIELD + " > s0 or " + TARGET_FIELD + " < s0";
-    var request = BrowseRequest.of(INSTANCE_SUBJECT, TENANT_ID, null, query, 5, TARGET_FIELD, null, null, true, 2);
+    var request = new BrowseRequest(INSTANCE_SUBJECT, TENANT_ID, null, query, 5, TARGET_FIELD, null, null, true, 2);
 
     when(browseContextProvider.get(request)).thenReturn(browseContextAround(false));
     mockMultiSearchRequest(request, List.of(searchSource("s0", 3, DESC), searchSource("s0", 4, ASC)), List.of(
@@ -244,7 +244,7 @@ class SubjectBrowseServiceTest {
   @Test
   void browse_positive_aroundWhenPrevAndNextValuesMissing() {
     var query = TARGET_FIELD + " > s0 or " + TARGET_FIELD + " < s0";
-    var request = BrowseRequest.of(INSTANCE_SUBJECT, TENANT_ID, null, query, 5, TARGET_FIELD, null, null, true, 2);
+    var request = new BrowseRequest(INSTANCE_SUBJECT, TENANT_ID, null, query, 5, TARGET_FIELD, null, null, true, 2);
 
     when(browseContextProvider.get(request)).thenReturn(browseContextAround(false));
     mockMultiSearchRequest(request, List.of(searchSource("s0", 3, DESC), searchSource("s0", 4, ASC)), List.of(
@@ -260,7 +260,7 @@ class SubjectBrowseServiceTest {
   @Test
   void browse_positive_aroundWithoutHighlighting() {
     var query = TARGET_FIELD + " > s0 or " + TARGET_FIELD + " < s0";
-    var request = BrowseRequest.of(INSTANCE_SUBJECT, TENANT_ID, null, query, 5, TARGET_FIELD, null, null, false, 2);
+    var request = new BrowseRequest(INSTANCE_SUBJECT, TENANT_ID, null, query, 5, TARGET_FIELD, null, null, false, 2);
 
     when(browseContextProvider.get(request)).thenReturn(browseContextAround(false));
     mockMultiSearchRequest(request, List.of(searchSource("s0", 3, DESC), searchSource("s0", 4, ASC)),
@@ -275,7 +275,7 @@ class SubjectBrowseServiceTest {
   @Test
   void browse_positive_aroundIncluding() {
     var query = TARGET_FIELD + " < s0 or " + TARGET_FIELD + " >= s0";
-    var request = BrowseRequest.of(INSTANCE_SUBJECT, TENANT_ID, null, query, 5, TARGET_FIELD, null, null, true, 2);
+    var request = new BrowseRequest(INSTANCE_SUBJECT, TENANT_ID, null, query, 5, TARGET_FIELD, null, null, true, 2);
 
     when(browseContextProvider.get(request)).thenReturn(browseContextAround(true));
     mockMultiSearchRequest(request,
@@ -296,7 +296,7 @@ class SubjectBrowseServiceTest {
   @Test
   void browse_positive_aroundIncluding_whenAnchorHas2OrMoreMatches() {
     var query = TARGET_FIELD + " < s0 or " + TARGET_FIELD + " >= s0";
-    var request = BrowseRequest.of(INSTANCE_SUBJECT, TENANT_ID, null, query, 5, TARGET_FIELD, null, null, true, 2);
+    var request = new BrowseRequest(INSTANCE_SUBJECT, TENANT_ID, null, query, 5, TARGET_FIELD, null, null, true, 2);
 
     when(browseContextProvider.get(request)).thenReturn(browseContextAround(true));
     mockMultiSearchRequest(request,
@@ -317,7 +317,7 @@ class SubjectBrowseServiceTest {
   @Test
   void browse_positive_aroundIncludingWithoutHighlighting() {
     var query = TARGET_FIELD + " < s0 or " + TARGET_FIELD + " >= s0";
-    var request = BrowseRequest.of(INSTANCE_SUBJECT, TENANT_ID, null, query, 5, TARGET_FIELD, null, null, false, 2);
+    var request = new BrowseRequest(INSTANCE_SUBJECT, TENANT_ID, null, query, 5, TARGET_FIELD, null, null, false, 2);
 
     when(browseContextProvider.get(request)).thenReturn(browseContextAround(true));
     mockMultiSearchRequest(request,
@@ -338,7 +338,7 @@ class SubjectBrowseServiceTest {
   @Test
   void browse_positive_aroundIncludingMissingAnchor() {
     var query = TARGET_FIELD + " <= s0 or " + TARGET_FIELD + " > s0";
-    var request = BrowseRequest.of(INSTANCE_SUBJECT, TENANT_ID, null, query, 5, TARGET_FIELD, null, null, true, 2);
+    var request = new BrowseRequest(INSTANCE_SUBJECT, TENANT_ID, null, query, 5, TARGET_FIELD, null, null, true, 2);
 
     when(browseContextProvider.get(request)).thenReturn(browseContextAround(true));
     mockAnchorEmptyResponse(request);
@@ -357,7 +357,7 @@ class SubjectBrowseServiceTest {
   @Test
   void browse_positive_aroundIncludingMissingAnchorWithoutHighlighting() {
     var query = TARGET_FIELD + " <= s0 or " + TARGET_FIELD + " > s0";
-    var request = BrowseRequest.of(INSTANCE_SUBJECT, TENANT_ID, null, query, 5, TARGET_FIELD, null, null, false, 2);
+    var request = new BrowseRequest(INSTANCE_SUBJECT, TENANT_ID, null, query, 5, TARGET_FIELD, null, null, false, 2);
 
     when(browseContextProvider.get(request)).thenReturn(browseContextAround(true));
     mockAnchorEmptyResponse(request);

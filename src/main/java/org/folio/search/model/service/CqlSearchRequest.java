@@ -1,5 +1,6 @@
 package org.folio.search.model.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.folio.search.model.ResourceRequest;
 import org.folio.search.model.types.ResourceType;
@@ -46,8 +47,8 @@ public record CqlSearchRequest<T>(
     private Integer limit;
     private Integer offset;
     private Boolean expandAll;
-    private Boolean includeNumberOfTitles = Boolean.FALSE;
-    private List<String> includeFields;
+    private Boolean includeNumberOfTitles = Boolean.TRUE;
+    private List<String> includeFields = new ArrayList<>();
     private Boolean consortiumConsolidated = Boolean.FALSE;
 
     private Builder(Class<T> resourceClass) {

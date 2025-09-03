@@ -103,8 +103,8 @@ class SearchServiceTest {
   void search_positive_withExpandAll() {
     var searchRequest = searchServiceRequest(TestResource.class, SEARCH_QUERY, true);
     var searchSourceBuilder = searchSource().query(ES_TERM_QUERY);
-    var expectedSourceBuilder = searchSource().query(ES_TERM_QUERY).size(100).from(0)
-      .trackTotalHits(true).timeout(new TimeValue(1000, MILLISECONDS));
+    var expectedSourceBuilder = searchSource().query(ES_TERM_QUERY).size(100).from(0).trackTotalHits(true)
+      .timeout(new TimeValue(1000, MILLISECONDS)).fetchSource(new String[0], new String[0]);
     var expectedSearchResult = searchResult(TestResource.of(RESOURCE_ID));
 
     when(cqlSearchQueryConverter.convertForConsortia(SEARCH_QUERY, UNKNOWN, false))

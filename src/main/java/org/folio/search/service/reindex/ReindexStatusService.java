@@ -152,6 +152,22 @@ public class ReindexStatusService {
   }
 
   /**
+   * Gets the earliest merge start time from all entities that participated in the merge phase.
+   * This is used for child resource timestamp-based upload during member tenant reindex,
+   * since child resources don't have their own merge start times.
+   *
+   * @return the earliest merge start timestamp, or null if not available
+   */
+  public java.sql.Timestamp getEarliestMergeStartTime() {
+    try {
+      return statusRepository.getEarliestMergeStartTime();
+    } catch (Exception e) {
+      log.debug("getEarliestMergeStartTime:: error retrieving earliest merge start time: {}", e.getMessage());
+      return null;
+    }
+  }
+
+  /**
    * Gets the target tenant ID for the current reindex operation with caching.
    * Since only one reindex runs at a time, the cached value is valid for the entire operation.
    * Cache has 5-second TTL to handle high-volume Kafka events efficiently.

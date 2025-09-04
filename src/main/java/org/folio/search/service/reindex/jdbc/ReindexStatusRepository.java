@@ -61,8 +61,11 @@ public class ReindexStatusRepository {
   private static final String QUERY_TWO_COLUMNS_PLACEHOLDER = "%s = ?, %s = ?";
 
   private static final String SELECT_MERGE_STATUS_SQL = "SELECT check_merge_completed_status()";
-  
+
   private static final String SELECT_TARGET_TENANT_ID_SQL = "SELECT target_tenant_id FROM %s LIMIT 1";
+
+  private static final String SELECT_EARLIEST_MERGE_START_TIME_SQL =
+    "SELECT MIN(start_time_merge) FROM %s WHERE start_time_merge IS NOT NULL";
 
   private final FolioExecutionContext context;
   private final JdbcTemplate jdbcTemplate;
@@ -165,6 +168,12 @@ public class ReindexStatusRepository {
     var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
     var sql = SELECT_TARGET_TENANT_ID_SQL.formatted(fullTableName);
     return jdbcTemplate.queryForObject(sql, String.class);
+  }
+
+  public Timestamp getEarliestMergeStartTime() {
+    var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
+    var sql = SELECT_EARLIEST_MERGE_START_TIME_SQL.formatted(fullTableName);
+    return jdbcTemplate.queryForObject(sql, Timestamp.class);
   }
 
   private RowMapper<ReindexStatusEntity> reindexStatusRowMapper() {

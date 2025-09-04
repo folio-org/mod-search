@@ -50,4 +50,19 @@
              splitStatements="false"/>
   </changeSet>
 
+  <changeSet id="MSEARCH-1057@@create-staging-child-resource-partitions" author="okolawole">
+    <preConditions onFail="MARK_RAN">
+      <and>
+        <tableExists tableName="staging_subject"/>
+        <tableExists tableName="staging_contributor"/>
+        <tableExists tableName="staging_classification"/>
+        <tableExists tableName="staging_call_number"/>
+      </and>
+    </preConditions>
+    <comment>Create partitions for staging child resource tables</comment>
+    <sqlFile path="sql/create_staging_child_resource_partitions.sql" 
+             relativeToChangelogFile="true" 
+             splitStatements="false"/>
+  </changeSet>
+
 </databaseChangeLog>

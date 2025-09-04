@@ -3,6 +3,7 @@ package org.folio.search.service.reindex.jdbc;
 import static org.apache.commons.collections4.MapUtils.getString;
 import static org.folio.search.service.reindex.ReindexConstants.CALL_NUMBER_TABLE;
 import static org.folio.search.service.reindex.ReindexConstants.INSTANCE_CALL_NUMBER_TABLE;
+import static org.folio.search.service.reindex.ReindexConstants.STAGING_CALL_NUMBER_TABLE;
 import static org.folio.search.service.reindex.ReindexConstants.STAGING_INSTANCE_CALL_NUMBER_TABLE;
 import static org.folio.search.utils.CallNumberUtils.calculateFullCallNumber;
 import static org.folio.search.utils.JdbcUtils.getFullTableName;
@@ -146,6 +147,17 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
     ON CONFLICT (id) DO UPDATE SET last_updated_date = CURRENT_TIMESTAMP;
     """;
 
+  private static final String INSERT_STAGING_ENTITIES_SQL = """
+    INSERT INTO %s (
+        id,
+        call_number,
+        call_number_prefix,
+        call_number_suffix,
+        call_number_type_id,
+        inserted_at
+    ) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP);
+    """;
+
   private static final String INSERT_RELATIONS_SQL = """
     INSERT INTO %s (
         call_number_id,
@@ -184,13 +196,12 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
 
   @Override
   public void saveAll(ChildResourceEntityBatch entityBatch) {
-    // Always save entities to main table (shared across tenants)
-    saveResourceEntities(entityBatch);
-
-    // Choose destination for relationships based on reindex context
-    if (ReindexContext.isReindexMode()) {
+    // Use staging tables only for member tenant specific full reindex
+    if (ReindexContext.isReindexMode() && ReindexContext.isMemberTenantReindex()) {
+      saveResourceEntitiesToStaging(entityBatch);
       saveRelationshipEntitiesToStaging(entityBatch);
     } else {
+      saveResourceEntities(entityBatch);
       saveRelationshipEntities(entityBatch);
     }
   }
@@ -212,7 +223,7 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
 
   @Override
   protected Optional<String> stagingEntityTable() {
-    return Optional.empty();
+    return Optional.of(STAGING_CALL_NUMBER_TABLE);
   }
 
   @Override
@@ -302,6 +313,33 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
           getTypeId(entity));
       }
     }
+  }
+
+  private void saveResourceEntitiesToStaging(ChildResourceEntityBatch entityBatch) {
+    var stagingCallNumberTable = getFullTableName(context, STAGING_CALL_NUMBER_TABLE);
+    var stagingCallNumberSql = INSERT_STAGING_ENTITIES_SQL.formatted(stagingCallNumberTable);
+
+    try {
+      jdbcTemplate.batchUpdate(stagingCallNumberSql, entityBatch.resourceEntities(), BATCH_OPERATION_SIZE,
+        (statement, entity) -> {
+          statement.setString(1, getId(entity));
+          statement.setString(2, getCallNumber(entity));
+          statement.setString(3, getPrefix(entity));
+          statement.setString(4, getSuffix(entity));
+          statement.setString(5, getTypeId(entity));
+        });
+    } catch (DataAccessException e) {
+      log.warn("saveResourceEntitiesToStaging::Failed to save entities batch. Processing one-by-one", e);
+      for (var entity : entityBatch.resourceEntities()) {
+        try {
+          jdbcTemplate.update(stagingCallNumberSql, getId(entity), getCallNumber(entity), getPrefix(entity),
+            getSuffix(entity), getTypeId(entity));
+        } catch (DataAccessException ex) {
+          log.debug("Failed to save staging call number entity {}: {}", getId(entity), ex.getMessage());
+        }
+      }
+    }
+    log.debug("Saved {} call number entities to staging table", entityBatch.resourceEntities().size());
   }
 
   private void saveRelationshipEntities(ChildResourceEntityBatch entityBatch) {
@@ -401,6 +439,14 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
 
   private String getItemId(Map<String, Object> item) {
     return getString(item, "itemId");
+  }
+
+  @Override
+  public List<Map<String, Object>> fetchByIdRangeWithTimestamp(String lower, String upper, Timestamp timestamp) {
+    var sql = SELECT_QUERY.formatted(JdbcUtils.getSchemaName(context),
+      ID_RANGE_INS_WHERE_CLAUSE,
+      ID_RANGE_CLAS_WHERE_CLAUSE + " AND c.last_updated_date > ?");
+    return jdbcTemplate.query(sql, rowToMapMapper(), lower, upper, lower, upper, timestamp);
   }
 
   private String getId(Map<String, Object> item) {

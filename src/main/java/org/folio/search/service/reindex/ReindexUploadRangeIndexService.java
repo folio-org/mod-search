@@ -58,15 +58,36 @@ public class ReindexUploadRangeIndexService {
     var repository = Optional.ofNullable(repositories.get(entityType))
       .orElseThrow(() -> new UnsupportedOperationException("No repository found for entity type: " + entityType));
 
+    // For member tenant reindex of child resources, use timestamp-based approach instead of ranges
+    if (ReindexContext.isMemberTenantReindex() && isChildResource(entityType)) {
+      prepareAndSendTimestampBasedIndexing(entityType, repository);
+      return;
+    }
+
     var uploadRanges = repository.createUploadRanges();
-    statusService.updateReindexUploadStarted(entityType, uploadRanges.size());
-    indexRangeEventProducer.sendMessages(prepareEvents(uploadRanges));
+    updateStatusAndSendEvents(entityType, uploadRanges.size(), prepareEvents(uploadRanges));
   }
 
   public Collection<ResourceEvent> fetchRecordRange(ReindexRangeIndexEvent rangeIndexEvent) {
     var entityType = rangeIndexEvent.getEntityType();
     var repository = repositories.get(entityType);
-    var recordMaps = repository.fetchByIdRange(rangeIndexEvent.getLower(), rangeIndexEvent.getUpper());
+
+    List<Map<String, Object>> recordMaps;
+    if (rangeIndexEvent.isTimestampBasedRange() && rangeIndexEvent.getTimestampFilter() != null) {
+      // Use timestamp-filtered range query for member tenant child resource reindex
+      recordMaps = repository.fetchByIdRangeWithTimestamp(
+        rangeIndexEvent.getLower(),
+        rangeIndexEvent.getUpper(),
+        rangeIndexEvent.getTimestampFilter());
+      log.debug("fetchRecordRange:: Fetched {} records using timestamp-based range [entityType: {}, timestamp: {}]",
+        recordMaps.size(), entityType, rangeIndexEvent.getTimestampFilter());
+    } else {
+      // Use regular ID range query for standard reindex
+      recordMaps = repository.fetchByIdRange(rangeIndexEvent.getLower(), rangeIndexEvent.getUpper());
+      log.debug("fetchRecordRange:: Fetched {} records using standard ID range [entityType: {}]",
+        recordMaps.size(), entityType);
+    }
+
     return recordMaps.stream()
       .map(map -> new ResourceEvent().id(getString(map, ID_FIELD))
         .resourceName(ReindexConstants.RESOURCE_NAME_MAP.get(entityType).getName())
@@ -81,19 +102,89 @@ public class ReindexUploadRangeIndexService {
   }
 
 
-  private List<ReindexRangeIndexEvent> prepareEvents(List<UploadRangeEntity> uploadRanges) {
-    String memberTenantId = ReindexContext.getMemberTenantId();
+  private void prepareAndSendTimestampBasedIndexing(ReindexEntityType entityType, UploadRangeRepository repository) {
+    log.info("prepareAndSendTimestampBasedIndexing:: Using timestamp-based upload for child resource "
+      + "[entityType: {}]", entityType);
+
+    try {
+      // Child resources don't participate in merge phase, so they don't have merge start times
+      // Use the earliest merge start time from entities that did participate in merge
+      var mergeStartTime = statusService.getEarliestMergeStartTime();
+      if (mergeStartTime == null) {
+        log.warn("prepareAndSendTimestampBasedIndexing:: No earliest merge start time found [entityType: {}], "
+          + "skipping", entityType);
+        updateStatusAndSendEvents(entityType, 0, List.of());
+        return;
+      }
+
+      var memberTenantId = ReindexContext.getMemberTenantId();
+      var uploadRanges = repository.createUploadRanges();
+      var timestampRangeEvents = createTimestampBasedRangeEvents(uploadRanges, entityType, mergeStartTime,
+        memberTenantId);
+
+      log.info("prepareAndSendTimestampBasedIndexing:: Created and sending {} timestamp ranges "
+        + "[entityType: {}]", timestampRangeEvents.size(), entityType);
+      updateStatusAndSendEvents(entityType, timestampRangeEvents.size(), timestampRangeEvents);
+
+    } catch (Exception e) {
+      log.error("prepareAndSendTimestampBasedIndexing:: Failed to create timestamp ranges "
+        + "[entityType: {}]", entityType, e);
+      statusService.updateReindexUploadFailed(entityType);
+      throw e;
+    }
+  }
+
+  private boolean isChildResource(ReindexEntityType entityType) {
+    return entityType == ReindexEntityType.SUBJECT
+        || entityType == ReindexEntityType.CONTRIBUTOR
+        || entityType == ReindexEntityType.CLASSIFICATION
+        || entityType == ReindexEntityType.CALL_NUMBER;
+  }
+
+  private void updateStatusAndSendEvents(ReindexEntityType entityType, int rangeCount,
+                                         List<ReindexRangeIndexEvent> events) {
+    statusService.updateReindexUploadStarted(entityType, rangeCount);
+    indexRangeEventProducer.sendMessages(events);
+  }
+
+  private List<ReindexRangeIndexEvent> createTimestampBasedRangeEvents(
+      List<UploadRangeEntity> uploadRanges, 
+      ReindexEntityType entityType,
+      Timestamp mergeStartTime,
+      String memberTenantId) {
     
     return uploadRanges.stream()
-      .map(range -> {
-        var event = new ReindexRangeIndexEvent();
-        event.setId(range.getId());
-        event.setEntityType(range.getEntityType());
-        event.setLower(range.getLower());
-        event.setUpper(range.getUpper());
-        event.setMemberTenantId(memberTenantId);  // Set member tenant context
-        return event;
-      })
+      .map(range -> createRangeEvent(range, entityType, memberTenantId, mergeStartTime, true))
       .toList();
+  }
+
+  private List<ReindexRangeIndexEvent> prepareEvents(List<UploadRangeEntity> uploadRanges) {
+    String memberTenantId = ReindexContext.getMemberTenantId();
+    return uploadRanges.stream()
+      .map(range -> createRangeEvent(range, range.getEntityType(), memberTenantId, null, false))
+      .toList();
+  }
+
+  private ReindexRangeIndexEvent createRangeEvent(UploadRangeEntity range, ReindexEntityType entityType,
+                                                  String memberTenantId, Timestamp timestampFilter,
+                                                  boolean isTimestampBased) {
+    if (isTimestampBased) {
+      return ReindexRangeIndexEvent.createTimestampBased(
+        range.getId(),
+        entityType,
+        range.getLower(),
+        range.getUpper(),
+        memberTenantId,
+        timestampFilter
+      );
+    } else {
+      return ReindexRangeIndexEvent.createStandard(
+        range.getId(),
+        entityType,
+        range.getLower(),
+        range.getUpper(),
+        memberTenantId
+      );
+    }
   }
 }

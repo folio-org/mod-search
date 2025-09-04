@@ -82,6 +82,9 @@ public abstract class UploadRangeRepository extends ReindexJdbcRepository {
 
   public abstract SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp);
 
+  public abstract List<Map<String, Object>> fetchByIdRangeWithTimestamp(String lower, String upper,
+                                                                        Timestamp timestamp);
+
   protected String getFetchBySql() {
     return SELECT_RECORD_SQL.formatted(getFullTableName(context, entityTable()));
   }

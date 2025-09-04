@@ -137,12 +137,16 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
       VALUES (?, ?, ?, ?, ?)
       ON CONFLICT (id) DO UPDATE SET last_updated_date = CURRENT_TIMESTAMP;
     """;
+  private static final String INSERT_STAGING_ENTITIES_SQL = """
+      INSERT INTO %s.staging_subject (id, value, authority_id, source_id, type_id, inserted_at)
+      VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP);
+    """;
   private static final String INSERT_RELATIONS_SQL = """
       INSERT INTO %s.instance_subject (instance_id, subject_id, tenant_id, shared)
       VALUES (?::uuid, ?, ?, ?)
       ON CONFLICT DO NOTHING;
     """;
-  
+
   private static final String INSERT_STAGING_RELATIONS_SQL = """
       INSERT INTO %s.staging_instance_subject (instance_id, subject_id, tenant_id, shared, inserted_at)
       VALUES (?::uuid, ?, ?, ?, CURRENT_TIMESTAMP);
@@ -247,13 +251,12 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
 
   @Override
   public void saveAll(ChildResourceEntityBatch entityBatch) {
-    // Always save entities to main table (shared across tenants)
-    saveEntitiesToMain(entityBatch.resourceEntities().stream().toList());
-    
-    // Choose destination for relationships based on reindex context
-    if (ReindexContext.isReindexMode()) {
+    // Use staging tables only for member tenant specific full reindex
+    if (ReindexContext.isReindexMode() && ReindexContext.isMemberTenantReindex()) {
+      saveEntitiesToStaging(entityBatch.resourceEntities().stream().toList());
       saveRelationshipsToStaging(entityBatch.relationshipEntities().stream().toList());
     } else {
+      saveEntitiesToMain(entityBatch.resourceEntities().stream().toList());
       saveRelationshipsToMain(entityBatch.relationshipEntities().stream().toList());
     }
   }
@@ -280,6 +283,31 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
         }
       }
     }
+  }
+
+  private void saveEntitiesToStaging(List<Map<String, Object>> entities) {
+    var stagingEntitiesSql = INSERT_STAGING_ENTITIES_SQL.formatted(JdbcUtils.getSchemaName(context));
+    try {
+      jdbcTemplate.batchUpdate(stagingEntitiesSql, entities, BATCH_OPERATION_SIZE,
+        (statement, entity) -> {
+          statement.setString(1, (String) entity.get("id"));
+          statement.setString(2, (String) entity.get(SUBJECT_VALUE_FIELD));
+          statement.setString(3, (String) entity.get(AUTHORITY_ID_FIELD));
+          statement.setString(4, (String) entity.get(SUBJECT_SOURCE_ID_FIELD));
+          statement.setString(5, (String) entity.get(SUBJECT_TYPE_ID_FIELD));
+        });
+    } catch (DataAccessException e) {
+      log.warn("saveEntitiesToStaging::Failed to save entities batch. Processing one-by-one", e);
+      for (var entity : entities) {
+        try {
+          jdbcTemplate.update(stagingEntitiesSql, entity.get("id"), entity.get(SUBJECT_VALUE_FIELD),
+            entity.get(AUTHORITY_ID_FIELD), entity.get(SUBJECT_SOURCE_ID_FIELD), entity.get(SUBJECT_TYPE_ID_FIELD));
+        } catch (DataAccessException ex) {
+          log.debug("Failed to save staging subject entity {}: {}", entity.get("id"), ex.getMessage());
+        }
+      }
+    }
+    log.debug("Saved {} subject entities to staging table", entities.size());
   }
 
   private void saveRelationshipsToMain(List<Map<String, Object>> relationships) {
@@ -322,7 +350,7 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
           jdbcTemplate.update(stagingRelationsSql, entityRelation.get("instanceId"), entityRelation.get("subjectId"),
             entityRelation.get("tenantId"), entityRelation.get("shared"));
         } catch (DataAccessException ex) {
-          log.debug("Failed to save staging subject relationship for {}: {}", 
+          log.debug("Failed to save staging subject relationship for {}: {}",
             entityRelation.get("subjectId"), ex.getMessage());
         }
       }
@@ -347,6 +375,14 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
 
       return subject;
     };
+  }
+
+  @Override
+  public List<Map<String, Object>> fetchByIdRangeWithTimestamp(String lower, String upper, Timestamp timestamp) {
+    var sql = SELECT_QUERY.formatted(JdbcUtils.getSchemaName(context),
+      ID_RANGE_INS_WHERE_CLAUSE,
+      ID_RANGE_SUBJ_WHERE_CLAUSE + " AND s.last_updated_date > ?");
+    return jdbcTemplate.query(sql, rowToMapMapper(), lower, upper, lower, upper, timestamp);
   }
 
   private String getId(ResultSet rs) throws SQLException {

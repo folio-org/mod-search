@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.consortium.ConsortiumTenantService;
@@ -21,6 +22,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@Log4j2
 public class UploadInstanceRepository extends UploadRangeRepository {
 
   private static final String SELECT_SQL_TEMPLATE = """
@@ -159,13 +161,100 @@ public class UploadInstanceRepository extends UploadRangeRepository {
   }
 
   private List<Map<String, Object>> fetchForMemberTenantReindex(String lower, String upper) {
-    // Get central tenant ID where all data (shared + member) now resides after merge
+    var memberTenantId = ReindexContext.getMemberTenantId();
     var centralTenantId = consortiumTenantService.getCentralTenant(context.getTenantId())
-        .orElseThrow(() -> new IllegalStateException("No central tenant found for member tenant reindex"));
+        .orElseThrow(() -> new IllegalStateException("No central tenant found"));
 
-    // Since all member tenant data is now in the central tenant schema after the merge phase,
-    // we only need to query the central tenant's tables
-    return fetchWithTenantContext(centralTenantId, lower, upper);
+    return fetchConditionalInstances(centralTenantId, memberTenantId, lower, upper);
+  }
+
+  /**
+   * Fetches instances conditionally for member tenant reindex:
+   * 1. Local instances (tenant_id = memberTenantId)
+   * 2. Shared instances that have holdings belonging to memberTenantId
+   *
+   * @param centralTenantId Central tenant where merged data resides
+   * @param memberTenantId Member tenant being reindexed
+   * @param lower Lower UUID bound for range processing
+   * @param upper Upper UUID bound for range processing
+   * @return List of instance maps with holdings and items
+   */
+  private List<Map<String, Object>> fetchConditionalInstances(
+      String centralTenantId, String memberTenantId, String lower, String upper) {
+
+    log.info("fetchConditionalInstances:: Fetching instances for member tenant reindex "
+        + "[memberTenant: {}, centralTenant: {}, range: {}-{}]",
+        memberTenantId, centralTenantId, lower, upper);
+
+    var moduleMetadata = context.getFolioModuleMetadata();
+    var centralSchema = JdbcUtils.getSchemaName(centralTenantId, moduleMetadata);
+
+    // SQL to fetch both local and relevant shared instances
+    String sql = buildConditionalInstanceQuery(centralSchema);
+
+    var results = jdbcTemplate.query(sql, ps -> {
+      ps.setObject(1, lower);        // UUID range lower bound
+      ps.setObject(2, upper);        // UUID range upper bound
+      ps.setString(3, memberTenantId); // For local instances
+      ps.setObject(4, lower);        // UUID range lower bound for shared instances
+      ps.setObject(5, upper);        // UUID range upper bound for shared instances
+      ps.setString(6, memberTenantId); // For shared instances with member holdings
+    }, rowToMapMapper());
+
+    log.debug("fetchConditionalInstances:: Found {} instances for range {}-{}",
+        results.size(), lower, upper);
+
+    return results;
+  }
+
+  /**
+   * Builds SQL query to fetch instances conditionally:
+   * - UNION of local instances and shared instances with member holdings
+   * - Maintains existing JSON aggregation for holdings/items
+   * - Applies UUID range filtering
+   */
+  private String buildConditionalInstanceQuery(String centralSchema) {
+    return """
+        SELECT combined.json
+          || jsonb_build_object('tenantId', combined.tenant_id,
+                                'shared', combined.shared,
+                                'isBoundWith', combined.is_bound_with,
+                                'holdings', COALESCE(jsonb_agg(DISTINCT h.json ||
+                                    jsonb_build_object('tenantId', h.tenant_id))
+                                    FILTER (WHERE h.json IS NOT NULL), '[]'::jsonb),
+                                'items', COALESCE(jsonb_agg(it.json ||
+                                    jsonb_build_object('tenantId', it.tenant_id))
+                                    FILTER (WHERE it.json IS NOT NULL), '[]'::jsonb)) as json
+        FROM (
+            -- Local instances from central tenant (after merge)
+            SELECT i.id, i.tenant_id, i.shared, i.is_bound_with, i.json
+            FROM %s.instance i
+            WHERE i.id >= ?::uuid AND i.id <= ?::uuid
+              AND i.tenant_id = ?
+
+            UNION ALL
+
+            -- Shared instances that have holdings for member tenant
+            SELECT i.id, i.tenant_id, i.shared, i.is_bound_with, i.json
+            FROM %s.instance i
+            WHERE i.id >= ?::uuid AND i.id <= ?::uuid
+              AND i.shared = true
+              AND EXISTS (
+                SELECT 1 FROM %s.holding h
+                WHERE h.instance_id = i.id AND h.tenant_id = ?
+              )
+        ) combined
+        LEFT JOIN %s.holding h ON h.instance_id = combined.id
+        LEFT JOIN %s.item it ON it.holding_id = h.id
+        GROUP BY combined.id, combined.tenant_id, combined.shared,
+                 combined.is_bound_with, combined.json
+        """.formatted(
+            centralSchema, // Local instances table
+            centralSchema, // Shared instances table
+            centralSchema, // Holdings subquery table
+            centralSchema, // Holdings join table
+            centralSchema  // Items join table
+        );
   }
 
   /**
@@ -210,5 +299,12 @@ public class UploadInstanceRepository extends UploadRangeRepository {
   @Override
   protected RowMapper<Map<String, Object>> rowToMapMapper() {
     return (rs, rowNum) -> jsonConverter.fromJsonToMap(rs.getString("json"));
+  }
+
+  @Override
+  public List<Map<String, Object>> fetchByIdRangeWithTimestamp(String lower, String upper, Timestamp timestamp) {
+    // Instances are not child resources and don't need timestamp filtering for member tenant reindex
+    // This method delegates to the standard range-based fetch
+    return fetchByIdRange(lower, upper);
   }
 }

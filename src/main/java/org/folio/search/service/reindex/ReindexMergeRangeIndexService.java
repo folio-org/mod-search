@@ -110,8 +110,8 @@ public class ReindexMergeRangeIndexService {
           RESOURCE_NAME_MAP.get(event.getRecordType().getEntityType()), entities);
       }
     } finally {
-      // Always clear the reindex context to prevent memory leaks
-      ReindexContext.clear();
+      // Only clear reindex mode, preserve member tenant context for outer scope
+      ReindexContext.setReindexMode(false);
     }
 
     // Periodically log staging table stats

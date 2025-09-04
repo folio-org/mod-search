@@ -149,4 +149,89 @@
     </sql>
   </changeSet>
 
+  <changeSet id="MSEARCH-1057@@create-staging-subject-table" author="okolawole">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="staging_subject"/>
+      </not>
+    </preConditions>
+
+    <comment>Create staging_subject table for reindex deduplication</comment>
+
+    <sql splitStatements="false">
+      CREATE UNLOGGED TABLE staging_subject (
+        id VARCHAR(40) NOT NULL,
+        value VARCHAR(255) NOT NULL,
+        authority_id VARCHAR(40),
+        source_id VARCHAR(40),
+        type_id VARCHAR(40),
+        last_updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        inserted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+      ) PARTITION BY RANGE (SUBSTRING(id::text, 1, 1));
+    </sql>
+  </changeSet>
+
+  <changeSet id="MSEARCH-1057@@create-staging-contributor-table" author="okolawole">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="staging_contributor"/>
+      </not>
+    </preConditions>
+
+    <comment>Create staging_contributor table for reindex deduplication</comment>
+
+    <sql splitStatements="false">
+      CREATE UNLOGGED TABLE staging_contributor (
+        id VARCHAR(40) NOT NULL,
+        name VARCHAR(255) NOT NULL,
+        name_type_id VARCHAR(40),
+        authority_id VARCHAR(40),
+        last_updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        inserted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+      ) PARTITION BY RANGE (SUBSTRING(id::text, 1, 1));
+    </sql>
+  </changeSet>
+
+  <changeSet id="MSEARCH-1057@@create-staging-classification-table" author="okolawole">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="staging_classification"/>
+      </not>
+    </preConditions>
+
+    <comment>Create staging_classification table for reindex deduplication</comment>
+
+    <sql splitStatements="false">
+      CREATE UNLOGGED TABLE staging_classification (
+        id VARCHAR(40) NOT NULL,
+        number VARCHAR(50) NOT NULL,
+        type_id VARCHAR(40),
+        last_updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        inserted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+      ) PARTITION BY RANGE (SUBSTRING(id::text, 1, 1));
+    </sql>
+  </changeSet>
+
+  <changeSet id="MSEARCH-1057@@create-staging-call-number-table" author="okolawole">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="staging_call_number"/>
+      </not>
+    </preConditions>
+
+    <comment>Create staging_call_number table for reindex deduplication</comment>
+
+    <sql splitStatements="false">
+      CREATE UNLOGGED TABLE staging_call_number (
+        id VARCHAR(40) NOT NULL,
+        call_number VARCHAR(50) NOT NULL,
+        call_number_prefix VARCHAR(20),
+        call_number_suffix VARCHAR(25),
+        call_number_type_id VARCHAR(40),
+        last_updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        inserted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+      ) PARTITION BY RANGE (SUBSTRING(id::text, 1, 1));
+    </sql>
+  </changeSet>
+
 </databaseChangeLog>

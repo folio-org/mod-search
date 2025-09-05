@@ -30,11 +30,11 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
     """;
 
   private static final String SOFT_DELETE_SQL = """
-    UPDATE %s SET is_deleted = true, last_updated_date = CURRENT_TIMESTAMP WHERE id IN (%s);
+    UPDATE %s SET is_deleted = true, last_updated_date = CURRENT_TIMESTAMP WHERE id = ANY (?);
     """;
 
   private static final String SOFT_DELETE_SQL_FOR_TENANT = """
-    UPDATE %s SET is_deleted = true, last_updated_date = CURRENT_TIMESTAMP WHERE id = ANY (%s) AND tenant_id = ?;
+    UPDATE %s SET is_deleted = true, last_updated_date = CURRENT_TIMESTAMP WHERE id = ANY (?) AND tenant_id = ?;
     """;
   private static final String INSERT_MERGE_RANGE_SQL = """
       INSERT INTO %s (id, entity_type, tenant_id, lower, upper, created_at, finished_at)

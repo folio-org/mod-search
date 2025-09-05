@@ -99,8 +99,8 @@ public class InventoryApi {
       .whenComplete(onCompleteConsumer());
   }
 
-  public void createItem(String tenantId, String instanceId, Item instance) {
-    createItem(tenantId, instanceId, toMap(instance));
+  public void createItem(String tenantId, String instanceId, Item item) {
+    createItem(tenantId, instanceId, toMap(item));
   }
 
   public void createItem(String tenant, String instanceId, Map<String, Object> item) {

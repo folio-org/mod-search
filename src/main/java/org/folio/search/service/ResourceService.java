@@ -70,8 +70,9 @@ public class ResourceService {
 
     var elasticsearchDocuments = searchDocumentConverter.convert(resourceEvents);
     var bulkIndexResponse = indexSearchDocuments(elasticsearchDocuments);
-    log.info("Records indexed to elasticsearch [indexRequests: {} {}]",
-      getNumberOfRequests(elasticsearchDocuments), getErrorMessage(bulkIndexResponse));
+    log.info("indexResources: indexed to elasticsearch [eventType: {}, indexRequests: {} {}]",
+      resourceEvents.getFirst().getType(), getNumberOfRequests(elasticsearchDocuments),
+      getErrorMessage(bulkIndexResponse));
 
     return bulkIndexResponse;
   }
@@ -83,7 +84,7 @@ public class ResourceService {
    * @return index operation response as {@link FolioIndexOperationResponse} object
    */
   public FolioIndexOperationResponse indexInstancesById(List<ResourceEvent> resourceIdEvents) {
-    log.debug("indexResourcesById: by [resourceEvent.size: {}]", collectionToLogMsg(resourceIdEvents, true));
+    log.debug("indexInstancesById: by [resourceIdEvents.size: {}]", collectionToLogMsg(resourceIdEvents, true));
 
     if (CollectionUtils.isEmpty(resourceIdEvents)) {
       return getSuccessIndexOperationResponse();
@@ -94,7 +95,7 @@ public class ResourceService {
     var removeDocuments = processDeleteInstanceEvents(groupedByOperation.get(DELETE));
 
     var bulkIndexResponse = indexSearchDocuments(mergeMaps(indexDocuments, removeDocuments));
-    log.info("Records indexed to elasticsearch [indexRequests: {}, removeRequests: {}{}]",
+    log.info("indexInstancesById: indexed to elasticsearch [indexRequests: {}, removeRequests: {}{}]",
       getNumberOfRequests(indexDocuments), getNumberOfRequests(removeDocuments), getErrorMessage(bulkIndexResponse));
 
     return bulkIndexResponse;

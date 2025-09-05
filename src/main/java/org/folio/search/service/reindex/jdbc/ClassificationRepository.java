@@ -1,6 +1,5 @@
 package org.folio.search.service.reindex.jdbc;
 
-import static org.folio.search.utils.JdbcUtils.getParamPlaceholderForUuid;
 import static org.folio.search.utils.LogUtils.logWarnDebugError;
 import static org.folio.search.utils.SearchUtils.CLASSIFICATION_NUMBER_ENTITY_FIELD;
 import static org.folio.search.utils.SearchUtils.CLASSIFICATION_NUMBER_FIELD;
@@ -15,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Stream;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.entity.ChildResourceEntityBatch;
@@ -69,7 +67,7 @@ public class ClassificationRepository extends UploadRangeRepository implements I
         c.id;
     """;
 
-  private static final String BASE_SELECT_QUERY = """
+  private static final String SELECT_BY_UPDATED_QUERY = """
       WITH cte AS (
           SELECT c.id,
                  c.number,
@@ -164,7 +162,7 @@ public class ClassificationRepository extends UploadRangeRepository implements I
 
   @Override
   public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp) {
-    var sql = buildSelectQuery(tenant, false, true, false);
+    var sql = buildSelectQuery(SELECT_BY_UPDATED_QUERY, tenant, false, true, false);
     var records = jdbcTemplate.query(sql, rowToMapMapper2(), timestamp);
     var lastUpdateDate = records.isEmpty() ? null : records.getLast().get(LAST_UPDATED_DATE_FIELD);
     return new SubResourceResult(records, (Timestamp) lastUpdateDate);
@@ -172,7 +170,7 @@ public class ClassificationRepository extends UploadRangeRepository implements I
 
   @Override
   public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp, int limit) {
-    var sql = buildSelectQuery(tenant, false, false, true);
+    var sql = buildSelectQuery(SELECT_BY_UPDATED_QUERY, tenant, false, false, true);
     var records = jdbcTemplate.query(sql, rowToMapMapper2(), timestamp, limit);
     var lastUpdateDate = records.isEmpty() ? null : records.getLast().get(LAST_UPDATED_DATE_FIELD);
     return new SubResourceResult(records, (Timestamp) lastUpdateDate);
@@ -180,20 +178,10 @@ public class ClassificationRepository extends UploadRangeRepository implements I
 
   @Override
   public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp, String fromId, int limit) {
-    var sql = buildSelectQuery(tenant, true, false, true);
+    var sql = buildSelectQuery(SELECT_BY_UPDATED_QUERY, tenant, true, false, true);
     var records = jdbcTemplate.query(sql, rowToMapMapper2(), timestamp, fromId, limit);
     var lastUpdateDate = records.isEmpty() ? null : records.getLast().get(LAST_UPDATED_DATE_FIELD);
     return new SubResourceResult(records, (Timestamp) lastUpdateDate);
-  }
-
-  private String buildSelectQuery(String tenant, boolean includeFromId, boolean orderByDateOnly, boolean includeLimit) {
-    var whereClause = includeFromId ? "(last_updated_date, id) > (?, ?)" : "last_updated_date > ?";
-    var orderBy = orderByDateOnly ? "last_updated_date" : "last_updated_date, id";
-    var orderByAsc = orderByDateOnly ? "last_updated_date ASC" : "last_updated_date ASC, id ASC";
-    var limitClause = includeLimit ? "LIMIT ?" : "";
-
-    return BASE_SELECT_QUERY.formatted(
-      JdbcUtils.getSchemaName(tenant, context.getFolioModuleMetadata()), whereClause, orderBy, limitClause, orderByAsc);
   }
 
   @Override
@@ -222,18 +210,7 @@ public class ClassificationRepository extends UploadRangeRepository implements I
 
   @Override
   public void deleteByInstanceIds(List<String> instanceIds, String tenantId) {
-    var sql = DELETE_QUERY.formatted(
-      JdbcUtils.getSchemaName(context),
-      getParamPlaceholderForUuid(instanceIds.size()),
-      tenantId == null ? "" : "AND tenant_id = ?");
-
-    if (tenantId != null) {
-      var params = Stream.of(instanceIds, List.of(tenantId)).flatMap(List::stream).toArray();
-      jdbcTemplate.update(sql, params);
-      return;
-    }
-
-    jdbcTemplate.update(sql, instanceIds.toArray());
+    deleteByInstanceIds(DELETE_QUERY, instanceIds, tenantId);
   }
 
   @Override

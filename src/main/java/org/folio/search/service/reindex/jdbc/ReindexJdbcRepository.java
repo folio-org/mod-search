@@ -1,10 +1,13 @@
 package org.folio.search.service.reindex.jdbc;
 
 import static org.folio.search.utils.JdbcUtils.getFullTableName;
+import static org.folio.search.utils.JdbcUtils.getParamPlaceholderForUuid;
 
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexRangeStatus;
 import org.folio.search.utils.JdbcUtils;
@@ -88,4 +91,29 @@ public abstract class ReindexJdbcRepository {
   }
 
   protected abstract String rangeTable();
+
+  protected String buildSelectQuery(String sql, String tenant, boolean includeFromId, boolean orderByDateOnly,
+                                    boolean includeLimit) {
+    var whereClause = includeFromId ? "(last_updated_date, id) > (?, ?)" : "last_updated_date > ?";
+    var orderBy = orderByDateOnly ? "last_updated_date" : "last_updated_date, id";
+    var orderByAsc = orderByDateOnly ? "last_updated_date ASC" : "last_updated_date ASC, id ASC";
+    var limitClause = includeLimit ? "LIMIT ?" : "";
+    return sql.formatted(
+      JdbcUtils.getSchemaName(tenant, context.getFolioModuleMetadata()), whereClause, orderBy, limitClause, orderByAsc);
+  }
+
+  protected void deleteByInstanceIds(String query, List<String> instanceIds, String tenantId) {
+    var sql = query.formatted(
+      JdbcUtils.getSchemaName(context),
+      getParamPlaceholderForUuid(instanceIds.size()),
+      tenantId == null ? "" : "AND tenant_id = ?");
+
+    if (tenantId != null) {
+      var params = Stream.of(instanceIds, List.of(tenantId)).flatMap(List::stream).toArray();
+      jdbcTemplate.update(sql, params);
+      return;
+    }
+
+    jdbcTemplate.update(sql, instanceIds.toArray());
+  }
 }

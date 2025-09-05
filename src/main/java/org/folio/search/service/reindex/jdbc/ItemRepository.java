@@ -33,7 +33,7 @@ public class ItemRepository extends MergeRangeRepository {
 
   private static final String SELECT_BY_UPDATED_QUERY = """
     SELECT id, tenant_id, instance_id, holding_id, json, last_updated_date, is_deleted
-    FROM %s.item
+    FROM %1$s.item
     WHERE last_updated_date > ?
     ORDER BY last_updated_date ASC
     """;

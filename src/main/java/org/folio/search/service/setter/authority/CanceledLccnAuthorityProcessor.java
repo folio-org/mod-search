@@ -1,17 +1,14 @@
-package org.folio.search.service.setter.instance;
+package org.folio.search.service.setter.authority;
 
 import java.util.List;
 import org.folio.search.integration.folio.ReferenceDataService;
 import org.folio.search.service.lccn.StringNormalizer;
 import org.springframework.stereotype.Component;
 
-/**
- * Instance identifier field processor, which normalizes LCCN numbers.
- */
 @Component
-public class LccnInstanceProcessor extends AbstractInstanceLccnProcessor {
+public class CanceledLccnAuthorityProcessor extends AbstractAuthorityLccnProcessor {
 
-  private static final List<String> IDENTIFIER_NAMES = List.of("LCCN");
+  private static final List<String> IDENTIFIER_NAMES = List.of("Canceled LCCN");
 
   /**
    * Used by dependency injection.
@@ -19,7 +16,7 @@ public class LccnInstanceProcessor extends AbstractInstanceLccnProcessor {
    * @param referenceDataService {@link ReferenceDataService} bean
    * @param stringNormalizer     {@link StringNormalizer} bean
    */
-  public LccnInstanceProcessor(ReferenceDataService referenceDataService, StringNormalizer stringNormalizer) {
+  public CanceledLccnAuthorityProcessor(ReferenceDataService referenceDataService, StringNormalizer stringNormalizer) {
     super(referenceDataService, stringNormalizer);
   }
 

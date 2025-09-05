@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.folio.search.model.types.ResponseGroupType;
 import org.folio.search.model.types.SearchType;
 
 /**
@@ -30,47 +29,45 @@ public class PlainFieldDescription extends FieldDescription {
     "whitespace", "keyword_trimmed");
 
   /**
-   * List of search types, that is used to identify search options for given field.
+   * List of search types that is used to identify search options for a given field.
    */
   private List<SearchType> searchTypes = Collections.emptyList();
 
   /**
-   * List of search aliases, it can be used to create group of field using alias or to safely rename the field without
+   * List of search aliases, it can be used to create group of fields using alias or to safely rename the field without
    * reindexing.
    */
   private List<String> searchAliases = Collections.emptyList();
 
   /**
-   * List of references to field types, specified in resource description.
+   * List of references to field types, specified in the resource description.
    */
   private String index;
 
   /**
-   * Specifies if fields should be returned as part of elasticsearch response or not.
+   * Specifies if the field should be returned as part of a search response or not.
    */
-  private List<ResponseGroupType> showInResponse = Collections.emptyList();
+  private boolean showInResponse = false;
 
   /**
-   * Search term processor, which pre-processes incoming term for elasticsearch request.
+   * Search term processor, which pre-processes incoming term for search request.
    */
   private String searchTermProcessor;
 
   /**
-   * Elasticsearch fields mappings.
-   *
-   * <p>Resource description processor will take this field without any modification and put it to
-   * elasticsearch.</p>
+   * Search fields mappings.
+   * Resource description processor will take this field without any modification and put it to index.
    */
   private ObjectNode mappings;
 
   /**
-   * Allows specifying default value when not present or null.
+   * Allows specifying the default value when not present or null.
    */
   @JsonProperty("default")
   private Object defaultValue;
 
   /**
-   * Specifies if plain keyword value should be indexed with field or not. Works only for fulltext fields.
+   * Specifies if a plain keyword value should be indexed with a field or not. Works only for fulltext fields.
    */
   private boolean indexPlainValue = true;
 

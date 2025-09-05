@@ -40,15 +40,15 @@ public abstract class AbstractShelvingOrderBrowseServiceBySearchAfter<T, R>
   @Override
   protected SearchSourceBuilder getAnchorSearchQuery(BrowseRequest req, BrowseContext ctx) {
     log.debug("getAnchorSearchQuery:: by [request: {}]", req);
-    var config = configService.getConfig(getBrowseType(), req.getBrowseOptionType());
+    var config = configService.getConfig(getBrowseType(), req.browseOptionType());
 
     var browseField = getBrowseField(config);
-    var termQueryBuilder = getQuery(ctx, config, termQuery(req.getTargetField(), ctx.getAnchor()));
-    var query = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(ctx, termQueryBuilder, req.getResource());
+    var termQueryBuilder = getQuery(ctx, config, termQuery(req.targetField(), ctx.getAnchor()));
+    var query = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(ctx, termQueryBuilder, req.resource());
     var sortOrder = ctx.isBrowsingForward() ? ASC : DESC;
     return searchSource().query(query)
       .sort(fieldSort(browseField).order(sortOrder))
-      .sort(fieldSort(req.getTargetField()).order(sortOrder))
+      .sort(fieldSort(req.targetField()).order(sortOrder))
       .size(ctx.getLimit(ctx.isBrowsingForward()))
       .from(0);
   }
@@ -56,18 +56,18 @@ public abstract class AbstractShelvingOrderBrowseServiceBySearchAfter<T, R>
   @Override
   protected SearchSourceBuilder getSearchQuery(BrowseRequest req, BrowseContext ctx, boolean isBrowsingForward) {
     log.debug("getSearchQuery:: by [request: {}, isBrowsingForward: {}]", req, isBrowsingForward);
-    var config = configService.getConfig(getBrowseType(), req.getBrowseOptionType());
+    var config = configService.getConfig(getBrowseType(), req.browseOptionType());
 
     var browseField = getBrowseField(config);
     var normalizedAnchor = ShelvingOrderCalculationHelper.calculate(ctx.getAnchor(), config.getShelvingAlgorithm());
     var query = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(ctx, getQuery(ctx, config, null),
-      req.getResource());
+      req.resource());
 
     var sortOrder = isBrowsingForward ? ASC : DESC;
     return searchSource().query(query)
       .searchAfter(new Object[] {normalizedAnchor.toLowerCase(ROOT), ctx.getAnchor().toLowerCase(ROOT)})
       .sort(fieldSort(browseField).order(sortOrder))
-      .sort(fieldSort(req.getTargetField()).order(sortOrder))
+      .sort(fieldSort(req.targetField()).order(sortOrder))
       .size(ctx.getLimit(isBrowsingForward) + 1)
       .from(0);
   }

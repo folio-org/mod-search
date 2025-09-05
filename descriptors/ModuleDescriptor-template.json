@@ -639,6 +639,14 @@
     {
       "id": "location-units",
       "version": "2.0"
+    },
+    {
+      "id": "holdings-storage",
+      "version": "8.0"
+    },
+    {
+      "id": "item-storage",
+      "version": "11.0"
     }
   ],
   "requires": [
@@ -657,10 +665,6 @@
     {
       "id": "users",
       "version": "15.3 16.0"
-    },
-    {
-      "id": "instance-reindex",
-      "version": "0.1"
     },
     {
       "id": "authority-reindex",

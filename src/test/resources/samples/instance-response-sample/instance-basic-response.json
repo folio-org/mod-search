@@ -5,6 +5,7 @@
       "id": "5bf370e0-8cca-4d9c-82e4-5170ab2a0a39",
       "tenantId": "test_tenant",
       "shared": false,
+      "hrid": "inst000000000022",
       "title": "A sem\\ntic web primer :0747-0850 & wolves",
       "contributors": [
         {
@@ -33,39 +34,7 @@
       },
       "staffSuppress": false,
       "discoverySuppress": false,
-      "isBoundWith": true,
-      "electronicAccess": [],
-      "notes": [],
-      "items": [
-        {
-          "effectiveCallNumberComponents": {
-            "callNumber": "TK5105.88815 . A58 2004 FT MEADE",
-            "prefix": "prefix-10101",
-            "suffix": "suffix-10101",
-            "typeId": "512173a7-bd09-490e-b773-17d83f2b63fe"
-          },
-          "notes": []
-        },
-        {
-          "effectiveCallNumberComponents": {
-            "callNumber": "TK5105.88815 . A58 2004 FT MEADE",
-            "prefix": "prefix-90000",
-            "suffix": "suffix-90000",
-            "typeId": "512173a7-bd09-490e-b773-17d83f2b63fe"
-          },
-          "notes": []
-        },
-        {
-          "effectiveCallNumberComponents": {
-            "callNumber": "332. 2",
-            "prefix": "prefix 2",
-            "suffix": "suff 2",
-            "typeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35"
-          },
-          "notes": []
-        }
-      ],
-      "holdings": []
+      "isBoundWith": true
     }
   ]
 }

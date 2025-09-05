@@ -86,8 +86,9 @@ class SearchInstanceIT extends BaseIntegrationTest {
     "itemPublicNotes == {value}, private note for item",
     "itemPublicNotes == {value}, private circulation note",
     "holdingsPublicNotes == {value}, librarian private note",
-    "issn = {value}, 03178471",
+    "issn = {value}, 03178472",
     "oclc = {value}, 0262012103",
+    "lccn = {value}, canceledlccn",
     "(keyword all {value}), 0747-0088"
   })
   @DisplayName("can search by instances (nothing found)")
@@ -115,6 +116,16 @@ class SearchInstanceIT extends BaseIntegrationTest {
     var actual = parseResponse(response, InstanceSearchResult.class);
 
     Assertions.assertThat(actual).usingRecursiveComparison().ignoringCollectionOrder().isEqualTo(expected);
+  }
+
+  @Test
+  void responseContainsRequestedProperties() throws Exception {
+    doSearchByInstances(prepareQuery("id=={value}", getSemanticWebId()), "subjects.value,items.volume")
+      .andExpect(jsonPath("$.instances[0].subjects[0].value", is("Semantic Web")))
+      // subjects.authorityId is not requested
+      .andExpect(jsonPath("$.instances[0].subjects[0].authorityId").doesNotExist())
+      // items.volume is not indexed
+      .andExpect(jsonPath("$.instances[0].items").doesNotExist());
   }
 
   @Test
@@ -299,6 +310,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("lccn = {value}", "N2003075732"),
       arguments("lccn = {value}", "*75732"),
       arguments("lccn = {value}", "20030*"),
+      arguments("canceledLccn = {value}", "CANCELED*"),
 
       // search by item fields
       arguments("item.hrid = {value}", "item000000000014"),
@@ -621,7 +633,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
   private static Stream<Arguments> testIssnDataProvider() {
     return Stream.of(
       arguments("issn = {value}", "0040-781X"),
-      arguments("issn = {value}", "0040-781x"),
+      arguments("issn = {value}", "0040781x"),
       arguments("issn = {value}", "*0-781X"),
       arguments("issn = {value}", "*0-781x"),
       arguments("issn = {value}", "**0-781X"),

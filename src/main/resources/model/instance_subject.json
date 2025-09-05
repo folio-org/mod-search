@@ -5,21 +5,21 @@
   "fields": {
     "value": {
       "index": "keyword_icu",
-      "showInResponse": [ "browse" ]
+      "showInResponse": true
     },
     "authorityId": {
       "index": "keyword",
-      "showInResponse": [ "browse" ]
+      "showInResponse": true
     },
     "sourceId": {
       "index": "keyword",
       "searchTypes": [ "facet", "filter" ],
-      "showInResponse": [ "browse" ]
+      "showInResponse": true
     },
     "typeId": {
       "index": "keyword",
       "searchTypes": [ "facet", "filter" ],
-      "showInResponse": [ "browse" ]
+      "showInResponse": true
     },
     "instances": {
       "type": "object",

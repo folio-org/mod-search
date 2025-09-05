@@ -1,6 +1,5 @@
 package org.folio.search.controller;
 
-import static java.util.Collections.emptyList;
 import static org.folio.support.TestConstants.INDEX_NAME;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.utils.TestUtils.randomId;
@@ -79,7 +78,7 @@ class SearchControllerTest {
     mockMvc.perform(requestBuilder)
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.totalRecords", is(0)))
-      .andExpect(jsonPath(jsonDataPath, is(emptyList())));
+      .andExpect(jsonPath(jsonDataPath).doesNotExist());
   }
 
   @ParameterizedTest

@@ -5,23 +5,23 @@
   "fields": {
     "name": {
       "index": "keyword_icu",
-      "showInResponse": [ "browse" ]
+      "showInResponse": true
     },
     "contributorNameTypeId": {
       "index": "keyword",
       "searchTypes": [ "facet", "filter" ],
-      "showInResponse": [ "browse" ]
+      "showInResponse": true
     },
     "authorityId": {
       "index": "keyword",
-      "showInResponse": [ "browse" ]
+      "showInResponse": true
     },
     "instances": {
       "type": "object",
       "properties": {
         "typeId": {
           "index": "keyword",
-          "showInResponse": [ "browse" ]
+          "showInResponse": true
         },
         "tenantId": {
           "index": "keyword",

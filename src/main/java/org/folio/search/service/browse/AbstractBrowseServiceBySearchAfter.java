@@ -89,8 +89,7 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
   }
 
   protected String getAnchorValue(BrowseRequest request, BrowseContext ctx) {
-    return searchRepository.analyze(ctx.getAnchor(), request.getTargetField(), request.getResource(),
-      request.getTenantId());
+    return searchRepository.analyze(ctx.getAnchor(), request.targetField(), request.resource(), request.tenantId());
   }
 
   /**
@@ -173,7 +172,7 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
   }
 
   private BrowseResult<T> getAnchorSearchResult(BrowseRequest request, BrowseContext context, Item[] responses) {
-    var isAnchorHighlighted = isTrue(request.getHighlightMatch());
+    var isAnchorHighlighted = isTrue(request.highlightMatch());
     if (!context.isAnchorIncluded(true)) {
       return isAnchorHighlighted
              ? BrowseResult.of(0, singletonList(getEmptyBrowseItem(context)))
@@ -225,11 +224,11 @@ public abstract class AbstractBrowseServiceBySearchAfter<T, R> extends AbstractB
   }
 
   private void logBrowseRequest(BrowseRequest request, String functionName) {
-    log.debug("{}:: by [tenant: {}, query: {}]", functionName, request.getTenantId(), request.getQuery());
+    log.debug("{}:: by [tenant: {}, query: {}]", functionName, request.tenantId(), request.query());
   }
 
   private void logMultiSearchRequest(BrowseRequest request, int size) {
     log.debug("browseAround:: Attempting to multi-search request [tenant: {}, searchSource.size: {}]",
-      request.getTenantId(), size);
+      request.tenantId(), size);
   }
 }

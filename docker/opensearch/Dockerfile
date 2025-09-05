@@ -1,4 +1,4 @@
-FROM opensearchproject/opensearch:3
+FROM opensearchproject/opensearch:3.0.0
 
 # Switch from /dev/random to /dev/urandom, otherwise the plugin installer needs many minutes to get
 # random numbers to verify the signature of the downloaded plugins.

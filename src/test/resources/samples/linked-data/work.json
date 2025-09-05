@@ -113,6 +113,10 @@
         {
           "value": "a b24123456 ",
           "type": "LCCN"
+        },
+        {
+          "value": "0987654321",
+          "type": "IAN"
         }
       ],
       "notes": [

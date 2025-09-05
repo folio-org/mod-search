@@ -67,7 +67,7 @@ public final class ClassificationSearchResponsePostProcessor
       .toList();
     var queries = buildQuery(classificationTenantPairs);
 
-    var resourceRequest = SimpleResourceRequest.of(ResourceType.INSTANCE,
+    var resourceRequest = new SimpleResourceRequest(ResourceType.INSTANCE,
       tenantProvider.getTenant(context.getTenantId()));
     var searchHits = searchRepository.search(resourceRequest, queries).getHits().getHits();
 

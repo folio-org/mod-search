@@ -116,7 +116,7 @@ public class SearchUtils {
    * @return generated index name.
    */
   public static String getIndexName(ResourceRequest request) {
-    return getIndexName(request.getResource(), request.getTenantId());
+    return getIndexName(request.resource(), request.tenantId());
   }
 
   /**

@@ -2,7 +2,6 @@ package org.folio.search.service;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.apache.commons.lang3.BooleanUtils.isFalse;
-import static org.folio.search.model.types.ResponseGroupType.SEARCH;
 import static org.folio.search.utils.SearchUtils.buildPreferenceKey;
 
 import java.util.List;
@@ -46,38 +45,44 @@ public class SearchService {
    * @param request cql search request as {@link CqlSearchRequest} object
    * @return search result.
    */
-  public <T> SearchResult<T>  search(CqlSearchRequest<T> request) {
-    log.debug("search:: by [query: {}, resource: {}]", request.getQuery(), request.getResource());
+  public <T> SearchResult<T> search(CqlSearchRequest<T> request) {
+    log.debug("search:: by [query: {}, resource: {}]", request.query(), request.resource());
+    validateRequest(request);
 
-    if (request.getOffset() + request.getLimit() > DEFAULT_MAX_SEARCH_RESULT_WINDOW) {
+    var queryBuilder = cqlSearchQueryConverter
+      .convertForConsortia(request.query(), request.resource(), request.consortiumConsolidated())
+      .from(request.offset())
+      .size(request.limit())
+      .trackTotalHits(true)
+      .fetchSource(getIncludedSourceFields(request), null)
+      .timeout(new TimeValue(searchQueryConfiguration.getRequestTimeout().toMillis(), MILLISECONDS));
+
+    var searchResponse = searchRepository.search(request, queryBuilder, buildPreference(request));
+    var searchResult = documentConverter.convertToSearchResult(searchResponse, request.resourceClass());
+
+    searchResultPostProcessing(request.resourceClass(), request.includeNumberOfTitles(), searchResult);
+
+    return searchResult;
+  }
+
+  private void validateRequest(CqlSearchRequest<?> request) {
+    if (request.offset() + request.limit() > DEFAULT_MAX_SEARCH_RESULT_WINDOW) {
       var validationException = new RequestValidationException("The sum of limit and offset should not exceed 10000.",
-        "offset + limit", String.valueOf(request.getOffset() + request.getLimit()));
+        "offset + limit", String.valueOf(request.offset() + request.limit()));
       log.warn(validationException.getMessage());
       throw validationException;
     }
-    var resource = request.getResource();
-    var requestTimeout = searchQueryConfiguration.getRequestTimeout();
-    var queryBuilder = cqlSearchQueryConverter.convertForConsortia(request.getQuery(), resource,
-        request.getConsortiumConsolidated())
-      .from(request.getOffset())
-      .size(request.getLimit())
-      .trackTotalHits(true)
-      .timeout(new TimeValue(requestTimeout.toMillis(), MILLISECONDS));
-    var preferenceKey = buildPreferenceKey(request.getTenantId(), resource.getName(), request.getQuery());
-    var preference = searchPreferenceService.getPreferenceForString(preferenceKey);
+  }
 
-    if (isFalse(request.getExpandAll())) {
-      var includes = searchFieldProvider.getSourceFields(resource, SEARCH);
-      log.debug("search:: expandAll to include: {}]", (Object) includes);
-      queryBuilder.fetchSource(includes, null);
-    }
+  private String[] getIncludedSourceFields(CqlSearchRequest<?> request) {
+    return isFalse(request.expandAll())
+           ? searchFieldProvider.getSourceFields(request.resource(), request.includeFields())
+           : null;
+  }
 
-    var searchResponse = searchRepository.search(request, queryBuilder, preference);
-    var searchResult = documentConverter.convertToSearchResult(searchResponse, request.getResourceClass());
-
-    searchResultPostProcessing(request.getResourceClass(), request.getIncludeNumberOfTitles(), searchResult);
-
-    return searchResult;
+  private String buildPreference(CqlSearchRequest<?> request) {
+    var preferenceKey = buildPreferenceKey(request.tenantId(), request.resource().getName(), request.query());
+    return searchPreferenceService.getPreferenceForString(preferenceKey);
   }
 
   private <T> void searchResultPostProcessing(Class<?> resourceClass, boolean includeNumberOfTitles,

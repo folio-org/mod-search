@@ -34,11 +34,18 @@ public class SearchController implements SearchApi {
   @Override
   public ResponseEntity<AuthoritySearchResult> searchAuthorities(String tenant, String query, Integer limit,
                                                                  Integer offset, Boolean expandAll,
-                                                                 Boolean includeNumberOfTitles) {
+                                                                 Boolean includeNumberOfTitles, String include) {
 
     tenant = tenantProvider.getTenant(tenant);
-    var searchRequest = CqlSearchRequest.of(
-      Authority.class, tenant, query, limit, offset, expandAll, includeNumberOfTitles);
+    var searchRequest = CqlSearchRequest.builder(Authority.class)
+      .tenantId(tenant)
+      .query(query)
+      .limit(limit)
+      .offset(offset)
+      .expandAll(expandAll)
+      .includeNumberOfTitles(includeNumberOfTitles)
+      .includeFields(include)
+      .build();
     var result = searchService.search(searchRequest);
     return ResponseEntity.ok(new AuthoritySearchResult()
       .authorities(result.getRecords())
@@ -46,10 +53,17 @@ public class SearchController implements SearchApi {
   }
 
   @Override
-  public ResponseEntity<InstanceSearchResult> searchInstances(String tenantId, String query, Integer limit,
-                                                              Integer offset, Boolean expandAll) {
-    tenantId = tenantProvider.getTenant(tenantId);
-    var searchRequest = CqlSearchRequest.of(Instance.class, tenantId, query, limit, offset, expandAll);
+  public ResponseEntity<InstanceSearchResult> searchInstances(String tenant, String query, Integer limit,
+                                                              Integer offset, Boolean expandAll, String include) {
+    tenant = tenantProvider.getTenant(tenant);
+    var searchRequest = CqlSearchRequest.builder(Instance.class)
+      .tenantId(tenant)
+      .query(query)
+      .limit(limit)
+      .offset(offset)
+      .expandAll(expandAll)
+      .includeFields(include)
+      .build();
     var result = searchService.search(searchRequest);
     return ResponseEntity.ok(new InstanceSearchResult()
       .instances(result.getRecords())
@@ -57,11 +71,17 @@ public class SearchController implements SearchApi {
   }
 
   @Override
-  public ResponseEntity<LinkedDataInstanceSearchResult> searchLinkedDataInstances(String tenantId,
+  public ResponseEntity<LinkedDataInstanceSearchResult> searchLinkedDataInstances(String tenant,
                                                                                   String query,
                                                                                   Integer limit,
                                                                                   Integer offset) {
-    var searchRequest = CqlSearchRequest.of(LinkedDataInstance.class, tenantId, query, limit, offset, true);
+    var searchRequest = CqlSearchRequest.builder(LinkedDataInstance.class)
+      .tenantId(tenant)
+      .query(query)
+      .limit(limit)
+      .offset(offset)
+      .expandAll(true)
+      .build();
     var result = searchService.search(searchRequest);
     return ResponseEntity.ok(new LinkedDataInstanceSearchResult()
       .searchQuery(query)
@@ -73,12 +93,18 @@ public class SearchController implements SearchApi {
   }
 
   @Override
-  public ResponseEntity<LinkedDataWorkSearchResult> searchLinkedDataWorks(String tenantId,
+  public ResponseEntity<LinkedDataWorkSearchResult> searchLinkedDataWorks(String tenant,
                                                                           String query,
                                                                           Integer limit,
                                                                           Integer offset,
                                                                           Boolean omitInstances) {
-    var searchRequest = CqlSearchRequest.of(LinkedDataWork.class, tenantId, query, limit, offset, true);
+    var searchRequest = CqlSearchRequest.builder(LinkedDataWork.class)
+      .tenantId(tenant)
+      .query(query)
+      .limit(limit)
+      .offset(offset)
+      .expandAll(true)
+      .build();
     var result = searchService.search(searchRequest);
     if (TRUE.equals(omitInstances)) {
       result.getRecords().forEach(ldw -> ldw.setInstances(null));
@@ -93,12 +119,17 @@ public class SearchController implements SearchApi {
   }
 
   @Override
-  public ResponseEntity<LinkedDataHubSearchResult> searchLinkedDataHubs(String tenantId,
+  public ResponseEntity<LinkedDataHubSearchResult> searchLinkedDataHubs(String tenant,
                                                                         String query,
                                                                         Integer limit,
                                                                         Integer offset) {
-    var searchRequest = CqlSearchRequest.of(
-      LinkedDataHub.class, tenantId, query, limit, offset, true);
+    var searchRequest = CqlSearchRequest.builder(LinkedDataHub.class)
+      .tenantId(tenant)
+      .query(query)
+      .limit(limit)
+      .offset(offset)
+      .expandAll(true)
+      .build();
     var result = searchService.search(searchRequest);
     return ResponseEntity.ok(new LinkedDataHubSearchResult()
       .searchQuery(query)

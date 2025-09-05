@@ -30,7 +30,7 @@ public class IndexNameProvider {
   }
 
   public String getIndexName(ResourceRequest request) {
-    return getIndexName(request.getResource(), request.getTenantId());
+    return getIndexName(request.resource(), request.tenantId());
   }
 
   public String getIndexName(ResourceEvent event) {

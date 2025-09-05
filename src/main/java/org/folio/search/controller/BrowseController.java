@@ -1,6 +1,6 @@
 package org.folio.search.controller;
 
-import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
+import static org.apache.commons.lang3.ObjectUtils.getIfNull;
 import static org.folio.search.model.types.ResourceType.AUTHORITY;
 import static org.folio.search.model.types.ResourceType.INSTANCE_CALL_NUMBER;
 import static org.folio.search.model.types.ResourceType.INSTANCE_CLASSIFICATION;
@@ -50,9 +50,12 @@ public class BrowseController implements BrowseApi {
   @Override
   public ResponseEntity<AuthorityBrowseResult> browseAuthorities(String query, String tenant, Boolean expandAll,
                                                                  Boolean highlightMatch, Integer precedingRecordsCount,
-                                                                 Integer limit) {
-    var browseRequest = getBrowseRequestBuilder(query, tenant, limit, expandAll, highlightMatch, precedingRecordsCount)
-      .resource(AUTHORITY).targetField(AUTHORITY_BROWSING_FIELD).build();
+                                                                 Integer limit, String include) {
+    var browseRequest = getBrowseRequestBuilder(query, tenant, limit, expandAll, include,
+      highlightMatch, precedingRecordsCount)
+      .resource(AUTHORITY)
+      .targetField(AUTHORITY_BROWSING_FIELD)
+      .build();
     var browseResult = authorityBrowseService.browse(browseRequest);
     return ResponseEntity.ok(new AuthorityBrowseResult()
       .items(browseResult.getRecords())
@@ -66,18 +69,21 @@ public class BrowseController implements BrowseApi {
                                                                             String query, String tenant,
                                                                             Integer limit, Boolean highlightMatch,
                                                                             Integer precedingRecordsCount) {
-    var browseRequest = getBrowseRequestBuilder(query, tenant, limit, false, highlightMatch, precedingRecordsCount)
+    var browseRequest = getBrowseRequestBuilder(query, tenant, limit, highlightMatch, precedingRecordsCount)
       .resource(INSTANCE_CALL_NUMBER)
       .browseOptionType(browseOptionId)
       .targetField(CALL_NUMBER_BROWSING_FIELD)
       .build();
 
     var browseResult = callNumberBrowseService.browse(browseRequest);
-    return ResponseEntity.ok(new CallNumberBrowseResult()
-      .totalRecords(browseResult.getTotalRecords())
-      .items(browseResult.getRecords())
-      .prev(browseResult.getPrev())
-      .next(browseResult.getNext()));
+    if (browseResult != null) {
+      return ResponseEntity.ok(new CallNumberBrowseResult()
+        .totalRecords(browseResult.getTotalRecords())
+        .items(browseResult.getRecords())
+        .prev(browseResult.getPrev())
+        .next(browseResult.getNext()));
+    }
+    return ResponseEntity.ok(new CallNumberBrowseResult().totalRecords(0));
   }
 
   @Override
@@ -85,7 +91,7 @@ public class BrowseController implements BrowseApi {
     BrowseOptionType browseOptionId, String query, String tenant, Integer limit,
     Boolean highlightMatch, Integer precedingRecordsCount) {
 
-    var browseRequest = getBrowseRequestBuilder(query, tenant, limit, false, highlightMatch, precedingRecordsCount)
+    var browseRequest = getBrowseRequestBuilder(query, tenant, limit, highlightMatch, precedingRecordsCount)
       .resource(INSTANCE_CLASSIFICATION)
       .browseOptionType(browseOptionId)
       .targetField(CLASSIFICATION_NUMBER_BROWSING_FIELD)
@@ -103,7 +109,7 @@ public class BrowseController implements BrowseApi {
   public ResponseEntity<ContributorBrowseResult> browseInstancesByContributor(String query, String tenant,
                                                                               Integer limit, Boolean highlightMatch,
                                                                               Integer precedingRecordsCount) {
-    var browseRequest = getBrowseRequestBuilder(query, tenant, limit, false, highlightMatch, precedingRecordsCount)
+    var browseRequest = getBrowseRequestBuilder(query, tenant, limit, highlightMatch, precedingRecordsCount)
       .resource(INSTANCE_CONTRIBUTOR)
       .targetField(CONTRIBUTOR_BROWSING_FIELD)
       .build();
@@ -120,7 +126,7 @@ public class BrowseController implements BrowseApi {
   public ResponseEntity<SubjectBrowseResult> browseInstancesBySubject(String query, String tenant,
                                                                       Integer limit, Boolean highlightMatch,
                                                                       Integer precedingRecordsCount) {
-    var browseRequest = getBrowseRequestBuilder(query, tenant, limit, false, highlightMatch, precedingRecordsCount)
+    var browseRequest = getBrowseRequestBuilder(query, tenant, limit, highlightMatch, precedingRecordsCount)
       .resource(INSTANCE_SUBJECT)
       .targetField(SUBJECT_BROWSING_FIELD)
       .build();
@@ -134,7 +140,12 @@ public class BrowseController implements BrowseApi {
   }
 
   private BrowseRequestBuilder getBrowseRequestBuilder(String query, String tenant, Integer limit,
-                                                       Boolean expandAll, Boolean highlightMatch,
+                                                       Boolean highlightMatch, Integer precedingRecordsCount) {
+    return getBrowseRequestBuilder(query, tenant, limit, false, null, highlightMatch, precedingRecordsCount);
+  }
+
+  private BrowseRequestBuilder getBrowseRequestBuilder(String query, String tenant, Integer limit,
+                                                       Boolean expandAll, String include, Boolean highlightMatch,
                                                        Integer precedingRecordsCount) {
     if (precedingRecordsCount != null && precedingRecordsCount >= limit) {
       throw new RequestValidationException("Preceding records count must be less than request limit",
@@ -146,7 +157,8 @@ public class BrowseController implements BrowseApi {
       .query(query)
       .tenantId(tenantProvider.getTenant(tenant))
       .expandAll(expandAll)
+      .include(include)
       .highlightMatch(highlightMatch)
-      .precedingRecordsCount(defaultIfNull(precedingRecordsCount, limit / 2));
+      .precedingRecordsCount(getIfNull(precedingRecordsCount, limit / 2));
   }
 }

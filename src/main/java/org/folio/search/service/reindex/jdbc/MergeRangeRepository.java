@@ -2,10 +2,8 @@ package org.folio.search.service.reindex.jdbc;
 
 import static org.folio.search.service.reindex.ReindexConstants.MERGE_RANGE_TABLE;
 import static org.folio.search.utils.JdbcUtils.getFullTableName;
-import static org.folio.search.utils.JdbcUtils.getParamPlaceholderForUuid;
-import static org.folio.search.utils.JdbcUtils.getParamPlaceholderForUuidArray;
+import static org.folio.search.utils.JdbcUtils.getUuidArrayParam;
 
-import jakarta.persistence.GenerationType;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -24,11 +22,11 @@ import org.springframework.transaction.annotation.Transactional;
 public abstract class MergeRangeRepository extends ReindexJdbcRepository {
 
   private static final String DELETE_SQL = """
-    DELETE FROM %s WHERE id IN (%s);
+    DELETE FROM %s WHERE id = ANY (?);
     """;
 
   private static final String DELETE_SQL_FOR_TENANT = """
-    DELETE FROM %s WHERE id = ANY (%s) AND tenant_id = ?;
+    DELETE FROM %s WHERE id = ANY (?) AND tenant_id = ?;
     """;
 
   private static final String SOFT_DELETE_SQL = """
@@ -104,12 +102,11 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
 
   public void deleteEntitiesForTenant(List<String> ids, String tenantId, boolean hard) {
     var fullTableName = getFullTableName(context, entityTable());
-    var paramPlaceholder = getParamPlaceholderForUuidArray(ids.size(), GenerationType.UUID.name());
     var query = hard ? DELETE_SQL_FOR_TENANT : SOFT_DELETE_SQL_FOR_TENANT;
-    var sql = query.formatted(fullTableName, paramPlaceholder);
+    var sql = query.formatted(fullTableName);
 
     jdbcTemplate.update(sql, statement -> {
-      statement.setArray(1, statement.getConnection().createArrayOf(GenerationType.UUID.name(), ids.toArray()));
+      statement.setArray(1, getUuidArrayParam(ids, statement));
       statement.setString(2, tenantId);
     });
   }
@@ -122,9 +119,9 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
   public void deleteEntities(List<String> ids, boolean hard) {
     var fullTableName = getFullTableName(context, entityTable());
     var query = hard ? DELETE_SQL : SOFT_DELETE_SQL;
-    var sql = query.formatted(fullTableName, getParamPlaceholderForUuid(ids.size()));
+    var sql = query.formatted(fullTableName);
 
-    jdbcTemplate.update(sql, ids.toArray());
+    jdbcTemplate.update(sql, statement -> statement.setArray(1, getUuidArrayParam(ids, statement)));
   }
 
   public void updateBoundWith(String tenantId, String id, boolean bound) {

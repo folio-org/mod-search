@@ -2,7 +2,6 @@ package org.folio.api.search;
 
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.support.TestConstants.TENANT_ID;
@@ -131,10 +130,16 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
   @DisplayName("searchByInstances_parameterized")
   @ParameterizedTest(name = "[{index}] query={0}")
   void searchByInstances_parameterized(String query, List<String> expectedIds) throws Exception {
-    doSearchByInstances(query)
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("totalRecords", is(expectedIds.size())))
-      .andExpect(jsonPath("instances[*].id", is(expectedIds)));
+    var resultActions = doSearchByInstances(query)
+      .andExpect(status().isOk());
+    if (expectedIds == null) {
+      resultActions
+        .andExpect(jsonPath("$.totalRecords", is(0)));
+    } else {
+      resultActions
+        .andExpect(jsonPath("totalRecords", is(expectedIds.size())))
+        .andExpect(jsonPath("instances[*].id", is(expectedIds)));
+    }
   }
 
   @MethodSource("facetQueriesProvider")
@@ -278,10 +283,10 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments("(holdings.metadata.createdDate>= 2021-03-01 and metadata.createdDate < 2021-03-10) sortby title",
         List.of(IDS[0])),
       arguments("(holdings.metadata.createdDate>=2016-01-01 and holdings.metadata.createdDate<=2018-12-12) "
-        + "sortby title", List.of()),
+        + "sortby title", null),
       arguments("(staffSuppress==false "
         + "and holdings.metadata.createdDate>=2016-01-01 and holdings.metadata.createdDate<=2018-12-12) "
-        + "sortby title", List.of()),
+        + "sortby title", null),
 
       arguments("(holdings.metadata.updatedDate >= 2021-03-14) sortby title", List.of(IDS[3])),
       arguments("(holdings.metadata.updatedDate > 2021-03-01) sortby title", List.of(IDS[0], IDS[1], IDS[3])),
@@ -305,12 +310,12 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments("statisticalCodes == b5968c9e-cddc-4576-99e3-8e60aed8b0dd", List.of(IDS[0])),
       arguments("statisticalCodes == a2b01891-c9ab-4d04-8af8-8989af1c6aad", List.of(IDS[3])),
       arguments("statisticalCodes == 615e9911-edb1-4ab3-a9c3-a461a3de02f8", List.of(IDS[1])),
-      arguments("statisticalCodes == unknown", emptyList()),
+      arguments("statisticalCodes == unknown", null),
       arguments("statisticalCodeIds == b5968c9e-cddc-4576-99e3-8e60aed8b0dd", List.of(IDS[0])),
-      arguments("statisticalCodeIds == a2b01891-c9ab-4d04-8af8-8989af1c6aad", emptyList()),
-      arguments("holdings.statisticalCodeIds == b5968c9e-cddc-4576-99e3-8e60aed8b0dd", emptyList()),
+      arguments("statisticalCodeIds == a2b01891-c9ab-4d04-8af8-8989af1c6aad", null),
+      arguments("holdings.statisticalCodeIds == b5968c9e-cddc-4576-99e3-8e60aed8b0dd", null),
       arguments("holdings.statisticalCodeIds == a2b01891-c9ab-4d04-8af8-8989af1c6aad", List.of(IDS[3])),
-      arguments("item.statisticalCodeIds == b5968c9e-cddc-4576-99e3-8e60aed8b0dd", emptyList()),
+      arguments("item.statisticalCodeIds == b5968c9e-cddc-4576-99e3-8e60aed8b0dd", null),
       arguments("item.statisticalCodeIds == 615e9911-edb1-4ab3-a9c3-a461a3de02f8", List.of(IDS[1])),
 
       // Search by item filter (Backward compatibility)
@@ -332,7 +337,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments("items.discoverySuppress==true sortBy title", List.of(IDS[0], IDS[2])),
       arguments("items.discoverySuppress==false sortBy title", List.of(IDS[1], IDS[2], IDS[3], IDS[4])),
 
-      arguments("items.statisticalCodeIds == b5968c9e-cddc-4576-99e3-8e60aed8b0dd", emptyList()),
+      arguments("items.statisticalCodeIds == b5968c9e-cddc-4576-99e3-8e60aed8b0dd", null),
       arguments("items.statisticalCodeIds == 615e9911-edb1-4ab3-a9c3-a461a3de02f8", List.of(IDS[1])),
 
       arguments("(items.metadata.createdDate>= 2021-03-01) sortby title", List.of(IDS[0], IDS[1], IDS[2], IDS[3])),
@@ -340,10 +345,10 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments("(items.metadata.createdDate>= 2021-03-01 and metadata.createdDate < 2021-03-10) sortby title",
         List.of(IDS[0], IDS[2])),
       arguments("(items.metadata.createdDate>=2016-01-01 and items.metadata.createdDate<=2018-12-12) sortby title",
-        List.of()),
+        null),
       arguments("(staffSuppress==false "
           + "and items.metadata.createdDate>=2016-01-01 and items.metadata.createdDate<=2018-12-12) sortby title",
-        List.of()),
+        null),
 
       arguments("(items.metadata.updatedDate >= 2021-03-14) sortby title", List.of(IDS[2], IDS[3])),
       arguments("(items.metadata.updatedDate > 2021-03-01) sortby title", List.of(IDS[0], IDS[1], IDS[2], IDS[3])),

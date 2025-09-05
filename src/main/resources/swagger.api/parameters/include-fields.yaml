@@ -1,0 +1,7 @@
+in: query
+name: include
+description: Retrieves the fields listed in the specified parameter.
+required: false
+schema:
+  type: string
+  example: notes,subjects

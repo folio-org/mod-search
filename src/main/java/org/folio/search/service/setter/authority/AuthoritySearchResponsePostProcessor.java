@@ -58,7 +58,7 @@ public final class AuthoritySearchResponsePostProcessor implements SearchRespons
   private void countAndSetNumberOfLinkedInstances(List<Authority> authorities) {
     var queries = buildQueries(authorities, ResourceType.INSTANCE);
 
-    var resourceRequest = SimpleResourceRequest.of(ResourceType.INSTANCE,
+    var resourceRequest = new SimpleResourceRequest(ResourceType.INSTANCE,
       tenantProvider.getTenant(context.getTenantId()));
     var responses = searchRepository.msearch(resourceRequest, queries).getResponses();
 

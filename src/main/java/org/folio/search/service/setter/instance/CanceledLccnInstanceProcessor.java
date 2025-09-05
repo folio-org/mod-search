@@ -9,9 +9,9 @@ import org.springframework.stereotype.Component;
  * Instance identifier field processor, which normalizes LCCN numbers.
  */
 @Component
-public class LccnInstanceProcessor extends AbstractInstanceLccnProcessor {
+public class CanceledLccnInstanceProcessor extends AbstractInstanceLccnProcessor {
 
-  private static final List<String> IDENTIFIER_NAMES = List.of("LCCN");
+  private static final List<String> IDENTIFIER_NAMES = List.of("Canceled LCCN");
 
   /**
    * Used by dependency injection.
@@ -19,7 +19,7 @@ public class LccnInstanceProcessor extends AbstractInstanceLccnProcessor {
    * @param referenceDataService {@link ReferenceDataService} bean
    * @param stringNormalizer     {@link StringNormalizer} bean
    */
-  public LccnInstanceProcessor(ReferenceDataService referenceDataService, StringNormalizer stringNormalizer) {
+  public CanceledLccnInstanceProcessor(ReferenceDataService referenceDataService, StringNormalizer stringNormalizer) {
     super(referenceDataService, stringNormalizer);
   }
 

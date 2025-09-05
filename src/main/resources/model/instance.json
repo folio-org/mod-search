@@ -16,21 +16,22 @@
       "searchTypes": [ "facet", "filter" ],
       "index": "bool",
       "default": false,
-      "showInResponse": [ "search" ]
+      "showInResponse": true
     }
   },
   "fields": {
     "id": {
       "index": "keyword_lowercase",
-      "showInResponse": [ "search" ]
+      "showInResponse": true
     },
     "tenantId": {
       "index": "keyword",
       "searchTypes": [ "facet", "filter" ],
-      "showInResponse": [ "search" ]
+      "showInResponse": true
     },
     "hrid": {
-      "index": "keyword_lowercase"
+      "index": "keyword_lowercase",
+      "showInResponse": true
     },
     "source": {
       "searchTypes": [ "facet", "filter" ],
@@ -40,7 +41,7 @@
       "searchTypes": "sort",
       "searchAliases": [ "title", "keyword" ],
       "index": "multilang",
-      "showInResponse": [ "search" ]
+      "showInResponse": true
     },
     "alternativeTitles": {
       "type": "object",
@@ -93,24 +94,24 @@
         "name": {
           "searchAliases": [ "contributors", "keyword" ],
           "index": "standard",
-          "showInResponse": [ "search" ]
+          "showInResponse": true
         },
         "primary": {
           "index": "bool",
-          "showInResponse": [ "search" ]
+          "showInResponse": true
         },
         "contributorNameTypeId": {
           "index": "keyword_lowercase",
-          "showInResponse": [ "search" ]
+          "showInResponse": true
         },
         "contributorTypeId": {
           "index": "keyword_lowercase",
-          "showInResponse": [ "search" ]
+          "showInResponse": true
         },
         "authorityId": {
           "index": "keyword_lowercase",
           "searchAliases": [ "authorityId" ],
-          "showInResponse": [ "search" ]
+          "showInResponse": true
         }
       }
     },
@@ -140,15 +141,15 @@
       "properties": {
         "dateTypeId": {
           "index": "source",
-          "showInResponse": [ "search"]
+          "showInResponse": true
         },
         "date1": {
           "index": "source",
-          "showInResponse": [ "search" ]
+          "showInResponse": true
         },
         "date2": {
           "index": "source",
-          "showInResponse": [ "search" ]
+          "showInResponse": true
         }
       }
     },
@@ -205,11 +206,11 @@
         "publisher": {
           "searchAliases": [ "publisher" ],
           "index": "multilang",
-          "showInResponse": [ "search" ]
+          "showInResponse": true
         },
         "dateOfPublication": {
           "index": "source",
-          "showInResponse": [ "search" ]
+          "showInResponse": true
         },
         "place": {
           "index": "standard"
@@ -284,13 +285,13 @@
       "searchTypes": [ "facet", "filter" ],
       "index": "bool",
       "default": false,
-      "showInResponse": [ "search" ]
+      "showInResponse": true
     },
     "shared": {
       "searchTypes": [ "facet", "filter" ],
       "index": "bool",
       "default": false,
-      "showInResponse": [ "search" ]
+      "showInResponse": true
     },
     "items": {
       "type": "object",
@@ -357,20 +358,16 @@
           "type": "object",
           "properties": {
             "callNumber": {
-              "index": "source",
-              "showInResponse": [ "search" ]
+              "index": "source"
             },
             "prefix": {
-              "index": "source",
-              "showInResponse": [ "search" ]
+              "index": "source"
             },
             "suffix": {
-              "index": "source",
-              "showInResponse": [ "search" ]
+              "index": "source"
             },
             "typeId": {
-              "index": "keyword",
-              "showInResponse": [ "search" ]
+              "index": "keyword"
             }
           }
         },
@@ -609,7 +606,7 @@
     },
     "issn": {
       "type": "search",
-      "index": "keyword_uppercase",
+      "index": "keyword_no_space_dash",
       "processor": "issnProcessor"
     },
     "instanceTags": {
@@ -711,6 +708,12 @@
       "type": "search",
       "index": "keyword_icu",
       "processor": "lccnInstanceProcessor",
+      "searchTermProcessor": "noSpaceSearchTermProcessor"
+    },
+    "canceledLccn": {
+      "type": "search",
+      "index": "keyword_icu",
+      "processor": "canceledLccnInstanceProcessor",
       "searchTermProcessor": "noSpaceSearchTermProcessor"
     },
     "normalizedClassificationNumber": {

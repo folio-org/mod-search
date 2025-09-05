@@ -44,11 +44,11 @@ public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<Sub
   @Override
   protected SearchSourceBuilder getAnchorSearchQuery(BrowseRequest request, BrowseContext context) {
     log.debug("getAnchorSearchQuery:: by [request: {}]", request);
-    var boolQuery = boolQuery().must(termQuery(request.getTargetField(), context.getAnchor()));
+    var boolQuery = boolQuery().must(termQuery(request.targetField(), context.getAnchor()));
     context.getFilters().forEach(boolQuery::filter);
-    var query = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(context, boolQuery, request.getResource());
+    var query = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(context, boolQuery, request.resource());
     return searchSource().query(query)
-      .sort(fieldSort(request.getTargetField()))
+      .sort(fieldSort(request.targetField()))
       .sort(fieldSort(AUTHORITY_ID_FIELD).missing(MISSING_LAST_PROP))
       .sort(fieldSort(SUBJECT_SOURCE_ID_FIELD).missing(MISSING_LAST_PROP))
       .sort(fieldSort(SUBJECT_TYPE_ID_FIELD).missing(MISSING_LAST_PROP).sortMode(SortMode.MAX))
@@ -69,10 +69,10 @@ public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<Sub
     }
     var sortOrder = isBrowsingForward ? ASC : DESC;
     var missingProperty = isBrowsingForward || !ctx.isBrowsingForward() ? MISSING_LAST_PROP : MISSING_FIRST_PROP;
-    query = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(ctx, query, req.getResource());
+    query = consortiumSearchHelper.filterBrowseQueryForActiveAffiliation(ctx, query, req.resource());
     return searchSource().query(query)
       .searchAfter(new Object[] {getAnchorValue(req, ctx), null, null, null})
-      .sort(fieldSort(req.getTargetField()).order(sortOrder))
+      .sort(fieldSort(req.targetField()).order(sortOrder))
       .sort(fieldSort(AUTHORITY_ID_FIELD).order(sortOrder).missing(missingProperty))
       .sort(fieldSort(SUBJECT_SOURCE_ID_FIELD).order(sortOrder).missing(missingProperty))
       .sort(fieldSort(SUBJECT_TYPE_ID_FIELD).order(sortOrder).missing(missingProperty).sortMode(SortMode.MAX))

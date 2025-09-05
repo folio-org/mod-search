@@ -210,7 +210,7 @@ class BrowseClassificationIT extends BaseIntegrationTest {
         classificationBrowseItem("TX545 M45", LC_TYPE_ID, 1, "instance #11")
       ))),
 
-      arguments(forwardQuery, "Z", 10, classificationBrowseResult(null, null, 10, emptyList())),
+      arguments(forwardQuery, "Z", 10, classificationBrowseResult(null, null, 10, null)),
 
       arguments(forwardIncludingQuery, "QD33 .O87", 5, classificationBrowseResult("QD33 .O87", "TX545 .M45", 10,
         List.of(
@@ -228,7 +228,7 @@ class BrowseClassificationIT extends BaseIntegrationTest {
         classificationBrowseItem("N6679.R64 G88 2010", LC_TYPE_ID, 1, "instance #03")
       ))),
 
-      arguments(backwardQuery, "A", 10, classificationBrowseResult(null, null, 10, emptyList())),
+      arguments(backwardQuery, "A", 10, classificationBrowseResult(null, null, 10, null)),
 
       arguments(backwardIncludingQuery, "QD33 .O87", 5, classificationBrowseResult(null, "QD33 .O87", 10, List.of(
         classificationBrowseItem("BJ1453 .I49 1983", LC_TYPE_ID, 1, "instance #01"),

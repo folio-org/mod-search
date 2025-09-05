@@ -1,6 +1,8 @@
 ## v6.0.0 YYYY-mm-DD
 ### Breaking changes
 * Delete deprecated stream resource ids endpoints ([MSEARCH-1053](https://folio-org.atlassian.net/browse/MSEARCH-1053))
+* Remove unused fields from the response body and enhance fields handling in OpenSearch responses ([MSEARCH-1060](https://folio-org.atlassian.net/browse/MSEARCH-1060))
+* Linked Data: Change 'Ean' Identifier to 'IAN' Identifier to be consistent with the terminology used in mod-linked-data ([MSEARCH-1061](https://folio-org.atlassian.net/browse/MSEARCH-1061))
 
 ### New APIs versions
 * Provides `search-inventory v1.0`
@@ -14,27 +16,45 @@
 * Removed `browse`
 
 ### Features
-* Linked Data Instance and Work: search by classification type/number/additionalNumber ([MSEARCH-989](https://folio-org.atlassian.net/browse/MSEARCH-989))
-* Index Management: allow to set numberOfReplicas to 0 ([MSEARCH-1015](https://folio-org.atlassian.net/browse/MSEARCH-1015))
-* Index Management: remove mappingsSource configuration ([MSEARCH-1031](https://folio-org.atlassian.net/browse/MSEARCH-1031))
-* Index Management: truncate fields more than 32 000 bytes long ([MSEARCH-1029](https://folio-org.atlassian.net/browse/MSEARCH-1029))
-* Instance search: add support for searching by instance/holdings/item electronic access relationship ID ([MSEARCH-816](https://folio-org.atlassian.net/browse/MSEARCH-816))
-* Add indexes for instance_(call_number/subject/classification/contributor) ([MSEARCH-1025](https://folio-org.atlassian.net/browse/MSEARCH-1025))
-* Migrate to Opensearch 3.0.0 ([MSEARCH-1033](https://folio-org.atlassian.net/browse/MSEARCH-1033))
-* Add title and contributors to classification browse response ([MSEARCH-1045](https://folio-org.atlassian.net/browse/MSEARCH-1045))
+* **Authority Search**
+  * Separate LCCN and Canceled LCCN identifiers search to lccn and canceledLccn options ([MSEARCH-1066](https://folio-org.atlassian.net/browse/MSEARCH-1066))
+* **Classification Browse**
+  * Add title and contributors to classification browse response ([MSEARCH-1045](https://folio-org.atlassian.net/browse/MSEARCH-1045))
+* **Index Management**
+  * Allow to set numberOfReplicas to 0 ([MSEARCH-1015](https://folio-org.atlassian.net/browse/MSEARCH-1015))
+  * Remove mappingsSource configuration ([MSEARCH-1031](https://folio-org.atlassian.net/browse/MSEARCH-1031))
+  * Truncate fields more than 32 000 bytes long ([MSEARCH-1029](https://folio-org.atlassian.net/browse/MSEARCH-1029))
+* **Indexing**
+  * Add indexes for instance_(call_number/subject/classification/contributor) ([MSEARCH-1025](https://folio-org.atlassian.net/browse/MSEARCH-1025))
+* **Instance Search**
+  * Add support for searching by instance/holdings/item electronic access relationship ID ([MSEARCH-816](https://folio-org.atlassian.net/browse/MSEARCH-816))
+  * Normalize ISSN search ([MSEARCH-658](https://folio-org.atlassian.net/browse/MSEARCH-658))
+  * Separate LCCN and Canceled LCCN identifiers search to lccn and canceledLccn options ([MSEARCH-1065](https://folio-org.atlassian.net/browse/MSEARCH-1065))
+* **Linked Data Instance and Work**
+  * Search by classification type/number/additionalNumber ([MSEARCH-989](https://folio-org.atlassian.net/browse/MSEARCH-989))
 
 ### Bug fixes
-* Browse Config: fix exception while trying to validate empty type ids ([MSEARCH-998](https://folio-org.atlassian.net/browse/MSEARCH-998))
-* ECS: Modify filters for sub-resources during browse ([MSEARCH-990](https://folio-org.atlassian.net/browse/MSEARCH-990))
-* Facets: Modify facet queries to remove filters for nested queries ([MSEARCH-995](https://folio-org.atlassian.net/browse/MSEARCH-995))
-* Move index recreation before merge range publishing on full reindex ([MSEARCH-1006](https://folio-org.atlassian.net/browse/MSEARCH-1006))
-* Add facet filtering for nested queries ([MSEARCH-1012](https://folio-org.atlassian.net/browse/MSEARCH-1012))
-* NumberFormatException: "1\_000" "20\_000" ([MSEARCH-1016](https://folio-org.atlassian.net/browse/MSEARCH-1016))
-* Authority search: make searching by all heading fields handled with separate/generated search field  ([MSEARCH-1020](https://folio-org.atlassian.net/browse/MSEARCH-1020))
-* Consortium Search: batch search returns less results for duplicate identifiers ([MSEARCH-804](https://folio-org.atlassian.net/browse/MSEARCH-804))
+* **Authority Search**
+  * Make searching by all heading fields handled with separate/generated search field  ([MSEARCH-1020](https://folio-org.atlassian.net/browse/MSEARCH-1020))
+* **Browse**
+  * Modify filters for sub-resources during browse ([MSEARCH-990](https://folio-org.atlassian.net/browse/MSEARCH-990))
+* **Browse Config**
+  * Fix exception while trying to validate empty type ids ([MSEARCH-998](https://folio-org.atlassian.net/browse/MSEARCH-998))
+* **Call Number Browse**:
+  * Add facet filtering for nested queries ([MSEARCH-1012](https://folio-org.atlassian.net/browse/MSEARCH-1012))
+* **Consortium Search**
+  * Batch search returns less results for duplicate identifiers ([MSEARCH-804](https://folio-org.atlassian.net/browse/MSEARCH-804))
+* **Facets**
+  * Modify facet queries to remove filters for nested queries ([MSEARCH-995](https://folio-org.atlassian.net/browse/MSEARCH-995))
+* **Indexing**
+  * Move index recreation before merge range publishing on full reindex ([MSEARCH-1006](https://folio-org.atlassian.net/browse/MSEARCH-1006))
+  * Proper handling of delete item events ([MSEARCH-1064](https://folio-org.atlassian.net/browse/MSEARCH-1064))
 
 ### Tech Dept
+* Migrate to Opensearch 3.0.0 ([MSEARCH-1033](https://folio-org.atlassian.net/browse/MSEARCH-1033))
 * Stabilize test execution ([MSEARCH-991](https://folio-org.atlassian.net/browse/MSEARCH-991))
+* NumberFormatException: "1\_000" "20\_000" ([MSEARCH-1016](https://folio-org.atlassian.net/browse/MSEARCH-1016))
+* Add missing `holdings-storage` and `item-storage` dependencies in module descriptor ([MSEARCH-1062](https://folio-org.atlassian.net/browse/MSEARCH-1062))
 
 ### Dependencies
 * Bump `LIB_NAME` from `OLD_VERSION` to `NEW_VERSION`

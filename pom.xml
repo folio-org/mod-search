@@ -45,7 +45,7 @@
     <marc4j.version>2.9.5</marc4j.version>
     <lombok.version>1.18.38</lombok.version>
     <lombok.mapstruct-binding.version>0.2.0</lombok.mapstruct-binding.version>
-    <streamex.version>0.8.3</streamex.version>
+    <streamex.version>0.8.4</streamex.version>
 
     <!-- Plugins versions -->
     <folio-module-descriptor-validator.version>1.0.1</folio-module-descriptor-validator.version>
@@ -56,7 +56,7 @@
     <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
     <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
     <folio-java-checkstyle.version>1.1.0</folio-java-checkstyle.version>
-    <checkstyle.version>10.26.1</checkstyle.version>
+    <checkstyle.version>11.0.0</checkstyle.version>
     <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
     <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
     <maven-failsafe-plugin.version>3.5.3</maven-failsafe-plugin.version>
@@ -494,6 +494,10 @@
                 <useSpringBoot3>true</useSpringBoot3>
                 <requestMappingMode>api_interface</requestMappingMode>
                 <generatedConstructorWithRequiredArgs>false</generatedConstructorWithRequiredArgs>
+                <containerDefaultToNull>true</containerDefaultToNull>
+                <additionalModelTypeAnnotations>
+                  @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)
+                </additionalModelTypeAnnotations>
               </configOptions>
             </configuration>
           </execution>

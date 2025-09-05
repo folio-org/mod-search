@@ -134,7 +134,7 @@ public class SearchRepository {
     var searchHits = searchResponse.getHits().getHits();
 
     while (isNotEmpty(searchHits)) {
-      consumer.accept(getResourceIds(searchHits, req.getSourceFieldPath()));
+      consumer.accept(getResourceIds(searchHits, req.sourceFieldPath()));
       var scrollRequest = new SearchScrollRequest(scrollId).scroll(KEEP_ALIVE_INTERVAL);
       var scrollResponse = retryTemplate.execute(v -> performExceptionalOperation(
         () -> client.scroll(scrollRequest, DEFAULT), index, "scrollApi"));

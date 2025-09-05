@@ -5,6 +5,7 @@ import static org.folio.search.utils.JdbcUtils.getParamPlaceholderForUuid;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -14,6 +15,7 @@ import org.folio.search.utils.JdbcUtils;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 
 public abstract class ReindexJdbcRepository {
 
@@ -82,6 +84,30 @@ public abstract class ReindexJdbcRepository {
     return null;
   }
 
+  protected SubResourceResult fetchByTimestamp(String query, RowMapper<Map<String, Object>> rowMapper,
+                                               Timestamp timestamp, String tenant) {
+    var sql = buildSelectQuery(query, tenant, false, true, false);
+    var records = jdbcTemplate.query(sql, rowMapper, timestamp);
+    var lastUpdateDate = records.isEmpty() ? null : records.getLast().get(LAST_UPDATED_DATE_FIELD);
+    return new SubResourceResult(records, (Timestamp) lastUpdateDate);
+  }
+
+  protected SubResourceResult fetchByTimestamp(String query, RowMapper<Map<String, Object>> rowMapper,
+                                               Timestamp timestamp, int limit, String tenant) {
+    var sql = buildSelectQuery(query, tenant, false, false, true);
+    var records = jdbcTemplate.query(sql, rowMapper, timestamp, limit);
+    var lastUpdateDate = records.isEmpty() ? null : records.getLast().get(LAST_UPDATED_DATE_FIELD);
+    return new SubResourceResult(records, (Timestamp) lastUpdateDate);
+  }
+
+  protected SubResourceResult fetchByTimestamp(String query, RowMapper<Map<String, Object>> rowMapper,
+                                               Timestamp timestamp, String fromId, int limit, String tenant) {
+    var sql = buildSelectQuery(query, tenant, true, false, true);
+    var records = jdbcTemplate.query(sql, rowMapper, timestamp, fromId, limit);
+    var lastUpdateDate = records.isEmpty() ? null : records.getLast().get(LAST_UPDATED_DATE_FIELD);
+    return new SubResourceResult(records, (Timestamp) lastUpdateDate);
+  }
+
   public abstract ReindexEntityType entityType();
 
   protected abstract String entityTable();
@@ -91,16 +117,6 @@ public abstract class ReindexJdbcRepository {
   }
 
   protected abstract String rangeTable();
-
-  protected String buildSelectQuery(String sql, String tenant, boolean includeFromId, boolean orderByDateOnly,
-                                    boolean includeLimit) {
-    var whereClause = includeFromId ? "(last_updated_date, id) > (?, ?)" : "last_updated_date > ?";
-    var orderBy = orderByDateOnly ? "last_updated_date" : "last_updated_date, id";
-    var orderByAsc = orderByDateOnly ? "last_updated_date ASC" : "last_updated_date ASC, id ASC";
-    var limitClause = includeLimit ? "LIMIT ?" : "";
-    return sql.formatted(
-      JdbcUtils.getSchemaName(tenant, context.getFolioModuleMetadata()), whereClause, orderBy, limitClause, orderByAsc);
-  }
 
   protected void deleteByInstanceIds(String query, List<String> instanceIds, String tenantId) {
     var sql = query.formatted(
@@ -115,5 +131,15 @@ public abstract class ReindexJdbcRepository {
     }
 
     jdbcTemplate.update(sql, instanceIds.toArray());
+  }
+
+  private String buildSelectQuery(String sql, String tenant, boolean includeFromId, boolean orderByDateOnly,
+                                  boolean includeLimit) {
+    var whereClause = includeFromId ? "(last_updated_date, id) > (?, ?)" : "last_updated_date > ?";
+    var orderBy = orderByDateOnly ? "last_updated_date" : "last_updated_date, id";
+    var orderByAsc = orderByDateOnly ? "last_updated_date ASC" : "last_updated_date ASC, id ASC";
+    var limitClause = includeLimit ? "LIMIT ?" : "";
+    return sql.formatted(
+      JdbcUtils.getSchemaName(tenant, context.getFolioModuleMetadata()), whereClause, orderBy, limitClause, orderByAsc);
   }
 }

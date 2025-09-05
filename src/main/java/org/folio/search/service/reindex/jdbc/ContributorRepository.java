@@ -167,26 +167,17 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
 
   @Override
   public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp) {
-    var sql = buildSelectQuery(SELECT_BY_UPDATED_QUERY, tenant, false, true, false);
-    var records = jdbcTemplate.query(sql, rowToMapMapper2(), timestamp);
-    var lastUpdateDate = records.isEmpty() ? null : records.getLast().get(LAST_UPDATED_DATE_FIELD);
-    return new SubResourceResult(records, (Timestamp) lastUpdateDate);
+    return fetchByTimestamp(SELECT_BY_UPDATED_QUERY, rowToMapMapper2(), timestamp, tenant);
   }
 
   @Override
   public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp, int limit) {
-    var sql = buildSelectQuery(SELECT_BY_UPDATED_QUERY, tenant, false, false, true);
-    var records = jdbcTemplate.query(sql, rowToMapMapper2(), timestamp, limit);
-    var lastUpdateDate = records.isEmpty() ? null : records.getLast().get(LAST_UPDATED_DATE_FIELD);
-    return new SubResourceResult(records, (Timestamp) lastUpdateDate);
+    return fetchByTimestamp(SELECT_BY_UPDATED_QUERY, rowToMapMapper2(), timestamp, limit, tenant);
   }
 
   @Override
   public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp, String fromId, int limit) {
-    var sql = buildSelectQuery(SELECT_BY_UPDATED_QUERY, tenant, true, false, true);
-    var records = jdbcTemplate.query(sql, rowToMapMapper2(), timestamp, fromId, limit);
-    var lastUpdateDate = records.isEmpty() ? null : records.getLast().get(LAST_UPDATED_DATE_FIELD);
-    return new SubResourceResult(records, (Timestamp) lastUpdateDate);
+    return fetchByTimestamp(SELECT_BY_UPDATED_QUERY, rowToMapMapper2(), timestamp, fromId, limit, tenant);
   }
 
   @Override

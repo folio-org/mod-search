@@ -72,147 +72,47 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
         s.id;
     """;
 
-  private static final String SELECT_BY_UPDATED_QUERY = """
-    WITH cte AS (SELECT s.id,
-                              s.value,
-                              s.authority_id,
-                              s.source_id,
-                              s.type_id,
-                              s.last_updated_date
-                       FROM %1$s.subject s
-                       WHERE last_updated_date > ?
-                       ORDER BY last_updated_date
-                       )
+  private static final String BASE_SELECT_QUERY = """
+      WITH cte AS (
           SELECT s.id,
                  s.value,
                  s.authority_id,
                  s.source_id,
                  s.type_id,
-                 s.last_updated_date,
-                                         json_agg(
-                                CASE
-                                    WHEN sub.instance_count IS NULL THEN NULL
-                                    ELSE json_build_object(
-                                            'count', sub.instance_count,
-                                             'shared', sub.shared,
-                                             'tenantId', sub.tenant_id
-                                         )
-                                    END
-                        ) AS instances
-          FROM cte s
-                   LEFT JOIN
-               (SELECT cte.id,
-                       ins.tenant_id,
-                       ins.shared,
-                       count(1) AS instance_count
-                FROM %1$s.instance_subject ins
-                         INNER JOIN cte ON ins.subject_id = cte.id
-                GROUP BY cte.id,
-                         ins.tenant_id,
-                         ins.shared) sub ON s.id = sub.id
-          GROUP BY s.id,
-                   s.value,
-                   s.authority_id,
-                   s.source_id,
-                   s.type_id,
-                   s.last_updated_date
-          ORDER BY last_updated_date ASC;
-    """;
-
-  private static final String SELECT_BY_UPDATED_WITH_LIMIT_QUERY = """
-    WITH cte AS (SELECT s.id,
-                              s.value,
-                              s.authority_id,
-                              s.source_id,
-                              s.type_id,
-                              s.last_updated_date
-                       FROM %1$s.subject s
-                       WHERE last_updated_date > ?
-                       ORDER BY last_updated_date, id
-                       LIMIT ?
-                       )
-          SELECT s.id,
-                 s.value,
-                 s.authority_id,
-                 s.source_id,
-                 s.type_id,
-                 s.last_updated_date,
-                                         json_agg(
-                                CASE
-                                    WHEN sub.instance_count IS NULL THEN NULL
-                                    ELSE json_build_object(
-                                            'count', sub.instance_count,
-                                             'shared', sub.shared,
-                                             'tenantId', sub.tenant_id
-                                         )
-                                    END
-                        ) AS instances
-          FROM cte s
-                   LEFT JOIN
-               (SELECT cte.id,
-                       ins.tenant_id,
-                       ins.shared,
-                       count(1) AS instance_count
-                FROM %1$s.instance_subject ins
-                         INNER JOIN cte ON ins.subject_id = cte.id
-                GROUP BY cte.id,
-                         ins.tenant_id,
-                         ins.shared) sub ON s.id = sub.id
-          GROUP BY s.id,
-                   s.value,
-                   s.authority_id,
-                   s.source_id,
-                   s.type_id,
-                   s.last_updated_date
-          ORDER BY last_updated_date ASC, id ASC;
-    """;
-
-  private static final String SELECT_BY_UPDATED_FROM_ID_QUERY = """
-    WITH cte AS (SELECT s.id,
-                              s.value,
-                              s.authority_id,
-                              s.source_id,
-                              s.type_id,
-                              s.last_updated_date
-                       FROM %1$s.subject s
-                       WHERE (last_updated_date, id) > (?, ?)
-                       ORDER BY last_updated_date, id
-                       LIMIT ?
-                       )
-          SELECT s.id,
-                 s.value,
-                 s.authority_id,
-                 s.source_id,
-                 s.type_id,
-                 s.last_updated_date,
-                                         json_agg(
-                                CASE
-                                    WHEN sub.instance_count IS NULL THEN NULL
-                                    ELSE json_build_object(
-                                            'count', sub.instance_count,
-                                             'shared', sub.shared,
-                                             'tenantId', sub.tenant_id
-                                         )
-                                    END
-                        ) AS instances
-          FROM cte s
-                   LEFT JOIN
-               (SELECT cte.id,
-                       ins.tenant_id,
-                       ins.shared,
-                       count(1) AS instance_count
-                FROM %1$s.instance_subject ins
-                         INNER JOIN cte ON ins.subject_id = cte.id
-                GROUP BY cte.id,
-                         ins.tenant_id,
-                         ins.shared) sub ON s.id = sub.id
-          GROUP BY s.id,
-                   s.value,
-                   s.authority_id,
-                   s.source_id,
-                   s.type_id,
-                   s.last_updated_date
-          ORDER BY last_updated_date ASC, id ASC;
+                 s.last_updated_date
+          FROM %1$s.subject s
+          WHERE %2$s
+          ORDER BY %3$s
+          %4$s
+      )
+      SELECT s.id,
+             s.value,
+             s.authority_id,
+             s.source_id,
+             s.type_id,
+             s.last_updated_date,
+             json_agg(
+                 CASE
+                     WHEN sub.instance_count IS NULL THEN NULL
+                     ELSE json_build_object(
+                         'count', sub.instance_count,
+                         'shared', sub.shared,
+                         'tenantId', sub.tenant_id
+                     )
+                 END
+             ) AS instances
+      FROM cte s
+      LEFT JOIN (
+          SELECT cte.id,
+                 ins.tenant_id,
+                 ins.shared,
+                 count(1) AS instance_count
+          FROM %1$s.instance_subject ins
+          INNER JOIN cte ON ins.subject_id = cte.id
+          GROUP BY cte.id, ins.tenant_id, ins.shared
+      ) sub ON s.id = sub.id
+      GROUP BY s.id, s.value, s.authority_id, s.source_id, s.type_id, s.last_updated_date
+      ORDER BY %5$s;
     """;
 
   private static final String DELETE_QUERY = """
@@ -271,7 +171,7 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
 
   @Override
   public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp) {
-    var sql = SELECT_BY_UPDATED_QUERY.formatted(JdbcUtils.getSchemaName(tenant, context.getFolioModuleMetadata()));
+    var sql = buildSelectQuery(tenant, false, true, false);
     var records = jdbcTemplate.query(sql, rowToMapMapper2(), timestamp);
     var lastUpdateDate = records.isEmpty() ? null : records.getLast().get(LAST_UPDATED_DATE_FIELD);
     return new SubResourceResult(records, (Timestamp) lastUpdateDate);
@@ -279,8 +179,7 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
 
   @Override
   public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp, int limit) {
-    var sql = SELECT_BY_UPDATED_WITH_LIMIT_QUERY.formatted(
-      JdbcUtils.getSchemaName(tenant, context.getFolioModuleMetadata()));
+    var sql = buildSelectQuery(tenant, false, false, true);
     var records = jdbcTemplate.query(sql, rowToMapMapper2(), timestamp, limit);
     var lastUpdateDate = records.isEmpty() ? null : records.getLast().get(LAST_UPDATED_DATE_FIELD);
     return new SubResourceResult(records, (Timestamp) lastUpdateDate);
@@ -288,11 +187,20 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
 
   @Override
   public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp, String fromId, int limit) {
-    var sql = SELECT_BY_UPDATED_FROM_ID_QUERY.formatted(
-      JdbcUtils.getSchemaName(tenant, context.getFolioModuleMetadata()));
+    var sql = buildSelectQuery(tenant, true, false, true);
     var records = jdbcTemplate.query(sql, rowToMapMapper2(), timestamp, fromId, limit);
     var lastUpdateDate = records.isEmpty() ? null : records.getLast().get(LAST_UPDATED_DATE_FIELD);
     return new SubResourceResult(records, (Timestamp) lastUpdateDate);
+  }
+
+  private String buildSelectQuery(String tenant, boolean includeFromId, boolean orderByDateOnly, boolean includeLimit) {
+    var whereClause = includeFromId ? "(last_updated_date, id) > (?, ?)" : "last_updated_date > ?";
+    var orderBy = orderByDateOnly ? "last_updated_date" : "last_updated_date, id";
+    var orderByAsc = orderByDateOnly ? "last_updated_date ASC" : "last_updated_date ASC, id ASC";
+    var limitClause = includeLimit ? "LIMIT ?" : "";
+
+    return BASE_SELECT_QUERY.formatted(
+      JdbcUtils.getSchemaName(tenant, context.getFolioModuleMetadata()), whereClause, orderBy, limitClause, orderByAsc);
   }
 
   @Override

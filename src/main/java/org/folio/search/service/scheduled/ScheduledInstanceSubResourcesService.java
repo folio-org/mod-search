@@ -81,9 +81,7 @@ public class ScheduledInstanceSubResourcesService {
         var entityTypes = repositories.keySet();
         for (var entityType : entityTypes) {
           var timestamp = subResourcesLockRepository.lockSubResource(entityType, tenant);
-          if (timestamp.isPresent()) {
-            processSubResources(entityType, tenant, timestamp.get());
-          }
+          timestamp.ifPresent(value -> processSubResources(entityType, tenant, value));
         }
         return null;
       }));
@@ -103,14 +101,11 @@ public class ScheduledInstanceSubResourcesService {
           processInstanceOrItemEntities(entityType, tenant, result);
           break;
         } else {
-          result = lastId == null
-            ? repositories.get(entityType).fetchByTimestamp(tenant, timestamp, subResourceBatchSize)
-            : repositories.get(entityType).fetchByTimestamp(tenant, lastTimestamp, lastId, subResourceBatchSize);
+          result = fetchSubResourceResult(entityType, tenant, timestamp, lastId, lastTimestamp);
 
           if (result == null || !result.hasRecords()) {
             break;
           }
-
           var events = map(result.records(), entityType, tenant);
           resourceService.indexResources(events);
 
@@ -126,11 +121,22 @@ public class ScheduledInstanceSubResourcesService {
     } catch (Exception e) {
       log.error("processSubResources::Error processing {} entities", entityType, e);
     } finally {
-      var lastUpdatedDate = result == null || result.lastUpdateDate() == null
-                            ? timestamp
-                            : result.lastUpdateDate();
+      var lastUpdatedDate = getLastUpdatedDate(timestamp, result);
       subResourcesLockRepository.unlockSubResource(entityType, lastUpdatedDate, tenant);
     }
+  }
+
+  private Timestamp getLastUpdatedDate(Timestamp timestamp, SubResourceResult result) {
+    return result == null || result.lastUpdateDate() == null
+      ? timestamp
+      : result.lastUpdateDate();
+  }
+
+  private SubResourceResult fetchSubResourceResult(ReindexEntityType entityType, String tenant, Timestamp timestamp,
+                                                   String lastId, Timestamp lastTimestamp) {
+    return lastId == null
+      ? repositories.get(entityType).fetchByTimestamp(tenant, timestamp, subResourceBatchSize)
+      : repositories.get(entityType).fetchByTimestamp(tenant, lastTimestamp, lastId, subResourceBatchSize);
   }
 
   private void processInstanceOrItemEntities(ReindexEntityType entityType, String tenant,

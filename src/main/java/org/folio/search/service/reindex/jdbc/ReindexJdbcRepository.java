@@ -16,7 +16,7 @@ public abstract class ReindexJdbcRepository {
 
   protected static final int BATCH_OPERATION_SIZE = 100;
   protected static final String LAST_UPDATED_DATE_FIELD = "lastUpdatedDate";
-  
+
   private static final String COUNT_SQL = "SELECT COUNT(*) FROM %s;";
   private static final String UPDATE_STATUS_SQL = """
     UPDATE %s
@@ -56,6 +56,7 @@ public abstract class ReindexJdbcRepository {
    * Fetch records updated after the given timestamp for background processing.
    * Default implementation returns null - subclasses can override if they support timestamp-based fetching.
    */
+  @SuppressWarnings("unused")
   public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp) {
     return null;
   }
@@ -64,6 +65,7 @@ public abstract class ReindexJdbcRepository {
    * Fetch records updated after the given timestamp with a limit for background processing.
    * Default implementation returns null - subclasses can override if they support timestamp-based fetching with limit.
    */
+  @SuppressWarnings("unused")
   public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp, int limit) {
     return null;
   }
@@ -72,6 +74,7 @@ public abstract class ReindexJdbcRepository {
    * Fetch records starting from a specific timestamp and ID for background processing.
    * Default implementation returns null - subclasses can override if they support ID-based seeking.
    */
+  @SuppressWarnings("unused")
   public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp, String fromId, int limit) {
     return null;
   }

@@ -2,7 +2,6 @@ package org.folio.search.service.reindex.jdbc;
 
 import static org.folio.search.utils.JdbcUtils.getFullTableName;
 
-import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -44,11 +43,6 @@ public class UploadInstanceRepository extends UploadRangeRepository {
                                      FolioExecutionContext context,
                                      ReindexConfigurationProperties reindexConfig) {
     super(jdbcTemplate, jsonConverter, context, reindexConfig);
-  }
-
-  @Override
-  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp) {
-    return null;
   }
 
   @Override

@@ -75,6 +75,12 @@ public class SearchConfigurationProperties {
      * */
     private long instanceChildrenIndexDelayMs;
 
+
+    /**
+     * Batch size for background processing sub-resources (contributors, subjects, classifications, etc.).
+     * Default is 100 records per batch.
+     */
+    private int subResourceBatchSize = 100;
   }
 
 }

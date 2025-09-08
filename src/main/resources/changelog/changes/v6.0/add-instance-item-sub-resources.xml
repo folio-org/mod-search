@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
+
+  <changeSet id="MSEARCH-1056@@add-instance-item-to-sub-resources-lock" author="viacheslav_kolesnyk">
+    <preConditions onFail="MARK_RAN">
+      <tableExists tableName="sub_resources_lock"/>
+      <sqlCheck expectedResult="0">
+        SELECT count(1) FROM sub_resources_lock WHERE entity_type IN ('instance', 'item');
+      </sqlCheck>
+    </preConditions>
+
+    <comment>Add instance and item entries to sub_resources_lock table for background processing</comment>
+
+    <insert tableName="sub_resources_lock">
+      <column name="entity_type" value="instance"/>
+      <column name="locked_flag" value="false"/>
+      <column name="last_updated_date" valueComputed="CURRENT_TIMESTAMP"/>
+    </insert>
+    <insert tableName="sub_resources_lock">
+      <column name="entity_type" value="item"/>
+      <column name="locked_flag" value="false"/>
+      <column name="last_updated_date" valueComputed="CURRENT_TIMESTAMP"/>
+    </insert>
+  </changeSet>
+
+  <changeSet id="MSEARCH-1056@@update-reindex-status-trigger-v3" author="viacheslav_kolesnyk">
+    <preConditions onFail="MARK_RAN">
+      <tableExists tableName="reindex_status"/>
+      <tableExists tableName="sub_resources_lock"/>
+    </preConditions>
+
+    <comment>Update reindex status trigger to handle instance and item background processing</comment>
+
+    <sqlFile path="sql/update-reindex-status-trigger-v3.sql" relativeToChangelogFile="true" splitStatements="false"/>
+  </changeSet>
+
+</databaseChangeLog>

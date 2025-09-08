@@ -23,7 +23,6 @@ import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ResourceType;
-import org.folio.search.service.InstanceChildrenResourceService;
 import org.folio.search.service.consortium.ConsortiumTenantExecutor;
 import org.folio.search.service.reindex.jdbc.MergeRangeRepository;
 import org.folio.search.service.reindex.jdbc.ReindexJdbcRepository;
@@ -43,7 +42,6 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
   private final Map<ReindexEntityType, MergeRangeRepository> repositories;
   private final ConsortiumTenantExecutor executionService;
   private final SystemUserScopedExecutionService systemUserScopedExecutionService;
-  private final InstanceChildrenResourceService instanceChildrenResourceService;
 
   public PopulateInstanceBatchInterceptor(List<MergeRangeRepository> repositories,
                                           ConsortiumTenantExecutor executionService,
@@ -52,7 +50,6 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
     this.repositories = repositories.stream().collect(Collectors.toMap(ReindexJdbcRepository::entityType, identity()));
     this.executionService = executionService;
     this.systemUserScopedExecutionService = systemUserScopedExecutionService;
-    this.instanceChildrenResourceService = instanceChildrenResourceService;
   }
 
   @Override
@@ -104,8 +101,9 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
         saveEntities(tenant, recordByOperation.getOrDefault(true, emptyList()), repository);
         deleteEntities(tenant, resourceType, recordByOperation.getOrDefault(false, emptyList()), repository);
 
-        instanceChildrenResourceService.persistChildren(tenant, ResourceType.byName(resourceType),
-          recordCollection.getValue());
+        log.debug("process::Saved {} entities for resource type {} in tenant {}, "
+            + "sub-resource processing will be handled by background job",
+          recordCollection.getValue().size(), resourceType, tenant);
       }
     }
   }

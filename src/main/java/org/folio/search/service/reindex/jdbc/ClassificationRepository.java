@@ -279,14 +279,15 @@ public class ClassificationRepository extends UploadRangeRepository implements I
       jdbcTemplate.batchUpdate(stagingEntitiesSql, entities, BATCH_OPERATION_SIZE,
         (statement, entity) -> {
           statement.setString(1, (String) entity.get("id"));
-          statement.setString(2, (String) entity.get("number"));
-          statement.setString(3, (String) entity.get("typeId"));
+          statement.setString(2, (String) entity.get(CLASSIFICATION_NUMBER_FIELD));
+          statement.setString(3, (String) entity.get(CLASSIFICATION_TYPE_FIELD));
         });
     } catch (DataAccessException e) {
       log.warn("saveEntitiesToStaging::Failed to save entities batch. Processing one-by-one", e);
       for (var entity : entities) {
         try {
-          jdbcTemplate.update(stagingEntitiesSql, entity.get("id"), entity.get("number"), entity.get("typeId"));
+          jdbcTemplate.update(stagingEntitiesSql, entity.get("id"),
+            entity.get(CLASSIFICATION_NUMBER_FIELD), entity.get(CLASSIFICATION_TYPE_FIELD));
         } catch (DataAccessException ex) {
           log.debug("Failed to save staging classification entity {}: {}", entity.get("id"), ex.getMessage());
         }

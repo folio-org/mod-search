@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.exception.ReindexException;
-import org.folio.search.model.reindex.DeduplicationResult;
+import org.folio.search.model.reindex.MigrationResult;
 import org.folio.spring.FolioExecutionContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -14,83 +14,87 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Log4j2
 @Service
-public class StagingDeduplicationService {
+public class StagingMigrationService {
 
   private final JdbcTemplate jdbcTemplate;
   private final FolioExecutionContext context;
   private final ReindexCommonService reindexCommonService;
 
-  public StagingDeduplicationService(JdbcTemplate jdbcTemplate,
-                                     FolioExecutionContext context,
-                                     ReindexCommonService reindexCommonService) {
+  public StagingMigrationService(JdbcTemplate jdbcTemplate,
+                                 FolioExecutionContext context,
+                                 ReindexCommonService reindexCommonService) {
     this.jdbcTemplate = jdbcTemplate;
     this.context = context;
     this.reindexCommonService = reindexCommonService;
   }
 
   @Transactional
-  public DeduplicationResult deduplicateAllStagingTables() {
-    return deduplicateAllStagingTables(null);
+  public MigrationResult migrateAllStagingTables() {
+    return migrateAllStagingTables(null);
   }
 
   @Transactional
-  public DeduplicationResult deduplicateAllStagingTables(String targetTenantId) {
-    var result = new DeduplicationResult();
+  public MigrationResult migrateAllStagingTables(String targetTenantId) {
+    var result = new MigrationResult();
     var startTime = System.currentTimeMillis();
 
     try {
       if (targetTenantId != null) {
-        log.info("Starting tenant-specific deduplication for tenant: {}", targetTenantId);
+        log.info("Starting tenant-specific migration for tenant: {}", targetTenantId);
         // Delete existing data for this tenant from non-staging tables
         reindexCommonService.deleteRecordsByTenantId(targetTenantId);
       } else {
-        log.info("Starting full deduplication of all staging tables");
+        log.info("Starting full migration of all staging tables");
       }
 
       // Analyze staging tables for better query performance
       analyzeStagingTables();
 
       // Phase 1: Instances
-      log.info("Starting instances deduplication...");
-      deduplicateInstances(result);
-      log.info("Instances deduplication complete");
+      log.info("Starting instances migration...");
+      migrateInstances(result);
+      log.info("Instances migration complete");
 
       // Phase 2: Holdings and instance relationships
-      log.info("Starting holdings deduplication...");
-      deduplicateHoldings(result);
-      log.info("Holdings deduplication complete");
+      log.info("Starting holdings migration...");
+      migrateHoldings(result);
+      log.info("Holdings migration complete");
 
-      log.info("Starting instance relationships deduplication...");
-      deduplicateInstanceSubjects(result);
-      log.info("Instance-subject deduplication complete");
+      log.info("Starting instance relationships migration...");
+      migrateInstanceSubjects(result);
+      log.info("Instance-subject migration complete");
 
-      deduplicateInstanceContributors(result);
-      log.info("Instance-contributor deduplication complete");
+      migrateInstanceContributors(result);
+      log.info("Instance-contributor migration complete");
 
-      deduplicateInstanceClassifications(result);
-      log.info("Instance-classification deduplication complete");
+      migrateInstanceClassifications(result);
+      log.info("Instance-classification migration complete");
+
+      // Update last_updated_date for child resources that gained new relationships
+      updateChildResourceTimestamps(result);
+      log.info("Child resource timestamps updated");
 
       // Phase 3: Items
-      deduplicateItems(result);
-      log.info("Phase 3 complete: items deduplicated");
+      migrateItems(result);
+      log.info("Phase 3 complete: items migrated");
 
       // Phase 4: Instance call numbers
-      deduplicateInstanceCallNumbers(result);
-      log.info("Phase 4 complete: call numbers deduplicated");
+      migrateInstanceCallNumbers(result);
+      log.info("Phase 4 complete: call numbers migrated");
 
       // Phase 5: Child resources (subjects, contributors, classifications, call numbers)
-      log.info("Starting child resources deduplication...");
-      deduplicateSubjects(result);
-      log.info("Subject deduplication complete");
+      log.info("Starting child resources migration...");
+      migrateSubjects(result);
+      log.info("Subject migration complete");
 
-      deduplicateContributors(result);
-      log.info("Contributor deduplication complete");
+      migrateContributors(result);
+      log.info("Contributor migration complete");
 
-      deduplicateClassifications(result);
-      log.info("Classification deduplication complete");
+      migrateClassifications(result);
+      log.info("Classification migration complete");
 
-      deduplicateCallNumbers(result);
-      log.info("Call number deduplication complete");
+      migrateCallNumbers(result);
+      log.info("Call number migration complete");
 
       // Cleanup staging tables
       cleanupStagingTables();
@@ -98,15 +102,15 @@ public class StagingDeduplicationService {
       var duration = System.currentTimeMillis() - startTime;
       result.setDuration(duration);
 
-      log.info("Deduplication complete in {} ms: {}", duration, result);
+      log.info("Migration complete in {} ms: {}", duration, result);
       return result;
     } catch (Exception e) {
-      log.error("Deduplication failed, staging tables preserved", e);
-      throw new ReindexException("Failed to deduplicate staging tables", e);
+      log.error("Migration failed, staging tables preserved", e);
+      throw new ReindexException("Failed to migrate staging tables", e);
     }
   }
 
-  private void deduplicateInstances(DeduplicationResult result) {
+  private void migrateInstances(MigrationResult result) {
     var schema = getSchemaName(context);
     var sql = String.format("""
         INSERT INTO %s.instance (id, tenant_id, shared, is_bound_with, json)
@@ -126,7 +130,7 @@ public class StagingDeduplicationService {
     log.debug("Instance upserted: {} records", recordsUpserted);
   }
 
-  private void deduplicateHoldings(DeduplicationResult result) {
+  private void migrateHoldings(MigrationResult result) {
     var schema = getSchemaName(context);
     var sql = String.format("""
         INSERT INTO %s.holding (id, tenant_id, instance_id, json)
@@ -144,7 +148,7 @@ public class StagingDeduplicationService {
     log.debug("Holding upserted: {} records", recordsUpserted);
   }
 
-  private void deduplicateItems(DeduplicationResult result) {
+  private void migrateItems(MigrationResult result) {
     var schema = getSchemaName(context);
     var sql = String.format("""
         INSERT INTO %s.item (id, tenant_id, instance_id, holding_id, json)
@@ -163,15 +167,14 @@ public class StagingDeduplicationService {
     log.debug("Item upserted: {} records", recordsUpserted);
   }
 
-  private void deduplicateInstanceSubjects(DeduplicationResult result) {
+  private void migrateInstanceSubjects(MigrationResult result) {
     var schema = getSchemaName(context);
     var sql = String.format("""
         INSERT INTO %s.instance_subject (instance_id, subject_id, tenant_id, shared)
         SELECT instance_id, subject_id, tenant_id, shared
         FROM %s.staging_instance_subject
         ORDER BY inserted_at DESC
-        ON CONFLICT (subject_id, instance_id, tenant_id) DO UPDATE SET
-            shared = EXCLUDED.shared
+        ON CONFLICT (subject_id, instance_id, tenant_id) DO NOTHING
         """, schema, schema);
 
     var recordsUpserted = jdbcTemplate.update(sql);
@@ -180,15 +183,14 @@ public class StagingDeduplicationService {
     log.debug("Instance-subject relationship upserted: {} records", recordsUpserted);
   }
 
-  private void deduplicateInstanceContributors(DeduplicationResult result) {
+  private void migrateInstanceContributors(MigrationResult result) {
     var schema = getSchemaName(context);
     var sql = String.format("""
         INSERT INTO %s.instance_contributor (instance_id, contributor_id, type_id, tenant_id, shared)
         SELECT instance_id, contributor_id, type_id, tenant_id, shared
         FROM %s.staging_instance_contributor
         ORDER BY inserted_at DESC
-        ON CONFLICT (contributor_id, instance_id, type_id, tenant_id) DO UPDATE SET
-            shared = EXCLUDED.shared
+        ON CONFLICT (contributor_id, instance_id, type_id, tenant_id) DO NOTHING
         """, schema, schema);
 
     var recordsUpserted = jdbcTemplate.update(sql);
@@ -197,15 +199,14 @@ public class StagingDeduplicationService {
     log.debug("Instance-contributor relationship upserted: {} records", recordsUpserted);
   }
 
-  private void deduplicateInstanceClassifications(DeduplicationResult result) {
+  private void migrateInstanceClassifications(MigrationResult result) {
     var schema = getSchemaName(context);
     var sql = String.format("""
         INSERT INTO %s.instance_classification (instance_id, classification_id, tenant_id, shared)
         SELECT instance_id, classification_id, tenant_id, shared
         FROM %s.staging_instance_classification
         ORDER BY inserted_at DESC
-        ON CONFLICT (classification_id, instance_id, tenant_id) DO UPDATE SET
-            shared = EXCLUDED.shared
+        ON CONFLICT (classification_id, instance_id, tenant_id) DO NOTHING
         """, schema, schema);
 
     var recordsUpserted = jdbcTemplate.update(sql);
@@ -214,15 +215,14 @@ public class StagingDeduplicationService {
     log.debug("Instance-classification relationship upserted: {} records", recordsUpserted);
   }
 
-  private void deduplicateInstanceCallNumbers(DeduplicationResult result) {
+  private void migrateInstanceCallNumbers(MigrationResult result) {
     var schema = getSchemaName(context);
     var sql = String.format("""
         INSERT INTO %s.instance_call_number (call_number_id, item_id, instance_id, tenant_id, location_id)
         SELECT call_number_id, item_id, instance_id, tenant_id, location_id
         FROM %s.staging_instance_call_number
         ORDER BY inserted_at DESC
-        ON CONFLICT (call_number_id, item_id, instance_id, tenant_id) DO UPDATE SET
-            location_id = EXCLUDED.location_id
+        ON CONFLICT (call_number_id, item_id, instance_id, tenant_id) DO NOTHING
         """, schema, schema);
 
     var recordsUpserted = jdbcTemplate.update(sql);
@@ -231,7 +231,7 @@ public class StagingDeduplicationService {
     log.debug("Instance-call number relationship upserted: {} records", recordsUpserted);
   }
 
-  private void deduplicateSubjects(DeduplicationResult result) {
+  private void migrateSubjects(MigrationResult result) {
     var schema = getSchemaName(context);
     var sql = String.format("""
         INSERT INTO %s.subject (id, value, authority_id, source_id, type_id, last_updated_date)
@@ -246,7 +246,7 @@ public class StagingDeduplicationService {
     log.debug("Subject upserted: {} records", recordsUpserted);
   }
 
-  private void deduplicateContributors(DeduplicationResult result) {
+  private void migrateContributors(MigrationResult result) {
     var schema = getSchemaName(context);
     var sql = String.format("""
         INSERT INTO %s.contributor (id, name, name_type_id, authority_id, last_updated_date)
@@ -261,7 +261,7 @@ public class StagingDeduplicationService {
     log.debug("Contributor upserted: {} records", recordsUpserted);
   }
 
-  private void deduplicateClassifications(DeduplicationResult result) {
+  private void migrateClassifications(MigrationResult result) {
     var schema = getSchemaName(context);
     var sql = String.format("""
         INSERT INTO %s.classification (id, number, type_id, last_updated_date)
@@ -276,7 +276,7 @@ public class StagingDeduplicationService {
     log.debug("Classification upserted: {} records", recordsUpserted);
   }
 
-  private void deduplicateCallNumbers(DeduplicationResult result) {
+  private void migrateCallNumbers(MigrationResult result) {
     var schema = getSchemaName(context);
     var sql = String.format("""
         INSERT INTO %s.call_number
@@ -308,6 +308,70 @@ public class StagingDeduplicationService {
     jdbcTemplate.execute(String.format("ANALYZE %s.staging_classification", schema));
     jdbcTemplate.execute(String.format("ANALYZE %s.staging_call_number", schema));
     log.info("Staging tables analyzed");
+  }
+
+  /**
+   * Updates last_updated_date for child resources that have new relationships from staging tables.
+   * Uses efficient JOIN-based updates to identify affected child resources with optimal performance.
+   * This ensures child resources with new member tenant relationships are included in timestamp-based upload.
+   */
+  private void updateChildResourceTimestamps(MigrationResult result) {
+    var schema = getSchemaName(context);
+    var startTime = System.currentTimeMillis();
+
+    // Update subjects that gained new relationships using JOIN approach
+    var subjectUpdateSql = String.format("""
+        UPDATE %s.subject s
+        SET last_updated_date = CURRENT_TIMESTAMP
+        FROM %s.staging_instance_subject sis
+        WHERE s.id = sis.subject_id
+        """, schema, schema);
+
+    var subjectsUpdated = jdbcTemplate.update(subjectUpdateSql);
+    log.debug("Updated {} subjects with new relationships", subjectsUpdated);
+
+    // Update contributors that gained new relationships using JOIN approach
+    var contributorUpdateSql = String.format("""
+        UPDATE %s.contributor c
+        SET last_updated_date = CURRENT_TIMESTAMP
+        FROM %s.staging_instance_contributor sic
+        WHERE c.id = sic.contributor_id
+        """, schema, schema);
+
+    var contributorsUpdated = jdbcTemplate.update(contributorUpdateSql);
+    log.debug("Updated {} contributors with new relationships", contributorsUpdated);
+
+    // Update classifications that gained new relationships using JOIN approach
+    var classificationUpdateSql = String.format("""
+        UPDATE %s.classification cl
+        SET last_updated_date = CURRENT_TIMESTAMP
+        FROM %s.staging_instance_classification sicl
+        WHERE cl.id = sicl.classification_id
+        """, schema, schema);
+
+    var classificationsUpdated = jdbcTemplate.update(classificationUpdateSql);
+    log.debug("Updated {} classifications with new relationships", classificationsUpdated);
+
+    // Update call numbers that gained new relationships using JOIN approach
+    var callNumberUpdateSql = String.format("""
+        UPDATE %s.call_number cn
+        SET last_updated_date = CURRENT_TIMESTAMP
+        FROM %s.staging_instance_call_number sicn
+        WHERE cn.id = sicn.call_number_id
+        """, schema, schema);
+
+    var callNumbersUpdated = jdbcTemplate.update(callNumberUpdateSql);
+    log.debug("Updated {} call numbers with new relationships", callNumbersUpdated);
+
+    var duration = System.currentTimeMillis() - startTime;
+    var totalUpdated = subjectsUpdated + contributorsUpdated + classificationsUpdated + callNumbersUpdated;
+
+    log.info("Child resource timestamp updates completed "
+        + "in {} ms: {} subjects, {} contributors, {} classifications, {} call numbers (total: {})",
+        duration, subjectsUpdated, contributorsUpdated, classificationsUpdated, callNumbersUpdated, totalUpdated);
+
+    // Track in migration result for monitoring
+    result.setChildResourceTimestampUpdates(totalUpdated);
   }
 
   private void cleanupStagingTables() {

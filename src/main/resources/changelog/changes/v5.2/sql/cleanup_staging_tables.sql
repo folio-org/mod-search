@@ -1,5 +1,5 @@
 -- Function to cleanup all staging tables
-CREATE OR REPLACE FUNCTION cleanup_all_staging_tables() 
+CREATE OR REPLACE FUNCTION cleanup_all_staging_tables()
 RETURNS void
 SET search_path FROM CURRENT
 AS $$
@@ -16,13 +16,13 @@ BEGIN
     TRUNCATE TABLE staging_contributor CASCADE;
     TRUNCATE TABLE staging_classification CASCADE;
     TRUNCATE TABLE staging_call_number CASCADE;
-    
+
     RAISE NOTICE 'All staging tables have been truncated successfully';
 END;
 $$ LANGUAGE plpgsql;
 
 -- Function to get staging table statistics
-CREATE OR REPLACE FUNCTION get_staging_table_stats() 
+CREATE OR REPLACE FUNCTION get_staging_table_stats()
 RETURNS TABLE (
     table_name TEXT,
     record_count BIGINT

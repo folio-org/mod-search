@@ -3,6 +3,7 @@ package org.folio.search.service.reindex;
 import java.util.Collection;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.message.FormattedMessage;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
@@ -31,16 +32,53 @@ public class ReindexOrchestrationService {
   private final FolioExecutionContext context;
   private final ReindexConfigurationProperties reindexConfig;
 
-  public boolean process(ReindexRangeIndexEvent event) {
-    // Restore member tenant context for upload processing
-    if (event.getMemberTenantId() != null) {
-      ReindexContext.setMemberTenantId(event.getMemberTenantId());
+  /**
+   * Determines and sets the member tenant ID context for processing.
+   *
+   * @param event the reindex event containing member tenant information
+   * @return the member tenant ID that was set, or null if none was set
+   */
+  private String getMemberTenantIdForProcessing(ReindexRecordsEvent event) {
+    String memberTenantId = event.getMemberTenantId();
+    if (StringUtils.isBlank(memberTenantId)) {
+      // Fallback: Check if this is a member tenant reindex from reindex status
+      memberTenantId = reindexStatusService.getTargetTenantId();
     }
+    
+    if (StringUtils.isNotBlank(memberTenantId)) {
+      log.debug("getMemberTenantIdForProcessing:: Setting member tenant context: {}", memberTenantId);
+      ReindexContext.setMemberTenantId(memberTenantId);
+      return memberTenantId;
+    }
+    
+    return null;
+  }
+
+  /**
+   * Determines and sets the member tenant ID context for range processing.
+   *
+   * @param event the reindex range event containing member tenant information
+   * @return the member tenant ID that was set, or null if none was set
+   */
+  private String getMemberTenantIdForRangeProcessing(ReindexRangeIndexEvent event) {
+    String memberTenantId = event.getMemberTenantId();
+    
+    if (StringUtils.isNotBlank(memberTenantId)) {
+      log.debug("getMemberTenantIdForRangeProcessing:: Setting member tenant context: {}", memberTenantId);
+      ReindexContext.setMemberTenantId(memberTenantId);
+      return memberTenantId;
+    }
+    
+    return null;
+  }
+
+  public boolean process(ReindexRangeIndexEvent event) {
+    String memberTenantId = getMemberTenantIdForRangeProcessing(event);
     
     try {
       log.info("process:: ReindexRangeIndexEvent [id: {}, tenantId: {}, memberTenantId: {}, "
         + "entityType: {}, lower: {}, upper: {}]",
-        event.getId(), event.getTenant(), event.getMemberTenantId(), 
+        event.getId(), event.getTenant(), memberTenantId, 
         event.getEntityType(), event.getLower(), event.getUpper());
       
       var resourceEvents = uploadRangeService.fetchRecordRange(event);
@@ -59,36 +97,40 @@ public class ReindexOrchestrationService {
       reindexStatusService.addProcessedUploadRanges(event.getEntityType(), 1);
       return true;
     } finally {
-      if (event.getMemberTenantId() != null) {
+      // Clean up member tenant context
+      if (memberTenantId != null) {
         ReindexContext.clearMemberTenantId();
       }
     }
   }
 
   public boolean process(ReindexRecordsEvent event) {
-    log.info("process:: ReindexRecordsEvent [rangeId: {}, tenantId: {}, recordType: {}, recordsCount: {}]",
-      event.getRangeId(), event.getTenant(), event.getRecordType(), event.getRecords().size());
+    String memberTenantId = getMemberTenantIdForProcessing(event);
     var entityType = event.getRecordType().getEntityType();
-
+    
     try {
+      log.info("process:: ReindexRecordsEvent [rangeId: {}, tenantId: {}, memberTenantId: {}, "
+        + "recordType: {}, recordsCount: {}]",
+        event.getRangeId(), event.getTenant(), memberTenantId, event.getRecordType(), event.getRecords().size());
+
       mergeRangeService.saveEntities(event);
       reindexStatusService.addProcessedMergeRanges(entityType, 1);
       mergeRangeService.updateStatus(entityType, event.getRangeId(), ReindexRangeStatus.SUCCESS, null);
       log.info("process:: ReindexRecordsEvent processed [rangeId: {}, recordType: {}]",
         event.getRangeId(), event.getRecordType());
       if (reindexStatusService.isMergeCompleted()) {
-        // Get targetTenantId before deduplication
+        // Get targetTenantId before migration
         var targetTenantId = reindexStatusService.getTargetTenantId();
         
-        // Perform deduplication of staging tables
-        log.info("Merge completed. Starting deduplication of staging tables");
+        // Perform migration of staging tables
+        log.info("Merge completed. Starting migration of staging tables");
         try {
-          mergeRangeService.performDeduplication(targetTenantId);
-          log.info("Deduplication completed successfully. Starting upload phase");
+          mergeRangeService.performStagingMigration(targetTenantId);
+          log.info("Migration completed successfully. Starting upload phase");
         } catch (Exception e) {
-          log.error("Deduplication failed", e);
+          log.error("Migration failed", e);
           reindexStatusService.updateReindexMergeFailed(entityType);
-          throw new ReindexException("Deduplication failed: " + e.getMessage());
+          throw new ReindexException("Migration failed: " + e.getMessage());
         }
         // Check if this is a tenant-specific reindex that requires OpenSearch document cleanup
         if (targetTenantId != null) {
@@ -111,6 +153,11 @@ public class ReindexOrchestrationService {
         event.getRangeId(), ex.getMessage()), ex);
       reindexStatusService.updateReindexMergeFailed(entityType);
       mergeRangeService.updateStatus(entityType, event.getRangeId(), ReindexRangeStatus.FAIL, ex.getMessage());
+    } finally {
+      // Clean up member tenant context
+      if (memberTenantId != null) {
+        ReindexContext.clearMemberTenantId();
+      }
     }
 
     return true;

@@ -33,7 +33,7 @@ public class ReindexMergeRangeIndexService {
   private final Map<ReindexEntityType, MergeRangeRepository> repositories;
   private final InventoryService inventoryService;
   private final ReindexConfigurationProperties reindexConfig;
-  private final StagingDeduplicationService deduplicationService;
+  private final StagingMigrationService migrationService;
   private int mergeRangeCounter = 0;
 
   private InstanceChildrenResourceService instanceChildrenResourceService;
@@ -41,12 +41,12 @@ public class ReindexMergeRangeIndexService {
   public ReindexMergeRangeIndexService(List<MergeRangeRepository> repositories,
                                        InventoryService inventoryService,
                                        ReindexConfigurationProperties reindexConfig,
-                                       @Autowired(required = false) StagingDeduplicationService deduplicationService) {
+                                       @Autowired(required = false) StagingMigrationService migrationService) {
     this.repositories = repositories.stream()
       .collect(Collectors.toMap(MergeRangeRepository::entityType, Function.identity()));
     this.inventoryService = inventoryService;
     this.reindexConfig = reindexConfig;
-    this.deduplicationService = deduplicationService;
+    this.migrationService = migrationService;
     this.instanceChildrenResourceService = null;
   }
 
@@ -161,42 +161,42 @@ public class ReindexMergeRangeIndexService {
     }
   }
 
-  public void performDeduplication() {
-    performDeduplication(null);
+  public void performStagingMigration() {
+    performStagingMigration(null);
   }
 
-  public void performDeduplication(String targetTenantId) {
-    if (deduplicationService != null) {
-      // Log staging table stats before deduplication
-      var statsBeforeDedup = getStagingTableStats();
-      log.info("Staging table stats before deduplication: {}", statsBeforeDedup);
+  public void performStagingMigration(String targetTenantId) {
+    if (migrationService != null) {
+      // Log staging table stats before migration
+      var statsBeforeMigration = getStagingTableStats();
+      log.info("Staging table stats before migration: {}", statsBeforeMigration);
 
       if (targetTenantId != null) {
-        log.info("Starting tenant-specific deduplication of staging tables for tenant: {}", targetTenantId);
-        var result = deduplicationService.deduplicateAllStagingTables(targetTenantId);
-        log.info("Tenant-specific deduplication completed for {}: instances={}, holdings={}, "
+        log.info("Starting tenant-specific migration of staging tables for tenant: {}", targetTenantId);
+        var result = migrationService.migrateAllStagingTables(targetTenantId);
+        log.info("Tenant-specific migration completed for {}: instances={}, holdings={}, "
             + "items={}, relationships={}",
           targetTenantId, result.getTotalInstances(), result.getTotalHoldings(),
           result.getTotalItems(), result.getTotalRelationships());
       } else {
-        log.info("Starting full deduplication of staging tables");
-        var result = deduplicationService.deduplicateAllStagingTables();
-        log.info("Full deduplication completed successfully: instances={}, holdings={}, items={}, relationships={}",
+        log.info("Starting full migration of staging tables");
+        var result = migrationService.migrateAllStagingTables();
+        log.info("Full migration completed successfully: instances={}, holdings={}, items={}, relationships={}",
           result.getTotalInstances(), result.getTotalHoldings(),
           result.getTotalItems(), result.getTotalRelationships());
       }
 
-      // Log staging table stats after deduplication (should be empty)
-      var statsAfterDedup = getStagingTableStats();
-      log.info("Staging table stats after deduplication: {}", statsAfterDedup);
+      // Log staging table stats after migration (should be empty)
+      var statsAfterMigration = getStagingTableStats();
+      log.info("Staging table stats after migration: {}", statsAfterMigration);
     } else {
-      log.debug("Deduplication service not available");
+      log.debug("Migration service not available");
     }
   }
 
   public Map<String, Long> getStagingTableStats() {
-    if (deduplicationService != null) {
-      return deduplicationService.getStagingTableStats();
+    if (migrationService != null) {
+      return migrationService.getStagingTableStats();
     }
     return Map.of();
   }

@@ -21,6 +21,7 @@ import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexRangeStatus;
 import org.folio.search.service.InstanceChildrenResourceService;
 import org.folio.search.service.reindex.jdbc.MergeRangeRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Log4j2
@@ -30,16 +31,20 @@ public class ReindexMergeRangeIndexService {
   private final Map<ReindexEntityType, MergeRangeRepository> repositories;
   private final InventoryService inventoryService;
   private final ReindexConfigurationProperties reindexConfig;
-  private final InstanceChildrenResourceService instanceChildrenResourceService;
+  private InstanceChildrenResourceService instanceChildrenResourceService;
 
   public ReindexMergeRangeIndexService(List<MergeRangeRepository> repositories,
                                        InventoryService inventoryService,
-                                       ReindexConfigurationProperties reindexConfig,
-                                       InstanceChildrenResourceService instanceChildrenResourceService) {
+                                       ReindexConfigurationProperties reindexConfig) {
     this.repositories = repositories.stream()
       .collect(Collectors.toMap(MergeRangeRepository::entityType, Function.identity()));
     this.inventoryService = inventoryService;
     this.reindexConfig = reindexConfig;
+    this.instanceChildrenResourceService = null;
+  }
+
+  @Autowired(required = false)
+  public void setInstanceChildrenResourceService(InstanceChildrenResourceService instanceChildrenResourceService) {
     this.instanceChildrenResourceService = instanceChildrenResourceService;
   }
 

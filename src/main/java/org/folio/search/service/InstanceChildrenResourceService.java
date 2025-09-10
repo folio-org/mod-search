@@ -14,6 +14,7 @@ import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.consortium.ConsortiumTenantProvider;
 import org.folio.search.service.converter.preprocessor.extractor.ChildResourceExtractor;
 import org.folio.search.utils.SearchConverterUtils;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 /**
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Component;
  */
 @Log4j2
 @Component
+@ConditionalOnProperty(name = "folio.search-config.indexing.instance-children-index-enabled", havingValue = "true")
 public class InstanceChildrenResourceService {
 
   private final Map<ResourceType, List<ChildResourceExtractor>> resourceExtractors;

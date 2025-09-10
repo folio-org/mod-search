@@ -71,6 +71,11 @@ public class SearchConfigurationProperties {
     private IndexingDataFormat dataFormat;
 
     /**
+     * Defines if module should process subjects/contributors/classifications/call-numbers in a background.
+     */
+    private Boolean instanceChildrenIndexEnabled;
+
+    /**
      * Scheduler delay for indexing subjects/contributors/classifications.
      * */
     private long instanceChildrenIndexDelayMs;

@@ -59,6 +59,7 @@ folio:
       browse-call-numbers: true
     indexing:
       data-format: ${INDEXING_DATA_FORMAT:json}
+      instance-children-index-enabled: false
       instance-children-index-delay-ms: 2000
       sub-resource-batch-size: 40
   reindex:

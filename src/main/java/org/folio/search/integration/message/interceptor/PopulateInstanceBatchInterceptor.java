@@ -45,8 +45,7 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
 
   public PopulateInstanceBatchInterceptor(List<MergeRangeRepository> repositories,
                                           ConsortiumTenantExecutor executionService,
-                                          SystemUserScopedExecutionService systemUserScopedExecutionService,
-                                          InstanceChildrenResourceService instanceChildrenResourceService) {
+                                          SystemUserScopedExecutionService systemUserScopedExecutionService) {
     this.repositories = repositories.stream().collect(Collectors.toMap(ReindexJdbcRepository::entityType, identity()));
     this.executionService = executionService;
     this.systemUserScopedExecutionService = systemUserScopedExecutionService;

@@ -27,11 +27,13 @@ import org.folio.search.service.reindex.jdbc.SubResourcesLockRepository;
 import org.folio.search.service.reindex.jdbc.TenantRepository;
 import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Log4j2
 @Service
+@ConditionalOnProperty(name = "folio.search-config.indexing.instance-children-index-enabled", havingValue = "true")
 public class ScheduledInstanceSubResourcesService {
 
   private final ResourceService resourceService;

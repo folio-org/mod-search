@@ -20,6 +20,7 @@ import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.InstanceChildrenResourceService;
 import org.folio.search.service.ResourceService;
+import org.folio.search.service.ScheduledInstanceSubResourcesService;
 import org.folio.search.service.reindex.jdbc.ItemRepository;
 import org.folio.search.service.reindex.jdbc.MergeInstanceRepository;
 import org.folio.search.service.reindex.jdbc.SubResourceResult;

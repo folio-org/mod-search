@@ -11,4 +11,8 @@ public class MigrationResult {
   private long totalItems;
   private long totalRelationships;
   private long childResourceTimestampUpdates;
+  private long staleSubjectCleanups;
+  private long staleContributorCleanups;
+  private long staleClassificationCleanups;
+  private long staleCallNumberCleanups;
 }

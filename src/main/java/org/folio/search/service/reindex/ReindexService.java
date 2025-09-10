@@ -108,6 +108,13 @@ public class ReindexService {
         
         mergeRangeService.truncateMergeRanges();
         
+        // Clean staging tables before merge phase for member tenant reindex only
+        if (memberTenantIdContext != null) {
+          log.info("submitFullReindex:: cleaning staging tables before merge phase for member tenant [{}]", 
+            memberTenantIdContext);
+          mergeRangeService.cleanupStagingTables();
+        }
+        
         List<MergeRangeEntity> rangesForAllTenants;
         if (memberTenantIdContext != null) {
           // Only process the member tenant (no central tenant in merge)

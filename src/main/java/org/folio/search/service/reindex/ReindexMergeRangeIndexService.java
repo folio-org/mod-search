@@ -178,17 +178,12 @@ public class ReindexMergeRangeIndexService {
             + "items={}, relationships={}",
           targetTenantId, result.getTotalInstances(), result.getTotalHoldings(),
           result.getTotalItems(), result.getTotalRelationships());
+        // Log staging table stats after migration (should be empty)
+        var statsAfterMigration = getStagingTableStats();
+        log.info("Staging table stats after migration: {}", statsAfterMigration);
       } else {
-        log.info("Starting full migration of staging tables");
-        var result = migrationService.migrateAllStagingTables();
-        log.info("Full migration completed successfully: instances={}, holdings={}, items={}, relationships={}",
-          result.getTotalInstances(), result.getTotalHoldings(),
-          result.getTotalItems(), result.getTotalRelationships());
+        log.info("Consortium full refresh - staging tables not used, skipping migration");
       }
-
-      // Log staging table stats after migration (should be empty)
-      var statsAfterMigration = getStagingTableStats();
-      log.info("Staging table stats after migration: {}", statsAfterMigration);
     } else {
       log.debug("Migration service not available");
     }
@@ -199,5 +194,13 @@ public class ReindexMergeRangeIndexService {
       return migrationService.getStagingTableStats();
     }
     return Map.of();
+  }
+
+  public void cleanupStagingTables() {
+    if (migrationService != null) {
+      migrationService.cleanupStagingTables();
+    } else {
+      log.debug("Migration service not available for staging table cleanup");
+    }
   }
 }

@@ -4,7 +4,9 @@ import static org.folio.search.utils.JdbcUtils.getSchemaName;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 import lombok.extern.log4j.Log4j2;
+import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.exception.ReindexException;
 import org.folio.search.model.reindex.MigrationResult;
 import org.folio.spring.FolioExecutionContext;
@@ -16,16 +18,21 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class StagingMigrationService {
 
+  private static final Pattern WORK_MEM_PATTERN = Pattern.compile("^\\d+\\s*(KB|MB|GB)$");
+
   private final JdbcTemplate jdbcTemplate;
   private final FolioExecutionContext context;
   private final ReindexCommonService reindexCommonService;
+  private final ReindexConfigurationProperties reindexConfigurationProperties;
 
   public StagingMigrationService(JdbcTemplate jdbcTemplate,
                                  FolioExecutionContext context,
-                                 ReindexCommonService reindexCommonService) {
+                                 ReindexCommonService reindexCommonService,
+                                 ReindexConfigurationProperties reindexConfigurationProperties) {
     this.jdbcTemplate = jdbcTemplate;
     this.context = context;
     this.reindexCommonService = reindexCommonService;
+    this.reindexConfigurationProperties = reindexConfigurationProperties;
   }
 
   @Transactional
@@ -39,6 +46,9 @@ public class StagingMigrationService {
     var startTime = System.currentTimeMillis();
 
     try {
+      // Set work_mem for this transaction to optimize query performance
+      setWorkMem();
+
       if (targetTenantId != null) {
         log.info("Starting tenant-specific migration for tenant: {}", targetTenantId);
         // Delete existing data for this tenant from non-staging tables
@@ -74,6 +84,10 @@ public class StagingMigrationService {
       updateChildResourceTimestamps(result);
       log.info("Child resource timestamps updated");
 
+      // Clean up stale relationships for member tenant refreshes
+      cleanupStaleRelationships(targetTenantId, result);
+      log.info("Stale relationship cleanup completed");
+
       // Phase 3: Items
       migrateItems(result);
       log.info("Phase 3 complete: items migrated");
@@ -96,16 +110,13 @@ public class StagingMigrationService {
       migrateCallNumbers(result);
       log.info("Call number migration complete");
 
-      // Cleanup staging tables
-      cleanupStagingTables();
-
       var duration = System.currentTimeMillis() - startTime;
       result.setDuration(duration);
 
       log.info("Migration complete in {} ms: {}", duration, result);
       return result;
     } catch (Exception e) {
-      log.error("Migration failed, staging tables preserved", e);
+      log.error("Migration failed", e);
       throw new ReindexException("Failed to migrate staging tables", e);
     }
   }
@@ -374,7 +385,230 @@ public class StagingMigrationService {
     result.setChildResourceTimestampUpdates(totalUpdated);
   }
 
-  private void cleanupStagingTables() {
+  /**
+   * Cleans up stale relationships for member tenant refreshes by identifying records
+   * in main tables that don't exist in staging tables, then updating child resource
+   * timestamps and deleting stale relationship records.
+   */
+  private void cleanupStaleRelationships(String targetTenantId, MigrationResult result) {
+    var startTime = System.currentTimeMillis();
+    log.info("Starting stale relationship cleanup for tenant: {}", targetTenantId);
+
+    try {
+      // Clean up each relationship type
+      cleanupStaleSubjectRelationships(targetTenantId, result);
+      cleanupStaleContributorRelationships(targetTenantId, result);
+      cleanupStaleClassificationRelationships(targetTenantId, result);
+      cleanupStaleCallNumberRelationships(targetTenantId, result);
+
+      var duration = System.currentTimeMillis() - startTime;
+      log.info("Stale relationship cleanup completed for "
+          + "tenant {} in {} ms: {} subjects, {} contributors, {} classifications, {} call numbers",
+          targetTenantId, duration,
+          result.getStaleSubjectCleanups(), result.getStaleContributorCleanups(),
+          result.getStaleClassificationCleanups(), result.getStaleCallNumberCleanups());
+
+    } catch (Exception e) {
+      log.error("Stale relationship cleanup failed for tenant: {}", targetTenantId, e);
+      throw new ReindexException("Failed to cleanup stale relationships for tenant: " + targetTenantId, e);
+    }
+  }
+
+  private void cleanupStaleSubjectRelationships(String targetTenantId, MigrationResult result) {
+    var schema = getSchemaName(context);
+
+    // Update timestamps for subjects that have stale relationships
+    var updateTimestampsSql = String.format("""
+        UPDATE %s.subject s
+        SET last_updated_date = CURRENT_TIMESTAMP
+        FROM (
+            SELECT main.subject_id
+            FROM %s.instance_subject AS main
+            LEFT JOIN %s.staging_instance_subject AS staging
+              ON main.instance_id = staging.instance_id
+              AND main.subject_id = staging.subject_id
+              AND main.tenant_id = staging.tenant_id
+            WHERE main.tenant_id = ?
+              AND staging.instance_id IS NULL
+        ) AS stale
+        WHERE s.id = stale.subject_id
+        """, schema, schema, schema);
+
+    var timestampsUpdated = jdbcTemplate.update(updateTimestampsSql, targetTenantId);
+
+    // Delete stale subject relationships
+    var deleteStaleRelationshipsSql = String.format("""
+        DELETE FROM %s.instance_subject main
+        USING (
+          SELECT main.instance_id, main.subject_id
+          FROM %s.instance_subject AS main
+          LEFT JOIN %s.staging_instance_subject AS staging
+            ON main.instance_id = staging.instance_id
+            AND main.subject_id = staging.subject_id
+            AND main.tenant_id = staging.tenant_id
+          WHERE main.tenant_id = ?
+            AND staging.instance_id IS NULL
+        ) AS stale
+        WHERE main.tenant_id = ?
+          AND main.instance_id = stale.instance_id
+          AND main.subject_id = stale.subject_id
+        """, schema, schema, schema);
+
+    var relationshipsDeleted = jdbcTemplate.update(deleteStaleRelationshipsSql, targetTenantId, targetTenantId);
+
+    result.setStaleSubjectCleanups(relationshipsDeleted);
+    log.debug("Cleaned up {} stale subject relationships, updated {} subject timestamps",
+        relationshipsDeleted, timestampsUpdated);
+  }
+
+  private void cleanupStaleContributorRelationships(String targetTenantId, MigrationResult result) {
+    var schema = getSchemaName(context);
+
+    // Update timestamps for contributors that have stale relationships
+    var updateTimestampsSql = String.format("""
+        UPDATE %s.contributor c
+        SET last_updated_date = CURRENT_TIMESTAMP
+        FROM (
+            SELECT main.contributor_id
+            FROM %s.instance_contributor AS main
+            LEFT JOIN %s.staging_instance_contributor AS staging
+              ON main.instance_id = staging.instance_id
+              AND main.contributor_id = staging.contributor_id
+              AND main.type_id = staging.type_id
+              AND main.tenant_id = staging.tenant_id
+            WHERE main.tenant_id = ?
+              AND staging.instance_id IS NULL
+        ) AS stale
+        WHERE c.id = stale.contributor_id
+        """, schema, schema, schema);
+
+    var timestampsUpdated = jdbcTemplate.update(updateTimestampsSql, targetTenantId);
+
+    // Delete stale contributor relationships
+    var deleteStaleRelationshipsSql = String.format("""
+        DELETE FROM %s.instance_contributor main
+        USING (
+          SELECT main.instance_id, main.contributor_id, main.type_id
+          FROM %s.instance_contributor AS main
+          LEFT JOIN %s.staging_instance_contributor AS staging
+            ON main.instance_id = staging.instance_id
+            AND main.contributor_id = staging.contributor_id
+            AND main.type_id = staging.type_id
+            AND main.tenant_id = staging.tenant_id
+          WHERE main.tenant_id = ?
+            AND staging.instance_id IS NULL
+        ) AS stale
+        WHERE main.tenant_id = ?
+          AND main.instance_id = stale.instance_id
+          AND main.contributor_id = stale.contributor_id
+          AND main.type_id = stale.type_id
+        """, schema, schema, schema);
+
+    var relationshipsDeleted = jdbcTemplate.update(deleteStaleRelationshipsSql, targetTenantId, targetTenantId);
+
+    result.setStaleContributorCleanups(relationshipsDeleted);
+    log.debug("Cleaned up {} stale contributor relationships, updated {} contributor timestamps",
+        relationshipsDeleted, timestampsUpdated);
+  }
+
+  private void cleanupStaleClassificationRelationships(String targetTenantId, MigrationResult result) {
+    var schema = getSchemaName(context);
+
+    // Update timestamps for classifications that have stale relationships
+    var updateTimestampsSql = String.format("""
+        UPDATE %s.classification cl
+        SET last_updated_date = CURRENT_TIMESTAMP
+        FROM (
+            SELECT main.classification_id
+            FROM %s.instance_classification AS main
+            LEFT JOIN %s.staging_instance_classification AS staging
+              ON main.instance_id = staging.instance_id
+              AND main.classification_id = staging.classification_id
+              AND main.tenant_id = staging.tenant_id
+            WHERE main.tenant_id = ?
+              AND staging.instance_id IS NULL
+        ) AS stale
+        WHERE cl.id = stale.classification_id
+        """, schema, schema, schema);
+
+    var timestampsUpdated = jdbcTemplate.update(updateTimestampsSql, targetTenantId);
+
+    // Delete stale classification relationships
+    var deleteStaleRelationshipsSql = String.format("""
+        DELETE FROM %s.instance_classification main
+        USING (
+          SELECT main.instance_id, main.classification_id
+          FROM %s.instance_classification AS main
+          LEFT JOIN %s.staging_instance_classification AS staging
+            ON main.instance_id = staging.instance_id
+            AND main.classification_id = staging.classification_id
+            AND main.tenant_id = staging.tenant_id
+          WHERE main.tenant_id = ?
+            AND staging.instance_id IS NULL
+        ) AS stale
+        WHERE main.tenant_id = ?
+          AND main.instance_id = stale.instance_id
+          AND main.classification_id = stale.classification_id
+        """, schema, schema, schema);
+
+    var relationshipsDeleted = jdbcTemplate.update(deleteStaleRelationshipsSql, targetTenantId, targetTenantId);
+
+    result.setStaleClassificationCleanups(relationshipsDeleted);
+    log.debug("Cleaned up {} stale classification relationships, updated {} classification timestamps",
+        relationshipsDeleted, timestampsUpdated);
+  }
+
+  private void cleanupStaleCallNumberRelationships(String targetTenantId, MigrationResult result) {
+    var schema = getSchemaName(context);
+
+    // Update timestamps for call numbers that have stale relationships
+    var updateTimestampsSql = String.format("""
+        UPDATE %s.call_number cn
+        SET last_updated_date = CURRENT_TIMESTAMP
+        FROM (
+            SELECT main.call_number_id
+            FROM %s.instance_call_number AS main
+            LEFT JOIN %s.staging_instance_call_number AS staging
+              ON main.call_number_id = staging.call_number_id
+              AND main.item_id = staging.item_id
+              AND main.instance_id = staging.instance_id
+              AND main.tenant_id = staging.tenant_id
+            WHERE main.tenant_id = ?
+              AND staging.instance_id IS NULL
+        ) AS stale
+        WHERE cn.id = stale.call_number_id
+        """, schema, schema, schema);
+
+    var timestampsUpdated = jdbcTemplate.update(updateTimestampsSql, targetTenantId);
+
+    // Delete stale call number relationships
+    var deleteStaleRelationshipsSql = String.format("""
+        DELETE FROM %s.instance_call_number main
+        USING (
+          SELECT main.call_number_id, main.item_id, main.instance_id
+          FROM %s.instance_call_number AS main
+          LEFT JOIN %s.staging_instance_call_number AS staging
+            ON main.call_number_id = staging.call_number_id
+            AND main.item_id = staging.item_id
+            AND main.instance_id = staging.instance_id
+            AND main.tenant_id = staging.tenant_id
+          WHERE main.tenant_id = ?
+            AND staging.instance_id IS NULL
+        ) AS stale
+        WHERE main.tenant_id = ?
+          AND main.call_number_id = stale.call_number_id
+          AND main.item_id = stale.item_id
+          AND main.instance_id = stale.instance_id
+        """, schema, schema, schema);
+
+    var relationshipsDeleted = jdbcTemplate.update(deleteStaleRelationshipsSql, targetTenantId, targetTenantId);
+
+    result.setStaleCallNumberCleanups(relationshipsDeleted);
+    log.debug("Cleaned up {} stale call number relationships, updated {} call number timestamps",
+        relationshipsDeleted, timestampsUpdated);
+  }
+
+  public void cleanupStagingTables() {
     var schema = getSchemaName(context);
     var sql = String.format("SELECT %s.cleanup_all_staging_tables()", schema);
     jdbcTemplate.execute(sql);
@@ -392,5 +626,33 @@ public class StagingMigrationService {
       stats.put((String) row.get("table_name"), ((Number) row.get("record_count")).longValue());
     }
     return stats;
+  }
+
+  /**
+   * Sets the PostgreSQL work_mem parameter for the current transaction using SET LOCAL.
+   * This optimizes query performance for memory-intensive operations during migration.
+   *
+   * @throws ReindexException if the work_mem value is invalid or the SET LOCAL command fails
+   */
+  private void setWorkMem() {
+    var workMemValue = reindexConfigurationProperties.getMigrationWorkMem();
+
+    // Validate the work_mem format for security
+    if (!WORK_MEM_PATTERN.matcher(workMemValue).matches()) {
+      throw new ReindexException("Invalid work_mem format: " + workMemValue
+        + ". Must be a number followed by KB, MB, or GB (e.g., '64MB', '512KB', '1GB')");
+    }
+
+    log.info("Setting work_mem to {} for migration transaction", workMemValue);
+
+    try {
+      var sql = String.format("SET LOCAL work_mem = '%s'", workMemValue);
+      jdbcTemplate.execute(sql);
+      log.debug("Successfully set work_mem to {}", workMemValue);
+    } catch (Exception e) {
+      var errorMsg = "Failed to set work_mem to " + workMemValue + " for migration transaction";
+      log.error(errorMsg, e);
+      throw new ReindexException(errorMsg, e);
+    }
   }
 }

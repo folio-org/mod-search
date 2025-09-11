@@ -16,6 +16,7 @@ import org.folio.search.repository.PrimaryResourceRepository;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.springframework.dao.PessimisticLockingFailureException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 @Log4j2
@@ -31,6 +32,7 @@ public class ReindexOrchestrationService {
   private final MultiTenantSearchDocumentConverter documentConverter;
   private final FolioExecutionContext context;
   private final ReindexConfigurationProperties reindexConfig;
+  private final JdbcTemplate jdbcTemplate;
 
   /**
    * Determines and sets the member tenant ID context for processing.
@@ -44,13 +46,13 @@ public class ReindexOrchestrationService {
       // Fallback: Check if this is a member tenant reindex from reindex status
       memberTenantId = reindexStatusService.getTargetTenantId();
     }
-    
+
     if (StringUtils.isNotBlank(memberTenantId)) {
       log.debug("getMemberTenantIdForProcessing:: Setting member tenant context: {}", memberTenantId);
       ReindexContext.setMemberTenantId(memberTenantId);
       return memberTenantId;
     }
-    
+
     return null;
   }
 
@@ -62,25 +64,25 @@ public class ReindexOrchestrationService {
    */
   private String getMemberTenantIdForRangeProcessing(ReindexRangeIndexEvent event) {
     String memberTenantId = event.getMemberTenantId();
-    
+
     if (StringUtils.isNotBlank(memberTenantId)) {
       log.debug("getMemberTenantIdForRangeProcessing:: Setting member tenant context: {}", memberTenantId);
       ReindexContext.setMemberTenantId(memberTenantId);
       return memberTenantId;
     }
-    
+
     return null;
   }
 
   public boolean process(ReindexRangeIndexEvent event) {
     String memberTenantId = getMemberTenantIdForRangeProcessing(event);
-    
+
     try {
       log.info("process:: ReindexRangeIndexEvent [id: {}, tenantId: {}, memberTenantId: {}, "
         + "entityType: {}, lower: {}, upper: {}]",
-        event.getId(), event.getTenant(), memberTenantId, 
+        event.getId(), event.getTenant(), memberTenantId,
         event.getEntityType(), event.getLower(), event.getUpper());
-      
+
       var resourceEvents = uploadRangeService.fetchRecordRange(event);
       var documents = documentConverter.convert(resourceEvents).values().stream().flatMap(Collection::stream).toList();
       var folioIndexOperationResponse = elasticRepository.indexResources(documents);
@@ -107,7 +109,7 @@ public class ReindexOrchestrationService {
   public boolean process(ReindexRecordsEvent event) {
     String memberTenantId = getMemberTenantIdForProcessing(event);
     var entityType = event.getRecordType().getEntityType();
-    
+
     try {
       log.info("process:: ReindexRecordsEvent [rangeId: {}, tenantId: {}, memberTenantId: {}, "
         + "recordType: {}, recordsCount: {}]",
@@ -121,7 +123,23 @@ public class ReindexOrchestrationService {
       if (reindexStatusService.isMergeCompleted()) {
         // Get targetTenantId before migration
         var targetTenantId = reindexStatusService.getTargetTenantId();
-        
+
+        // Use advisory lock to ensure only one instance handles migration and upload phase
+        var lockIdentifier = "migration_" + (targetTenantId != null ? targetTenantId : "consortium");
+        var lockKey = lockIdentifier.hashCode();
+
+        var lockAcquired = jdbcTemplate.queryForObject(
+          "SELECT pg_try_advisory_xact_lock(?)", Boolean.class, lockKey);
+
+        if (!lockAcquired) {
+          log.info("process:: Another instance is handling migration and upload phase submission for {}, skipping",
+            targetTenantId != null ? "tenant: " + targetTenantId : "consortium");
+          return true;
+        }
+
+        log.info("process:: Acquired migration lock for {}, proceeding with migration and upload phase submission",
+          targetTenantId != null ? "tenant: " + targetTenantId : "consortium");
+
         // Perform migration of staging tables
         log.info("Merge completed. Starting migration of staging tables");
         try {
@@ -143,6 +161,9 @@ public class ReindexOrchestrationService {
           log.info("process:: Starting standard upload phase without tenant-specific cleanup");
           reindexService.submitUploadReindex(context.getTenantId(), ReindexEntityType.supportUploadTypes());
         }
+
+        log.info("process:: Migration and upload phase completed for {}",
+          targetTenantId != null ? "tenant: " + targetTenantId : "consortium");
       }
     } catch (PessimisticLockingFailureException ex) {
       log.warn(new FormattedMessage("process:: ReindexRecordsEvent indexing recoverable error"

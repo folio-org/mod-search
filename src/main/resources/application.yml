@@ -76,6 +76,7 @@ folio:
       browse-call-numbers: ${BROWSE_CALL_NUMBERS_ENABLED:true}
     indexing:
       data-format: ${INDEXING_DATA_FORMAT:smile}
+      instance-children-index-enabled: ${INSTANCE_CHILDREN_INDEX_ENABLED:true}
       instance-children-index-delay-ms: ${INSTANCE_CHILDREN_INDEX_DELAY_MS:60000}
       sub-resource-batch-size: ${SUB_RESOURCE_BATCH_SIZE:100}
   reindex:

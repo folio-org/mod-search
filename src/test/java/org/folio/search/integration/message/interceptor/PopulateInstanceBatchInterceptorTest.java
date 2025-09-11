@@ -52,8 +52,7 @@ class PopulateInstanceBatchInterceptorTest {
     populateInstanceBatchInterceptor = new PopulateInstanceBatchInterceptor(
       List.of(instanceRepository),
       executionService,
-      systemUserScopedExecutionService,
-      instanceChildrenResourceService
+      systemUserScopedExecutionService
     );
   }
 

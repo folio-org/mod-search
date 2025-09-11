@@ -1,3 +1,10 @@
+## v4.0.14 YYYY-mm-DD
+### Features
+* Refactor Sub-Resource Saving to Background Job to Prevent DB Deadlocks ([MSEARCH-1056](https://folio-org.atlassian.net/browse/MSEARCH-1056))
+
+### Bug fixes
+* Indexing: proper handling of delete item events ([MSEARCH-1064](https://folio-org.atlassian.net/browse/MSEARCH-1064))
+
 ## v4.0.13 2025-05-16
 ### Features
 * Add indexes for instance_(call_number/subject/classification/contributor) ([MSEARCH-1025](https://folio-org.atlassian.net/browse/MSEARCH-1025))

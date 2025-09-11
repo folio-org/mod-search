@@ -102,11 +102,12 @@ public class ScheduledInstanceSubResourcesService {
           if (result == null || !result.hasRecords()) {
             break;
           }
-          var events = map(result.records(), entityType, tenant);
+          var records = result.records();
+          var events = map(records, entityType, tenant);
           resourceService.indexResources(events);
 
-          if (result.records().size() == subResourceBatchSize) {
-            var lastRecord = result.records().getLast();
+          if (records.size() == subResourceBatchSize) {
+            var lastRecord = records.get(records.size() - 1);
             lastId = getString(lastRecord, ID_FIELD);
             lastTimestamp = result.lastUpdateDate();
           } else {

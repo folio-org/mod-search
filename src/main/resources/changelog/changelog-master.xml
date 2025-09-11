@@ -12,9 +12,9 @@
   <include file="changes/v4.0/create-reindex-entity-tables.xml" relativeToChangelogFile="true"/>
   <include file="changes/v4.0/delete-instance-trigger.xml" relativeToChangelogFile="true"/>
   <include file="changes/v4.0/add-reindex-range-statuses.xml" relativeToChangelogFile="true"/>
-  <include file="changes/v4.1/create_call_number_tables.xml" relativeToChangelogFile="true"/>
-  <include file="changes/v4.1/populate-call-number-browse-config.xml" relativeToChangelogFile="true"/>
-  <include file="changes/v4.1/alter-browse-config-type-ids.xml" relativeToChangelogFile="true"/>
+  <include file="changes/v4.0/create_call_number_tables.xml" relativeToChangelogFile="true"/>
+  <include file="changes/v4.0/populate-call-number-browse-config.xml" relativeToChangelogFile="true"/>
+  <include file="changes/v4.0/alter-browse-config-type-ids.xml" relativeToChangelogFile="true"/>
   <include file="changes/v5.1/create_instance_resource_indexes.xml" relativeToChangelogFile="true"/>
   <include file="changes/v6.0/add-instance-item-columns.xml" relativeToChangelogFile="true"/>
   <include file="changes/v6.0/add-instance-item-sub-resources.xml" relativeToChangelogFile="true"/>

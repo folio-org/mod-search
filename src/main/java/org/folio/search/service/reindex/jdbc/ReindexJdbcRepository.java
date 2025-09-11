@@ -88,7 +88,7 @@ public abstract class ReindexJdbcRepository {
                                                Timestamp timestamp, String tenant) {
     var sql = buildSelectQuery(query, tenant, false, true, false);
     var records = jdbcTemplate.query(sql, rowMapper, timestamp);
-    var lastUpdateDate = records.isEmpty() ? null : records.getLast().get(LAST_UPDATED_DATE_FIELD);
+    var lastUpdateDate = records.isEmpty() ? null : records.get(records.size() - 1).get(LAST_UPDATED_DATE_FIELD);
     return new SubResourceResult(records, (Timestamp) lastUpdateDate);
   }
 
@@ -96,7 +96,7 @@ public abstract class ReindexJdbcRepository {
                                                Timestamp timestamp, int limit, String tenant) {
     var sql = buildSelectQuery(query, tenant, false, false, true);
     var records = jdbcTemplate.query(sql, rowMapper, timestamp, limit);
-    var lastUpdateDate = records.isEmpty() ? null : records.getLast().get(LAST_UPDATED_DATE_FIELD);
+    var lastUpdateDate = records.isEmpty() ? null : records.get(records.size() - 1).get(LAST_UPDATED_DATE_FIELD);
     return new SubResourceResult(records, (Timestamp) lastUpdateDate);
   }
 
@@ -104,7 +104,7 @@ public abstract class ReindexJdbcRepository {
                                                Timestamp timestamp, String fromId, int limit, String tenant) {
     var sql = buildSelectQuery(query, tenant, true, false, true);
     var records = jdbcTemplate.query(sql, rowMapper, timestamp, fromId, limit);
-    var lastUpdateDate = records.isEmpty() ? null : records.getLast().get(LAST_UPDATED_DATE_FIELD);
+    var lastUpdateDate = records.isEmpty() ? null : records.get(records.size() - 1).get(LAST_UPDATED_DATE_FIELD);
     return new SubResourceResult(records, (Timestamp) lastUpdateDate);
   }
 

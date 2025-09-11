@@ -72,7 +72,7 @@ public class ResourceService {
     var elasticsearchDocuments = searchDocumentConverter.convert(resourceEvents);
     var bulkIndexResponse = indexSearchDocuments(elasticsearchDocuments);
     log.info("indexResources: indexed to elasticsearch [eventType: {}, indexRequests: {} {}]",
-      resourceEvents.getFirst().getType(), getNumberOfRequests(elasticsearchDocuments),
+      resourceEvents.get(0).getType(), getNumberOfRequests(elasticsearchDocuments),
       getErrorMessage(bulkIndexResponse));
 
     return bulkIndexResponse;

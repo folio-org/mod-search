@@ -90,7 +90,7 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
     saveRecords(MEMBER_TENANT_ID, instanceSearchPath(), memberInstances, INSTANCES.size(),
       instance -> inventoryApi.createInstance(MEMBER_TENANT_ID, instance));
 
-    var instance1 = centralInstances.getFirst();
+    var instance1 = centralInstances.get(0);
     instance1.setSource(SearchUtils.SOURCE_CONSORTIUM_PREFIX + "FOLIO");
     instance1.getItems().forEach(item -> item.setId(UUID.randomUUID().toString()));
     saveRecords(MEMBER_TENANT_ID, instanceSearchPath(), memberInstances, INSTANCES.size(),

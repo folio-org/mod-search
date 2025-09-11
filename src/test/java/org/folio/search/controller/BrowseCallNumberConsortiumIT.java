@@ -59,8 +59,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.TestPropertySource;
 
 @IntegrationTest
+@TestPropertySource(properties = "folio.search-config.indexing.instance-children-index-enabled=true")
 class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
 
   private static final String LOCATION_FACET = "instances.locationId";
@@ -70,32 +72,45 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
   private static final String MEMBER2_LOCATION = UUID.randomUUID().toString();
 
   @BeforeAll
-  static void prepare(@Autowired SubResourcesLockRepository subResourcesLockRepository) {
+  static void prepare(@Autowired SubResourcesLockRepository lockRepository) {
     setUpTenant(CENTRAL_TENANT_ID);
     setUpTenant(MEMBER_TENANT_ID);
     setUpTenant(MEMBER2_TENANT_ID);
 
-    var timestamp = subResourcesLockRepository.lockSubResource(ReindexEntityType.CALL_NUMBER, CENTRAL_TENANT_ID);
-    if (timestamp.isEmpty()) {
-      throw new IllegalStateException("Unexpected state of database: unable to lock call-number resource");
+    // Lock all required resources: call numbers, instances, and items
+    var callNumberTimestamp = lockRepository.lockSubResource(ReindexEntityType.CALL_NUMBER, CENTRAL_TENANT_ID);
+    var itemTimestamp = lockRepository.lockSubResource(ReindexEntityType.ITEM, CENTRAL_TENANT_ID);
+    var instanceTimestamp = lockRepository.lockSubResource(ReindexEntityType.INSTANCE, CENTRAL_TENANT_ID);
+
+    if (callNumberTimestamp.isEmpty() || instanceTimestamp.isEmpty() || itemTimestamp.isEmpty()) {
+      throw new IllegalStateException("Unexpected state of database: unable to lock required resources");
     }
+
     var centralInstances = INSTANCES.subList(0, 30);
     saveRecords(CENTRAL_TENANT_ID, instanceSearchPath(), centralInstances, centralInstances.size(),
       instance -> inventoryApi.createInstance(CENTRAL_TENANT_ID, instance));
+
     var memberInstances = INSTANCES.subList(30, INSTANCES.size());
     saveRecords(MEMBER_TENANT_ID, instanceSearchPath(), memberInstances, INSTANCES.size(),
       instance -> inventoryApi.createInstance(MEMBER_TENANT_ID, instance));
+
     var instance1 = centralInstances.getFirst();
     instance1.setSource(SearchUtils.SOURCE_CONSORTIUM_PREFIX + "FOLIO");
+    instance1.getItems().forEach(item -> item.setId(UUID.randomUUID().toString()));
     saveRecords(MEMBER_TENANT_ID, instanceSearchPath(), List.of(instance1), INSTANCES.size(),
       instance -> inventoryApi.createInstance(MEMBER_TENANT_ID, instance));
 
     var dataRecord = new CallNumberTestDataRecord(callNumbers().getLast().callNumber(), MEMBER2_LOCATION);
     var member2Instance = instance("51", List.of(dataRecord));
+    instance1.getItems().forEach(item -> item.setId(UUID.randomUUID().toString()));
     saveRecords(MEMBER2_TENANT_ID, instanceSearchPath(), List.of(member2Instance, instance1),
       centralInstances.size() + 1,
       instance -> inventoryApi.createInstance(MEMBER2_TENANT_ID, instance));
-    subResourcesLockRepository.unlockSubResource(ReindexEntityType.CALL_NUMBER, timestamp.get(), CENTRAL_TENANT_ID);
+
+    // Unlock all resources in reverse order
+    lockRepository.unlockSubResource(ReindexEntityType.INSTANCE, instanceTimestamp.get(), CENTRAL_TENANT_ID);
+    lockRepository.unlockSubResource(ReindexEntityType.ITEM, itemTimestamp.get(), CENTRAL_TENANT_ID);
+    lockRepository.unlockSubResource(ReindexEntityType.CALL_NUMBER, callNumberTimestamp.get(), CENTRAL_TENANT_ID);
 
     await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
       var counted = countIndexDocument(ResourceType.INSTANCE_CALL_NUMBER, CENTRAL_TENANT_ID);

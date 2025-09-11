@@ -41,9 +41,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.test.context.TestPropertySource;
 
 @Log4j2
 @IntegrationTest
+@TestPropertySource(properties = "folio.search-config.indexing.instance-children-index-enabled=true")
 class BrowseContributorConsortiumIT extends BaseConsortiumIntegrationTest {
 
   private static final String[] NAME_TYPE_IDS =

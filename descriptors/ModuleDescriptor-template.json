@@ -1143,6 +1143,11 @@
         "description": "Format for passing data to elasticsearch (json/smile)"
       },
       {
+        "name": "INSTANCE_CHILDREN_INDEX_ENABLED",
+        "value": "true",
+        "description": "Defines if module should process subjects/contributors/classifications/call-numbers in a background"
+      },
+      {
         "name": "INSTANCE_CHILDREN_INDEX_DELAY_MS",
         "value": "60000",
         "description": "Scheduler delay for indexing subjects/contributors/classifications"

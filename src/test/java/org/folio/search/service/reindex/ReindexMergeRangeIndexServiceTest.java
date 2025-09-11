@@ -63,8 +63,8 @@ class ReindexMergeRangeIndexServiceTest {
   void setUp() {
     var repositories = List.of(instanceRepository, itemRepository, holdingRepository);
     repositories.forEach(repository -> when(repository.entityType()).thenCallRealMethod());
-    service = new ReindexMergeRangeIndexService(
-      repositories, inventoryService, config, instanceChildrenResourceService);
+    service = new ReindexMergeRangeIndexService(repositories, inventoryService, config);
+    service.setInstanceChildrenResourceService(instanceChildrenResourceService);
     repositoryMap = repositories.stream()
       .collect(Collectors.toMap(ReindexJdbcRepository::entityType, Function.identity()));
   }

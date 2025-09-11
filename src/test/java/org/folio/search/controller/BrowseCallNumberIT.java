@@ -55,8 +55,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.TestPropertySource;
 
 @IntegrationTest
+@TestPropertySource(properties = "folio.search-config.indexing.instance-children-index-enabled=true")
 class BrowseCallNumberIT extends BaseIntegrationTest {
 
   private static final List<Instance> INSTANCES = CallNumberTestData.instances();

@@ -16,8 +16,10 @@ import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.context.TestPropertySource;
 
 @IntegrationTest
+@TestPropertySource(properties = "folio.search-config.indexing.instance-children-index-enabled=true")
 class IndexingInstanceClassificationIT extends BaseIntegrationTest {
 
   @BeforeAll

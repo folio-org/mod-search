@@ -1,3 +1,10 @@
+## v5.0.5 YYYY-mm-DD
+### Features
+* Refactor Sub-Resource Saving to Background Job to Prevent DB Deadlocks ([MSEARCH-1056](https://folio-org.atlassian.net/browse/MSEARCH-1056))
+
+### Bug fixes
+* Indexing: proper handling of delete item events ([MSEARCH-1064](https://folio-org.atlassian.net/browse/MSEARCH-1064))
+
 ## v5.0.4 2025-05-15
 ### Features
 * Index Management: remove mappingsSource configuration ([MSEARCH-1031](https://folio-org.atlassian.net/browse/MSEARCH-1031))

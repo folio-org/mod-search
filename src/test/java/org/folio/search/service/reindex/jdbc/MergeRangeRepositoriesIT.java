@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.UUID;
 import org.assertj.core.api.Condition;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
+import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexRangeStatus;
@@ -53,9 +54,12 @@ class MergeRangeRepositoriesIT {
   @BeforeEach
   void setUp() {
     var jsonConverter = new JsonConverter(new ObjectMapper());
-    holdingRepository = new HoldingRepository(jdbcTemplate, jsonConverter, context);
-    itemRepository = new ItemRepository(jdbcTemplate, jsonConverter, context);
-    instanceRepository = new MergeInstanceRepository(jdbcTemplate, jsonConverter, context, tenantProvider);
+    var searchConfig = new SearchConfigurationProperties();
+    searchConfig.setIndexing(new SearchConfigurationProperties.IndexingSettings());
+    holdingRepository = new HoldingRepository(jdbcTemplate, jsonConverter, context, searchConfig);
+    itemRepository = new ItemRepository(jdbcTemplate, jsonConverter, context, searchConfig);
+    instanceRepository =
+      new MergeInstanceRepository(jdbcTemplate, jsonConverter, context, tenantProvider, searchConfig);
     uploadInstanceRepository = new UploadInstanceRepository(jdbcTemplate, jsonConverter, context, reindexConfig);
     when(context.getFolioModuleMetadata()).thenReturn(new FolioModuleMetadata() {
       @Override
@@ -205,6 +209,7 @@ class MergeRangeRepositoriesIT {
     var holdingId2 = UUID.randomUUID();
     var itemId1 = UUID.randomUUID();
     var itemId2 = UUID.randomUUID();
+    var itemId3 = UUID.randomUUID();
 
     var instances = List.of(Map.<String, Object>of("id", instanceId));
     var holdings = List.of(
@@ -212,7 +217,8 @@ class MergeRangeRepositoriesIT {
       Map.<String, Object>of("id", holdingId2, "instanceId", instanceId));
     var items = List.of(
       Map.<String, Object>of("id", itemId1, "instanceId", instanceId, "holdingsRecordId", holdingId1),
-      Map.<String, Object>of("id", itemId2, "instanceId", instanceId, "holdingsRecordId", holdingId2));
+      Map.<String, Object>of("id", itemId2, "instanceId", instanceId, "holdingsRecordId", holdingId2),
+      Map.<String, Object>of("id", itemId3, "instanceId", instanceId, "holdingsRecordId", holdingId2));
 
     // act
     instanceRepository.saveEntities(TENANT_ID, instances);
@@ -225,17 +231,17 @@ class MergeRangeRepositoriesIT {
 
     // assert
     assertThat(instanceRepository.countEntities()).isEqualTo(1);
-    assertThat(List.of(holdingRepository.countEntities(), itemRepository.countEntities()))
-      .allMatch(count -> count == 4);
+    assertThat(holdingRepository.countEntities()).isEqualTo(4);
+    assertThat(itemRepository.countEntities()).isEqualTo(6);
 
     //act
     holdingRepository.deleteEntitiesForTenant(List.of(holdingId1.toString()), TENANT_ID);
-    itemRepository.deleteEntitiesForTenant(List.of(itemId1.toString()), TENANT_ID);
+    itemRepository.deleteEntitiesForTenant(List.of(itemId1.toString(), itemId3.toString()), TENANT_ID);
 
     // assert
     assertThat(instanceRepository.countEntities()).isEqualTo(1);
-    assertThat(List.of(holdingRepository.countEntities(), itemRepository.countEntities()))
-      .allMatch(count -> count == 3);
+    assertThat(holdingRepository.countEntities()).isEqualTo(3);
+    assertThat(itemRepository.countEntities()).isEqualTo(4);
   }
 
   private List<String> extractMapValues(List<Map<String, Object>> maps) {

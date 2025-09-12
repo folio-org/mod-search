@@ -1,10 +1,14 @@
 package org.folio.search.service.reindex.jdbc;
 
 import static org.folio.search.utils.JdbcUtils.getFullTableName;
+import static org.folio.search.utils.JdbcUtils.getSchemaName;
 
+import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.log4j.Log4j2;
+import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.consortium.ConsortiumTenantProvider;
 import org.folio.search.service.reindex.ReindexConstants;
@@ -12,6 +16,7 @@ import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 @Log4j2
@@ -25,17 +30,27 @@ public class MergeInstanceRepository extends MergeRangeRepository {
       DO UPDATE SET shared = EXCLUDED.shared,
       tenant_id = EXCLUDED.tenant_id,
       is_bound_with = EXCLUDED.is_bound_with,
-      json = EXCLUDED.json;
+      json = EXCLUDED.json,
+      last_updated_date = CURRENT_TIMESTAMP;
     """;
 
   private static final String UPDATE_BOUND_WITH_SQL = """
     UPDATE %s SET is_bound_with = ? WHERE id = ?::uuid;
     """;
+
+  private static final String SELECT_BY_UPDATED_QUERY = """
+    SELECT id, tenant_id, shared, is_bound_with, json, last_updated_date, is_deleted
+    FROM %s.instance
+    WHERE last_updated_date > ?
+    ORDER BY last_updated_date ASC
+    """;
+
   private final ConsortiumTenantProvider consortiumTenantProvider;
 
   public MergeInstanceRepository(JdbcTemplate jdbcTemplate, JsonConverter jsonConverter, FolioExecutionContext context,
-                                 ConsortiumTenantProvider consortiumTenantProvider) {
-    super(jdbcTemplate, jsonConverter, context);
+                                 ConsortiumTenantProvider consortiumTenantProvider,
+                                 SearchConfigurationProperties searchConfigurationProperties) {
+    super(jdbcTemplate, jsonConverter, context, searchConfigurationProperties);
     this.consortiumTenantProvider = consortiumTenantProvider;
   }
 
@@ -81,5 +96,30 @@ public class MergeInstanceRepository extends MergeRangeRepository {
     var fullTableName = getFullTableName(context, entityTable());
     var sql = UPDATE_BOUND_WITH_SQL.formatted(fullTableName);
     jdbcTemplate.update(sql, bound, id);
+  }
+
+  @Override
+  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp) {
+    var sql = SELECT_BY_UPDATED_QUERY.formatted(getSchemaName(tenant, context.getFolioModuleMetadata()));
+    var records = jdbcTemplate.query(sql, instanceRowMapper(), timestamp);
+    var lastUpdateDate = records.isEmpty() ? null : records.get(records.size() - 1).get(LAST_UPDATED_DATE_FIELD);
+    return new SubResourceResult(records, (Timestamp) lastUpdateDate);
+  }
+
+  private RowMapper<Map<String, Object>> instanceRowMapper() {
+    return (rs, rowNum) -> {
+      Map<String, Object> instance = new HashMap<>();
+      instance.put("id", rs.getString("id"));
+      instance.put("tenantId", rs.getString("tenant_id"));
+      instance.put("shared", rs.getBoolean("shared"));
+      instance.put("isBoundWith", rs.getBoolean("is_bound_with"));
+      instance.put("isDeleted", rs.getBoolean("is_deleted"));
+      instance.put(LAST_UPDATED_DATE_FIELD, rs.getTimestamp("last_updated_date"));
+
+      var jsonContent = jsonConverter.fromJsonToMap(rs.getString("json"));
+      instance.putAll(jsonContent);
+
+      return instance;
+    };
   }
 }

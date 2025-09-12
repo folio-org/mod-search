@@ -1,6 +1,5 @@
 package org.folio.search.service.reindex.jdbc;
 
-import static org.folio.search.utils.JdbcUtils.getParamPlaceholderForUuid;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_TYPE_FIELD;
 import static org.folio.search.utils.SearchUtils.SUB_RESOURCE_INSTANCES_FIELD;
@@ -13,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Stream;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.entity.ChildResourceEntityBatch;
@@ -71,52 +69,47 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
     """;
 
   private static final String SELECT_BY_UPDATED_QUERY = """
-    WITH cte AS (SELECT id,
-                        name,
-                        name_type_id,
-                        authority_id,
-                        last_updated_date
-                 FROM %1$s.contributor
-                 WHERE last_updated_date > ?
-                 ORDER BY last_updated_date
-                 )
-    SELECT c.id,
-           c.name,
-           c.name_type_id,
-           c.authority_id,
-           c.last_updated_date,
-           json_agg(
-                   CASE
-                                    WHEN sub.instance_count IS NULL THEN NULL
-                                    ELSE json_build_object(
-                           'count', sub.instance_count,
-                           'typeId', sub.type_ids,
-                           'shared', sub.shared,
-                           'tenantId', sub.tenant_id
-                   )
-                   END
-           ) AS instances
-    FROM cte c
-             LEFT JOIN
-         (SELECT cte.id,
-                 ins.tenant_id,
-                 ins.shared,
-                 array_agg(DISTINCT ins.type_id) FILTER (WHERE ins.type_id <> '') AS type_ids,
-                 count(DISTINCT ins.instance_id)                                  AS instance_count
-          FROM %1$s.instance_contributor ins
-                   INNER JOIN cte
-                              ON ins.contributor_id = cte.id
-          GROUP BY cte.id,
-                   ins.tenant_id,
-                   ins.shared) sub ON c.id = sub.id
-    GROUP BY c.id,
+      WITH cte AS (
+          SELECT id,
+                 name,
+                 name_type_id,
+                 authority_id,
+                 last_updated_date
+          FROM %1$s.contributor
+          WHERE %2$s
+          ORDER BY %3$s
+          %4$s
+      )
+      SELECT c.id,
              c.name,
              c.name_type_id,
              c.authority_id,
-             c.last_updated_date
-          ORDER BY last_updated_date ASC;
+             c.last_updated_date,
+             json_agg(
+                 CASE
+                     WHEN sub.instance_count IS NULL THEN NULL
+                     ELSE json_build_object(
+                         'count', sub.instance_count,
+                         'typeId', sub.type_ids,
+                         'shared', sub.shared,
+                         'tenantId', sub.tenant_id
+                     )
+                 END
+             ) AS instances
+      FROM cte c
+      LEFT JOIN (
+          SELECT cte.id,
+                 ins.tenant_id,
+                 ins.shared,
+                 array_agg(DISTINCT ins.type_id) FILTER (WHERE ins.type_id <> '') AS type_ids,
+                 count(DISTINCT ins.instance_id) AS instance_count
+          FROM %1$s.instance_contributor ins
+          INNER JOIN cte ON ins.contributor_id = cte.id
+          GROUP BY cte.id, ins.tenant_id, ins.shared
+      ) sub ON c.id = sub.id
+      GROUP BY c.id, c.name, c.name_type_id, c.authority_id, c.last_updated_date
+      ORDER BY %5$s;
     """;
-
 
   private static final String DELETE_QUERY = """
     WITH deleted_ids as (
@@ -173,10 +166,17 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
 
   @Override
   public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp) {
-    var sql = SELECT_BY_UPDATED_QUERY.formatted(JdbcUtils.getSchemaName(tenant, context.getFolioModuleMetadata()));
-    var records = jdbcTemplate.query(sql, rowToMapMapper2(), timestamp);
-    var lastUpdateDate = records.isEmpty() ? null : records.get(records.size() - 1).get(LAST_UPDATED_DATE_FIELD);
-    return new SubResourceResult(records, (Timestamp) lastUpdateDate);
+    return fetchByTimestamp(SELECT_BY_UPDATED_QUERY, rowToMapMapper2(), timestamp, tenant);
+  }
+
+  @Override
+  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp, int limit) {
+    return fetchByTimestamp(SELECT_BY_UPDATED_QUERY, rowToMapMapper2(), timestamp, limit, tenant);
+  }
+
+  @Override
+  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp, String fromId, int limit) {
+    return fetchByTimestamp(SELECT_BY_UPDATED_QUERY, rowToMapMapper2(), timestamp, fromId, limit, tenant);
   }
 
   @Override
@@ -223,18 +223,7 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
 
   @Override
   public void deleteByInstanceIds(List<String> instanceIds, String tenantId) {
-    var sql = DELETE_QUERY.formatted(
-      JdbcUtils.getSchemaName(context),
-      getParamPlaceholderForUuid(instanceIds.size()),
-      tenantId == null ? "" : "AND tenant_id = ?");
-
-    if (tenantId != null) {
-      var params = Stream.of(instanceIds, List.of(tenantId)).flatMap(List::stream).toArray();
-      jdbcTemplate.update(sql, params);
-      return;
-    }
-
-    jdbcTemplate.update(sql, instanceIds.toArray());
+    deleteByInstanceIds(DELETE_QUERY, instanceIds, tenantId);
   }
 
   @Override

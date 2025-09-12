@@ -84,8 +84,9 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
             call_number_type_id,
             last_updated_date
         FROM %1$s.call_number
-        WHERE last_updated_date > ?
-        ORDER BY last_updated_date
+        WHERE %2$s
+        ORDER BY %3$s
+        %4$s
     )
     SELECT
         c.id,
@@ -129,8 +130,7 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
         c.call_number_suffix,
         c.call_number_type_id,
         c.last_updated_date
-    ORDER BY
-        last_updated_date ASC;
+    ORDER BY %5$s;
     """;
 
   private static final String INSERT_ENTITIES_SQL = """
@@ -198,10 +198,17 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
 
   @Override
   public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp) {
-    var sql = SELECT_BY_UPDATED_QUERY.formatted(JdbcUtils.getSchemaName(tenant, context.getFolioModuleMetadata()));
-    var records = jdbcTemplate.query(sql, rowToMapMapper2(), timestamp);
-    var lastUpdateDate = records.isEmpty() ? null : records.get(records.size() - 1).get(LAST_UPDATED_DATE_FIELD);
-    return new SubResourceResult(records, (Timestamp) lastUpdateDate);
+    return fetchByTimestamp(SELECT_BY_UPDATED_QUERY, rowToMapMapper2(), timestamp, tenant);
+  }
+
+  @Override
+  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp, int limit) {
+    return fetchByTimestamp(SELECT_BY_UPDATED_QUERY, rowToMapMapper2(), timestamp, limit, tenant);
+  }
+
+  @Override
+  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp, String fromId, int limit) {
+    return fetchByTimestamp(SELECT_BY_UPDATED_QUERY, rowToMapMapper2(), timestamp, fromId, limit, tenant);
   }
 
   @Override

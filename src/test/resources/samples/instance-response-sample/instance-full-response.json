@@ -46,7 +46,9 @@
           "authorityId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
         },
         {
-          "alternativeTitle": "Der Preis der Verführung : die gesetzliche Schadensersatzklage wegen Ehebruchs in England zwischen 1857 und 1970 / Eike Götz Hosemann."
+          "alternativeTitleTypeId": null,
+          "alternativeTitle": "Der Preis der Verführung : die gesetzliche Schadensersatzklage wegen Ehebruchs in England zwischen 1857 und 1970 / Eike Götz Hosemann.",
+          "authorityId": null
         }
       ],
       "identifiers": [
@@ -116,7 +118,9 @@
       "subjects": [
         {
           "value": "Semantic Web",
-          "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72d"
+          "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72d",
+          "sourceId": null,
+          "typeId": null
         }
       ],
       "dates": {
@@ -219,6 +223,10 @@
             "suffix": "suffix-10101",
             "typeId": "512173a7-bd09-490e-b773-17d83f2b63fe"
           },
+          "volume": null,
+          "enumeration": null,
+          "chronology": null,
+          "copyNumber": null,
           "effectiveShelvingOrder": "TK 45105.88815 A58 42004 FT MEADE SUFFIX 510101",
           "itemLevelCallNumberTypeId": "5ba6b62e-6858-490a-8102-5b1369873835",
           "tags": {
@@ -256,6 +264,48 @@
           }
         },
         {
+          "id": "49347f02-69ac-4c12-b6f2-2afb6059c94b",
+          "tenantId": "test_tenant",
+          "holdingsRecordId": "9550c935-401a-4a85-875e-4d1fe7678870",
+          "hrid": "it00000000001",
+          "accessionNumber": null,
+          "formerIds": [],
+          "itemIdentifier": null,
+          "barcode": "12345",
+          "effectiveLocationId": "cdd60388-0c75-4969-b3c5-2d04621ed26f",
+          "status": {
+            "name": "Available"
+          },
+          "materialTypeId": "5ee11d91-f7e8-481d-b079-65d708582ccc",
+          "discoverySuppress": false,
+          "effectiveCallNumberComponents": {
+            "callNumber": "332. 2",
+            "prefix": "prefix 2",
+            "suffix": "suff 2",
+            "typeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35"
+          },
+          "volume": null,
+          "enumeration": null,
+          "chronology": null,
+          "copyNumber": null,
+          "effectiveShelvingOrder": "3332 12 SUFF 12",
+          "itemLevelCallNumberTypeId": null,
+          "tags": {
+            "tagList": []
+          },
+          "electronicAccess": [],
+          "administrativeNotes": [],
+          "notes": [],
+          "statisticalCodeIds": [],
+          "circulationNotes": [],
+          "metadata": {
+            "createdDate": "2024-03-14T13:05:09.406+00:00",
+            "createdByUserId": "93fc1367-7321-4836-b2a7-cbc7ffe8c20e",
+            "updatedDate": "2024-03-14T13:05:09.406+00:00",
+            "updatedByUserId": "93fc1367-7321-4836-b2a7-cbc7ffe8c20e"
+          }
+        },
+        {
           "id": "100d10bf-2f06-4aa0-be15-0b95b2d9f9e3",
           "tenantId": "test_tenant",
           "holdingsRecordId": "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19",
@@ -276,6 +326,10 @@
             "suffix": "suffix-90000",
             "typeId": "512173a7-bd09-490e-b773-17d83f2b63fe"
           },
+          "volume": null,
+          "enumeration": null,
+          "chronology": null,
+          "copyNumber": null,
           "effectiveShelvingOrder": "TK 45105.88815 A58 42004 FT MEADE SUFFIX 590000",
           "itemLevelCallNumberTypeId": null,
           "tags": null,
@@ -323,47 +377,41 @@
             "updatedDate": "2020-12-08T15:47:22.827+00:00",
             "updatedByUserId": null
           }
-        },
-        {
-          "id": "49347f02-69ac-4c12-b6f2-2afb6059c94b",
-          "tenantId": "test_tenant",
-          "holdingsRecordId": "9550c935-401a-4a85-875e-4d1fe7678870",
-          "hrid": "it00000000001",
-          "accessionNumber": null,
-          "formerIds": [],
-          "itemIdentifier": null,
-          "barcode": "12345",
-          "effectiveLocationId": "cdd60388-0c75-4969-b3c5-2d04621ed26f",
-          "status": {
-            "name": "Available"
-          },
-          "materialTypeId": "5ee11d91-f7e8-481d-b079-65d708582ccc",
-          "discoverySuppress": false,
-          "effectiveCallNumberComponents": {
-            "callNumber": "332. 2",
-            "prefix": "prefix 2",
-            "suffix": "suff 2",
-            "typeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35"
-          },
-          "effectiveShelvingOrder": "3332 12 SUFF 12",
-          "itemLevelCallNumberTypeId": null,
-          "tags": {
-            "tagList": []
-          },
-          "electronicAccess": [],
-          "administrativeNotes": [],
-          "notes": [],
-          "statisticalCodeIds": [],
-          "circulationNotes": [],
-          "metadata": {
-            "createdDate": "2024-03-14T13:05:09.406+00:00",
-            "createdByUserId": "93fc1367-7321-4836-b2a7-cbc7ffe8c20e",
-            "updatedDate": "2024-03-14T13:05:09.406+00:00",
-            "updatedByUserId": "93fc1367-7321-4836-b2a7-cbc7ffe8c20e"
-          }
         }
       ],
       "holdings": [
+        {
+          "id": "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19",
+          "tenantId": "test_tenant",
+          "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
+          "discoverySuppress": true,
+          "hrid": "hold000000000009",
+          "sourceId": null,
+          "formerIds": [
+            "1d76ee84-d776-48d2-ab96-140c24e39ac5"
+          ],
+          "statisticalCodeIds": [
+            "a2b01891-c9ab-4d04-8af8-8989af1c6aad"
+          ],
+          "tags": null,
+          "holdingsTypeId": "03c9c400-b9e3-4a07-ac0e-05ab470233ed",
+          "callNumberPrefix": null,
+          "callNumber": null,
+          "callNumberSuffix": null,
+          "copyNumber": null,
+          "electronicAccess": [],
+          "administrativeNotes": [
+            "v2.0",
+            "for deletion"
+          ],
+          "notes": [],
+          "metadata": {
+            "createdDate": "2020-12-08T15:47:19.330+00:00",
+            "createdByUserId": null,
+            "updatedDate": "2020-12-08T15:47:19.330+00:00",
+            "updatedByUserId": null
+          }
+        },
         {
           "id": "a663dea9-6547-4b2d-9daa-76cadd662272",
           "tenantId": "test_tenant",
@@ -439,38 +487,6 @@
             "createdByUserId": "d2533d6c-a42c-5bff-ad77-22f87c297925",
             "updatedDate": "2021-03-04T12:36:17.211+00:00",
             "updatedByUserId": "d2533d6c-a42c-5bff-ad77-22f87c297925"
-          }
-        },
-        {
-          "id": "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19",
-          "tenantId": "test_tenant",
-          "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
-          "discoverySuppress": true,
-          "hrid": "hold000000000009",
-          "sourceId": null,
-          "formerIds": [
-            "1d76ee84-d776-48d2-ab96-140c24e39ac5"
-          ],
-          "statisticalCodeIds": [
-            "a2b01891-c9ab-4d04-8af8-8989af1c6aad"
-          ],
-          "tags": null,
-          "holdingsTypeId": "03c9c400-b9e3-4a07-ac0e-05ab470233ed",
-          "callNumberPrefix": null,
-          "callNumber": null,
-          "callNumberSuffix": null,
-          "copyNumber": null,
-          "electronicAccess": [],
-          "administrativeNotes": [
-            "v2.0",
-            "for deletion"
-          ],
-          "notes": [],
-          "metadata": {
-            "createdDate": "2020-12-08T15:47:19.330+00:00",
-            "createdByUserId": null,
-            "updatedDate": "2020-12-08T15:47:19.330+00:00",
-            "updatedByUserId": null
           }
         }
       ]

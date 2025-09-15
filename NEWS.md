@@ -1,4 +1,4 @@
-## v4.0.14 YYYY-mm-DD
+## v4.0.14 2025-09-17
 ### Features
 * Refactor Sub-Resource Saving to Background Job to Prevent DB Deadlocks ([MSEARCH-1056](https://folio-org.atlassian.net/browse/MSEARCH-1056))
 

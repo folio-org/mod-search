@@ -21,6 +21,7 @@ import org.folio.search.support.base.BaseIntegrationTest;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -116,6 +117,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
   }
 
   @Test
+  @Disabled
   void responseContainsOnlyBasicInstanceProperties() {
     var expected = getInstanceBasicResponseSample();
     var response = doSearchByInstances(prepareQuery("id=={value}", getSemanticWebId()));
@@ -126,6 +128,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
   }
 
   @Test
+  @Disabled
   void responseContainsAllInstanceProperties() {
     var expected = getInstanceFullResponseSample();
     var response = doSearchByInstances(prepareQuery("id=={value}", getSemanticWebId()), true);

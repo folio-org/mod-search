@@ -155,7 +155,8 @@ public class BrowseContextProvider {
   }
 
   private static String getAnchor(RangeQueryBuilder rangeQuery) {
-    return rangeQuery.from() != null ? (String) rangeQuery.from() : (String) rangeQuery.to();
+    var anchor = rangeQuery.from() != null ? String.valueOf(rangeQuery.from()) : String.valueOf(rangeQuery.to());
+    return anchor.replace("\\", "\\\\");
   }
 
   private static String validateAndGetAnchorForBrowsingAround(BrowseRequest request, List<QueryBuilder> shouldClauses) {

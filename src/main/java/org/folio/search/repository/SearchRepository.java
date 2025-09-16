@@ -8,12 +8,14 @@ import static org.folio.search.utils.CollectionUtils.getValuesByPath;
 import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
 import static org.opensearch.client.RequestOptions.DEFAULT;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.ResourceRequest;
 import org.folio.search.model.service.CqlResourceIdsRequest;
@@ -39,6 +41,7 @@ import org.springframework.stereotype.Repository;
 /**
  * Search resource repository with set of operation to perform search operations.
  */
+@Log4j2
 @Repository
 @RequiredArgsConstructor
 public class SearchRepository {
@@ -72,6 +75,7 @@ public class SearchRepository {
   public SearchResponse search(ResourceRequest resourceRequest, SearchSourceBuilder searchSource) {
     var index = indexNameProvider.getIndexName(resourceRequest);
     var searchRequest = buildSearchRequest(index, searchSource);
+    log.info("search::searchAfter {}", Arrays.toString(searchSource.searchAfter()));
     return performExceptionalOperation(() -> client.search(searchRequest, DEFAULT), index, SEARCH_OPERATION_TYPE);
   }
 

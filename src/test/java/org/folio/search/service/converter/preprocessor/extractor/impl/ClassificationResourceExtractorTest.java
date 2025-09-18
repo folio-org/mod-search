@@ -39,9 +39,22 @@ class ClassificationResourceExtractorTest extends ChildResourceExtractorTestBase
     persistChildrenTest(extractor, repository, classificationsBodySupplier());
   }
 
+  @Test
+  void shouldNotPersistEmptyClassification() {
+    when(configService.isEnabled(TenantConfiguredFeature.BROWSE_CLASSIFICATIONS)).thenReturn(true);
+    shouldNotPersistEmptyChildrenTest(extractor, repository, emptyClassificationsBodySupplier());
+  }
+
   private static Supplier<Map<String, Object>> classificationsBodySupplier() {
     return () -> Map.of(CLASSIFICATIONS_FIELD, List.of(Map.of(
       CLASSIFICATION_NUMBER_FIELD, RandomStringUtils.insecure().nextAlphanumeric(55),
+      CLASSIFICATION_TYPE_FIELD, UUID.randomUUID().toString()
+    )));
+  }
+
+  private static Supplier<Map<String, Object>> emptyClassificationsBodySupplier() {
+    return () -> Map.of(CLASSIFICATIONS_FIELD, List.of(Map.of(
+      CLASSIFICATION_NUMBER_FIELD, "        ",
       CLASSIFICATION_TYPE_FIELD, UUID.randomUUID().toString()
     )));
   }

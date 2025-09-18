@@ -53,9 +53,25 @@ class CallNumberResourceExtractorTest extends ChildResourceExtractorTestBase {
     persistChildrenTest(extractor, repository, callNumberBodySupplier());
   }
 
+  @Test
+  void shouldNotPersistEmptyCallNumber() {
+    when(configService.isEnabled(TenantConfiguredFeature.BROWSE_CALL_NUMBERS)).thenReturn(true);
+    shouldNotPersistEmptyChildrenTest(extractor, repository, emptyCallNumberBodySupplier());
+  }
+
   private static Supplier<Map<String, Object>> callNumberBodySupplier() {
     return () -> mapOf(EFFECTIVE_CALL_NUMBER_COMPONENTS_FIELD, mapOf(
         CALL_NUMBER_FIELD, "call-number",
+        SUFFIX_FIELD, "suffix",
+        PREFIX_FIELD, "prefix",
+        TYPE_ID_FIELD, "type-id"
+      )
+    );
+  }
+
+  private static Supplier<Map<String, Object>> emptyCallNumberBodySupplier() {
+    return () -> mapOf(EFFECTIVE_CALL_NUMBER_COMPONENTS_FIELD, mapOf(
+        CALL_NUMBER_FIELD, "        ",
         SUFFIX_FIELD, "suffix",
         PREFIX_FIELD, "prefix",
         TYPE_ID_FIELD, "type-id"

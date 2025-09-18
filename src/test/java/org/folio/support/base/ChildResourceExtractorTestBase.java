@@ -54,6 +54,17 @@ public abstract class ChildResourceExtractorTestBase {
       && set.relationshipEntities().size() == 3));
   }
 
+  public void shouldNotPersistEmptyChildrenTest(ChildResourceExtractor extractor,
+                                                InstanceChildResourceRepository repository,
+                                                Supplier<Map<String, Object>> eventBodySupplier) {
+    var events = List.of(resourceEvent(ResourceEventType.CREATE, eventBodySupplier.get()));
+
+    extractor.persistChildren(false, events);
+
+    verify(repository).saveAll(argThat(set -> set.resourceEntities().isEmpty()
+                                              && set.relationshipEntities().isEmpty()));
+  }
+
   protected int getExpectedEntitiesSize() {
     return 2;
   }
@@ -74,7 +85,7 @@ public abstract class ChildResourceExtractorTestBase {
       )));
   }
 
-  private ResourceEvent resourceEvent(ResourceEventType type, Map<String, Object> body) {
+  protected ResourceEvent resourceEvent(ResourceEventType type, Map<String, Object> body) {
     return resourceEvent(type, null, body);
   }
 

@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 @Getter
 public class CallNumberEntity implements Comparable<CallNumberEntity> {
 
-  private static final int CALL_NUMBER_MAX_LENGTH = 50;
+  public static final int CALL_NUMBER_MAX_LENGTH = 50;
   private static final int CALL_NUMBER_PREFIX_MAX_LENGTH = 20;
   private static final int CALL_NUMBER_SUFFIX_MAX_LENGTH = 25;
   private static final int CALL_NUMBER_TYPE_MAX_LENGTH = 40;

@@ -40,9 +40,24 @@ class ContributorResourceExtractorTest extends ChildResourceExtractorTestBase {
     persistChildrenTest(extractor, repository, contributorsBodySupplier());
   }
 
+  @Test
+  void shouldNotPersistEmptyContributor() {
+    when(configService.isEnabled(TenantConfiguredFeature.BROWSE_CONTRIBUTORS)).thenReturn(true);
+    shouldNotPersistEmptyChildrenTest(extractor, repository, emptyContributorsBodySupplier());
+  }
+
   private static Supplier<Map<String, Object>> contributorsBodySupplier() {
     return () -> Map.of(CONTRIBUTORS_FIELD, List.of(Map.of(
       "name", RandomStringUtils.insecure().nextAlphanumeric(260),
+      AUTHORITY_ID_FIELD, UUID.randomUUID().toString(),
+      SUBJECT_SOURCE_ID_FIELD, UUID.randomUUID().toString(),
+      SUBJECT_TYPE_ID_FIELD, UUID.randomUUID().toString()
+    )));
+  }
+
+  private static Supplier<Map<String, Object>> emptyContributorsBodySupplier() {
+    return () -> Map.of(CONTRIBUTORS_FIELD, List.of(Map.of(
+      "name", "        ",
       AUTHORITY_ID_FIELD, UUID.randomUUID().toString(),
       SUBJECT_SOURCE_ID_FIELD, UUID.randomUUID().toString(),
       SUBJECT_TYPE_ID_FIELD, UUID.randomUUID().toString()

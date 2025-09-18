@@ -44,6 +44,8 @@
   * Add facet filtering for nested queries ([MSEARCH-1012](https://folio-org.atlassian.net/browse/MSEARCH-1012))
 * **Consortium Search**
   * Batch search returns less results for duplicate identifiers ([MSEARCH-804](https://folio-org.atlassian.net/browse/MSEARCH-804))
+  * Fix `/batch/holdings` and `holding/{id}` API responses to include callNumber* and copyNumber fields
+    ([MSEARCH-1067](https://folio-org.atlassian.net/browse/MSEARCH-1067))
 * **Facets**
   * Modify facet queries to remove filters for nested queries ([MSEARCH-995](https://folio-org.atlassian.net/browse/MSEARCH-995))
 * **Indexing**

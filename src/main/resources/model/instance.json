@@ -485,6 +485,18 @@
         "formerIds": {
           "index": "source"
         },
+        "callNumber": {
+          "index": "source"
+        },
+        "callNumberPrefix": {
+          "index": "source"
+        },
+        "callNumberSuffix": {
+          "index": "source"
+        },
+        "copyNumber": {
+          "index": "source"
+        },
         "tags": {
           "type": "object",
           "properties": {

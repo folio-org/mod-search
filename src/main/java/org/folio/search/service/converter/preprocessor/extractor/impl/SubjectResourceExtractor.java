@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.TenantConfiguredFeature;
 import org.folio.search.model.types.ResourceType;
@@ -58,7 +59,7 @@ public class SubjectResourceExtractor extends ChildResourceExtractor {
       return Collections.emptyMap();
     }
     var subjectValue = prepareForExpectedFormat(entityProperties.get(SUBJECT_VALUE_FIELD), 255);
-    if (subjectValue.isEmpty()) {
+    if (StringUtils.isBlank(subjectValue)) {
       return Collections.emptyMap();
     }
 

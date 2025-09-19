@@ -251,6 +251,10 @@ class ConsortiumSearchHoldingsIT extends BaseConsortiumIntegrationTest {
         .hrid(holding.getHrid())
         .tenantId(MEMBER_TENANT_ID)
         .instanceId(instance.getId())
+        .callNumber(holding.getCallNumber())
+        .callNumberPrefix(holding.getCallNumberPrefix())
+        .callNumberSuffix(holding.getCallNumberSuffix())
+        .copyNumber(holding.getCopyNumber())
         .permanentLocationId(holding.getPermanentLocationId())
         .discoverySuppress(holding.getDiscoverySuppress() != null && holding.getDiscoverySuppress()))
       .toArray(ConsortiumHolding[]::new);

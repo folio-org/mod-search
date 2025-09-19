@@ -83,7 +83,8 @@
     "sourceId": "f32d531e-df79-46b3-8932-cdd35f7a2264",
     "callNumber": "call number",
     "callNumberSuffix": "suffix",
-    "callNumberPrefix": "prefix"
+    "callNumberPrefix": "prefix",
+    "copyNumber": "copy number"
   },
   {
     "id": "a663dea9-6547-4b2d-9daa-76cadd662272",
@@ -109,6 +110,10 @@
     "tags": {
       "tagList": [ "holdings-tag" ]
     },
-    "sourceId": "f32d531e-df79-46b3-8932-cdd35f7a2264"
+    "sourceId": "f32d531e-df79-46b3-8932-cdd35f7a2264",
+    "callNumber": "call number1",
+    "callNumberSuffix": "suffix1",
+    "callNumberPrefix": "prefix1",
+    "copyNumber": "copy number1"
   }
 ]

@@ -20,24 +20,41 @@ import org.springframework.stereotype.Repository;
 public class UploadInstanceRepository extends UploadRangeRepository {
 
   private static final String SELECT_SQL_TEMPLATE = """
-    SELECT i.json
-      || jsonb_build_object('tenantId', i.tenant_id,
-                            'shared', i.shared,
-                            'isBoundWith', i.is_bound_with,
-                            'holdings', COALESCE(jsonb_agg(DISTINCT h.json ||
-                            jsonb_build_object('tenantId', h.tenant_id))
-                            FILTER (WHERE h.json IS NOT NULL), '[]'::jsonb),
-                            'items', COALESCE(jsonb_agg(it.json || jsonb_build_object('tenantId', it.tenant_id))
-                            FILTER (WHERE it.json IS NOT NULL), '[]'::jsonb)) as json
-    FROM %s i
-      LEFT JOIN %s h on h.instance_id = i.id
-      LEFT JOIN %s it on it.holding_id = h.id
-      WHERE %s
-      GROUP BY i.id;
+          WITH aggregated_holdings AS (
+            SELECT
+                h.instance_id,
+                jsonb_agg(                   h.json || jsonb_build_object('tenantId', h.tenant_id)
+                ) AS holdings_json
+            FROM %2$s h
+            WHERE %4$s
+            GROUP BY h.instance_id
+          ),
+          aggregated_items AS (
+            SELECT
+                it.instance_id,
+                jsonb_agg(
+                    it.json || jsonb_build_object('tenantId', it.tenant_id)
+                ) AS items_json
+            FROM %3$s it
+            WHERE %5$s
+            GROUP BY it.instance_id
+          )
+          SELECT
+              i.json || jsonb_build_object(
+                  'tenantId', i.tenant_id,
+                  'shared', i.shared,
+                  'isBoundWith', i.is_bound_with,
+                  'holdings', COALESCE(ah.holdings_json, '[]'::jsonb),
+                  'items', COALESCE(ai.items_json, '[]'::jsonb)
+              ) AS json
+          FROM %1$s i
+          LEFT JOIN aggregated_holdings ah ON ah.instance_id = i.id
+          LEFT JOIN aggregated_items ai ON ai.instance_id = i.id
+          WHERE %6$s;
     """;
 
-  private static final String IDS_RANGE_WHERE_CLAUSE = "i.id >= ?::uuid AND i.id <= ?::uuid";
-  private static final String INSTANCE_IDS_WHERE_CLAUSE = "i.id IN (%s)";
+  private static final String IDS_RANGE_WHERE_CLAUSE = "%1$s >= ?::uuid AND %1$s <= ?::uuid";
+  private static final String INSTANCE_IDS_WHERE_CLAUSE = "%s IN (%s)";
 
   protected UploadInstanceRepository(JdbcTemplate jdbcTemplate, JsonConverter jsonConverter,
                                      FolioExecutionContext context,
@@ -59,15 +76,24 @@ public class UploadInstanceRepository extends UploadRangeRepository {
     if (ids == null || ids.isEmpty()) {
       return Collections.emptyList();
     }
-    var whereClause = INSTANCE_IDS_WHERE_CLAUSE.formatted(JdbcUtils.getParamPlaceholderForUuid(ids.size()));
+    var instanceWhereClause = INSTANCE_IDS_WHERE_CLAUSE.formatted("i.id",
+      JdbcUtils.getParamPlaceholderForUuid(ids.size()));
+    var itemWhereClause = INSTANCE_IDS_WHERE_CLAUSE.formatted("it.instance_id",
+      JdbcUtils.getParamPlaceholderForUuid(ids.size()));
+    var holdingsWhereClause = INSTANCE_IDS_WHERE_CLAUSE.formatted("h.instance_id",
+      JdbcUtils.getParamPlaceholderForUuid(ids.size()));
     var sql = SELECT_SQL_TEMPLATE.formatted(getFullTableName(context, entityTable()),
       getFullTableName(context, "holding"),
       getFullTableName(context, "item"),
-      whereClause);
+      holdingsWhereClause,
+      itemWhereClause,
+      instanceWhereClause);
     return jdbcTemplate.query(sql, ps -> {
       int i = 1;
-      for (; i <= ids.size(); i++) {
-        ps.setObject(i, ids.get(i - 1)); // set instance ids
+      for (int paramSet = 0; paramSet < 3; paramSet++) {
+        for (String id : ids) {
+          ps.setObject(i++, id);
+        }
       }
     }, rowToMapMapper());
   }
@@ -80,11 +106,22 @@ public class UploadInstanceRepository extends UploadRangeRepository {
   }
 
   @Override
+  public List<Map<String, Object>> fetchByIdRange(String lower, String upper) {
+    var sql = getFetchBySql();
+    return jdbcTemplate.query(sql, rowToMapMapper(), lower, upper, lower, upper, lower, upper);
+  }
+
+  @Override
   protected String getFetchBySql() {
+    var instanceWhereClause = IDS_RANGE_WHERE_CLAUSE.formatted("i.id");
+    var itemWhereClause = IDS_RANGE_WHERE_CLAUSE.formatted("it.instance_id");
+    var holdingsWhereClause = IDS_RANGE_WHERE_CLAUSE.formatted("h.instance_id");
     return SELECT_SQL_TEMPLATE.formatted(getFullTableName(context, entityTable()),
       getFullTableName(context, "holding"),
       getFullTableName(context, "item"),
-      IDS_RANGE_WHERE_CLAUSE);
+      holdingsWhereClause,
+      itemWhereClause,
+      instanceWhereClause);
   }
 
   @Override

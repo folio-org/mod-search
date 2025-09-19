@@ -2,7 +2,9 @@ package org.folio.search.service.converter.preprocessor.extractor.impl;
 
 import static org.apache.commons.collections4.MapUtils.getMap;
 import static org.apache.commons.collections4.MapUtils.getString;
+import static org.folio.search.model.entity.CallNumberEntity.CALL_NUMBER_MAX_LENGTH;
 import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
+import static org.folio.search.utils.SearchUtils.prepareForExpectedFormat;
 
 import java.util.Collections;
 import java.util.List;
@@ -10,6 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.TenantConfiguredFeature;
 import org.folio.search.model.entity.CallNumberEntity;
@@ -85,8 +88,9 @@ public class CallNumberResourceExtractor extends ChildResourceExtractor {
 
   private Optional<CallNumberEntity> toCallNumberEntity(Map<String, Object> entityProperties) {
     var callNumberComponents = getCallNumberComponents(entityProperties);
-    var callNumber = getString(callNumberComponents, CALL_NUMBER_FIELD);
-    if (callNumber != null) {
+    var callNumber = prepareForExpectedFormat(getString(callNumberComponents, CALL_NUMBER_FIELD),
+      CALL_NUMBER_MAX_LENGTH);
+    if (StringUtils.isNotBlank(callNumber)) {
       var callNumberEntity = CallNumberEntity.builder()
         .callNumber(callNumber)
         .callNumberPrefix(getString(callNumberComponents, PREFIX_FIELD))

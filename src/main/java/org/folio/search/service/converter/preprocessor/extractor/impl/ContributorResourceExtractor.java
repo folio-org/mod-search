@@ -6,11 +6,13 @@ import static org.folio.search.utils.SearchUtils.CONTRIBUTORS_FIELD;
 import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_TYPE_FIELD;
 import static org.folio.search.utils.SearchUtils.prepareForExpectedFormat;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.converter.preprocessor.extractor.ChildResourceExtractor;
@@ -46,11 +48,11 @@ public class ContributorResourceExtractor extends ChildResourceExtractor {
   @Override
   protected Map<String, Object> constructEntity(Map<String, Object> entityProperties) {
     if (entityProperties == null) {
-      return null;
+      return Collections.emptyMap();
     }
     var contributorName = prepareForExpectedFormat(entityProperties.get("name"), 255);
-    if (contributorName.isBlank()) {
-      return null;
+    if (StringUtils.isBlank(contributorName)) {
+      return Collections.emptyMap();
     }
 
     var nameTypeId = entityProperties.get("contributorNameTypeId");

@@ -37,6 +37,11 @@ class ContributorResourceExtractorTest extends ChildResourceExtractorTestBase {
     persistChildrenTest(extractor, repository, contributorsBodySupplier());
   }
 
+  @Test
+  void shouldNotPersistEmptyContributor() {
+    shouldNotPersistEmptyChildrenTest(extractor, repository, emptyContributorsBodySupplier());
+  }
+
   private static Supplier<Map<String, Object>> contributorsBodySupplier() {
     return () -> Map.of("resource", "instance",
       "body", Map.of(CONTRIBUTORS_FIELD, List.of(Map.of(
@@ -45,5 +50,14 @@ class ContributorResourceExtractorTest extends ChildResourceExtractorTestBase {
       SUBJECT_SOURCE_ID_FIELD, UUID.randomUUID().toString(),
       SUBJECT_TYPE_ID_FIELD, UUID.randomUUID().toString()
     ))));
+  }
+
+  private static Supplier<Map<String, Object>> emptyContributorsBodySupplier() {
+    return () -> Map.of(CONTRIBUTORS_FIELD, List.of(Map.of(
+      "name", "        ",
+      AUTHORITY_ID_FIELD, UUID.randomUUID().toString(),
+      SUBJECT_SOURCE_ID_FIELD, UUID.randomUUID().toString(),
+      SUBJECT_TYPE_ID_FIELD, UUID.randomUUID().toString()
+    )));
   }
 }

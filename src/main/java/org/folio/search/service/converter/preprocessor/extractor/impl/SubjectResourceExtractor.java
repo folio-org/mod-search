@@ -8,11 +8,13 @@ import static org.folio.search.utils.SearchUtils.SUBJECT_TYPE_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.SUBJECT_VALUE_FIELD;
 import static org.folio.search.utils.SearchUtils.prepareForExpectedFormat;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.converter.preprocessor.extractor.ChildResourceExtractor;
@@ -47,11 +49,11 @@ public class SubjectResourceExtractor extends ChildResourceExtractor {
   @Override
   protected Map<String, Object> constructEntity(Map<String, Object> entityProperties) {
     if (entityProperties == null) {
-      return null;
+      return Collections.emptyMap();
     }
     var subjectValue = prepareForExpectedFormat(entityProperties.get(SUBJECT_VALUE_FIELD), 255);
-    if (subjectValue.isEmpty()) {
-      return null;
+    if (StringUtils.isBlank(subjectValue)) {
+      return Collections.emptyMap();
     }
 
     var authorityId = entityProperties.get(AUTHORITY_ID_FIELD);

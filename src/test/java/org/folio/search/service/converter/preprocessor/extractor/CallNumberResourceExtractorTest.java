@@ -59,6 +59,12 @@ class CallNumberResourceExtractorTest extends ChildResourceExtractorTestBase {
     verify(repository, times(2)).deleteByInstanceIds(anyList(), eq(TENANT_ID));
   }
 
+  @Test
+  void shouldNotPersistEmptyCallNumber() {
+    when(configService.isEnabled(TenantConfiguredFeature.BROWSE_CALL_NUMBERS)).thenReturn(true);
+    shouldNotPersistEmptyChildrenTest(extractor, repository, emptyCallNumberBodySupplier());
+  }
+
   private static Supplier<Map<String, Object>> callNumberBodySupplier() {
     return () -> Map.of("resource", "item",
       "body", mapOf(EFFECTIVE_CALL_NUMBER_COMPONENTS_FIELD, mapOf(
@@ -68,5 +74,15 @@ class CallNumberResourceExtractorTest extends ChildResourceExtractorTestBase {
         TYPE_ID_FIELD, "type-id"
       )
     ));
+  }
+
+  private static Supplier<Map<String, Object>> emptyCallNumberBodySupplier() {
+    return () -> mapOf(EFFECTIVE_CALL_NUMBER_COMPONENTS_FIELD, mapOf(
+        CALL_NUMBER_FIELD, "        ",
+        SUFFIX_FIELD, "suffix",
+        PREFIX_FIELD, "prefix",
+        TYPE_ID_FIELD, "type-id"
+      )
+    );
   }
 }

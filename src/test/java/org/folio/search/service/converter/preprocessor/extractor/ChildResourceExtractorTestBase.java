@@ -57,6 +57,17 @@ public abstract class ChildResourceExtractorTestBase {
       && set.relationshipEntities().size() == 3));
   }
 
+  public void shouldNotPersistEmptyChildrenTest(ChildResourceExtractor extractor,
+                                                InstanceChildResourceRepository repository,
+                                                Supplier<Map<String, Object>> eventBodySupplier) {
+    var events = List.of(resourceEvent(ResourceEventType.CREATE, eventBodySupplier.get()));
+
+    extractor.persistChildren(TENANT_ID, false, events);
+
+    verify(repository).saveAll(argThat(set -> set.resourceEntities().isEmpty()
+                                              && set.relationshipEntities().isEmpty()));
+  }
+
   protected int getExpectedEntitiesSize() {
     return 2;
   }

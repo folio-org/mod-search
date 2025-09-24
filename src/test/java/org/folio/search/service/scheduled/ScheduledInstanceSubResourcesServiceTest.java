@@ -89,6 +89,7 @@ class ScheduledInstanceSubResourcesServiceTest {
     verify(instanceRepository).fetchByTimestamp(tenantId, timestamp);
     verify(itemRepository).fetchByTimestamp(tenantId, timestamp);
     verify(subjectRepository).fetchByTimestamp(tenantId, timestamp, 3);
+    verify(instanceChildrenResourceService, times(3)).persistChildren(anyString(), any(), anyList());
     verify(resourceService).indexResources(anyList());
     verify(itemRepository).deleteEntitiesForTenant(List.of("4"), tenantId, true);
     verify(subResourcesLockRepository).unlockSubResource(eq(ReindexEntityType.SUBJECT), any(), eq(tenantId));

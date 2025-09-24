@@ -1,5 +1,6 @@
 package org.folio.search.service.scheduled;
 
+import static java.util.Collections.emptyList;
 import static java.util.function.UnaryOperator.identity;
 import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.collections4.MapUtils.getString;
@@ -9,6 +10,7 @@ import java.sql.Timestamp;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
@@ -156,7 +158,7 @@ public class ScheduledInstanceSubResourcesService {
     log.debug("processInstanceOrItemEntities::Processing {} {} entities for tenant {}",
              result.records().size(), entityType, tenant);
 
-    var events = result.records().stream()
+    var eventsByDeleted = result.records().stream()
       .map(recordMap -> {
         var isDeleted = Boolean.TRUE.equals(recordMap.get("isDeleted"));
         var eventType = isDeleted ? ResourceEventType.DELETE : ResourceEventType.UPDATE;
@@ -173,25 +175,28 @@ public class ScheduledInstanceSubResourcesService {
 
         return resourceEvent;
       })
-      .toList();
-    events.stream()
+      .collect(Collectors.groupingBy(event -> ResourceEventType.DELETE == event.getType()));
+
+    var deleteEvents = Optional.ofNullable(eventsByDeleted.get(true)).orElse(emptyList());
+    //process delete events first in case 2 events for the same entity, f.e. change of ownership
+    deleteEvents.stream()
+      .collect(Collectors.groupingBy(ResourceEvent::getTenant)).forEach((eventsTenant, tenantEvents) ->
+        instanceChildrenResourceService.persistChildren(eventsTenant, resourceType, tenantEvents));
+    //process create/update events
+    Optional.ofNullable(eventsByDeleted.get(false)).orElse(emptyList()).stream()
       .collect(Collectors.groupingBy(ResourceEvent::getTenant)).forEach((eventsTenant, tenantEvents) ->
         instanceChildrenResourceService.persistChildren(eventsTenant, resourceType, tenantEvents));
 
     // Hard delete entities marked as deleted
-    var deletedEntities = events.stream()
-      .filter(event -> ResourceEventType.DELETE == event.getType())
-      .toList();
-
-    if (!deletedEntities.isEmpty()) {
+    if (!deleteEvents.isEmpty()) {
       var repository = (MergeRangeRepository) repositories.get(entityType);
       if (repository != null) {
         log.debug("processInstanceOrItemEntities::Hard deleting {} {} entities with IDs: {}",
-                 deletedEntities.size(), entityType, deletedEntities);
+          deleteEvents.size(), entityType, deleteEvents);
 
         if (entityType == ReindexEntityType.ITEM) {
           // Items need tenant-specific deletion
-          deletedEntities.stream()
+          deleteEvents.stream()
             .collect(Collectors.groupingBy(ResourceEvent::getTenant,
               Collectors.mapping(ResourceEvent::getId, Collectors.toList())))
             .forEach((groupTenant, ids) ->
@@ -199,7 +204,7 @@ public class ScheduledInstanceSubResourcesService {
             );
         } else {
           // Instances use regular deletion
-          var idsForDelete = deletedEntities.stream()
+          var idsForDelete = deleteEvents.stream()
             .map(ResourceEvent::getId)
             .toList();
           repository.deleteEntities(idsForDelete);

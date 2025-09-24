@@ -195,7 +195,7 @@ public class ScheduledInstanceSubResourcesService {
             .collect(Collectors.groupingBy(ResourceEvent::getTenant,
               Collectors.mapping(ResourceEvent::getId, Collectors.toList())))
             .forEach((groupTenant, ids) ->
-              repository.deleteEntitiesForTenant(ids, groupTenant)
+              repository.deleteEntitiesForTenant(ids, groupTenant, true)
             );
         } else {
           // Instances use regular deletion

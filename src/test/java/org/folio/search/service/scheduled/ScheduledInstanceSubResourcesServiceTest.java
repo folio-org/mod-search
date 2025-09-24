@@ -87,8 +87,10 @@ class ScheduledInstanceSubResourcesServiceTest {
 
     // Assert
     verify(instanceRepository).fetchByTimestamp(tenantId, timestamp);
+    verify(itemRepository).fetchByTimestamp(tenantId, timestamp);
     verify(subjectRepository).fetchByTimestamp(tenantId, timestamp, 3);
     verify(resourceService).indexResources(anyList());
+    verify(itemRepository).deleteEntitiesForTenant(List.of("4"), tenantId, true);
     verify(subResourcesLockRepository).unlockSubResource(eq(ReindexEntityType.SUBJECT), any(), eq(tenantId));
   }
 
@@ -174,6 +176,7 @@ class ScheduledInstanceSubResourcesServiceTest {
     when(instanceRepository.fetchByTimestamp(tenantId, timestamp))
       .thenReturn(new SubResourceResult(List.of(Map.of("id", "2", "tenantId", tenantId)), null));
     when(itemRepository.fetchByTimestamp(tenantId, timestamp))
-      .thenReturn(new SubResourceResult(List.of(Map.of("id", "3", "tenantId", tenantId)), null));
+      .thenReturn(new SubResourceResult(List.of(Map.of("id", "3", "tenantId", tenantId),
+        Map.of("id", "4", "tenantId", tenantId, "isDeleted", true)), null));
   }
 }

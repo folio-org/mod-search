@@ -72,7 +72,9 @@ public class ElasticsearchDocumentConverter {
     if (MapUtils.isEmpty(elasticsearchHit)) {
       return objectMapper.convertValue(elasticsearchHit, resultClass);
     }
-    return objectMapper.convertValue(processMap(elasticsearchHit), resultClass);
+    var convertedValue = objectMapper.convertValue(processMap(elasticsearchHit), resultClass);
+    elasticsearchHit.clear();
+    return convertedValue;
   }
 
   private <T, R> List<R> convertSearchHits(SearchHit[] searchHits, Class<T> type,

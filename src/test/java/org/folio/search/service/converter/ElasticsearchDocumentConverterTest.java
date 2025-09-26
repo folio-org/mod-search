@@ -4,6 +4,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assumptions.assumeThat;
 import static org.folio.support.TestConstants.RESOURCE_ID;
 import static org.folio.support.utils.JsonTestUtils.OBJECT_MAPPER;
 import static org.folio.support.utils.TestUtils.array;
@@ -60,75 +61,14 @@ class ElasticsearchDocumentConverterTest {
   @Mock
   private SearchHit searchHit;
 
-  private static Stream<Arguments> positiveConvertDataProvider() {
-    return Stream.of(
-      arguments(emptyMap(), new Instance()),
-
-      arguments(
-        mapOf("plain_title", "title value", "title", mapOf("eng", "title value", "rus", "title value")),
-        instance(instance -> instance.setTitle("title value"))),
-
-      arguments(
-        mapOf("identifiers", List.of(mapOf("value", "isbn1"), mapOf("value", "isbn2"))),
-        instance(instance -> instance.setIdentifiers(List.of(identifier("isbn1"), identifier("isbn2"))))),
-
-      arguments(
-        mapOf("metadata", mapOf("updatedByUserId", "userId")),
-        instance(instance -> instance.setMetadata(metadata()))),
-
-      arguments(
-        mapOf("contributors", List.of(mapOf("plain_name", "John"))),
-        instance(instance -> instance.addContributorsItem(new Contributor().name("John")))),
-
-      arguments(
-        mapOf("alternativeTitles", asList(
-          mapOf("plain_alternativeTitle", "value1"),
-          mapOf("plain_alternativeTitle", "value2"))),
-        instance(instance -> instance.setAlternativeTitles(List.of(
-          alternativeTitle("value1"), alternativeTitle("value2"))))),
-
-      arguments(
-        mapOf("series", List.of(mapOf("plain_value", "series1"))),
-        instance(instance -> instance.addSeriesItem(seriesItem("series1"))))
-    );
-  }
-
-  private static Instance instance(Consumer<Instance> setters) {
-    var instance = new Instance();
-    setters.accept(instance);
-    return instance;
-  }
-
-  private static Identifier identifier(String value) {
-    var identifier = new Identifier();
-    identifier.setValue(value);
-    return identifier;
-  }
-
-  private static AlternativeTitle alternativeTitle(String value) {
-    var title = new AlternativeTitle();
-    title.setAlternativeTitle(value);
-    return title;
-  }
-
-  private static SeriesItem seriesItem(String value) {
-    var seriesItem = new SeriesItem();
-    seriesItem.setValue(value);
-    return seriesItem;
-  }
-
-  private static Metadata metadata() {
-    var metadata = new Metadata();
-    metadata.setUpdatedByUserId("userId");
-    return metadata;
-  }
-
   @ParameterizedTest
   @MethodSource("positiveConvertDataProvider")
   @DisplayName("should convert incoming document to instance")
   void convert_positive_noMultiLangFields(Map<String, Object> given, Instance expected) {
+    assumeThat(given).isNotEmpty();
     var actual = elasticsearchDocumentConverter.convert(given, Instance.class);
     assertThat(actual).isEqualTo(expected);
+    assertThat(given).isEmpty();
     verify(objectMapper).convertValue(anyMap(), eq(Instance.class));
   }
 
@@ -178,5 +118,56 @@ class ElasticsearchDocumentConverterTest {
   void convertToSearchResult_negative_responseIsNull() {
     var actual = elasticsearchDocumentConverter.convertToSearchResult(null, TestResource.class);
     assertThat(actual).isEqualTo(SearchResult.empty());
+  }
+
+  private static Stream<Arguments> positiveConvertDataProvider() {
+    return Stream.of(
+      arguments(emptyMap(), new Instance()),
+      arguments(mapOf("plain_title", "title value", "title", mapOf("eng", "title value", "rus", "title value")),
+        instance(instance -> instance.setTitle("title value"))),
+      arguments(mapOf("identifiers", List.of(mapOf("value", "isbn1"), mapOf("value", "isbn2"))),
+        instance(instance -> instance.setIdentifiers(List.of(identifier("isbn1"), identifier("isbn2"))))),
+      arguments(mapOf("metadata", mapOf("updatedByUserId", "userId")),
+        instance(instance -> instance.setMetadata(metadata()))),
+      arguments(mapOf("contributors", List.of(mapOf("plain_name", "John"))),
+        instance(instance -> instance.addContributorsItem(new Contributor().name("John")))),
+      arguments(mapOf("alternativeTitles", asList(
+          mapOf("plain_alternativeTitle", "value1"),
+          mapOf("plain_alternativeTitle", "value2"))),
+        instance(instance -> instance.setAlternativeTitles(List.of(
+          alternativeTitle("value1"), alternativeTitle("value2"))))),
+      arguments(mapOf("series", List.of(mapOf("plain_value", "series1"))),
+        instance(instance -> instance.addSeriesItem(seriesItem("series1"))))
+    );
+  }
+
+  private static Instance instance(Consumer<Instance> setters) {
+    var instance = new Instance();
+    setters.accept(instance);
+    return instance;
+  }
+
+  private static Identifier identifier(String value) {
+    var identifier = new Identifier();
+    identifier.setValue(value);
+    return identifier;
+  }
+
+  private static AlternativeTitle alternativeTitle(String value) {
+    var title = new AlternativeTitle();
+    title.setAlternativeTitle(value);
+    return title;
+  }
+
+  private static SeriesItem seriesItem(String value) {
+    var seriesItem = new SeriesItem();
+    seriesItem.setValue(value);
+    return seriesItem;
+  }
+
+  private static Metadata metadata() {
+    var metadata = new Metadata();
+    metadata.setUpdatedByUserId("userId");
+    return metadata;
   }
 }

@@ -61,6 +61,7 @@
 * Stabilize test execution ([MSEARCH-991](https://folio-org.atlassian.net/browse/MSEARCH-991))
 * NumberFormatException: "1\_000" "20\_000" ([MSEARCH-1016](https://folio-org.atlassian.net/browse/MSEARCH-1016))
 * Add missing `holdings-storage` and `item-storage` dependencies in module descriptor ([MSEARCH-1062](https://folio-org.atlassian.net/browse/MSEARCH-1062))
+* Clean search hits to reduce inmemory records ([MSEARCH-1068](https://folio-org.atlassian.net/browse/MSEARCH-1068))
 
 ### Dependencies
 * Bump `LIB_NAME` from `OLD_VERSION` to `NEW_VERSION`

@@ -6,6 +6,7 @@ import static org.awaitility.Durations.FIVE_SECONDS;
 import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
 import static org.awaitility.Durations.ONE_MINUTE;
 import static org.folio.search.model.types.ResourceType.BOUND_WITH;
+import static org.folio.search.utils.KafkaConstants.BROWSE_CONFIG_DATA_LISTENER_ID;
 import static org.folio.search.utils.KafkaConstants.EVENT_LISTENER_ID;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.spring.integration.XOkapiHeaders.TENANT;
@@ -205,9 +206,17 @@ class KafkaMessageListenerIT {
   void shouldAddEnvPrefixForConsumerGroup() {
     var listenerContainer = kafkaListenerEndpointRegistry.getListenerContainer(EVENT_LISTENER_ID);
     assertThat(listenerContainer).isNotNull();
-    assertThat(listenerContainer.getGroupId()).startsWith(KAFKA_LISTENER_IT_ENV);
+    assertThat(listenerContainer.getGroupId()).startsWith(KAFKA_LISTENER_IT_ENV).endsWith("group");
     kafkaProperties.getListener().values()
       .forEach(listenerProperties -> assertThat(listenerProperties.getGroupId()).startsWith(KAFKA_LISTENER_IT_ENV));
+  }
+
+  @Test
+  void shouldNotShareGroupId() {
+    var listenerContainer = kafkaListenerEndpointRegistry.getListenerContainer(BROWSE_CONFIG_DATA_LISTENER_ID);
+    assertThat(listenerContainer).isNotNull();
+    assertThat(listenerContainer.getGroupId())
+      .startsWith(KAFKA_LISTENER_IT_ENV + "-mod-search-browse-config-data-group-");
   }
 
   @Test

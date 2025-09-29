@@ -16,6 +16,8 @@
 * Removed `browse`
 
 ### Features
+* **General**
+  * Use unique consumer group per instance for inventory classification-type and call-number-type topics ([MSEARCH-1092](https://folio-org.atlassian.net/browse/MSEARCH-1092))
 * **Authority Search**
   * Separate LCCN and Canceled LCCN identifiers search to lccn and canceledLccn options ([MSEARCH-1066](https://folio-org.atlassian.net/browse/MSEARCH-1066))
 * **Classification Browse**

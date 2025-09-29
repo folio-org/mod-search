@@ -137,6 +137,7 @@ folio:
         concurrency: ${KAFKA_BROWSE_CONFIG_DATA_CONCURRENCY:1}
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.(classification-type|call-number-type)
         group-id: ${folio.environment}-mod-search-browse-config-data-group
+        shared-group: false
       location:
         concurrency: ${KAFKA_LOCATION_CONCURRENCY:1}
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.(location|campus|institution|library)

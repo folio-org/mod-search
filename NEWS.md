@@ -1,4 +1,8 @@
-## v5.0.5 YYYY-mm-DD
+## v5.0.6 2025-09-30
+### Tech dept
+* Clean search hits to reduce inmemory records ([MSEARCH-1068](https://folio-org.atlassian.net/browse/MSEARCH-1068))
+
+## v5.0.5 2025-08-26
 ### Features
 * Refactor Sub-Resource Saving to Background Job to Prevent DB Deadlocks ([MSEARCH-1056](https://folio-org.atlassian.net/browse/MSEARCH-1056))
 * Separate LCCN and Canceled LCCN identifiers search to lccn and canceledLccn options ([MSEARCH-1065](https://folio-org.atlassian.net/browse/MSEARCH-1065))

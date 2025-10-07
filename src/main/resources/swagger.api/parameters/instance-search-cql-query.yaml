@@ -93,7 +93,7 @@ description: |
     </tr>
     <tr>
         <td>contributors.name</td>
-        <td>term</td>
+        <td>full-text</td>
         <td>contributors.name all &quot;John&quot;</td>
         <td>Matches instances that have a primary John contributor</td>
     </tr>

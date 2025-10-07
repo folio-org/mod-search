@@ -30,7 +30,8 @@ public abstract class ChildResourceExtractorTestBase {
                            Supplier<Map<String, Object>> eventDataSupplier) {
     var eventData = eventDataSupplier.get();
     var resource = eventData.get("resource").toString();
-    var eventBodySupplier = (Supplier<Map<String, Object>>) () -> (Map<String, Object>) eventDataSupplier.get().get("body");
+    var eventBodySupplier = (Supplier<Map<String, Object>>) () ->
+      (Map<String, Object>) eventDataSupplier.get().get("body");
     var eventBody = eventBodySupplier.get();
     var oldBody  = new HashMap<>(eventBodySupplier.get());
     var newBody = new HashMap<>(eventBodySupplier.get());

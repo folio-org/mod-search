@@ -76,9 +76,10 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
   }
 
   /**
-  * Needed in case 2 item events with same id come in 1 batch.
-  * This sometimes happens on update ownership case when mod-inventory-storage send CREATE event for new tenant and DELETE event for old tenant.
-  * DELETE event in such case could have higher timestamp value and caller method (intercept) logic would filter out the CREATE event since both events have same id.
+  * Needed in case 2 item events with same id come in 1 batch on update ownership case.
+  * When mod-inventory-storage send CREATE event for new tenant and DELETE event for old tenant.
+  * DELETE event in such case could have higher timestamp value and
+  * caller method (intercept) logic would filter out the CREATE event since both events have same id.
   * This method helps identify such case.
   */
   private boolean isUpdateOwnershipEvents(List<ConsumerRecord<String, ResourceEvent>> records) {

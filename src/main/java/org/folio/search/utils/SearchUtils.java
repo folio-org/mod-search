@@ -346,7 +346,7 @@ public class SearchUtils {
    * Coverts to non-null string, replaces backslash with double backslash and truncates to expected length.
    * */
   public static String prepareForExpectedFormat(Object value, int length) {
-    return truncate(Objects.toString(value, EMPTY).trim().replace("\\", "\\\\"), length);
+    return truncate(Objects.toString(value, EMPTY).trim(), length);
   }
 
   private static Object getMultilangValueObject(Object value) {

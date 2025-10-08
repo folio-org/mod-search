@@ -204,6 +204,7 @@ public class SearchConsortiumController implements SearchConsortiumApi {
 
   private String verifyAndGetTenant(String tenantHeader) {
     var centralTenant = consortiumTenantService.getCentralTenant(tenantHeader);
+    log.info("verifyAndGetTenant:: centralTenant: {}, tenantHeader: {}", centralTenant, tenantHeader);
     if (centralTenant.isEmpty() || !centralTenant.get().equals(tenantHeader)) {
       throw new RequestValidationException(REQUEST_NOT_ALLOWED_MSG, XOkapiHeaders.TENANT, tenantHeader);
     }

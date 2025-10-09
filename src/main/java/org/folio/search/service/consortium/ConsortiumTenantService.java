@@ -30,17 +30,21 @@ public class ConsortiumTenantService {
   @Cacheable(cacheNames = USER_TENANTS_CACHE, key = "@folioExecutionContext.tenantId + ':' + #tenantId")
   public Optional<String> getCentralTenant(String tenantId) {
     if (StringUtils.isBlank(tenantId)) {
+      log.warn("getCentralTenant: tenantId is blank");
       return Optional.empty();
     }
 
     var userTenants = userTenantsClient.getUserTenants(tenantId);
-    log.debug("getCentralTenant: contextTenantId: {}, tenantId: {}, response: {}",
+    log.info("getCentralTenant: contextTenantId: {}, tenantId: {}, response: {}",
       context.getTenantId(), tenantId, userTenants);
-
-    return Optional.ofNullable(userTenants)
-      .flatMap(tenants -> tenants.userTenants().stream()
-        .findFirst()
-        .map(UserTenantsClient.UserTenant::centralTenantId));
+    if (userTenants == null || userTenants.userTenants() == null || userTenants.userTenants().isEmpty()) {
+      log.warn("getCentralTenant: No userTenants found for tenantId: {}", tenantId);
+      return Optional.empty();
+    }
+    var firstUserTenant = userTenants.userTenants().get(0);
+    log.info("getCentralTenant: First userTenant: {}", firstUserTenant);
+    return Optional.ofNullable(firstUserTenant)
+      .map(UserTenantsClient.UserTenant::centralTenantId);
   }
 
   /**

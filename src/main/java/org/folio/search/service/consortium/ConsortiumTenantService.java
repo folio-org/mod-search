@@ -49,8 +49,8 @@ public class ConsortiumTenantService {
       log.info("getCentralTenant: Found matching centralTenantId: {} for tenantId: {}",
         matchingCentralTenant.get().centralTenantId(), tenantId);
     } else {
-      log.warn("getCentralTenant: No matching centralTenantId found for tenantId: {} " +
-        "in userTenants list", tenantId);
+      log.warn("getCentralTenant: No matching centralTenantId found for tenantId: {} in userTenants list",
+        tenantId);
     }
     return matchingCentralTenant.map(UserTenantsClient.UserTenant::centralTenantId);
   }

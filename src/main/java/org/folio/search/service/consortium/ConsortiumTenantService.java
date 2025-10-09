@@ -41,10 +41,16 @@ public class ConsortiumTenantService {
       log.warn("getCentralTenant: No userTenants found for tenantId: {}", tenantId);
       return Optional.empty();
     }
-    var firstUserTenant = userTenants.userTenants().get(0);
-    log.info("getCentralTenant: First userTenant: {}", firstUserTenant);
-    return Optional.ofNullable(firstUserTenant)
-      .map(UserTenantsClient.UserTenant::centralTenantId);
+    // Search for a userTenant with matching centralTenantId
+    var matchingCentralTenant = userTenants.userTenants().stream()
+      .filter(ut -> tenantId.equals(ut.centralTenantId()))
+      .findFirst();
+    if (matchingCentralTenant.isPresent()) {
+      log.info("getCentralTenant: Found matching centralTenantId: {} for tenantId: {}", matchingCentralTenant.get().centralTenantId(), tenantId);
+    } else {
+      log.warn("getCentralTenant: No matching centralTenantId found for tenantId: {} in userTenants list", tenantId);
+    }
+    return matchingCentralTenant.map(UserTenantsClient.UserTenant::centralTenantId);
   }
 
   /**

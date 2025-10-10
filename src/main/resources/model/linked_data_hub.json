@@ -15,11 +15,7 @@
       "index": "keyword_lowercase",
       "isTenant": true
     },
-    "hubAAP": {
-      "searchAliases": [ "aap", "keyword" ],
-      "index": "multilang"
-    },
-    "title": {
+    "label": {
       "searchAliases": [ "keyword" ],
       "index": "multilang"
     }

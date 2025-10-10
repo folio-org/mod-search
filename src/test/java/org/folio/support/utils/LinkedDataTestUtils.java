@@ -60,8 +60,8 @@ public class LinkedDataTestUtils {
     return join(".", toContributor(base, number), path("isCreator"));
   }
 
-  public static String toHubAap(String base, int number) {
-    return join(".", base, arrayPath("hubAAPs", number));
+  public static String toHubLabel(String base, int number) {
+    return join(".", base, arrayPath("hubLabels", number));
   }
 
   public static String toLanguage(String base, int number) {

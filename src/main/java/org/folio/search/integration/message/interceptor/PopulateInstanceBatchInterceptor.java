@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import lombok.extern.log4j.Log4j2;
@@ -64,10 +65,34 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
       if (list.size() > 1) {
         list.sort(Comparator.comparingLong(ConsumerRecord::timestamp));
       }
-      consumerRecords.add(list.getLast().value());
+      if (isUpdateOwnershipEvents(list)) {
+        consumerRecords.addAll(list.stream().map(ConsumerRecord::value).toList());
+      } else {
+        consumerRecords.add(list.getLast().value());
+      }
     }
     populate(consumerRecords);
     return records;
+  }
+
+  /**
+  * Needed in case 2 item events with same id come in 1 batch on update ownership case.
+  * When mod-inventory-storage send CREATE event for new tenant and DELETE event for old tenant.
+  * DELETE event in such case could have higher timestamp value and
+  * caller method (intercept) logic would filter out the CREATE event since both events have same id.
+  * This method helps identify such case.
+  */
+  private boolean isUpdateOwnershipEvents(List<ConsumerRecord<String, ResourceEvent>> records) {
+    if (records.size() != 2
+      || Objects.equals(records.getFirst().value().getTenant(), records.getLast().value().getTenant())) {
+      return false;
+    }
+    var eventTypes = records.stream()
+      .map(consumerRecord -> consumerRecord.value().getType())
+      .toList();
+
+    return eventTypes.contains(ResourceEventType.CREATE)
+      && eventTypes.contains(ResourceEventType.DELETE);
   }
 
   private void populate(List<ResourceEvent> records) {

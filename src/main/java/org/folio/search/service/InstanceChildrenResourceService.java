@@ -54,7 +54,8 @@ public class InstanceChildrenResourceService {
     var eventsForResourceSharing = events.stream()
       .filter(SearchConverterUtils::isUpdateEventForResourceSharing)
       .toList();
-    extractors.forEach(resourceExtractor -> resourceExtractor.persistChildren(shared, noShadowCopiesInstanceEvents));
+    extractors.forEach(resourceExtractor ->
+      resourceExtractor.persistChildren(tenantId, shared, noShadowCopiesInstanceEvents));
     extractors.forEach(resourceExtractor ->
       resourceExtractor.persistChildrenForResourceSharing(shared, eventsForResourceSharing));
   }

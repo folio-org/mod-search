@@ -38,11 +38,12 @@ class ContributorResourceExtractorTest extends ChildResourceExtractorTestBase {
   }
 
   private static Supplier<Map<String, Object>> contributorsBodySupplier() {
-    return () -> Map.of(CONTRIBUTORS_FIELD, List.of(Map.of(
+    return () -> Map.of("resource", "instance",
+      "body", Map.of(CONTRIBUTORS_FIELD, List.of(Map.of(
       "name", RandomStringUtils.insecure().nextAlphanumeric(260),
       AUTHORITY_ID_FIELD, UUID.randomUUID().toString(),
       SUBJECT_SOURCE_ID_FIELD, UUID.randomUUID().toString(),
       SUBJECT_TYPE_ID_FIELD, UUID.randomUUID().toString()
-    )));
+    ))));
   }
 }

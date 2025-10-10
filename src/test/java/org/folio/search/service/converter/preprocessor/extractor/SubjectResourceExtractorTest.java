@@ -39,11 +39,12 @@ class SubjectResourceExtractorTest extends ChildResourceExtractorTestBase {
   }
 
   private static Supplier<Map<String, Object>> subjectsBodySupplier() {
-    return () -> Map.of(SUBJECTS_FIELD, List.of(Map.of(
+    return () -> Map.of("resource", "instance",
+      "body", Map.of(SUBJECTS_FIELD, List.of(Map.of(
       SUBJECT_VALUE_FIELD, RandomStringUtils.insecure().nextAlphanumeric(260),
       AUTHORITY_ID_FIELD, UUID.randomUUID().toString(),
       SUBJECT_SOURCE_ID_FIELD, UUID.randomUUID().toString(),
       SUBJECT_TYPE_ID_FIELD, UUID.randomUUID().toString()
-    )));
+    ))));
   }
 }

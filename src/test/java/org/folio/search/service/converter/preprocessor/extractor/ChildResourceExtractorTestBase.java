@@ -26,24 +26,28 @@ import org.folio.search.service.reindex.jdbc.InstanceChildResourceRepository;
 public abstract class ChildResourceExtractorTestBase {
 
   void persistChildrenTest(ChildResourceExtractor extractor, InstanceChildResourceRepository repository,
-                           Supplier<Map<String, Object>> eventBodySupplier) {
+                           Supplier<Map<String, Object>> eventDataSupplier) {
+    var eventData = eventDataSupplier.get();
+    var resource = eventData.get("resource").toString();
+    var eventBodySupplier = (Supplier<Map<String, Object>>) () ->
+      (Map<String, Object>) eventDataSupplier.get().get("body");
     var eventBody = eventBodySupplier.get();
     var oldBody  = new HashMap<>(eventBodySupplier.get());
     var newBody = new HashMap<>(eventBodySupplier.get());
     oldBody.put(SOURCE_FIELD, "FOLIO");
     newBody.put(SOURCE_FIELD, SOURCE_CONSORTIUM_PREFIX + "FOLIO");
     var events = List.of(
-      resourceEvent(ResourceEventType.CREATE, eventBody),
-      resourceEvent(ResourceEventType.REINDEX, eventBody),
-      resourceEvent(ResourceEventType.UPDATE, noMainValuesBody()),
-      resourceEvent(ResourceEventType.UPDATE, eventBodySupplier.get()),
-      resourceEvent(ResourceEventType.DELETE, eventBodySupplier.get()));
+      resourceEvent(ResourceEventType.CREATE, resource, eventBody),
+      resourceEvent(ResourceEventType.REINDEX, resource, eventBody),
+      resourceEvent(ResourceEventType.UPDATE, resource, noMainValuesBody()),
+      resourceEvent(ResourceEventType.UPDATE, resource, eventBodySupplier.get()),
+      resourceEvent(ResourceEventType.DELETE, resource, eventBodySupplier.get()));
 
-    var sharedResourceEvent = resourceEvent(ResourceEventType.UPDATE, oldBody, newBody);
+    var sharedResourceEvent = resourceEvent(ResourceEventType.UPDATE, resource, oldBody, newBody);
     var instanceIdsForDeletion = List.of(events.get(2).getId(), events.get(3).getId(), events.get(4).getId());
     var sharedInstanceIds = List.of(sharedResourceEvent.getId());
 
-    extractor.persistChildren(false, events);
+    extractor.persistChildren(TENANT_ID, false, events);
     extractor.persistChildrenForResourceSharing(false, List.of(sharedResourceEvent));
 
     verify(repository, times(2)).deleteByInstanceIds(
@@ -73,16 +77,22 @@ public abstract class ChildResourceExtractorTestBase {
       )));
   }
 
-  private ResourceEvent resourceEvent(ResourceEventType type, Map<String, Object> body) {
-    return resourceEvent(type, null, body);
+  protected ResourceEvent resourceEvent(ResourceEventType type, Map<String, Object> body) {
+    return resourceEvent(type, null, null, body);
+  }
+
+  protected ResourceEvent resourceEvent(ResourceEventType type, String resource, Map<String, Object> body) {
+    return resourceEvent(type, resource, null, body);
   }
 
   private ResourceEvent resourceEvent(ResourceEventType type,
+                                      String resource,
                                       Map<String, Object> oldBody,
                                       Map<String, Object> newBody) {
     return new ResourceEvent()
       .id(UUID.randomUUID().toString())
       .type(type)
+      .resourceName(resource)
       .tenant(TENANT_ID)
       ._new(newBody)
       .old(oldBody);

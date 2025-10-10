@@ -1,5 +1,8 @@
 package org.folio.search.integration.message.interceptor;
 
+import static org.folio.search.utils.TestConstants.MEMBER2_TENANT_ID;
+import static org.folio.search.utils.TestConstants.MEMBER_TENANT_ID;
+import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
@@ -20,7 +23,9 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.header.internals.RecordHeaders;
 import org.apache.kafka.common.record.TimestampType;
 import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.service.consortium.ConsortiumTenantExecutor;
+import org.folio.search.service.reindex.jdbc.ItemRepository;
 import org.folio.search.service.reindex.jdbc.MergeInstanceRepository;
 import org.folio.spring.exception.SystemUserAuthorizationException;
 import org.folio.spring.service.SystemUserScopedExecutionService;
@@ -33,14 +38,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class PopulateInstanceBatchInterceptorTest {
 
-  private static final String TENANT_ID = "tenantId";
-
   @Mock
   private ConsortiumTenantExecutor executionService;
   @Mock
   private SystemUserScopedExecutionService systemUserScopedExecutionService;
   @Mock
   private MergeInstanceRepository instanceRepository;
+  @Mock
+  private ItemRepository itemRepository;
   @Mock
   private Consumer<String, ResourceEvent> consumer;
 
@@ -49,8 +54,9 @@ class PopulateInstanceBatchInterceptorTest {
   @BeforeEach
   void setUp() {
     when(instanceRepository.entityType()).thenCallRealMethod();
+    when(itemRepository.entityType()).thenCallRealMethod();
     populateInstanceBatchInterceptor = new PopulateInstanceBatchInterceptor(
-      List.of(instanceRepository),
+      List.of(instanceRepository, itemRepository),
       executionService,
       systemUserScopedExecutionService
     );
@@ -111,6 +117,29 @@ class PopulateInstanceBatchInterceptorTest {
     verify(instanceRepository).saveEntities(TENANT_ID, List.of(expected));
   }
 
+  @Test
+  void shouldProcessAllRecordsForSameIdWhenUpdateOwnership() {
+    // Arrange
+    mockExecutionServices();
+
+    var now = System.currentTimeMillis();
+    var expected = List.of(Map.<String, Object>of("id", 1),
+      Map.<String, Object>of("id", 2));
+    var consumerRecord1 = createConsumerRecord(MEMBER_TENANT_ID,
+      ResourceEventType.CREATE, "item", "1", expected.get(0), now);
+    var consumerRecord2 = createConsumerRecord(MEMBER2_TENANT_ID,
+      ResourceEventType.DELETE, "item", "2", expected.get(1), now + 1);
+    var records = new ConsumerRecords<>(Map.of(new TopicPartition("topic", 0),
+      List.of(consumerRecord2, consumerRecord1)));
+
+    // Act
+    populateInstanceBatchInterceptor.intercept(records, consumer);
+
+    // Assert
+    verify(itemRepository).saveEntities(MEMBER_TENANT_ID, List.of(expected.get(0)));
+    verify(itemRepository).deleteEntitiesForTenant(List.of("2"), MEMBER2_TENANT_ID);
+  }
+
   private void mockExecutionServices() {
     doAnswer(invocation -> {
       var operation = invocation.<Supplier<?>>getArgument(0);
@@ -124,9 +153,17 @@ class PopulateInstanceBatchInterceptorTest {
   }
 
   private ConsumerRecord<String, ResourceEvent> createConsumerRecord(Map<String, Object> resourceNew, long timestamp) {
+    return createConsumerRecord(TENANT_ID, ResourceEventType.CREATE, "instance", null, resourceNew, timestamp);
+  }
+
+  private ConsumerRecord<String, ResourceEvent> createConsumerRecord(String tenant, ResourceEventType type,
+                                                                     String resource, String id,
+                                                                     Map<String, Object> resourceNew, long timestamp) {
     var resourceEvent = new ResourceEvent()
-      .tenant(TENANT_ID)
-      .resourceName("instance")
+      .id(id)
+      .tenant(tenant)
+      .type(type)
+      .resourceName(resource)
       ._new(resourceNew);
     return new ConsumerRecord<>("topic", 0, 0L, timestamp, TimestampType.CREATE_TIME, 0, 0, "key",
       resourceEvent, new RecordHeaders(), Optional.empty());

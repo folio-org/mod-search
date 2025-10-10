@@ -5,6 +5,7 @@ import static org.folio.search.utils.SearchUtils.getPathToFulltextPlainValue;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.wildcardQuery;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.folio.search.model.types.ResourceType;
@@ -21,9 +22,20 @@ public class WildcardTermQueryBuilder extends FulltextQueryBuilder {
       return getWildcardQuery(term, updatePathForTermQueries(resource, fields[0]));
     }
 
-    var boolQueryBuilder = boolQuery();
+    Set<String> fieldSet = new HashSet<>();
+
     for (var field : fields) {
-      boolQueryBuilder.should(getWildcardQuery(term, updatePathForTermQueries(resource, field)));
+      var fieldWithNormalizedPath = updatePathForTermQueries(resource, field);
+      fieldSet.add(fieldWithNormalizedPath);
+    }
+
+    if (fieldSet.size() == 1) {
+      return getWildcardQuery(term, fieldSet.iterator().next());
+    }
+
+    var boolQueryBuilder = boolQuery();
+    for (var field : fieldSet) {
+      boolQueryBuilder.should(getWildcardQuery(term, field));
     }
     return boolQueryBuilder;
   }
@@ -44,6 +56,8 @@ public class WildcardTermQueryBuilder extends FulltextQueryBuilder {
   }
 
   private static WildcardQueryBuilder getWildcardQuery(Object term, String field) {
-    return wildcardQuery(field, String.valueOf(term)).rewrite("constant_score");
+    // The actual stored text in the index will have two backslashes escaped, so we need to escape them here as well
+    var termValue = String.valueOf(term).replace("\\", "\\\\");
+    return wildcardQuery(field, termValue).rewrite("constant_score");
   }
 }

@@ -343,8 +343,8 @@ public class SearchUtils {
   }
 
   /**
-   * Coverts to non-null string, replaces backslash with double backslash and truncates to expected length.
-   * */
+   * Converts to non-null string, trims whitespace and truncates to the expected length.
+   */
   public static String prepareForExpectedFormat(Object value, int length) {
     return truncate(Objects.toString(value, EMPTY).trim(), length);
   }

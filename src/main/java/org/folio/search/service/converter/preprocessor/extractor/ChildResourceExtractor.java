@@ -38,13 +38,17 @@ public abstract class ChildResourceExtractor {
 
   protected abstract String childrenFieldName();
 
-  public void persistChildren(boolean shared, List<ResourceEvent> events) {
-    var instanceIdsForDeletion = events.stream()
+  public void persistChildren(String tenantId, boolean shared, List<ResourceEvent> events) {
+    var parentIdsForDeletion = events.stream()
       .filter(event -> event.getType() != ResourceEventType.CREATE && event.getType() != ResourceEventType.REINDEX)
       .map(ResourceEvent::getId)
       .toList();
-    if (!instanceIdsForDeletion.isEmpty()) {
-      repository.deleteByInstanceIds(instanceIdsForDeletion, null);
+    if (!parentIdsForDeletion.isEmpty()) {
+      if (!events.isEmpty() && ResourceType.ITEM.getName().equals(events.getFirst().getResourceName())) {
+        repository.deleteByInstanceIds(parentIdsForDeletion, tenantId);
+      } else {
+        repository.deleteByInstanceIds(parentIdsForDeletion, null);
+      }
     }
 
     var eventsForSaving = events.stream()

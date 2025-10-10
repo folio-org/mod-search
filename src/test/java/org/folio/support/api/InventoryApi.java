@@ -26,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
+import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ResourceEvent;
@@ -82,6 +83,10 @@ public class InventoryApi {
     kafkaTemplate.send(inventoryInstanceTopic(tenant), getString(instance, ID_FIELD),
         resourceEvent(ResourceType.INSTANCE, null).old(instance).tenant(tenant).type(DELETE))
       .whenComplete(onCompleteConsumer());
+  }
+
+  public void createHolding(String tenant, String instanceId, Holding holding) {
+    createHolding(tenant, instanceId, toMap(holding));
   }
 
   public void createHolding(String tenant, String instanceId, Map<String, Object> holding) {

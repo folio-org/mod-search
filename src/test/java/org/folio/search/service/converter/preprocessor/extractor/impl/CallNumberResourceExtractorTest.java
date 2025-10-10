@@ -5,7 +5,12 @@ import static org.folio.search.service.converter.preprocessor.extractor.impl.Cal
 import static org.folio.search.service.converter.preprocessor.extractor.impl.CallNumberResourceExtractor.PREFIX_FIELD;
 import static org.folio.search.service.converter.preprocessor.extractor.impl.CallNumberResourceExtractor.SUFFIX_FIELD;
 import static org.folio.search.service.converter.preprocessor.extractor.impl.CallNumberResourceExtractor.TYPE_ID_FIELD;
+import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.utils.TestUtils.mapOf;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -51,6 +56,7 @@ class CallNumberResourceExtractorTest extends ChildResourceExtractorTestBase {
   void persistChildren() {
     when(configService.isEnabled(TenantConfiguredFeature.BROWSE_CALL_NUMBERS)).thenReturn(true);
     persistChildrenTest(extractor, repository, callNumberBodySupplier());
+    verify(repository, times(2)).deleteByInstanceIds(anyList(), eq(TENANT_ID));
   }
 
   @Test
@@ -60,13 +66,14 @@ class CallNumberResourceExtractorTest extends ChildResourceExtractorTestBase {
   }
 
   private static Supplier<Map<String, Object>> callNumberBodySupplier() {
-    return () -> mapOf(EFFECTIVE_CALL_NUMBER_COMPONENTS_FIELD, mapOf(
+    return () -> Map.of("resource", "item",
+      "body", mapOf(EFFECTIVE_CALL_NUMBER_COMPONENTS_FIELD, mapOf(
         CALL_NUMBER_FIELD, "call-number",
         SUFFIX_FIELD, "suffix",
         PREFIX_FIELD, "prefix",
         TYPE_ID_FIELD, "type-id"
       )
-    );
+    ));
   }
 
   private static Supplier<Map<String, Object>> emptyCallNumberBodySupplier() {

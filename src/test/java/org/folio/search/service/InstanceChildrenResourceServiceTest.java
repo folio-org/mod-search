@@ -59,7 +59,7 @@ class InstanceChildrenResourceServiceTest {
     service.persistChildren(TENANT_ID, ResourceType.INSTANCE, events);
 
     resourceExtractors.forEach(resourceExtractor ->
-      verify(resourceExtractor).persistChildren(shared, events));
+      verify(resourceExtractor).persistChildren(TENANT_ID, shared, events));
   }
 
   @ParameterizedTest
@@ -74,7 +74,7 @@ class InstanceChildrenResourceServiceTest {
     service.persistChildrenOnReindex(TENANT_ID, ResourceType.INSTANCE, instances);
 
     resourceExtractors.forEach(resourceExtractor ->
-      verify(resourceExtractor).persistChildren(shared, expectedEvents));
+      verify(resourceExtractor).persistChildren(TENANT_ID, shared, expectedEvents));
   }
 
   private ResourceEvent getResourceEvent(UUID id1, Map<String, Object> payload) {

@@ -203,6 +203,7 @@ public class SearchConsortiumController implements SearchConsortiumApi {
   }
 
   private String verifyAndGetTenant(String tenantHeader) {
+    log.info("verifyAndGetTenant:: CALLING getCentralTenant with tenantHeader: {}", tenantHeader);
     var centralTenant = consortiumTenantService.getCentralTenant(tenantHeader);
     log.info("verifyAndGetTenant:: centralTenant: {}, tenantHeader: {}", centralTenant, tenantHeader);
     if (centralTenant.isEmpty() || !centralTenant.get().equals(tenantHeader)) {

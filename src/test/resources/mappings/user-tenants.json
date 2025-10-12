@@ -23,7 +23,11 @@
         "urlPath": "/user-tenants",
         "queryParameters" : {
           "tenantId" : {
-            "matches" : "member_tenant|member2_tenant|consortium"
+            "or": [
+              { "matches" : "consortium" },
+              { "matches" : "member_tenant" },
+              { "matches" : "member2_tenant" }
+            ]
           }
         }
       },

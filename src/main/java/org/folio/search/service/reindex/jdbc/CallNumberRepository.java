@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.entity.ChildResourceEntityBatch;
@@ -66,7 +67,7 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
     WITH deleted_ids as (
         DELETE
         FROM %1$s.instance_call_number
-        WHERE item_id IN (%2$s)
+        WHERE item_id IN (%2$s) %3$s
         RETURNING call_number_id
     )
     UPDATE %1$s.call_number
@@ -165,8 +166,12 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
 
   @Override
   public void deleteByInstanceIds(List<String> itemIds, String tenantId) {
-    var sql = DELETE_QUERY.formatted(JdbcUtils.getSchemaName(context), getParamPlaceholderForUuid(itemIds.size()));
-    jdbcTemplate.update(sql, itemIds.toArray());
+    var sql = DELETE_QUERY.formatted(JdbcUtils.getSchemaName(context), getParamPlaceholderForUuid(itemIds.size()),
+      tenantId == null ? "" : "AND tenant_id = ?");
+    var params = tenantId == null
+      ? itemIds.toArray()
+      : Stream.of(itemIds, List.of(tenantId)).flatMap(List::stream).toArray();
+    jdbcTemplate.update(sql, params);
   }
 
   @Override

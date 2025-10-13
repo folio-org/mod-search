@@ -135,6 +135,20 @@ public class IndexService {
   }
 
   /**
+   * Creates Elasticsearch index if it is not exist with provided settings.
+   *
+   * @param resourceType - resource name as {@link ResourceType} object.
+   * @param tenantId     - tenant id as {@link String} object
+   * @param indexSettings - index settings as {@link IndexSettings} object
+   */
+  public void createIndexIfNotExist(ResourceType resourceType, String tenantId, IndexSettings indexSettings) {
+    var index = indexNameProvider.getIndexName(resourceType, tenantId);
+    if (!indexRepository.indexExists(index)) {
+      createIndex(resourceType, tenantId, indexSettings);
+    }
+  }
+
+  /**
    * Runs reindex request for mod-inventory-storage.
    *
    * @param tenantId       - tenant id as {@link String} object

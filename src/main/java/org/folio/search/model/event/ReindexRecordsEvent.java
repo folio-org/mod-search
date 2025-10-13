@@ -13,6 +13,7 @@ public class ReindexRecordsEvent {
   private ReindexRecordType recordType;
   private String tenant;
   private String rangeId;
+  private String memberTenantId;
 
   @Getter
   public enum ReindexRecordType {

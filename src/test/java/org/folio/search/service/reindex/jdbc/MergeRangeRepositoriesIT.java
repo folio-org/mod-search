@@ -20,6 +20,7 @@ import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexRangeStatus;
 import org.folio.search.service.consortium.ConsortiumTenantProvider;
+import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
@@ -46,6 +47,7 @@ class MergeRangeRepositoriesIT {
   private @Autowired JdbcTemplate jdbcTemplate;
   private @MockitoBean FolioExecutionContext context;
   private @MockitoBean ConsortiumTenantProvider tenantProvider;
+  private @MockitoBean ConsortiumTenantService consortiumTenantService;
   private @MockitoBean ReindexConfigurationProperties reindexConfig;
   private HoldingRepository holdingRepository;
   private ItemRepository itemRepository;
@@ -61,7 +63,8 @@ class MergeRangeRepositoriesIT {
     itemRepository = new ItemRepository(jdbcTemplate, jsonConverter, context, searchConfig);
     instanceRepository =
       new MergeInstanceRepository(jdbcTemplate, jsonConverter, context, tenantProvider, searchConfig);
-    uploadInstanceRepository = new UploadInstanceRepository(jdbcTemplate, jsonConverter, context, reindexConfig);
+    uploadInstanceRepository = new UploadInstanceRepository(jdbcTemplate, jsonConverter, context,
+      reindexConfig, consortiumTenantService);
     when(context.getFolioModuleMetadata()).thenReturn(new FolioModuleMetadata() {
       @Override
       public String getModuleName() {

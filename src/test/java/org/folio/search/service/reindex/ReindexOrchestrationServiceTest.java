@@ -123,6 +123,7 @@ class ReindexOrchestrationServiceTest {
 
     service.process(event);
 
+    verify(reindexStatusService).getTargetTenantId();
     verify(reindexStatusService).updateReindexMergeFailed(ReindexEntityType.INSTANCE);
     verify(mergeRangeIndexService)
       .updateStatus(ReindexEntityType.INSTANCE, event.getRangeId(), ReindexRangeStatus.FAIL, failCause);
@@ -140,6 +141,7 @@ class ReindexOrchestrationServiceTest {
     assertThrows(ReindexException.class, () -> service.process(event));
 
     verifyNoMoreInteractions(mergeRangeIndexService);
+    verify(reindexStatusService).getTargetTenantId();
     verifyNoMoreInteractions(reindexStatusService);
   }
 

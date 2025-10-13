@@ -104,8 +104,8 @@ class ReindexServiceTest {
     reindexService.submitFullReindex(tenant, indexSettings);
     ThreadUtils.sleep(Duration.ofSeconds(1));
 
-    verify(reindexCommonService).deleteAllRecords();
-    verify(statusService).recreateMergeStatusRecords();
+    verify(reindexCommonService).deleteAllRecords(null);
+    verify(statusService).recreateMergeStatusRecords(null);
     verify(reindexCommonService, times(ReindexEntityType.supportUploadTypes().size()))
       .recreateIndex(any(), eq(tenant), eq(indexSettings));
     verify(mergeRangeService).createMergeRanges(tenant);

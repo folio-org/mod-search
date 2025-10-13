@@ -6,7 +6,7 @@ import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.CreateIndexRequest;
 import org.folio.search.domain.dto.FolioCreateIndexResponse;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
-import org.folio.search.domain.dto.IndexSettings;
+import org.folio.search.domain.dto.ReindexFullRequest;
 import org.folio.search.domain.dto.ReindexJob;
 import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.domain.dto.ReindexStatusItem;
@@ -51,9 +51,16 @@ public class IndexManagementController implements IndexManagementApi {
   }
 
   @Override
-  public ResponseEntity<Void> reindexInstanceRecords(String tenantId, IndexSettings indexSettings) {
-    log.info("Attempting to run full-reindex for instance records [tenant: {}]", tenantId);
-    reindexService.submitFullReindex(tenantId, indexSettings);
+  public ResponseEntity<Void> reindexInstanceRecords(String tenantId, ReindexFullRequest reindexFullRequest) {
+    var targetTenantId = reindexFullRequest != null && reindexFullRequest.getTenantId() != null
+      ? reindexFullRequest.getTenantId()
+      : null;
+    var indexSettings = reindexFullRequest != null ? reindexFullRequest.getIndexSettings() : null;
+
+    log.info("Attempting to run full-reindex for instance records [requestingTenant: {}, targetTenant: {}]",
+      tenantId, targetTenantId != null ? targetTenantId : "all consortium members");
+
+    reindexService.submitFullReindex(tenantId, indexSettings, targetTenantId);
     return ResponseEntity.ok().build();
   }
 

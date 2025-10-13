@@ -95,11 +95,13 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
 
   public abstract void saveEntities(String tenantId, List<Map<String, Object>> entities);
 
+  @Transactional
   public void deleteEntitiesForTenant(List<String> ids, String tenantId) {
     var hard = !instanceChildrenIndexEnabled;
     deleteEntitiesForTenant(ids, tenantId, hard);
   }
 
+  @Transactional
   public void deleteEntitiesForTenant(List<String> ids, String tenantId, boolean hard) {
     var fullTableName = getFullTableName(context, entityTable());
     var query = hard ? DELETE_SQL_FOR_TENANT : SOFT_DELETE_SQL_FOR_TENANT;
@@ -111,11 +113,13 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
     });
   }
 
+  @Transactional
   public void deleteEntities(List<String> ids) {
     var hard = !instanceChildrenIndexEnabled;
     deleteEntities(ids, hard);
   }
 
+  @Transactional
   public void deleteEntities(List<String> ids, boolean hard) {
     var fullTableName = getFullTableName(context, entityTable());
     var query = hard ? DELETE_SQL : SOFT_DELETE_SQL;

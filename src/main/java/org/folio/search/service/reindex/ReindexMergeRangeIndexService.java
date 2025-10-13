@@ -28,19 +28,25 @@ import org.springframework.stereotype.Service;
 @Service
 public class ReindexMergeRangeIndexService {
 
+  private static final int STATS_LOG_INTERVAL = 100; // Log stats every 100 merge ranges
+
   private final Map<ReindexEntityType, MergeRangeRepository> repositories;
   private final InventoryService inventoryService;
   private final ReindexConfigurationProperties reindexConfig;
+  private final StagingMigrationService migrationService;
+  private int mergeRangeCounter = 0;
 
   private InstanceChildrenResourceService instanceChildrenResourceService;
 
   public ReindexMergeRangeIndexService(List<MergeRangeRepository> repositories,
                                        InventoryService inventoryService,
-                                       ReindexConfigurationProperties reindexConfig) {
+                                       ReindexConfigurationProperties reindexConfig,
+                                       @Autowired(required = false) StagingMigrationService migrationService) {
     this.repositories = repositories.stream()
       .collect(Collectors.toMap(MergeRangeRepository::entityType, Function.identity()));
     this.inventoryService = inventoryService;
     this.reindexConfig = reindexConfig;
+    this.migrationService = migrationService;
     this.instanceChildrenResourceService = null;
   }
 
@@ -91,10 +97,28 @@ public class ReindexMergeRangeIndexService {
       .map(entity -> (Map<String, Object>) entity)
       .toList();
 
-    repositories.get(event.getRecordType().getEntityType()).saveEntities(event.getTenant(), entities);
-    if (instanceChildrenResourceService != null) {
-      instanceChildrenResourceService.persistChildrenOnReindex(event.getTenant(),
-        RESOURCE_NAME_MAP.get(event.getRecordType().getEntityType()), entities);
+    try {
+      // Set reindex mode for context-aware repositories
+      ReindexContext.setReindexMode(true);
+
+      // Use unified repository which will route to staging based on context
+      var repository = repositories.get(event.getRecordType().getEntityType());
+      repository.saveEntities(event.getTenant(), entities);
+
+      if (instanceChildrenResourceService != null) {
+        instanceChildrenResourceService.persistChildrenOnReindex(event.getTenant(),
+          RESOURCE_NAME_MAP.get(event.getRecordType().getEntityType()), entities);
+      }
+    } finally {
+      // Only clear reindex mode, preserve member tenant context for outer scope
+      ReindexContext.setReindexMode(false);
+    }
+
+    // Periodically log staging table stats
+    mergeRangeCounter++; //todo: will not be indicative on multiple instances. Maybe at least remove it from the log
+    if (mergeRangeCounter % STATS_LOG_INTERVAL == 0) {
+      var stats = getStagingTableStats();
+      log.info("Staging table stats after {} merge ranges: {}", mergeRangeCounter, stats);
     }
   }
 
@@ -133,5 +157,48 @@ public class ReindexMergeRangeIndexService {
       case InventoryRecordType.HOLDING -> ReindexEntityType.HOLDINGS;
       default -> ReindexEntityType.ITEM;
     };
+  }
+
+  public void performStagingMigration() {
+    performStagingMigration(null);
+  }
+
+  public void performStagingMigration(String targetTenantId) {
+    if (migrationService != null) {
+      // Log staging table stats before migration
+      var statsBeforeMigration = getStagingTableStats();
+      log.info("Staging table stats before migration: {}", statsBeforeMigration);
+
+      if (targetTenantId != null) {
+        log.info("Starting tenant-specific migration of staging tables for tenant: {}", targetTenantId);
+        var result = migrationService.migrateAllStagingTables(targetTenantId);
+        log.info("Tenant-specific migration completed for {}: instances={}, holdings={}, "
+            + "items={}, relationships={}",
+          targetTenantId, result.getTotalInstances(), result.getTotalHoldings(),
+          result.getTotalItems(), result.getTotalRelationships());
+        // Log staging table stats after migration (should be empty)
+        var statsAfterMigration = getStagingTableStats();
+        log.info("Staging table stats after migration: {}", statsAfterMigration);
+      } else {
+        log.info("Consortium full refresh - staging tables not used, skipping migration");
+      }
+    } else {
+      log.debug("Migration service not available");
+    }
+  }
+
+  public Map<String, Long> getStagingTableStats() {
+    if (migrationService != null) {
+      return migrationService.getStagingTableStats();
+    }
+    return Map.of();
+  }
+
+  public void cleanupStagingTables() {
+    if (migrationService != null) {
+      migrationService.cleanupStagingTables();
+    } else {
+      log.debug("Migration service not available for staging table cleanup");
+    }
   }
 }

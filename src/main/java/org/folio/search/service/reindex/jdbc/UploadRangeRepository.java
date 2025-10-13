@@ -79,6 +79,9 @@ public abstract class UploadRangeRepository extends ReindexJdbcRepository {
     return jdbcTemplate.query(sql, rowToMapMapper(), lower, upper);
   }
 
+  public abstract List<Map<String, Object>> fetchByIdRangeWithTimestamp(String lower, String upper,
+                                                                        Timestamp timestamp);
+
   protected String getFetchBySql() {
     return SELECT_RECORD_SQL.formatted(getFullTableName(context, entityTable()));
   }

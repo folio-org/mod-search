@@ -22,9 +22,15 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class ReindexStatusService {
 
+  private static final long CACHE_TTL_MS = 10_000; // 10 seconds
+
   private final ReindexStatusRepository statusRepository;
   private final ReindexStatusMapper reindexStatusMapper;
   private final ConsortiumTenantProvider consortiumTenantProvider;
+
+  // Caching for targetTenantId to avoid DB hits for every Kafka event
+  private volatile String cachedTargetTenantId;
+  private volatile long cacheTimestamp;
 
   public ReindexStatusService(ReindexStatusRepository statusRepository,
                               ReindexStatusMapper reindexStatusMapper,
@@ -51,18 +57,39 @@ public class ReindexStatusService {
 
   @Transactional
   public void recreateMergeStatusRecords() {
-    log.info("recreateMergeStatusRecords:: recreating status records for reindex merge.");
+    recreateMergeStatusRecords(null);
+  }
+
+  @Transactional
+  public void recreateMergeStatusRecords(String targetTenantId) {
+    log.info("recreateMergeStatusRecords:: recreating status records for reindex merge [targetTenant: {}].",
+      targetTenantId);
     var statusRecords =
-      constructNewStatusRecords(ReindexEntityType.supportMergeTypes(), ReindexStatus.MERGE_IN_PROGRESS);
+      constructNewStatusRecords(ReindexEntityType.supportMergeTypes(), ReindexStatus.MERGE_IN_PROGRESS, targetTenantId);
     statusRepository.truncate();
     statusRepository.saveReindexStatusRecords(statusRecords);
+
+    // Clear cache when starting new reindex to force fresh data
+    cachedTargetTenantId = null;
   }
 
   @Transactional
   public void recreateUploadStatusRecord(ReindexEntityType entityType) {
+    // Preserve the target_tenant_id from the merge phase
+    String currentTargetTenantId = null;
+    try {
+      currentTargetTenantId = statusRepository.getTargetTenantId();
+    } catch (Exception e) {
+      log.debug("recreateUploadStatusRecord:: could not retrieve existing target tenant ID: {}", e.getMessage());
+    }
+    
     var uploadStatusEntity = new ReindexStatusEntity(entityType, ReindexStatus.UPLOAD_IN_PROGRESS);
+    uploadStatusEntity.setTargetTenantId(currentTargetTenantId);
     statusRepository.delete(entityType);
     statusRepository.saveReindexStatusRecords(List.of(uploadStatusEntity));
+    
+    log.debug("recreateUploadStatusRecord:: created upload record [entityType: {}, targetTenant: {}]", 
+      entityType, currentTargetTenantId);
   }
 
   public void addProcessedMergeRanges(ReindexEntityType entityType, int processedMergeRanges) {
@@ -110,8 +137,62 @@ public class ReindexStatusService {
 
   private List<ReindexStatusEntity> constructNewStatusRecords(List<ReindexEntityType> entityTypes,
                                                               ReindexStatus status) {
+    return constructNewStatusRecords(entityTypes, status, null);
+  }
+
+  private List<ReindexStatusEntity> constructNewStatusRecords(List<ReindexEntityType> entityTypes,
+                                                              ReindexStatus status, String targetTenantId) {
     return entityTypes.stream()
-      .map(entityType -> new ReindexStatusEntity(entityType, status))
+      .map(entityType -> {
+        var entity = new ReindexStatusEntity(entityType, status);
+        entity.setTargetTenantId(targetTenantId);
+        return entity;
+      })
       .toList();
+  }
+
+  /**
+   * Gets the earliest merge start time from all entities that participated in the merge phase.
+   * This is used for child resource timestamp-based upload during member tenant reindex,
+   * since child resources don't have their own merge start times.
+   *
+   * @return the earliest merge start timestamp, or null if not available
+   */
+  public java.sql.Timestamp getEarliestMergeStartTime() {
+    try {
+      return statusRepository.getEarliestMergeStartTime();
+    } catch (Exception e) {
+      log.debug("getEarliestMergeStartTime:: error retrieving earliest merge start time: {}", e.getMessage());
+      return null;
+    }
+  }
+
+  /**
+   * Gets the target tenant ID for the current reindex operation with caching.
+   * Since only one reindex runs at a time, the cached value is valid for the entire operation.
+   * Cache has 5-second TTL to handle high-volume Kafka events efficiently.
+   *
+   * @return the target tenant ID if this is a tenant-specific reindex, null for full consortium reindex
+   */
+  public String getTargetTenantId() {
+    long now = System.currentTimeMillis();
+    // Use cache if still valid
+    if (cachedTargetTenantId != null && (now - cacheTimestamp) < CACHE_TTL_MS) {
+      return cachedTargetTenantId.isEmpty() ? null : cachedTargetTenantId; // empty string means null
+    }
+
+    // Fetch from DB and cache (store empty string for null to distinguish from not-cached)
+    try {
+      var dbValue = statusRepository.getTargetTenantId();
+      cachedTargetTenantId = dbValue == null ? "" : dbValue;
+      cacheTimestamp = now;
+      return dbValue;
+    } catch (Exception e) {
+      log.debug("getTargetTenantId:: error retrieving target tenant ID: {}", e.getMessage());
+      // Cache the null result to avoid repeated failed queries
+      cachedTargetTenantId = "";
+      cacheTimestamp = now;
+      return null;
+    }
   }
 }

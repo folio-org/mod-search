@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import org.folio.search.domain.dto.Contributor;
 import org.folio.search.domain.dto.Dates;
 import org.folio.search.domain.dto.Instance;
+import org.folio.search.domain.dto.Metadata;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.BaseIntegrationTest;
 import org.junit.jupiter.api.AfterAll;
@@ -20,6 +21,12 @@ import org.junit.jupiter.api.Test;
 
 @IntegrationTest
 class SortInstanceIT extends BaseIntegrationTest {
+
+  private static final String ID_ANIMAL_FARM = randomId();
+  private static final String ID_ZERO_MINUS_TEN = randomId();
+  private static final String ID_CALLING_ME_HOME = randomId();
+  private static final String ID_WALK_IN_MY_SOUL = randomId();
+  private static final String ID_STAR_WARS = randomId();
 
   @BeforeAll
   static void prepare() {
@@ -92,6 +99,50 @@ class SortInstanceIT extends BaseIntegrationTest {
   }
 
   @Test
+  void canSortInstancesByMetadataCreatedDate_asc() throws Exception {
+    doSearchByInstances(allRecordsSortedBy("metadata.createdDate", ASCENDING))
+      .andExpect(jsonPath("totalRecords", is(5)))
+      .andExpect(jsonPath("instances[0].id", is(ID_ANIMAL_FARM)))
+      .andExpect(jsonPath("instances[1].id", is(ID_ZERO_MINUS_TEN)))
+      .andExpect(jsonPath("instances[2].id", is(ID_CALLING_ME_HOME)))
+      .andExpect(jsonPath("instances[3].id", is(ID_WALK_IN_MY_SOUL)))
+      .andExpect(jsonPath("instances[4].id", is(ID_STAR_WARS)));
+  }
+
+  @Test
+  void canSortInstancesByMetadataCreatedDate_desc() throws Exception {
+    doSearchByInstances(allRecordsSortedBy("metadata.createdDate", DESCENDING))
+      .andExpect(jsonPath("totalRecords", is(5)))
+      .andExpect(jsonPath("instances[0].id", is(ID_STAR_WARS)))
+      .andExpect(jsonPath("instances[1].id", is(ID_WALK_IN_MY_SOUL)))
+      .andExpect(jsonPath("instances[2].id", is(ID_CALLING_ME_HOME)))
+      .andExpect(jsonPath("instances[3].id", is(ID_ZERO_MINUS_TEN)))
+      .andExpect(jsonPath("instances[4].id", is(ID_ANIMAL_FARM)));
+  }
+
+  @Test
+  void canSortInstancesByMetadataUpdatedDate_asc() throws Exception {
+    doSearchByInstances(allRecordsSortedBy("metadata.updatedDate", ASCENDING))
+      .andExpect(jsonPath("totalRecords", is(5)))
+      .andExpect(jsonPath("instances[0].id", is(ID_ANIMAL_FARM)))
+      .andExpect(jsonPath("instances[1].id", is(ID_ZERO_MINUS_TEN)))
+      .andExpect(jsonPath("instances[2].id", is(ID_CALLING_ME_HOME)))
+      .andExpect(jsonPath("instances[3].id", is(ID_WALK_IN_MY_SOUL)))
+      .andExpect(jsonPath("instances[4].id", is(ID_STAR_WARS)));
+  }
+
+  @Test
+  void canSortInstancesByMetadataUpdatedDate_desc() throws Exception {
+    doSearchByInstances(allRecordsSortedBy("metadata.updatedDate", DESCENDING))
+      .andExpect(jsonPath("totalRecords", is(5)))
+      .andExpect(jsonPath("instances[0].id", is(ID_STAR_WARS)))
+      .andExpect(jsonPath("instances[1].id", is(ID_WALK_IN_MY_SOUL)))
+      .andExpect(jsonPath("instances[2].id", is(ID_CALLING_ME_HOME)))
+      .andExpect(jsonPath("instances[3].id", is(ID_ZERO_MINUS_TEN)))
+      .andExpect(jsonPath("instances[4].id", is(ID_ANIMAL_FARM)));
+  }
+
+  @Test
   void search_negative_invalidSortOption() throws Exception {
     attemptSearchByInstances(allRecordsSortedBy("unknownSort", DESCENDING)).andExpect(
         jsonPath("$.total_records", is(1)))
@@ -103,35 +154,52 @@ class SortInstanceIT extends BaseIntegrationTest {
   }
 
   private static Instance[] instances() {
-    var instances = new Instance[] {getSemanticWeb().id(randomId()).contributors(new ArrayList<>()),
-                                    getSemanticWeb().id(randomId()).contributors(new ArrayList<>()),
-                                    getSemanticWeb().id(randomId()).contributors(new ArrayList<>()),
-                                    getSemanticWeb().id(randomId()).contributors(new ArrayList<>()),
-                                    getSemanticWeb().id(randomId()).contributors(new ArrayList<>())};
-
+    var instances = new Instance[] {
+      getSemanticWeb().id(ID_ANIMAL_FARM).contributors(new ArrayList<>()),
+      getSemanticWeb().id(ID_ZERO_MINUS_TEN).contributors(new ArrayList<>()),
+      getSemanticWeb().id(ID_CALLING_ME_HOME).contributors(new ArrayList<>()),
+      getSemanticWeb().id(ID_WALK_IN_MY_SOUL).contributors(new ArrayList<>()),
+      getSemanticWeb().id(ID_STAR_WARS).contributors(new ArrayList<>())
+    };
     instances[0].title("Animal farm")
       .indexTitle("B1 Animal farm")
       .addContributorsItem(new Contributor().name("yyy zzz"))
-      .setDates(getDates("1999", "2000"));
+      .dates(getDates("1999", "2000"))
+      .metadata(new Metadata()
+        .createdDate("2021-01-01T10:00:00.000+00:00")
+        .updatedDate("2021-01-15T10:00:00.000+00:00"));
 
     instances[1].title("Zero Minus Ten")
       .indexTitle(null)
       .addContributorsItem(new Contributor().name("aaa bbb").primary(false))
       .addContributorsItem(new Contributor().name("bbb ccc").primary(true))
-      .setDates(getDates("199u", "2000"));
+      .dates(getDates("199u", "2000"))
+      .metadata(new Metadata()
+        .createdDate("2021-02-01T10:00:00.000+00:00")
+        .updatedDate("2021-02-15T10:00:00.000+00:00"));
 
     instances[2].title("Calling Me Home")
       .indexTitle("A1 Calling Me Home")
       .addContributorsItem(new Contributor().name("bcc ccc"))
-      .setDates(getDates("2021", "2022"));
+      .dates(getDates("2021", "2022"))
+      .metadata(new Metadata()
+        .createdDate("2021-03-01T10:00:00.000+00:00")
+        .updatedDate("2021-03-15T10:00:00.000+00:00"));
 
     instances[3].title("Walk in My Soul")
       .indexTitle(null)
       .addContributorsItem(new Contributor().name("1111 2222").primary(true))
-      .setDates(getDates("2001", "2002"));
+      .dates(getDates("2001", "2002"))
+      .metadata(new Metadata()
+        .createdDate("2021-04-01T10:00:00.000+00:00")
+        .updatedDate("2021-04-15T10:00:00.000+00:00"));
 
-    instances[4].title("Star Wars").indexTitle(null).addContributorsItem(new Contributor().name("Śląsk").primary(true))
-      .setDates(getDates("19u5", "1998"));
+    instances[4].title("Star Wars").indexTitle(null)
+      .addContributorsItem(new Contributor().name("Śląsk").primary(true))
+      .dates(getDates("19u5", "1998"))
+      .metadata(new Metadata()
+        .createdDate("2021-05-01T10:00:00.000+00:00")
+        .updatedDate("2021-05-15T10:00:00.000+00:00"));
 
     return instances;
   }

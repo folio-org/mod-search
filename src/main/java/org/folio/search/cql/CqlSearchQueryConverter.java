@@ -99,27 +99,6 @@ public class CqlSearchQueryConverter {
     return sourceBuilder.query(queryBuilder);
   }
 
-  /**
-   * Converts given CQL search query value to the {@link CQLTermNode} object.
-   * If query contains boolean operator then return the left term node
-   *
-   * @param query    cql query to parse
-   * @param resource resource name
-   * @return term node as {@link CQLTermNode} object with term value
-   */
-  public CQLTermNode convertToTermNode(String query, ResourceType resource) {
-    var cqlNode = cqlQueryParser.parseCqlQuery(query, resource);
-    return convertToTermNode(cqlNode);
-  }
-
-  private CQLTermNode convertToTermNode(CQLNode cqlNode) {
-    if (cqlNode instanceof CQLBooleanNode cqlBooleanNode) {
-      var leftNode = cqlBooleanNode.getLeftOperand();
-      return convertToTermNode(leftNode);
-    }
-    return (CQLTermNode) cqlNode;
-  }
-
   private QueryBuilder convertToQuery(CQLNode node, ResourceType resource) {
     var cqlNode = node;
     if (node instanceof CQLSortNode cqlSortNode) {

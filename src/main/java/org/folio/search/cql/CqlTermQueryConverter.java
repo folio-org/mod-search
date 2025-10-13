@@ -23,6 +23,7 @@ import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.metadata.LocalSearchFieldProvider;
 import org.folio.search.service.metadata.SearchFieldProvider;
+import org.folio.search.utils.StringEscaper;
 import org.opensearch.index.query.QueryBuilder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -110,9 +111,7 @@ public class CqlTermQueryConverter {
   }
 
   private Object getSearchTerm(String term, Optional<PlainFieldDescription> plainFieldDescription) {
-    //cql converter just removes backslash if single passed so two are passed instead. This breaks search on
-    //keyword fields so second slash must be removed. For wildcard queries two slashes are still needed
-    var normalizedTerm = term.contains("*") ? term : term.replace("\\\\", "\\");
+    var normalizedTerm = StringEscaper.unescape(term);
     return plainFieldDescription
       .map(PlainFieldDescription::getSearchTermProcessor)
       .map(searchTermProcessors::get)

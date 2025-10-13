@@ -234,7 +234,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("contributors.name == {value}", "Van Harmelen"),
       arguments("contributors.name ==/string {value}", "Van Harmelen, Frank"),
       arguments("contributors.name = {value}", "Van Harmelen, Fr*"),
-      arguments("contributors.name = {value}", "Ant\\\\n*"),
+      arguments("contributors.name = {value}", "Ant\\n*"),
       arguments("contributors.name = {value}", "*rmelen, Frank"),
 
       arguments("contributors.authorityId == {value}", "55294032-fcf6-45cc-b6da-4420a61ef72c"),
@@ -471,12 +471,12 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("contributors.name == {value}", "VAN HARMELEN"),
       arguments("contributors.name ==/string {value}", "VAN HARMELEN, FRANK"),
       arguments("contributors.name = {value}", "VAN HARMELEN, FR*"),
-      arguments("contributors.name = {value}", "ANT\\\\N*"),
+      arguments("contributors.name = {value}", "ANT\\N*"),
       arguments("contributors.name = {value}", "*RMELEN, FRANK"),
 
       arguments("dates.date1 == {value}", "*9u"),
-      arguments("dates.date1 == {value}", "*\\\\9*"),
-      arguments("dates.date1 == {value}", "1\\\\*"),
+      arguments("dates.date1 == {value}", "*\\9*"),
+      arguments("dates.date1 == {value}", "1\\*"),
 
       arguments("dates.date2 == {value}", "*22"),
       arguments("dates.date2 == {value}", "*02*"),

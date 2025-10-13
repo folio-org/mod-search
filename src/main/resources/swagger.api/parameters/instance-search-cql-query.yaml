@@ -331,6 +331,48 @@ description: |
     </tr>
     </tbody>
     </table>
+    <h5 id="instance-sort-options">Instance sort options</h5>
+    <table>
+    <thead>
+    <tr>
+        <th>Option</th>
+        <th>Secondary sort</th>
+        <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>title</td>
+        <td>relevancy</td>
+        <td>Sort instances by title</td>
+    </tr>
+    <tr>
+        <td>contributors</td>
+        <td>relevancy</td>
+        <td>Sort instances by contributors</td>
+    </tr>
+    <tr>
+        <td>item.status.name</td>
+        <td>title</td>
+        <td>Sort instances by status</td>
+    </tr>
+    <tr>
+        <td>normalizedDate1</td>
+        <td>relevancy</td>
+        <td>Sort instances by normalizedDate1</td>
+    </tr>
+    <tr>
+        <td>metadata.createdDate</td>
+        <td>relevancy</td>
+        <td>Sort instances by created date</td>
+    </tr>
+    <tr>
+        <td>metadata.updatedDate</td>
+        <td>relevancy</td>
+        <td>Sort instances by updated date</td>
+    </tr>
+    </tbody>
+    </table>
     <h5 id="holdings-search-options">Holdings search options</h5>
     <table>
     <thead>

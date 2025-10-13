@@ -34,6 +34,7 @@
   * Add support for searching by instance/holdings/item electronic access relationship ID ([MSEARCH-816](https://folio-org.atlassian.net/browse/MSEARCH-816))
   * Normalize ISSN search ([MSEARCH-658](https://folio-org.atlassian.net/browse/MSEARCH-658))
   * Separate LCCN and Canceled LCCN identifiers search to lccn and canceledLccn options ([MSEARCH-1065](https://folio-org.atlassian.net/browse/MSEARCH-1065))
+  * Add sorting options for instances by created and updated date ([MSEARCH-825](https://folio-org.atlassian.net/browse/MSEARCH-825))
 * **Linked Data Instance and Work**
   * Search by classification type/number/additionalNumber ([MSEARCH-989](https://folio-org.atlassian.net/browse/MSEARCH-989))
 

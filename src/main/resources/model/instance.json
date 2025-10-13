@@ -177,15 +177,23 @@
       "type": "object",
       "properties": {
         "createdDate": {
-          "searchTypes": "filter",
-          "index": "date"
+          "searchTypes": [ "filter", "sort" ],
+          "index": "date",
+          "sort": {
+            "fieldName": "metadata.createdDate",
+            "type": "single"
+          }
         },
         "createdByUserId": {
           "index": "keyword_lowercase"
         },
         "updatedDate": {
-          "searchTypes": "filter",
-          "index": "date"
+          "searchTypes": [ "filter", "sort" ],
+          "index": "date",
+          "sort": {
+            "fieldName": "metadata.updatedDate",
+            "type": "single"
+          }
         },
         "updatedByUserId": {
           "index": "keyword_lowercase"

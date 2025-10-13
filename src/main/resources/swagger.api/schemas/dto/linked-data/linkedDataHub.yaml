@@ -10,11 +10,8 @@ properties:
   tenantId:
     description: "Tenant ID"
     type: "string"
-  hubAAP:
-    description: "Hub AAP"
-    type: "string"
-  title:
-    description: "Hub Variant title"
+  label:
+    description: "Label of the Hub"
     type: "string"
 required:
   - "id"

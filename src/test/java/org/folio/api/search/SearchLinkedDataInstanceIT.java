@@ -10,7 +10,7 @@ import static org.folio.support.utils.LinkedDataTestUtils.toContributorName;
 import static org.folio.support.utils.LinkedDataTestUtils.toContributorType;
 import static org.folio.support.utils.LinkedDataTestUtils.toEditionStatement;
 import static org.folio.support.utils.LinkedDataTestUtils.toFormat;
-import static org.folio.support.utils.LinkedDataTestUtils.toHubAap;
+import static org.folio.support.utils.LinkedDataTestUtils.toHubLabel;
 import static org.folio.support.utils.LinkedDataTestUtils.toId;
 import static org.folio.support.utils.LinkedDataTestUtils.toIdType;
 import static org.folio.support.utils.LinkedDataTestUtils.toIdValue;
@@ -208,8 +208,8 @@ class SearchLinkedDataInstanceIT extends BaseIntegrationTest {
       .andExpect(jsonPath(toEditionStatement(toRootContent(), 0), is("1st edition")))
       .andExpect(jsonPath(toEditionStatement(toRootContent(), 1), is("2nd edition")))
       .andExpect(jsonPath(toFormat(toRootContent()), is("Monograph")))
-      .andExpect(jsonPath(toHubAap(toParentWork(), 0), is("hubAAP1")))
-      .andExpect(jsonPath(toHubAap(toParentWork(), 1), is("hubAAP2")))
+      .andExpect(jsonPath(toHubLabel(toParentWork(), 0), is("hubAAP1")))
+      .andExpect(jsonPath(toHubLabel(toParentWork(), 1), is("hubAAP2")))
       .andExpect(jsonPath(toIdValue(toRootContent(), 0), is("1234567890123")))
       .andExpect(jsonPath(toIdType(toRootContent(), 0), is("ISBN")))
       .andExpect(jsonPath(toIdValue(toRootContent(), 1), is("  2023202345")))

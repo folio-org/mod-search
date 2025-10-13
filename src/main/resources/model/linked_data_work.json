@@ -42,7 +42,7 @@
         }
       }
     },
-    "hubAAPs": {
+    "hubLabels": {
       "searchAliases": [ "hub", "keyword" ],
       "index": "multilang"
     },

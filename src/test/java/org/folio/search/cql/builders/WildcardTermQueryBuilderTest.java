@@ -60,6 +60,13 @@ class WildcardTermQueryBuilderTest {
   }
 
   @Test
+  void getQuery_positive_doNotCreateDuplicateConditions() {
+    when(searchFieldProvider.getPlainFieldByPath(ResourceType.UNKNOWN, "field")).thenReturn(of(standardField()));
+    var actual = queryBuilder.getQuery("*value*", ResourceType.UNKNOWN, EMPTY_TERM_MODIFIERS, "field", "plain_field");
+    assertThat(actual).isEqualTo(wildcardQuery("plain_field", "*value*"));
+  }
+
+  @Test
   void getFulltextQuery_positive() {
     var actual = queryBuilder.getFulltextQuery("val*", "field", ResourceType.UNKNOWN, emptyList());
     assertThat(actual).isEqualTo(wildcardQuery("plain_field", "val*"));

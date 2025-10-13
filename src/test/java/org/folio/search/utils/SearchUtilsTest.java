@@ -244,6 +244,24 @@ class SearchUtilsTest {
     assertThat(SearchUtils.normalizeToAlphaNumeric(input)).isEqualTo(expected);
   }
 
+  @ParameterizedTest
+  @MethodSource("providePrepareForExpectedFormatData")
+  void prepareForExpectedFormat_positive(String input, int length, String expected) {
+    assertThat(SearchUtils.prepareForExpectedFormat(input, length)).isEqualTo(expected);
+  }
+
+  private static Stream<Arguments> providePrepareForExpectedFormatData() {
+    return Stream.of(
+      Arguments.of("test", 10, "test"), // Normal string
+      Arguments.of("longerString", 5, "longe"), // String longer than the specified length
+      Arguments.of("path\\to\\file", 20, "path\\to\\file"), // String containing backslashes
+      Arguments.of(null, 10, ""), // Null value
+      Arguments.of("", 10, ""), // Empty string
+      Arguments.of("   ", 10, ""), // String containing only spaces
+      Arguments.of("   ", 2, "") // String trimmed to an empty result
+    );
+  }
+
   private static Stream<Arguments> provideStringsForAlphanumericNormalization() {
     return Stream.of(
       Arguments.of(null, null),

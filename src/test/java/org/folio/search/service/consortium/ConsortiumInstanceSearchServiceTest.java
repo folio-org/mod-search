@@ -18,6 +18,7 @@ import com.google.common.collect.Sets;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.apache.lucene.search.TotalHits;
@@ -202,11 +203,8 @@ class ConsortiumInstanceSearchServiceTest {
     when(properties.getMaxSearchBatchRequestIdsCount()).thenReturn(10L);
     when(searchRepository.search(any(CqlSearchRequest.class), any(SearchSourceBuilder.class)))
       .thenReturn(mock(SearchResponse.class));
-    when(documentConverter.convertToSearchResult(any(SearchResponse.class), eq(Instance.class), any()))
-      .thenReturn(SearchResult.of(2, List.of(expectedConsortiumHoldings)));
-    var expected = new ConsortiumHoldingCollection()
-      .holdings(expectedConsortiumHoldings)
-      .totalRecords(2);
+    mockConvertion(any(SearchResponse.class), List.of(expectedConsortiumHoldings));
+    var expected = holdingCollection(expectedConsortiumHoldings);
 
     var result = service.fetchConsortiumBatchHoldings(CENTRAL_TENANT_ID, new HashSet<>(ids), IdentifierTypeEnum.ID);
 
@@ -215,37 +213,43 @@ class ConsortiumInstanceSearchServiceTest {
 
   @Test
   void fetchConsortiumBatchHoldings_positive_exceedsSearchResultWindow() {
+    when(properties.getMaxSearchBatchRequestIdsCount()).thenReturn(20000L);
+    when(properties.getSearchConsortiumRecordsPageSize()).thenReturn(1);
+    var responseMock1 = mockOneHit();
+    var responseMock2 = mockOneHit();
+    var responseMock3 = mockNoHits();
+    when(searchRepository.search(any(CqlSearchRequest.class), any(SearchSourceBuilder.class)))
+      .thenReturn(responseMock1).thenReturn(responseMock2).thenReturn(responseMock3);
     var ids = IntStream.range(1, 10002).mapToObj(i -> randomUUID().toString()).toList();
     var expectedHolding1 = toConsortiumHolding(randomUUID().toString(), holding(ids.get(0), MEMBER_TENANT_ID));
     var expectedHolding2 = toConsortiumHolding(randomUUID().toString(), holding(ids.get(1), CENTRAL_TENANT_ID));
-    var responseMock1 = mock(SearchResponse.class);
-    var responseMock2 = mock(SearchResponse.class);
-    var responseMock3 = mock(SearchResponse.class);
-    var hit = mock(SearchHit.class);
-    when(hit.getSortValues()).thenReturn(new Object[]{""});
-    when(responseMock2.getHits()).thenReturn(
-      new SearchHits(new SearchHit[]{hit}, new TotalHits(1, TotalHits.Relation.EQUAL_TO), 1.0f));
-    when(responseMock1.getHits()).thenReturn(
-      new SearchHits(new SearchHit[]{hit}, new TotalHits(1, TotalHits.Relation.EQUAL_TO), 1.0f));
-    when(responseMock3.getHits()).thenReturn(SearchHits.empty());
-    when(properties.getMaxSearchBatchRequestIdsCount()).thenReturn(20000L);
-    when(properties.getSearchConsortiumRecordsPageSize()).thenReturn(1);
-    when(searchRepository.search(any(CqlSearchRequest.class), any(SearchSourceBuilder.class)))
-      .thenReturn(responseMock1).thenReturn(responseMock2).thenReturn(responseMock3);
-    when(documentConverter.convertToSearchResult(eq(responseMock1), eq(Instance.class), any()))
-      .thenReturn(SearchResult.of(1, List.of(List.of(expectedHolding1))));
-    when(documentConverter.convertToSearchResult(eq(responseMock2), eq(Instance.class), any()))
-      .thenReturn(SearchResult.of(1, List.of(List.of(expectedHolding2))));
-    var expected = new ConsortiumHoldingCollection()
-      .holdings(List.of(expectedHolding1, expectedHolding2))
-      .totalRecords(2);
+    mockConvertion(eq(responseMock1), List.of(List.of(expectedHolding1)));
+    mockConvertion(eq(responseMock2), List.of(List.of(expectedHolding2)));
 
     var result = service.fetchConsortiumBatchHoldings(CENTRAL_TENANT_ID, Sets.newHashSet(ids), IdentifierTypeEnum.ID);
 
-    assertThat(result).isEqualTo(expected);
+    assertThat(result).isEqualTo(holdingCollection(List.of(expectedHolding1, expectedHolding2)));
     verify(searchRepository, times(3)).search(any(CqlSearchRequest.class), any(SearchSourceBuilder.class));
     verify(documentConverter, times(2))
       .convertToSearchResult(any(SearchResponse.class), eq(Instance.class), any());
+  }
+
+  @Test
+  void fetchConsortiumBatchHoldings_positive_noRecordsFound() {
+    when(properties.getMaxSearchBatchRequestIdsCount()).thenReturn(10L);
+    when(searchRepository.search(any(CqlSearchRequest.class), any(SearchSourceBuilder.class)))
+      .thenReturn(mock(SearchResponse.class));
+    mockConvertion(any(SearchResponse.class), Collections.emptyList());
+    var result = service.fetchConsortiumBatchHoldings(CENTRAL_TENANT_ID, Set.of("randomId"), IdentifierTypeEnum.ID);
+
+    assertThat(result).isEqualTo(emptyHoldingsCollection());
+  }
+
+  @Test
+  void fetchConsortiumBatchHoldings_positive_noIdsInRequest() {
+    var result = service.fetchConsortiumBatchHoldings(CENTRAL_TENANT_ID, Collections.emptySet(), IdentifierTypeEnum.ID);
+
+    assertThat(result).isEqualTo(emptyHoldingsCollection());
   }
 
   @Test
@@ -254,7 +258,7 @@ class ConsortiumInstanceSearchServiceTest {
     var ids = IntStream.range(1, 12).mapToObj(i -> randomUUID().toString()).collect(Collectors.toSet());
 
     var ex = assertThrows(RequestValidationException.class,
-        () -> service.fetchConsortiumBatchItems(CENTRAL_TENANT_ID, ids, IdentifierTypeEnum.ID));
+      () -> service.fetchConsortiumBatchItems(CENTRAL_TENANT_ID, ids, IdentifierTypeEnum.ID));
 
     assertThat(ex.getMessage()).isEqualTo("IDs array size exceeds the maximum allowed limit %s"
       .formatted(properties.getMaxSearchBatchRequestIdsCount()));
@@ -270,11 +274,8 @@ class ConsortiumInstanceSearchServiceTest {
     when(properties.getMaxSearchBatchRequestIdsCount()).thenReturn(10L);
     when(searchRepository.search(any(CqlSearchRequest.class), any(SearchSourceBuilder.class)))
       .thenReturn(mock(SearchResponse.class));
-    when(documentConverter.convertToSearchResult(any(SearchResponse.class), eq(Instance.class), any()))
-      .thenReturn(SearchResult.of(2, List.of(expectedConsortiumItems)));
-    var expected = new ConsortiumItemCollection()
-      .items(expectedConsortiumItems)
-      .totalRecords(2);
+    mockConvertion(any(SearchResponse.class), List.of(expectedConsortiumItems));
+    var expected = itemCollection(expectedConsortiumItems);
 
     var result = service.fetchConsortiumBatchItems(CENTRAL_TENANT_ID, Sets.newHashSet(ids), IdentifierTypeEnum.ID);
 
@@ -283,35 +284,83 @@ class ConsortiumInstanceSearchServiceTest {
 
   @Test
   void fetchConsortiumBatchItems_positive_exceedsSearchResultWindow() {
+    var responseMock1 = mockOneHit();
+    var responseMock2 = mockNoHits();
+    when(properties.getMaxSearchBatchRequestIdsCount()).thenReturn(20000L);
+    when(properties.getSearchConsortiumRecordsPageSize()).thenReturn(2);
+    when(searchRepository.search(any(CqlSearchRequest.class), any(SearchSourceBuilder.class)))
+      .thenReturn(responseMock1).thenReturn(responseMock2);
     var ids = IntStream.range(1, 10002).mapToObj(i -> randomUUID().toString()).toList();
     var expectedConsortiumItems = List.of(
       toConsortiumItem(randomUUID().toString(), item(ids.get(0), MEMBER_TENANT_ID)),
       toConsortiumItem(randomUUID().toString(), item(ids.get(1), CENTRAL_TENANT_ID))
     );
-    var responseMock1 = mock(SearchResponse.class);
-    var responseMock2 = mock(SearchResponse.class);
-    var hit = mock(SearchHit.class);
-    when(responseMock2.getHits()).thenReturn(SearchHits.empty());
-    when(hit.getSortValues()).thenReturn(new Object[]{""});
-    when(responseMock1.getHits()).thenReturn(
-      new SearchHits(new SearchHit[]{hit}, new TotalHits(1, TotalHits.Relation.EQUAL_TO), 1.0f));
-    when(properties.getMaxSearchBatchRequestIdsCount()).thenReturn(20000L);
-    when(properties.getSearchConsortiumRecordsPageSize()).thenReturn(2);
-    when(searchRepository.search(any(CqlSearchRequest.class), any(SearchSourceBuilder.class)))
-      .thenReturn(responseMock1).thenReturn(responseMock2);
-    when(documentConverter.convertToSearchResult(eq(responseMock1), eq(Instance.class), any()))
-      .thenReturn(SearchResult.of(2, List.of(expectedConsortiumItems)));
-    var expected = new ConsortiumItemCollection()
-      .items(expectedConsortiumItems)
-      .totalRecords(2);
+    mockConvertion(eq(responseMock1), List.of(expectedConsortiumItems));
+    var expected = itemCollection(expectedConsortiumItems);
 
     var result = service.fetchConsortiumBatchItems(CENTRAL_TENANT_ID, Sets.newHashSet(ids), IdentifierTypeEnum.ID);
 
     assertThat(result).isEqualTo(expected);
-    verify(searchRepository, times(2))
-      .search(any(CqlSearchRequest.class), any(SearchSourceBuilder.class));
-    verify(documentConverter)
-      .convertToSearchResult(any(SearchResponse.class), eq(Instance.class), any());
+    verify(searchRepository, times(2)).search(any(CqlSearchRequest.class), any(SearchSourceBuilder.class));
+    verify(documentConverter).convertToSearchResult(any(SearchResponse.class), eq(Instance.class), any());
+  }
+
+  @Test
+  void fetchConsortiumBatchItems_positive_noRecordsFound() {
+    when(properties.getMaxSearchBatchRequestIdsCount()).thenReturn(10L);
+    when(searchRepository.search(any(CqlSearchRequest.class), any(SearchSourceBuilder.class)))
+      .thenReturn(mock(SearchResponse.class));
+    mockConvertion(any(SearchResponse.class), Collections.emptyList());
+    var result = service.fetchConsortiumBatchItems(CENTRAL_TENANT_ID, Set.of("randomId"), IdentifierTypeEnum.ID);
+
+    assertThat(result).isEqualTo(emptyItemCollection());
+  }
+
+  @Test
+  void fetchConsortiumBatchItems_positive_noIdsInRequest() {
+    var result = service.fetchConsortiumBatchItems(CENTRAL_TENANT_ID, Collections.emptySet(), IdentifierTypeEnum.ID);
+
+    assertThat(result).isEqualTo(emptyItemCollection());
+  }
+
+  private SearchResponse mockNoHits() {
+    var responseMock = mock(SearchResponse.class);
+    when(responseMock.getHits()).thenReturn(SearchHits.empty());
+    return responseMock;
+  }
+
+  private SearchResponse mockOneHit() {
+    var hit = mock(SearchHit.class);
+    when(hit.getSortValues()).thenReturn(new Object[] {""});
+    var responseMock = mock(SearchResponse.class);
+    var searchHits = new SearchHits(new SearchHit[] {hit}, new TotalHits(1, TotalHits.Relation.EQUAL_TO), 1.0f);
+    when(responseMock.getHits()).thenReturn(searchHits);
+    return responseMock;
+  }
+
+  private void mockConvertion(SearchResponse responseMock, List<Object> expectedRecords) {
+    when(documentConverter.convertToSearchResult(responseMock, eq(Instance.class), any()))
+      .thenReturn(SearchResult.of(expectedRecords.size(), expectedRecords));
+  }
+
+  private ConsortiumHoldingCollection holdingCollection(List<ConsortiumHolding> consortiumHoldings) {
+    return new ConsortiumHoldingCollection()
+      .holdings(consortiumHoldings)
+      .totalRecords(consortiumHoldings.size());
+  }
+
+  private ConsortiumItemCollection itemCollection(List<ConsortiumItem> consortiumItems) {
+    return new ConsortiumItemCollection()
+      .items(consortiumItems)
+      .totalRecords(consortiumItems.size());
+  }
+
+  private ConsortiumHoldingCollection emptyHoldingsCollection() {
+    return new ConsortiumHoldingCollection().holdings(Collections.emptyList()).totalRecords(0);
+  }
+
+  private ConsortiumItemCollection emptyItemCollection() {
+    return new ConsortiumItemCollection().items(Collections.emptyList()).totalRecords(0);
   }
 
   private Holding holding(String id, String tenantId) {

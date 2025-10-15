@@ -56,10 +56,6 @@ public class SearchConsortiumController implements SearchConsortiumApi {
   public ResponseEntity<ConsortiumHoldingCollection> fetchConsortiumBatchHoldings(String tenantHeader,
                                                                                   BatchIdsDto batchIdsDto) {
 
-    if (batchIdsDto.getIdentifierValues().isEmpty()) {
-      return ResponseEntity.ok(new ConsortiumHoldingCollection());
-    }
-
     var tenant = verifyAndGetTenant(tenantHeader);
     var identifierType = batchIdsDto.getIdentifierType();
     var identifierValues = new HashSet<>(batchIdsDto.getIdentifierValues());
@@ -71,10 +67,6 @@ public class SearchConsortiumController implements SearchConsortiumApi {
   @Override
   public ResponseEntity<ConsortiumItemCollection> fetchConsortiumBatchItems(String tenantHeader,
                                                                             BatchIdsDto batchIdsDto) {
-    if (batchIdsDto.getIdentifierValues().isEmpty()) {
-      return ResponseEntity.ok(new ConsortiumItemCollection());
-    }
-
     var tenant = verifyAndGetTenant(tenantHeader);
     var identifierType = batchIdsDto.getIdentifierType();
     var identifierValues = new HashSet<>(batchIdsDto.getIdentifierValues());

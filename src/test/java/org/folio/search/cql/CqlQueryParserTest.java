@@ -25,6 +25,6 @@ class CqlQueryParserTest {
   void parseCqlQuery_negative() {
     assertThatThrownBy(() -> cqlQueryParser.parseCqlQuery("> invalidQuery", ResourceType.UNKNOWN))
       .isInstanceOf(SearchServiceException.class)
-      .hasMessage("Failed to parse cql query [cql: '> invalidQuery', resource: unknown]");
+      .hasMessage("Failed to parse CQL query [cql: '> invalidQuery', resource: unknown]");
   }
 }

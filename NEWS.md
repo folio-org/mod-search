@@ -29,12 +29,15 @@
 * **Indexing**
   * Add indexes for instance_(call_number/subject/classification/contributor) ([MSEARCH-1025](https://folio-org.atlassian.net/browse/MSEARCH-1025))
   * Omit sub-resource if main value is blank ([MSEARCH-1084](https://folio-org.atlassian.net/browse/MSEARCH-1084))
+  * Remove excessive escaping of backslash character in sub-resources ([MSEARCH-1094](https://folio-org.atlassian.net/browse/MSEARCH-1094))
 * **Instance Search**
   * Add support for searching by instance/holdings/item electronic access relationship ID ([MSEARCH-816](https://folio-org.atlassian.net/browse/MSEARCH-816))
   * Normalize ISSN search ([MSEARCH-658](https://folio-org.atlassian.net/browse/MSEARCH-658))
   * Separate LCCN and Canceled LCCN identifiers search to lccn and canceledLccn options ([MSEARCH-1065](https://folio-org.atlassian.net/browse/MSEARCH-1065))
-* **Linked Data Instance and Work**
+  * Add sorting options for instances by created and updated date ([MSEARCH-825](https://folio-org.atlassian.net/browse/MSEARCH-825))
+* **Linked Data Instance, Work and Hub**
   * Search by classification type/number/additionalNumber ([MSEARCH-989](https://folio-org.atlassian.net/browse/MSEARCH-989))
+  * Rename "AAP" to "label" to be consistent with the terminology used in mod-linked-data ([MSEARCH-1099](https://folio-org.atlassian.net/browse/MSEARCH-1099))
 
 ### Bug fixes
 * **Authority Search**
@@ -47,8 +50,8 @@
   * Add facet filtering for nested queries ([MSEARCH-1012](https://folio-org.atlassian.net/browse/MSEARCH-1012))
 * **Consortium Search**
   * Batch search returns less results for duplicate identifiers ([MSEARCH-804](https://folio-org.atlassian.net/browse/MSEARCH-804))
-  * Fix `/batch/holdings` and `holding/{id}` API responses to include callNumber* and copyNumber fields
-    ([MSEARCH-1067](https://folio-org.atlassian.net/browse/MSEARCH-1067))
+  * Fix `/batch/holdings` and `holding/{id}` API responses to include callNumber* and copyNumber fields ([MSEARCH-1067](https://folio-org.atlassian.net/browse/MSEARCH-1067))
+  * Handle empty search results and improve response structure ([MSEARCH-1083](https://folio-org.atlassian.net/browse/MSEARCH-1083))
 * **Facets**
   * Modify facet queries to remove filters for nested queries ([MSEARCH-995](https://folio-org.atlassian.net/browse/MSEARCH-995))
 * **Indexing**

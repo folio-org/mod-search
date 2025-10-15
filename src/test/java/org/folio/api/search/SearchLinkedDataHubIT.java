@@ -37,12 +37,9 @@ class SearchLinkedDataHubIT extends BaseIntegrationTest {
     " 4, 2, originalId = \"*\"",
     " 5, 1, originalId = \"995ff81e-0ab6-4124-9e45-d6fa73c78d66\"",
     " 6, 1, originalId = \"1d6f83d6-841b-4e01-8e03-1559a683b567\"",
-    " 7, 2, hubAAP = \"*\"",
-    " 8, 1, hubAAP = \"*ABC\"",
-    " 9, 1, hubAAP = \"*XYZ\"",
-    "10, 2, title = \"*\"",
-    "11, 1, title = \"HubTitleABC\"",
-    "12, 1, title = \"HubTitleXYZ\""
+    " 7, 2, label = \"*\"",
+    " 8, 1, label = \"*ABC\"",
+    " 9, 1, label = \"*XYZ\""
   })
   void searchByLinkedDataHub_parameterized_singleResult(int index, int size, String query) throws Throwable {
     doSearchByLinkedDataHub(query)

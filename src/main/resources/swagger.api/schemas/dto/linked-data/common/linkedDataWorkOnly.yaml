@@ -17,9 +17,9 @@ properties:
     description: "Contributor array"
     items:
       $ref: "linkedDataContributor.yaml"
-  hubAAPs:
+  hubLabels:
     type: "array"
-    description: "Linked Data Hub Authorized Access Point array"
+    description: "Linked Data Hub labels array"
     items:
       type: "string"
   languages:

@@ -1,3 +1,7 @@
+## v5.0.7 2025-10-15
+### Bug fixes
+* Fix items handling in a sub-resource background job, process multiple same id events in interceptor ([MSEARCH-1085](https://folio-org.atlassian.net/browse/MSEARCH-1085))
+
 ## v5.0.6 2025-09-30
 ### Tech dept
 * Clean search hits to reduce inmemory records ([MSEARCH-1068](https://folio-org.atlassian.net/browse/MSEARCH-1068))

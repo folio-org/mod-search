@@ -28,7 +28,7 @@ public class ConsortiumTenantService {
   private final FolioExecutionContext context;
 
   @Cacheable(cacheNames = USER_TENANTS_CACHE, key = "@folioExecutionContext.tenantId + ':' + #tenantId",
-    unless = "#result.isEmpty()")
+    unless = "#result.empty")
   public Optional<String> getCentralTenant(String tenantId) {
     log.info("getCentralTenant: EXECUTING METHOD (not from cache) - tenantId: {}, contextTenantId: {}, cacheKey: {}",
       tenantId, context.getTenantId(), context.getTenantId() + ":" + tenantId);

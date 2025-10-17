@@ -5,7 +5,8 @@ import static org.folio.search.configuration.SearchCacheNames.CONSORTIUM_TENANTS
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.search.client.ConsortiumTenantsClient;
 import org.folio.search.client.UserTenantsClient;
@@ -13,9 +14,6 @@ import org.folio.search.exception.FolioIntegrationException;
 import org.folio.spring.FolioExecutionContext;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @Service

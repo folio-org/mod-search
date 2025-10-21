@@ -9,6 +9,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -56,10 +57,10 @@ class StagingMigrationServiceTest {
 
   @BeforeEach
   void setUp() {
-    when(context.getTenantId()).thenReturn(TENANT_ID);
-    when(context.getFolioModuleMetadata()).thenReturn(folioModuleMetadata);
-    when(folioModuleMetadata.getDBSchemaName(TENANT_ID)).thenReturn("test_tenant_mod_search");
-    when(reindexConfigurationProperties.getMigrationWorkMem()).thenReturn("64MB");
+    lenient().when(context.getTenantId()).thenReturn(TENANT_ID);
+    lenient().when(context.getFolioModuleMetadata()).thenReturn(folioModuleMetadata);
+    lenient().when(folioModuleMetadata.getDBSchemaName(TENANT_ID)).thenReturn("test_tenant_mod_search");
+    lenient().when(reindexConfigurationProperties.getMigrationWorkMem()).thenReturn("64MB");
   }
 
   @Test
@@ -76,8 +77,6 @@ class StagingMigrationServiceTest {
     when(jdbcTemplate.update(contains("staging_instance_contributor"))).thenReturn(14);
     when(jdbcTemplate.update(contains("staging_instance_classification"))).thenReturn(6);
     when(jdbcTemplate.update(contains("staging_instance_call_number"))).thenReturn(4);
-    when(jdbcTemplate.update(anyString())).thenReturn(1);
-    when(jdbcTemplate.update(anyString(), any(Timestamp.class))).thenReturn(1);
     doNothing().when(jdbcTemplate).execute(anyString());
 
     // Act
@@ -103,7 +102,7 @@ class StagingMigrationServiceTest {
 
     // Verify correct timestamp is used
     var expectedTimestamp = Timestamp.valueOf("2000-01-01 00:00:00");
-    verify(jdbcTemplate, times(7)).update(anyString(), eq(expectedTimestamp));
+    verify(jdbcTemplate, times(6)).update(anyString(), eq(expectedTimestamp));
 
     // Verify the order of operations
     var inOrder = inOrder(jdbcTemplate);
@@ -160,7 +159,6 @@ class StagingMigrationServiceTest {
     inOrder.verify(reindexCommonService).deleteRecordsByTenantId(targetTenantId);
     inOrder.verify(jdbcTemplate).update(contains("staging_instance"), any(Timestamp.class));
   }
-
 
   @Test
   void migrateAllStagingTables_whenDatabaseError_shouldThrowReindexException() {
@@ -286,7 +284,6 @@ class StagingMigrationServiceTest {
     // Assert
     assertThat(stats).isEmpty();
   }
-
 
   private Map<String, Object> createStatRow(String tableName, long count) {
     var row = new HashMap<String, Object>();

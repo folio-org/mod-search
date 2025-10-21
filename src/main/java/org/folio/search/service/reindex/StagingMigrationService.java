@@ -65,6 +65,10 @@ public class StagingMigrationService {
 
       log.info("Migration complete in {} ms: {}", duration, result);
       return result;
+    } catch (ReindexException ex) {
+      log.error("Migration failed due to reindex exception", ex);
+      var message = "Failed to migrate staging tables: " + ex.getMessage();
+      throw new ReindexException(message, ex.getCause());
     } catch (Exception e) {
       log.error("Migration failed", e);
       throw new ReindexException("Failed to migrate staging tables", e);

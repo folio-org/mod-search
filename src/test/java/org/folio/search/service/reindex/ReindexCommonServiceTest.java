@@ -253,6 +253,5 @@ class ReindexCommonServiceTest {
     // Assert
     verify(indexService).dropIndex(ResourceType.INSTANCE, TENANT_ID);
   }
-
 }
 

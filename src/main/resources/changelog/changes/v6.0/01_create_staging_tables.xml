@@ -165,7 +165,6 @@
             authority_id VARCHAR(40),
             source_id VARCHAR(40),
             type_id VARCHAR(40),
-            last_updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
             inserted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
             ) PARTITION BY RANGE (SUBSTRING(id::text, 1, 1));
         </sql>
@@ -186,7 +185,6 @@
             name VARCHAR(255) NOT NULL,
             name_type_id VARCHAR(40),
             authority_id VARCHAR(40),
-            last_updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
             inserted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
             ) PARTITION BY RANGE (SUBSTRING(id::text, 1, 1));
         </sql>
@@ -206,7 +204,6 @@
             id VARCHAR(40) NOT NULL,
             number VARCHAR(50) NOT NULL,
             type_id VARCHAR(40),
-            last_updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
             inserted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
             ) PARTITION BY RANGE (SUBSTRING(id::text, 1, 1));
         </sql>
@@ -228,7 +225,6 @@
             call_number_prefix VARCHAR(20),
             call_number_suffix VARCHAR(25),
             call_number_type_id VARCHAR(40),
-            last_updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
             inserted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
             ) PARTITION BY RANGE (SUBSTRING(id::text, 1, 1));
         </sql>

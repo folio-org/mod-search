@@ -64,8 +64,18 @@ public class ReindexStatusRepository {
 
   private static final String SELECT_TARGET_TENANT_ID_SQL = "SELECT target_tenant_id FROM %s LIMIT 1";
 
-  private static final String SELECT_EARLIEST_MERGE_START_TIME_SQL =
-    "SELECT MIN(start_time_merge) FROM %s WHERE start_time_merge IS NOT NULL";
+  private static final String RECREATE_REINDEX_STATUS_TRIGGER_SQL = """
+    DROP TRIGGER IF EXISTS reindex_status_updated_trigger ON %s CASCADE;
+    CREATE TRIGGER reindex_status_updated_trigger
+        BEFORE UPDATE OF processed_merge_ranges, processed_upload_ranges
+        ON reindex_status
+        FOR EACH ROW
+    EXECUTE FUNCTION %s();
+    """;
+
+  private static final String UPDATE_REINDEX_STATUS_FUNCTION_NAME = "update_reindex_status_trigger";
+  private static final String UPDATE_CONSORTIUM_MEMBER_REINDEX_STATUS_FUNCTION_NAME =
+    "update_consortium_member_reindex_status_trigger";
 
   private final FolioExecutionContext context;
   private final JdbcTemplate jdbcTemplate;
@@ -169,10 +179,12 @@ public class ReindexStatusRepository {
     return jdbcTemplate.queryForObject(sql, String.class);
   }
 
-  public Timestamp getEarliestMergeStartTime() {
+  public void recreateReindexStatusTrigger(boolean isConsortiumMember) {
     var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
-    var sql = SELECT_EARLIEST_MERGE_START_TIME_SQL.formatted(fullTableName);
-    return jdbcTemplate.queryForObject(sql, Timestamp.class);
+    var functionName = isConsortiumMember ? UPDATE_CONSORTIUM_MEMBER_REINDEX_STATUS_FUNCTION_NAME
+      : UPDATE_REINDEX_STATUS_FUNCTION_NAME;
+    var sql = RECREATE_REINDEX_STATUS_TRIGGER_SQL.formatted(fullTableName, functionName);
+    jdbcTemplate.execute(sql);
   }
 
   private RowMapper<ReindexStatusEntity> reindexStatusRowMapper() {

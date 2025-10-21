@@ -2,7 +2,7 @@ package org.folio.search.service.reindex;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.exception.RequestValidationException.REQUEST_NOT_ALLOWED_MSG;
+import static org.folio.search.exception.RequestValidationException.REQUEST_NOT_ALLOWED_FOR_CONSORTIUM_MEMBER_MSG;
 import static org.folio.search.model.types.ReindexEntityType.HOLDINGS;
 import static org.folio.search.model.types.ReindexEntityType.INSTANCE;
 import static org.folio.support.TestConstants.TENANT_ID;
@@ -82,7 +82,7 @@ class ReindexStatusServiceTest {
 
     var ex = Assertions.assertThrows(RequestValidationException.class, () -> service.getReindexStatuses(TENANT_ID));
 
-    assertThat(ex.getMessage()).isEqualTo(REQUEST_NOT_ALLOWED_MSG);
+    assertThat(ex.getMessage()).isEqualTo(REQUEST_NOT_ALLOWED_FOR_CONSORTIUM_MEMBER_MSG);
     assertThat(ex.getKey()).isEqualTo(XOkapiHeaders.TENANT);
     assertThat(ex.getValue()).isEqualTo(TENANT_ID);
     verifyNoInteractions(statusRepository);
@@ -154,7 +154,7 @@ class ReindexStatusServiceTest {
   @Test
   void shouldRecreateMergeReindexStatusEntities() {
     // act
-    service.recreateMergeStatusRecords();
+    service.recreateMergeStatusRecords(null);
 
     // assert
     verify(statusRepository).truncate();

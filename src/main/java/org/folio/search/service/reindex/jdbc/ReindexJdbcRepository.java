@@ -60,21 +60,17 @@ public abstract class ReindexJdbcRepository {
 
   @Transactional
   public void deleteByTenantId(String tenantId) {
-    // Delete from sub-entity table if it exists and supports tenant-specific deletion
-    //todo: table set only for subjects/contributors/classifications/callNumbers and deletion supported only for instance/holdings/item
+    // Delete from sub-entity table if present
     subEntityTable().ifPresent(tableName -> {
-      //todo: looks like this condition should be removed (or separate created) because now it'll always be false
-      if (supportsTenantSpecificDeletion()) {
-        var fullTableName = getFullTableName(context, tableName);
-        var sql = String.format("DELETE FROM %s WHERE tenant_id = ?", fullTableName);
-        jdbcTemplate.update(sql, tenantId);
-      }
+      var fullTableName = getFullTableName(context, tableName);
+      var sql = "DELETE FROM %s WHERE tenant_id = ?".formatted(fullTableName);
+      jdbcTemplate.update(sql, tenantId);
     });
 
-    // Delete from main entity table if it supports tenant-specific deletion
+    // Delete from main entity table only if it supports tenant-specific deletion
     if (supportsTenantSpecificDeletion()) {
       var fullTableName = getFullTableName(context, entityTable());
-      var sql = String.format("DELETE FROM %s WHERE tenant_id = ?", fullTableName);
+      var sql = "DELETE FROM %s WHERE tenant_id = ?".formatted(fullTableName);
       jdbcTemplate.update(sql, tenantId);
     }
   }

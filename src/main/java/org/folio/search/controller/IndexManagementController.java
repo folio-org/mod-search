@@ -1,5 +1,7 @@
 package org.folio.search.controller;
 
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -52,7 +54,7 @@ public class IndexManagementController implements IndexManagementApi {
 
   @Override
   public ResponseEntity<Void> reindexInstanceRecords(String tenantId, ReindexFullRequest reindexFullRequest) {
-    var targetTenantId = reindexFullRequest != null && reindexFullRequest.getTenantId() != null
+    var targetTenantId = reindexFullRequest != null && isNotBlank(reindexFullRequest.getTenantId())
       ? reindexFullRequest.getTenantId()
       : null;
     var indexSettings = reindexFullRequest != null ? reindexFullRequest.getIndexSettings() : null;

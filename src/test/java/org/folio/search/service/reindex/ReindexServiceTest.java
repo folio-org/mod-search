@@ -1,7 +1,7 @@
 package org.folio.search.service.reindex;
 
 import static java.util.Collections.emptyList;
-import static org.folio.search.exception.RequestValidationException.REQUEST_NOT_ALLOWED_MSG;
+import static org.folio.search.exception.RequestValidationException.REQUEST_NOT_ALLOWED_FOR_CONSORTIUM_MEMBER_MSG;
 import static org.folio.search.model.types.ReindexEntityType.HOLDINGS;
 import static org.folio.search.model.types.ReindexEntityType.INSTANCE;
 import static org.folio.search.model.types.ReindexEntityType.ITEM;
@@ -80,7 +80,7 @@ class ReindexServiceTest {
     when(consortiumService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of("central"));
 
     assertThrows(RequestValidationException.class, () -> reindexService.submitFullReindex(TENANT_ID, null),
-      REQUEST_NOT_ALLOWED_MSG);
+      REQUEST_NOT_ALLOWED_FOR_CONSORTIUM_MEMBER_MSG);
   }
 
   @Test
@@ -159,7 +159,7 @@ class ReindexServiceTest {
 
     // act & assert
     assertThrows(RequestValidationException.class,
-      () -> reindexService.submitUploadReindex(member, entityTypes), REQUEST_NOT_ALLOWED_MSG);
+      () -> reindexService.submitUploadReindex(member, entityTypes), REQUEST_NOT_ALLOWED_FOR_CONSORTIUM_MEMBER_MSG);
   }
 
   @Test
@@ -234,7 +234,7 @@ class ReindexServiceTest {
     when(consortiumService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of("central"));
 
     assertThrows(RequestValidationException.class, () -> reindexService.submitFailedMergeRangesReindex(TENANT_ID),
-      REQUEST_NOT_ALLOWED_MSG);
+      REQUEST_NOT_ALLOWED_FOR_CONSORTIUM_MEMBER_MSG);
   }
 
   @Test

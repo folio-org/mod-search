@@ -15,10 +15,7 @@ import org.folio.search.model.event.ReindexRangeIndexEvent;
 import org.folio.search.model.reindex.UploadRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ResourceType;
-import org.folio.search.service.ResourceService;
-import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.service.reindex.jdbc.UploadRangeRepository;
-import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.testing.extension.Random;
 import org.folio.spring.testing.extension.impl.RandomParametersExtension;
 import org.folio.spring.testing.type.UnitTest;
@@ -29,7 +26,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 @UnitTest
 @ExtendWith({MockitoExtension.class, RandomParametersExtension.class})
@@ -38,17 +34,12 @@ class ReindexUploadRangeIndexServiceTest {
   private @Mock UploadRangeRepository repository;
   private @Mock FolioMessageProducer<ReindexRangeIndexEvent> indexRangeEventProducer;
   private @Mock ReindexStatusService statusService;
-  private @Mock JdbcTemplate jdbcTemplate;
-  private @Mock FolioExecutionContext context;
-  private @Mock ResourceService resourceService;
-  private @Mock ConsortiumTenantService consortiumTenantService;
   private ReindexUploadRangeIndexService service;
 
   @BeforeEach
   void setUp() {
     when(repository.entityType()).thenReturn(ReindexEntityType.INSTANCE);
-    service = new ReindexUploadRangeIndexService(List.of(repository),
-      indexRangeEventProducer, statusService, jdbcTemplate, context, resourceService, consortiumTenantService);
+    service = new ReindexUploadRangeIndexService(List.of(repository), indexRangeEventProducer, statusService);
   }
 
   @Test

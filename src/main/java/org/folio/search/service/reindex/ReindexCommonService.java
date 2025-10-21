@@ -9,8 +9,9 @@ import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.IndexSettings;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.repository.IndexNameProvider;
-import org.folio.search.repository.IndexRepository;
+import org.folio.search.repository.PrimaryResourceRepository;
 import org.folio.search.service.IndexService;
 import org.folio.search.service.reindex.jdbc.ReindexJdbcRepository;
 import org.springframework.stereotype.Service;
@@ -22,27 +23,21 @@ public class ReindexCommonService {
 
   private final Map<ReindexEntityType, ReindexJdbcRepository> repositories;
   private final IndexService indexService;
-  private final IndexRepository indexRepository;
+  private final PrimaryResourceRepository resourceRepository;
   private final IndexNameProvider indexNameProvider;
 
   public ReindexCommonService(List<ReindexJdbcRepository> repositories, IndexService indexService,
-                              IndexRepository indexRepository, IndexNameProvider indexNameProvider) {
+                              PrimaryResourceRepository resourceRepository, IndexNameProvider indexNameProvider) {
     this.repositories = repositories.stream()
       .collect(Collectors.toMap(ReindexJdbcRepository::entityType, identity(), (rep1, rep2) -> rep2));
     this.indexService = indexService;
-    this.indexRepository = indexRepository;
+    this.resourceRepository = resourceRepository;
     this.indexNameProvider = indexNameProvider;
   }
 
   @Transactional
-  public void deleteAllRecords() {
-    deleteAllRecords(null);
-  }
-
-  @Transactional
   public void deleteAllRecords(String tenantId) {
-    for (ReindexEntityType entityType : ReindexEntityType.values()) {
-      repositories.get(entityType).truncate();
+    for (var entityType : ReindexEntityType.values()) {
       if (tenantId != null) {
         // For tenant-specific refresh: only truncate staging tables
         repositories.get(entityType).truncateStaging();
@@ -71,58 +66,29 @@ public class ReindexCommonService {
   }
 
   /**
-   * Deletes documents from OpenSearch indexes for a specific tenant, preserving shared documents.
-   * This method is used during tenant-specific reindex operations to clean existing tenant data
-   * without affecting shared consortium instances.
+   * Deletes documents from OpenSearch indexes for a specific tenant with shared preservation.
    *
    * @param tenantId the tenant ID whose documents should be deleted
    */
-  public void deleteIndexDocumentsByTenantId(String tenantId) {
-    deleteIndexDocumentsByTenantId(tenantId, true);
-  }
+  public void deleteInstanceDocumentsByTenantId(String tenantId) {
+    log.info("deleteInstanceDocumentsByTenantId:: starting deletion for [tenantId: {}, ]", tenantId);
 
-  /**
-   * Deletes documents from OpenSearch indexes for a specific tenant with configurable shared preservation.
-   * Processes all reindex entity types to ensure complete tenant data cleanup.
-   *
-   * @param tenantId the tenant ID whose documents should be deleted
-   * @param preserveShared if true, preserves documents marked as shared (shared=true)
-   */
-  public void deleteIndexDocumentsByTenantId(String tenantId, boolean preserveShared) {
-    log.info("deleteIndexDocumentsByTenantId:: starting deletion for [tenantId: {}, preserveShared: {}]",
-      tenantId, preserveShared);
+    try {
+      var resourceType = ResourceType.INSTANCE;
+      var indexName = indexNameProvider.getIndexName(resourceType, tenantId);
+      var result = resourceRepository.deleteConsortiumDocumentsByTenantId(indexName, tenantId);
 
-    int successCount = 0;
-    int errorCount = 0;
-
-    //todo: seams like only instance deletion is needed since upload will replace documents in other indexes
-    // and tenantId is present on top level only for instances
-    for (var entityType : ReindexEntityType.values()) {
-      try {
-        var resourceType = RESOURCE_NAME_MAP.get(entityType);
-        if (resourceType != null) {
-          var indexName = indexNameProvider.getIndexName(resourceType, tenantId);
-          var result = indexRepository.deleteDocumentsByTenantId(indexName, tenantId, preserveShared);
-
-          if (result != null) {
-            successCount++;
-            log.debug("deleteIndexDocumentsByTenantId:: completed for [entityType: {}, indexName: {}]",
-              entityType, indexName);
-          } else {
-            errorCount++;
-            log.warn("deleteIndexDocumentsByTenantId:: failed for [entityType: {}, indexName: {}]",
-              entityType, indexName);
-          }
-        }
-      } catch (Exception e) {
-        errorCount++;
-        log.error("deleteIndexDocumentsByTenantId:: error processing [entityType: {}, tenantId: {}, error: {}]",
-          entityType, tenantId, e.getMessage(), e);
+      if (result != null) {
+        log.debug("deleteInstanceDocumentsByTenantId:: completed for [indexName: {}]", indexName);
+      } else {
+        log.warn("deleteInstanceDocumentsByTenantId:: failed for [indexName: {}]", indexName);
       }
+    } catch (Exception e) {
+      log.error("deleteInstanceDocumentsByTenantId:: error processing [tenantId: {}, error: {}]",
+        tenantId, e.getMessage(), e);
     }
 
-    log.info("deleteIndexDocumentsByTenantId:: completed [tenantId: {}, preserveShared: {}, "
-      + "successful: {}, errors: {}]", tenantId, preserveShared, successCount, errorCount);
+    log.info("deleteInstanceDocumentsByTenantId:: completed [tenantId: {}]", tenantId);
   }
 
   public void recreateIndex(ReindexEntityType reindexEntityType, String tenantId, IndexSettings indexSettings) {

@@ -112,41 +112,18 @@ public class ReindexOrchestrationService {
         event.getRangeId(), event.getTenant(), memberTenantId, event.getRecordType(), event.getRecords().size());
 
       mergeRangeService.saveEntities(event);
-      reindexStatusService.addProcessedMergeRanges(entityType, 1);
       mergeRangeService.updateStatus(entityType, event.getRangeId(), ReindexRangeStatus.SUCCESS, null);
+      reindexStatusService.addProcessedMergeRanges(entityType, 1);
       log.info("process:: ReindexRecordsEvent processed [rangeId: {}, recordType: {}]",
         event.getRangeId(), event.getRecordType());
       if (reindexStatusService.isMergeCompleted()) {
         // Get targetTenantId before migration
         var targetTenantId = reindexStatusService.getTargetTenantId();
 
-        // Use advisory lock to ensure only one instance handles migration and upload phase
-        var lockIdentifier = "migration_" + (targetTenantId != null ? targetTenantId : "consortium");
-        var lockKey = lockIdentifier.hashCode();
-
-        //todo: seams like won't work since this lock requires an open transaction. Could be removed
-        var lockAcquired = jdbcTemplate.queryForObject(
-          "SELECT pg_try_advisory_xact_lock(?)", Boolean.class, lockKey);
-
-        if (!lockAcquired) {
-          log.info("process:: Another instance is handling migration and upload phase submission for {}, skipping",
-            targetTenantId != null ? "tenant: " + targetTenantId : "consortium");
-          return true;
-        }
-
-        log.info("process:: Acquired migration lock for {}, proceeding with migration and upload phase submission",
-          targetTenantId != null ? "tenant: " + targetTenantId : "consortium");
-
         // Perform migration of staging tables
         log.info("Merge completed. Starting migration of staging tables");
-        try {
-          mergeRangeService.performStagingMigration(targetTenantId);
-          log.info("Migration completed successfully. Starting upload phase");
-        } catch (Exception e) {
-          log.error("Migration failed", e);
-          reindexStatusService.updateReindexMergeFailed(entityType);
-          throw new ReindexException("Migration failed: " + e.getMessage());
-        }
+        performStagingMigration(entityType, targetTenantId);
+
         // Check if this is a tenant-specific reindex that requires OpenSearch document cleanup
         if (targetTenantId != null) {
           log.info("process:: Starting tenant-specific upload phase with document cleanup [targetTenant: {}]",
@@ -179,5 +156,16 @@ public class ReindexOrchestrationService {
     }
 
     return true;
+  }
+
+  private void performStagingMigration(ReindexEntityType entityType, String targetTenantId) {
+    try {
+      mergeRangeService.performStagingMigration(targetTenantId);
+      log.info("Migration completed successfully. Starting upload phase");
+    } catch (Exception e) {
+      log.error("Migration failed", e);
+      reindexStatusService.updateReindexMergeFailed(entityType);
+      throw new ReindexException("Migration failed: " + e.getMessage());
+    }
   }
 }

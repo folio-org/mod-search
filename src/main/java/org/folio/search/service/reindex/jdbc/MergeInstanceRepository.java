@@ -45,10 +45,6 @@ public class MergeInstanceRepository extends MergeRangeRepository {
     UPDATE %s SET is_bound_with = ? WHERE id = ?::uuid;
     """;
 
-  private static final String UPDATE_STAGING_BOUND_WITH_SQL = """
-    UPDATE %s SET is_bound_with = ? WHERE id = ?::uuid;
-    """;
-
   private static final String SELECT_BY_UPDATED_QUERY = """
     SELECT id, tenant_id, shared, is_bound_with, json, last_updated_date, is_deleted
     FROM %s.instance

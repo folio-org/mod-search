@@ -371,7 +371,7 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
   public List<Map<String, Object>> fetchByIdRangeWithTimestamp(String lower, String upper, Timestamp timestamp) {
     var sql = SELECT_QUERY.formatted(JdbcUtils.getSchemaName(context),
       ID_RANGE_INS_WHERE_CLAUSE,
-      ID_RANGE_SUBJ_WHERE_CLAUSE + " AND s.last_updated_date > ?");
+      ID_RANGE_SUBJ_WHERE_CLAUSE + " AND s.last_updated_date = ?");
     return jdbcTemplate.query(sql, rowToMapMapper(), lower, upper, lower, upper, timestamp);
   }
 

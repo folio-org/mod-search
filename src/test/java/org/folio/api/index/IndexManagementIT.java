@@ -139,8 +139,6 @@ class IndexManagementIT extends BaseIntegrationTest {
       .untilAsserted(() -> assertEquals(indexIdBeforeReindex, getIndexId(LINKED_DATA_WORK)));
   }
 
-  //todo: full reindex basic case. Maybe consortium case + consortium member case
-
   @Test
   void runReindex_negative_instanceSubject() throws Exception {
     var resource = "instance_subject";

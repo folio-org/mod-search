@@ -1,6 +1,7 @@
 package org.folio.search.service.reindex;
 
 import static java.util.Collections.singletonList;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,8 @@ public class ReindexStatusService {
     this.statusRepository = statusRepository;
     this.reindexStatusMapper = reindexStatusMapper;
     this.consortiumTenantProvider = consortiumTenantProvider;
+    this.cachedTargetTenantId = null;
+    this.cacheTimestamp = 0;
   }
 
   public List<ReindexStatusItem> getReindexStatuses(String tenantId) {
@@ -56,17 +59,13 @@ public class ReindexStatusService {
   }
 
   @Transactional
-  public void recreateMergeStatusRecords() {
-    recreateMergeStatusRecords(null);
-  }
-
-  @Transactional
   public void recreateMergeStatusRecords(String targetTenantId) {
     log.info("recreateMergeStatusRecords:: recreating status records for reindex merge [targetTenant: {}].",
       targetTenantId);
     var statusRecords =
-      constructNewStatusRecords(ReindexEntityType.supportMergeTypes(), ReindexStatus.MERGE_IN_PROGRESS, targetTenantId);
+      constructNewStatusRecords(ReindexEntityType.supportMergeTypes(), targetTenantId);
     statusRepository.truncate();
+    statusRepository.recreateReindexStatusTrigger(isNotBlank(targetTenantId));
     statusRepository.saveReindexStatusRecords(statusRecords);
 
     // Clear cache when starting new reindex to force fresh data
@@ -136,35 +135,14 @@ public class ReindexStatusService {
   }
 
   private List<ReindexStatusEntity> constructNewStatusRecords(List<ReindexEntityType> entityTypes,
-                                                              ReindexStatus status) {
-    return constructNewStatusRecords(entityTypes, status, null);
-  }
-
-  private List<ReindexStatusEntity> constructNewStatusRecords(List<ReindexEntityType> entityTypes,
-                                                              ReindexStatus status, String targetTenantId) {
+                                                              String targetTenantId) {
     return entityTypes.stream()
       .map(entityType -> {
-        var entity = new ReindexStatusEntity(entityType, status);
+        var entity = new ReindexStatusEntity(entityType, ReindexStatus.MERGE_IN_PROGRESS);
         entity.setTargetTenantId(targetTenantId);
         return entity;
       })
       .toList();
-  }
-
-  /**
-   * Gets the earliest merge start time from all entities that participated in the merge phase.
-   * This is used for child resource timestamp-based upload during member tenant reindex,
-   * since child resources don't have their own merge start times.
-   *
-   * @return the earliest merge start timestamp, or null if not available
-   */
-  public java.sql.Timestamp getEarliestMergeStartTime() {
-    try {
-      return statusRepository.getEarliestMergeStartTime();
-    } catch (Exception e) {
-      log.debug("getEarliestMergeStartTime:: error retrieving earliest merge start time: {}", e.getMessage());
-      return null;
-    }
   }
 
   /**

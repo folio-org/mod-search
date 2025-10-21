@@ -199,7 +199,7 @@ public class UploadInstanceRepository extends UploadRangeRepository {
     var centralSchema = JdbcUtils.getSchemaName(centralTenantId, moduleMetadata);
 
     // SQL to fetch both local and relevant shared instances
-    String sql = buildConditionalInstanceQuery(centralSchema);
+    var sql = buildConditionalInstanceQuery(centralSchema);
 
     var results = jdbcTemplate.query(sql, ps -> {
       ps.setObject(1, lower);        // UUID range lower bound
@@ -217,7 +217,7 @@ public class UploadInstanceRepository extends UploadRangeRepository {
   }
 
   /**
-   * Builds SQL query to fetch instances conditionally:
+   * Builds SQL query to fetch instances conditionally.
    * - UNION of local instances and shared instances with member holdings
    * - Maintains existing JSON aggregation for holdings/items
    * - Applies UUID range filtering
@@ -262,30 +262,6 @@ public class UploadInstanceRepository extends UploadRangeRepository {
       centralSchema, // Holdings join table
       centralSchema  // Items join table
     );
-  }
-
-  /**
-   * Executes a fetch query using a different tenant's schema context.
-   * This is used during member tenant reindex to fetch from the central tenant's schema
-   * where all data has been merged.
-   */
-  private List<Map<String, Object>> fetchWithTenantContext(String targetTenantId, String lower, String upper) {
-    // Build the query using the target tenant's schema
-    var moduleMetadata = context.getFolioModuleMetadata();
-    var targetSchema = JdbcUtils.getSchemaName(targetTenantId, moduleMetadata);
-
-    // Use the standard SQL template but with the target tenant's schema
-    String sql = SELECT_SQL_TEMPLATE.formatted(
-      targetSchema + "." + entityTable(),
-      targetSchema + ".holding",
-      targetSchema + ".item",
-      IDS_RANGE_WHERE_CLAUSE
-    );
-
-    return jdbcTemplate.query(sql, ps -> {
-      ps.setObject(1, lower);
-      ps.setObject(2, upper);
-    }, rowToMapMapper());
   }
 
   @Override

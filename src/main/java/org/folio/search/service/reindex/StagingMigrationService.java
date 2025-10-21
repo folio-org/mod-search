@@ -2,6 +2,7 @@ package org.folio.search.service.reindex;
 
 import static org.folio.search.utils.JdbcUtils.getSchemaName;
 
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class StagingMigrationService {
 
+  protected static final Timestamp RESOURCE_REINDEX_TIMESTAMP = Timestamp.valueOf("2000-01-01 00:00:00");
   private static final Pattern WORK_MEM_PATTERN = Pattern.compile("^\\d+\\s*(KB|MB|GB)$");
 
   private final JdbcTemplate jdbcTemplate;
@@ -33,11 +35,6 @@ public class StagingMigrationService {
     this.context = context;
     this.reindexCommonService = reindexCommonService;
     this.reindexConfigurationProperties = reindexConfigurationProperties;
-  }
-
-  @Transactional
-  public MigrationResult migrateAllStagingTables() {
-    return migrateAllStagingTables(null);
   }
 
   @Transactional
@@ -57,7 +54,7 @@ public class StagingMigrationService {
 
       // Handle member tenant specific operations before main migration
       if (isMemberTenantRefresh) {
-        handleMemberTenantPreMigration(targetTenantId, result);
+        handleMemberTenantPreMigration(targetTenantId);
       }
 
       // Execute the main data migration phases
@@ -77,22 +74,13 @@ public class StagingMigrationService {
   private void logMigrationStart(boolean isMemberTenantRefresh, String targetTenantId) {
     if (isMemberTenantRefresh) {
       log.info("Starting tenant-specific migration for tenant: {}", targetTenantId);
-      // Note: For member tenant refresh, we need to identify stale relationships BEFORE deleting
-      // existing data, so we can properly update child resource timestamps for OpenSearch sync
     } else {
       log.info("Starting full migration of all staging tables");
     }
   }
 
-  private void handleMemberTenantPreMigration(String targetTenantId, MigrationResult result) {
-    // For member tenant refresh: identify and cleanup stale relationships BEFORE clearing main tables
-    // This ensures child resource timestamps are updated for proper OpenSearch synchronization
-    log.info("Identifying stale relationships before clearing main tables for tenant: {}", targetTenantId);
-    //todo: Could be removed since deletion by tenant id is executed, which still requires an update to cover all records
-    cleanupStaleRelationships(targetTenantId, result);
-    log.info("Stale relationship cleanup completed - child resource timestamps updated");
-
-    // Now delete existing data for this tenant from non-staging tables
+  private void handleMemberTenantPreMigration(String targetTenantId) {
+    // For member tenant refresh: simply delete existing data for this tenant from main tables
     log.info("Clearing existing tenant data from main tables for tenant: {}", targetTenantId);
     reindexCommonService.deleteRecordsByTenantId(targetTenantId);
     log.info("Main table cleanup completed for tenant: {}", targetTenantId);
@@ -102,67 +90,61 @@ public class StagingMigrationService {
     // Phase 1: Instances
     log.info("Starting instances migration...");
     migrateInstances(result);
-    log.info("Instances migration complete");
+    log.info("Instances migration completed");
 
-    // Phase 2: Holdings and instance relationships
-    log.info("Starting holdings migration...");
+    // Phase 2: Holdings and Items
+    log.info("Starting holdings/items migration...");
     migrateHoldings(result);
-    log.info("Holdings migration complete");
+    log.info("Holdings migration completed");
 
-    //todo: migrate items here, then resource tables like subjects, contributors, etc, then instance relationships
+    migrateItems(result);
+    log.info("Items migration completed");
+
+    // Phase 3: Child resources (subjects, contributors, classifications, call numbers)
+    log.info("Starting child resources migration...");
+    migrateSubjects(result);
+    log.info("Subject migration completed");
+
+    migrateContributors(result);
+    log.info("Contributor migration completed");
+
+    migrateClassifications(result);
+    log.info("Classification migration completed");
+
+    migrateCallNumbers(result);
+    log.info("Call number migration completed");
+
+    // Phase 4: Instance/item relationships
     log.info("Starting instance relationships migration...");
     migrateInstanceSubjects(result);
-    log.info("Instance-subject migration complete");
+    log.info("Instance-subject migration completed");
 
     migrateInstanceContributors(result);
     log.info("Instance-contributor migration complete");
 
     migrateInstanceClassifications(result);
-    log.info("Instance-classification migration complete");
+    log.info("Instance-classification migration completed");
 
-    // Update last_updated_date for child resources that gained new relationships
-    //todo: not needed
-    updateChildResourceTimestamps(result);
-    log.info("Child resource timestamps updated");
-
-    // Phase 3: Items
-    migrateItems(result);
-    log.info("Phase 3 complete: items migrated");
-
-    // Phase 4: Instance call numbers
     migrateInstanceCallNumbers(result);
-    log.info("Phase 4 complete: call numbers migrated");
-
-    // Phase 5: Child resources (subjects, contributors, classifications, call numbers)
-    log.info("Starting child resources migration...");
-    migrateSubjects(result);
-    log.info("Subject migration complete");
-
-    migrateContributors(result);
-    log.info("Contributor migration complete");
-
-    migrateClassifications(result);
-    log.info("Classification migration complete");
-
-    migrateCallNumbers(result);
-    log.info("Call number migration complete");
+    log.info("Instance-call numbers migration completed");
   }
 
   private void migrateInstances(MigrationResult result) {
     var schema = getSchemaName(context);
     var sql = String.format("""
-        INSERT INTO %s.instance (id, tenant_id, shared, is_bound_with, json)
-        SELECT id, tenant_id, shared, is_bound_with, json
+        INSERT INTO %s.instance (id, tenant_id, shared, is_bound_with, json, last_updated_date)
+        SELECT id, tenant_id, shared, is_bound_with, json, ?
         FROM %s.staging_instance
         ORDER BY inserted_at DESC
         ON CONFLICT (id) DO UPDATE SET
             tenant_id = EXCLUDED.tenant_id,
             shared = EXCLUDED.shared,
             is_bound_with = EXCLUDED.is_bound_with,
-            json = EXCLUDED.json
+            json = EXCLUDED.json,
+            last_updated_date = EXCLUDED.last_updated_date
         """, schema, schema);
 
-    var recordsUpserted = jdbcTemplate.update(sql);
+    var recordsUpserted = jdbcTemplate.update(sql, RESOURCE_REINDEX_TIMESTAMP);
     result.setTotalInstances(recordsUpserted);
 
     log.debug("Instance upserted: {} records", recordsUpserted);
@@ -189,17 +171,18 @@ public class StagingMigrationService {
   private void migrateItems(MigrationResult result) {
     var schema = getSchemaName(context);
     var sql = String.format("""
-        INSERT INTO %s.item (id, tenant_id, instance_id, holding_id, json)
-        SELECT id, tenant_id, instance_id, holding_id, json
+        INSERT INTO %s.item (id, tenant_id, instance_id, holding_id, json, last_updated_date)
+        SELECT id, tenant_id, instance_id, holding_id, json, ?
         FROM %s.staging_item
         ORDER BY inserted_at DESC
         ON CONFLICT (id, tenant_id) DO UPDATE SET
             instance_id = EXCLUDED.instance_id,
             holding_id = EXCLUDED.holding_id,
-            json = EXCLUDED.json
+            json = EXCLUDED.json,
+            last_updated_date = EXCLUDED.last_updated_date
         """, schema, schema);
 
-    var recordsUpserted = jdbcTemplate.update(sql);
+    var recordsUpserted = jdbcTemplate.update(sql, RESOURCE_REINDEX_TIMESTAMP);
     result.setTotalItems(recordsUpserted);
 
     log.debug("Item upserted: {} records", recordsUpserted);
@@ -273,12 +256,13 @@ public class StagingMigrationService {
     var schema = getSchemaName(context);
     var sql = String.format("""
         INSERT INTO %s.subject (id, value, authority_id, source_id, type_id, last_updated_date)
-        SELECT id, value, authority_id, source_id, type_id, last_updated_date
+        SELECT id, value, authority_id, source_id, type_id, ?
         FROM %s.staging_subject
-        ON CONFLICT (id) DO NOTHING
+        ON CONFLICT (id) DO UPDATE
+        SET last_updated_date = EXCLUDED.last_updated_date
         """, schema, schema);
 
-    var recordsUpserted = jdbcTemplate.update(sql);
+    var recordsUpserted = jdbcTemplate.update(sql, RESOURCE_REINDEX_TIMESTAMP);
     result.setTotalRelationships(result.getTotalRelationships() + recordsUpserted);
 
     log.debug("Subject upserted: {} records", recordsUpserted);
@@ -288,12 +272,13 @@ public class StagingMigrationService {
     var schema = getSchemaName(context);
     var sql = String.format("""
         INSERT INTO %s.contributor (id, name, name_type_id, authority_id, last_updated_date)
-        SELECT id, name, name_type_id, authority_id, last_updated_date
+        SELECT id, name, name_type_id, authority_id, ?
         FROM %s.staging_contributor
-        ON CONFLICT (id) DO NOTHING
+        ON CONFLICT (id) DO UPDATE
+        SET last_updated_date = EXCLUDED.last_updated_date
         """, schema, schema);
 
-    var recordsUpserted = jdbcTemplate.update(sql);
+    var recordsUpserted = jdbcTemplate.update(sql, RESOURCE_REINDEX_TIMESTAMP);
     result.setTotalRelationships(result.getTotalRelationships() + recordsUpserted);
 
     log.debug("Contributor upserted: {} records", recordsUpserted);
@@ -303,12 +288,13 @@ public class StagingMigrationService {
     var schema = getSchemaName(context);
     var sql = String.format("""
         INSERT INTO %s.classification (id, number, type_id, last_updated_date)
-        SELECT id, number, type_id, last_updated_date
+        SELECT id, number, type_id, ?
         FROM %s.staging_classification
-        ON CONFLICT (id) DO NOTHING
+        ON CONFLICT (id) DO UPDATE
+        SET last_updated_date = EXCLUDED.last_updated_date
         """, schema, schema);
 
-    var recordsUpserted = jdbcTemplate.update(sql);
+    var recordsUpserted = jdbcTemplate.update(sql, RESOURCE_REINDEX_TIMESTAMP);
     result.setTotalRelationships(result.getTotalRelationships() + recordsUpserted);
 
     log.debug("Classification upserted: {} records", recordsUpserted);
@@ -319,12 +305,13 @@ public class StagingMigrationService {
     var sql = String.format("""
         INSERT INTO %s.call_number
         (id, call_number, call_number_prefix, call_number_suffix, call_number_type_id, last_updated_date)
-        SELECT id, call_number, call_number_prefix, call_number_suffix, call_number_type_id, last_updated_date
+        SELECT id, call_number, call_number_prefix, call_number_suffix, call_number_type_id, ?
         FROM %s.staging_call_number
-        ON CONFLICT (id) DO NOTHING
+        ON CONFLICT (id) DO UPDATE
+        SET last_updated_date = EXCLUDED.last_updated_date
         """, schema, schema);
 
-    var recordsUpserted = jdbcTemplate.update(sql);
+    var recordsUpserted = jdbcTemplate.update(sql, RESOURCE_REINDEX_TIMESTAMP);
     result.setTotalRelationships(result.getTotalRelationships() + recordsUpserted);
 
     log.debug("Call number upserted: {} records", recordsUpserted);
@@ -346,298 +333,6 @@ public class StagingMigrationService {
     jdbcTemplate.execute(String.format("ANALYZE %s.staging_classification", schema));
     jdbcTemplate.execute(String.format("ANALYZE %s.staging_call_number", schema));
     log.info("Staging tables analyzed");
-  }
-
-  /**
-   * Updates last_updated_date for child resources that have new relationships from staging tables.
-   * Uses efficient JOIN-based updates to identify affected child resources with optimal performance.
-   * This ensures child resources with new member tenant relationships are included in timestamp-based upload.
-   */
-  private void updateChildResourceTimestamps(MigrationResult result) {
-    var schema = getSchemaName(context);
-    var startTime = System.currentTimeMillis();
-
-    // Update subjects that gained new relationships using JOIN approach
-    var subjectUpdateSql = String.format("""
-        UPDATE %s.subject s
-        SET last_updated_date = CURRENT_TIMESTAMP
-        FROM %s.staging_instance_subject sis
-        WHERE s.id = sis.subject_id
-        """, schema, schema);
-
-    var subjectsUpdated = jdbcTemplate.update(subjectUpdateSql);
-    log.debug("Updated {} subjects with new relationships", subjectsUpdated);
-
-    // Update contributors that gained new relationships using JOIN approach
-    var contributorUpdateSql = String.format("""
-        UPDATE %s.contributor c
-        SET last_updated_date = CURRENT_TIMESTAMP
-        FROM %s.staging_instance_contributor sic
-        WHERE c.id = sic.contributor_id
-        """, schema, schema);
-
-    var contributorsUpdated = jdbcTemplate.update(contributorUpdateSql);
-    log.debug("Updated {} contributors with new relationships", contributorsUpdated);
-
-    // Update classifications that gained new relationships using JOIN approach
-    var classificationUpdateSql = String.format("""
-        UPDATE %s.classification cl
-        SET last_updated_date = CURRENT_TIMESTAMP
-        FROM %s.staging_instance_classification sicl
-        WHERE cl.id = sicl.classification_id
-        """, schema, schema);
-
-    var classificationsUpdated = jdbcTemplate.update(classificationUpdateSql);
-    log.debug("Updated {} classifications with new relationships", classificationsUpdated);
-
-    // Update call numbers that gained new relationships using JOIN approach
-    var callNumberUpdateSql = String.format("""
-        UPDATE %s.call_number cn
-        SET last_updated_date = CURRENT_TIMESTAMP
-        FROM %s.staging_instance_call_number sicn
-        WHERE cn.id = sicn.call_number_id
-        """, schema, schema);
-
-    var callNumbersUpdated = jdbcTemplate.update(callNumberUpdateSql);
-    log.debug("Updated {} call numbers with new relationships", callNumbersUpdated);
-
-    var duration = System.currentTimeMillis() - startTime;
-    var totalUpdated = subjectsUpdated + contributorsUpdated + classificationsUpdated + callNumbersUpdated;
-
-    log.info("Child resource timestamp updates completed "
-        + "in {} ms: {} subjects, {} contributors, {} classifications, {} call numbers (total: {})",
-        duration, subjectsUpdated, contributorsUpdated, classificationsUpdated, callNumbersUpdated, totalUpdated);
-
-    // Track in migration result for monitoring
-    result.setChildResourceTimestampUpdates(totalUpdated);
-  }
-
-  /**
-   * Cleans up stale relationships for member tenant refreshes by identifying records
-   * in main tables that don't exist in staging tables, then updating child resource
-   * timestamps and deleting stale relationship records.
-   * 
-   * IMPORTANT: This method must be called BEFORE deleteRecordsByTenantId() so that
-   * the comparison between main tables (containing existing data) and staging tables
-   * (containing fresh data) can properly identify stale relationships and update
-   * child resource timestamps for OpenSearch synchronization.
-   */
-  private void cleanupStaleRelationships(String targetTenantId, MigrationResult result) {
-    var startTime = System.currentTimeMillis();
-    log.info("Starting stale relationship cleanup for tenant: {}", targetTenantId);
-
-    try {
-      // Clean up each relationship type
-      cleanupStaleSubjectRelationships(targetTenantId, result);
-      cleanupStaleContributorRelationships(targetTenantId, result);
-      cleanupStaleClassificationRelationships(targetTenantId, result);
-      cleanupStaleCallNumberRelationships(targetTenantId, result);
-
-      var duration = System.currentTimeMillis() - startTime;
-      log.info("Stale relationship cleanup completed for "
-          + "tenant {} in {} ms: {} subjects, {} contributors, {} classifications, {} call numbers",
-          targetTenantId, duration,
-          result.getStaleSubjectCleanups(), result.getStaleContributorCleanups(),
-          result.getStaleClassificationCleanups(), result.getStaleCallNumberCleanups());
-
-    } catch (Exception e) {
-      log.error("Stale relationship cleanup failed for tenant: {}", targetTenantId, e);
-      throw new ReindexException("Failed to cleanup stale relationships for tenant: " + targetTenantId, e);
-    }
-  }
-
-  private void cleanupStaleSubjectRelationships(String targetTenantId, MigrationResult result) {
-    var schema = getSchemaName(context);
-
-    // Update timestamps for subjects that have stale relationships
-    var updateTimestampsSql = String.format("""
-        UPDATE %s.subject s
-        SET last_updated_date = CURRENT_TIMESTAMP
-        FROM (
-            SELECT main.subject_id
-            FROM %s.instance_subject AS main
-            LEFT JOIN %s.staging_instance_subject AS staging
-              ON main.instance_id = staging.instance_id
-              AND main.subject_id = staging.subject_id
-              AND main.tenant_id = staging.tenant_id
-            WHERE main.tenant_id = ?
-              AND staging.instance_id IS NULL
-        ) AS stale
-        WHERE s.id = stale.subject_id
-        """, schema, schema, schema);
-
-    var timestampsUpdated = jdbcTemplate.update(updateTimestampsSql, targetTenantId);
-
-    // Delete stale subject relationships
-    var deleteStaleRelationshipsSql = String.format("""
-        DELETE FROM %s.instance_subject main
-        USING (
-          SELECT main.instance_id, main.subject_id
-          FROM %s.instance_subject AS main
-          LEFT JOIN %s.staging_instance_subject AS staging
-            ON main.instance_id = staging.instance_id
-            AND main.subject_id = staging.subject_id
-            AND main.tenant_id = staging.tenant_id
-          WHERE main.tenant_id = ?
-            AND staging.instance_id IS NULL
-        ) AS stale
-        WHERE main.tenant_id = ?
-          AND main.instance_id = stale.instance_id
-          AND main.subject_id = stale.subject_id
-        """, schema, schema, schema);
-
-    var relationshipsDeleted = jdbcTemplate.update(deleteStaleRelationshipsSql, targetTenantId, targetTenantId);
-
-    result.setStaleSubjectCleanups(relationshipsDeleted);
-    log.debug("Cleaned up {} stale subject relationships, updated {} subject timestamps",
-        relationshipsDeleted, timestampsUpdated);
-  }
-
-  private void cleanupStaleContributorRelationships(String targetTenantId, MigrationResult result) {
-    var schema = getSchemaName(context);
-
-    // Update timestamps for contributors that have stale relationships
-    var updateTimestampsSql = String.format("""
-        UPDATE %s.contributor c
-        SET last_updated_date = CURRENT_TIMESTAMP
-        FROM (
-            SELECT main.contributor_id
-            FROM %s.instance_contributor AS main
-            LEFT JOIN %s.staging_instance_contributor AS staging
-              ON main.instance_id = staging.instance_id
-              AND main.contributor_id = staging.contributor_id
-              AND main.type_id = staging.type_id
-              AND main.tenant_id = staging.tenant_id
-            WHERE main.tenant_id = ?
-              AND staging.instance_id IS NULL
-        ) AS stale
-        WHERE c.id = stale.contributor_id
-        """, schema, schema, schema);
-
-    var timestampsUpdated = jdbcTemplate.update(updateTimestampsSql, targetTenantId);
-
-    // Delete stale contributor relationships
-    var deleteStaleRelationshipsSql = String.format("""
-        DELETE FROM %s.instance_contributor main
-        USING (
-          SELECT main.instance_id, main.contributor_id, main.type_id
-          FROM %s.instance_contributor AS main
-          LEFT JOIN %s.staging_instance_contributor AS staging
-            ON main.instance_id = staging.instance_id
-            AND main.contributor_id = staging.contributor_id
-            AND main.type_id = staging.type_id
-            AND main.tenant_id = staging.tenant_id
-          WHERE main.tenant_id = ?
-            AND staging.instance_id IS NULL
-        ) AS stale
-        WHERE main.tenant_id = ?
-          AND main.instance_id = stale.instance_id
-          AND main.contributor_id = stale.contributor_id
-          AND main.type_id = stale.type_id
-        """, schema, schema, schema);
-
-    var relationshipsDeleted = jdbcTemplate.update(deleteStaleRelationshipsSql, targetTenantId, targetTenantId);
-
-    result.setStaleContributorCleanups(relationshipsDeleted);
-    log.debug("Cleaned up {} stale contributor relationships, updated {} contributor timestamps",
-        relationshipsDeleted, timestampsUpdated);
-  }
-
-  private void cleanupStaleClassificationRelationships(String targetTenantId, MigrationResult result) {
-    var schema = getSchemaName(context);
-
-    // Update timestamps for classifications that have stale relationships
-    var updateTimestampsSql = String.format("""
-        UPDATE %s.classification cl
-        SET last_updated_date = CURRENT_TIMESTAMP
-        FROM (
-            SELECT main.classification_id
-            FROM %s.instance_classification AS main
-            LEFT JOIN %s.staging_instance_classification AS staging
-              ON main.instance_id = staging.instance_id
-              AND main.classification_id = staging.classification_id
-              AND main.tenant_id = staging.tenant_id
-            WHERE main.tenant_id = ?
-              AND staging.instance_id IS NULL
-        ) AS stale
-        WHERE cl.id = stale.classification_id
-        """, schema, schema, schema);
-
-    var timestampsUpdated = jdbcTemplate.update(updateTimestampsSql, targetTenantId);
-
-    // Delete stale classification relationships
-    var deleteStaleRelationshipsSql = String.format("""
-        DELETE FROM %s.instance_classification main
-        USING (
-          SELECT main.instance_id, main.classification_id
-          FROM %s.instance_classification AS main
-          LEFT JOIN %s.staging_instance_classification AS staging
-            ON main.instance_id = staging.instance_id
-            AND main.classification_id = staging.classification_id
-            AND main.tenant_id = staging.tenant_id
-          WHERE main.tenant_id = ?
-            AND staging.instance_id IS NULL
-        ) AS stale
-        WHERE main.tenant_id = ?
-          AND main.instance_id = stale.instance_id
-          AND main.classification_id = stale.classification_id
-        """, schema, schema, schema);
-
-    var relationshipsDeleted = jdbcTemplate.update(deleteStaleRelationshipsSql, targetTenantId, targetTenantId);
-
-    result.setStaleClassificationCleanups(relationshipsDeleted);
-    log.debug("Cleaned up {} stale classification relationships, updated {} classification timestamps",
-        relationshipsDeleted, timestampsUpdated);
-  }
-
-  private void cleanupStaleCallNumberRelationships(String targetTenantId, MigrationResult result) {
-    var schema = getSchemaName(context);
-
-    // Update timestamps for call numbers that have stale relationships
-    var updateTimestampsSql = String.format("""
-        UPDATE %s.call_number cn
-        SET last_updated_date = CURRENT_TIMESTAMP
-        FROM (
-            SELECT main.call_number_id
-            FROM %s.instance_call_number AS main
-            LEFT JOIN %s.staging_instance_call_number AS staging
-              ON main.call_number_id = staging.call_number_id
-              AND main.item_id = staging.item_id
-              AND main.instance_id = staging.instance_id
-              AND main.tenant_id = staging.tenant_id
-            WHERE main.tenant_id = ?
-              AND staging.instance_id IS NULL
-        ) AS stale
-        WHERE cn.id = stale.call_number_id
-        """, schema, schema, schema);
-
-    var timestampsUpdated = jdbcTemplate.update(updateTimestampsSql, targetTenantId);
-
-    // Delete stale call number relationships
-    var deleteStaleRelationshipsSql = String.format("""
-        DELETE FROM %s.instance_call_number main
-        USING (
-          SELECT main.call_number_id, main.item_id, main.instance_id
-          FROM %s.instance_call_number AS main
-          LEFT JOIN %s.staging_instance_call_number AS staging
-            ON main.call_number_id = staging.call_number_id
-            AND main.item_id = staging.item_id
-            AND main.instance_id = staging.instance_id
-            AND main.tenant_id = staging.tenant_id
-          WHERE main.tenant_id = ?
-            AND staging.instance_id IS NULL
-        ) AS stale
-        WHERE main.tenant_id = ?
-          AND main.call_number_id = stale.call_number_id
-          AND main.item_id = stale.item_id
-          AND main.instance_id = stale.instance_id
-        """, schema, schema, schema);
-
-    var relationshipsDeleted = jdbcTemplate.update(deleteStaleRelationshipsSql, targetTenantId, targetTenantId);
-
-    result.setStaleCallNumberCleanups(relationshipsDeleted);
-    log.debug("Cleaned up {} stale call number relationships, updated {} call number timestamps",
-        relationshipsDeleted, timestampsUpdated);
   }
 
   public void cleanupStagingTables() {

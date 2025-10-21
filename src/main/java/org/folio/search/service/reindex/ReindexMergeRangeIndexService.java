@@ -34,20 +34,21 @@ public class ReindexMergeRangeIndexService {
   private final InventoryService inventoryService;
   private final ReindexConfigurationProperties reindexConfig;
   private final StagingMigrationService migrationService;
-  private int mergeRangeCounter = 0;
+  private int mergeRangeCounter;
 
   private InstanceChildrenResourceService instanceChildrenResourceService;
 
   public ReindexMergeRangeIndexService(List<MergeRangeRepository> repositories,
                                        InventoryService inventoryService,
                                        ReindexConfigurationProperties reindexConfig,
-                                       @Autowired(required = false) StagingMigrationService migrationService) {
+                                       StagingMigrationService migrationService) {
     this.repositories = repositories.stream()
       .collect(Collectors.toMap(MergeRangeRepository::entityType, Function.identity()));
     this.inventoryService = inventoryService;
     this.reindexConfig = reindexConfig;
     this.migrationService = migrationService;
     this.instanceChildrenResourceService = null;
+    this.mergeRangeCounter = 0;
   }
 
   @Autowired(required = false)
@@ -115,10 +116,10 @@ public class ReindexMergeRangeIndexService {
     }
 
     // Periodically log staging table stats
-    mergeRangeCounter++; //todo: will not be indicative on multiple instances. Maybe at least remove it from the log
+    mergeRangeCounter++;
     if (mergeRangeCounter % STATS_LOG_INTERVAL == 0) {
-      var stats = getStagingTableStats();
-      log.info("Staging table stats after {} merge ranges: {}", mergeRangeCounter, stats);
+      var stats = migrationService.getStagingTableStats();
+      log.info("saveEntities:: Staging table stats: {}", stats);
     }
   }
 
@@ -164,41 +165,26 @@ public class ReindexMergeRangeIndexService {
   }
 
   public void performStagingMigration(String targetTenantId) {
-    if (migrationService != null) {
-      // Log staging table stats before migration
-      var statsBeforeMigration = getStagingTableStats();
-      log.info("Staging table stats before migration: {}", statsBeforeMigration);
+    // Log staging table stats before migration
+    var statsBeforeMigration = migrationService.getStagingTableStats();
+    log.info("Staging table stats before migration: {}", statsBeforeMigration);
 
-      if (targetTenantId != null) {
-        log.info("Starting tenant-specific migration of staging tables for tenant: {}", targetTenantId);
-        var result = migrationService.migrateAllStagingTables(targetTenantId);
-        log.info("Tenant-specific migration completed for {}: instances={}, holdings={}, "
-            + "items={}, relationships={}",
-          targetTenantId, result.getTotalInstances(), result.getTotalHoldings(),
-          result.getTotalItems(), result.getTotalRelationships());
-        // Log staging table stats after migration (should be empty)
-        var statsAfterMigration = getStagingTableStats();
-        log.info("Staging table stats after migration: {}", statsAfterMigration);
-      } else {
-        log.info("Consortium full refresh - staging tables not used, skipping migration");
-      }
+    if (targetTenantId != null) {
+      log.info("Starting tenant-specific migration of staging tables for tenant: {}", targetTenantId);
+      var result = migrationService.migrateAllStagingTables(targetTenantId);
+      log.info("Tenant-specific migration completed for {}: instances={}, holdings={}, "
+          + "items={}, relationships={}",
+        targetTenantId, result.getTotalInstances(), result.getTotalHoldings(),
+        result.getTotalItems(), result.getTotalRelationships());
+      // Log staging table stats after migration (should be empty)
+      var statsAfterMigration = migrationService.getStagingTableStats();
+      log.info("Staging table stats after migration: {}", statsAfterMigration);
     } else {
-      log.debug("Migration service not available");
+      log.info("Consortium full refresh - staging tables not used, skipping migration");
     }
-  }
-
-  public Map<String, Long> getStagingTableStats() {
-    if (migrationService != null) {
-      return migrationService.getStagingTableStats();
-    }
-    return Map.of();
   }
 
   public void cleanupStagingTables() {
-    if (migrationService != null) {
-      migrationService.cleanupStagingTables();
-    } else {
-      log.debug("Migration service not available for staging table cleanup");
-    }
+    migrationService.cleanupStagingTables();
   }
 }

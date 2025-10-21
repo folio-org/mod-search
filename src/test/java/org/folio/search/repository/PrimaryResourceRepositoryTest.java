@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
+import static org.folio.support.TestConstants.INDEX_NAME;
 import static org.folio.support.utils.TestUtils.searchDocumentBody;
 import static org.folio.support.utils.TestUtils.searchDocumentBodyToDelete;
 import static org.mockito.ArgumentMatchers.any;
@@ -17,6 +18,7 @@ import static org.opensearch.client.RequestOptions.DEFAULT;
 
 import java.io.IOException;
 import java.util.List;
+import org.folio.search.configuration.properties.IndexManagementConfigurationProperties;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.spring.testing.type.UnitTest;
@@ -32,6 +34,9 @@ import org.opensearch.action.bulk.BulkResponse;
 import org.opensearch.action.delete.DeleteRequest;
 import org.opensearch.action.index.IndexRequest;
 import org.opensearch.client.RestHighLevelClient;
+import org.opensearch.index.query.BoolQueryBuilder;
+import org.opensearch.index.reindex.BulkByScrollResponse;
+import org.opensearch.index.reindex.DeleteByQueryRequest;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -43,6 +48,10 @@ class PrimaryResourceRepositoryTest {
   private RestHighLevelClient restHighLevelClient;
   @Mock
   private IndexNameProvider indexNameProvider;
+  @Mock
+  private IndexRepository indexRepository;
+  @Mock
+  private IndexManagementConfigurationProperties indexManagementConfig;
 
   @BeforeEach
   void setUp() {
@@ -96,5 +105,42 @@ class PrimaryResourceRepositoryTest {
       .hasCauseExactlyInstanceOf(IOException.class)
       .hasMessage("Failed to perform elasticsearch request "
         + "[index=index_name, type=bulkApi, message: err]");
+  }
+
+  @Test
+  void deleteDocumentsByTenantId_positive() throws IOException {
+    var deleteByQueryRequestCaptor = ArgumentCaptor.forClass(DeleteByQueryRequest.class);
+    var bulkByScrollResponse = mock(BulkByScrollResponse.class);
+
+    when(indexRepository.indexExists(any())).thenReturn(true);
+    when(bulkByScrollResponse.getDeleted()).thenReturn(5L);
+    when(restHighLevelClient.deleteByQuery(deleteByQueryRequestCaptor.capture(), eq(DEFAULT)))
+      .thenReturn(bulkByScrollResponse);
+
+    var response = resourceRepository.deleteConsortiumDocumentsByTenantId(INDEX_NAME, "test_tenant");
+
+    assertThat(response).isEqualTo(getSuccessIndexOperationResponse());
+    var capturedRequest = deleteByQueryRequestCaptor.getValue();
+    assertThat(capturedRequest.indices()).containsExactly(INDEX_NAME);
+
+    // Verify query structure - should have bool query with must and must_not clauses
+    var query = capturedRequest.getSearchRequest().source().query();
+    assertThat(query).isInstanceOf(BoolQueryBuilder.class);
+    var boolQuery = (BoolQueryBuilder) query;
+    assertThat(boolQuery.must()).hasSize(1);
+    assertThat(boolQuery.mustNot()).hasSize(1);
+  }
+
+  @Test
+  void deleteDocumentsByTenantId_negative_throwsException() throws IOException {
+    when(indexRepository.indexExists(any())).thenReturn(true);
+    when(restHighLevelClient.deleteByQuery(any(DeleteByQueryRequest.class), eq(DEFAULT)))
+      .thenThrow(new IOException("delete error"));
+
+    assertThatThrownBy(() -> resourceRepository.deleteConsortiumDocumentsByTenantId(INDEX_NAME, "test_tenant"))
+      .isInstanceOf(SearchOperationException.class)
+      .hasCauseExactlyInstanceOf(IOException.class)
+      .hasMessage("Failed to perform elasticsearch request "
+        + "[index=folio_instance_test_tenant, type=deleteByQueryApi, message: delete error]");
   }
 }

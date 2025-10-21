@@ -160,10 +160,6 @@ public class ReindexMergeRangeIndexService {
     };
   }
 
-  public void performStagingMigration() {
-    performStagingMigration(null);
-  }
-
   public void performStagingMigration(String targetTenantId) {
     // Log staging table stats before migration
     var statsBeforeMigration = migrationService.getStagingTableStats();

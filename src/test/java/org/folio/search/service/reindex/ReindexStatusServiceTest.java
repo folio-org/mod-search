@@ -158,6 +158,7 @@ class ReindexStatusServiceTest {
 
     // assert
     verify(statusRepository).truncate();
+    verify(statusRepository).recreateReindexStatusTrigger(false);
     verify(statusRepository).saveReindexStatusRecords(reindexStatusEntitiesCaptor.capture());
     var savedEntities = reindexStatusEntitiesCaptor.getValue();
     assertThat(savedEntities)
@@ -178,5 +179,67 @@ class ReindexStatusServiceTest {
 
     // assert
     verify(statusRepository).setMergeInProgress(entityTypes);
+  }
+
+  @Test
+  void recreateMergeStatusRecords_withTargetTenantId() {
+    // given
+    var targetTenantId = "member_tenant";
+
+    // act
+    service.recreateMergeStatusRecords(targetTenantId);
+
+    // assert
+    verify(statusRepository).truncate();
+    verify(statusRepository).recreateReindexStatusTrigger(true);
+    verify(statusRepository).saveReindexStatusRecords(reindexStatusEntitiesCaptor.capture());
+
+    var savedEntities = reindexStatusEntitiesCaptor.getValue();
+    assertThat(savedEntities)
+      .hasSize(ReindexEntityType.supportMergeTypes().size())
+      .allMatch(entity -> targetTenantId.equals(entity.getTargetTenantId()),
+        "All entities should have targetTenantId set");
+  }
+
+  @Test
+  void recreateUploadStatusRecord_shouldPreserveTargetTenantId() {
+    // given
+    var targetTenantId = "member_tenant";
+    when(statusRepository.getTargetTenantId()).thenReturn(targetTenantId);
+
+    // act
+    service.recreateUploadStatusRecord(INSTANCE);
+
+    // assert
+    verify(statusRepository).getTargetTenantId();
+    verify(statusRepository).delete(INSTANCE);
+    verify(statusRepository).saveReindexStatusRecords(reindexStatusEntitiesCaptor.capture());
+
+    var savedEntities = reindexStatusEntitiesCaptor.getValue();
+    assertThat(savedEntities)
+      .hasSize(1)
+      .first()
+      .satisfies(entity -> assertThat(entity.getEntityType()).isEqualTo(INSTANCE))
+      .satisfies(entity -> assertThat(entity.getStatus()).isEqualTo(ReindexStatus.UPLOAD_IN_PROGRESS))
+      .satisfies(entity -> assertThat(entity.getTargetTenantId()).isEqualTo(targetTenantId));
+  }
+
+  @Test
+  void recreateUploadStatusRecord_whenNoExistingTargetTenantId_shouldSetNull() {
+    // given
+    when(statusRepository.getTargetTenantId()).thenThrow(new RuntimeException("No data"));
+
+    // act
+    service.recreateUploadStatusRecord(INSTANCE);
+
+    // assert
+    verify(statusRepository).delete(INSTANCE);
+    verify(statusRepository).saveReindexStatusRecords(reindexStatusEntitiesCaptor.capture());
+
+    var savedEntities = reindexStatusEntitiesCaptor.getValue();
+    assertThat(savedEntities)
+      .hasSize(1)
+      .first()
+      .satisfies(entity -> assertThat(entity.getTargetTenantId()).isNull());
   }
 }

@@ -10,5 +10,4 @@ public class MigrationResult {
   private long totalHoldings;
   private long totalItems;
   private long totalRelationships;
-  private long childResourceTimestampUpdates;
 }

@@ -11,7 +11,6 @@ import static org.opensearch.common.xcontent.XContentType.JSON;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.FolioCreateIndexResponse;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.opensearch.action.admin.indices.delete.DeleteIndexRequest;
@@ -29,7 +28,6 @@ import org.springframework.stereotype.Repository;
 /**
  * Search resource repository with set of operation to create/modify/update index settings and mappings.
  */
-@Log4j2
 @Repository
 @RequiredArgsConstructor
 public class IndexRepository {

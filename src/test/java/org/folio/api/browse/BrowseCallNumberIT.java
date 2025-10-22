@@ -221,7 +221,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
 
       // forward browsing from the end of the result set
       arguments(9, forwardQuery, BrowseOptionType.ALL, callNumbers.get(11).fullCallNumber(), 5,
-        cnBrowseResult(null, null, 100, null)),
+        cnBrowseResult(null, null, 100, emptyList())),
 
       // backward browsing from the middle of the result set
       arguments(10, backwardQuery, BrowseOptionType.ALL, callNumbers.get(22).fullCallNumber(), 5,
@@ -235,7 +235,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
 
       // backward browsing from the end of the result set
       arguments(11, backwardQuery, BrowseOptionType.ALL, callNumbers.get(50).fullCallNumber(), 5,
-        cnBrowseResult(null, null, 100, null))
+        cnBrowseResult(null, null, 100, emptyList()))
     );
   }
 

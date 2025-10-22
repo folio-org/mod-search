@@ -4,6 +4,7 @@ properties:
   facets:
     description: "Map with found facet items, key is the facet name, value - facet object with found values"
     type: "object"
+    x-field-extra-annotation: "@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)"
     additionalProperties:
       $ref: "../../schemas/entity/facet.yaml"
   totalRecords:

@@ -2,6 +2,7 @@ type: object
 properties:
   configs:
     type: array
+    x-field-extra-annotation: "@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)"
     items:
       $ref: '../../schemas/entity/browseConfig.yaml'
   totalRecords:

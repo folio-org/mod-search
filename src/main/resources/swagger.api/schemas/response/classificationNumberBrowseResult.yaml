@@ -12,6 +12,7 @@ properties:
     description: Next value for browsing forward
   items:
     type: array
+    x-field-extra-annotation: "@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)"
     description: List of classification number browse items
     items:
       $ref: "classificationNumberBrowseItem.yaml"

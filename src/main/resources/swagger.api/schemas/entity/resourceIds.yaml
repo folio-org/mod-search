@@ -6,6 +6,7 @@ properties:
     description: "Amount of resource ids found"
   ids:
     type: array
+    x-field-extra-annotation: "@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)"
     description: "List of resource ids"
     items:
       $ref: "resourceId.yaml"

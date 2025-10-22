@@ -3,6 +3,7 @@ description: Feature configs response per tenant
 properties:
   features:
     type: array
+    x-field-extra-annotation: "@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)"
     description: Configured features per tenant
     items:
       $ref: "featureConfig.yaml"

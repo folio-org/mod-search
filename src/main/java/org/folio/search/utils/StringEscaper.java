@@ -1,6 +1,6 @@
 package org.folio.search.utils;
 
-import java.util.Map;
+import java.util.regex.Pattern;
 import lombok.experimental.UtilityClass;
 
 /**
@@ -9,12 +9,12 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class StringEscaper {
 
-  private static final Map<String, String> ESCAPE_MAP = Map.of(
-    "\\", "\u0001"
-  );
+  public static final Pattern ESCAPE_PATTERN = Pattern.compile("\\\\(?!\")");
+  public static final String REPLACEMENT = "\u0001";
 
   /**
-   * Escapes backslashes in the input string by replacing them with \u0001.
+   * Escapes backslashes in the input string by replacing them with \u0001,
+   * except when the backslash is followed by a double quote.
    *
    * @param input the string to escape, may be null
    * @return the escaped string, or null if input is null
@@ -23,14 +23,10 @@ public class StringEscaper {
     if (input == null) {
       return null;
     }
-    if (input.contains("\u0001")) {
+    if (input.contains(REPLACEMENT)) {
       throw new IllegalArgumentException("Input contains reserved control character \\u0001");
     }
-    String result = input;
-    for (var entry : ESCAPE_MAP.entrySet()) {
-      result = result.replace(entry.getKey(), entry.getValue());
-    }
-    return result;
+    return ESCAPE_PATTERN.matcher(input).replaceAll(REPLACEMENT);
   }
 
   /**
@@ -43,10 +39,6 @@ public class StringEscaper {
     if (input == null) {
       return null;
     }
-    String result = input;
-    for (var entry : ESCAPE_MAP.entrySet()) {
-      result = result.replace(entry.getValue(), entry.getKey());
-    }
-    return result;
+    return input.replace(REPLACEMENT, "\\");
   }
 }

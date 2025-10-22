@@ -149,7 +149,7 @@ class BrowseControllerTest {
     mockMvc.perform(requestBuilder)
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.totalRecords", is(0)))
-      .andExpect(jsonPath("$.items").doesNotExist());
+      .andExpect(jsonPath("$.items").exists());
   }
 
   @Test

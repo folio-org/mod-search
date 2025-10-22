@@ -1,5 +1,6 @@
 package org.folio.api.browse;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.authorityBrowsePath;
@@ -290,7 +291,7 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
 
       arguments(forwardQuery, "ZZ", 10, new AuthorityBrowseResult()
         .totalRecords(31).prev(null).next(null)
-        .items(null)),
+        .items(emptyList())),
 
       arguments(forwardIncludingQuery, "Brian K. Vaughan", 5, new AuthorityBrowseResult()
         .totalRecords(31).prev("Brian K. Vaughan").next("Eruption of Vesuvius")
@@ -338,7 +339,7 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
 
       arguments(backwardQuery, "A", 10, new AuthorityBrowseResult()
         .totalRecords(31).prev(null).next(null)
-        .items(null)),
+        .items(emptyList())),
 
       arguments(backwardIncludingQuery, "Brian K. Vaughan", 5, new AuthorityBrowseResult()
         .totalRecords(31).prev(null).next("Brian K. Vaughan")

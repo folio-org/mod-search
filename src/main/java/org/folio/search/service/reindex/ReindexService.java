@@ -203,7 +203,7 @@ public class ReindexService {
         }
       }, reindexUploadExecutor).handle((unused, throwable) -> {
         if (throwable != null) {
-          log.error("reindex upload process failed: {}", throwable.getMessage());
+          log.error("submitUploadReindex:: reindex upload process failed: {}", throwable.getMessage());
           statusService.updateReindexUploadFailed(entityType);
         }
         return unused;

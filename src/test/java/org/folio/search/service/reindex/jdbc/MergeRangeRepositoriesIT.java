@@ -105,13 +105,13 @@ class MergeRangeRepositoriesIT {
       .are(new Condition<>(range -> range.getEntityType() == ReindexEntityType.HOLDINGS, "holding range"))
       .extracting(MergeRangeEntity::getId, MergeRangeEntity::getTenantId)
       .containsExactly(tuple(UUID.fromString("b7df83a1-8b15-46c1-9a4c-9d2dbb3cf4d6"), "consortium"),
-        tuple(UUID.fromString("dfb20d52-7f1f-4b5b-a492-2e47d2c0ac59"), "member_tenant"));
+        tuple(UUID.fromString("dfb20d52-7f1f-4b5b-a492-2e47d2c0ac59"), MEMBER_TENANT_ID));
 
     assertThat(rangesItem)
       .hasSize(1)
       .are(new Condition<>(range -> range.getEntityType() == ReindexEntityType.ITEM, "item range"))
       .extracting(MergeRangeEntity::getId, MergeRangeEntity::getTenantId)
-      .containsExactly(tuple(UUID.fromString("2f23b9fa-9e1a-44ff-a30f-61ec5f3adcc8"), "member_tenant"));
+      .containsExactly(tuple(UUID.fromString("2f23b9fa-9e1a-44ff-a30f-61ec5f3adcc8"), MEMBER_TENANT_ID));
 
     assertThat(rangesInstance)
       .hasSize(1)

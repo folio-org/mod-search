@@ -47,7 +47,7 @@ public class StagingMigrationService {
       // Set work_mem for this transaction to optimize query performance
       setWorkMem();
 
-      logMigrationStart(isMemberTenantRefresh, targetTenantId);
+      log.info("migrateAllStagingTables:: Starting migration for: [targetTenantId: {}]", targetTenantId);
       
       // Analyze staging tables for better query performance
       analyzeStagingTables();
@@ -63,74 +63,69 @@ public class StagingMigrationService {
       var duration = System.currentTimeMillis() - startTime;
       result.setDuration(duration);
 
-      log.info("Migration complete in {} ms: {}", duration, result);
+      log.info("migrateAllStagingTables:: Migration complete in {} ms: {} for targetTenantId: {}",
+        duration, result, targetTenantId);
       return result;
     } catch (ReindexException ex) {
-      log.error("Migration failed due to reindex exception", ex);
+      log.error("migrateAllStagingTables:: Migration failed due to reindex exception for targetTenantId {}",
+        targetTenantId, ex);
       var message = "Failed to migrate staging tables: " + ex.getMessage();
       throw new ReindexException(message, ex.getCause());
     } catch (Exception e) {
-      log.error("Migration failed", e);
+      log.error("migrateAllStagingTables:: Migration failed for targetTenantId {}", targetTenantId, e);
       throw new ReindexException("Failed to migrate staging tables", e);
-    }
-  }
-
-  private void logMigrationStart(boolean isMemberTenantRefresh, String targetTenantId) {
-    if (isMemberTenantRefresh) {
-      log.info("Starting tenant-specific migration for tenant: {}", targetTenantId);
-    } else {
-      log.info("Starting full migration of all staging tables");
     }
   }
 
   private void handleMemberTenantPreMigration(String targetTenantId) {
     // For member tenant refresh: simply delete existing data for this tenant from main tables
-    log.info("Clearing existing tenant data from main tables for tenant: {}", targetTenantId);
+    log.info("handleMemberTenantPreMigration:: Clearing existing tenant data from main tables for tenant: {}",
+      targetTenantId);
     reindexCommonService.deleteRecordsByTenantId(targetTenantId);
-    log.info("Main table cleanup completed for tenant: {}", targetTenantId);
+    log.info("handleMemberTenantPreMigration:: Main table cleanup completed for tenant: {}", targetTenantId);
   }
 
   private void executeMainMigrationPhases(MigrationResult result) {
     // Phase 1: Instances
-    log.info("Starting instances migration...");
+    log.info("executeMainMigrationPhases:: Starting instances migration...");
     migrateInstances(result);
-    log.info("Instances migration completed");
+    log.info("executeMainMigrationPhases:: Instances migration completed");
 
     // Phase 2: Holdings and Items
-    log.info("Starting holdings/items migration...");
+    log.info("executeMainMigrationPhases:: Starting holdings/items migration...");
     migrateHoldings(result);
-    log.info("Holdings migration completed");
+    log.info("executeMainMigrationPhases:: Holdings migration completed");
 
     migrateItems(result);
-    log.info("Items migration completed");
+    log.info("executeMainMigrationPhases:: Items migration completed");
 
     // Phase 3: Child resources (subjects, contributors, classifications, call numbers)
-    log.info("Starting child resources migration...");
+    log.info("executeMainMigrationPhases:: Starting child resources migration...");
     migrateSubjects(result);
-    log.info("Subject migration completed");
+    log.info("executeMainMigrationPhases:: Subject migration completed");
 
     migrateContributors(result);
-    log.info("Contributor migration completed");
+    log.info("executeMainMigrationPhases:: Contributor migration completed");
 
     migrateClassifications(result);
-    log.info("Classification migration completed");
+    log.info("executeMainMigrationPhases:: Classification migration completed");
 
     migrateCallNumbers(result);
-    log.info("Call number migration completed");
+    log.info("executeMainMigrationPhases:: Call number migration completed");
 
     // Phase 4: Instance/item relationships
-    log.info("Starting instance relationships migration...");
+    log.info("executeMainMigrationPhases:: Starting instance relationships migration...");
     migrateInstanceSubjects(result);
-    log.info("Instance-subject migration completed");
+    log.info("executeMainMigrationPhases:: Instance-subject migration completed");
 
     migrateInstanceContributors(result);
-    log.info("Instance-contributor migration complete");
+    log.info("executeMainMigrationPhases:: Instance-contributor migration complete");
 
     migrateInstanceClassifications(result);
-    log.info("Instance-classification migration completed");
+    log.info("executeMainMigrationPhases:: Instance-classification migration completed");
 
     migrateInstanceCallNumbers(result);
-    log.info("Instance-call numbers migration completed");
+    log.info("executeMainMigrationPhases:: Instance-call numbers migration completed");
   }
 
   private void migrateInstances(MigrationResult result) {
@@ -151,7 +146,7 @@ public class StagingMigrationService {
     var recordsUpserted = jdbcTemplate.update(sql, RESOURCE_REINDEX_TIMESTAMP);
     result.setTotalInstances(recordsUpserted);
 
-    log.debug("Instance upserted: {} records", recordsUpserted);
+    log.debug("migrateInstances:: Instance upserted: {} records", recordsUpserted);
   }
 
   private void migrateHoldings(MigrationResult result) {
@@ -169,7 +164,7 @@ public class StagingMigrationService {
     var recordsUpserted = jdbcTemplate.update(sql);
     result.setTotalHoldings(recordsUpserted);
 
-    log.debug("Holding upserted: {} records", recordsUpserted);
+    log.debug("migrateHoldings:: Holding upserted: {} records", recordsUpserted);
   }
 
   private void migrateItems(MigrationResult result) {
@@ -189,7 +184,7 @@ public class StagingMigrationService {
     var recordsUpserted = jdbcTemplate.update(sql, RESOURCE_REINDEX_TIMESTAMP);
     result.setTotalItems(recordsUpserted);
 
-    log.debug("Item upserted: {} records", recordsUpserted);
+    log.debug("migrateItems:: Item upserted: {} records", recordsUpserted);
   }
 
   private void migrateInstanceSubjects(MigrationResult result) {
@@ -205,7 +200,7 @@ public class StagingMigrationService {
     var recordsUpserted = jdbcTemplate.update(sql);
     result.setTotalRelationships(result.getTotalRelationships() + recordsUpserted);
 
-    log.debug("Instance-subject relationship upserted: {} records", recordsUpserted);
+    log.debug("migrateInstanceSubjects:: Instance-subject relationship upserted: {} records", recordsUpserted);
   }
 
   private void migrateInstanceContributors(MigrationResult result) {
@@ -221,7 +216,7 @@ public class StagingMigrationService {
     var recordsUpserted = jdbcTemplate.update(sql);
     result.setTotalRelationships(result.getTotalRelationships() + recordsUpserted);
 
-    log.debug("Instance-contributor relationship upserted: {} records", recordsUpserted);
+    log.debug("migrateInstanceContributors:: Instance-contributor relationship upserted: {} records", recordsUpserted);
   }
 
   private void migrateInstanceClassifications(MigrationResult result) {
@@ -237,7 +232,8 @@ public class StagingMigrationService {
     var recordsUpserted = jdbcTemplate.update(sql);
     result.setTotalRelationships(result.getTotalRelationships() + recordsUpserted);
 
-    log.debug("Instance-classification relationship upserted: {} records", recordsUpserted);
+    log.debug("migrateInstanceClassifications:: Instance-classification relationship upserted: {} records",
+      recordsUpserted);
   }
 
   private void migrateInstanceCallNumbers(MigrationResult result) {
@@ -253,7 +249,7 @@ public class StagingMigrationService {
     var recordsUpserted = jdbcTemplate.update(sql);
     result.setTotalRelationships(result.getTotalRelationships() + recordsUpserted);
 
-    log.debug("Instance-call number relationship upserted: {} records", recordsUpserted);
+    log.debug("migrateInstanceCallNumbers:: Instance-call number relationship upserted: {} records", recordsUpserted);
   }
 
   private void migrateSubjects(MigrationResult result) {
@@ -269,7 +265,7 @@ public class StagingMigrationService {
     var recordsUpserted = jdbcTemplate.update(sql, RESOURCE_REINDEX_TIMESTAMP);
     result.setTotalRelationships(result.getTotalRelationships() + recordsUpserted);
 
-    log.debug("Subject upserted: {} records", recordsUpserted);
+    log.debug("migrateSubjects:: Subject upserted: {} records", recordsUpserted);
   }
 
   private void migrateContributors(MigrationResult result) {
@@ -285,7 +281,7 @@ public class StagingMigrationService {
     var recordsUpserted = jdbcTemplate.update(sql, RESOURCE_REINDEX_TIMESTAMP);
     result.setTotalRelationships(result.getTotalRelationships() + recordsUpserted);
 
-    log.debug("Contributor upserted: {} records", recordsUpserted);
+    log.debug("migrateContributors:: Contributor upserted: {} records", recordsUpserted);
   }
 
   private void migrateClassifications(MigrationResult result) {
@@ -301,7 +297,7 @@ public class StagingMigrationService {
     var recordsUpserted = jdbcTemplate.update(sql, RESOURCE_REINDEX_TIMESTAMP);
     result.setTotalRelationships(result.getTotalRelationships() + recordsUpserted);
 
-    log.debug("Classification upserted: {} records", recordsUpserted);
+    log.debug("migrateClassifications:: Classification upserted: {} records", recordsUpserted);
   }
 
   private void migrateCallNumbers(MigrationResult result) {
@@ -318,13 +314,13 @@ public class StagingMigrationService {
     var recordsUpserted = jdbcTemplate.update(sql, RESOURCE_REINDEX_TIMESTAMP);
     result.setTotalRelationships(result.getTotalRelationships() + recordsUpserted);
 
-    log.debug("Call number upserted: {} records", recordsUpserted);
+    log.debug("migrateCallNumbers:: Call number upserted: {} records", recordsUpserted);
   }
 
   private void analyzeStagingTables() {
     var schema = getSchemaName(context);
 
-    log.info("Analyzing staging tables for better query performance...");
+    log.info("analyzeStagingTables:: Analyzing staging tables for better query performance...");
     jdbcTemplate.execute(String.format("ANALYZE %s.staging_instance", schema));
     jdbcTemplate.execute(String.format("ANALYZE %s.staging_holding", schema));
     jdbcTemplate.execute(String.format("ANALYZE %s.staging_item", schema));
@@ -336,14 +332,14 @@ public class StagingMigrationService {
     jdbcTemplate.execute(String.format("ANALYZE %s.staging_contributor", schema));
     jdbcTemplate.execute(String.format("ANALYZE %s.staging_classification", schema));
     jdbcTemplate.execute(String.format("ANALYZE %s.staging_call_number", schema));
-    log.info("Staging tables analyzed");
+    log.info("analyzeStagingTables:: Staging tables analyzed");
   }
 
   public void cleanupStagingTables() {
     var schema = getSchemaName(context);
     var sql = String.format("SELECT %s.cleanup_all_staging_tables()", schema);
     jdbcTemplate.execute(sql);
-    log.info("Staging tables truncated successfully");
+    log.info("cleanupStagingTables:: Staging tables truncated successfully");
   }
 
   public Map<String, Long> getStagingTableStats() {
@@ -374,15 +370,15 @@ public class StagingMigrationService {
         + ". Must be a number followed by KB, MB, or GB (e.g., '64MB', '512KB', '1GB')");
     }
 
-    log.info("Setting work_mem to {} for migration transaction", workMemValue);
+    log.info("setWorkMem:: Setting work_mem to {} for migration transaction", workMemValue);
 
     try {
       var sql = String.format("SET LOCAL work_mem = '%s'", workMemValue);
       jdbcTemplate.execute(sql);
-      log.debug("Successfully set work_mem to {}", workMemValue);
+      log.debug("setWorkMem:: Successfully set work_mem to {}", workMemValue);
     } catch (Exception e) {
       var errorMsg = "Failed to set work_mem to " + workMemValue + " for migration transaction";
-      log.error(errorMsg, e);
+      log.error("setWorkMem:: " + errorMsg, e);
       throw new ReindexException(errorMsg, e);
     }
   }

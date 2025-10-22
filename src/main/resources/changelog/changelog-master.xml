@@ -24,4 +24,6 @@
   <include file="changes/v6.0/03_create_cleanup_functions.xml" relativeToChangelogFile="true"/>
   <include file="changes/v6.0/04_add_tenant_id_indexes.xml" relativeToChangelogFile="true"/>
   <include file="changes/v6.0/05_add_target_tenant_id_to_reindex_status.xml" relativeToChangelogFile="true"/>
+  <include file="changes/v6.0/06_add_staging_time_columns_to_reindex_status.xml" relativeToChangelogFile="true"/>
+  <include file="changes/v6.0/07_create_consortium_member_reindex_status_function.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

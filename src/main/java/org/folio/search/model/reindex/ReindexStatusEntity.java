@@ -18,6 +18,8 @@ public class ReindexStatusEntity {
   public static final String END_TIME_MERGE_COLUMN = "end_time_merge";
   public static final String START_TIME_UPLOAD_COLUMN = "start_time_upload";
   public static final String END_TIME_UPLOAD_COLUMN = "end_time_upload";
+  public static final String START_TIME_STAGING_COLUMN = "start_time_staging";
+  public static final String END_TIME_STAGING_COLUMN = "end_time_staging";
   public static final String TARGET_TENANT_ID_COLUMN = "target_tenant_id";
 
   private final ReindexEntityType entityType;
@@ -31,4 +33,6 @@ public class ReindexStatusEntity {
   private Timestamp endTimeMerge;
   private Timestamp startTimeUpload;
   private Timestamp endTimeUpload;
+  private Timestamp startTimeStaging;
+  private Timestamp endTimeStaging;
 }

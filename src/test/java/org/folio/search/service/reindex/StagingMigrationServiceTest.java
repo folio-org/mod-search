@@ -2,6 +2,7 @@ package org.folio.search.service.reindex;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.contains;
@@ -134,7 +135,7 @@ class StagingMigrationServiceTest {
   @Test
   void migrateAllStagingTables_memberTenantReindex_shouldDeleteExistingTenantData() {
     // Arrange
-    var targetTenantId = "member_tenant";
+    var targetTenantId = MEMBER_TENANT_ID;
     when(jdbcTemplate.update(anyString())).thenReturn(5);
     when(jdbcTemplate.update(anyString(), any(Timestamp.class))).thenReturn(5);
     doNothing().when(jdbcTemplate).execute(anyString());

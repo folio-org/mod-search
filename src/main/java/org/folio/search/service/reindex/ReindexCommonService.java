@@ -62,7 +62,7 @@ public class ReindexCommonService {
     repositories.get(ReindexEntityType.HOLDINGS).deleteByTenantId(tenantId);
     repositories.get(ReindexEntityType.INSTANCE).deleteByTenantId(tenantId);
 
-    log.info("Successfully deleted existing data for tenant: {}", tenantId);
+    log.info("deleteRecordsByTenantId:: Successfully deleted existing data for tenant: {}", tenantId);
   }
 
   /**
@@ -97,7 +97,8 @@ public class ReindexCommonService {
       indexService.dropIndex(resourceType, tenantId);
       indexService.createIndex(resourceType, tenantId, indexSettings);
     } catch (Exception e) {
-      log.warn("Index cannot be recreated for resource={}, message={}", reindexEntityType, e.getMessage());
+      log.warn("recreateIndex:: Index cannot be recreated for resource={}, message={}",
+        reindexEntityType, e.getMessage());
     }
   }
 
@@ -110,7 +111,8 @@ public class ReindexCommonService {
         indexService.createIndexIfNotExist(resourceType, tenantId);
       }
     } catch (Exception e) {
-      log.warn("Index existence check/creation failed for resource={}, message={}", reindexEntityType, e.getMessage());
+      log.warn("ensureIndexExists:: Index existence check/creation failed for resource={}, message={}",
+        reindexEntityType, e.getMessage());
     }
   }
 }

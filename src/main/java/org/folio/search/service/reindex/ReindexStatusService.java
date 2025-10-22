@@ -115,6 +115,24 @@ public class ReindexStatusService {
     statusRepository.setReindexUploadFailed(entityType);
   }
 
+  public void updateStagingStarted() {
+    var entityTypes = ReindexEntityType.supportMergeTypes();
+    log.info("updateStagingStarted:: setting staging start time for [entityTypes: {}]", entityTypes);
+    statusRepository.setStagingStarted(entityTypes);
+  }
+
+  public void updateStagingCompleted() {
+    var entityTypes = ReindexEntityType.supportMergeTypes();
+    log.info("updateStagingCompleted:: setting staging end time for [entityTypes: {}]", entityTypes);
+    statusRepository.setStagingCompleted(entityTypes);
+  }
+
+  public void updateStagingFailed() {
+    var entityTypes = ReindexEntityType.supportMergeTypes();
+    log.info("updateStagingFailed:: setting status to STAGING_FAILED and end time for [entityTypes: {}]", entityTypes);
+    statusRepository.setStagingFailed(entityTypes);
+  }
+
   public void updateReindexMergeStarted(ReindexEntityType entityType, int totalMergeRanges) {
     log.info("updateReindexMergeStarted:: for [entityType: {}, totalMergeRanges: {}]", entityType, totalMergeRanges);
     statusRepository.setMergeReindexStarted(entityType, totalMergeRanges);

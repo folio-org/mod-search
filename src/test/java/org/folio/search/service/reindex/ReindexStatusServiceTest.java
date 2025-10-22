@@ -5,7 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.exception.RequestValidationException.REQUEST_NOT_ALLOWED_FOR_CONSORTIUM_MEMBER_MSG;
 import static org.folio.search.model.types.ReindexEntityType.HOLDINGS;
 import static org.folio.search.model.types.ReindexEntityType.INSTANCE;
+import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.support.TestConstants.TENANT_ID;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -184,7 +186,7 @@ class ReindexStatusServiceTest {
   @Test
   void recreateMergeStatusRecords_withTargetTenantId() {
     // given
-    var targetTenantId = "member_tenant";
+    var targetTenantId = MEMBER_TENANT_ID;
 
     // act
     service.recreateMergeStatusRecords(targetTenantId);
@@ -204,7 +206,7 @@ class ReindexStatusServiceTest {
   @Test
   void recreateUploadStatusRecord_shouldPreserveTargetTenantId() {
     // given
-    var targetTenantId = "member_tenant";
+    var targetTenantId = MEMBER_TENANT_ID;
     when(statusRepository.getTargetTenantId()).thenReturn(targetTenantId);
 
     // act
@@ -241,5 +243,174 @@ class ReindexStatusServiceTest {
       .hasSize(1)
       .first()
       .satisfies(entity -> assertThat(entity.getTargetTenantId()).isNull());
+  }
+
+  @Test
+  void updateStagingStarted_shouldSetStagingStartTimeForAllMergeTypes() {
+    // act
+    service.updateStagingStarted();
+
+    // assert
+    verify(statusRepository).setStagingStarted(ReindexEntityType.supportMergeTypes());
+  }
+
+  @Test
+  void updateStagingCompleted_shouldSetStagingEndTimeForAllMergeTypes() {
+    // act
+    service.updateStagingCompleted();
+
+    // assert
+    verify(statusRepository).setStagingCompleted(ReindexEntityType.supportMergeTypes());
+  }
+
+  @Test
+  void updateStagingFailed_shouldSetStatusAndEndTimeForAllMergeTypes() {
+    // act
+    service.updateStagingFailed();
+
+    // assert
+    verify(statusRepository).setStagingFailed(ReindexEntityType.supportMergeTypes());
+  }
+
+  @Test
+  void isMergeCompleted_shouldReturnRepositoryResult() {
+    // given
+    when(statusRepository.isMergeCompleted()).thenReturn(true);
+
+    // act
+    var result = service.isMergeCompleted();
+
+    // assert
+    assertThat(result).isTrue();
+    verify(statusRepository).isMergeCompleted();
+  }
+
+  @Test
+  void isMergeCompleted_shouldReturnFalseWhenNotCompleted() {
+    // given
+    when(statusRepository.isMergeCompleted()).thenReturn(false);
+
+    // act
+    var result = service.isMergeCompleted();
+
+    // assert
+    assertThat(result).isFalse();
+    verify(statusRepository).isMergeCompleted();
+  }
+
+  @Test
+  void getStatusesByType_shouldReturnMapOfStatusesByEntityType() {
+    // given
+    var statusEntities = List.of(
+      new ReindexStatusEntity(INSTANCE, ReindexStatus.MERGE_COMPLETED),
+      new ReindexStatusEntity(HOLDINGS, ReindexStatus.UPLOAD_IN_PROGRESS)
+    );
+    when(statusRepository.getReindexStatuses()).thenReturn(statusEntities);
+
+    // act
+    var result = service.getStatusesByType();
+
+    // assert
+    assertThat(result)
+      .hasSize(2)
+      .containsEntry(INSTANCE, ReindexStatus.MERGE_COMPLETED)
+      .containsEntry(HOLDINGS, ReindexStatus.UPLOAD_IN_PROGRESS);
+  }
+
+  @Test
+  void getTargetTenantId_shouldReturnValueFromRepository() {
+    // given
+    var expectedTenantId = MEMBER_TENANT_ID;
+    when(statusRepository.getTargetTenantId()).thenReturn(expectedTenantId);
+
+    // act
+    var result = service.getTargetTenantId();
+
+    // assert
+    assertThat(result).isEqualTo(expectedTenantId);
+    verify(statusRepository).getTargetTenantId();
+  }
+
+  @Test
+  void getTargetTenantId_shouldReturnNullWhenNoTargetTenant() {
+    // given
+    when(statusRepository.getTargetTenantId()).thenReturn(null);
+
+    // act
+    var result = service.getTargetTenantId();
+
+    // assert
+    assertThat(result).isNull();
+    verify(statusRepository).getTargetTenantId();
+  }
+
+  @Test
+  void getTargetTenantId_shouldCacheValueAndNotCallRepositoryMultipleTimes() {
+    // given
+    var expectedTenantId = MEMBER_TENANT_ID;
+    when(statusRepository.getTargetTenantId()).thenReturn(expectedTenantId);
+
+    // act - call multiple times within cache TTL
+    var result1 = service.getTargetTenantId();
+    var result2 = service.getTargetTenantId();
+    var result3 = service.getTargetTenantId();
+
+    // assert - should only call repository once due to caching
+    assertThat(result1).isEqualTo(expectedTenantId);
+    assertThat(result2).isEqualTo(expectedTenantId);
+    assertThat(result3).isEqualTo(expectedTenantId);
+    verify(statusRepository, times(1)).getTargetTenantId();
+  }
+
+  @Test
+  void getTargetTenantId_shouldCacheNullValue() {
+    // given
+    when(statusRepository.getTargetTenantId()).thenReturn(null);
+
+    // act - call multiple times
+    var result1 = service.getTargetTenantId();
+    var result2 = service.getTargetTenantId();
+
+    // assert - should cache null and only call repository once
+    assertThat(result1).isNull();
+    assertThat(result2).isNull();
+    verify(statusRepository, times(1)).getTargetTenantId();
+  }
+
+  @Test
+  void getTargetTenantId_whenExceptionOccurs_shouldReturnNullAndCacheResult() {
+    // given
+    when(statusRepository.getTargetTenantId()).thenThrow(new RuntimeException("Database error"));
+
+    // act
+    var result1 = service.getTargetTenantId();
+    var result2 = service.getTargetTenantId();
+
+    // assert
+    assertThat(result1).isNull();
+    assertThat(result2).isNull();
+    // Should only try once, then cache the null result
+    verify(statusRepository, times(1)).getTargetTenantId();
+  }
+
+  @Test
+  void recreateMergeStatusRecords_shouldClearCache() {
+    // given
+    when(statusRepository.getTargetTenantId()).thenReturn("tenant1");
+
+    // Cache a value
+    service.getTargetTenantId();
+    verify(statusRepository, times(1)).getTargetTenantId();
+
+    // act - recreate status records should clear cache
+    service.recreateMergeStatusRecords("new_tenant");
+
+    // Cache should be cleared, so next call should hit repository again
+    when(statusRepository.getTargetTenantId()).thenReturn("new_tenant");
+    var result = service.getTargetTenantId();
+
+    // assert
+    assertThat(result).isEqualTo("new_tenant");
+    verify(statusRepository, times(2)).getTargetTenantId();
   }
 }

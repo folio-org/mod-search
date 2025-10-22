@@ -163,20 +163,21 @@ public class ReindexMergeRangeIndexService {
   public void performStagingMigration(String targetTenantId) {
     // Log staging table stats before migration
     var statsBeforeMigration = migrationService.getStagingTableStats();
-    log.info("Staging table stats before migration: {}", statsBeforeMigration);
+    log.info("performStagingMigration:: Staging table stats before migration: {}", statsBeforeMigration);
 
     if (targetTenantId != null) {
-      log.info("Starting tenant-specific migration of staging tables for tenant: {}", targetTenantId);
+      log.info("performStagingMigration:: Starting tenant-specific migration of staging tables for tenant: {}",
+        targetTenantId);
       var result = migrationService.migrateAllStagingTables(targetTenantId);
-      log.info("Tenant-specific migration completed for {}: instances={}, holdings={}, "
+      log.info("performStagingMigration:: Tenant-specific migration completed for {}: instances={}, holdings={}, "
           + "items={}, relationships={}",
         targetTenantId, result.getTotalInstances(), result.getTotalHoldings(),
         result.getTotalItems(), result.getTotalRelationships());
       // Log staging table stats after migration (should be empty)
       var statsAfterMigration = migrationService.getStagingTableStats();
-      log.info("Staging table stats after migration: {}", statsAfterMigration);
+      log.info("performStagingMigration:: Staging table stats after migration: {}", statsAfterMigration);
     } else {
-      log.info("Consortium full refresh - staging tables not used, skipping migration");
+      log.info("performStagingMigration:: Consortium full refresh - staging tables not used, skipping migration");
     }
   }
 

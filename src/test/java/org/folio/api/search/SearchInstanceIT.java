@@ -8,6 +8,7 @@ import static org.folio.support.sample.SampleInstancesResponse.getInstanceBasicR
 import static org.folio.support.sample.SampleInstancesResponse.getInstanceFullResponseSample;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -47,6 +48,14 @@ class SearchInstanceIT extends BaseIntegrationTest {
     doSearchByInstances(prepareQuery(query, value))
       .andExpect(jsonPath("$.totalRecords", is(1)))
       .andExpect(jsonPath("$.instances[0].id", is(getSemanticWebId())));
+  }
+
+  @Test
+  @DisplayName("search by instances (no instance found)")
+  void searchByInstances_parameterized_noResult() throws Throwable {
+    doSearchByInstances(prepareQuery("id=\"{value}\"", "random-val"))
+      .andExpect(jsonPath("$.totalRecords", is(0)))
+      .andExpect(jsonPath("$.instances", notNullValue()));
   }
 
   @MethodSource("testCaseInsensitiveDataProvider")

@@ -78,7 +78,7 @@ class SearchControllerTest {
     mockMvc.perform(requestBuilder)
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.totalRecords", is(0)))
-      .andExpect(jsonPath(jsonDataPath).doesNotExist());
+      .andExpect(jsonPath(jsonDataPath).exists());
   }
 
   @ParameterizedTest

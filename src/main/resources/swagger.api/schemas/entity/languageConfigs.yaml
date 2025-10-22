@@ -3,6 +3,7 @@ type: object
 properties:
   languageConfigs:
     type: array
+    x-field-extra-annotation: "@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)"
     description: Configured languages for a tenant
     items:
       $ref: "./languageConfig.yaml"

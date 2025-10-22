@@ -317,7 +317,7 @@ class BrowseSubjectIT extends BaseIntegrationTest {
           subjectBrowseItem(1, "Music", MUSIC_AUTHORITY_ID_2, MUSIC_SOURCE_ID_1, null),
           subjectBrowseItem(1, "Music", MUSIC_AUTHORITY_ID_1, MUSIC_SOURCE_ID_1, MUSIC_TYPE_ID_1)))),
 
-      arguments(forwardQuery, "Z", 10, subjectBrowseResult(28, null)),
+      arguments(forwardQuery, "Z", 10, subjectBrowseResult(28, emptyList())),
 
       arguments(forwardIncludingQuery, "water", 5, new SubjectBrowseResult()
         .totalRecords(28).prev("Water").next(null)
@@ -365,7 +365,7 @@ class BrowseSubjectIT extends BaseIntegrationTest {
           subjectBrowseItem(1, "Europe"),
           subjectBrowseItem(1, "Fantasy")))),
 
-      arguments(backwardQuery, "A", 10, subjectBrowseResult(28, null)),
+      arguments(backwardQuery, "A", 10, subjectBrowseResult(28, emptyList())),
 
       arguments(backwardIncludingQuery, "water", 5, new SubjectBrowseResult()
         .totalRecords(28).prev("Science--Philosophy").next("Water")

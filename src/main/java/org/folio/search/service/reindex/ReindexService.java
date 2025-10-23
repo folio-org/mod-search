@@ -176,8 +176,9 @@ public class ReindexService {
 
     validateUploadReindex(tenantId, entityTypes);
 
+    var targetTenantId = statusService.getTargetTenantId();
     for (var reindexEntityType : entityTypes) {
-      statusService.recreateUploadStatusRecord(reindexEntityType);
+      statusService.recreateUploadStatusRecord(reindexEntityType, targetTenantId);
       if (recreateIndex) {
         reindexCommonService.recreateIndex(reindexEntityType, tenantId, indexSettings);
       }

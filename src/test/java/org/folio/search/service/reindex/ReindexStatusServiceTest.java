@@ -207,13 +207,11 @@ class ReindexStatusServiceTest {
   void recreateUploadStatusRecord_shouldPreserveTargetTenantId() {
     // given
     var targetTenantId = MEMBER_TENANT_ID;
-    when(statusRepository.getTargetTenantId()).thenReturn(targetTenantId);
 
     // act
-    service.recreateUploadStatusRecord(INSTANCE);
+    service.recreateUploadStatusRecord(INSTANCE, targetTenantId);
 
     // assert
-    verify(statusRepository).getTargetTenantId();
     verify(statusRepository).delete(INSTANCE);
     verify(statusRepository).saveReindexStatusRecords(reindexStatusEntitiesCaptor.capture());
 
@@ -228,11 +226,8 @@ class ReindexStatusServiceTest {
 
   @Test
   void recreateUploadStatusRecord_whenNoExistingTargetTenantId_shouldSetNull() {
-    // given
-    when(statusRepository.getTargetTenantId()).thenThrow(new RuntimeException("No data"));
-
     // act
-    service.recreateUploadStatusRecord(INSTANCE);
+    service.recreateUploadStatusRecord(INSTANCE, null);
 
     // assert
     verify(statusRepository).delete(INSTANCE);
@@ -342,55 +337,6 @@ class ReindexStatusServiceTest {
     // assert
     assertThat(result).isNull();
     verify(statusRepository).getTargetTenantId();
-  }
-
-  @Test
-  void getTargetTenantId_shouldCacheValueAndNotCallRepositoryMultipleTimes() {
-    // given
-    var expectedTenantId = MEMBER_TENANT_ID;
-    when(statusRepository.getTargetTenantId()).thenReturn(expectedTenantId);
-
-    // act - call multiple times within cache TTL
-    var result1 = service.getTargetTenantId();
-    var result2 = service.getTargetTenantId();
-    var result3 = service.getTargetTenantId();
-
-    // assert - should only call repository once due to caching
-    assertThat(result1).isEqualTo(expectedTenantId);
-    assertThat(result2).isEqualTo(expectedTenantId);
-    assertThat(result3).isEqualTo(expectedTenantId);
-    verify(statusRepository, times(1)).getTargetTenantId();
-  }
-
-  @Test
-  void getTargetTenantId_shouldCacheNullValue() {
-    // given
-    when(statusRepository.getTargetTenantId()).thenReturn(null);
-
-    // act - call multiple times
-    var result1 = service.getTargetTenantId();
-    var result2 = service.getTargetTenantId();
-
-    // assert - should cache null and only call repository once
-    assertThat(result1).isNull();
-    assertThat(result2).isNull();
-    verify(statusRepository, times(1)).getTargetTenantId();
-  }
-
-  @Test
-  void getTargetTenantId_whenExceptionOccurs_shouldReturnNullAndCacheResult() {
-    // given
-    when(statusRepository.getTargetTenantId()).thenThrow(new RuntimeException("Database error"));
-
-    // act
-    var result1 = service.getTargetTenantId();
-    var result2 = service.getTargetTenantId();
-
-    // assert
-    assertThat(result1).isNull();
-    assertThat(result2).isNull();
-    // Should only try once, then cache the null result
-    verify(statusRepository, times(1)).getTargetTenantId();
   }
 
   @Test

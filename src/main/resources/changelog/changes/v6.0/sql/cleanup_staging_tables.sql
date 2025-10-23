@@ -20,37 +20,3 @@ BEGIN
     RAISE NOTICE 'All staging tables have been truncated successfully';
 END;
 $$ LANGUAGE plpgsql;
-
--- Function to get staging table statistics
-CREATE OR REPLACE FUNCTION get_staging_table_stats()
-RETURNS TABLE (
-    table_name TEXT,
-    record_count BIGINT
-)
-SET search_path FROM CURRENT
-AS $$
-BEGIN
-    RETURN QUERY
-    SELECT 'staging_instance'::TEXT, COUNT(*) FROM staging_instance
-    UNION ALL
-    SELECT 'staging_holding'::TEXT, COUNT(*) FROM staging_holding
-    UNION ALL
-    SELECT 'staging_item'::TEXT, COUNT(*) FROM staging_item
-    UNION ALL
-    SELECT 'staging_instance_subject'::TEXT, COUNT(*) FROM staging_instance_subject
-    UNION ALL
-    SELECT 'staging_instance_contributor'::TEXT, COUNT(*) FROM staging_instance_contributor
-    UNION ALL
-    SELECT 'staging_instance_classification'::TEXT, COUNT(*) FROM staging_instance_classification
-    UNION ALL
-    SELECT 'staging_instance_call_number'::TEXT, COUNT(*) FROM staging_instance_call_number
-    UNION ALL
-    SELECT 'staging_subject'::TEXT, COUNT(*) FROM staging_subject
-    UNION ALL
-    SELECT 'staging_contributor'::TEXT, COUNT(*) FROM staging_contributor
-    UNION ALL
-    SELECT 'staging_classification'::TEXT, COUNT(*) FROM staging_classification
-    UNION ALL
-    SELECT 'staging_call_number'::TEXT, COUNT(*) FROM staging_call_number;
-END;
-$$ LANGUAGE plpgsql;

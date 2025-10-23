@@ -3,8 +3,6 @@ package org.folio.search.service.reindex;
 import static org.folio.search.utils.JdbcUtils.getSchemaName;
 
 import java.sql.Timestamp;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Pattern;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
@@ -340,19 +338,6 @@ public class StagingMigrationService {
     var sql = String.format("SELECT %s.cleanup_all_staging_tables()", schema);
     jdbcTemplate.execute(sql);
     log.info("cleanupStagingTables:: Staging tables truncated successfully");
-  }
-
-  public Map<String, Long> getStagingTableStats() {
-    var schema = getSchemaName(context);
-    var sql = String.format("SELECT * FROM %s.get_staging_table_stats()", schema);
-
-    var results = jdbcTemplate.queryForList(sql);
-    var stats = new HashMap<String, Long>();
-
-    for (var row : results) {
-      stats.put((String) row.get("table_name"), ((Number) row.get("record_count")).longValue());
-    }
-    return stats;
   }
 
   /**

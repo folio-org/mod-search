@@ -17,9 +17,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.sql.Timestamp;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.exception.ReindexException;
 import org.folio.spring.FolioExecutionContext;
@@ -249,48 +247,6 @@ class StagingMigrationServiceTest {
     // Act & Assert
     assertThatThrownBy(() -> stagingMigrationService.cleanupStagingTables())
       .isInstanceOf(DataAccessException.class);
-  }
-
-  @Test
-  void getStagingTableStats_shouldReturnStatistics() {
-    // Arrange
-    var mockResults = List.of(
-      createStatRow("staging_instance", 100),
-      createStatRow("staging_holding", 200),
-      createStatRow("staging_item", 300)
-    );
-    when(jdbcTemplate.queryForList(contains("get_staging_table_stats()"))).thenReturn(mockResults);
-
-    // Act
-    var stats = stagingMigrationService.getStagingTableStats();
-
-    // Assert
-    assertThat(stats)
-      .hasSize(3)
-      .containsEntry("staging_instance", 100L)
-      .containsEntry("staging_holding", 200L)
-      .containsEntry("staging_item", 300L);
-
-    verify(jdbcTemplate).queryForList(contains("get_staging_table_stats()"));
-  }
-
-  @Test
-  void getStagingTableStats_whenNoResults_shouldReturnEmptyMap() {
-    // Arrange
-    when(jdbcTemplate.queryForList(anyString())).thenReturn(List.of());
-
-    // Act
-    var stats = stagingMigrationService.getStagingTableStats();
-
-    // Assert
-    assertThat(stats).isEmpty();
-  }
-
-  private Map<String, Object> createStatRow(String tableName, long count) {
-    var row = new HashMap<String, Object>();
-    row.put("table_name", tableName);
-    row.put("record_count", count);
-    return row;
   }
 }
 

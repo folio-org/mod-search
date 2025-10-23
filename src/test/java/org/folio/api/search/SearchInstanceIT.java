@@ -256,6 +256,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
 
       arguments("keyword = *", ""),
       arguments("keyword all {value}", "semantic web primer"),
+      arguments("keyword all {value}", "\\\"semantic web primer\\\""),
       arguments("keyword all {value}", "semantic Ant\\\\niou ocm0012345 047144250X"),
       arguments("subjects all {value}", "semantic"),
       arguments("subjects ==/string {value}", "semantic web"),

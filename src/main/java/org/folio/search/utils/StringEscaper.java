@@ -1,6 +1,6 @@
 package org.folio.search.utils;
 
-import java.util.Map;
+import java.util.regex.Pattern;
 import lombok.experimental.UtilityClass;
 
 /**
@@ -9,12 +9,13 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class StringEscaper {
 
-  private static final Map<String, String> ESCAPE_MAP = Map.of(
-    "\\", "\u0001"
-  );
+  private static final String BACKSLASH_CHARACTER = "\\";
+  private static final String BACKSLASH_ESCAPE_CHARACTER = "\u0001";
+  private static final Pattern BACKSLASH_PATTERN = Pattern.compile("\\\\(?!\")");
 
   /**
-   * Escapes backslashes in the input string by replacing them with \u0001.
+   * Escapes backslashes in the input string by replacing them with a reserved control character,
+   * except when the backslash is followed by a double quote.
    *
    * @param input the string to escape, may be null
    * @return the escaped string, or null if input is null
@@ -23,18 +24,14 @@ public class StringEscaper {
     if (input == null) {
       return null;
     }
-    if (input.contains("\u0001")) {
+    if (input.contains(BACKSLASH_ESCAPE_CHARACTER)) {
       throw new IllegalArgumentException("Input contains reserved control character \\u0001");
     }
-    String result = input;
-    for (var entry : ESCAPE_MAP.entrySet()) {
-      result = result.replace(entry.getKey(), entry.getValue());
-    }
-    return result;
+    return BACKSLASH_PATTERN.matcher(input).replaceAll(BACKSLASH_ESCAPE_CHARACTER);
   }
 
   /**
-   * Unescapes backslashes by replacing \u0001 back to backslashes.
+   * Unescapes backslashes by replacing the reserved control character back to backslashes.
    *
    * @param input the string to unescape, may be null
    * @return the unescaped string, or null if input is null
@@ -43,10 +40,6 @@ public class StringEscaper {
     if (input == null) {
       return null;
     }
-    String result = input;
-    for (var entry : ESCAPE_MAP.entrySet()) {
-      result = result.replace(entry.getValue(), entry.getKey());
-    }
-    return result;
+    return input.replace(BACKSLASH_ESCAPE_CHARACTER, BACKSLASH_CHARACTER);
   }
 }

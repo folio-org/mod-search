@@ -40,6 +40,8 @@
   * Rename "AAP" to "label" to be consistent with the terminology used in mod-linked-data ([MSEARCH-1099](https://folio-org.atlassian.net/browse/MSEARCH-1099))
 
 ### Bug fixes
+* **General**
+  * Enhance backslash handling with escaped double quotes in CQL queries ([MSEARCH-1103](https://folio-org.atlassian.net/browse/MSEARCH-1103))  
 * **Authority Search**
   * Make searching by all heading fields handled with separate/generated search field  ([MSEARCH-1020](https://folio-org.atlassian.net/browse/MSEARCH-1020))
 * **Browse**

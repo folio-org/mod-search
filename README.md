@@ -526,7 +526,8 @@ representing Merge step and values of ```"UPLOAD_IN_PROGRESS"```, ```"UPLOAD_COM
 
 ### Tenant-Specific Reindexing in Consortia
 
-For consortium deployments, it's often necessary to reindex data for a specific member tenant without affecting other tenants' data or shared consortium instances. The tenant-specific reindex feature addresses this need by providing fine-grained control over which tenant's data gets reprocessed.
+For consortium deployments, it's often necessary to reindex data for a specific member tenant without affecting other tenants' data or shared consortium instances.
+The tenant-specific reindex feature addresses this need by providing fine-grained control over which tenant's data gets reprocessed.
 
 #### When to Use Tenant-Specific Reindex
 
@@ -538,7 +539,7 @@ For consortium deployments, it's often necessary to reindex data for a specific 
 #### How It Works
 
 1. **Data Preservation**: Shared consortium instances are preserved during tenant-specific operations
-2. **Staging Process**: Data is processed through staging tables with built-in deduplication to ensure integrity
+2. **Staging Process**: Data is processed through staging tables to ensure separation from other tenants
 3. **Selective Cleanup**: Only documents belonging to the specified tenant are removed from OpenSearch indices
 4. **Relationship Maintenance**: Instance-to-holdings/items relationships are properly maintained across the consortium
 
@@ -566,9 +567,10 @@ This approach ensures that:
 - Index integrity is maintained throughout the process
 - Other consortium members continue to have uninterrupted service
 
-### Staging Tables and Deduplication
+### Staging Tables
 
-The reindexing process uses staging tables as a high-performance buffer to maximize throughput during large-scale data operations. The staging tables are specifically designed for optimal write performance and minimal contention.
+The reindexing process uses staging tables as a high-performance buffer to maximize throughput during large-scale data operations.
+The staging tables are specifically designed for optimal write performance and minimal contention.
 
 #### Performance-Optimized Design
 
@@ -580,21 +582,14 @@ The reindexing process uses staging tables as a high-performance buffer to maxim
 #### Staging Process Flow
 
 1. **High-Speed Data Collection**: Multiple parallel processes load raw data from inventory services into staging tables without contention
-2. **Parallel Deduplication**: PostgreSQL functions process partitioned data in parallel to remove duplicates and resolve conflicts
-3. **Batch Migration**: Clean, deduplicated data is moved to operational tables in optimized batches
-4. **Automatic Cleanup**: Staging tables are truncated after successful completion
+2. **Batch Migration**: Data is moved to operational tables in optimized batches
 
 #### Performance Benefits
 
 - **Maximum Throughput**: Unlogged, unindexed tables allow maximum write speed during data collection
 - **Reduced Contention**: Main operational tables experience minimal locking during the reindex process
 - **Parallel Processing**: Partitioned staging tables enable concurrent processing across multiple workers
-- **Rollback Capability**: Failed operations can be safely retried without data corruption
-- **Transparency**: Staging tables can be inspected for troubleshooting during development
-
-#### Automatic Cleanup
-
-Staging tables are automatically truncated after successful reindex operations. In case of failures, staging tables are preserved for analysis and debugging purposes.
+- **Retry Capability**: Failed merge stage operations can be safely retried without data corruption
 
 ## API
 

@@ -35,7 +35,6 @@ public abstract class AbstractResourceRepository implements ResourceRepository {
 
   protected RestHighLevelClient elasticsearchClient;
   protected IndexNameProvider indexNameProvider;
-  protected IndexRepository indexRepository;
   protected IndexManagementConfigurationProperties indexManagementConfig;
 
   @Override
@@ -117,6 +116,11 @@ public abstract class AbstractResourceRepository implements ResourceRepository {
   @Autowired
   public void setElasticsearchClient(RestHighLevelClient elasticsearchClient) {
     this.elasticsearchClient = elasticsearchClient;
+  }
+
+  @Autowired
+  public void setIndexManagementConfig(IndexManagementConfigurationProperties indexManagementConfig) {
+    this.indexManagementConfig = indexManagementConfig;
   }
 
   protected BulkResponse executeBulkRequest(BulkRequest bulkRequest) {

@@ -51,8 +51,6 @@ class PrimaryResourceRepositoryTest {
   @Mock
   private IndexNameProvider indexNameProvider;
   @Mock
-  private IndexRepository indexRepository;
-  @Mock
   private IndexManagementConfigurationProperties indexManagementConfig;
 
   @BeforeEach

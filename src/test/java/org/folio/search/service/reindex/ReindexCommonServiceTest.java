@@ -7,13 +7,14 @@ import static org.folio.search.model.types.ReindexEntityType.HOLDINGS;
 import static org.folio.search.model.types.ReindexEntityType.INSTANCE;
 import static org.folio.search.model.types.ReindexEntityType.ITEM;
 import static org.folio.search.model.types.ReindexEntityType.SUBJECT;
+import static org.folio.support.TestConstants.TENANT_ID;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -21,7 +22,6 @@ import org.folio.search.domain.dto.FolioCreateIndexResponse;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.IndexSettings;
 import org.folio.search.model.types.ResourceType;
-import org.folio.search.repository.IndexNameProvider;
 import org.folio.search.repository.PrimaryResourceRepository;
 import org.folio.search.service.IndexService;
 import org.folio.search.service.reindex.jdbc.CallNumberRepository;
@@ -41,9 +41,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @UnitTest
 @ExtendWith(MockitoExtension.class)
 class ReindexCommonServiceTest {
-
-  private static final String TENANT_ID = "test_tenant";
-  private static final String INDEX_NAME = "test_index";
 
   private ReindexCommonService service;
 
@@ -65,8 +62,6 @@ class ReindexCommonServiceTest {
   private IndexService indexService;
   @Mock
   private PrimaryResourceRepository resourceRepository;
-  @Mock
-  private IndexNameProvider indexNameProvider;
 
   @BeforeEach
   void setUp() {
@@ -83,7 +78,7 @@ class ReindexCommonServiceTest {
       subjectRepository, contributorRepository, classificationRepository, callNumberRepository
     );
 
-    service = new ReindexCommonService(repositories, indexService, resourceRepository, indexNameProvider);
+    service = new ReindexCommonService(repositories, indexService, resourceRepository);
   }
 
   @Test
@@ -148,30 +143,24 @@ class ReindexCommonServiceTest {
   @Test
   void deleteInstanceDocumentsByTenantId_shouldCallDeleteOnRepository() {
     // Arrange
-    when(indexNameProvider.getIndexName(ResourceType.INSTANCE, TENANT_ID)).thenReturn(INDEX_NAME);
-    when(resourceRepository.deleteConsortiumDocumentsByTenantId(INDEX_NAME, TENANT_ID))
+    when(resourceRepository.deleteConsortiumDocumentsByTenantId(ResourceType.INSTANCE, TENANT_ID))
       .thenReturn(new FolioIndexOperationResponse());
 
     // Act
     service.deleteInstanceDocumentsByTenantId(TENANT_ID);
 
     // Assert
-    verify(indexNameProvider).getIndexName(ResourceType.INSTANCE, TENANT_ID);
-    verify(resourceRepository).deleteConsortiumDocumentsByTenantId(INDEX_NAME, TENANT_ID);
+    verify(resourceRepository).deleteConsortiumDocumentsByTenantId(ResourceType.INSTANCE, TENANT_ID);
   }
 
   @Test
   void deleteInstanceDocumentsByTenantId_whenExceptionOccurs_shouldLogAndContinue() {
     // Arrange
-    when(indexNameProvider.getIndexName(any(), any()))
+    when(resourceRepository.deleteConsortiumDocumentsByTenantId(any(), any()))
       .thenThrow(new RuntimeException("Test exception"));
 
     // Act - should not throw exception
-    service.deleteInstanceDocumentsByTenantId(TENANT_ID);
-
-    // Assert - verify it attempted to get index name
-    verify(indexNameProvider).getIndexName(ResourceType.INSTANCE, TENANT_ID);
-    verifyNoInteractions(resourceRepository);
+    assertDoesNotThrow(() -> service.deleteInstanceDocumentsByTenantId(TENANT_ID));
   }
 
   @Test

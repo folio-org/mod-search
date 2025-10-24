@@ -10,7 +10,6 @@ import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.IndexSettings;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ResourceType;
-import org.folio.search.repository.IndexNameProvider;
 import org.folio.search.repository.PrimaryResourceRepository;
 import org.folio.search.service.IndexService;
 import org.folio.search.service.reindex.jdbc.ReindexJdbcRepository;
@@ -24,15 +23,13 @@ public class ReindexCommonService {
   private final Map<ReindexEntityType, ReindexJdbcRepository> repositories;
   private final IndexService indexService;
   private final PrimaryResourceRepository resourceRepository;
-  private final IndexNameProvider indexNameProvider;
 
   public ReindexCommonService(List<ReindexJdbcRepository> repositories, IndexService indexService,
-                              PrimaryResourceRepository resourceRepository, IndexNameProvider indexNameProvider) {
+                              PrimaryResourceRepository resourceRepository) {
     this.repositories = repositories.stream()
       .collect(Collectors.toMap(ReindexJdbcRepository::entityType, identity(), (rep1, rep2) -> rep2));
     this.indexService = indexService;
     this.resourceRepository = resourceRepository;
-    this.indexNameProvider = indexNameProvider;
   }
 
   @Transactional
@@ -75,13 +72,12 @@ public class ReindexCommonService {
 
     try {
       var resourceType = ResourceType.INSTANCE;
-      var indexName = indexNameProvider.getIndexName(resourceType, tenantId);
-      var result = resourceRepository.deleteConsortiumDocumentsByTenantId(indexName, tenantId);
+      var result = resourceRepository.deleteConsortiumDocumentsByTenantId(resourceType, tenantId);
 
       if (result != null) {
-        log.debug("deleteInstanceDocumentsByTenantId:: completed for [indexName: {}]", indexName);
+        log.debug("deleteInstanceDocumentsByTenantId:: completed for [resourceType: {}]", resourceType);
       } else {
-        log.warn("deleteInstanceDocumentsByTenantId:: failed for [indexName: {}]", indexName);
+        log.warn("deleteInstanceDocumentsByTenantId:: failed for [resourceType: {}]", resourceType);
       }
     } catch (Exception e) {
       log.error("deleteInstanceDocumentsByTenantId:: error processing [tenantId: {}, error: {}]",

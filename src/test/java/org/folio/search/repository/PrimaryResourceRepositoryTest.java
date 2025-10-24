@@ -7,6 +7,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.support.TestConstants.INDEX_NAME;
+import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.utils.TestUtils.searchDocumentBody;
 import static org.folio.support.utils.TestUtils.searchDocumentBodyToDelete;
 import static org.mockito.ArgumentMatchers.any;
@@ -21,6 +22,7 @@ import java.util.List;
 import org.folio.search.configuration.properties.IndexManagementConfigurationProperties;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.model.index.SearchDocumentBody;
+import org.folio.search.model.types.ResourceType;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -112,12 +114,12 @@ class PrimaryResourceRepositoryTest {
     var deleteByQueryRequestCaptor = ArgumentCaptor.forClass(DeleteByQueryRequest.class);
     var bulkByScrollResponse = mock(BulkByScrollResponse.class);
 
-    when(indexRepository.indexExists(any())).thenReturn(true);
     when(bulkByScrollResponse.getDeleted()).thenReturn(5L);
+    when(indexNameProvider.getIndexName(ResourceType.INSTANCE, TENANT_ID)).thenReturn(INDEX_NAME);
     when(restHighLevelClient.deleteByQuery(deleteByQueryRequestCaptor.capture(), eq(DEFAULT)))
       .thenReturn(bulkByScrollResponse);
 
-    var response = resourceRepository.deleteConsortiumDocumentsByTenantId(INDEX_NAME, "test_tenant");
+    var response = resourceRepository.deleteConsortiumDocumentsByTenantId(ResourceType.INSTANCE, TENANT_ID);
 
     assertThat(response).isEqualTo(getSuccessIndexOperationResponse());
     var capturedRequest = deleteByQueryRequestCaptor.getValue();
@@ -133,11 +135,11 @@ class PrimaryResourceRepositoryTest {
 
   @Test
   void deleteDocumentsByTenantId_negative_throwsException() throws IOException {
-    when(indexRepository.indexExists(any())).thenReturn(true);
     when(restHighLevelClient.deleteByQuery(any(DeleteByQueryRequest.class), eq(DEFAULT)))
       .thenThrow(new IOException("delete error"));
+    when(indexNameProvider.getIndexName(ResourceType.INSTANCE, TENANT_ID)).thenReturn(INDEX_NAME);
 
-    assertThatThrownBy(() -> resourceRepository.deleteConsortiumDocumentsByTenantId(INDEX_NAME, "test_tenant"))
+    assertThatThrownBy(() -> resourceRepository.deleteConsortiumDocumentsByTenantId(ResourceType.INSTANCE, TENANT_ID))
       .isInstanceOf(SearchOperationException.class)
       .hasCauseExactlyInstanceOf(IOException.class)
       .hasMessage("Failed to perform elasticsearch request "

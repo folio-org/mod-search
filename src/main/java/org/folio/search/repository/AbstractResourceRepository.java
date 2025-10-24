@@ -70,18 +70,13 @@ public abstract class AbstractResourceRepository implements ResourceRepository {
    * This method uses OpenSearch delete-by-query to remove tenant-specific documents without
    * dropping the entire index, enabling preservation of shared consortium data.
    *
-   * @param indexName index name as {@link String} object
+   * @param resourceType resource type as {@link ResourceType} object
    * @param tenantId tenant id as {@link String} object
    * @return {@link FolioIndexOperationResponse} object indicating success or failure
    */
-  public FolioIndexOperationResponse deleteConsortiumDocumentsByTenantId(String indexName, String tenantId) {
-    log.debug("deleteDocumentsByTenantId:: by [indexName: {}, tenantId: {}]",
-      indexName, tenantId);
-
-    if (!indexRepository.indexExists(indexName)) {
-      log.debug("deleteDocumentsByTenantId:: index does not exist [index: {}]", indexName);
-      return getSuccessIndexOperationResponse();
-    }
+  public FolioIndexOperationResponse deleteConsortiumDocumentsByTenantId(ResourceType resourceType, String tenantId) {
+    var indexName = indexNameProvider.getIndexName(resourceType, tenantId);
+    log.debug("deleteConsortiumDocumentsByTenantId:: by [indexName: {}, tenantId: {}]", indexName, tenantId);
 
     var deleteByQueryRequest = new DeleteByQueryRequest(indexName);
 

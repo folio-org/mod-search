@@ -133,7 +133,8 @@ public class StagingMigrationService {
         SELECT id, tenant_id, shared, is_bound_with, json, ?
         FROM %s.staging_instance
         ORDER BY inserted_at DESC
-        ON CONFLICT (id, tenant_id) DO UPDATE SET
+        ON CONFLICT (id) DO UPDATE SET
+            tenant_id = EXCLUDED.tenant_id,
             shared = EXCLUDED.shared,
             is_bound_with = EXCLUDED.is_bound_with,
             json = EXCLUDED.json,

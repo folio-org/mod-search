@@ -169,7 +169,7 @@ public class ReindexMergeRangeIndexService {
         targetTenantId, result.getTotalInstances(), result.getTotalHoldings(),
         result.getTotalItems(), result.getTotalRelationships());
     } else {
-      log.info("performStagingMigration:: Consortium full refresh - staging tables not used, skipping migration");
+      log.info("performStagingMigration:: Not member tenant refresh - staging tables not used, skipping migration");
     }
   }
 

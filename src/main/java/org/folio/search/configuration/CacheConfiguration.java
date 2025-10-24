@@ -42,4 +42,4 @@ public class CacheConfiguration {
 
     return cacheManager;
   }
-}
+}//todo: full reindex endpoint version bump

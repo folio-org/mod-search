@@ -589,7 +589,6 @@ The staging tables are specifically designed for optimal write performance and m
 - **Maximum Throughput**: Unlogged, unindexed tables allow maximum write speed during data collection
 - **Reduced Contention**: Main operational tables experience minimal locking during the reindex process
 - **Parallel Processing**: Partitioned staging tables enable concurrent processing across multiple workers
-- **Retry Capability**: Failed merge stage operations can be safely retried without data corruption
 
 ## API
 

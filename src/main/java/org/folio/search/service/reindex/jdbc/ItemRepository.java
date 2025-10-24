@@ -69,7 +69,7 @@ public class ItemRepository extends MergeRangeRepository {
 
   @Override
   public void saveEntities(String tenantId, List<Map<String, Object>> entities) {
-    if (ReindexContext.isReindexMode()) {
+    if (ReindexContext.isReindexMode() && ReindexContext.getMemberTenantId() != null) {
       saveEntitiesToStaging(tenantId, entities);
     } else {
       saveEntitiesToMain(tenantId, entities);

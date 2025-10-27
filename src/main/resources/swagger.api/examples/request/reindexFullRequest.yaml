@@ -1,5 +1,5 @@
 value:
-  tenantId: "diku"
+  tenantId: "college"
   indexSettings:
     numberOfShards: 1
     numberOfReplicas: 1

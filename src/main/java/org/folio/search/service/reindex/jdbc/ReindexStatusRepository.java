@@ -159,9 +159,10 @@ public class ReindexStatusRepository {
       .map(entityType -> "'%s'".formatted(entityType.name()))
       .collect(Collectors.joining(","));
     var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
-    var sql = UPDATE_FOR_ENTITIES_SQL.formatted(fullTableName, START_TIME_STAGING_COLUMN + " = ?", inTypes);
+    var sql = UPDATE_FOR_ENTITIES_SQL.formatted(
+      fullTableName, QUERY_TWO_COLUMNS_PLACEHOLDER.formatted(STATUS_COLUMN, START_TIME_STAGING_COLUMN), inTypes);
 
-    jdbcTemplate.update(sql, Timestamp.from(Instant.now()));
+    jdbcTemplate.update(sql, ReindexStatus.STAGING_IN_PROGRESS.name(), Timestamp.from(Instant.now()));
   }
 
   public void setStagingCompleted(List<ReindexEntityType> entityTypes) {
@@ -169,9 +170,10 @@ public class ReindexStatusRepository {
       .map(entityType -> "'%s'".formatted(entityType.name()))
       .collect(Collectors.joining(","));
     var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
-    var sql = UPDATE_FOR_ENTITIES_SQL.formatted(fullTableName, END_TIME_STAGING_COLUMN + " = ?", inTypes);
+    var sql = UPDATE_FOR_ENTITIES_SQL.formatted(
+      fullTableName, QUERY_TWO_COLUMNS_PLACEHOLDER.formatted(STATUS_COLUMN, END_TIME_STAGING_COLUMN), inTypes);
 
-    jdbcTemplate.update(sql, Timestamp.from(Instant.now()));
+    jdbcTemplate.update(sql, ReindexStatus.STAGING_COMPLETED.name(), Timestamp.from(Instant.now()));
   }
 
   public void setStagingFailed(List<ReindexEntityType> entityTypes) {
@@ -179,8 +181,8 @@ public class ReindexStatusRepository {
       .map(entityType -> "'%s'".formatted(entityType.name()))
       .collect(Collectors.joining(","));
     var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
-    var sql = UPDATE_FOR_ENTITIES_SQL.formatted(fullTableName, 
-      STATUS_COLUMN + " = ?, " + END_TIME_STAGING_COLUMN + " = ?", inTypes);
+    var sql = UPDATE_FOR_ENTITIES_SQL.formatted(
+      fullTableName, QUERY_TWO_COLUMNS_PLACEHOLDER.formatted(STATUS_COLUMN, END_TIME_STAGING_COLUMN), inTypes);
 
     jdbcTemplate.update(sql, ReindexStatus.STAGING_FAILED.name(), Timestamp.from(Instant.now()));
   }

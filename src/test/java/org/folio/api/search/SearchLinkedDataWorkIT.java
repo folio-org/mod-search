@@ -10,7 +10,7 @@ import static org.folio.support.utils.LinkedDataTestUtils.toContributorName;
 import static org.folio.support.utils.LinkedDataTestUtils.toContributorType;
 import static org.folio.support.utils.LinkedDataTestUtils.toEditionStatement;
 import static org.folio.support.utils.LinkedDataTestUtils.toFormat;
-import static org.folio.support.utils.LinkedDataTestUtils.toHubAap;
+import static org.folio.support.utils.LinkedDataTestUtils.toHubLabel;
 import static org.folio.support.utils.LinkedDataTestUtils.toId;
 import static org.folio.support.utils.LinkedDataTestUtils.toIdType;
 import static org.folio.support.utils.LinkedDataTestUtils.toIdValue;
@@ -190,8 +190,8 @@ class SearchLinkedDataWorkIT extends BaseIntegrationTest {
       .andExpect(jsonPath(toContributorName(toRootContent(), 4), is("common")))
       .andExpect(jsonPath(toContributorType(toRootContent(), 4), is("Family")))
       .andExpect(jsonPath(toContributorIsCreator(toRootContent(), 4), is(true)))
-      .andExpect(jsonPath(toHubAap(toRootContent(), 0), is("hubAAP1")))
-      .andExpect(jsonPath(toHubAap(toRootContent(), 1), is("hubAAP2")))
+      .andExpect(jsonPath(toHubLabel(toRootContent(), 0), is("hubAAP1")))
+      .andExpect(jsonPath(toHubLabel(toRootContent(), 1), is("hubAAP2")))
       .andExpect(jsonPath(toLanguage(toRootContent(), 0), is("eng")))
       .andExpect(jsonPath(toLanguage(toRootContent(), 1), is("rus")))
       .andExpect(jsonPath(toNoteValue(toRootContent(), 0), is("first work note")))
@@ -350,8 +350,8 @@ class SearchLinkedDataWorkIT extends BaseIntegrationTest {
       .andExpect(jsonPath(toContributorName(toRootContent(), 4), is("common")))
       .andExpect(jsonPath(toContributorType(toRootContent(), 4), is("Family")))
       .andExpect(jsonPath(toContributorIsCreator(toRootContent(), 4), is(true)))
-      .andExpect(jsonPath(toHubAap(toRootContent(), 0), is("hubAAP1")))
-      .andExpect(jsonPath(toHubAap(toRootContent(), 1), is("hubAAP2")))
+      .andExpect(jsonPath(toHubLabel(toRootContent(), 0), is("hubAAP1")))
+      .andExpect(jsonPath(toHubLabel(toRootContent(), 1), is("hubAAP2")))
       .andExpect(jsonPath(toLanguage(toRootContent(), 0), is("eng")))
       .andExpect(jsonPath(toLanguage(toRootContent(), 1), is("rus")))
       .andExpect(jsonPath(toNoteValue(toRootContent(), 0), is("first work note")))

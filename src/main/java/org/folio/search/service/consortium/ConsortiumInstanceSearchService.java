@@ -15,6 +15,7 @@ import static org.opensearch.search.sort.SortBuilders.fieldSort;
 import static org.opensearch.search.sort.SortOrder.ASC;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -99,7 +100,7 @@ public class ConsortiumInstanceSearchService {
       identifierType, identifierValues, getHoldingTargetField(identifierType), this::mapToConsortiumHolding);
 
     if (searchRecords.isEmpty()) {
-      return new ConsortiumHoldingCollection();
+      return new ConsortiumHoldingCollection().holdings(Collections.emptyList()).totalRecords(0);
     }
 
     return new ConsortiumHoldingCollection()
@@ -116,7 +117,7 @@ public class ConsortiumInstanceSearchService {
       identifierType, identifierValues, getItemTargetField(identifierType), this::mapToConsortiumItem);
 
     if (searchRecords.isEmpty()) {
-      return new ConsortiumItemCollection();
+      return new ConsortiumItemCollection().items(Collections.emptyList()).totalRecords(0);
     }
 
     return new ConsortiumItemCollection()
@@ -130,6 +131,10 @@ public class ConsortiumInstanceSearchService {
     Set<String> identifierValues,
     String targetField,
     Mapper<Instance, IdentifierTypeEnum, Set<String>, List<T>> recordMapper) {
+    if (identifierValues.isEmpty()) {
+      return List.of();
+    }
+
     var request = CqlSearchRequest.builder(Instance.class)
       .tenantId(tenant)
       .query("")

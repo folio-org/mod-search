@@ -8,6 +8,7 @@ import static org.folio.support.sample.SampleInstancesResponse.getInstanceBasicR
 import static org.folio.support.sample.SampleInstancesResponse.getInstanceFullResponseSample;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -47,6 +48,14 @@ class SearchInstanceIT extends BaseIntegrationTest {
     doSearchByInstances(prepareQuery(query, value))
       .andExpect(jsonPath("$.totalRecords", is(1)))
       .andExpect(jsonPath("$.instances[0].id", is(getSemanticWebId())));
+  }
+
+  @Test
+  @DisplayName("search by instances (no instance found)")
+  void searchByInstances_parameterized_noResult() throws Throwable {
+    doSearchByInstances(prepareQuery("id=\"{value}\"", "random-val"))
+      .andExpect(jsonPath("$.totalRecords", is(0)))
+      .andExpect(jsonPath("$.instances", notNullValue()));
   }
 
   @MethodSource("testCaseInsensitiveDataProvider")
@@ -234,7 +243,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("contributors.name == {value}", "Van Harmelen"),
       arguments("contributors.name ==/string {value}", "Van Harmelen, Frank"),
       arguments("contributors.name = {value}", "Van Harmelen, Fr*"),
-      arguments("contributors.name = {value}", "Ant\\\\n*"),
+      arguments("contributors.name = {value}", "Ant\\n*"),
       arguments("contributors.name = {value}", "*rmelen, Frank"),
 
       arguments("contributors.authorityId == {value}", "55294032-fcf6-45cc-b6da-4420a61ef72c"),
@@ -247,6 +256,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
 
       arguments("keyword = *", ""),
       arguments("keyword all {value}", "semantic web primer"),
+      arguments("keyword all {value}", "\\\"semantic web primer\\\""),
       arguments("keyword all {value}", "semantic Ant\\\\niou ocm0012345 047144250X"),
       arguments("subjects all {value}", "semantic"),
       arguments("subjects ==/string {value}", "semantic web"),
@@ -471,12 +481,12 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("contributors.name == {value}", "VAN HARMELEN"),
       arguments("contributors.name ==/string {value}", "VAN HARMELEN, FRANK"),
       arguments("contributors.name = {value}", "VAN HARMELEN, FR*"),
-      arguments("contributors.name = {value}", "ANT\\\\N*"),
+      arguments("contributors.name = {value}", "ANT\\N*"),
       arguments("contributors.name = {value}", "*RMELEN, FRANK"),
 
       arguments("dates.date1 == {value}", "*9u"),
-      arguments("dates.date1 == {value}", "*\\\\9*"),
-      arguments("dates.date1 == {value}", "1\\\\*"),
+      arguments("dates.date1 == {value}", "*\\9*"),
+      arguments("dates.date1 == {value}", "1\\*"),
 
       arguments("dates.date2 == {value}", "*22"),
       arguments("dates.date2 == {value}", "*02*"),

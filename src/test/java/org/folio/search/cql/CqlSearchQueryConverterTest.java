@@ -144,7 +144,7 @@ class CqlSearchQueryConverterTest {
     var cqlQuery = "> invalidQuery";
     assertThatThrownBy(() -> cqlSearchQueryConverter.convert(cqlQuery, INSTANCE))
       .isInstanceOf(SearchServiceException.class)
-      .hasMessage("Failed to parse cql query [cql: '> invalidQuery', resource: instance]");
+      .hasMessage("Failed to parse CQL query [cql: '> invalidQuery', resource: instance]");
   }
 
   @Test

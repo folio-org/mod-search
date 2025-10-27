@@ -1032,21 +1032,22 @@ In case where options are similar, secondary sort is used
 
 ##### Instance sort options
 
-| Option              |   Type    | Secondary sort | Description                        |
-|:--------------------|:---------:|:---------------|:-----------------------------------|
-| `title`             | full text | relevancy      | Sort instances by title            |
-| `contributors`      |   term    | relevancy      | Sort instances by contributors     |
-| `items.status.name` |   term    | `title`        | Sort instances by status           |
-| `item.status.name`  |   term    | `title`        | Sort instances by status           |
-| `normalizedDate1`   |   term    | relevancy      | Sort instances by normalizedDate1  |
+| Option                  | Secondary sort | Description                           |
+|:------------------------|:---------------|:--------------------------------------|
+| `title`                 | relevancy      | Sort instances by title               |
+| `contributors`          | relevancy      | Sort instances by contributors        |
+| `item.status.name`      | `title`        | Sort instances by status              |
+| `normalizedDate1`       | relevancy      | Sort instances by normalizedDate1     |
+| `metadata.createdDate`  | relevancy      | Sort instances by created date        |
+| `metadata.updatedDate`  | relevancy      | Sort instances by updated date        |
 
 ##### Authority sort options
 
-| Option        | Type | Secondary sort | Description                             |
-|:--------------|:----:|:---------------|:----------------------------------------|
-| `headingRef`  | term | relevancy      | Sort authorities by Heading/Reference   |
-| `headingType` | term | `headingRef`   | Sort authorities by Type of heading     |
-| `authRefType` | term | `headingRef`   | Sort authorities by Authority/Reference |
+| Option        | Secondary sort | Description                             |
+|:--------------|:---------------|:----------------------------------------|
+| `headingRef`  | relevancy      | Sort authorities by Heading/Reference   |
+| `headingType` | `headingRef`   | Sort authorities by Type of heading     |
+| `authRefType` | `headingRef`   | Sort authorities by Authority/Reference |
 
 ### Browse API
 

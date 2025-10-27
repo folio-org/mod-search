@@ -11,6 +11,7 @@ import static org.folio.support.sample.SampleAuthorities.getAuthoritySourceFileI
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
 import static org.folio.support.utils.TestUtils.randomId;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -29,6 +30,7 @@ import org.folio.support.base.BaseIntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -83,6 +85,14 @@ class SearchAuthorityIT extends BaseIntegrationTest {
     doSearchByAuthorities(prepareQuery(query, value))
       .andExpect(jsonPath("$.totalRecords", is(1)))
       .andExpect(jsonPath("$.authorities[0].id", is(getAuthoritySampleId())));
+  }
+
+  @Test
+  @DisplayName("search by authorities (no authority found)")
+  void searchBy_parameterized_noResult() throws Throwable {
+    doSearchByAuthorities(prepareQuery("id=\"{value}\"", "random-val"))
+      .andExpect(jsonPath("$.totalRecords", is(0)))
+      .andExpect(jsonPath("$.authorities", notNullValue()));
   }
 
   @CsvSource({

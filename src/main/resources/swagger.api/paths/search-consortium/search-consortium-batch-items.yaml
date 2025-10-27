@@ -7,10 +7,11 @@ post:
   parameters:
     - $ref: '../../parameters/x-okapi-tenant-header.yaml'
   requestBody:
+    required: true
     content:
       application/json:
         schema:
-          $ref: '../../parameters/batchIdsDto.yaml'
+          $ref: '../../schemas/dto/common/batchIdsDto.yaml'
   responses:
     '200':
       description: List of items

@@ -2,6 +2,7 @@ type: object
 properties:
   locations:
     type: array
+    x-field-extra-annotation: "@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)"
     items:
       $ref: './consortiumLocation.yaml'
   totalRecords:

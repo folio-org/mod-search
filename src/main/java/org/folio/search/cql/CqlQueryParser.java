@@ -1,11 +1,14 @@
 package org.folio.search.cql;
 
+import lombok.extern.log4j.Log4j2;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.types.ResourceType;
+import org.folio.search.utils.StringEscaper;
 import org.springframework.stereotype.Component;
 import org.z3950.zing.cql.CQLNode;
 import org.z3950.zing.cql.CQLParser;
 
+@Log4j2
 @Component
 public class CqlQueryParser {
 
@@ -17,11 +20,13 @@ public class CqlQueryParser {
    * @return parsed query as {@link CQLNode} object
    */
   public CQLNode parseCqlQuery(String query, ResourceType resource) {
+    log.debug("parseCqlQuery::Parsing CQL query [cql: '{}', resource: {}]", query, resource.getName());
+    var normalizedQuery = StringEscaper.escape(query);
     try {
-      return new CQLParser().parse(query);
+      return new CQLParser().parse(normalizedQuery);
     } catch (Exception e) {
       throw new SearchServiceException(String.format(
-        "Failed to parse cql query [cql: '%s', resource: %s]", query, resource.getName()), e);
+        "Failed to parse CQL query [cql: '%s', resource: %s]", normalizedQuery, resource.getName()), e);
     }
   }
 }

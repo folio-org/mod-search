@@ -6,6 +6,7 @@ properties:
     description: "Initial search query"
   content:
     type: "array"
+    x-field-extra-annotation: "@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)"
     description: "List of linked data records found"
     items:
       $ref: "../../schemas/dto/linked-data/linkedDataWork.yaml"

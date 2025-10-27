@@ -6,6 +6,7 @@ properties:
     description: "Amount of instances found"
   instances:
     type: "array"
+    x-field-extra-annotation: "@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)"
     description: "List of instances found"
     items:
       $ref: "../../schemas/entity/instance.yaml"

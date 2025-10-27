@@ -31,6 +31,7 @@ import org.springframework.stereotype.Repository;
 
 @Log4j2
 @Repository
+@SuppressWarnings("java:S2077")
 public class SubjectRepository extends UploadRangeRepository implements InstanceChildResourceRepository {
 
   private static final String SELECT_QUERY = """
@@ -270,7 +271,6 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
     }
   }
 
-  @SuppressWarnings("java:S2077")
   private void saveEntitiesToStaging(List<Map<String, Object>> entities) {
     var stagingEntitiesSql = INSERT_STAGING_ENTITIES_SQL.formatted(JdbcUtils.getSchemaName(context));
     try {
@@ -319,7 +319,6 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
     }
   }
 
-  @SuppressWarnings("java:S2077")
   private void saveRelationshipsToStaging(List<Map<String, Object>> relationships) {
     var stagingRelationsSql = INSERT_STAGING_RELATIONS_SQL.formatted(JdbcUtils.getSchemaName(context));
     try {

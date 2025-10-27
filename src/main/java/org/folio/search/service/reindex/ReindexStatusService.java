@@ -123,7 +123,7 @@ public class ReindexStatusService {
   }
 
   public void updateReindexUploadStarted(ReindexEntityType entityType, int totalUploadRanges) {
-    log.info("updateReindexUploadStarted:: for [entityType: {}, totalMergeRanges: {}]", entityType, totalUploadRanges);
+    log.info("updateReindexUploadStarted:: for [entityType: {}, totalUploadRanges: {}]", entityType, totalUploadRanges);
     statusRepository.setUploadReindexStarted(entityType, totalUploadRanges);
   }
 

@@ -20,3 +20,4 @@ BEGIN
     RAISE NOTICE 'All staging tables have been truncated successfully';
 END;
 $$ LANGUAGE plpgsql;
+

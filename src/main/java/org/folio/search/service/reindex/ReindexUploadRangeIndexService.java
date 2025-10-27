@@ -46,7 +46,7 @@ public class ReindexUploadRangeIndexService {
     var uploadRanges = repository.createUploadRanges();
 
     // For member tenant reindex of instances, add member tenant ID to the events
-    if (ReindexContext.isMemberTenantReindex() && entityType == ReindexEntityType.INSTANCE) {
+    if (ReindexContext.isMemberTenantReindex()) {
       var memberTenantId = ReindexContext.getMemberTenantId();
       updateStatusAndSendEvents(entityType, uploadRanges.size(), memberTenantId, uploadRanges);
     } else {
@@ -108,7 +108,7 @@ public class ReindexUploadRangeIndexService {
         event.setEntityType(range.getEntityType());
         event.setLower(range.getLower());
         event.setUpper(range.getUpper());
-        event.setTenant(memberTenantId);
+        event.setMemberTenantId(memberTenantId);
         return event;
       })
       .toList();

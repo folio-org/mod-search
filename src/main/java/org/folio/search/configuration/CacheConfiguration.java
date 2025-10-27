@@ -41,5 +41,5 @@ public class CacheConfiguration {
             .build());
 
     return cacheManager;
-  }
+  } //todo: reindex status endpoint version bump
 } //todo: full reindex endpoint version bump

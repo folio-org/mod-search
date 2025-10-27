@@ -59,6 +59,7 @@ public abstract class UploadRangeRepository extends ReindexJdbcRepository {
     this.reindexConfig = reindexConfig;
   }
 
+  @SuppressWarnings("java:S2077")
   public List<UploadRangeEntity> getUploadRanges() {
     var fullTableName = getFullTableName(context, UPLOAD_RANGE_TABLE);
     var sql = SELECT_UPLOAD_RANGE_BY_ENTITY_TYPE_SQL.formatted(fullTableName);
@@ -66,6 +67,7 @@ public abstract class UploadRangeRepository extends ReindexJdbcRepository {
     return jdbcTemplate.query(sql, uploadRangeRowMapper(), entityType().getType());
   }
 
+  @SuppressWarnings("java:S2077")
   public List<UploadRangeEntity> createUploadRanges() {
     var fullTableName = getFullTableName(context, UPLOAD_RANGE_TABLE);
     var deleteSql = DELETE_UPLOAD_RANGE_SQL.formatted(fullTableName);
@@ -134,6 +136,7 @@ public abstract class UploadRangeRepository extends ReindexJdbcRepository {
     return ranges;
   }
 
+  @SuppressWarnings("java:S2077")
   private void upsertUploadRanges(List<UploadRangeEntity> uploadRanges) {
     var fullTableName = getFullTableName(context, UPLOAD_RANGE_TABLE);
     jdbcTemplate.batchUpdate(UPSERT_UPLOAD_RANGE_SQL.formatted(fullTableName), uploadRanges, BATCH_OPERATION_SIZE,

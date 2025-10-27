@@ -66,6 +66,7 @@ public class HoldingRepository extends MergeRangeRepository {
       });
   }
 
+  @SuppressWarnings("java:S2077")
   private void saveEntitiesToStaging(String tenantId, List<Map<String, Object>> entities) {
     var fullTableName = getFullTableName(context, ReindexConstants.STAGING_HOLDING_TABLE);
     var sql = INSERT_STAGING_SQL.formatted(fullTableName);

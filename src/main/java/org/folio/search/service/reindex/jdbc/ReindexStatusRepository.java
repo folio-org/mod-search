@@ -35,7 +35,7 @@ public class ReindexStatusRepository {
 
   private static final String INSERT_REINDEX_STATUS_SQL = """
       INSERT INTO %s (entity_type, status, total_merge_ranges, processed_merge_ranges, total_upload_ranges,
-      processed_upload_ranges, start_time_merge, end_time_merge, start_time_upload, end_time_upload, 
+      processed_upload_ranges, start_time_merge, end_time_merge, start_time_upload, end_time_upload,
       start_time_staging, end_time_staging, target_tenant_id)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
     """;
@@ -154,6 +154,7 @@ public class ReindexStatusRepository {
     jdbcTemplate.update(sql, ReindexStatus.MERGE_IN_PROGRESS.name());
   }
 
+  @SuppressWarnings("java:S2077")
   public void setStagingStarted(List<ReindexEntityType> entityTypes) {
     var inTypes = entityTypes.stream()
       .map(entityType -> "'%s'".formatted(entityType.name()))
@@ -165,6 +166,7 @@ public class ReindexStatusRepository {
     jdbcTemplate.update(sql, ReindexStatus.STAGING_IN_PROGRESS.name(), Timestamp.from(Instant.now()));
   }
 
+  @SuppressWarnings("java:S2077")
   public void setStagingCompleted(List<ReindexEntityType> entityTypes) {
     var inTypes = entityTypes.stream()
       .map(entityType -> "'%s'".formatted(entityType.name()))
@@ -176,6 +178,7 @@ public class ReindexStatusRepository {
     jdbcTemplate.update(sql, ReindexStatus.STAGING_COMPLETED.name(), Timestamp.from(Instant.now()));
   }
 
+  @SuppressWarnings("java:S2077")
   public void setStagingFailed(List<ReindexEntityType> entityTypes) {
     var inTypes = entityTypes.stream()
       .map(entityType -> "'%s'".formatted(entityType.name()))
@@ -211,12 +214,14 @@ public class ReindexStatusRepository {
     return Boolean.TRUE.equals(jdbcTemplate.queryForObject(SELECT_MERGE_STATUS_SQL, Boolean.class));
   }
 
+  @SuppressWarnings("java:S2077")
   public String getTargetTenantId() {
     var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
     var sql = SELECT_TARGET_TENANT_ID_SQL.formatted(fullTableName);
     return jdbcTemplate.queryForObject(sql, String.class);
   }
 
+  @SuppressWarnings("java:S2077")
   public void recreateReindexStatusTrigger(boolean isConsortiumMember) {
     var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
     var functionName = isConsortiumMember ? UPDATE_CONSORTIUM_MEMBER_REINDEX_STATUS_FUNCTION_NAME

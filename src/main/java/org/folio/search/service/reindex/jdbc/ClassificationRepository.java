@@ -165,11 +165,6 @@ public class ClassificationRepository extends UploadRangeRepository implements I
   }
 
   @Override
-  protected Optional<String> stagingEntityTable() {
-    return Optional.empty();
-  }
-
-  @Override
   protected Optional<String> subEntityStagingTable() {
     return Optional.of(ReindexConstants.STAGING_INSTANCE_CLASSIFICATION_TABLE);
   }
@@ -264,6 +259,7 @@ public class ClassificationRepository extends UploadRangeRepository implements I
     }
   }
 
+  @SuppressWarnings("java:S2077")
   private void saveEntitiesToStaging(List<Map<String, Object>> entities) {
     var stagingEntitiesSql = INSERT_STAGING_ENTITIES_SQL.formatted(JdbcUtils.getSchemaName(context));
     try {
@@ -311,6 +307,7 @@ public class ClassificationRepository extends UploadRangeRepository implements I
     }
   }
 
+  @SuppressWarnings("java:S2077")
   private void saveRelationshipsToStaging(List<Map<String, Object>> relationships) {
     var stagingRelationsSql = INSERT_STAGING_RELATIONS_SQL.formatted(JdbcUtils.getSchemaName(context));
     try {

@@ -58,6 +58,7 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
   }
 
   @Transactional
+  @SuppressWarnings("java:S2077")
   public void saveMergeRanges(List<MergeRangeEntity> mergeRanges) {
     var fullTableName = getFullTableName(context, MERGE_RANGE_TABLE);
     jdbcTemplate.batchUpdate(INSERT_MERGE_RANGE_SQL.formatted(fullTableName), mergeRanges, BATCH_OPERATION_SIZE,
@@ -72,12 +73,14 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
       });
   }
 
+  @SuppressWarnings("java:S2077")
   public List<MergeRangeEntity> getMergeRanges() {
     var fullTableName = getFullTableName(context, MERGE_RANGE_TABLE);
     var sql = SELECT_MERGE_RANGES_BY_ENTITY_TYPE.formatted(fullTableName);
     return jdbcTemplate.query(sql, mergeRangeEntityRowMapper(), entityType().getType());
   }
 
+  @SuppressWarnings("java:S2077")
   public List<MergeRangeEntity> getFailedMergeRanges() {
     var fullTableName = getFullTableName(context, MERGE_RANGE_TABLE);
     var sql = SELECT_FAILED_MERGE_RANGES.formatted(fullTableName);
@@ -102,6 +105,7 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
   }
 
   @Transactional
+  @SuppressWarnings("java:S2077")
   public void deleteEntitiesForTenant(List<String> ids, String tenantId, boolean hard) {
     var fullTableName = getFullTableName(context, entityTable());
     var query = hard ? DELETE_SQL_FOR_TENANT : SOFT_DELETE_SQL_FOR_TENANT;
@@ -120,6 +124,7 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
   }
 
   @Transactional
+  @SuppressWarnings("java:S2077")
   public void deleteEntities(List<String> ids, boolean hard) {
     var fullTableName = getFullTableName(context, entityTable());
     var query = hard ? DELETE_SQL : SOFT_DELETE_SQL;

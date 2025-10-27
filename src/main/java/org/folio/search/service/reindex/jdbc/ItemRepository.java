@@ -76,6 +76,7 @@ public class ItemRepository extends MergeRangeRepository {
     }
   }
 
+  @SuppressWarnings("java:S2077")
   private void saveEntitiesToMain(String tenantId, List<Map<String, Object>> entities) {
     var fullTableName = getFullTableName(context, entityTable());
     var sql = INSERT_SQL.formatted(fullTableName);
@@ -90,6 +91,7 @@ public class ItemRepository extends MergeRangeRepository {
       });
   }
 
+  @SuppressWarnings("java:S2077")
   private void saveEntitiesToStaging(String tenantId, List<Map<String, Object>> entities) {
     var fullTableName = getFullTableName(context, ReindexConstants.STAGING_ITEM_TABLE);
     var sql = INSERT_STAGING_SQL.formatted(fullTableName);
@@ -107,6 +109,7 @@ public class ItemRepository extends MergeRangeRepository {
   }
 
   @Override
+  @SuppressWarnings("java:S2077")
   public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp) {
     var sql = SELECT_BY_UPDATED_QUERY.formatted(getSchemaName(tenant, context.getFolioModuleMetadata()));
     var records = jdbcTemplate.query(sql, itemRowMapper(), timestamp);

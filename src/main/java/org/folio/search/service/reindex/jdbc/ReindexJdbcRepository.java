@@ -59,6 +59,7 @@ public abstract class ReindexJdbcRepository {
   }
 
   @Transactional
+  @SuppressWarnings("java:S2077")
   public void deleteByTenantId(String tenantId) {
     // Delete from sub-entity table if present
     subEntityTable().ifPresent(tableName -> {
@@ -154,6 +155,7 @@ public abstract class ReindexJdbcRepository {
 
   protected abstract String rangeTable();
 
+  @SuppressWarnings("java:S2077")
   protected void deleteByInstanceIds(String query, List<String> instanceIds, String tenantId) {
     var sql = query.formatted(
       JdbcUtils.getSchemaName(context),

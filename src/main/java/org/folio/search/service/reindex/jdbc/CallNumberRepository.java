@@ -327,6 +327,7 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
     }
   }
 
+  @SuppressWarnings("java:S2077")
   private void saveResourceEntitiesToStaging(ChildResourceEntityBatch entityBatch) {
     var stagingCallNumberTable = getFullTableName(context, STAGING_CALL_NUMBER_TABLE);
     var stagingCallNumberSql = INSERT_STAGING_ENTITIES_SQL.formatted(stagingCallNumberTable);
@@ -381,6 +382,7 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
     }
   }
 
+  @SuppressWarnings("java:S2077")
   private void saveRelationshipEntitiesToStaging(ChildResourceEntityBatch entityBatch) {
     var stagingInstanceCallNumberTable = getFullTableName(context, STAGING_INSTANCE_CALL_NUMBER_TABLE);
     var stagingInstanceCallNumberSql = INSERT_STAGING_RELATIONS_SQL.formatted(stagingInstanceCallNumberTable);

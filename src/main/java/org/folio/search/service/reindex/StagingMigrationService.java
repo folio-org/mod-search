@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Log4j2
 @Service
+@SuppressWarnings("java:S2077")
 public class StagingMigrationService {
 
   protected static final Timestamp RESOURCE_REINDEX_TIMESTAMP = Timestamp.valueOf("2000-01-01 00:00:00");

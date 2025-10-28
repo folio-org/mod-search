@@ -82,5 +82,12 @@ public class SearchConfigurationProperties {
      * Default is 100 records per batch.
      */
     private int subResourceBatchSize = 100;
+
+    /**
+     * Threshold in milliseconds for detecting stale locks during sub-resource processing.
+     * If a lock's last_updated_date is older than this threshold, it's considered stale and will be released.
+     * Default is 10 minutes (600000 ms).
+     */
+    private long staleLockThresholdMs = 600_000L; // 10 minutes
   }
 }

@@ -1157,6 +1157,16 @@
         "description": "Batch size for indexing subjects/contributors/classifications"
       },
       {
+        "name": "SUB_RESOURCE_BATCH_SIZE",
+        "value": "100",
+        "description": "Defines number of sub-resources to process at a time during background indexing"
+      },
+      {
+        "name": "STALE_LOCK_THRESHOLD_MS",
+        "value": "600000",
+        "description": "Threshold to consider a sub-resource lock as stale and eligible for release"
+      },
+      {
         "name": "INITIAL_LANGUAGES",
         "value": "eng",
         "description": "Comma separated list of languages for multilang fields"

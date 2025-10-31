@@ -281,6 +281,8 @@ and [Cross-cluster replication](https://docs.aws.amazon.com/opensearch-service/l
 | MAX_SEARCH_BATCH_REQUEST_IDS_COUNT                 | 20000                                                | Defines maximum batch request IDs count for searching consolidated items/holdings in consortium                                                                                       |
 | INSTANCE_CHILDREN_INDEX_ENABLED                    | true                                                 | Defines if module should process subjects/contributors/classifications/call-numbers in a background                                                                                   |
 | INSTANCE_CHILDREN_INDEX_DELAY_MS                   | 60000                                                | Defines the delay for scheduler that indexes subjects/contributors/classifications/call-numbers in a background                                                                       |
+| SUB_RESOURCE_BATCH_SIZE                            | 100                                                  | Defines number of sub-resources to process at a time during background indexing                                                                                                       |
+| STALE_LOCK_THRESHOLD_MS                            | 600000                                               | Threshold to consider a sub-resource lock as stale and eligible for release                                                                                                           |
 
 The module uses system user to communicate with other modules from Kafka consumers.
 For production deployments you MUST specify the password for this system user via env variable:

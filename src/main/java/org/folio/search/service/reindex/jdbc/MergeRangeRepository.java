@@ -144,4 +144,14 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
       return mergeRange;
     };
   }
+
+  @Override
+  protected String buildSelectQuery(String sql, String tenant, boolean includeFromId) {
+    var whereClause = includeFromId ? "(last_updated_date, id) > (?, ?::uuid)" : "last_updated_date > ?";
+    var orderBy = "last_updated_date, id";
+    var orderByAsc = "last_updated_date ASC, id ASC";
+    var limitClause = "LIMIT ?";
+    return sql.formatted(
+      JdbcUtils.getSchemaName(tenant, context.getFolioModuleMetadata()), whereClause, orderBy, limitClause, orderByAsc);
+  }
 }

@@ -44,6 +44,7 @@ public class ScheduledInstanceSubResourcesService {
   private final SubResourcesLockRepository subResourcesLockRepository;
   private final SystemUserScopedExecutionService executionService;
   private final int subResourceBatchSize;
+  private final long staleLockThresholdMs;
   private InstanceChildrenResourceService instanceChildrenResourceService;
 
   public ScheduledInstanceSubResourcesService(ResourceService resourceService,
@@ -65,6 +66,7 @@ public class ScheduledInstanceSubResourcesService {
     this.subResourcesLockRepository = subResourcesLockRepository;
     this.executionService = executionService;
     this.subResourceBatchSize = searchConfigurationProperties.getIndexing().getSubResourceBatchSize();
+    this.staleLockThresholdMs = searchConfigurationProperties.getIndexing().getStaleLockThresholdMs();
     this.instanceChildrenResourceService = null;
   }
 
@@ -80,8 +82,20 @@ public class ScheduledInstanceSubResourcesService {
       .forEach(tenant -> executionService.executeSystemUserScoped(tenant, () -> {
         var entityTypes = repositories.keySet();
         for (var entityType : entityTypes) {
-          var timestamp = subResourcesLockRepository.lockSubResource(entityType, tenant);
-          timestamp.ifPresent(value -> processSubResources(entityType, tenant, value));
+          subResourcesLockRepository.lockSubResource(entityType, tenant)
+            .ifPresentOrElse(
+              // Lock acquired successfully - process sub-resources
+              timestamp -> processSubResources(entityType, tenant, timestamp),
+              // Lock acquisition failed - check if it's because of a stale lock and release it
+              () -> {
+                if (subResourcesLockRepository.checkAndReleaseStaleLock(entityType, tenant, staleLockThresholdMs)) {
+                  log.warn("persistChildren::Released stale lock for entity type {} in tenant {}. "
+                      + "Lock was older than threshold of {} ms",
+                    entityType, tenant, staleLockThresholdMs);
+                }
+                // Don't process sub-resources on the same call as stale lock release
+              }
+            );
         }
         return null;
       }));
@@ -96,26 +110,29 @@ public class ScheduledInstanceSubResourcesService {
 
     try {
       do {
-        if (entityType == ReindexEntityType.INSTANCE || entityType == ReindexEntityType.ITEM) {
-          result = repositories.get(entityType).fetchByTimestamp(tenant, timestamp);
-          processInstanceOrItemEntities(entityType, tenant, result);
-          break;
-        } else {
-          result = fetchSubResourceResult(entityType, tenant, timestamp, lastId, lastTimestamp);
+        result = fetchSubResourceResult(entityType, tenant, timestamp, lastId, lastTimestamp);
 
-          if (result == null || !result.hasRecords()) {
-            break;
-          }
+        if (result == null || !result.hasRecords()) {
+          break;
+        }
+
+        if (entityType == ReindexEntityType.INSTANCE || entityType == ReindexEntityType.ITEM) {
+          processInstanceOrItemEntities(entityType, tenant, result);
+        } else {
           var events = map(result.records(), entityType, tenant);
           resourceService.indexResources(events);
+        }
 
-          if (result.records().size() == subResourceBatchSize) {
-            var lastRecord = result.records().getLast();
-            lastId = getString(lastRecord, ID_FIELD);
-            lastTimestamp = result.lastUpdateDate();
-          } else {
-            break;
-          }
+        if (result.records().size() == subResourceBatchSize) {
+          // Update lock timestamp after successful batch processing to keep lock fresh
+          var currentTimestamp = result.lastUpdateDate() != null ? result.lastUpdateDate() : lastTimestamp;
+          subResourcesLockRepository.updateLockTimestamp(entityType, currentTimestamp, tenant);
+
+          var lastRecord = result.records().getLast();
+          lastId = getString(lastRecord, ID_FIELD);
+          lastTimestamp = result.lastUpdateDate();
+        } else {
+          break;
         }
       } while (result.hasRecords());
     } catch (Exception e) {

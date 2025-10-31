@@ -166,6 +166,11 @@ public class ClassificationRepository extends UploadRangeRepository implements I
   }
 
   @Override
+  protected Optional<String> stagingEntityTable() {
+    return Optional.of(ReindexConstants.STAGING_CLASSIFICATION_TABLE);
+  }
+
+  @Override
   protected Optional<String> subEntityStagingTable() {
     return Optional.of(ReindexConstants.STAGING_INSTANCE_CLASSIFICATION_TABLE);
   }

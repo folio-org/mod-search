@@ -173,6 +173,11 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
   }
 
   @Override
+  protected Optional<String> stagingEntityTable() {
+    return Optional.of(ReindexConstants.STAGING_SUBJECT_TABLE);
+  }
+
+  @Override
   protected Optional<String> subEntityStagingTable() {
     return Optional.of(ReindexConstants.STAGING_INSTANCE_SUBJECT_TABLE);
   }

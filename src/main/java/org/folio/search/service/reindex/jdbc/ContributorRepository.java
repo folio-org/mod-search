@@ -171,6 +171,11 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
   }
 
   @Override
+  protected Optional<String> stagingEntityTable() {
+    return Optional.of(ReindexConstants.STAGING_CONTRIBUTOR_TABLE);
+  }
+
+  @Override
   protected Optional<String> subEntityStagingTable() {
     return Optional.of(ReindexConstants.STAGING_INSTANCE_CONTRIBUTOR_TABLE);
   }

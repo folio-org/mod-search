@@ -334,13 +334,6 @@ public class StagingMigrationService {
     log.info("analyzeStagingTables:: Staging tables analyzed");
   }
 
-  public void cleanupStagingTables() {
-    var schema = getSchemaName(context);
-    var sql = String.format("SELECT %s.cleanup_all_staging_tables()", schema);
-    jdbcTemplate.execute(sql);
-    log.info("cleanupStagingTables:: Staging tables truncated successfully");
-  }
-
   /**
    * Sets the PostgreSQL work_mem parameter for the current transaction using SET LOCAL.
    * This optimizes query performance for memory-intensive operations during migration.

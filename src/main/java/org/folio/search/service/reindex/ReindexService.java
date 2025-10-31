@@ -107,13 +107,6 @@ public class ReindexService {
 
         mergeRangeService.truncateMergeRanges();
 
-        // Clean staging tables before merge phase for member tenant reindex only
-        if (memberTenantIdContext != null) {
-          log.info("submitFullReindex:: cleaning staging tables before merge phase for member tenant [{}]",
-            memberTenantIdContext);
-          mergeRangeService.cleanupStagingTables();
-        }
-
         List<MergeRangeEntity> rangesForAllTenants;
         if (memberTenantIdContext != null) {
           // Only process the member tenant (no central tenant in merge)
@@ -339,41 +332,30 @@ public class ReindexService {
     for (var entityType : ReindexEntityType.supportMergeTypes()) {
       var rangeEntities = mergeRangeService.fetchMergeRanges(entityType);
       if (CollectionUtils.isNotEmpty(rangeEntities)) {
-        // Filter ranges by target tenant if specified
-        var filteredRanges = rangeEntities;
-        if (targetTenantId != null) {
-          filteredRanges =
-            rangeEntities.stream().filter(rangeEntity -> targetTenantId.equals(rangeEntity.getTenantId())).toList();
-          log.info("publishRecordsRange:: filtered ranges for target tenant [originalCount: {}, filteredCount: {}]",
-            rangeEntities.size(), filteredRanges.size());
-        }
+        log.info("publishRecordsRange:: publishing merge ranges "
+            + "[requestingTenant: {}, entityType: {}, count: {}, targetTenant: {}]", tenantId, entityType,
+          rangeEntities.size(), targetTenantId != null ? targetTenantId : "all");
 
-        if (CollectionUtils.isNotEmpty(filteredRanges)) {
-          log.info("publishRecordsRange:: publishing merge ranges "
-              + "[requestingTenant: {}, entityType: {}, count: {}, targetTenant: {}]", tenantId, entityType,
-            filteredRanges.size(), targetTenantId != null ? targetTenantId : "all");
-
-          statusService.updateReindexMergeStarted(entityType, filteredRanges.size());
-          for (var rangeEntity : filteredRanges) {
-            var publishFuture = CompletableFuture.runAsync(() -> {
-              // Restore context in executor thread
+        statusService.updateReindexMergeStarted(entityType, rangeEntities.size());
+        for (var rangeEntity : rangeEntities) {
+          var publishFuture = CompletableFuture.runAsync(() -> {
+            // Restore context in executor thread
+            if (memberTenantIdContext != null) {
+              ReindexContext.setMemberTenantId(memberTenantIdContext);
+            }
+            try {
+              executionService.executeSystemUserScoped(rangeEntity.getTenantId(), () -> {
+                inventoryService.publishReindexRecordsRange(rangeEntity);
+                return null;
+              });
+            } finally {
+              // Clean up context in executor thread
               if (memberTenantIdContext != null) {
-                ReindexContext.setMemberTenantId(memberTenantIdContext);
+                ReindexContext.clearMemberTenantId();
               }
-              try {
-                executionService.executeSystemUserScoped(rangeEntity.getTenantId(), () -> {
-                  inventoryService.publishReindexRecordsRange(rangeEntity);
-                  return null;
-                });
-              } finally {
-                // Clean up context in executor thread
-                if (memberTenantIdContext != null) {
-                  ReindexContext.clearMemberTenantId();
-                }
-              }
-            }, reindexPublisherExecutor);
-            futures.add(publishFuture);
-          }
+            }
+          }, reindexPublisherExecutor);
+          futures.add(publishFuture);
         }
       }
     }

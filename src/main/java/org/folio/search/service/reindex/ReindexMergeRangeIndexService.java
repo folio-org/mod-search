@@ -172,8 +172,4 @@ public class ReindexMergeRangeIndexService {
       log.info("performStagingMigration:: Not member tenant refresh - staging tables not used, skipping migration");
     }
   }
-
-  public void cleanupStagingTables() {
-    migrationService.cleanupStagingTables();
-  }
 }

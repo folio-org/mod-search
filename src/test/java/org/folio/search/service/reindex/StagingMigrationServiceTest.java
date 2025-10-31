@@ -225,28 +225,5 @@ class StagingMigrationServiceTest {
       .isInstanceOf(ReindexException.class)
       .hasMessageContaining("Failed to set work_mem");
   }
-
-  @Test
-  void cleanupStagingTables_shouldCallCleanupFunction() {
-    // Arrange
-    doNothing().when(jdbcTemplate).execute(anyString());
-
-    // Act
-    stagingMigrationService.cleanupStagingTables();
-
-    // Assert
-    verify(jdbcTemplate).execute(contains("cleanup_all_staging_tables()"));
-  }
-
-  @Test
-  void cleanupStagingTables_whenFails_shouldPropagateException() {
-    // Arrange
-    doThrow(new DataAccessException("Cleanup failed") {})
-      .when(jdbcTemplate).execute(anyString());
-
-    // Act & Assert
-    assertThatThrownBy(() -> stagingMigrationService.cleanupStagingTables())
-      .isInstanceOf(DataAccessException.class);
-  }
 }
 

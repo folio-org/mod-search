@@ -14,6 +14,7 @@ import static org.folio.search.model.reindex.ReindexStatusEntity.TOTAL_MERGE_RAN
 import static org.folio.search.model.reindex.ReindexStatusEntity.TOTAL_UPLOAD_RANGES_COLUMN;
 import static org.folio.search.service.reindex.ReindexConstants.REINDEX_STATUS_TABLE;
 import static org.folio.search.utils.JdbcUtils.getFullTableName;
+import static org.folio.search.utils.JdbcUtils.getSchemaName;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -71,9 +72,9 @@ public class ReindexStatusRepository {
     DROP TRIGGER IF EXISTS reindex_status_updated_trigger ON %s CASCADE;
     CREATE TRIGGER reindex_status_updated_trigger
         BEFORE UPDATE OF processed_merge_ranges, processed_upload_ranges
-        ON reindex_status
+        ON %s
         FOR EACH ROW
-    EXECUTE FUNCTION %s();
+    EXECUTE FUNCTION %s.%s();
     """;
 
   private static final String UPDATE_REINDEX_STATUS_FUNCTION_NAME = "update_reindex_status_trigger";
@@ -223,10 +224,12 @@ public class ReindexStatusRepository {
 
   @SuppressWarnings("java:S2077")
   public void recreateReindexStatusTrigger(boolean isConsortiumMember) {
+    var schemaName = getSchemaName(context);
     var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
     var functionName = isConsortiumMember ? UPDATE_CONSORTIUM_MEMBER_REINDEX_STATUS_FUNCTION_NAME
       : UPDATE_REINDEX_STATUS_FUNCTION_NAME;
-    var sql = RECREATE_REINDEX_STATUS_TRIGGER_SQL.formatted(fullTableName, functionName);
+    var sql = RECREATE_REINDEX_STATUS_TRIGGER_SQL.formatted(fullTableName, fullTableName,
+      schemaName, functionName);
     jdbcTemplate.execute(sql);
   }
 

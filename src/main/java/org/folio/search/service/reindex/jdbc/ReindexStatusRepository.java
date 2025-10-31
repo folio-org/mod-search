@@ -1,16 +1,20 @@
 package org.folio.search.service.reindex.jdbc;
 
 import static org.folio.search.model.reindex.ReindexStatusEntity.END_TIME_MERGE_COLUMN;
+import static org.folio.search.model.reindex.ReindexStatusEntity.END_TIME_STAGING_COLUMN;
 import static org.folio.search.model.reindex.ReindexStatusEntity.END_TIME_UPLOAD_COLUMN;
 import static org.folio.search.model.reindex.ReindexStatusEntity.PROCESSED_MERGE_RANGES_COLUMN;
 import static org.folio.search.model.reindex.ReindexStatusEntity.PROCESSED_UPLOAD_RANGES_COLUMN;
 import static org.folio.search.model.reindex.ReindexStatusEntity.START_TIME_MERGE_COLUMN;
+import static org.folio.search.model.reindex.ReindexStatusEntity.START_TIME_STAGING_COLUMN;
 import static org.folio.search.model.reindex.ReindexStatusEntity.START_TIME_UPLOAD_COLUMN;
 import static org.folio.search.model.reindex.ReindexStatusEntity.STATUS_COLUMN;
+import static org.folio.search.model.reindex.ReindexStatusEntity.TARGET_TENANT_ID_COLUMN;
 import static org.folio.search.model.reindex.ReindexStatusEntity.TOTAL_MERGE_RANGES_COLUMN;
 import static org.folio.search.model.reindex.ReindexStatusEntity.TOTAL_UPLOAD_RANGES_COLUMN;
 import static org.folio.search.service.reindex.ReindexConstants.REINDEX_STATUS_TABLE;
 import static org.folio.search.utils.JdbcUtils.getFullTableName;
+import static org.folio.search.utils.JdbcUtils.getSchemaName;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -32,8 +36,9 @@ public class ReindexStatusRepository {
 
   private static final String INSERT_REINDEX_STATUS_SQL = """
       INSERT INTO %s (entity_type, status, total_merge_ranges, processed_merge_ranges, total_upload_ranges,
-      processed_upload_ranges, start_time_merge, end_time_merge, start_time_upload, end_time_upload)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+      processed_upload_ranges, start_time_merge, end_time_merge, start_time_upload, end_time_upload,
+      start_time_staging, end_time_staging, target_tenant_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
     """;
 
   private static final String UPDATE_SQL = """
@@ -60,6 +65,21 @@ public class ReindexStatusRepository {
   private static final String QUERY_TWO_COLUMNS_PLACEHOLDER = "%s = ?, %s = ?";
 
   private static final String SELECT_MERGE_STATUS_SQL = "SELECT check_merge_completed_status()";
+
+  private static final String SELECT_TARGET_TENANT_ID_SQL = "SELECT target_tenant_id FROM %s LIMIT 1";
+
+  private static final String RECREATE_REINDEX_STATUS_TRIGGER_SQL = """
+    DROP TRIGGER IF EXISTS reindex_status_updated_trigger ON %s CASCADE;
+    CREATE TRIGGER reindex_status_updated_trigger
+        BEFORE UPDATE OF processed_merge_ranges, processed_upload_ranges
+        ON %s
+        FOR EACH ROW
+    EXECUTE FUNCTION %s.%s();
+    """;
+
+  private static final String UPDATE_REINDEX_STATUS_FUNCTION_NAME = "update_reindex_status_trigger";
+  private static final String UPDATE_CONSORTIUM_MEMBER_REINDEX_STATUS_FUNCTION_NAME =
+    "update_consortium_member_reindex_status_trigger";
 
   private final FolioExecutionContext context;
   private final JdbcTemplate jdbcTemplate;
@@ -135,6 +155,42 @@ public class ReindexStatusRepository {
     jdbcTemplate.update(sql, ReindexStatus.MERGE_IN_PROGRESS.name());
   }
 
+  @SuppressWarnings("java:S2077")
+  public void setStagingStarted(List<ReindexEntityType> entityTypes) {
+    var inTypes = entityTypes.stream()
+      .map(entityType -> "'%s'".formatted(entityType.name()))
+      .collect(Collectors.joining(","));
+    var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
+    var sql = UPDATE_FOR_ENTITIES_SQL.formatted(
+      fullTableName, QUERY_TWO_COLUMNS_PLACEHOLDER.formatted(STATUS_COLUMN, START_TIME_STAGING_COLUMN), inTypes);
+
+    jdbcTemplate.update(sql, ReindexStatus.STAGING_IN_PROGRESS.name(), Timestamp.from(Instant.now()));
+  }
+
+  @SuppressWarnings("java:S2077")
+  public void setStagingCompleted(List<ReindexEntityType> entityTypes) {
+    var inTypes = entityTypes.stream()
+      .map(entityType -> "'%s'".formatted(entityType.name()))
+      .collect(Collectors.joining(","));
+    var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
+    var sql = UPDATE_FOR_ENTITIES_SQL.formatted(
+      fullTableName, QUERY_TWO_COLUMNS_PLACEHOLDER.formatted(STATUS_COLUMN, END_TIME_STAGING_COLUMN), inTypes);
+
+    jdbcTemplate.update(sql, ReindexStatus.STAGING_COMPLETED.name(), Timestamp.from(Instant.now()));
+  }
+
+  @SuppressWarnings("java:S2077")
+  public void setStagingFailed(List<ReindexEntityType> entityTypes) {
+    var inTypes = entityTypes.stream()
+      .map(entityType -> "'%s'".formatted(entityType.name()))
+      .collect(Collectors.joining(","));
+    var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
+    var sql = UPDATE_FOR_ENTITIES_SQL.formatted(
+      fullTableName, QUERY_TWO_COLUMNS_PLACEHOLDER.formatted(STATUS_COLUMN, END_TIME_STAGING_COLUMN), inTypes);
+
+    jdbcTemplate.update(sql, ReindexStatus.STAGING_FAILED.name(), Timestamp.from(Instant.now()));
+  }
+
   public void saveReindexStatusRecords(List<ReindexStatusEntity> statusRecords) {
     var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
     jdbcTemplate.batchUpdate(INSERT_REINDEX_STATUS_SQL.formatted(fullTableName), statusRecords, 10,
@@ -149,11 +205,32 @@ public class ReindexStatusRepository {
         statement.setTimestamp(8, entity.getEndTimeMerge());
         statement.setTimestamp(9, entity.getStartTimeUpload());
         statement.setTimestamp(10, entity.getEndTimeUpload());
+        statement.setTimestamp(11, entity.getStartTimeStaging());
+        statement.setTimestamp(12, entity.getEndTimeStaging());
+        statement.setString(13, entity.getTargetTenantId());
       });
   }
 
   public boolean isMergeCompleted() {
     return Boolean.TRUE.equals(jdbcTemplate.queryForObject(SELECT_MERGE_STATUS_SQL, Boolean.class));
+  }
+
+  @SuppressWarnings("java:S2077")
+  public String getTargetTenantId() {
+    var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
+    var sql = SELECT_TARGET_TENANT_ID_SQL.formatted(fullTableName);
+    return jdbcTemplate.queryForObject(sql, String.class);
+  }
+
+  @SuppressWarnings("java:S2077")
+  public void recreateReindexStatusTrigger(boolean isConsortiumMember) {
+    var schemaName = getSchemaName(context);
+    var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
+    var functionName = isConsortiumMember ? UPDATE_CONSORTIUM_MEMBER_REINDEX_STATUS_FUNCTION_NAME
+      : UPDATE_REINDEX_STATUS_FUNCTION_NAME;
+    var sql = RECREATE_REINDEX_STATUS_TRIGGER_SQL.formatted(fullTableName, fullTableName,
+      schemaName, functionName);
+    jdbcTemplate.execute(sql);
   }
 
   private RowMapper<ReindexStatusEntity> reindexStatusRowMapper() {
@@ -170,6 +247,9 @@ public class ReindexStatusRepository {
       reindexStatus.setEndTimeMerge(rs.getTimestamp(END_TIME_MERGE_COLUMN));
       reindexStatus.setStartTimeUpload(rs.getTimestamp(START_TIME_UPLOAD_COLUMN));
       reindexStatus.setEndTimeUpload(rs.getTimestamp(END_TIME_UPLOAD_COLUMN));
+      reindexStatus.setStartTimeStaging(rs.getTimestamp(START_TIME_STAGING_COLUMN));
+      reindexStatus.setEndTimeStaging(rs.getTimestamp(END_TIME_STAGING_COLUMN));
+      reindexStatus.setTargetTenantId(rs.getString(TARGET_TENANT_ID_COLUMN));
       return reindexStatus;
     };
   }

@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="MSEARCH-1057@@create-staging-instance-table" author="okolawole">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="staging_instance"/>
+            </not>
+        </preConditions>
+
+        <comment>Create staging_instance table for reindex deduplication</comment>
+
+        <sql splitStatements="false">
+            CREATE UNLOGGED TABLE staging_instance (
+            id UUID NOT NULL,
+            tenant_id VARCHAR(100) NOT NULL,
+            shared BOOLEAN NOT NULL,
+            is_bound_with BOOLEAN NOT NULL,
+            json JSONB NOT NULL,
+            inserted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+            ) PARTITION BY RANGE (SUBSTRING(id::text, 1, 1));
+        </sql>
+    </changeSet>
+
+    <changeSet id="MSEARCH-1057@@create-staging-holding-table" author="okolawole">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="staging_holding"/>
+            </not>
+        </preConditions>
+
+        <comment>Create staging_holding table for reindex deduplication</comment>
+
+        <sql splitStatements="false">
+            CREATE UNLOGGED TABLE staging_holding (
+            id UUID NOT NULL,
+            tenant_id VARCHAR(100) NOT NULL,
+            instance_id UUID NOT NULL,
+            json JSONB NOT NULL,
+            inserted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+            ) PARTITION BY RANGE (SUBSTRING(id::text, 1, 1));
+        </sql>
+    </changeSet>
+
+    <changeSet id="MSEARCH-1057@@create-staging-item-table" author="okolawole">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="staging_item"/>
+            </not>
+        </preConditions>
+
+        <comment>Create staging_item table for reindex deduplication</comment>
+
+        <sql splitStatements="false">
+            CREATE UNLOGGED TABLE staging_item (
+            id UUID NOT NULL,
+            tenant_id VARCHAR(100) NOT NULL,
+            instance_id UUID NOT NULL,
+            holding_id UUID NOT NULL,
+            json JSONB NOT NULL,
+            inserted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+            ) PARTITION BY RANGE (SUBSTRING(id::text, 1, 1));
+        </sql>
+    </changeSet>
+
+
+    <changeSet id="MSEARCH-1057@@create-staging-instance-subject-table" author="okolawole">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="staging_instance_subject"/>
+            </not>
+        </preConditions>
+
+        <comment>Create staging_instance_subject table for reindex deduplication</comment>
+
+        <sql splitStatements="false">
+            CREATE UNLOGGED TABLE staging_instance_subject (
+            instance_id UUID NOT NULL,
+            subject_id VARCHAR(40) NOT NULL,
+            tenant_id VARCHAR(100) NOT NULL,
+            shared BOOLEAN NOT NULL,
+            inserted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+            ) PARTITION BY RANGE (SUBSTRING(instance_id::text, 1, 1));
+        </sql>
+    </changeSet>
+
+    <changeSet id="MSEARCH-1057@@create-staging-instance-contributor-table" author="okolawole">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="staging_instance_contributor"/>
+            </not>
+        </preConditions>
+
+        <comment>Create staging_instance_contributor table for reindex deduplication</comment>
+
+        <sql splitStatements="false">
+            CREATE UNLOGGED TABLE staging_instance_contributor (
+            instance_id UUID NOT NULL,
+            contributor_id VARCHAR(40) NOT NULL,
+            type_id VARCHAR(40) NOT NULL,
+            tenant_id VARCHAR(100) NOT NULL,
+            shared BOOLEAN NOT NULL,
+            inserted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+            ) PARTITION BY RANGE (SUBSTRING(instance_id::text, 1, 1));
+        </sql>
+    </changeSet>
+
+    <changeSet id="MSEARCH-1057@@create-staging-instance-classification-table" author="okolawole">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="staging_instance_classification"/>
+            </not>
+        </preConditions>
+
+        <comment>Create staging_instance_classification table for reindex deduplication</comment>
+
+        <sql splitStatements="false">
+            CREATE UNLOGGED TABLE staging_instance_classification (
+            instance_id UUID NOT NULL,
+            classification_id VARCHAR(40) NOT NULL,
+            tenant_id VARCHAR(100) NOT NULL,
+            shared BOOLEAN NOT NULL,
+            inserted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+            ) PARTITION BY RANGE (SUBSTRING(instance_id::text, 1, 1));
+        </sql>
+    </changeSet>
+
+    <changeSet id="MSEARCH-1057@@create-staging-instance-call-number-table" author="okolawole">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="staging_instance_call_number"/>
+            </not>
+        </preConditions>
+
+        <comment>Create staging_instance_call_number table for reindex deduplication</comment>
+
+        <sql splitStatements="false">
+            CREATE UNLOGGED TABLE staging_instance_call_number (
+            call_number_id VARCHAR(40) NOT NULL,
+            item_id UUID NOT NULL,
+            instance_id UUID NOT NULL,
+            tenant_id VARCHAR(100) NOT NULL,
+            location_id UUID,
+            inserted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+            ) PARTITION BY RANGE (SUBSTRING(instance_id::text, 1, 1));
+        </sql>
+    </changeSet>
+
+    <changeSet id="MSEARCH-1057@@create-staging-subject-table" author="okolawole">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="staging_subject"/>
+            </not>
+        </preConditions>
+
+        <comment>Create staging_subject table for reindex deduplication</comment>
+
+        <sql splitStatements="false">
+            CREATE UNLOGGED TABLE staging_subject (
+            id VARCHAR(40) NOT NULL,
+            value VARCHAR(255) NOT NULL,
+            authority_id VARCHAR(40),
+            source_id VARCHAR(40),
+            type_id VARCHAR(40),
+            inserted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+            ) PARTITION BY RANGE (SUBSTRING(id::text, 1, 1));
+        </sql>
+    </changeSet>
+
+    <changeSet id="MSEARCH-1057@@create-staging-contributor-table" author="okolawole">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="staging_contributor"/>
+            </not>
+        </preConditions>
+
+        <comment>Create staging_contributor table for reindex deduplication</comment>
+
+        <sql splitStatements="false">
+            CREATE UNLOGGED TABLE staging_contributor (
+            id VARCHAR(40) NOT NULL,
+            name VARCHAR(255) NOT NULL,
+            name_type_id VARCHAR(40),
+            authority_id VARCHAR(40),
+            inserted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+            ) PARTITION BY RANGE (SUBSTRING(id::text, 1, 1));
+        </sql>
+    </changeSet>
+
+    <changeSet id="MSEARCH-1057@@create-staging-classification-table" author="okolawole">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="staging_classification"/>
+            </not>
+        </preConditions>
+
+        <comment>Create staging_classification table for reindex deduplication</comment>
+
+        <sql splitStatements="false">
+            CREATE UNLOGGED TABLE staging_classification (
+            id VARCHAR(40) NOT NULL,
+            number VARCHAR(50) NOT NULL,
+            type_id VARCHAR(40),
+            inserted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+            ) PARTITION BY RANGE (SUBSTRING(id::text, 1, 1));
+        </sql>
+    </changeSet>
+
+    <changeSet id="MSEARCH-1057@@create-staging-call-number-table" author="okolawole">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="staging_call_number"/>
+            </not>
+        </preConditions>
+
+        <comment>Create staging_call_number table for reindex deduplication</comment>
+
+        <sql splitStatements="false">
+            CREATE UNLOGGED TABLE staging_call_number (
+            id VARCHAR(40) NOT NULL,
+            call_number VARCHAR(50) NOT NULL,
+            call_number_prefix VARCHAR(20),
+            call_number_suffix VARCHAR(25),
+            call_number_type_id VARCHAR(40),
+            inserted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+            ) PARTITION BY RANGE (SUBSTRING(id::text, 1, 1));
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

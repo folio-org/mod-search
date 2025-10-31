@@ -16,6 +16,7 @@ import static org.opensearch.client.RequestOptions.DEFAULT;
 
 import java.io.IOException;
 import java.util.List;
+import org.folio.search.configuration.properties.IndexManagementConfigurationProperties;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
@@ -46,6 +47,8 @@ class IndexRepositoryTest {
   private RestHighLevelClient restHighLevelClient;
   @Mock
   private IndicesClient indices;
+  @Mock
+  private IndexManagementConfigurationProperties indexManagementConfig;
 
   @Test
   void createIndex_positive() throws IOException {

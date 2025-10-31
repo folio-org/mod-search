@@ -20,6 +20,7 @@ import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.entity.ChildResourceEntityBatch;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.reindex.ReindexConstants;
+import org.folio.search.service.reindex.ReindexContext;
 import org.folio.search.utils.JdbcUtils;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
@@ -30,6 +31,7 @@ import org.springframework.stereotype.Repository;
 
 @Log4j2
 @Repository
+@SuppressWarnings("java:S2077")
 public class SubjectRepository extends UploadRangeRepository implements InstanceChildResourceRepository {
 
   private static final String SELECT_QUERY = """
@@ -130,10 +132,19 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
       VALUES (?, ?, ?, ?, ?)
       ON CONFLICT (id) DO UPDATE SET last_updated_date = CURRENT_TIMESTAMP;
     """;
+  private static final String INSERT_STAGING_ENTITIES_SQL = """
+      INSERT INTO %s.staging_subject (id, value, authority_id, source_id, type_id, inserted_at)
+      VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP);
+    """;
   private static final String INSERT_RELATIONS_SQL = """
       INSERT INTO %s.instance_subject (instance_id, subject_id, tenant_id, shared)
       VALUES (?::uuid, ?, ?, ?)
       ON CONFLICT DO NOTHING;
+    """;
+
+  private static final String INSERT_STAGING_RELATIONS_SQL = """
+      INSERT INTO %s.staging_instance_subject (instance_id, subject_id, tenant_id, shared, inserted_at)
+      VALUES (?::uuid, ?, ?, ?, CURRENT_TIMESTAMP);
     """;
 
   private static final String ID_RANGE_INS_WHERE_CLAUSE = "ins.subject_id >= ? AND ins.subject_id <= ?";
@@ -159,6 +170,22 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
   @Override
   protected Optional<String> subEntityTable() {
     return Optional.of(ReindexConstants.INSTANCE_SUBJECT_TABLE);
+  }
+
+  @Override
+  protected Optional<String> stagingEntityTable() {
+    return Optional.of(ReindexConstants.STAGING_SUBJECT_TABLE);
+  }
+
+  @Override
+  protected Optional<String> subEntityStagingTable() {
+    return Optional.of(ReindexConstants.STAGING_INSTANCE_SUBJECT_TABLE);
+  }
+
+  @Override
+  protected boolean supportsTenantSpecificDeletion() {
+    // Subject table doesn't have tenant_id column - it's shared across tenants
+    return false;
   }
 
   @Override
@@ -215,9 +242,20 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
 
   @Override
   public void saveAll(ChildResourceEntityBatch entityBatch) {
+    // Use staging tables only for member tenant specific full reindex
+    if (ReindexContext.isReindexMode() && ReindexContext.isMemberTenantReindex()) {
+      saveEntitiesToStaging(entityBatch.resourceEntities().stream().toList());
+      saveRelationshipsToStaging(entityBatch.relationshipEntities().stream().toList());
+    } else {
+      saveEntitiesToMain(entityBatch.resourceEntities().stream().toList());
+      saveRelationshipsToMain(entityBatch.relationshipEntities().stream().toList());
+    }
+  }
+
+  private void saveEntitiesToMain(List<Map<String, Object>> entities) {
     var entitiesSql = INSERT_ENTITIES_SQL.formatted(JdbcUtils.getSchemaName(context));
     try {
-      jdbcTemplate.batchUpdate(entitiesSql, entityBatch.resourceEntities(), BATCH_OPERATION_SIZE,
+      jdbcTemplate.batchUpdate(entitiesSql, entities, BATCH_OPERATION_SIZE,
         (statement, entity) -> {
           statement.setString(1, (String) entity.get("id"));
           statement.setString(2, (String) entity.get(SUBJECT_VALUE_FIELD));
@@ -227,15 +265,46 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
         });
     } catch (DataAccessException e) {
       logWarnDebugError(SAVE_ENTITIES_BATCH_ERROR_MESSAGE, e);
-      for (var entity : entityBatch.resourceEntities()) {
-        jdbcTemplate.update(entitiesSql, entity.get("id"), entity.get(SUBJECT_VALUE_FIELD),
-          entity.get(AUTHORITY_ID_FIELD), entity.get(SUBJECT_SOURCE_ID_FIELD), entity.get(SUBJECT_TYPE_ID_FIELD));
+      for (var entity : entities) {
+        try {
+          jdbcTemplate.update(entitiesSql, entity.get("id"), entity.get(SUBJECT_VALUE_FIELD),
+            entity.get(AUTHORITY_ID_FIELD), entity.get(SUBJECT_SOURCE_ID_FIELD), entity.get(SUBJECT_TYPE_ID_FIELD));
+        } catch (DataAccessException ex) {
+          log.debug("Failed to save subject entity {}: {}", entity.get("id"), ex.getMessage());
+        }
       }
     }
+  }
 
+  private void saveEntitiesToStaging(List<Map<String, Object>> entities) {
+    var stagingEntitiesSql = INSERT_STAGING_ENTITIES_SQL.formatted(JdbcUtils.getSchemaName(context));
+    try {
+      jdbcTemplate.batchUpdate(stagingEntitiesSql, entities, BATCH_OPERATION_SIZE,
+        (statement, entity) -> {
+          statement.setString(1, (String) entity.get("id"));
+          statement.setString(2, (String) entity.get(SUBJECT_VALUE_FIELD));
+          statement.setString(3, (String) entity.get(AUTHORITY_ID_FIELD));
+          statement.setString(4, (String) entity.get(SUBJECT_SOURCE_ID_FIELD));
+          statement.setString(5, (String) entity.get(SUBJECT_TYPE_ID_FIELD));
+        });
+    } catch (DataAccessException e) {
+      log.warn("saveEntitiesToStaging::Failed to save entities batch. Processing one-by-one", e);
+      for (var entity : entities) {
+        try {
+          jdbcTemplate.update(stagingEntitiesSql, entity.get("id"), entity.get(SUBJECT_VALUE_FIELD),
+            entity.get(AUTHORITY_ID_FIELD), entity.get(SUBJECT_SOURCE_ID_FIELD), entity.get(SUBJECT_TYPE_ID_FIELD));
+        } catch (DataAccessException ex) {
+          log.debug("Failed to save staging subject entity {}: {}", entity.get("id"), ex.getMessage());
+        }
+      }
+    }
+    log.debug("Saved {} subject entities to staging table", entities.size());
+  }
+
+  private void saveRelationshipsToMain(List<Map<String, Object>> relationships) {
     var relationsSql = INSERT_RELATIONS_SQL.formatted(JdbcUtils.getSchemaName(context));
     try {
-      jdbcTemplate.batchUpdate(relationsSql, entityBatch.relationshipEntities(), BATCH_OPERATION_SIZE,
+      jdbcTemplate.batchUpdate(relationsSql, relationships, BATCH_OPERATION_SIZE,
         (statement, entityRelation) -> {
           statement.setObject(1, entityRelation.get("instanceId"));
           statement.setString(2, (String) entityRelation.get("subjectId"));
@@ -244,11 +313,40 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
         });
     } catch (DataAccessException e) {
       logWarnDebugError(SAVE_RELATIONS_BATCH_ERROR_MESSAGE, e);
-      for (var entityRelation : entityBatch.relationshipEntities()) {
-        jdbcTemplate.update(relationsSql, entityRelation.get("instanceId"), entityRelation.get("subjectId"),
-          entityRelation.get("tenantId"), entityRelation.get("shared"));
+      for (var entityRelation : relationships) {
+        try {
+          jdbcTemplate.update(relationsSql, entityRelation.get("instanceId"), entityRelation.get("subjectId"),
+            entityRelation.get("tenantId"), entityRelation.get("shared"));
+        } catch (DataAccessException ex) {
+          log.debug("Failed to save subject relationship for {}: {}", entityRelation.get("subjectId"), ex.getMessage());
+        }
       }
     }
+  }
+
+  private void saveRelationshipsToStaging(List<Map<String, Object>> relationships) {
+    var stagingRelationsSql = INSERT_STAGING_RELATIONS_SQL.formatted(JdbcUtils.getSchemaName(context));
+    try {
+      jdbcTemplate.batchUpdate(stagingRelationsSql, relationships, BATCH_OPERATION_SIZE,
+        (statement, entityRelation) -> {
+          statement.setObject(1, entityRelation.get("instanceId"));
+          statement.setString(2, (String) entityRelation.get("subjectId"));
+          statement.setString(3, (String) entityRelation.get("tenantId"));
+          statement.setObject(4, entityRelation.get("shared"));
+        });
+    } catch (DataAccessException e) {
+      log.warn("saveRelationshipsToStaging::Failed to save relationships batch. Processing one-by-one", e);
+      for (var entityRelation : relationships) {
+        try {
+          jdbcTemplate.update(stagingRelationsSql, entityRelation.get("instanceId"), entityRelation.get("subjectId"),
+            entityRelation.get("tenantId"), entityRelation.get("shared"));
+        } catch (DataAccessException ex) {
+          log.debug("Failed to save staging subject relationship for {}: {}",
+            entityRelation.get("subjectId"), ex.getMessage());
+        }
+      }
+    }
+    log.debug("Saved {} subject relationships to staging table", relationships.size());
   }
 
   protected RowMapper<Map<String, Object>> rowToMapMapper2() {
@@ -268,6 +366,14 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
 
       return subject;
     };
+  }
+
+  @Override
+  public List<Map<String, Object>> fetchByIdRangeWithTimestamp(String lower, String upper, Timestamp timestamp) {
+    var sql = SELECT_QUERY.formatted(JdbcUtils.getSchemaName(context),
+      ID_RANGE_INS_WHERE_CLAUSE,
+      ID_RANGE_SUBJ_WHERE_CLAUSE + " AND s.last_updated_date = ?");
+    return jdbcTemplate.query(sql, rowToMapMapper(), lower, upper, lower, upper, timestamp);
   }
 
   private String getId(ResultSet rs) throws SQLException {

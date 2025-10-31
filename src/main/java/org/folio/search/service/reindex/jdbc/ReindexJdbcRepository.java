@@ -16,10 +16,11 @@ import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.transaction.annotation.Transactional;
 
 public abstract class ReindexJdbcRepository {
 
-  protected static final int BATCH_OPERATION_SIZE = 100;
+  public static final int BATCH_OPERATION_SIZE = 100;
   protected static final String LAST_UPDATED_DATE_FIELD = "lastUpdatedDate";
 
   private static final String COUNT_SQL = "SELECT COUNT(*) FROM %s;";
@@ -50,6 +51,34 @@ public abstract class ReindexJdbcRepository {
   public void truncate() {
     subEntityTable().ifPresent(tableName -> JdbcUtils.truncateTable(tableName, jdbcTemplate, context));
     JdbcUtils.truncateTable(entityTable(), jdbcTemplate, context);
+  }
+
+  public void truncateStaging() {
+    subEntityStagingTable().ifPresent(tableName -> JdbcUtils.truncateTable(tableName, jdbcTemplate, context));
+    stagingEntityTable().ifPresent(tableName -> JdbcUtils.truncateTable(tableName, jdbcTemplate, context));
+  }
+
+  @Transactional
+  @SuppressWarnings("java:S2077")
+  public void deleteByTenantId(String tenantId) {
+    // Delete from sub-entity table if present
+    subEntityTable().ifPresent(tableName -> {
+      var fullTableName = getFullTableName(context, tableName);
+      var sql = "DELETE FROM %s WHERE tenant_id = ?".formatted(fullTableName);
+      jdbcTemplate.update(sql, tenantId);
+    });
+
+    // Delete from main entity table only if it supports tenant-specific deletion
+    if (supportsTenantSpecificDeletion()) {
+      var fullTableName = getFullTableName(context, entityTable());
+      var sql = "DELETE FROM %s WHERE tenant_id = ?".formatted(fullTableName);
+      jdbcTemplate.update(sql, tenantId);
+    }
+  }
+
+  // Override in subclasses that don't have tenant_id columns (like Subject, Contributor, etc.)
+  protected boolean supportsTenantSpecificDeletion() {
+    return true;
   }
 
   public void updateRangeStatus(UUID id, Timestamp timestamp, ReindexRangeStatus status, String failCause) {
@@ -116,8 +145,17 @@ public abstract class ReindexJdbcRepository {
     return Optional.empty();
   }
 
+  protected Optional<String> stagingEntityTable() {
+    return Optional.empty();
+  }
+
+  protected Optional<String> subEntityStagingTable() {
+    return Optional.empty();
+  }
+
   protected abstract String rangeTable();
 
+  @SuppressWarnings("java:S2077")
   protected void deleteByInstanceIds(String query, List<String> instanceIds, String tenantId) {
     var sql = query.formatted(
       JdbcUtils.getSchemaName(context),

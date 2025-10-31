@@ -1,6 +1,7 @@
 value:
   - entityType: 'instance'
-    status: 'Upload Completed'
+    status: 'UPLOAD_COMPLETED'
+    targetTenantId: 'college'
     totalMergeRanges: 3
     processedMergeRanges: 3
     totalUploadRanges: 2
@@ -10,18 +11,30 @@ value:
     startTimeUpload: '2024-04-01T01:37:36.15755006Z'
     endTimeUpload: '2024-04-01T01:37:37.15755006Z'
   - entityType: 'item'
-    status: 'Merge In Progress'
+    status: 'MERGE_IN_PROGRESS'
+    targetTenantId: 'college'
     totalMergeRanges: 3
     processedMergeRanges: 2
     startTimeMerge: '2024-04-01T01:37:34.15755006Z'
+  - entityType: 'holdings'
+    status: 'STAGING_COMPLETED'
+    targetTenantId: 'college'
+    totalMergeRanges: 3
+    processedMergeRanges: 2
+    startTimeMerge: '2024-04-01T01:37:34.15755006Z'
+    endTimeMerge: '2024-04-01T01:37:35.15755006Z'
+    startTimeStaging: '2024-04-01T01:37:30.15755006Z'
+    endTimeStaging: '2024-04-01T01:37:33.15755006Z'
   - entityType: 'contributor'
-    status: 'Upload Completed'
+    status: 'UPLOAD_COMPLETED'
+    targetTenantId: 'college'
     totalUploadRanges: 3
     processedUploadRanges: 3
     startTimeUpload: '2024-04-01T01:37:34.15755006Z'
     endTimeUpload: '2024-04-01T01:37:35.15755006Z'
   - entityType: 'classification'
-    status: 'Upload Failed'
+    status: 'UPLOAD_FAILED'
+    targetTenantId: 'college'
     totalUploadRanges: 2
     processedUploadRanges: 1
     startTimeUpload: '2024-04-01T01:37:36.15755006Z'

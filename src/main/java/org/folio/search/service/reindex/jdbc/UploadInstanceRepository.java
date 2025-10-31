@@ -6,6 +6,7 @@ import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.types.ReindexEntityType;
@@ -79,6 +80,11 @@ public class UploadInstanceRepository extends UploadRangeRepository {
   @Override
   protected String entityTable() {
     return ReindexConstants.INSTANCE_TABLE;
+  }
+
+  @Override
+  protected Optional<String> stagingEntityTable() {
+    return Optional.of(ReindexConstants.STAGING_INSTANCE_TABLE);
   }
 
   public List<Map<String, Object>> fetchByIds(List<String> ids) {

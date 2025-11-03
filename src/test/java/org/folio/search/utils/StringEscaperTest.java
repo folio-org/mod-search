@@ -38,7 +38,8 @@ class StringEscaperTest {
       Arguments.of("This is a test\\string.", "This is a test\u0001string."),
       Arguments.of("No special characters here.", "No special characters here."),
       Arguments.of("", ""),
-      Arguments.of("test \\\" string", "test \\\" string"),
+      Arguments.of("test \" string", "test \" string"),
+      Arguments.of("test \\\" string", "test \u0001\" string"),
       Arguments.of(null, null),
       Arguments.of("\\", "\u0001")
     );

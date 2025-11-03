@@ -11,11 +11,10 @@ public class StringEscaper {
 
   private static final String BACKSLASH_CHARACTER = "\\";
   private static final String BACKSLASH_ESCAPE_CHARACTER = "\u0001";
-  private static final Pattern BACKSLASH_PATTERN = Pattern.compile("\\\\(?!\")");
+  private static final Pattern BACKSLASH_PATTERN = Pattern.compile("\\\\");
 
   /**
-   * Escapes backslashes in the input string by replacing them with a reserved control character,
-   * except when the backslash is followed by a double quote.
+   * Escapes backslashes in the input string by replacing them with a reserved control character.
    *
    * @param input the string to escape, may be null
    * @return the escaped string, or null if input is null

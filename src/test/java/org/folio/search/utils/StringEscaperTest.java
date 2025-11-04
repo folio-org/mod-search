@@ -40,6 +40,7 @@ class StringEscaperTest {
       Arguments.of("", ""),
       Arguments.of("test \" string", "test \" string"),
       Arguments.of("test \\\" string", "test \u0001\" string"),
+      Arguments.of("\"test \\\"ab\\c\\\"\"", "\"test \\\"ab\u0001c\\\"\""),
       Arguments.of(null, null),
       Arguments.of("\\", "\u0001")
     );

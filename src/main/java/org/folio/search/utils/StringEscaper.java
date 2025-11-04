@@ -1,6 +1,5 @@
 package org.folio.search.utils;
 
-import java.util.regex.Pattern;
 import lombok.experimental.UtilityClass;
 
 /**
@@ -11,10 +10,11 @@ public class StringEscaper {
 
   private static final String BACKSLASH_CHARACTER = "\\";
   private static final String BACKSLASH_ESCAPE_CHARACTER = "\u0001";
-  private static final Pattern BACKSLASH_PATTERN = Pattern.compile("\\\\");
 
   /**
    * Escapes backslashes in the input string by replacing them with a reserved control character.
+   * Backslashes followed by double quotes are only preserved when they appear inside quoted strings
+   * (i.e., when they are used to escape quotes within a quoted context).
    *
    * @param input the string to escape, may be null
    * @return the escaped string, or null if input is null
@@ -26,7 +26,35 @@ public class StringEscaper {
     if (input.contains(BACKSLASH_ESCAPE_CHARACTER)) {
       throw new IllegalArgumentException("Input contains reserved control character \\u0001");
     }
-    return BACKSLASH_PATTERN.matcher(input).replaceAll(BACKSLASH_ESCAPE_CHARACTER);
+
+    StringBuilder result = new StringBuilder(input.length());
+    boolean insideQuotes = false;
+    int length = input.length();
+
+    for (int i = 0; i < length; i++) {
+      char current = input.charAt(i);
+
+      if (current == '\\') {
+        boolean hasNext = i + 1 < length;
+        boolean nextIsQuote = hasNext && input.charAt(i + 1) == '"';
+
+        if (nextIsQuote && insideQuotes) {
+          // Keep \" as-is when inside quotes - this is an escaped quote, not a quote boundary
+          result.append(current).append('"');
+          i++; // Skip the next character (the quote)
+        } else {
+          // Replace backslash with escape character
+          result.append(BACKSLASH_ESCAPE_CHARACTER);
+        }
+      } else {
+        if (current == '"') {
+          insideQuotes = !insideQuotes;
+        }
+        result.append(current);
+      }
+    }
+
+    return result.toString();
   }
 
   /**

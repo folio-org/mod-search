@@ -18,7 +18,6 @@ import org.folio.search.service.reindex.ReindexService;
 import org.folio.search.service.reindex.jdbc.TenantRepository;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.liquibase.FolioSpringLiquibase;
-import org.folio.spring.service.PrepareSystemUserService;
 import org.folio.spring.service.TenantService;
 import org.folio.spring.tools.kafka.KafkaAdminService;
 import org.folio.tenant.domain.dto.Parameter;
@@ -38,7 +37,7 @@ public class SearchTenantService extends TenantService {
   private final IndexService indexService;
   private final ReindexService reindexService;
   private final KafkaAdminService kafkaAdminService;
-  private final PrepareSystemUserService prepareSystemUserService;
+  private final OkapiSystemUserService okapiSystemUserService;
   private final LanguageConfigServiceDecorator languageConfigService;
   private final ResourceDescriptionService resourceDescriptionService;
   private final SearchConfigurationProperties searchConfigurationProperties;
@@ -47,7 +46,7 @@ public class SearchTenantService extends TenantService {
   public SearchTenantService(JdbcTemplate jdbcTemplate, FolioExecutionContext context,
                              FolioSpringLiquibase folioSpringLiquibase, KafkaAdminService kafkaAdminService,
                              IndexService indexService, ReindexService reindexService,
-                             PrepareSystemUserService prepareSystemUserService,
+                             OkapiSystemUserService okapiSystemUserService,
                              LanguageConfigServiceDecorator languageConfigService,
                              ResourceDescriptionService resourceDescriptionService,
                              SearchConfigurationProperties searchConfigurationProperties,
@@ -56,7 +55,7 @@ public class SearchTenantService extends TenantService {
     this.kafkaAdminService = kafkaAdminService;
     this.indexService = indexService;
     this.reindexService = reindexService;
-    this.prepareSystemUserService = prepareSystemUserService;
+    this.okapiSystemUserService = okapiSystemUserService;
     this.languageConfigService = languageConfigService;
     this.resourceDescriptionService = resourceDescriptionService;
     this.searchConfigurationProperties = searchConfigurationProperties;
@@ -162,7 +161,7 @@ public class SearchTenantService extends TenantService {
   private void baseAfterTenantUpdate() {
     kafkaAdminService.createTopics(context.getTenantId());
     kafkaAdminService.restartEventListeners();
-    prepareSystemUserService.setupSystemUser();
+    okapiSystemUserService.prepareSystemUser();
     log.info("Tenant base init has been completed");
   }
 

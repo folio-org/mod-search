@@ -69,6 +69,7 @@
 * Clean search hits to reduce inmemory records ([MSEARCH-1068](https://folio-org.atlassian.net/browse/MSEARCH-1068))
 * Update contributors.name search option type to full-text in documentation ([MSEARCH-814](https://folio-org.atlassian.net/browse/MSEARCH-814))
 * Process item/instance in batches, add stale sub-resource lock release logic ([MSEARCH-1097](https://folio-org.atlassian.net/browse/MSEARCH-1097))
+* Refactor system user handling and update dependencies in ModuleDescriptor ([MSEARCH-1111](https://folio-org.atlassian.net/browse/MSEARCH-1111))
 
 ### Dependencies
 * Bump `LIB_NAME` from `OLD_VERSION` to `NEW_VERSION`

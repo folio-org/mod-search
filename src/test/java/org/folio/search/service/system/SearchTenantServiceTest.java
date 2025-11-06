@@ -1,12 +1,8 @@
 package org.folio.search.service.system;
 
-import static org.folio.search.model.types.ResourceType.INSTANCE_SUBJECT;
 import static org.folio.search.model.types.ResourceType.UNKNOWN;
 import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.support.TestConstants.TENANT_ID;
-import static org.folio.support.utils.TestUtils.resourceDescription;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
@@ -78,6 +74,8 @@ class SearchTenantServiceTest {
   private JdbcTemplate jdbcTemplate;
   @Mock
   private TenantRepository tenantRepository;
+  @Mock
+  private SystemReindexServiceWrapper reindexServiceWrapper;
 
   @Test
   void createOrUpdateTenant_positive() {
@@ -94,7 +92,7 @@ class SearchTenantServiceTest {
     verify(tenantRepository).saveTenant(new TenantEntity(TENANT_ID, null, true));
     verify(languageConfigService).create(new LanguageConfig().code("eng"));
     verify(indexService).createIndexIfNotExist(UNKNOWN, TENANT_ID);
-    verify(indexService, never()).reindexInventory(TENANT_ID, null);
+    verify(reindexServiceWrapper, never()).doReindex(UNKNOWN, TENANT_ID);
     verify(kafkaAdminService).createTopics(TENANT_ID);
     verify(kafkaAdminService).restartEventListeners();
   }
@@ -129,7 +127,7 @@ class SearchTenantServiceTest {
 
     verify(languageConfigService).create(new LanguageConfig().code("eng"));
     verify(indexService).createIndexIfNotExist(UNKNOWN, TENANT_ID);
-    verify(indexService, never()).reindexInventory(TENANT_ID, null);
+    verify(reindexServiceWrapper, never()).doReindex(UNKNOWN, TENANT_ID);
     verify(kafkaAdminService).createTopics(TENANT_ID);
     verify(kafkaAdminService).restartEventListeners();
   }
@@ -153,19 +151,6 @@ class SearchTenantServiceTest {
   }
 
   @Test
-  void shouldFailToRunReindexOnSupportsReindexParamPresentButNotSupportedByApi() {
-    when(context.getTenantId()).thenReturn(TENANT_ID);
-    when(resourceDescriptionService.getResourceTypes()).thenReturn(List.of(INSTANCE_SUBJECT, UNKNOWN));
-    when(resourceDescriptionService.get(INSTANCE_SUBJECT)).thenReturn(resourceDescription(INSTANCE_SUBJECT));
-    var attributes = tenantAttributes().addParametersItem(new Parameter().key("runReindex").value("true"));
-
-    var ex = assertThrows(IllegalArgumentException.class, () -> searchTenantService.afterTenantUpdate(attributes));
-
-    assertEquals("Unexpected value '%s'".formatted(INSTANCE_SUBJECT.getName()), ex.getMessage());
-    verify(indexService, never()).reindexInventory(any(), any());
-  }
-
-  @Test
   void shouldNotRunReindexOnTenantParamPresentFalse() {
     when(context.getTenantId()).thenReturn(TENANT_ID);
     when(resourceDescriptionService.getResourceTypes()).thenReturn(List.of(UNKNOWN));
@@ -173,7 +158,7 @@ class SearchTenantServiceTest {
 
     searchTenantService.afterTenantUpdate(attributes);
 
-    verify(indexService, never()).reindexInventory(TENANT_ID, null);
+    verify(reindexServiceWrapper, never()).doReindex(UNKNOWN, TENANT_ID);
   }
 
   @Test
@@ -184,7 +169,7 @@ class SearchTenantServiceTest {
 
     searchTenantService.afterTenantUpdate(attributes);
 
-    verify(indexService, never()).reindexInventory(TENANT_ID, null);
+    verify(reindexServiceWrapper, never()).doReindex(UNKNOWN, TENANT_ID);
   }
 
   @Test

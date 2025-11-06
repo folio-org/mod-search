@@ -27,35 +27,47 @@ public class StringEscaper {
       throw new IllegalArgumentException("Input contains reserved control character \\u0001");
     }
 
-    StringBuilder result = new StringBuilder(input.length());
+    var result = new StringBuilder(input.length());
     boolean insideQuotes = false;
-    boolean previousWasEscapedBackslash = false;
     int length = input.length();
+    int i = 0;
 
-    for (int i = 0; i < length; i++) {
+    while (i < length) {
       char current = input.charAt(i);
 
       if (current == '\\') {
-        boolean hasNext = i + 1 < length;
-        boolean nextIsQuote = hasNext && input.charAt(i + 1) == '"';
+        // Count consecutive backslashes and skip their processing by outer loop
+        int backslashCount = 0;
+        while (i < length && input.charAt(i) == '\\') {
+          backslashCount++;
+          i++;
+        }
 
-        // Only preserve \" if we're inside quotes AND the previous char was not an escaped backslash
-        if (nextIsQuote && insideQuotes && !previousWasEscapedBackslash) {
-          // Keep \" as-is when inside quotes - this is an escaped quote, not a quote boundary
-          result.append(current).append('"');
-          i++; // Skip the next character (the quote)
-          previousWasEscapedBackslash = false;
+        // Check if backslash sequence is followed by a quote
+        boolean followedByQuote = i < length && input.charAt(i) == '"';
+
+        if (followedByQuote && insideQuotes) {
+          // If odd number of backslashes: last one escapes the quote, preserve \"
+          // If even number: all pair up (\\), don't preserve the quote
+          if (backslashCount % 2 == 1) {
+            // Odd: replace all but the last backslash, keep last one + quote
+            result.append(BACKSLASH_ESCAPE_CHARACTER.repeat(backslashCount - 1));
+            result.append('\\').append('"');
+            i++; // Skip past the quote
+          } else {
+            // Even: replace all backslashes (quote is not consumed, will be processed next iteration)
+            result.append(BACKSLASH_ESCAPE_CHARACTER.repeat(backslashCount));
+          }
         } else {
-          // Replace backslash with escape character
-          result.append(BACKSLASH_ESCAPE_CHARACTER);
-          previousWasEscapedBackslash = true;
+          // Not followed by quote inside quotes: replace all backslashes
+          result.append(BACKSLASH_ESCAPE_CHARACTER.repeat(backslashCount));
         }
       } else {
         if (current == '"') {
           insideQuotes = !insideQuotes;
         }
         result.append(current);
-        previousWasEscapedBackslash = false;
+        i++;
       }
     }
 

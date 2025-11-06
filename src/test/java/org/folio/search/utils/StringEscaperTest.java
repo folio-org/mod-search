@@ -41,6 +41,9 @@ class StringEscaperTest {
       Arguments.of("\"test\\\\\"", "\"test\u0001\u0001\""),
       Arguments.of("test \\\" string", "test \u0001\" string"),
       Arguments.of("\"test \\\"ab\\c\\\"\"", "\"test \\\"ab\u0001c\\\"\""),
+      //For the following string: Slava backslash\ "double\-quotes\" te\st
+      Arguments.of("\"backslash\\\\ \\\"double\\\\-quotes\\\\\\\" te\\\\st\"",
+        "\"backslash\u0001\u0001 \\\"double\u0001\u0001-quotes\u0001\u0001\\\" te\u0001\u0001st\""),
       Arguments.of(null, null),
       Arguments.of("\\", "\u0001")
     );

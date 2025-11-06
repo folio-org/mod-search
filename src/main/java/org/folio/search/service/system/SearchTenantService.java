@@ -174,7 +174,7 @@ public class SearchTenantService extends TenantService {
       .filter(parameter -> parameter.getKey().equals(REINDEX_PARAM_NAME) && parseBoolean(parameter.getValue()))
       .findFirst()
       .ifPresent(parameter -> resourceNames
-        .forEach(resource -> reindexServiceWrapper. doReindex(resource, context.getTenantId())));
+        .forEach(resource -> reindexServiceWrapper.doReindex(resource, context.getTenantId())));
   }
 
   private void createLanguages() {

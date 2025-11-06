@@ -8,13 +8,10 @@ import java.util.stream.Stream;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.LanguageConfig;
-import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.model.entity.TenantEntity;
-import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.IndexService;
 import org.folio.search.service.consortium.LanguageConfigServiceDecorator;
 import org.folio.search.service.metadata.ResourceDescriptionService;
-import org.folio.search.service.reindex.ReindexService;
 import org.folio.search.service.reindex.jdbc.TenantRepository;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.liquibase.FolioSpringLiquibase;
@@ -35,31 +32,31 @@ public class SearchTenantService extends TenantService {
   private static final String CENTRAL_TENANT_ID_PARAM_NAME = "centralTenantId";
 
   private final IndexService indexService;
-  private final ReindexService reindexService;
   private final KafkaAdminService kafkaAdminService;
   private final OkapiSystemUserService okapiSystemUserService;
   private final LanguageConfigServiceDecorator languageConfigService;
   private final ResourceDescriptionService resourceDescriptionService;
   private final SearchConfigurationProperties searchConfigurationProperties;
   private final TenantRepository tenantRepository;
+  private final SystemReindexServiceWrapper reindexServiceWrapper;
 
   public SearchTenantService(JdbcTemplate jdbcTemplate, FolioExecutionContext context,
                              FolioSpringLiquibase folioSpringLiquibase, KafkaAdminService kafkaAdminService,
-                             IndexService indexService, ReindexService reindexService,
+                             IndexService indexService,
                              OkapiSystemUserService okapiSystemUserService,
                              LanguageConfigServiceDecorator languageConfigService,
                              ResourceDescriptionService resourceDescriptionService,
                              SearchConfigurationProperties searchConfigurationProperties,
-                             TenantRepository tenantRepository) {
+                             TenantRepository tenantRepository, SystemReindexServiceWrapper reindexServiceWrapper) {
     super(jdbcTemplate, context, folioSpringLiquibase);
     this.kafkaAdminService = kafkaAdminService;
     this.indexService = indexService;
-    this.reindexService = reindexService;
     this.okapiSystemUserService = okapiSystemUserService;
     this.languageConfigService = languageConfigService;
     this.resourceDescriptionService = resourceDescriptionService;
     this.searchConfigurationProperties = searchConfigurationProperties;
     this.tenantRepository = tenantRepository;
+    this.reindexServiceWrapper = reindexServiceWrapper;
   }
 
   /**
@@ -176,17 +173,8 @@ public class SearchTenantService extends TenantService {
       .flatMap(Collection::stream)
       .filter(parameter -> parameter.getKey().equals(REINDEX_PARAM_NAME) && parseBoolean(parameter.getValue()))
       .findFirst()
-      .ifPresent(parameter -> resourceNames.forEach(resource -> {
-        if (!resourceDescriptionService.get(resource).isReindexSupported()) {
-          return;
-        }
-        if (resource.getName().equals(ReindexEntityType.INSTANCE.getType())) {
-          reindexService.submitFullReindex(context.getTenantId(), null);
-        } else {
-          indexService.reindexInventory(context.getTenantId(),
-            new ReindexRequest().resourceName(ReindexRequest.ResourceNameEnum.fromValue(resource.getName())));
-        }
-      }));
+      .ifPresent(parameter -> resourceNames
+        .forEach(resource -> reindexServiceWrapper. doReindex(resource, context.getTenantId())));
   }
 
   private void createLanguages() {

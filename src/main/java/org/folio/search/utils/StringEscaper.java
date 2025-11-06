@@ -29,6 +29,7 @@ public class StringEscaper {
 
     StringBuilder result = new StringBuilder(input.length());
     boolean insideQuotes = false;
+    boolean previousWasEscapedBackslash = false;
     int length = input.length();
 
     for (int i = 0; i < length; i++) {
@@ -38,19 +39,23 @@ public class StringEscaper {
         boolean hasNext = i + 1 < length;
         boolean nextIsQuote = hasNext && input.charAt(i + 1) == '"';
 
-        if (nextIsQuote && insideQuotes) {
+        // Only preserve \" if we're inside quotes AND the previous char was not an escaped backslash
+        if (nextIsQuote && insideQuotes && !previousWasEscapedBackslash) {
           // Keep \" as-is when inside quotes - this is an escaped quote, not a quote boundary
           result.append(current).append('"');
           i++; // Skip the next character (the quote)
+          previousWasEscapedBackslash = false;
         } else {
           // Replace backslash with escape character
           result.append(BACKSLASH_ESCAPE_CHARACTER);
+          previousWasEscapedBackslash = true;
         }
       } else {
         if (current == '"') {
           insideQuotes = !insideQuotes;
         }
         result.append(current);
+        previousWasEscapedBackslash = false;
       }
     }
 

@@ -20,13 +20,11 @@ public class CqlQueryParser {
    */
   public CQLNode parseCqlQuery(String query, ResourceType resource) {
     log.debug("parseCqlQuery::Parsing CQL query [cql: '{}', resource: {}]", query, resource.getName());
-    //    var normalizedQuery = StringEscaper.escape(query);
-    var normalizedQuery = query;
     try {
-      return new CQLParser().parse(normalizedQuery);
+      return new CQLParser().parse(query);
     } catch (Exception e) {
       throw new SearchServiceException(String.format(
-        "Failed to parse CQL query [cql: '%s', resource: %s]", normalizedQuery, resource.getName()), e);
+        "Failed to parse CQL query [cql: '%s', resource: %s]", query, resource.getName()), e);
     }
   }
 }

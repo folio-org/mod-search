@@ -110,7 +110,6 @@ public class CqlTermQueryConverter {
   }
 
   private Object getSearchTerm(String term, Optional<PlainFieldDescription> plainFieldDescription) {
-    //    var normalizedTerm = StringEscaper.unescape(term);
     var normalizedTerm = term.replace("\\\\", "\\");
     return plainFieldDescription
       .map(PlainFieldDescription::getSearchTermProcessor)

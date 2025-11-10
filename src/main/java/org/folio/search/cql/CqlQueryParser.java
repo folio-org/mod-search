@@ -3,7 +3,6 @@ package org.folio.search.cql;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.types.ResourceType;
-import org.folio.search.utils.StringEscaper;
 import org.springframework.stereotype.Component;
 import org.z3950.zing.cql.CQLNode;
 import org.z3950.zing.cql.CQLParser;
@@ -21,7 +20,8 @@ public class CqlQueryParser {
    */
   public CQLNode parseCqlQuery(String query, ResourceType resource) {
     log.debug("parseCqlQuery::Parsing CQL query [cql: '{}', resource: {}]", query, resource.getName());
-    var normalizedQuery = StringEscaper.escape(query);
+    //    var normalizedQuery = StringEscaper.escape(query);
+    var normalizedQuery = query;
     try {
       return new CQLParser().parse(normalizedQuery);
     } catch (Exception e) {

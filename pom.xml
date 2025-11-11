@@ -40,7 +40,7 @@
     <folio-cql2pgjson.version>35.4.0</folio-cql2pgjson.version>
     <opensearch.version>3.3.2</opensearch.version>
     <mapstruct.version>1.6.3</mapstruct.version>
-    <apache-commons-io.version>2.20.0</apache-commons-io.version>
+    <apache-commons-io.version>2.21.0</apache-commons-io.version>
     <apache-commons-collections.version>4.5.0</apache-commons-collections.version>
     <marc4j.version>2.9.5</marc4j.version>
     <lombok.version>1.18.42</lombok.version>
@@ -60,7 +60,7 @@
     <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
     <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
     <maven-failsafe-plugin.version>3.5.4</maven-failsafe-plugin.version>
-    <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
+    <maven-release-plugin.version>3.2.0</maven-release-plugin.version>
   </properties>
 
   <dependencies>

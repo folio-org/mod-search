@@ -242,7 +242,14 @@ class BrowseClassificationIT extends BaseIntegrationTest {
           classificationBrowseItem("TN800 .F4613", LC_TYPE_ID, 1, "instance #08"),
           classificationBrowseItem("TX545 .M45", LC_TYPE_ID, 1, "instance #06"),
           classificationBrowseItem("TX545 M45", LC_TYPE_ID, 1, "instance #11", true),
-          classificationBrowseItem("TX545.M45", LC_TYPE_ID, 1, "instance #12")
+          classificationBrowseItem("TX\\545.\\\\M45", LC_TYPE_ID, 1, "instance #12")
+        ))),
+
+      arguments(aroundIncludingQuery, "TX\\\\545.\\\\\\\\M45", 5, classificationBrowseResult("TX545 .M45",
+        null, 10, List.of(
+          classificationBrowseItem("TX545 .M45", LC_TYPE_ID, 1, "instance #06"),
+          classificationBrowseItem("TX545 M45", LC_TYPE_ID, 1, "instance #11"),
+          classificationBrowseItem("TX\\545.\\\\M45", LC_TYPE_ID, 1, "instance #12", true)
         )))
     );
   }
@@ -295,7 +302,7 @@ class BrowseClassificationIT extends BaseIntegrationTest {
       List.of("instance #10", List.of(pair("146.4", DEWEY_TYPE_ID), pair("QD33 .O87", LC_TYPE_ID),
         pair("SF991 .M94", null)), List.of("Contributor Y")),
       List.of("instance #11", List.of(pair("TX545 M45", LC_TYPE_ID))),
-      List.of("instance #12", List.of(pair("TX545.M45", LC_TYPE_ID)))
+      List.of("instance #12", List.of(pair("TX\\545.\\\\M45", LC_TYPE_ID)))
     );
   }
 }

@@ -228,7 +228,7 @@ class BrowseSubjectIT extends BaseIntegrationTest {
           subjectBrowseItem(1, "Database design")))),
 
       arguments(aroundIncludingQuery, "music", 25, new SubjectBrowseResult()
-        .totalRecords(28).prev(null).next("Science--Philosophy")
+        .totalRecords(28).prev(null).next("Science\\--Philosophy")
         .items(List.of(
           subjectBrowseItem(7, "Biography"),
           subjectBrowseItem(1, "Book"),
@@ -249,7 +249,7 @@ class BrowseSubjectIT extends BaseIntegrationTest {
           subjectBrowseItem(1, "Rules"),
           subjectBrowseItem(1, "Science"),
           subjectBrowseItem(1, "Science--Methodology"),
-          subjectBrowseItem(1, "Science--Philosophy")))),
+          subjectBrowseItem(1, "Science\\--Philosophy")))),
 
       arguments(aroundIncludingQuery, "music", 11, new SubjectBrowseResult()
         .totalRecords(28).prev("Database design").next("Music")
@@ -288,6 +288,15 @@ class BrowseSubjectIT extends BaseIntegrationTest {
           subjectBrowseItem(1, "Water--Purification"),
           subjectBrowseItem(1, "Water-supply"),
           subjectBrowseItem(0, "z", true)))),
+
+      arguments(aroundIncludingQuery, "Science\\\\--Philosophy", 5, new SubjectBrowseResult()
+        .totalRecords(28).prev("Science").next("Textbooks")
+        .items(List.of(
+          subjectBrowseItem(1, "Science"),
+          subjectBrowseItem(1, "Science--Methodology"),
+          subjectBrowseItem(1, "Science\\--Philosophy", true),
+          subjectBrowseItem(1, "Text"),
+          subjectBrowseItem(1, "Textbooks")))),
 
       // browsing forward
       arguments(forwardQuery, "water", 5, new SubjectBrowseResult()
@@ -342,7 +351,7 @@ class BrowseSubjectIT extends BaseIntegrationTest {
         .totalRecords(28).prev("Science--Methodology").next("United States")
         .items(List.of(
           subjectBrowseItem(1, "Science--Methodology"),
-          subjectBrowseItem(1, "Science--Philosophy"),
+          subjectBrowseItem(1, "Science\\--Philosophy"),
           subjectBrowseItem(1, "Text"),
           subjectBrowseItem(1, "Textbooks"),
           subjectBrowseItem(1, "United States", null, MUSIC_SOURCE_ID_1, MUSIC_TYPE_ID_2)))),
@@ -368,9 +377,9 @@ class BrowseSubjectIT extends BaseIntegrationTest {
       arguments(backwardQuery, "A", 10, subjectBrowseResult(28, emptyList())),
 
       arguments(backwardIncludingQuery, "water", 5, new SubjectBrowseResult()
-        .totalRecords(28).prev("Science--Philosophy").next("Water")
+        .totalRecords(28).prev("Science\\--Philosophy").next("Water")
         .items(List.of(
-          subjectBrowseItem(1, "Science--Philosophy"),
+          subjectBrowseItem(1, "Science\\--Philosophy"),
           subjectBrowseItem(1, "Text"),
           subjectBrowseItem(1, "Textbooks"),
           subjectBrowseItem(1, "United States", null, MUSIC_SOURCE_ID_1, MUSIC_TYPE_ID_2),
@@ -430,7 +439,7 @@ class BrowseSubjectIT extends BaseIntegrationTest {
         Arrays.asList("Music", null, null, MUSIC_TYPE_ID_1))),
       List.of("instance #05", List.of("Book", "Text", "Biography")),
       List.of("instance #06", List.of("Religion", "History", "Philosophy")),
-      List.of("instance #07", List.of("Science", "Science--Methodology", "Science--Philosophy")),
+      List.of("instance #07", List.of("Science", "Science--Methodology", "Science\\--Philosophy")),
       List.of("instance #08", List.of("Water", "Water-supply")),
       List.of("instance #09", List.of("Water--Analysis", "Water--Purification", "Water--Microbiology")),
       List.of("instance #10", List.of("Database design", "Database management", "Textbooks")),

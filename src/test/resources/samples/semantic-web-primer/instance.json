@@ -104,6 +104,9 @@
     {
       "value": "Semantic Web",
       "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72d"
+    },
+    {
+      "value": "backslash\\ \"double\\-quotes\\\" te\\st"
     }
   ],
   "classifications": [

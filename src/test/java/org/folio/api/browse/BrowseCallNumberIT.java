@@ -169,10 +169,10 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
 
       // anchor call number appears first in the result set
       arguments(3, aroundQuery, BrowseOptionType.ALL, callNumbers.get(50).fullCallNumber(), 5,
-        cnBrowseResult(null, callNumbers.get(95).fullCallNumber(), 100, List.of(
+        cnBrowseResult(null, callNumbers.get(40).fullCallNumber(), 100, List.of(
           cnBrowseItem(callNumbers.get(50), 1, INSTANCES.get(26).getTitle(), true),
           cnBrowseItem(callNumbers.get(97), 1, INSTANCES.get(48).getTitle()),
-          cnBrowseItem(callNumbers.get(95), 1, INSTANCES.get(47).getTitle())
+          cnBrowseItem(callNumbers.get(40), 1, INSTANCES.get(19).getTitle())
         ))),
 
       // not existed anchor call number appears first in the result set
@@ -207,6 +207,16 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
           cnBrowseItem(callNumbers.get(46), 1, INSTANCES.get(25).getTitle(), true),
           cnBrowseItem(callNumbers.get(86), 1, INSTANCES.get(42).getTitle()),
           cnBrowseItem(callNumbers.get(21), 2, null)
+        ))),
+
+      // call number with backslashes
+      arguments(7, aroundQuery, BrowseOptionType.ALL, "BR\\\\140 .J\\\\\\\\86", 5,
+        cnBrowseResult(callNumbers.get(76).fullCallNumber(), callNumbers.get(80).fullCallNumber(), 100, List.of(
+          cnBrowseItem(callNumbers.get(76), 1, INSTANCES.get(36).getTitle()),
+          cnBrowseItem(callNumbers.get(15), 1, INSTANCES.get(8).getTitle()),
+          cnBrowseItem(callNumbers.get(95), 1, INSTANCES.get(47).getTitle(), true),
+          cnBrowseItem(callNumbers.get(20), 1, INSTANCES.get(11).getTitle()),
+          cnBrowseItem(callNumbers.get(80), 1, INSTANCES.get(39).getTitle())
         ))),
 
       // forward browsing from the middle of the result set

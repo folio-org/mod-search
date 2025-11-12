@@ -23,7 +23,6 @@ import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.metadata.LocalSearchFieldProvider;
 import org.folio.search.service.metadata.SearchFieldProvider;
-import org.folio.search.utils.StringEscaper;
 import org.opensearch.index.query.QueryBuilder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -111,7 +110,7 @@ public class CqlTermQueryConverter {
   }
 
   private Object getSearchTerm(String term, Optional<PlainFieldDescription> plainFieldDescription) {
-    var normalizedTerm = StringEscaper.unescape(term);
+    var normalizedTerm = term.replace("\\\\", "\\");
     return plainFieldDescription
       .map(PlainFieldDescription::getSearchTermProcessor)
       .map(searchTermProcessors::get)

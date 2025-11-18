@@ -134,7 +134,8 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
     """;
   private static final String INSERT_STAGING_ENTITIES_SQL = """
       INSERT INTO %s.staging_subject (id, value, authority_id, source_id, type_id, inserted_at)
-      VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP);
+      VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+      ON CONFLICT (id) DO NOTHING;
     """;
   private static final String INSERT_RELATIONS_SQL = """
       INSERT INTO %s.instance_subject (instance_id, subject_id, tenant_id, shared)

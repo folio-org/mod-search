@@ -21,7 +21,7 @@
             is_bound_with BOOLEAN NOT NULL,
             json JSONB NOT NULL,
             inserted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
-            ) PARTITION BY RANGE (SUBSTRING(id::text, 1, 1));
+            );
         </sql>
     </changeSet>
 
@@ -41,7 +41,7 @@
             instance_id UUID NOT NULL,
             json JSONB NOT NULL,
             inserted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
-            ) PARTITION BY RANGE (SUBSTRING(id::text, 1, 1));
+            );
         </sql>
     </changeSet>
 
@@ -62,7 +62,7 @@
             holding_id UUID NOT NULL,
             json JSONB NOT NULL,
             inserted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
-            ) PARTITION BY RANGE (SUBSTRING(id::text, 1, 1));
+            );
         </sql>
     </changeSet>
 
@@ -83,7 +83,7 @@
             tenant_id VARCHAR(100) NOT NULL,
             shared BOOLEAN NOT NULL,
             inserted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
-            ) PARTITION BY RANGE (SUBSTRING(instance_id::text, 1, 1));
+            );
         </sql>
     </changeSet>
 
@@ -104,7 +104,7 @@
             tenant_id VARCHAR(100) NOT NULL,
             shared BOOLEAN NOT NULL,
             inserted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
-            ) PARTITION BY RANGE (SUBSTRING(instance_id::text, 1, 1));
+            );
         </sql>
     </changeSet>
 
@@ -124,7 +124,7 @@
             tenant_id VARCHAR(100) NOT NULL,
             shared BOOLEAN NOT NULL,
             inserted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
-            ) PARTITION BY RANGE (SUBSTRING(instance_id::text, 1, 1));
+            );
         </sql>
     </changeSet>
 
@@ -145,7 +145,7 @@
             tenant_id VARCHAR(100) NOT NULL,
             location_id UUID,
             inserted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
-            ) PARTITION BY RANGE (SUBSTRING(instance_id::text, 1, 1));
+            );
         </sql>
     </changeSet>
 
@@ -160,13 +160,13 @@
 
         <sql splitStatements="false">
             CREATE UNLOGGED TABLE staging_subject (
-            id VARCHAR(40) NOT NULL,
+            id VARCHAR(40) NOT NULL UNIQUE,
             value VARCHAR(255) NOT NULL,
             authority_id VARCHAR(40),
             source_id VARCHAR(40),
             type_id VARCHAR(40),
             inserted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
-            ) PARTITION BY RANGE (SUBSTRING(id::text, 1, 1));
+            );
         </sql>
     </changeSet>
 
@@ -181,12 +181,12 @@
 
         <sql splitStatements="false">
             CREATE UNLOGGED TABLE staging_contributor (
-            id VARCHAR(40) NOT NULL,
+            id VARCHAR(40) NOT NULL UNIQUE,
             name VARCHAR(255) NOT NULL,
             name_type_id VARCHAR(40),
             authority_id VARCHAR(40),
             inserted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
-            ) PARTITION BY RANGE (SUBSTRING(id::text, 1, 1));
+            );
         </sql>
     </changeSet>
 
@@ -201,11 +201,11 @@
 
         <sql splitStatements="false">
             CREATE UNLOGGED TABLE staging_classification (
-            id VARCHAR(40) NOT NULL,
+            id VARCHAR(40) NOT NULL UNIQUE,
             number VARCHAR(50) NOT NULL,
             type_id VARCHAR(40),
             inserted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
-            ) PARTITION BY RANGE (SUBSTRING(id::text, 1, 1));
+            );
         </sql>
     </changeSet>
 
@@ -220,13 +220,13 @@
 
         <sql splitStatements="false">
             CREATE UNLOGGED TABLE staging_call_number (
-            id VARCHAR(40) NOT NULL,
+            id VARCHAR(40) NOT NULL UNIQUE,
             call_number VARCHAR(50) NOT NULL,
             call_number_prefix VARCHAR(20),
             call_number_suffix VARCHAR(25),
             call_number_type_id VARCHAR(40),
             inserted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
-            ) PARTITION BY RANGE (SUBSTRING(id::text, 1, 1));
+            );
         </sql>
     </changeSet>
 

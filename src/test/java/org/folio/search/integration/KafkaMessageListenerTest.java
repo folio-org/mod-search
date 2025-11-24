@@ -2,6 +2,7 @@ package org.folio.search.integration;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.folio.search.configuration.RetryTemplateConfiguration.KAFKA_RETRY_TEMPLATE_NAME;
 import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.domain.dto.ResourceEventType.DELETE;
@@ -40,7 +41,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.retry.support.RetryTemplate.defaultInstance;
-import static org.testcontainers.shaded.org.apache.commons.lang3.StringUtils.EMPTY;
 
 import java.util.List;
 import java.util.concurrent.Callable;

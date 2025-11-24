@@ -133,7 +133,8 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
     """;
   private static final String INSERT_STAGING_ENTITIES_SQL = """
       INSERT INTO %s.staging_contributor (id, name, name_type_id, authority_id, inserted_at)
-      VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP);
+      VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+      ON CONFLICT (id) DO NOTHING;
     """;
   private static final String INSERT_RELATIONS_SQL = """
       INSERT INTO %s.instance_contributor (instance_id, contributor_id, type_id, tenant_id, shared)

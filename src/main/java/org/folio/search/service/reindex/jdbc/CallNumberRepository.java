@@ -157,7 +157,8 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
         call_number_suffix,
         call_number_type_id,
         inserted_at
-    ) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP);
+    ) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+    ON CONFLICT (id) DO NOTHING;
     """;
 
   private static final String INSERT_RELATIONS_SQL = """

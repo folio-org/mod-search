@@ -127,7 +127,8 @@ public class ClassificationRepository extends UploadRangeRepository implements I
     """;
   private static final String INSERT_STAGING_ENTITIES_SQL = """
       INSERT INTO %s.staging_classification (id, number, type_id, inserted_at)
-      VALUES (?, ?, ?, CURRENT_TIMESTAMP);
+      VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+      ON CONFLICT (id) DO NOTHING;
     """;
   private static final String INSERT_RELATIONS_SQL = """
       INSERT INTO %s.instance_classification (instance_id, classification_id, tenant_id, shared)

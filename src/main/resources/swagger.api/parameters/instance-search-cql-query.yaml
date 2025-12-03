@@ -18,7 +18,7 @@ description: |
         <td>keyword</td>
         <td>full-text</td>
         <td>keyword all &quot;web semantic&quot;</td>
-        <td>An alias for: title, alternativeTitles, indexTitle, series, identifiers.value, contributors.name</td>
+        <td>An alias for: title, alternativeTitles, indexTitle, series, contributors.name</td>
     </tr>
     <tr>
         <td>id</td>

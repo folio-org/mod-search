@@ -257,7 +257,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("keyword = *", ""),
       arguments("keyword all {value}", "semantic web primer"),
       arguments("keyword all {value}", "\\\"semantic web primer\\\""),
-      arguments("keyword all {value}", "semantic Ant\\\\niou ocm0012345 047144250X"),
+      arguments("keyword all {value}", "semantic Ant\\\\niou"),
       arguments("subjects all {value}", "semantic"),
       arguments("subjects ==/string {value}", "semantic web"),
       arguments("subjects ==/string {value}", "\"backslash\\\\ \\\"double\\\\-quotes\\\\\\\" te\\\\st\""),
@@ -402,12 +402,12 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("holdingsIdentifiers all {value}", "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19"),
 
       //search by multiple different parameters
-      arguments("(keyword all \"{value}\")", "wolves matthew 9781609383657"),
+      arguments("(keyword all \"{value}\")", "wolves matthew"),
       arguments("(keyword all \"{value}\")", "A semantic web primer : wolves"),
       arguments("(keyword all \"{value}\")", "A semantic web primer & wolves"),
       arguments("(keyword all \"{value}\")", "A semantic web primer / wolves"),
       arguments("keyword == {value}", "Van Harmelen, Frank"),
-      arguments("keyword ==/string {value}", "0262012103"),
+      arguments("keyword ==/string {value}", "An Uniform title"),
       arguments("(title all \"{value}\")", "A semantic web primer : 0747-0850")
     );
   }
@@ -504,7 +504,7 @@ class SearchInstanceIT extends BaseIntegrationTest {
 
       arguments("keyword = *", ""),
       arguments("keyword all {value}", "SEMANTIC WEB PRIMER"),
-      arguments("keyword all {value}", "SEMANTIC ANT\\\\NIOU OCM0012345 047144250X"),
+      arguments("keyword all {value}", "SEMANTIC ANT\\\\NIOU"),
       arguments("subjects all {value}", "SEMANTIC"),
       arguments("subjects ==/string {value}", "SEMANTIC WEB"),
 
@@ -631,12 +631,12 @@ class SearchInstanceIT extends BaseIntegrationTest {
       arguments("holdingsIdentifiers all {value}", "E3FF6133-B9A2-4D4C-A1C9-DC1867D4DF19"),
 
       //search by multiple different parameters
-      arguments("(keyword all \"{value}\")", "WOLVES MATTHEW 9781609383657"),
+      arguments("(keyword all \"{value}\")", "WOLVES MATTHEW"),
       arguments("(keyword all \"{value}\")", "A SEMANTIC WEB PRIMER : WOLVES"),
       arguments("(keyword all \"{value}\")", "A SEMANTIC WEB PRIMER & WOLVES"),
       arguments("(keyword all \"{value}\")", "A SEMANTIC WEB PRIMER / WOLVES"),
       arguments("keyword == {value}", "VAN HARMELEN, FRANK"),
-      arguments("keyword ==/string {value}", "0262012103"),
+      arguments("keyword ==/string {value}", "AN UNIFORM TITLE"),
       arguments("(title all \"{value}\")", "A SEMANTIC WEB PRIMER : 0747-0850")
     );
   }

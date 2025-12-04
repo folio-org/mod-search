@@ -80,7 +80,6 @@
       "type": "object",
       "properties": {
         "value": {
-          "searchAliases": [ "keyword" ],
           "index": "whitespace"
         },
         "identifierTypeId": {

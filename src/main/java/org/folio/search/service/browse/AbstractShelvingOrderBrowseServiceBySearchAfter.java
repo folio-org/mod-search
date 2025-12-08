@@ -11,6 +11,8 @@ import static org.opensearch.search.sort.SortBuilders.fieldSort;
 import static org.opensearch.search.sort.SortOrder.ASC;
 import static org.opensearch.search.sort.SortOrder.DESC;
 
+import java.util.List;
+import java.util.UUID;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.domain.dto.BrowseConfig;
@@ -20,6 +22,7 @@ import org.folio.search.model.service.BrowseRequest;
 import org.folio.search.service.consortium.BrowseConfigServiceDecorator;
 import org.folio.search.service.consortium.ConsortiumSearchHelper;
 import org.folio.search.utils.ShelvingOrderCalculationHelper;
+import org.opensearch.index.query.BoolQueryBuilder;
 import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.index.query.TermQueryBuilder;
 import org.opensearch.search.builder.SearchSourceBuilder;
@@ -88,21 +91,14 @@ public abstract class AbstractShelvingOrderBrowseServiceBySearchAfter<T, R>
 
   private QueryBuilder getQuery(BrowseContext ctx, BrowseConfig config, TermQueryBuilder anchorQuery) {
     var typeIds = config.getTypeIds();
-    var typeIdsEmpty = CollectionUtils.isEmpty(config.getTypeIds());
-    if (typeIdsEmpty && ctx.getFilters().isEmpty()) {
+    if (CollectionUtils.isEmpty(typeIds) && ctx.getFilters().isEmpty()) {
       if (anchorQuery != null) {
         return anchorQuery;
       }
       return matchAllQuery();
     } else {
       var boolQueryMain = boolQuery();
-      if (!typeIdsEmpty) {
-        var boolQuery = boolQuery();
-        for (var typeId : typeIds) {
-          boolQuery.should(termQuery(getTypeIdField(), typeId.toString()));
-        }
-        boolQueryMain.must(boolQuery);
-      }
+      includeTypeIdConditions(typeIds, boolQueryMain);
       if (!ctx.getFilters().isEmpty()) {
         ctx.getFilters().forEach(boolQueryMain::filter);
       }
@@ -110,6 +106,18 @@ public abstract class AbstractShelvingOrderBrowseServiceBySearchAfter<T, R>
         boolQueryMain.must(anchorQuery);
       }
       return boolQueryMain;
+    }
+  }
+
+  private void includeTypeIdConditions(List<UUID> typeIds, BoolQueryBuilder boolQueryMain) {
+    if (CollectionUtils.isNotEmpty(typeIds)) {
+      var boolQuery = boolQuery();
+      for (var typeId : typeIds) {
+        if (typeId != null) {
+          boolQuery.should(termQuery(getTypeIdField(), typeId.toString()));
+        }
+      }
+      boolQueryMain.must(boolQuery);
     }
   }
 

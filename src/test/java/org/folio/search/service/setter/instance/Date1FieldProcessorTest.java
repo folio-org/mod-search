@@ -25,6 +25,7 @@ class Date1FieldProcessorTest {
     assertThat(actual).isEqualTo(expected);
   }
 
+  @SuppressWarnings("checkstyle:MethodLength")
   private static Stream<Arguments> date1DataProvider() {
     return Stream.of(
       arguments(instance("1999"), Short.valueOf("1999")),

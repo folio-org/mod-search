@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.extern.log4j.Log4j2;
@@ -76,24 +77,9 @@ public class ReindexService {
     statusService.recreateMergeStatusRecords();
     recreateIndices(tenantId, ReindexEntityType.supportUploadTypes(), indexSettings);
 
-    var future = CompletableFuture.runAsync(() -> {
-      mergeRangeService.truncateMergeRanges();
-      var rangesForAllTenants = Stream.of(
-          mergeRangeService.createMergeRanges(tenantId),
-          processForConsortium(tenantId)
-        )
-        .flatMap(List::stream)
-        .toList();
-      mergeRangeService.saveMergeRanges(rangesForAllTenants);
-    }, reindexFullExecutor)
+    var future = CompletableFuture.runAsync(saveMergeRangesJob(tenantId), reindexFullExecutor)
       .thenRun(() -> publishRecordsRange(tenantId))
-      .handle((unused, throwable) -> {
-        if (throwable != null) {
-          log.error("initFullReindex:: process failed [tenantId: {}, error: {}]", tenantId, throwable);
-          statusService.updateReindexMergeFailed();
-        }
-        return unused;
-      });
+      .handle(handleReindexingFailure(tenantId));
 
     log.info("submitFullReindex:: submitted [tenantId: {}]", tenantId);
     return future;
@@ -103,45 +89,12 @@ public class ReindexService {
                                                      ReindexUploadDto reindexUploadDto) {
     var entityTypes = entityTypeMapper.convert(reindexUploadDto.getEntityTypes())
       .stream().filter(ReindexEntityType::isSupportsUpload).toList();
-    return submitUploadReindex(tenantId, entityTypes, true, reindexUploadDto.getIndexSettings());
+    return submitUploadReindexInner(tenantId, entityTypes, true, reindexUploadDto.getIndexSettings());
   }
 
   public CompletableFuture<Void> submitUploadReindex(String tenantId,
                                                      List<ReindexEntityType> entityTypes) {
-    return submitUploadReindex(tenantId, entityTypes, false, null);
-  }
-
-  private CompletableFuture<Void> submitUploadReindex(String tenantId,
-                                                     List<ReindexEntityType> entityTypes,
-                                                     boolean recreateIndex,
-                                                     IndexSettings indexSettings) {
-    log.info("submitUploadReindex:: for [tenantId: {}, entities: {}]", tenantId, entityTypes);
-
-    validateUploadReindex(tenantId, entityTypes);
-
-    for (var reindexEntityType : entityTypes) {
-      statusService.recreateUploadStatusRecord(reindexEntityType);
-      if (recreateIndex) {
-        reindexCommonService.recreateIndex(reindexEntityType, tenantId, indexSettings);
-      }
-    }
-
-    var futures = new ArrayList<>();
-    for (var entityType : entityTypes) {
-      var future = CompletableFuture.runAsync(() ->
-           uploadRangeService.prepareAndSendIndexRanges(entityType), reindexUploadExecutor)
-        .handle((unused, throwable) -> {
-          if (throwable != null) {
-            log.error("reindex upload process failed: {}", throwable.getMessage());
-            statusService.updateReindexUploadFailed(entityType);
-          }
-          return unused;
-        });
-      futures.add(future);
-    }
-
-    log.info("submitUploadReindex:: submitted [tenantId: {}]", tenantId);
-    return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+    return submitUploadReindexInner(tenantId, entityTypes, false, null);
   }
 
   public CompletableFuture<Void> submitFailedMergeRangesReindex(String tenantId) {
@@ -171,6 +124,62 @@ public class ReindexService {
       futures.add(future);
     }
 
+    return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+  }
+
+  private BiFunction<Void, Throwable, Void> handleReindexingFailure(String tenantId) {
+    return (unused, throwable) -> {
+      if (throwable != null) {
+        log.error("initFullReindex:: process failed [tenantId: {}, error: {}]", tenantId, throwable);
+        statusService.updateReindexMergeFailed();
+      }
+      return unused;
+    };
+  }
+
+  private Runnable saveMergeRangesJob(String tenantId) {
+    return () -> {
+      mergeRangeService.truncateMergeRanges();
+      var rangesForAllTenants = Stream.of(
+          mergeRangeService.createMergeRanges(tenantId),
+          processForConsortium(tenantId)
+        )
+        .flatMap(List::stream)
+        .toList();
+      mergeRangeService.saveMergeRanges(rangesForAllTenants);
+    };
+  }
+
+  private CompletableFuture<Void> submitUploadReindexInner(String tenantId,
+                                                           List<ReindexEntityType> entityTypes,
+                                                           boolean recreateIndex,
+                                                           IndexSettings indexSettings) {
+    log.info("submitUploadReindex:: for [tenantId: {}, entities: {}]", tenantId, entityTypes);
+
+    validateUploadReindex(tenantId, entityTypes);
+
+    for (var reindexEntityType : entityTypes) {
+      statusService.recreateUploadStatusRecord(reindexEntityType);
+      if (recreateIndex) {
+        reindexCommonService.recreateIndex(reindexEntityType, tenantId, indexSettings);
+      }
+    }
+
+    var futures = new ArrayList<>();
+    for (var entityType : entityTypes) {
+      var future = CompletableFuture.runAsync(() ->
+          uploadRangeService.prepareAndSendIndexRanges(entityType), reindexUploadExecutor)
+        .handle((unused, throwable) -> {
+          if (throwable != null) {
+            log.error("reindex upload process failed: {}", throwable.getMessage());
+            statusService.updateReindexUploadFailed(entityType);
+          }
+          return unused;
+        });
+      futures.add(future);
+    }
+
+    log.info("submitUploadReindex:: submitted [tenantId: {}]", tenantId);
     return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
   }
 

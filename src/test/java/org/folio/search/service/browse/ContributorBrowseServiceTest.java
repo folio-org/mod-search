@@ -75,8 +75,7 @@ class ContributorBrowseServiceTest {
 
     var browseResult = service.mapToBrowseResult(browseContext, searchResult, false);
 
-    assertThat(browseResult.getRecords().getFirst())
-      .isEqualTo(expected);
+    assertThat(browseResult.getRecords().getFirst()).isEqualTo(expected);
   }
 
   @ValueSource(booleans = {true, false})
@@ -114,9 +113,9 @@ class ContributorBrowseServiceTest {
   private List<ContributorResource> contributors() {
     return singletonList(new ContributorResource("id", "name", "nameType", "auth",
       Set.of(
-          contributorInstance("type1", false, "tenant1"),
-          contributorInstance("type1", true, "tenant2"),
-          contributorInstance("type2", false, "tenant1")))
+        contributorInstance("type1", false, "tenant1"),
+        contributorInstance("type1", true, "tenant2"),
+        contributorInstance("type2", false, "tenant1")))
     );
   }
 

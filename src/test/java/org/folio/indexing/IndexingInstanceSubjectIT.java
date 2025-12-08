@@ -52,13 +52,7 @@ class IndexingInstanceSubjectIT extends BaseIntegrationTest {
 
     var hits = fetchAllDocuments(INSTANCE_SUBJECT, TENANT_ID);
     var sourceAsMap = hits[0].getSourceAsMap();
-    assertThat(sourceAsMap)
-      .contains(
-        entry("value", value),
-        entry("authorityId", authorityId),
-        entry("sourceId", sourceId),
-        entry("typeId", typeId)
-      );
+    assertSubjectDocFields(sourceAsMap, value, authorityId, sourceId, typeId);
 
     @SuppressWarnings("unchecked")
     var instances = (List<Map<String, Object>>) sourceAsMap.get("instances");
@@ -91,5 +85,16 @@ class IndexingInstanceSubjectIT extends BaseIntegrationTest {
     awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_SUBJECT, TENANT_ID)).hasSize(1));
     inventoryApi.deleteInstance(TENANT_ID, instanceId);
     awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_SUBJECT, TENANT_ID)).isEmpty());
+  }
+
+  private void assertSubjectDocFields(Map<String, Object> sourceAsMap, String value, String authorityId,
+                                      String sourceId, String typeId) {
+    assertThat(sourceAsMap)
+      .contains(
+        entry("value", value),
+        entry("authorityId", authorityId),
+        entry("sourceId", sourceId),
+        entry("typeId", typeId)
+      );
   }
 }

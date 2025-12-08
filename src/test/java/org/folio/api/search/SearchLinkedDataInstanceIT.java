@@ -88,6 +88,7 @@ class SearchLinkedDataInstanceIT extends BaseIntegrationTest {
       .andExpect(jsonPath(toTitleValue(toRootContent(1), 0), is(asc ? "titleAbc xyz" : "titleAbc def")));
   }
 
+  @SuppressWarnings("checkstyle:MethodLength")
   @DisplayName("search by linked data instance (single instance is found)")
   @ParameterizedTest(name = "[{0}] {1}")
   @CsvSource({

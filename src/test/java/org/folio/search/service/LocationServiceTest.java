@@ -57,16 +57,12 @@ class LocationServiceTest {
     var locationsDataMock = Stream.concat(locationsDataMockPart1.stream(), locationsDataMockPart2.stream()).toList();
     var uri = LocationsClient.DocumentType.valueOf(resource.getName().toUpperCase()).getUri();
 
-    when(properties.getLocationBatchSize())
-      .thenReturn(batchSize);
-
+    when(properties.getLocationBatchSize()).thenReturn(batchSize);
     when(client.getLocationsData(uri, 0, batchSize))
       .thenReturn(documentsResult(locationsDataMockPart1, locationsDataMock.size()));
     when(client.getLocationsData(uri, batchSize, batchSize))
       .thenReturn(documentsResult(locationsDataMockPart2, locationsDataMock.size()));
-
-    when(resourceService.indexResources(any()))
-      .thenReturn(getSuccessIndexOperationResponse());
+    when(resourceService.indexResources(any())).thenReturn(getSuccessIndexOperationResponse());
 
     service.reindex(TENANT_ID, resource);
 
@@ -76,27 +72,8 @@ class LocationServiceTest {
     var captor = ArgumentCaptor.<List<ResourceEvent>>captor();
     verify(resourceService, times(2)).indexResources(captor.capture());
 
-    var captured = captor.getAllValues().stream()
-      .flatMap(Collection::stream)
-      .toList();
-
-    assertThat(captured)
-      .hasSize(locationsDataMock.size())
-      .allMatch(resourceEvent -> resourceEvent.getTenant().equals(TENANT_ID))
-      .allMatch(resourceEvent -> resourceEvent.getResourceName().equals(resource.getName()))
-      .extracting(ResourceEvent::getNew)
-      .containsAll(locationsDataMock);
-
-    var expectedResourceIds = locationsDataMock.stream()
-      .map(document -> document.get(ID_FIELD) + "|" + TENANT_ID)
-      .toList();
-
-    log.info("reindex_locationData_positive-{}:\n[\n\texpectedResourceIds: {}\n]",
-      resource, expectedResourceIds);
-
-    assertThat(captured)
-      .extracting(ResourceEvent::getId)
-      .containsExactlyElementsOf(expectedResourceIds);
+    var captured = assertLocationEvents(resource, captor, locationsDataMock);
+    assertResourceIds(resource, locationsDataMock, captured);
   }
 
   @ParameterizedTest
@@ -109,12 +86,10 @@ class LocationServiceTest {
     var error = "error";
 
     var uri = LocationsClient.DocumentType.valueOf(resource.getName().toUpperCase()).getUri();
-    when(properties.getLocationBatchSize())
-      .thenReturn(batchSize);
+    when(properties.getLocationBatchSize()).thenReturn(batchSize);
     when(client.getLocationsData(uri, 0, batchSize))
       .thenReturn(documentsResult(locationsDataMock, locationsDataMock.size()));
-    when(resourceService.indexResources(any()))
-      .thenReturn(getErrorIndexOperationResponse(error));
+    when(resourceService.indexResources(any())).thenReturn(getErrorIndexOperationResponse(error));
 
     var ex = assertThrows(IllegalStateException.class, () -> service.reindex(TENANT_ID, resource));
 
@@ -122,6 +97,36 @@ class LocationServiceTest {
       resource, batchSize, locationsDataMock, ex.getMessage());
 
     assertThat(ex.getMessage()).isEqualTo(String.format("Indexing failed: %s", error));
+  }
+
+  private List<ResourceEvent> assertLocationEvents(ResourceType resource,
+                                                   ArgumentCaptor<List<ResourceEvent>> captor,
+                                                   List<Map<String, Object>> locationsDataMock) {
+    var captured = captor.getAllValues().stream()
+      .flatMap(Collection::stream)
+      .toList();
+
+    assertThat(captured)
+      .hasSize(locationsDataMock.size())
+      .allMatch(resourceEvent -> resourceEvent.getTenant().equals(TENANT_ID))
+      .allMatch(resourceEvent -> resourceEvent.getResourceName().equals(resource.getName()))
+      .extracting(ResourceEvent::getNew)
+      .containsAll(locationsDataMock);
+    return captured;
+  }
+
+  private void assertResourceIds(ResourceType resource, List<Map<String, Object>> locationsDataMock,
+                                 List<ResourceEvent> captured) {
+    var expectedResourceIds = locationsDataMock.stream()
+      .map(document -> document.get(ID_FIELD) + "|" + TENANT_ID)
+      .toList();
+
+    log.info("reindex_locationData_positive-{}:\n[\n\texpectedResourceIds: {}\n]",
+      resource, expectedResourceIds);
+
+    assertThat(captured)
+      .extracting(ResourceEvent::getId)
+      .containsExactlyElementsOf(expectedResourceIds);
   }
 
   private List<Map<String, Object>> locationsData(ResourceType resourceName, int count) {

@@ -199,6 +199,7 @@ public class ClassificationRepository extends UploadRangeRepository implements I
     deleteByInstanceIds(DELETE_QUERY, instanceIds, tenantId);
   }
 
+  @SuppressWarnings("checkstyle:MethodLength")
   @Override
   public void saveAll(ChildResourceEntityBatch entityBatch) {
     var entitiesSql = INSERT_ENTITIES_SQL.formatted(JdbcUtils.getSchemaName(context));

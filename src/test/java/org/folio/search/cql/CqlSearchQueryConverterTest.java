@@ -370,6 +370,7 @@ class CqlSearchQueryConverterTest {
     assertThat(actual).isEqualTo(searchSource().query(consortiumQueryMock));
   }
 
+  @SuppressWarnings("checkstyle:MethodLength")
   private static Stream<Arguments> convertCqlQueryDataProvider() {
     var resourceId = randomId();
     return Stream.of(
@@ -429,6 +430,7 @@ class CqlSearchQueryConverterTest {
     );
   }
 
+  @SuppressWarnings("checkstyle:MethodLength")
   private static Stream<Arguments> convertCqlQuerySearchGroupDataProvider() {
     return Stream.of(
       arguments("(title all \"test-query\") sortby title",

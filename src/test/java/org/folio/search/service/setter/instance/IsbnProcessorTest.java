@@ -60,6 +60,7 @@ class IsbnProcessorTest {
     assertThat(actual).isEmpty();
   }
 
+  @SuppressWarnings("checkstyle:MethodLength")
   private static Stream<Arguments> isbnDataProvider() {
     return Stream.of(
       arguments("all empty fields", new Instance(), emptyList()),

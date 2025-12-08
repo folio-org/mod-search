@@ -27,22 +27,18 @@ import org.folio.search.service.reindex.jdbc.InstanceChildResourceRepository;
 public abstract class ChildResourceExtractorTestBase {
 
   public void persistChildrenTest(ChildResourceExtractor extractor, InstanceChildResourceRepository repository,
-                           Supplier<Map<String, Object>> eventDataSupplier) {
+                                  Supplier<Map<String, Object>> eventDataSupplier) {
     var eventData = eventDataSupplier.get();
     var resource = eventData.get("resource").toString();
+    @SuppressWarnings("unchecked")
     var eventBodySupplier = (Supplier<Map<String, Object>>) () ->
       (Map<String, Object>) eventDataSupplier.get().get("body");
     var eventBody = eventBodySupplier.get();
-    var oldBody  = new HashMap<>(eventBodySupplier.get());
+    var oldBody = new HashMap<>(eventBodySupplier.get());
     var newBody = new HashMap<>(eventBodySupplier.get());
     oldBody.put(SOURCE_FIELD, "FOLIO");
     newBody.put(SOURCE_FIELD, SOURCE_CONSORTIUM_PREFIX + "FOLIO");
-    var events = List.of(
-      resourceEvent(ResourceEventType.CREATE, resource, eventBody),
-      resourceEvent(ResourceEventType.REINDEX, resource, eventBody),
-      resourceEvent(ResourceEventType.UPDATE, resource, noMainValuesBody()),
-      resourceEvent(ResourceEventType.UPDATE, resource, eventBodySupplier.get()),
-      resourceEvent(ResourceEventType.DELETE, resource, eventBodySupplier.get()));
+    var events = getResourceEvents(resource, eventBody, eventBodySupplier);
 
     var sharedResourceEvent = resourceEvent(ResourceEventType.UPDATE, resource, oldBody, newBody);
     var instanceIdsForDeletion = List.of(events.get(2).getId(), events.get(3).getId(), events.get(4).getId());
@@ -55,13 +51,13 @@ public abstract class ChildResourceExtractorTestBase {
       argThat(list -> list.equals(instanceIdsForDeletion) || list.equals(sharedInstanceIds)),
       argThat(tenant -> tenant == null || tenant.equals(TENANT_ID)));
     verify(repository).saveAll(argThat(set -> set.resourceEntities().size() == getExpectedEntitiesSize()
-      && set.relationshipEntities().size() == 3));
+                                              && set.relationshipEntities().size() == 3));
   }
 
   public void shouldNotPersistEmptyChildrenTest(ChildResourceExtractor extractor,
                                                 InstanceChildResourceRepository repository,
                                                 Supplier<Map<String, Object>> eventBodySupplier) {
-    var events = List.of(resourceEvent(ResourceEventType.CREATE, eventBodySupplier.get()));
+    var events = List.of(resourceCreateEvent(eventBodySupplier.get()));
 
     extractor.persistChildren(TENANT_ID, false, events);
 
@@ -71,6 +67,16 @@ public abstract class ChildResourceExtractorTestBase {
 
   protected int getExpectedEntitiesSize() {
     return 2;
+  }
+
+  private List<ResourceEvent> getResourceEvents(String resource, Map<String, Object> eventBody,
+                                                Supplier<Map<String, Object>> eventBodySupplier) {
+    return List.of(
+      resourceEvent(ResourceEventType.CREATE, resource, eventBody),
+      resourceEvent(ResourceEventType.REINDEX, resource, eventBody),
+      resourceEvent(ResourceEventType.UPDATE, resource, noMainValuesBody()),
+      resourceEvent(ResourceEventType.UPDATE, resource, eventBodySupplier.get()),
+      resourceEvent(ResourceEventType.DELETE, resource, eventBodySupplier.get()));
   }
 
   private Map<String, Object> noMainValuesBody() {
@@ -89,11 +95,11 @@ public abstract class ChildResourceExtractorTestBase {
       )));
   }
 
-  protected ResourceEvent resourceEvent(ResourceEventType type, Map<String, Object> body) {
-    return resourceEvent(type, null, null, body);
+  private ResourceEvent resourceCreateEvent(Map<String, Object> body) {
+    return resourceEvent(ResourceEventType.CREATE, null, null, body);
   }
 
-  protected ResourceEvent resourceEvent(ResourceEventType type, String resource, Map<String, Object> body) {
+  private ResourceEvent resourceEvent(ResourceEventType type, String resource, Map<String, Object> body) {
     return resourceEvent(type, resource, null, body);
   }
 

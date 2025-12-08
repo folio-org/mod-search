@@ -209,6 +209,7 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
   }
 
   @Override
+  @SuppressWarnings("checkstyle:MethodLength")
   public void saveAll(ChildResourceEntityBatch entityBatch) {
     var entitiesSql = INSERT_ENTITIES_SQL.formatted(JdbcUtils.getSchemaName(context));
     try {

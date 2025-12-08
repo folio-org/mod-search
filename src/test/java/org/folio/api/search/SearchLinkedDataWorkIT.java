@@ -88,6 +88,7 @@ class SearchLinkedDataWorkIT extends BaseIntegrationTest {
       .andExpect(jsonPath(toTitleValue(toRootContent(1), 0), is(asc ? "titleAbc xyz" : "titleAbc def")));
   }
 
+  @SuppressWarnings("checkstyle:MethodLength")
   @DisplayName("search by linked data work (single work is found)")
   @ParameterizedTest(name = "[{0}] {1}")
   @CsvSource({
@@ -287,6 +288,7 @@ class SearchLinkedDataWorkIT extends BaseIntegrationTest {
       .andExpect(jsonPath(toTotalRecords(), is(0)));
   }
 
+  @SuppressWarnings("checkstyle:MethodLength")
   @DisplayName("search by linked data work without instances (single work is found)")
   @ParameterizedTest(name = "[{0}] {1}")
   @CsvSource({

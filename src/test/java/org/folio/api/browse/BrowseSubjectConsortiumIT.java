@@ -20,6 +20,7 @@ import static org.folio.support.utils.TestUtils.facetItem;
 import static org.folio.support.utils.TestUtils.mapOf;
 import static org.folio.support.utils.TestUtils.randomId;
 import static org.folio.support.utils.TestUtils.subjectBrowseItem;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
@@ -138,6 +139,7 @@ class BrowseSubjectConsortiumIT extends BaseConsortiumIntegrationTest {
     var actual = parseResponse(doGet(recordFacetsPath(RecordType.SUBJECTS, query, facets)), FacetResult.class);
 
     expected.forEach((facetName, expectedFacet) -> {
+      assertNotNull(actual.getFacets());
       var actualFacet = actual.getFacets().get(facetName);
 
       assertThat(actualFacet).isNotNull();
@@ -167,7 +169,7 @@ class BrowseSubjectConsortiumIT extends BaseConsortiumIntegrationTest {
       .subjects(((List<Object>) data.get(1)).stream()
         .map(val -> {
           if (val instanceof List<?> list) {
-            var subject =  new Subject().value(String.valueOf(list.get(0)));
+            var subject = new Subject().value(String.valueOf(list.get(0)));
             if (list.size() == 4) {
               subject.setAuthorityId(Objects.toString(list.get(1), null));
               subject.setSourceId(Objects.toString(list.get(2), null));
@@ -183,6 +185,7 @@ class BrowseSubjectConsortiumIT extends BaseConsortiumIntegrationTest {
       .holdings(emptyList());
   }
 
+  @SuppressWarnings("checkstyle:MethodLength")
   private static List<List<Object>> subjectBrowseInstanceData() {
     return List.of(
       List.of("instance #01", List.of("History",
@@ -213,6 +216,7 @@ class BrowseSubjectConsortiumIT extends BaseConsortiumIntegrationTest {
     );
   }
 
+  @SuppressWarnings("checkstyle:MethodLength")
   private static Stream<Arguments> facetQueriesProvider() {
     return Stream.of(
       arguments("cql.allRecords=1", array("instances.shared"), mapOf("instances.shared",

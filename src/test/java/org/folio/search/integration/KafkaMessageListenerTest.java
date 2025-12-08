@@ -60,7 +60,6 @@ import org.folio.search.service.config.ConfigSynchronizationService;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.folio.spring.testing.type.UnitTest;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -109,13 +108,10 @@ class KafkaMessageListenerTest {
     var holdingEvent2 = resourceEvent(null, INSTANCE, mapOf("id", randomId(), "instanceId", null));
     var boundWithEvent = resourceEvent(null, INSTANCE, mapOf("id", randomId(), "instanceId", instanceId1));
 
-    messageListener.handleInstanceEvents(List.of(
-      new ConsumerRecord<>(inventoryInstanceTopic(), 0, 0, instanceId1, instanceEvent1),
-      new ConsumerRecord<>(inventoryInstanceTopic(), 0, 0, instanceId2, instanceEvent2),
-      new ConsumerRecord<>(inventoryItemTopic(), 0, 0, instanceId2, itemEvent),
-      new ConsumerRecord<>(inventoryHoldingTopic(), 0, 0, instanceId3, holdingEvent1),
-      new ConsumerRecord<>(inventoryHoldingTopic(), 0, 0, null, holdingEvent2),
-      new ConsumerRecord<>(inventoryBoundWithTopic(), 0, 0, instanceId1, boundWithEvent)));
+    messageListener.handleInstanceEvents(List.of(instanceRecord(instanceId1, instanceEvent1),
+      instanceRecord(instanceId2, instanceEvent2), itemRecord(instanceId2, itemEvent),
+      holdingRecord(instanceId3, holdingEvent1), holdingRecord(null, holdingEvent2),
+      boundWithRecord(instanceId1, boundWithEvent)));
 
     var expectedEvents = List.of(
       resourceEvent(instanceId1, INSTANCE, CREATE, instanceEvent1.getNew(), null),
@@ -136,7 +132,7 @@ class KafkaMessageListenerTest {
     var resourceBody = resourceEvent(null, INSTANCE, mapOf("id", RESOURCE_ID)).type(eventTypeEnumValue);
 
     messageListener.handleInstanceEvents(List.of(
-      new ConsumerRecord<>(inventoryInstanceTopic(), 0, 0, RESOURCE_ID, resourceBody)));
+      instanceRecord(RESOURCE_ID, resourceBody)));
 
     var expectedEvent = resourceEvent(RESOURCE_ID, INSTANCE, eventTypeEnumValue, resourceBody.getNew(), null);
     var expectedEvents = List.of(expectedEvent);
@@ -160,8 +156,7 @@ class KafkaMessageListenerTest {
   void handleEvents_positive_reindexEventWithoutBody() {
 
     messageListener.handleInstanceEvents(List.of(
-      new ConsumerRecord<>(inventoryInstanceTopic(), 0, 0, RESOURCE_ID,
-        resourceEvent(null, INSTANCE, REINDEX))));
+      instanceRecord(RESOURCE_ID, resourceEvent(null, INSTANCE, REINDEX))));
 
     var expectedEvents = List.of(resourceEvent(RESOURCE_ID, INSTANCE, REINDEX));
     verify(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
@@ -176,8 +171,8 @@ class KafkaMessageListenerTest {
     var holdingEvent = resourceEvent(null, INSTANCE, DELETE, null, holdingPayload);
 
     messageListener.handleInstanceEvents(List.of(
-      new ConsumerRecord<>(inventoryItemTopic(), 0, 0, RESOURCE_ID, itemEvent),
-      new ConsumerRecord<>(inventoryHoldingTopic(), 0, 0, RESOURCE_ID, holdingEvent)));
+      itemRecord(RESOURCE_ID, itemEvent),
+      holdingRecord(RESOURCE_ID, holdingEvent)));
 
     var expectedEvents = List.of(
       resourceEvent(RESOURCE_ID, INSTANCE, CREATE, null, itemPayload),
@@ -339,7 +334,25 @@ class KafkaMessageListenerTest {
     verify(batchProcessor).consumeBatchWithFallback(eq(List.of(deleteEvent)), any(), any(), any());
   }
 
-  @NotNull
+  private static ConsumerRecord<String, ResourceEvent> boundWithRecord(String instanceId1,
+                                                                       ResourceEvent boundWithEvent) {
+    return new ConsumerRecord<>(inventoryBoundWithTopic(), 0, 0, instanceId1, boundWithEvent);
+  }
+
+  private static ConsumerRecord<String, ResourceEvent> holdingRecord(String instanceId3,
+                                                                     ResourceEvent holdingEvent) {
+    return new ConsumerRecord<>(inventoryHoldingTopic(), 0, 0, instanceId3, holdingEvent);
+  }
+
+  private static ConsumerRecord<String, ResourceEvent> itemRecord(String instanceId2, ResourceEvent itemEvent) {
+    return new ConsumerRecord<>(inventoryItemTopic(), 0, 0, instanceId2, itemEvent);
+  }
+
+  private static ConsumerRecord<String, ResourceEvent> instanceRecord(String instanceId1,
+                                                                      ResourceEvent instanceEvent) {
+    return new ConsumerRecord<>(inventoryInstanceTopic(), 0, 0, instanceId1, instanceEvent);
+  }
+
   private static ConsumerRecord<String, ResourceEvent> consumerRecordForType(ResourceType resourceType,
                                                                              ResourceEvent event) {
     var topic = switch (resourceType) {

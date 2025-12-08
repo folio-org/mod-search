@@ -38,9 +38,9 @@ class IndexingInstanceClassificationIT extends BaseIntegrationTest {
   void shouldIndexInstanceClassification_createNewDocument() {
     var instanceId1 = randomId();
     var instanceId2 = randomId();
-    var lcTypeId = "ce176ace-a53e-4b4d-aa89-725ed7b2edac";
+    var typeId = "ce176ace-a53e-4b4d-aa89-725ed7b2edac";
     var number = "N123";
-    var classification = new Classification().classificationNumber(number).classificationTypeId(lcTypeId);
+    var classification = new Classification().classificationNumber(number).classificationTypeId(typeId);
     var instance1 = new Instance().id(instanceId1).addClassificationsItem(classification);
     var instance2 = new Instance().id(instanceId2).addClassificationsItem(classification);
     inventoryApi.createInstance(TENANT_ID, instance1);
@@ -50,14 +50,7 @@ class IndexingInstanceClassificationIT extends BaseIntegrationTest {
 
     var hits = fetchAllDocuments(INSTANCE_CLASSIFICATION, TENANT_ID);
     var sourceAsMap = hits[0].getSourceAsMap();
-    assertThat(sourceAsMap)
-      .contains(
-        entry("number", number),
-        entry("typeId", lcTypeId),
-        entry("defaultShelvingOrder", "N123"),
-        entry("deweyShelvingOrder", "N 3123"),
-        entry("lcShelvingOrder", "N 3123")
-      );
+    assertClassificationDocFields(sourceAsMap, number, typeId);
 
     @SuppressWarnings("unchecked")
     var instances = (List<Map<String, Object>>) sourceAsMap.get("instances");
@@ -90,5 +83,16 @@ class IndexingInstanceClassificationIT extends BaseIntegrationTest {
     awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CLASSIFICATION, TENANT_ID)).hasSize(1));
     inventoryApi.deleteInstance(TENANT_ID, instanceId);
     awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CLASSIFICATION, TENANT_ID)).isEmpty());
+  }
+
+  private void assertClassificationDocFields(Map<String, Object> sourceAsMap, String number, String lcTypeId) {
+    assertThat(sourceAsMap)
+      .contains(
+        entry("number", number),
+        entry("typeId", lcTypeId),
+        entry("defaultShelvingOrder", "N123"),
+        entry("deweyShelvingOrder", "N 3123"),
+        entry("lcShelvingOrder", "N 3123")
+      );
   }
 }

@@ -5,10 +5,8 @@ properties:
     description: Resource id
     type: string
   type:
-    description: Resource event operation type
     $ref: 'resourceEventType.yaml'
   deleteEventSubType:
-    description: Resource event delete operation type
     $ref: 'resourceDeleteEventSubType.yaml'
   tenant:
     description: Tenant id
@@ -22,3 +20,6 @@ properties:
   old:
     description: Instance record old fields
     type: object
+required:
+  - id
+  - tenant

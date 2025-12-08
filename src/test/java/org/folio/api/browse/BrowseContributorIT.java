@@ -18,6 +18,7 @@ import static org.folio.support.utils.TestUtils.facet;
 import static org.folio.support.utils.TestUtils.facetItem;
 import static org.folio.support.utils.TestUtils.mapOf;
 import static org.folio.support.utils.TestUtils.randomId;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
@@ -130,6 +131,7 @@ class BrowseContributorIT extends BaseIntegrationTest {
     var actual = parseResponse(request, FacetResult.class);
 
     expected.forEach((facetName, expectedFacet) -> {
+      assertNotNull(actual.getFacets());
       var actualFacet = actual.getFacets().get(facetName);
 
       assertThat(actualFacet).isNotNull();
@@ -137,6 +139,7 @@ class BrowseContributorIT extends BaseIntegrationTest {
     });
   }
 
+  @SuppressWarnings("checkstyle:MethodLength")
   private static Stream<Arguments> contributorBrowsingDataProvider() {
     var aroundQuery = "name > {value} or name < {value}";
     var aroundIncludingQuery = "name >= {value} or name < {value}";
@@ -290,6 +293,7 @@ class BrowseContributorIT extends BaseIntegrationTest {
       .staffSuppress(false).discoverySuppress(false).holdings(emptyList());
   }
 
+  @SuppressWarnings("checkstyle:MethodLength")
   private static List<List<Object>> contributorBrowseInstanceData() {
     return List.of(
       // contributor is removed from instance on setup

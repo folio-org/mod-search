@@ -8,7 +8,6 @@ import static org.hibernate.internal.util.collections.CollectionHelper.isNotEmpt
 
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.cql.CqlSearchQueryConverter;
@@ -26,6 +25,9 @@ import org.springframework.stereotype.Component;
 public class BrowseContextProvider {
 
   private static final String QUERY_ERROR_PARAM = "query";
+  private static final int EXPECTED_AROUND_QUERY_SIZE = 2;
+  private static final int FIRST_MUST_CLAUSE_INDEX = 0;
+
   private final CqlSearchQueryConverter cqlSearchQueryConverter;
 
   /**
@@ -40,48 +42,57 @@ public class BrowseContextProvider {
 
     var searchSource = cqlSearchQueryConverter.convert(request.query(), request.resource());
     var cqlQuery = request.query();
-    if (isNotEmpty(searchSource.sorts())) {
+
+    validateNoSortingPresent(searchSource.sorts(), cqlQuery);
+
+    var query = searchSource.query();
+
+    if (!isBoolQuery(query)) {
+      return handleSimpleRangeQuery(request, query, cqlQuery);
+    }
+
+    return handleBoolQuery(request, (BoolQueryBuilder) query, cqlQuery);
+  }
+
+  private void validateNoSortingPresent(List<?> sorts, String cqlQuery) {
+    if (isNotEmpty(sorts)) {
       throw new RequestValidationException(
         "Invalid CQL query for browsing, 'sortBy' is not supported", QUERY_ERROR_PARAM, cqlQuery);
     }
+  }
 
-    var query = searchSource.query();
-    if (!isBoolQuery(query)) {
-      if (!isValidRangeQuery(request.targetField(), query)) {
-        throw new RequestValidationException("Invalid CQL query for browsing.", QUERY_ERROR_PARAM, cqlQuery);
-      }
-      log.trace(
-        "Failure on passing BoolQueryBuilder. Attempts to create browsingContext without filters [request: {}]",
-        request);
-      return createBrowsingContext(request, emptyList(), (RangeQueryBuilder) query);
+  private BrowseContext handleSimpleRangeQuery(BrowseRequest request, QueryBuilder query, String cqlQuery) {
+    if (!isValidRangeQuery(request.targetField(), query)) {
+      throw new RequestValidationException("Invalid CQL query for browsing.", QUERY_ERROR_PARAM, cqlQuery);
     }
 
-    var boolQuery = (BoolQueryBuilder) query;
+    log.trace("Creating browsingContext without filters [request: {}]", request);
+    return buildBrowseContext(request, emptyList(), (RangeQueryBuilder) query);
+  }
+
+  private BrowseContext handleBoolQuery(BrowseRequest request, BoolQueryBuilder boolQuery, String cqlQuery) {
     var filters = boolQuery.filter();
     var shouldClauses = boolQuery.should();
     String logMsg = collectionToLogMsg(filters, true);
 
     if (isValidAroundQuery(request.targetField(), shouldClauses)) {
-      log.trace("Attempts to create context browsingAround [request: {}, filters.size: {}]",
-        request, logMsg);
-      return createContextForBrowsingAround(request, filters, shouldClauses);
+      log.trace("Creating context browsingAround [request: {}, filters.size: {}]", request, logMsg);
+      return buildBrowseAroundContext(request, filters, shouldClauses);
     }
 
-    if (isBoolQueryWithFilters(boolQuery)) {
-      var mustClauses = boolQuery.must();
-      var firstMustClause = mustClauses.getFirst();
+    if (hasSingleMustClauseWithFilters(boolQuery)) {
+      var firstMustClause = boolQuery.must().get(FIRST_MUST_CLAUSE_INDEX);
+
       if (firstMustClause instanceof RangeQueryBuilder rangeQuery) {
-        log.trace("Attempts to create browsingContext with filters [request: {}, filters.size: {}]",
-          request, logMsg);
-        return createBrowsingContext(request, filters, rangeQuery);
+        log.trace("Creating browsingContext with filters [request: {}, filters.size: {}]", request, logMsg);
+        return buildBrowseContext(request, filters, rangeQuery);
       }
 
       if (isBoolQuery(firstMustClause)) {
-        var subShouldClauses = ((BoolQueryBuilder) firstMustClause).should();
-        if (isValidAroundQuery(request.targetField(), subShouldClauses)) {
-          log.trace("Attempts to create context browsingAround with filters [request: {}, filters: {}]",
-            request, logMsg);
-          return createContextForBrowsingAround(request, filters, subShouldClauses);
+        var nestedShouldClauses = ((BoolQueryBuilder) firstMustClause).should();
+        if (isValidAroundQuery(request.targetField(), nestedShouldClauses)) {
+          log.trace("Creating context browsingAround with filters [request: {}, filters: {}]", request, logMsg);
+          return buildBrowseAroundContext(request, filters, nestedShouldClauses);
         }
       }
     }
@@ -89,78 +100,102 @@ public class BrowseContextProvider {
     throw new RequestValidationException("Invalid CQL query for browsing.", QUERY_ERROR_PARAM, cqlQuery);
   }
 
-  private static BrowseContext createBrowsingContext(BrowseRequest request, List<QueryBuilder> filters,
-                                                     RangeQueryBuilder rangeQuery) {
-    var precedingQuery = getRangeQuery(rangeQuery, query -> query.to() != null);
-    var succeedingQuery = getRangeQuery(rangeQuery, query -> query.from() != null);
+  private static boolean isValidRangeQuery(String targetField, QueryBuilder q) {
+    if (q instanceof RangeQueryBuilder rangeQuery) {
+      return targetField.equals(rangeQuery.fieldName());
+    }
+    log.warn("isValidRangeQuery:: not a valid range query");
+    return false;
+  }
+
+  private static boolean hasSingleMustClauseWithFilters(BoolQueryBuilder boolQuery) {
+    return boolQuery.must().size() == 1 && !boolQuery.filter().isEmpty();
+  }
+
+  private static BrowseContext buildBrowseContext(BrowseRequest request, List<QueryBuilder> filters,
+                                                  RangeQueryBuilder rangeQuery) {
+    var precedingQuery = extractPrecedingQuery(rangeQuery);
+    var succeedingQuery = extractSucceedingQuery(rangeQuery);
 
     return BrowseContext.builder()
       .precedingQuery(precedingQuery)
       .succeedingQuery(succeedingQuery)
       .filters(filters)
-      .anchor(getAnchor(rangeQuery))
+      .anchor(extractAnchor(rangeQuery))
       .precedingLimit(precedingQuery != null ? request.limit() : null)
       .succeedingLimit(succeedingQuery != null ? request.limit() : null)
       .build();
   }
 
-  private static BrowseContext createContextForBrowsingAround(
-    BrowseRequest request, List<QueryBuilder> filters, List<QueryBuilder> shouldClauses) {
-    var precedingQuery = getRangeQuery(shouldClauses, query -> query.to() != null);
-    var succeedingQuery = getRangeQuery(shouldClauses, query -> query.from() != null);
+  private static BrowseContext buildBrowseAroundContext(BrowseRequest request, List<QueryBuilder> filters,
+                                                        List<QueryBuilder> shouldClauses) {
+    var precedingQuery = extractPrecedingQuery(shouldClauses);
+    var succeedingQuery = extractSucceedingQuery(shouldClauses);
 
     return BrowseContext.builder()
       .precedingQuery(precedingQuery)
       .succeedingQuery(succeedingQuery)
       .filters(filters)
-      .anchor(validateAndGetAnchorForBrowsingAround(request, shouldClauses))
+      .anchor(validateAndExtractAnchorForBrowsingAround(request, shouldClauses))
       .precedingLimit(request.precedingRecordsCount())
       .succeedingLimit(request.limit() - request.precedingRecordsCount())
       .build();
   }
 
-  private static RangeQueryBuilder getRangeQuery(RangeQueryBuilder query, Predicate<RangeQueryBuilder> predicate) {
-    return predicate.test(query) ? query : null;
+  private static RangeQueryBuilder extractPrecedingQuery(RangeQueryBuilder query) {
+    return hasToValue(query) ? query : null;
   }
 
-  private static RangeQueryBuilder getRangeQuery(List<QueryBuilder> queries, Predicate<RangeQueryBuilder> predicate) {
+  private static RangeQueryBuilder extractPrecedingQuery(List<QueryBuilder> queries) {
     var firstQuery = (RangeQueryBuilder) queries.get(0);
-    return predicate.test(firstQuery) ? firstQuery : (RangeQueryBuilder) queries.get(1);
+    return hasToValue(firstQuery) ? firstQuery : (RangeQueryBuilder) queries.get(1);
   }
 
-  static boolean isValidRangeQuery(String targetField, QueryBuilder q) {
-    if (q instanceof RangeQueryBuilder rangeQuery) {
-      var fieldName = rangeQuery.fieldName();
-      return targetField.equals(fieldName);
-    }
-    log.warn("isValidRangeQuery:: not valid range");
-    return false;
+  private static RangeQueryBuilder extractSucceedingQuery(RangeQueryBuilder query) {
+    return hasFromValue(query) ? query : null;
+  }
+
+  private static RangeQueryBuilder extractSucceedingQuery(List<QueryBuilder> queries) {
+    var firstQuery = (RangeQueryBuilder) queries.get(0);
+    return hasFromValue(firstQuery) ? firstQuery : (RangeQueryBuilder) queries.get(1);
+  }
+
+  private static boolean hasToValue(RangeQueryBuilder query) {
+    return query.to() != null;
+  }
+
+  private static boolean hasFromValue(RangeQueryBuilder query) {
+    return query.from() != null;
   }
 
   private static boolean isValidAroundQuery(String targetField, List<QueryBuilder> queries) {
-    if (queries.size() == 2 && allMatch(queries, query -> isValidRangeQuery(targetField, query))) {
-      log.debug("isValidAroundQuery:: queries.size() == 2 && allMatch by queries");
-      var firstClause = (RangeQueryBuilder) queries.get(0);
-      var secondClause = (RangeQueryBuilder) queries.get(1);
-      return firstClause.from() != null && secondClause.from() == null
-        || firstClause.from() == null && secondClause.from() != null;
+    if (queries.size() != EXPECTED_AROUND_QUERY_SIZE
+        || !allMatch(queries, query -> isValidRangeQuery(targetField, query))) {
+      log.warn("isValidAroundQuery:: invalid query structure");
+      return false;
     }
 
-    log.warn("isValidAroundQuery:: not valid query");
-    return false;
+    var firstClause = (RangeQueryBuilder) queries.get(0);
+    var secondClause = (RangeQueryBuilder) queries.get(1);
+
+    boolean hasValidDirections = hasFromValue(firstClause) && !hasFromValue(secondClause)
+                                 || !hasFromValue(firstClause) && hasFromValue(secondClause);
+
+    if (hasValidDirections) {
+      log.debug("isValidAroundQuery:: valid around query with opposite directions");
+    }
+
+    return hasValidDirections;
   }
 
-  private static boolean isBoolQueryWithFilters(BoolQueryBuilder boolQuery) {
-    return boolQuery.must().size() == 1 && !boolQuery.filter().isEmpty();
-  }
-
-  private static String getAnchor(RangeQueryBuilder rangeQuery) {
+  private static String extractAnchor(RangeQueryBuilder rangeQuery) {
     return rangeQuery.from() != null ? (String) rangeQuery.from() : (String) rangeQuery.to();
   }
 
-  private static String validateAndGetAnchorForBrowsingAround(BrowseRequest request, List<QueryBuilder> shouldClauses) {
-    var firstAnchor = getAnchor((RangeQueryBuilder) shouldClauses.get(0));
-    var secondAnchor = getAnchor((RangeQueryBuilder) shouldClauses.get(1));
+  private static String validateAndExtractAnchorForBrowsingAround(BrowseRequest request,
+                                                                  List<QueryBuilder> shouldClauses) {
+    var firstAnchor = extractAnchor((RangeQueryBuilder) shouldClauses.get(0));
+    var secondAnchor = extractAnchor((RangeQueryBuilder) shouldClauses.get(1));
 
     if (!Objects.equals(firstAnchor, secondAnchor)) {
       throw new RequestValidationException(

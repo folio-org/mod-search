@@ -85,11 +85,7 @@ public class CqlTermQueryConverter {
     var searchTerm = getSearchTerm(termNode.getTerm(), optionalPlainFieldByPath);
     var comparator = isWildcardQuery(searchTerm) ? WILDCARD_OPERATOR : lowerCase(termNode.getRelation().getBase());
 
-    var termQueryBuilder = termQueryBuilders.get(comparator);
-    if (termQueryBuilder == null) {
-      throw new UnsupportedOperationException(String.format(
-        "Failed to parse CQL query. Comparator '%s' is not supported.", comparator));
-    }
+    var termQueryBuilder = getTermQueryBuilderOrFail(comparator);
 
     var modifiers = termNode.getRelation().getModifiers().stream()
       .map(Modifier::getType)
@@ -107,6 +103,15 @@ public class CqlTermQueryConverter {
     return plainFieldByPath.hasFulltextIndex()
            ? termQueryBuilder.getFulltextQuery(searchTerm, fieldName, resource, modifiers)
            : termQueryBuilder.getTermLevelQuery(searchTerm, fieldName, resource, index);
+  }
+
+  private TermQueryBuilder getTermQueryBuilderOrFail(String comparator) {
+    var termQueryBuilder = termQueryBuilders.get(comparator);
+    if (termQueryBuilder == null) {
+      throw new UnsupportedOperationException(String.format(
+        "Failed to parse CQL query. Comparator '%s' is not supported.", comparator));
+    }
+    return termQueryBuilder;
   }
 
   private Object getSearchTerm(String term, Optional<PlainFieldDescription> plainFieldDescription) {
@@ -139,6 +144,12 @@ public class CqlTermQueryConverter {
       }
     }
 
+    throwIfErrorsExist(errors);
+
+    return unmodifiableMap(queryBuildersMap);
+  }
+
+  private static void throwIfErrorsExist(LinkedHashMap<String, List<TermQueryBuilder>> errors) {
     if (MapUtils.isNotEmpty(errors)) {
       var stringJoiner = new StringJoiner(", ");
       errors.forEach((c, v) -> {
@@ -146,10 +157,8 @@ public class CqlTermQueryConverter {
         stringJoiner.add(String.format("comparator '%s': %s", c, buildersAsString));
       });
       throw new IllegalStateException(String.format("Multiple TermQueryBuilder objects cannot be responsible "
-        + "for the same comparator. Found issues: [%s]", stringJoiner));
+                                                    + "for the same comparator. Found issues: [%s]", stringJoiner));
     }
-
-    return unmodifiableMap(queryBuildersMap);
   }
 
   private void validateIndexFormat(String index, CQLTermNode termNode) {

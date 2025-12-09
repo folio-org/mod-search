@@ -103,6 +103,7 @@ class BrowseClassificationIT extends BaseIntegrationTest {
   }
 
   @Test
+  @SuppressWarnings("checkstyle:MethodLength")
   void browseByClassification_allOption_browsingAroundWithPrecedingRecordsCount() {
     var request = get(instanceClassificationBrowsePath(BrowseOptionType.ALL))
       .param("query", prepareQuery("number < {value} or number >= {value}", "\"292.07\""))
@@ -183,6 +184,7 @@ class BrowseClassificationIT extends BaseIntegrationTest {
     okapi.wireMockServer().removeStub(stub);
   }
 
+  @SuppressWarnings("checkstyle:MethodLength")
   private static Stream<Arguments> classificationBrowsingDataProvider() {
     var aroundIncludingQuery = "number < {value} or number >= {value}";
     var forwardQuery = "number > {value}";

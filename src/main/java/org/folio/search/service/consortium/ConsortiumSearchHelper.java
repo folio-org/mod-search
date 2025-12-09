@@ -7,6 +7,7 @@ import static org.opensearch.index.query.QueryBuilders.nestedQuery;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -89,30 +90,9 @@ public class ConsortiumSearchHelper {
       return query;
     }
 
-    QueryBuilder queryBuilder;
-
     removeOriginalSharedFilterFromQuery(query);
-
-    var boolQuery = prepareBoolQueryForActiveAffiliation(query);
-    if (boolQuery.should().isEmpty()) {
-      boolQuery.minimumShouldMatch(null);
-    }
-
-    var shared = sharedFilter.map(this::sharedFilterValue).orElse(null);
-    if (shared == null) {
-      queryBuilder = filterQueryForActiveAffiliation(query, contextTenantId, centralTenantId.get(), resource);
-    } else if (!shared) {
-      boolQuery.must(termQuery(BROWSE_TENANT_FILTER_KEY, contextTenantId));
-      sharedFilter
-        .map(this::sharedFilterValue)
-        .ifPresent(sharedValue -> boolQuery.must(termQuery(BROWSE_SHARED_FILTER_KEY, sharedValue)));
-      queryBuilder = boolQuery;
-    } else {
-      sharedFilter
-        .map(this::sharedFilterValue)
-        .ifPresent(sharedValue -> boolQuery.must(termQuery(BROWSE_SHARED_FILTER_KEY, sharedValue)));
-      queryBuilder = boolQuery;
-    }
+    var queryBuilder = applyAffiliationConditions(query, resource, sharedFilter,
+      contextTenantId, centralTenantId);
 
     if (resource == ResourceType.INSTANCE_CALL_NUMBER) {
       modifyForCallNumbers(queryBuilder);
@@ -146,6 +126,23 @@ public class ConsortiumSearchHelper {
 
     var sharedFilter = getBrowseSharedFilter(context);
 
+    var subResourcesFilter = getInstanceSubResourcePredicate(contextTenantId, sharedFilter, tenantFilter);
+    return subResources.stream()
+      .filter(subResourcesFilter)
+      .filter(subResource -> filterForCallNumbers(context, resource, subResource))
+      .collect(Collectors.toSet());
+  }
+
+  protected Optional<TermQueryBuilder> getBrowseFilter(BrowseContext context, String filterKey) {
+    return context.getFilters().stream()
+      .map(filter -> getTermFilterForKey(filter, filterKey))
+      .filter(Objects::nonNull)
+      .findFirst();
+  }
+
+  private Predicate<InstanceSubResource> getInstanceSubResourcePredicate(String contextTenantId,
+                                                                         Optional<TermQueryBuilder> sharedFilter,
+                                                                         Optional<TermQueryBuilder> tenantFilter) {
     Predicate<InstanceSubResource> subResourcesFilter =
       subResource -> subResource.getTenantId().equals(contextTenantId);
     if (sharedFilter.isPresent()) {
@@ -161,53 +158,76 @@ public class ConsortiumSearchHelper {
         subResourcesFilter = subResource -> subResource.getTenantId().equals(tenantFilterValue(tenantFilter.get()));
       }
     }
-    return subResources.stream()
-      .filter(subResourcesFilter)
-      .filter(subResource -> filterForCallNumbers(context, resource, subResource))
-      .collect(Collectors.toSet());
+    return subResourcesFilter;
   }
 
-  protected Optional<TermQueryBuilder> getBrowseFilter(BrowseContext context, String filterKey) {
-    return context.getFilters().stream()
-      .map(filter -> getTermFilterForKey(filter, filterKey))
-      .filter(Objects::nonNull)
-      .findFirst();
+  private QueryBuilder applyAffiliationConditions(QueryBuilder query, ResourceType resource,
+                                                  Optional<TermQueryBuilder> sharedFilter, String contextTenantId,
+                                                  Optional<String> centralTenantId) {
+    QueryBuilder queryBuilder;
+    var boolQuery = prepareBoolQueryForActiveAffiliation(query);
+    if (boolQuery.should().isEmpty()) {
+      boolQuery.minimumShouldMatch(null);
+    }
+
+    var shared = sharedFilter.map(this::sharedFilterValue).orElse(null);
+    if (shared == null && centralTenantId.isPresent()) {
+      queryBuilder = filterQueryForActiveAffiliation(query, contextTenantId, centralTenantId.get(), resource);
+    } else if (Boolean.FALSE.equals(shared)) {
+      boolQuery.must(termQuery(BROWSE_TENANT_FILTER_KEY, contextTenantId));
+      sharedFilter
+        .map(this::sharedFilterValue)
+        .ifPresent(sharedValue -> boolQuery.must(termQuery(BROWSE_SHARED_FILTER_KEY, sharedValue)));
+      queryBuilder = boolQuery;
+    } else {
+      sharedFilter
+        .map(this::sharedFilterValue)
+        .ifPresent(sharedValue -> boolQuery.must(termQuery(BROWSE_SHARED_FILTER_KEY, sharedValue)));
+      queryBuilder = boolQuery;
+    }
+    return queryBuilder;
   }
 
   private void modifyForCallNumbers(QueryBuilder queryBuilder) {
     if (queryBuilder instanceof BoolQueryBuilder bqb) {
-      var should = bqb.should().stream()
-        .filter(TermQueryBuilder.class::isInstance)
-        .filter(qb -> ((TermQueryBuilder) qb).fieldName().startsWith(INSTANCES_PREFIX))
-        .toList();
-      var filter = bqb.filter().stream()
-        .filter(TermQueryBuilder.class::isInstance)
-        .filter(qb -> ((TermQueryBuilder) qb).fieldName().startsWith(INSTANCES_PREFIX))
-        .toList();
-      var must = bqb.must().stream()
-        .filter(TermQueryBuilder.class::isInstance)
-        .filter(qb -> ((TermQueryBuilder) qb).fieldName().startsWith(INSTANCES_PREFIX))
-        .toList();
+      var should = filterNestedQueryBuilders(bqb.should());
+      var filter = filterNestedQueryBuilders(bqb.filter());
+      var must = filterNestedQueryBuilders(bqb.must());
       if (should.size() + filter.size() > 1) {
-        var innerBoolQuery = boolQuery();
-        innerBoolQuery.minimumShouldMatch(1);
-        should.forEach(innerBoolQuery::should);
-        filter.forEach(innerBoolQuery::filter);
-        filter.forEach(queryBuilder1 -> bqb.filter().remove(queryBuilder1));
-        should.forEach(queryBuilder1 -> bqb.should().remove(queryBuilder1));
-        if (bqb.should().isEmpty()) {
-          bqb.minimumShouldMatch(null);
-        }
-        bqb.must(nestedQuery("instances", innerBoolQuery, ScoreMode.None));
+        prepareNestedShouldQuery(bqb, should, filter);
       } else if (must.size() + filter.size() > 1) {
-        var innerBoolQuery = boolQuery();
-        must.forEach(innerBoolQuery::must);
-        filter.forEach(innerBoolQuery::filter);
-        filter.forEach(queryBuilder1 -> bqb.filter().remove(queryBuilder1));
-        must.forEach(queryBuilder1 -> bqb.must().remove(queryBuilder1));
-        bqb.must(nestedQuery("instances", innerBoolQuery, ScoreMode.None));
+        prepareNestedMustQuery(bqb, must, filter);
       }
     }
+  }
+
+  private void prepareNestedMustQuery(BoolQueryBuilder bqb, List<QueryBuilder> must, List<QueryBuilder> filter) {
+    var innerBoolQuery = boolQuery();
+    must.forEach(innerBoolQuery::must);
+    filter.forEach(innerBoolQuery::filter);
+    filter.forEach(queryBuilder1 -> bqb.filter().remove(queryBuilder1));
+    must.forEach(queryBuilder1 -> bqb.must().remove(queryBuilder1));
+    bqb.must(nestedQuery("instances", innerBoolQuery, ScoreMode.None));
+  }
+
+  private void prepareNestedShouldQuery(BoolQueryBuilder bqb, List<QueryBuilder> should, List<QueryBuilder> filter) {
+    var innerBoolQuery = boolQuery();
+    innerBoolQuery.minimumShouldMatch(1);
+    should.forEach(innerBoolQuery::should);
+    filter.forEach(innerBoolQuery::filter);
+    filter.forEach(queryBuilder1 -> bqb.filter().remove(queryBuilder1));
+    should.forEach(queryBuilder1 -> bqb.should().remove(queryBuilder1));
+    if (bqb.should().isEmpty()) {
+      bqb.minimumShouldMatch(null);
+    }
+    bqb.must(nestedQuery("instances", innerBoolQuery, ScoreMode.None));
+  }
+
+  private List<QueryBuilder> filterNestedQueryBuilders(List<QueryBuilder> bqb) {
+    return bqb.stream()
+      .filter(TermQueryBuilder.class::isInstance)
+      .filter(qb -> ((TermQueryBuilder) qb).fieldName().startsWith(INSTANCES_PREFIX))
+      .toList();
   }
 
   private <T> boolean filterForCallNumbers(BrowseContext context, T resource, InstanceSubResource instanceSubResource) {

@@ -137,6 +137,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
     );
   }
 
+  @SuppressWarnings("checkstyle:MethodLength")
   private static Stream<Arguments> callNumberBrowsingDataProvider() {
     var aroundQuery = "fullCallNumber >= {value} or fullCallNumber < {value}";
     var forwardQuery = "fullCallNumber > {value}";

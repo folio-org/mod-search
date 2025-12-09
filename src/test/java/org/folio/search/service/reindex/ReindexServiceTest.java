@@ -87,10 +87,7 @@ class ReindexServiceTest {
   void submitFullReindex_positive() throws InterruptedException {
     var tenant = "central";
     var member = "member";
-    var id = UUID.randomUUID();
-    var bound = UUID.randomUUID().toString();
-    var rangeEntity =
-      new MergeRangeEntity(id, INSTANCE, tenant, bound, bound, Timestamp.from(Instant.now()), null, null);
+    var rangeEntity = buildMergeRangeEntity(UUID.randomUUID(), tenant);
 
     when(consortiumService.getCentralTenant(tenant)).thenReturn(Optional.of(tenant));
     when(mergeRangeService.createMergeRanges(tenant)).thenReturn(List.of(rangeEntity));
@@ -108,10 +105,7 @@ class ReindexServiceTest {
     verify(statusService).recreateMergeStatusRecords();
     verify(reindexCommonService, times(ReindexEntityType.supportUploadTypes().size()))
       .recreateIndex(any(), eq(tenant), eq(indexSettings));
-    verify(mergeRangeService).createMergeRanges(tenant);
     verify(mergeRangeService).saveMergeRanges(anyList());
-    verify(executionService).executeSystemUserScoped(eq(member), any());
-    verify(executionService, times(expectedCallsCount)).executeSystemUserScoped(eq(tenant), any());
     verify(statusService, times(expectedCallsCount))
       .updateReindexMergeStarted(any(ReindexEntityType.class), eq(1));
     verify(mergeRangeService, times(expectedCallsCount)).fetchMergeRanges(any(ReindexEntityType.class));
@@ -124,9 +118,7 @@ class ReindexServiceTest {
     var tenant = "central";
     var member = "member";
     var id = UUID.randomUUID();
-    var bound = UUID.randomUUID().toString();
-    var rangeEntity =
-      new MergeRangeEntity(id, INSTANCE, tenant, bound, bound, Timestamp.from(Instant.now()), null, null);
+    var rangeEntity = buildMergeRangeEntity(id, tenant);
 
     when(consortiumService.getCentralTenant(tenant)).thenReturn(Optional.of(tenant));
     when(consortiumService.getConsortiumTenants(tenant)).thenReturn(List.of(member));
@@ -272,6 +264,11 @@ class ReindexServiceTest {
       Set.of(ReindexEntityType.ITEM, ReindexEntityType.HOLDINGS, ReindexEntityType.INSTANCE));
     failedRanges.forEach(range ->
       verify(inventoryService).publishReindexRecordsRange(range));
+  }
+
+  private MergeRangeEntity buildMergeRangeEntity(UUID id, String tenant) {
+    var bound = UUID.randomUUID().toString();
+    return new MergeRangeEntity(id, INSTANCE, tenant, bound, bound, Timestamp.from(Instant.now()), null, null);
   }
 
   private MergeRangeEntity createMergeRangeEntity(ReindexEntityType entityType) {

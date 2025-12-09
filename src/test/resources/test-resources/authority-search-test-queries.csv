@@ -1,0 +1,322 @@
+canceledLccn = "{value}" and sftPersonalName=="*personal name",canceledlccn
+chronSubdivision == "{value}" and headingType=="Chronological Subdivision",a chr*
+chronSubdivision == "{value}",a chr*
+chronSubdivision == "{value}",A CHR*
+chronSubdivision all "{value}",a chron subdivision
+chronSubdivision all "{value}",A CHRON SUBDIVISION
+chronSubdivision all "{value}",chron
+chronSubdivision all "{value}",CHRON
+chronTerm == "{value}" and headingType=="Chronological Term",a chr*
+chronTerm == "{value}",a chr*
+chronTerm == "{value}",A CHR*
+chronTerm all "{value}",a chron term
+chronTerm all "{value}",A CHRON TERM
+chronTerm all "{value}",chron
+chronTerm all "{value}",CHRON
+corporateName = "{value}",corporate
+corporateName = "{value}",CORPORATE
+corporateName == "{value}",*corporat*
+corporateName == "{value}",*CORPORAT*
+corporateName == "{value}",a corporate name
+corporateName == "{value}",A CORPORATE NAME
+corporateNameTitle == "{value}",a corporate title
+corporateNameTitle == "{value}",A CORPORATE TITLE
+corporateNameTitle all "{value}",corporate title
+corporateNameTitle all "{value}",CORPORATE TITLE
+formSubdivision == "{value}" and headingType=="Form Subdivision",a for*
+formSubdivision == "{value}",a for*
+formSubdivision == "{value}",A FOR*
+formSubdivision all "{value}",a form subdivision
+formSubdivision all "{value}",A FORM SUBDIVISION
+formSubdivision all "{value}",form
+formSubdivision all "{value}",FORM
+generalSubdivision == "{value}" and headingType=="General Subdivision",a gen*
+generalSubdivision == "{value}",a gen*
+generalSubdivision == "{value}",A GEN*
+generalSubdivision all "{value}",a general subdivision
+generalSubdivision all "{value}",A GENERAL SUBDIVISION
+generalSubdivision all "{value}",general
+generalSubdivision all "{value}",GENERAL
+genreTerm == "{value}" and headingType=="Genre",a gen*
+genreTerm == "{value}",a gen*
+genreTerm == "{value}",A GEN*
+genreTerm all "{value}",a genre term
+genreTerm all "{value}",A GENRE TERM
+genreTerm all "{value}",genre
+genreTerm all "{value}",GENRE
+geographicName = "{value}",geographic
+geographicName = "{value}",GEOGRAPHIC
+geographicName == "{value}",*graph*
+geographicName == "{value}",*GRAPH*
+geographicName == "{value}",a geographic name
+geographicName == "{value}",A GEOGRAPHIC NAME
+geographicSubdivision == "{value}" and headingType=="Geographic Subdivision",a geo*
+geographicSubdivision == "{value}",a geo*
+geographicSubdivision == "{value}",A GEO*
+geographicSubdivision all "{value}",a geographic subdivision
+geographicSubdivision all "{value}",A GEOGRAPHIC SUBDIVISION
+geographicSubdivision all "{value}",geographic
+geographicSubdivision all "{value}",GEOGRAPHIC
+identifiers.identifierTypeId == "{value}" and sftPersonalName=="*personal name",d6f3c637-3969-4dc6-9146-6371063f049e
+identifiers.identifierTypeId == "{value}" and sftPersonalName=="*personal name",D6F3C637-3969-4DC6-9146-6371063F049E
+identifiers.identifierTypeId == caaf835f-2037-46c5-9c62-71abaaaa78c5 and identifiers.value == "{value}" and sftPersonalName=="*personal name",authority-identifier
+identifiers.value == "{value}" and sftPersonalName=="*personal name",authority-identifier
+identifiers.value == "{value}" and sftPersonalName=="*personal name",AUTHORITY-IDENTIFIER
+identifiers.value all "{value}" and sftPersonalName=="*personal name",*1086
+identifiers.value all "{value}" and sftPersonalName=="*personal name",311417*
+identifiers.value all ({value}) and sftPersonalName=="*personal name",authority-identifier and 3114176276 and 3745-1086
+identifiers.value all ({value}) and sftPersonalName=="*personal name",AUTHORITY-IDENTIFIER AND 3114176276 AND 3745-1086
+identifiers.value all ({value}) and sftPersonalName=="*personal name",authority-identifier or 3114176276 or 0000-0000
+identifiers.value all ({value}) and sftPersonalName=="*personal name",AUTHORITY-IDENTIFIER OR 3114176276 OR 0000-0000
+keyword == "{value}",a chron subdivision
+keyword == "{value}",a chron term
+keyword == "{value}",a conference title
+keyword == "{value}",a corporate title
+keyword == "{value}",A CORPORATE TITLE
+keyword == "{value}",a form subdivision
+keyword == "{value}",a general subdivision
+keyword == "{value}",a genre term
+keyword == "{value}",a geographic name
+keyword == "{value}",a geographic subdivision
+keyword == "{value}",a medium perf term
+keyword == "{value}",a named event
+keyword == "{value}",a personal title
+keyword == "{value}",A PERSONAL TITLE
+keyword == "{value}",a topical term
+keyword == "{value}",an uniform title
+keyword all "{value}",a saft chron subdivision
+keyword all "{value}",a saft chron term
+keyword all "{value}",a saft conference title
+keyword all "{value}",a saft corporate title
+keyword all "{value}",a saft form subdivision
+keyword all "{value}",a saft general subdivision
+keyword all "{value}",a saft genre term
+keyword all "{value}",a saft geographic name
+keyword all "{value}",a saft geographic subdivision
+keyword all "{value}",a saft medium perf term
+keyword all "{value}",a saft named event
+keyword all "{value}",a saft personal title
+keyword all "{value}",a saft topical term
+keyword all "{value}",a saft uniform title
+keyword all "{value}",a sft chron subdivision
+keyword all "{value}",a sft chron term
+keyword all "{value}",a sft conference title
+keyword all "{value}",a sft corporate title
+keyword all "{value}",A SFT CORPORATE TITLE
+keyword all "{value}",a sft form subdivision
+keyword all "{value}",a sft general subdivision
+keyword all "{value}",a sft genre term
+keyword all "{value}",a sft geographic name
+keyword all "{value}",a sft geographic subdivision
+keyword all "{value}",a sft medium perf term
+keyword all "{value}",a sft named event
+keyword all "{value}",a sft personal title
+keyword all "{value}",A SFT PERSONAL TITLE
+keyword all "{value}",a sft topical term
+keyword all "{value}",a sft uniform title
+lccn = "{value}" and sftPersonalName=="*personal name",*65165
+lccn = "{value}" and sftPersonalName=="*personal name",*75732
+lccn = "{value}" and sftPersonalName=="*personal name",20030*
+lccn = "{value}" and sftPersonalName=="*personal name",2003065165
+lccn = "{value}" and sftPersonalName=="*personal name",n 2003075732
+lccn = "{value}" and sftPersonalName=="*personal name",N 2003075732
+lccn = "{value}" and sftPersonalName=="*personal name",N2003075732
+lccn = "{value}" and sftPersonalName=="*personal name",N2003075732
+mediumPerfTerm == "{value}" and headingType=="Medium of Performance Term",a med*
+mediumPerfTerm == "{value}",a med*
+mediumPerfTerm == "{value}",A MED*
+mediumPerfTerm all "{value}",a medium perf term
+mediumPerfTerm all "{value}",A MEDIUM PERF TERM
+mediumPerfTerm all "{value}",medium
+mediumPerfTerm all "{value}",MEDIUM
+meetingName = "{value}",conference
+meetingName = "{value}",CONFERENCE
+meetingName == "{value}",*onference*
+meetingName == "{value}",*ONFERENCE*
+meetingName == "{value}",a conference name
+meetingName == "{value}",A CONFERENCE NAME
+meetingNameTitle == "{value}",a conference title
+meetingNameTitle == "{value}",A CONFERENCE TITLE
+meetingNameTitle all "{value}",conference title
+meetingNameTitle all "{value}",CONFERENCE TITLE
+namedEvent == "{value}" and headingType=="Named Event",a nam*
+namedEvent == "{value}",a nam*
+namedEvent == "{value}",A NAM*
+namedEvent all "{value}",a named event
+namedEvent all "{value}",A NAMED EVENT
+namedEvent all "{value}",named
+namedEvent all "{value}",NAMED
+personalName == "{value}" and authRefType=="Authorized",gary
+personalName == "{value}" and headingType=="Personal Name",gary
+personalName == "{value}",gary a.*
+personalName == "{value}",GARY A.*
+personalName all "{value}",gary
+personalName all "{value}",GARY
+personalName all "{value}",Gary A. Wills
+personalName all "{value}",GARY A. WILLS
+personalNameTitle == "{value}",a personal title
+personalNameTitle == "{value}",A PERSONAL TITLE
+personalNameTitle all "{value}",personal title
+personalNameTitle all "{value}",PERSONAL TITLE
+saftChronSubdivision = "{value}",saft chron subdivision
+saftChronSubdivision = "{value}",SAFT CHRON SUBDIVISION
+saftChronSubdivision == "{value}",*saft chron*
+saftChronSubdivision == "{value}",*SAFT CHRON*
+saftChronTerm = "{value}",saft chron term
+saftChronTerm = "{value}",SAFT CHRON TERM
+saftChronTerm == "{value}",*saft chron*
+saftChronTerm == "{value}",*SAFT CHRON*
+saftCorporateName = "{value}" ,NAME SAFT
+saftCorporateName = "{value}",name saft
+saftCorporateName == "{value}" ,SAFT CORPORATE NAME
+saftCorporateName == "{value}",saft corporate name
+saftCorporateNameTitle == "{value}",a saft corporate title
+saftCorporateNameTitle == "{value}",A SAFT CORPORATE TITLE
+saftCorporateNameTitle all "{value}",corporate title
+saftCorporateNameTitle all "{value}",CORPORATE TITLE
+saftFormSubdivision = "{value}",saft form subdivision
+saftFormSubdivision = "{value}",SAFT FORM SUBDIVISION
+saftFormSubdivision == "{value}",*saft form*
+saftFormSubdivision == "{value}",*SAFT FORM*
+saftGeneralSubdivision = "{value}",saft subdivision
+saftGeneralSubdivision = "{value}",SAFT SUBDIVISION
+saftGeneralSubdivision == "{value}",*saft gen*
+saftGeneralSubdivision == "{value}",*SAFT GEN*
+saftGenreTerm = "{value}",saft term
+saftGenreTerm = "{value}",SAFT TERM
+saftGenreTerm == "{value}",*saft gen*
+saftGenreTerm == "{value}",*SAFT GEN*
+saftGeographicName = "{value}" ,geographic saft
+saftGeographicName = "{value}" ,GEOGRAPHIC SAFT
+saftGeographicName == "{value}" ,saft geographic name
+saftGeographicName == "{value}" ,SAFT GEOGRAPHIC NAME
+saftGeographicSubdivision = "{value}",saft geographic subdivision
+saftGeographicSubdivision = "{value}",SAFT GEOGRAPHIC SUBDIVISION
+saftGeographicSubdivision == "{value}",*saft geo*
+saftGeographicSubdivision == "{value}",*SAFT GEO*
+saftMediumPerfTerm = "{value}",saft medium perf term
+saftMediumPerfTerm = "{value}",SAFT MEDIUM PERF TERM
+saftMediumPerfTerm == "{value}",*saft medium*
+saftMediumPerfTerm == "{value}",*SAFT MEDIUM*
+saftMeetingName = "{value}" ,conference saft
+saftMeetingName = "{value}" ,CONFERENCE SAFT
+saftMeetingName == "{value}" ,saft conference name
+saftMeetingName == "{value}" ,SAFT CONFERENCE NAME
+saftMeetingNameTitle == "{value}",a saft conference title
+saftMeetingNameTitle == "{value}",A SAFT CONFERENCE TITLE
+saftMeetingNameTitle all "{value}",conference title
+saftMeetingNameTitle all "{value}",CONFERENCE TITLE
+saftNamedEvent = "{value}",saft event
+saftNamedEvent = "{value}",SAFT EVENT
+saftNamedEvent == "{value}",*saft nam*
+saftNamedEvent == "{value}",*SAFT NAM*
+saftPersonalName = "{value}",saft name
+saftPersonalName = "{value}",SAFT NAME
+saftPersonalName == "{value}",*saft persona*
+saftPersonalName == "{value}",*SAFT PERSONA*
+saftPersonalNameTitle == "{value}",a saft personal title
+saftPersonalNameTitle == "{value}",A SAFT PERSONAL TITLE
+saftPersonalNameTitle all "{value}",a saft personal title
+saftPersonalNameTitle all "{value}",A SAFT PERSONAL TITLE
+saftTopicalTerm = "{value}",saft term
+saftTopicalTerm = "{value}",SAFT TERM
+saftTopicalTerm == "{value}",*saft top*
+saftTopicalTerm == "{value}",*SAFT TOP*
+saftUniformTitle = "{value}" ,title saft
+saftUniformTitle = "{value}" ,TITLE SAFT
+saftUniformTitle == "{value}" ,saft uniform title
+saftUniformTitle == "{value}" ,SAFT UNIFORM TITLE
+sftChronSubdivision = "{value}",sft chron subdivision
+sftChronSubdivision = "{value}",SFT CHRON SUBDIVISION
+sftChronSubdivision == "{value}",*chron*
+sftChronSubdivision == "{value}",*CHRON*
+sftChronSubdivision == "{value}",sft chron subdivision
+sftChronTerm = "{value}",sft chron term
+sftChronTerm = "{value}",SFT CHRON TERM
+sftChronTerm == "{value}",*chron*
+sftChronTerm == "{value}",*CHRON*
+sftChronTerm == "{value}",sft chron term
+sftCorporateName = "{value}",corporate name
+sftCorporateName = "{value}",CORPORATE NAME
+sftCorporateName == "{value}",sft corporate
+sftCorporateName == "{value}",SFT CORPORATE
+sftCorporateNameTitle == "{value}",a sft corporate title
+sftCorporateNameTitle == "{value}",A SFT CORPORATE TITLE
+sftCorporateNameTitle all "{value}",corporate title
+sftCorporateNameTitle all "{value}",CORPORATE TITLE
+sftFormSubdivision = "{value}",sft form subdivision
+sftFormSubdivision = "{value}",SFT FORM SUBDIVISION
+sftFormSubdivision == "{value}",*form*
+sftFormSubdivision == "{value}",*FORM*
+sftFormSubdivision == "{value}",sft form subdivision
+sftGeneralSubdivision = "{value}",sft general subdivision
+sftGeneralSubdivision = "{value}",SFT GENERAL SUBDIVISION
+sftGeneralSubdivision == "{value}",*gen*
+sftGeneralSubdivision == "{value}",*GEN*
+sftGeneralSubdivision == "{value}",sft general subdivision
+sftGenreTerm = "{value}",sft genre term
+sftGenreTerm = "{value}",SFT GENRE TERM
+sftGenreTerm == "{value}",*gen*
+sftGenreTerm == "{value}",*GEN*
+sftGenreTerm == "{value}",sft genre term
+sftGeographicName = "{value}",geographic name
+sftGeographicName = "{value}",GEOGRAPHIC NAME
+sftGeographicName == "{value}",sft geographic
+sftGeographicName == "{value}",SFT GEOGRAPHIC
+sftGeographicSubdivision = "{value}",sft geographic subdivision
+sftGeographicSubdivision = "{value}",SFT GEOGRAPHIC SUBDIVISION
+sftGeographicSubdivision == "{value}",*geo*
+sftGeographicSubdivision == "{value}",*GEO*
+sftGeographicSubdivision == "{value}",sft geographic subdivision
+sftMediumPerfTerm = "{value}",sft medium perf term
+sftMediumPerfTerm = "{value}",SFT MEDIUM PERF TERM
+sftMediumPerfTerm == "{value}",*medium*
+sftMediumPerfTerm == "{value}",*MEDIUM*
+sftMediumPerfTerm == "{value}",sft medium perf term
+sftMeetingName = "{value}",conference name
+sftMeetingName = "{value}",CONFERENCE NAME
+sftMeetingName == "{value}",sft conference
+sftMeetingName == "{value}",SFT CONFERENCE
+sftMeetingNameTitle == "{value}",a sft conference title
+sftMeetingNameTitle == "{value}",A SFT CONFERENCE TITLE
+sftMeetingNameTitle all "{value}",conference title
+sftMeetingNameTitle all "{value}",CONFERENCE TITLE
+sftNamedEvent = "{value}",sft named event
+sftNamedEvent = "{value}",SFT NAMED EVENT
+sftNamedEvent == "{value}",*nam*
+sftNamedEvent == "{value}",*NAM*
+sftNamedEvent == "{value}",sft named event
+sftPersonalName = "{value}",personal sft name
+sftPersonalName = "{value}",PERSONAL SFT NAME
+sftPersonalName == "{value}",*persona*
+sftPersonalName == "{value}",*PERSONA*
+sftPersonalName == "{value}",sft personal name
+sftPersonalName == "{value}",SFT PERSONAL NAME
+sftPersonalNameTitle == "{value}",a sft personal title
+sftPersonalNameTitle == "{value}",A SFT PERSONAL TITLE
+sftPersonalNameTitle all "{value}",personal title
+sftPersonalNameTitle all "{value}",PERSONAL TITLE
+sftTopicalTerm = "{value}",sft topical term
+sftTopicalTerm = "{value}",SFT TOPICAL TERM
+sftTopicalTerm == "{value}",*top*
+sftTopicalTerm == "{value}",*TOP*
+sftTopicalTerm == "{value}",sft topical term
+sftUniformTitle = "{value}",uniform title
+sftUniformTitle = "{value}",UNIFORM TITLE
+sftUniformTitle == "{value}",sft uniform
+sftUniformTitle == "{value}",SFT UNIFORM
+subjectHeadings == "{value}" and sftPersonalName=="*personal name",a sub*
+subjectHeadings all "{value}" and sftPersonalName=="*personal name",a subject heading
+topicalTerm == "{value}" and headingType=="Topical",a top*
+topicalTerm == "{value}",a top*
+topicalTerm == "{value}",A TOP*
+topicalTerm all "{value}",a topical term
+topicalTerm all "{value}",A TOPICAL TERM
+topicalTerm all "{value}",topical
+topicalTerm all "{value}",TOPICAL
+uniformTitle = "{value}",uniform
+uniformTitle = "{value}",UNIFORM
+uniformTitle == "{value}",*nifor*
+uniformTitle == "{value}",*NIFOR*
+uniformTitle == "{value}",an uniform title
+uniformTitle == "{value}",AN UNIFORM TITLE

@@ -57,6 +57,7 @@ class AuthorityEventPreProcessorTest {
   }
 
   @Test
+  @SuppressWarnings("checkstyle:MethodLength")
   void process_positive() {
     var authority = fullAuthorityRecord();
     var actual = eventPreProcessor.preProcess(resourceEvent(AUTHORITY, toMap(authority)));
@@ -165,6 +166,7 @@ class AuthorityEventPreProcessorTest {
     return resourceEvent(prefix + "_" + RESOURCE_ID, AUTHORITY, DELETE);
   }
 
+  @SuppressWarnings("checkstyle:MethodLength")
   private static Authority fullAuthorityRecord() {
     return new Authority()
       .id(RESOURCE_ID)
@@ -210,6 +212,7 @@ class AuthorityEventPreProcessorTest {
         .identifierTypeId("an identifier type id")));
   }
 
+  @SuppressWarnings("checkstyle:MethodLength")
   private static ResourceDescription authorityResourceDescription() {
     return TestUtils.resourceDescription(AUTHORITY, mapOf(
       "id", keywordField(),

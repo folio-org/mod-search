@@ -50,6 +50,7 @@ public class FolioExecutionContextBuilder {
       this.okapiHeaders = new HashMap<>();
     }
 
+    @SuppressWarnings("checkstyle:MethodLength")
     public FolioExecutionContext build() {
       return new FolioExecutionContext() {
         @Override

@@ -8,6 +8,9 @@ import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
 import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.model.client.CqlQuery.exactMatchAny;
 import static org.folio.search.model.types.ResourceType.AUTHORITY;
+import static org.folio.search.model.types.ResourceType.LINKED_DATA_HUB;
+import static org.folio.search.model.types.ResourceType.LINKED_DATA_INSTANCE;
+import static org.folio.search.model.types.ResourceType.LINKED_DATA_WORK;
 import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
@@ -72,7 +75,6 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.opensearch.action.search.SearchRequest;
-import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestHighLevelClient;
 import org.opensearch.client.indices.GetIndexRequest;
 import org.opensearch.index.reindex.DeleteByQueryRequest;
@@ -152,7 +154,7 @@ public abstract class BaseIntegrationTest {
     var searchRequest = new SearchRequest()
       .source(searchSource().query(matchAllQuery()))
       .indices(getIndexName(resourceType, tenantId));
-    return elasticClient.search(searchRequest, RequestOptions.DEFAULT).getHits().getHits();
+    return elasticClient.search(searchRequest, DEFAULT).getHits().getHits();
   }
 
   @SneakyThrows
@@ -300,7 +302,7 @@ public abstract class BaseIntegrationTest {
     var searchRequest = new SearchRequest()
       .source(searchSource().query(matchAllQuery()).trackTotalHits(true).from(0).size(0))
       .indices(getIndexName(resource.getName(), tenantId));
-    var searchResponse = elasticClient.search(searchRequest, RequestOptions.DEFAULT);
+    var searchResponse = elasticClient.search(searchRequest, DEFAULT);
     return Objects.requireNonNull(searchResponse.getHits().getTotalHits()).value();
   }
 
@@ -390,23 +392,20 @@ public abstract class BaseIntegrationTest {
   @SafeVarargs
   @SneakyThrows
   protected static void setUpTenant(Class<?> type, String tenant, Map<String, Object>... rawRecords) {
-    setUpTenant(type, tenant, () -> {
-    }, rawRecords.length, emptyList(), rawRecords);
+    setUpTenant(type, tenant, () -> { }, rawRecords.length, emptyList(), rawRecords);
   }
 
   @SafeVarargs
   @SneakyThrows
   protected static void setUpTenant(Class<?> type, String tenant, List<ResultMatcher> matchers,
                                     Map<String, Object>... rawRecords) {
-    setUpTenant(type, tenant, () -> {
-    }, rawRecords.length, matchers, rawRecords);
+    setUpTenant(type, tenant, () -> { }, rawRecords.length, matchers, rawRecords);
   }
 
   @SafeVarargs
   @SneakyThrows
   protected static void setUpTenant(Class<?> type, Integer expectedCount, Map<String, Object>... rawRecords) {
-    setUpTenant(type, TENANT_ID, () -> {
-    }, expectedCount, emptyList(), rawRecords);
+    setUpTenant(type, TENANT_ID, () -> { }, expectedCount, emptyList(), rawRecords);
   }
 
   @SafeVarargs
@@ -420,36 +419,30 @@ public abstract class BaseIntegrationTest {
   @SneakyThrows
   protected static void setUpTenant(Class<?> type, String tenant, Runnable postInitAction, Integer expectedCount,
                                     List<ResultMatcher> matchers, Map<String, Object>... records) {
+    String searchPath;
+    Consumer<Object> consumer;
+
     if (type.equals(Instance.class)) {
-      setUpTenant(tenant, instanceSearchPath(), postInitAction, asList(records), expectedCount, matchers,
-        instance -> inventoryApi.createInstance(tenant, instance));
+      searchPath = instanceSearchPath();
+      consumer = instance -> inventoryApi.createInstance(tenant, (Map<String, Object>) instance);
+    } else if (type.equals(Authority.class)) {
+      searchPath = authoritySearchPath();
+      consumer = authority -> kafkaTemplate.send(inventoryAuthorityTopic(tenant), event(authority, AUTHORITY, tenant));
+    } else if (type.equals(LinkedDataInstance.class)) {
+      searchPath = linkedDataInstanceSearchPath();
+      consumer = ldInstance -> kafkaTemplate.send(linkedDataInstanceTopic(tenant),
+        event(ldInstance, LINKED_DATA_INSTANCE, tenant));
+    } else if (type.equals(LinkedDataWork.class)) {
+      searchPath = linkedDataWorkSearchPath();
+      consumer = ldWork -> kafkaTemplate.send(linkedDataWorkTopic(tenant), event(ldWork, LINKED_DATA_WORK, tenant));
+    } else if (type.equals(LinkedDataHub.class)) {
+      searchPath = linkedDataHubSearchPath();
+      consumer = ldHub -> kafkaTemplate.send(linkedDataHubTopic(tenant), event(ldHub, LINKED_DATA_HUB, tenant));
+    } else {
+      throw new IllegalArgumentException("Unsupported type: " + type.getName());
     }
 
-    if (type.equals(Authority.class)) {
-      setUpTenant(tenant, authoritySearchPath(), postInitAction, asList(records), expectedCount, matchers,
-        authority -> kafkaTemplate.send(inventoryAuthorityTopic(tenant), resourceEvent(null, AUTHORITY, authority)));
-    }
-
-    if (type.equals(LinkedDataInstance.class)) {
-      setUpTenant(tenant, linkedDataInstanceSearchPath(), postInitAction, asList(records), expectedCount, matchers,
-        ldInstance -> kafkaTemplate.send(linkedDataInstanceTopic(tenant),
-          resourceEvent(tenant, ResourceType.LINKED_DATA_INSTANCE, CREATE, ldInstance))
-      );
-    }
-
-    if (type.equals(LinkedDataWork.class)) {
-      setUpTenant(tenant, linkedDataWorkSearchPath(), postInitAction, asList(records), expectedCount, matchers,
-        ldWork -> kafkaTemplate.send(linkedDataWorkTopic(tenant),
-          resourceEvent(tenant, ResourceType.LINKED_DATA_WORK, CREATE, ldWork))
-      );
-    }
-
-    if (type.equals(LinkedDataHub.class)) {
-      setUpTenant(tenant, linkedDataHubSearchPath(), postInitAction, asList(records), expectedCount, matchers,
-        ldHub -> kafkaTemplate.send(linkedDataHubTopic(tenant),
-          resourceEvent(tenant, ResourceType.LINKED_DATA_HUB, CREATE, ldHub))
-      );
-    }
+    setUpTenant(tenant, searchPath, postInitAction, asList(records), expectedCount, matchers, consumer);
   }
 
   @SneakyThrows
@@ -524,6 +517,10 @@ public abstract class BaseIntegrationTest {
 
   protected static String prepareQuery(String queryTemplate, String value) {
     return value != null ? queryTemplate.replace("{value}", value) : queryTemplate;
+  }
+
+  static ResourceEvent event(Object object, ResourceType resourceType, String tenant) {
+    return resourceEvent(tenant, resourceType, CREATE, object);
   }
 
   @BeforeAll

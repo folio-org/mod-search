@@ -39,6 +39,7 @@ class OclcProcessorTest {
   @Mock
   private ReferenceDataService referenceDataService;
 
+  @SuppressWarnings("checkstyle:MethodLength")
   private static Stream<Arguments> oclcDataProvider() {
     return Stream.of(
       arguments("all empty fields", new Instance(), emptyList()),

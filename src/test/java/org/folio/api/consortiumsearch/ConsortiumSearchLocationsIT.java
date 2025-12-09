@@ -61,12 +61,7 @@ class ConsortiumSearchLocationsIT extends BaseConsortiumIntegrationTest {
     assertThat(actual.getLocations())
       .filteredOn(location -> Objects.equals(location.getTenantId(), CENTRAL_TENANT_ID))
       .hasSize(7);
-    assertThat(actual.getLocations())
-      .extracting(ConsortiumLocation::getId, ConsortiumLocation::getName, ConsortiumLocation::getTenantId,
-        ConsortiumLocation::getInstitutionId, ConsortiumLocation::getCampusId, ConsortiumLocation::getLibraryId,
-        ConsortiumLocation::getPrimaryServicePoint)
-      .map(Tuple::toList)
-      .matches(locations -> locations.stream().allMatch(obj -> StringUtils.isNotBlank(obj.toString())));
+    assertLocationFieldsNotEmpty(actual.getLocations());
     assertThat(actual.getLocations())
       .map(ConsortiumLocation::getMetadata)
       .filteredOn(metadata -> metadata.getCreatedDate() != null && metadata.getUpdatedDate() != null)
@@ -102,12 +97,12 @@ class ConsortiumSearchLocationsIT extends BaseConsortiumIntegrationTest {
   @Test
   void doGetConsortiumLocations_returns200AndRecords_withAllQueryParams() {
     List<Pair<String, String>> queryParams = List.of(
-        pair("tenantId", "consortium"),
-        pair("id", "53cf956f-c1df-410b-8bea-27f712cca7c0"),
-        pair("limit", "5"),
-        pair("offset", "0"),
-        pair("sortBy", "name"),
-        pair("sortOrder", "asc")
+      pair("tenantId", "consortium"),
+      pair("id", "53cf956f-c1df-410b-8bea-27f712cca7c0"),
+      pair("limit", "5"),
+      pair("offset", "0"),
+      pair("sortBy", "name"),
+      pair("sortOrder", "asc")
     );
 
     var result = doGet(consortiumLocationsSearchPath(queryParams), CENTRAL_TENANT_ID);
@@ -118,6 +113,15 @@ class ConsortiumSearchLocationsIT extends BaseConsortiumIntegrationTest {
     assertThat(actual.getLocations().getFirst().getTenantId()).isEqualTo(CENTRAL_TENANT_ID);
     assertThat(actual.getLocations().getFirst().getName()).isEqualTo("Annex");
     assertThat(actual.getLocations().getFirst().getCode()).isEqualTo("KU/CC/DI/A");
+  }
+
+  private void assertLocationFieldsNotEmpty(List<ConsortiumLocation> actualLocations) {
+    assertThat(actualLocations)
+      .extracting(ConsortiumLocation::getId, ConsortiumLocation::getName, ConsortiumLocation::getTenantId,
+        ConsortiumLocation::getInstitutionId, ConsortiumLocation::getCampusId, ConsortiumLocation::getLibraryId,
+        ConsortiumLocation::getPrimaryServicePoint)
+      .map(Tuple::toList)
+      .matches(locations -> locations.stream().allMatch(obj -> StringUtils.isNotBlank(obj.toString())));
   }
 
   private static void saveLocationRecords() {

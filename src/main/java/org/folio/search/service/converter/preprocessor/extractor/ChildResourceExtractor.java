@@ -31,25 +31,8 @@ public abstract class ChildResourceExtractor {
 
   public abstract ResourceType resourceType();
 
-  protected abstract List<Map<String, Object>> constructRelations(boolean shared, ResourceEvent event,
-                                                                  List<Map<String, Object>> entities);
-
-  protected abstract Map<String, Object> constructEntity(Map<String, Object> entityProperties);
-
-  protected abstract String childrenFieldName();
-
   public void persistChildren(String tenantId, boolean shared, List<ResourceEvent> events) {
-    var parentIdsForDeletion = events.stream()
-      .filter(event -> event.getType() != ResourceEventType.CREATE && event.getType() != ResourceEventType.REINDEX)
-      .map(ResourceEvent::getId)
-      .toList();
-    if (!parentIdsForDeletion.isEmpty()) {
-      if (!events.isEmpty() && ResourceType.ITEM.getName().equals(events.getFirst().getResourceName())) {
-        repository.deleteByInstanceIds(parentIdsForDeletion, tenantId);
-      } else {
-        repository.deleteByInstanceIds(parentIdsForDeletion, null);
-      }
-    }
+    deleteParentsIfNeeded(tenantId, events);
 
     var eventsForSaving = events.stream()
       .filter(event -> event.getType() != ResourceEventType.DELETE)
@@ -72,21 +55,20 @@ public abstract class ChildResourceExtractor {
     var eventsForSharingByTenant = events.stream()
       .collect(groupingBy(ResourceEvent::getTenant, mapping(ResourceEvent::getId, toList())));
     eventsForSharingByTenant.forEach((tenant, instanceIds) -> {
-      if (Boolean.TRUE.equals(shared)) {
+      if (shared) {
         log.warn("Update event for instance sharing is supposed to be for member tenant,"
-          + " but received for central tenant: {}, eventId: {}", tenant, String.join(",", instanceIds));
+                 + " but received for central tenant: {}, eventId: {}", tenant, String.join(",", instanceIds));
       }
       repository.deleteByInstanceIds(instanceIds, tenant);
     });
   }
 
-  private List<Map<String, Object>> extractEntities(ResourceEvent event) {
-    var entities = getChildResources(getNewAsMap(event));
-    return entities.stream()
-      .map(this::constructEntity)
-      .filter(obj -> Objects.nonNull(obj) && !obj.isEmpty())
-      .toList();
-  }
+  protected abstract List<Map<String, Object>> constructRelations(boolean shared, ResourceEvent event,
+                                                                  List<Map<String, Object>> entities);
+
+  protected abstract Map<String, Object> constructEntity(Map<String, Object> entityProperties);
+
+  protected abstract String childrenFieldName();
 
   @SuppressWarnings("unchecked")
   protected Set<Map<String, Object>> getChildResources(Map<String, Object> event) {
@@ -95,5 +77,27 @@ public abstract class ChildResourceExtractor {
       return emptySet();
     }
     return new HashSet<>((List<Map<String, Object>>) object);
+  }
+
+  private void deleteParentsIfNeeded(String tenantId, List<ResourceEvent> events) {
+    var parentIdsForDeletion = events.stream()
+      .filter(event -> event.getType() != ResourceEventType.CREATE && event.getType() != ResourceEventType.REINDEX)
+      .map(ResourceEvent::getId)
+      .toList();
+    if (!parentIdsForDeletion.isEmpty()) {
+      if (!events.isEmpty() && ResourceType.ITEM.getName().equals(events.getFirst().getResourceName())) {
+        repository.deleteByInstanceIds(parentIdsForDeletion, tenantId);
+      } else {
+        repository.deleteByInstanceIds(parentIdsForDeletion, null);
+      }
+    }
+  }
+
+  private List<Map<String, Object>> extractEntities(ResourceEvent event) {
+    var entities = getChildResources(getNewAsMap(event));
+    return entities.stream()
+      .map(this::constructEntity)
+      .filter(obj -> Objects.nonNull(obj) && !obj.isEmpty())
+      .toList();
   }
 }

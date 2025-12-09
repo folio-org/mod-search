@@ -27,6 +27,7 @@ import static org.folio.support.utils.TestUtils.facet;
 import static org.folio.support.utils.TestUtils.facetItem;
 import static org.folio.support.utils.TestUtils.mapOf;
 import static org.folio.support.utils.TestUtils.mockCallNumberTypes;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
@@ -89,26 +90,7 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
       throw new IllegalStateException("Unexpected state of database: unable to lock required resources");
     }
 
-    var centralInstances = INSTANCES.subList(0, 30);
-    saveRecords(CENTRAL_TENANT_ID, instanceSearchPath(), centralInstances, centralInstances.size(),
-      instance -> inventoryApi.createInstance(CENTRAL_TENANT_ID, instance));
-
-    var memberInstances = INSTANCES.subList(30, INSTANCES.size());
-    saveRecords(MEMBER_TENANT_ID, instanceSearchPath(), memberInstances, INSTANCES.size(),
-      instance -> inventoryApi.createInstance(MEMBER_TENANT_ID, instance));
-
-    var instance1 = centralInstances.getFirst();
-    instance1.setSource(SearchUtils.SOURCE_CONSORTIUM_PREFIX + "FOLIO");
-    instance1.getItems().forEach(item -> item.setId(UUID.randomUUID().toString()));
-    saveRecords(MEMBER_TENANT_ID, instanceSearchPath(), List.of(instance1), INSTANCES.size(),
-      instance -> inventoryApi.createInstance(MEMBER_TENANT_ID, instance));
-
-    var dataRecord = new CallNumberTestDataRecord(callNumbers().getLast().callNumber(), MEMBER2_LOCATION);
-    var member2Instance = instance("51", List.of(dataRecord));
-    instance1.getItems().forEach(item -> item.setId(UUID.randomUUID().toString()));
-    saveRecords(MEMBER2_TENANT_ID, instanceSearchPath(), List.of(member2Instance, instance1),
-      centralInstances.size() + 1,
-      instance -> inventoryApi.createInstance(MEMBER2_TENANT_ID, instance));
+    saveTestRecords();
 
     // Unlock all resources in reverse order
     lockRepository.unlockSubResource(ReindexEntityType.INSTANCE, instanceTimestamp.get(), CENTRAL_TENANT_ID);
@@ -164,7 +146,7 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
       .param("limit", String.valueOf(10));
     var actual = parseResponse(doGet(request, CENTRAL_TENANT_ID), CallNumberBrowseResult.class);
     assertThat(actual).isEqualTo(cnBrowseResult(null, null, 2,
-      List.of(cnBrowseItem(callNumbers().get(1).callNumber(), 0, 1),
+      List.of(cnBrowseItem(callNumbers().get(1).callNumber(), 0),
         cnBrowseItem(callNumbers().getFirst().callNumber(), 0, 1, true))));
   }
 
@@ -175,12 +157,36 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
     var actual = parseResponse(doGet(recordFacetsPath(CALL_NUMBERS, query, facets), tenantId), FacetResult.class);
 
     expected.forEach((facetName, expectedFacet) -> {
+      assertNotNull(actual.getFacets());
       var actualFacet = actual.getFacets().get(facetName);
 
       assertThat(actualFacet).isNotNull();
       assertThat(actualFacet.getValues())
         .containsExactlyInAnyOrderElementsOf(expectedFacet.getValues());
     });
+  }
+
+  private static void saveTestRecords() {
+    var centralInstances = INSTANCES.subList(0, 30);
+    saveRecords(CENTRAL_TENANT_ID, instanceSearchPath(), centralInstances, centralInstances.size(),
+      instance -> inventoryApi.createInstance(CENTRAL_TENANT_ID, instance));
+
+    var memberInstances = INSTANCES.subList(30, INSTANCES.size());
+    saveRecords(MEMBER_TENANT_ID, instanceSearchPath(), memberInstances, INSTANCES.size(),
+      instance -> inventoryApi.createInstance(MEMBER_TENANT_ID, instance));
+
+    var instance1 = centralInstances.getFirst();
+    instance1.setSource(SearchUtils.SOURCE_CONSORTIUM_PREFIX + "FOLIO");
+    instance1.getItems().forEach(item -> item.setId(UUID.randomUUID().toString()));
+    saveRecords(MEMBER_TENANT_ID, instanceSearchPath(), List.of(instance1), INSTANCES.size(),
+      instance -> inventoryApi.createInstance(MEMBER_TENANT_ID, instance));
+
+    var dataRecord = new CallNumberTestDataRecord(callNumbers().getLast().callNumber(), MEMBER2_LOCATION);
+    var member2Instance = instance("51", List.of(dataRecord));
+    instance1.getItems().forEach(item -> item.setId(UUID.randomUUID().toString()));
+    saveRecords(MEMBER2_TENANT_ID, instanceSearchPath(), List.of(member2Instance, instance1),
+      centralInstances.size() + 1,
+      instance -> inventoryApi.createInstance(MEMBER2_TENANT_ID, instance));
   }
 
   private static Stream<Arguments> callNumberBrowsingDataProvider() {
@@ -193,20 +199,20 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
     return Stream.of(
       arguments(aroundQuery, CENTRAL_TENANT_ID, BrowseOptionType.ALL, callNumbers.get(1).fullCallNumber(), 5,
         cnBrowseResult(callNumbers.get(35).fullCallNumber(), callNumbers.get(43).fullCallNumber(), 60, List.of(
-          cnBrowseItem(callNumbers.get(35), 18, 1),
-          cnBrowseItem(callNumbers.get(25), 15, 1),
+          cnBrowseItem(callNumbers.get(35), 18),
+          cnBrowseItem(callNumbers.get(25), 15),
           cnBrowseItem(callNumbers.get(1), 0, 3, true),
-          cnBrowseItem(callNumbers.get(33), 17, 1),
-          cnBrowseItem(callNumbers.get(43), 23, 1)
+          cnBrowseItem(callNumbers.get(33), 17),
+          cnBrowseItem(callNumbers.get(43), 23)
         ))),
 
       arguments(aroundQuery, MEMBER_TENANT_ID, BrowseOptionType.ALL, callNumbers.get(1).fullCallNumber(), 5,
         cnBrowseResult(callNumbers.get(91).fullCallNumber(), callNumbers.get(68).fullCallNumber(), 100, List.of(
-          cnBrowseItem(callNumbers.get(91), 45, 1),
-          cnBrowseItem(callNumbers.get(25), 15, 1),
+          cnBrowseItem(callNumbers.get(91), 45),
+          cnBrowseItem(callNumbers.get(25), 15),
           cnBrowseItem(callNumbers.get(1), 0, 3, true),
-          cnBrowseItem(callNumbers.get(70), 34, 1),
-          cnBrowseItem(callNumbers.get(68), 34, 1)
+          cnBrowseItem(callNumbers.get(70), 34),
+          cnBrowseItem(callNumbers.get(68), 34)
         )))
     );
   }
@@ -216,8 +222,8 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
     return new CallNumberBrowseResult().prev(prev).next(next).items(items).totalRecords(total);
   }
 
-  private static CallNumberBrowseItem cnBrowseItem(CallNumberResource resource, int instanceIndex, int count) {
-    return cnBrowseItem(resource, instanceIndex, count, null);
+  private static CallNumberBrowseItem cnBrowseItem(CallNumberResource resource, int instanceIndex) {
+    return cnBrowseItem(resource, instanceIndex, 1, null);
   }
 
   private static CallNumberBrowseItem cnBrowseItem(CallNumberResource resource, int instanceIndex, int count,

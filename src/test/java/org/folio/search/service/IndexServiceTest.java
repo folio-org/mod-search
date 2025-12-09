@@ -326,40 +326,7 @@ class IndexServiceTest {
 
   @Test
   void reindexInventory_positive_locationsAndRecreateIndex() {
-    var locationIndex = getIndexName(LOCATION, TENANT_ID);
-    var campusIndex = getIndexName(CAMPUS, TENANT_ID);
-    var libraryIndex = getIndexName(LIBRARY, TENANT_ID);
-    var institutionIndex = getIndexName(INSTITUTION, TENANT_ID);
-
-    when(resourceDescriptionService.find(LOCATION)).thenReturn(
-      Optional.of(resourceDescription(LOCATION)));
-    when(resourceDescriptionService.find(CAMPUS)).thenReturn(
-      Optional.of(resourceDescription(CAMPUS)));
-    when(resourceDescriptionService.find(LIBRARY)).thenReturn(
-      Optional.of(resourceDescription(LIBRARY)));
-    when(resourceDescriptionService.find(INSTITUTION)).thenReturn(
-      Optional.of(resourceDescription(INSTITUTION)));
-
-    when(resourceDescriptionService.getSecondaryResourceTypes(LOCATION))
-      .thenReturn(List.of(CAMPUS, LIBRARY, INSTITUTION));
-
-    when(mappingsHelper.getMappings(LOCATION)).thenReturn(EMPTY_OBJECT);
-    when(settingsHelper.getSettingsJson(LOCATION)).thenReturn(EMPTY_JSON_OBJECT);
-    when(mappingsHelper.getMappings(CAMPUS)).thenReturn(EMPTY_OBJECT);
-    when(settingsHelper.getSettingsJson(CAMPUS)).thenReturn(EMPTY_JSON_OBJECT);
-    when(mappingsHelper.getMappings(LIBRARY)).thenReturn(EMPTY_OBJECT);
-    when(settingsHelper.getSettingsJson(LIBRARY)).thenReturn(EMPTY_JSON_OBJECT);
-    when(mappingsHelper.getMappings(INSTITUTION)).thenReturn(EMPTY_OBJECT);
-    when(settingsHelper.getSettingsJson(INSTITUTION)).thenReturn(EMPTY_JSON_OBJECT);
-
-    when(indexRepository.createIndex(locationIndex, EMPTY_OBJECT, EMPTY_OBJECT))
-      .thenReturn(getSuccessFolioCreateIndexResponse(List.of(locationIndex)));
-    when(indexRepository.createIndex(campusIndex, EMPTY_OBJECT, EMPTY_OBJECT))
-      .thenReturn(getSuccessFolioCreateIndexResponse(List.of(campusIndex)));
-    when(indexRepository.createIndex(libraryIndex, EMPTY_OBJECT, EMPTY_OBJECT))
-      .thenReturn(getSuccessFolioCreateIndexResponse(List.of(libraryIndex)));
-    when(indexRepository.createIndex(institutionIndex, EMPTY_OBJECT, EMPTY_OBJECT))
-      .thenReturn(getSuccessFolioCreateIndexResponse(List.of(institutionIndex)));
+    mockLocationIndexes();
 
     var reindexRequest = new ReindexRequest().resourceName(ResourceNameEnum.LOCATION).recreateIndex(true);
     var actual = indexService.reindexInventory(TENANT_ID, reindexRequest);
@@ -427,6 +394,35 @@ class IndexServiceTest {
     when(indexRepository.indexExists(INDEX_NAME)).thenReturn(false);
     indexService.dropIndex(INSTANCE, TENANT_ID);
     verify(indexRepository, times(0)).dropIndex(INDEX_NAME);
+  }
+
+  private void mockLocationIndexes() {
+    when(resourceDescriptionService.find(LOCATION)).thenReturn(Optional.of(resourceDescription(LOCATION)));
+    when(resourceDescriptionService.find(CAMPUS)).thenReturn(Optional.of(resourceDescription(CAMPUS)));
+    when(resourceDescriptionService.find(LIBRARY)).thenReturn(Optional.of(resourceDescription(LIBRARY)));
+    when(resourceDescriptionService.find(INSTITUTION)).thenReturn(Optional.of(resourceDescription(INSTITUTION)));
+
+    when(resourceDescriptionService.getSecondaryResourceTypes(LOCATION))
+      .thenReturn(List.of(CAMPUS, LIBRARY, INSTITUTION));
+
+    when(mappingsHelper.getMappings(LOCATION)).thenReturn(EMPTY_OBJECT);
+    when(settingsHelper.getSettingsJson(LOCATION)).thenReturn(EMPTY_JSON_OBJECT);
+    when(mappingsHelper.getMappings(CAMPUS)).thenReturn(EMPTY_OBJECT);
+    when(settingsHelper.getSettingsJson(CAMPUS)).thenReturn(EMPTY_JSON_OBJECT);
+    when(mappingsHelper.getMappings(LIBRARY)).thenReturn(EMPTY_OBJECT);
+    when(settingsHelper.getSettingsJson(LIBRARY)).thenReturn(EMPTY_JSON_OBJECT);
+    when(mappingsHelper.getMappings(INSTITUTION)).thenReturn(EMPTY_OBJECT);
+    when(settingsHelper.getSettingsJson(INSTITUTION)).thenReturn(EMPTY_JSON_OBJECT);
+
+    mockCreateIndex(getIndexName(LOCATION, TENANT_ID));
+    mockCreateIndex(getIndexName(CAMPUS, TENANT_ID));
+    mockCreateIndex(getIndexName(LIBRARY, TENANT_ID));
+    mockCreateIndex(getIndexName(INSTITUTION, TENANT_ID));
+  }
+
+  private void mockCreateIndex(String locationIndex) {
+    when(indexRepository.createIndex(locationIndex, EMPTY_OBJECT, EMPTY_OBJECT))
+      .thenReturn(getSuccessFolioCreateIndexResponse(List.of(locationIndex)));
   }
 
   @SneakyThrows

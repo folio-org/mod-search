@@ -145,34 +145,9 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
   }
 
   @Override
-  public ReindexEntityType entityType() {
-    return ReindexEntityType.CONTRIBUTOR;
-  }
-
-  @Override
-  protected String entityTable() {
-    return ReindexConstants.CONTRIBUTOR_TABLE;
-  }
-
-  @Override
-  protected Optional<String> subEntityTable() {
-    return Optional.of(ReindexConstants.INSTANCE_CONTRIBUTOR_TABLE);
-  }
-
-  @Override
   public List<Map<String, Object>> fetchByIdRange(String lower, String upper) {
     var sql = getFetchBySql();
     return jdbcTemplate.query(sql, rowToMapMapper(), lower, upper, lower, upper);
-  }
-
-  @Override
-  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp, int limit) {
-    return fetchByTimestamp(SELECT_BY_UPDATED_QUERY, rowToMapMapper2(), timestamp, limit, tenant);
-  }
-
-  @Override
-  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp, String fromId, int limit) {
-    return fetchByTimestamp(SELECT_BY_UPDATED_QUERY, rowToMapMapper2(), timestamp, fromId, limit, tenant);
   }
 
   @Override
@@ -199,22 +174,29 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
     };
   }
 
-  protected RowMapper<Map<String, Object>> rowToMapMapper2() {
-    return (rs, rowNum) -> {
-      Map<String, Object> contributor = new HashMap<>();
-      contributor.put("id", getId(rs));
-      contributor.put("name", getName(rs));
-      contributor.put("contributorNameTypeId", getNameTypeId(rs));
-      contributor.put(LAST_UPDATED_DATE_FIELD, rs.getTimestamp("last_updated_date"));
-      contributor.put(AUTHORITY_ID_FIELD, getAuthorityId(rs));
+  @Override
+  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp, int limit) {
+    return fetchByTimestamp(SELECT_BY_UPDATED_QUERY, rowToMapMapper2(), timestamp, limit, tenant);
+  }
 
-      var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
-      if (!maps.isEmpty()) {
-        contributor.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
-      }
+  @Override
+  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp, String fromId, int limit) {
+    return fetchByTimestamp(SELECT_BY_UPDATED_QUERY, rowToMapMapper2(), timestamp, fromId, limit, tenant);
+  }
 
-      return contributor;
-    };
+  @Override
+  public ReindexEntityType entityType() {
+    return ReindexEntityType.CONTRIBUTOR;
+  }
+
+  @Override
+  protected String entityTable() {
+    return ReindexConstants.CONTRIBUTOR_TABLE;
+  }
+
+  @Override
+  protected Optional<String> subEntityTable() {
+    return Optional.of(ReindexConstants.INSTANCE_CONTRIBUTOR_TABLE);
   }
 
   @Override
@@ -223,6 +205,7 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
   }
 
   @Override
+  @SuppressWarnings("checkstyle:MethodLength")
   public void saveAll(ChildResourceEntityBatch entityBatch) {
     var entitiesSql = INSERT_ENTITIES_SQL.formatted(JdbcUtils.getSchemaName(context));
     try {
@@ -258,6 +241,24 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
           entityRelation.get(CONTRIBUTOR_TYPE_FIELD), entityRelation.get("tenantId"), entityRelation.get("shared"));
       }
     }
+  }
+
+  protected RowMapper<Map<String, Object>> rowToMapMapper2() {
+    return (rs, rowNum) -> {
+      Map<String, Object> contributor = new HashMap<>();
+      contributor.put("id", getId(rs));
+      contributor.put("name", getName(rs));
+      contributor.put("contributorNameTypeId", getNameTypeId(rs));
+      contributor.put(LAST_UPDATED_DATE_FIELD, rs.getTimestamp("last_updated_date"));
+      contributor.put(AUTHORITY_ID_FIELD, getAuthorityId(rs));
+
+      var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
+      if (!maps.isEmpty()) {
+        contributor.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
+      }
+
+      return contributor;
+    };
   }
 
   private String getId(ResultSet rs) throws SQLException {

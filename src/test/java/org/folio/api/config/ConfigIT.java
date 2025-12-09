@@ -15,7 +15,6 @@ import static org.folio.support.TestConstants.INVENTORY_CALL_NUMBER_TYPE_TOPIC;
 import static org.folio.support.TestConstants.INVENTORY_CLASSIFICATION_TYPE_TOPIC;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.TestConstants.getTopicName;
-import static org.folio.support.TestConstants.inventoryCallNumberTopic;
 import static org.folio.support.TestConstants.inventoryClassificationTopic;
 import static org.folio.support.base.ApiEndpoints.featureConfigPath;
 import static org.folio.support.sample.SampleInstances.getSemanticWebAsMap;
@@ -26,6 +25,7 @@ import static org.folio.support.utils.TestUtils.mockClassificationTypes;
 import static org.folio.support.utils.TestUtils.randomId;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.opensearch.index.query.QueryBuilders.matchQuery;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -48,6 +48,7 @@ import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.domain.dto.ShelvingOrderAlgorithmType;
 import org.folio.search.model.types.ResourceType;
 import org.folio.spring.testing.type.IntegrationTest;
+import org.folio.support.TestConstants;
 import org.folio.support.base.ApiEndpoints;
 import org.folio.support.base.BaseIntegrationTest;
 import org.folio.support.utils.TestUtils;
@@ -306,17 +307,13 @@ class ConfigIT extends BaseIntegrationTest {
 
     doPut(ApiEndpoints.browseConfigPath(INSTANCE_CLASSIFICATION, BrowseOptionType.LC), config);
 
-    kafkaTemplate.send(inventoryClassificationTopic(), typeId1.toString(), new ResourceEvent()
-      .type(ResourceEventType.DELETE)
-      .tenant(TENANT_ID)
-      .resourceName(ResourceType.CLASSIFICATION_TYPE.getName())
-      .old(mapOf(ID_FIELD, typeId1.toString()))
-    );
+    sendDeleteEvent(typeId1, inventoryClassificationTopic(), ResourceType.CLASSIFICATION_TYPE);
 
     await().atMost(ONE_MINUTE).pollInterval(TWO_SECONDS).untilAsserted(() -> {
       var result = doGet(ApiEndpoints.browseConfigPath(INSTANCE_CLASSIFICATION));
 
       var configCollection = parseResponse(result, BrowseConfigCollection.class);
+      assertNotNull(configCollection.getConfigs());
       for (BrowseConfig browseConfig : configCollection.getConfigs()) {
         if (browseConfig.getId() == BrowseOptionType.LC) {
           assertThat(browseConfig.getTypeIds())
@@ -341,17 +338,13 @@ class ConfigIT extends BaseIntegrationTest {
 
     doPut(ApiEndpoints.browseConfigPath(INSTANCE_CALL_NUMBER, BrowseOptionType.SUDOC), config);
 
-    kafkaTemplate.send(inventoryCallNumberTopic(), typeId1.toString(), new ResourceEvent()
-      .type(ResourceEventType.DELETE)
-      .tenant(TENANT_ID)
-      .resourceName(ResourceType.CALL_NUMBER_TYPE.getName())
-      .old(mapOf(ID_FIELD, typeId1.toString()))
-    );
+    sendDeleteEvent(typeId1, TestConstants.inventoryCallNumberTopic(), ResourceType.CALL_NUMBER_TYPE);
 
     await().atMost(ONE_MINUTE).pollInterval(TWO_SECONDS).untilAsserted(() -> {
       var result = doGet(ApiEndpoints.browseConfigPath(INSTANCE_CALL_NUMBER));
 
       var configCollection = parseResponse(result, BrowseConfigCollection.class);
+      assertNotNull(configCollection.getConfigs());
       for (var browseConfig : configCollection.getConfigs()) {
         if (browseConfig.getId() == BrowseOptionType.SUDOC) {
           assertThat(browseConfig.getTypeIds())
@@ -378,6 +371,15 @@ class ConfigIT extends BaseIntegrationTest {
 
     await().atMost(ONE_MINUTE).pollInterval(TWO_SECONDS)
       .untilAsserted(() -> assertThat(referenceDataCache.get(cacheKey)).isNull());
+  }
+
+  private void sendDeleteEvent(UUID typeId, String topic, ResourceType resourceType) {
+    kafkaTemplate.send(topic, typeId.toString(), new ResourceEvent()
+      .type(ResourceEventType.DELETE)
+      .tenant(TENANT_ID)
+      .resourceName(resourceType.getName())
+      .old(mapOf(ID_FIELD, typeId.toString()))
+    );
   }
 
   @SneakyThrows

@@ -74,17 +74,7 @@ class IndexingInstanceCallNumberIT extends BaseIntegrationTest {
     // then
     var sourceAsMap = hits[0].getSourceAsMap();
     // assert that the document contains the expected fields
-    assertThat(sourceAsMap)
-      .contains(
-        entry("callNumber", "NS 1 .B5"),
-        entry("fullCallNumber", "NS 1 .B5"),
-        entry("callNumberTypeId", "2b94c631-fca9-4892-a730-03ee529ff6c3"),
-        entry("defaultShelvingOrder", "NS 1 .B5"),
-        entry("deweyShelvingOrder", "NS 11 B 15"),
-        entry("lcShelvingOrder", "NS 11 B5"),
-        entry("sudocShelvingOrder", "!NS 11   !B 15"),
-        entry("nlmShelvingOrder", "NS 11 B5")
-      );
+    assertCallNumberDocFields(sourceAsMap);
 
     // assert that the document contains the expected instances object with count 2
     @SuppressWarnings("unchecked")
@@ -128,6 +118,20 @@ class IndexingInstanceCallNumberIT extends BaseIntegrationTest {
 
     // then
     awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CALL_NUMBER, TENANT_ID)).isEmpty());
+  }
+
+  private void assertCallNumberDocFields(Map<String, Object> sourceAsMap) {
+    assertThat(sourceAsMap)
+      .contains(
+        entry("callNumber", "NS 1 .B5"),
+        entry("fullCallNumber", "NS 1 .B5"),
+        entry("callNumberTypeId", "2b94c631-fca9-4892-a730-03ee529ff6c3"),
+        entry("defaultShelvingOrder", "NS 1 .B5"),
+        entry("deweyShelvingOrder", "NS 11 B 15"),
+        entry("lcShelvingOrder", "NS 11 B5"),
+        entry("sudocShelvingOrder", "!NS 11   !B 15"),
+        entry("nlmShelvingOrder", "NS 11 B5")
+      );
   }
 
   private Item getItem(String itemId) {

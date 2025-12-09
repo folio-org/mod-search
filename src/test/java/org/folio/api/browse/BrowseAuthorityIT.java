@@ -54,10 +54,10 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
   void browseByAuthority_browsingAroundWithAdditionalFilters() {
     var request = get(authorityBrowsePath())
       .param("query", prepareQuery("(headingRef>={value} or headingRef<{value}) "
-        + "and isTitleHeadingRef==false "
-        + "and tenantId==" + TENANT_ID + " "
-        + "and shared==false "
-        + "and headingType==(\"Personal Name\")", "\"Ĵämes Röllins\""))
+                                   + "and isTitleHeadingRef==false "
+                                   + "and tenantId==" + TENANT_ID + " "
+                                   + "and shared==false "
+                                   + "and headingType==(\"Personal Name\")", "\"Ĵämes Röllins\""))
       .param("limit", "7")
       .param("precedingRecordsCount", "2");
     var actual = parseResponse(doGet(request), AuthorityBrowseResult.class);
@@ -138,6 +138,7 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
         authorityBrowseItem("Ĵämes Röllins", 2, "Personal Name", REFERENCE, null))));
   }
 
+  @SuppressWarnings("checkstyle:MethodLength")
   private static Stream<Arguments> authorityBrowsingDataProvider() {
     var aroundQuery = "headingRef > {value} or headingRef < {value}";
     var aroundIncludingQuery = "headingRef >= {value} or headingRef < {value}";
@@ -360,6 +361,7 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
     );
   }
 
+  @SuppressWarnings("checkstyle:MethodLength")
   private static Authority[] authorities() {
     return new Authority[]
       {
@@ -408,7 +410,7 @@ class BrowseAuthorityIT extends BaseIntegrationTest {
         authority(43).formSubdivision("xFormSubdivision"),
         authority(44).sftFormSubdivision(List.of("xsftFormSubdivision")),
         authority(45).saftFormSubdivision(List.of("xsaftFormSubdivision"))
-        };
+      };
   }
 
   private static Authority authority(int index) {

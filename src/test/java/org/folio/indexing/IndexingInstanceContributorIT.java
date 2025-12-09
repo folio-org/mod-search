@@ -39,14 +39,10 @@ class IndexingInstanceContributorIT extends BaseIntegrationTest {
     var instanceId1 = randomId();
     var instanceId2 = randomId();
     var authorityId = "ce176ace-a53e-4b4d-aa89-725ed7b2edac";
-    var contributorTypeId = "13f6dc91-c2e5-4d18-a6c8-5015974454ef";
-    var contributorNameTypeId = "d2775d47-5e1f-4659-99ff-ccbaff84af85";
+    var typeId = "13f6dc91-c2e5-4d18-a6c8-5015974454ef";
+    var nameTypeId = "d2775d47-5e1f-4659-99ff-ccbaff84af85";
     var name = "John Tolkien";
-    var contributor = new Contributor()
-      .name(name)
-      .contributorTypeId(contributorTypeId)
-      .contributorNameTypeId(contributorNameTypeId)
-      .authorityId(authorityId);
+    var contributor = prepareContributor(name, typeId, nameTypeId, authorityId);
     var instance1 = new Instance().id(instanceId1).addContributorsItem(contributor);
     var instance2 = new Instance().id(instanceId2).addContributorsItem(contributor);
     inventoryApi.createInstance(TENANT_ID, instance1);
@@ -54,14 +50,8 @@ class IndexingInstanceContributorIT extends BaseIntegrationTest {
     assertCountByIds(instanceSearchPath(), List.of(instanceId1, instanceId2), 2);
     awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CONTRIBUTOR, TENANT_ID)).hasSize(1));
 
-    var hits = fetchAllDocuments(INSTANCE_CONTRIBUTOR, TENANT_ID);
-    var sourceAsMap = hits[0].getSourceAsMap();
-    assertThat(sourceAsMap)
-      .contains(
-        entry("name", name),
-        entry("contributorNameTypeId", contributorNameTypeId),
-        entry("authorityId", authorityId)
-      );
+    var sourceAsMap = fetchAllDocuments(INSTANCE_CONTRIBUTOR, TENANT_ID)[0].getSourceAsMap();
+    asserContributorDocFields(sourceAsMap, name, nameTypeId, authorityId);
 
     @SuppressWarnings("unchecked")
     var instances = (List<Map<String, Object>>) sourceAsMap.get("instances");
@@ -69,7 +59,7 @@ class IndexingInstanceContributorIT extends BaseIntegrationTest {
       .hasSize(1)
       .allSatisfy(map -> assertThat(map).containsEntry("shared", false))
       .allSatisfy(map -> assertThat(map).containsEntry("tenantId", TENANT_ID))
-      .allSatisfy(map -> assertThat(map).containsEntry("typeId", List.of(contributorTypeId)))
+      .allSatisfy(map -> assertThat(map).containsEntry("typeId", List.of(typeId)))
       .allSatisfy(map -> assertThat(map).containsEntry("count", 2));
   }
 
@@ -95,5 +85,23 @@ class IndexingInstanceContributorIT extends BaseIntegrationTest {
     awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CONTRIBUTOR, TENANT_ID)).hasSize(1));
     inventoryApi.deleteInstance(TENANT_ID, instanceId);
     awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CONTRIBUTOR, TENANT_ID)).isEmpty());
+  }
+
+  private Contributor prepareContributor(String name, String contributorTypeId, String nameTypeId, String authorityId) {
+    return new Contributor()
+      .name(name)
+      .contributorTypeId(contributorTypeId)
+      .contributorNameTypeId(nameTypeId)
+      .authorityId(authorityId);
+  }
+
+  private void asserContributorDocFields(Map<String, Object> sourceAsMap, String name, String contributorNameTypeId,
+                                         String authorityId) {
+    assertThat(sourceAsMap)
+      .contains(
+        entry("name", name),
+        entry("contributorNameTypeId", contributorNameTypeId),
+        entry("authorityId", authorityId)
+      );
   }
 }

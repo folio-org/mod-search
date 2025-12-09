@@ -20,6 +20,7 @@ import static org.folio.support.utils.TestUtils.mapOf;
 import static org.folio.support.utils.TestUtils.randomId;
 import static org.folio.support.utils.TestUtils.subjectBrowseItem;
 import static org.folio.support.utils.TestUtils.subjectBrowseResult;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
@@ -142,6 +143,7 @@ class BrowseSubjectIT extends BaseIntegrationTest {
     var actual = parseResponse(doGet(recordFacetsPath(RecordType.SUBJECTS, query, facets)), FacetResult.class);
 
     expected.forEach((facetName, expectedFacet) -> {
+      assertNotNull(actual.getFacets());
       var actualFacet = actual.getFacets().get(facetName);
 
       assertThat(actualFacet).isNotNull();
@@ -154,7 +156,7 @@ class BrowseSubjectIT extends BaseIntegrationTest {
   void browseBySubject_withSourceFilter() {
     var request = get(instanceSubjectBrowsePath()).param("query",
       "(" + prepareQuery("value >= {value} or value < {value}", '"' + "Philosophy" + '"') + ") "
-        + "and sourceId==" + MUSIC_SOURCE_ID_1).param("limit", "5");
+      + "and sourceId==" + MUSIC_SOURCE_ID_1).param("limit", "5");
 
     var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
     var expected = new SubjectBrowseResult().totalRecords(4).prev("Music").next(null).items(
@@ -171,7 +173,7 @@ class BrowseSubjectIT extends BaseIntegrationTest {
   void browseBySubject_withTypeFilter() {
     var request = get(instanceSubjectBrowsePath()).param("query",
       "(" + prepareQuery("value >= {value} or value < {value}", '"' + "Philosophy" + '"') + ") "
-        + "and typeId==" + MUSIC_TYPE_ID_2).param("limit", "5");
+      + "and typeId==" + MUSIC_TYPE_ID_2).param("limit", "5");
 
     var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
     var expected = new SubjectBrowseResult().totalRecords(3).prev(null).next(null).items(
@@ -184,6 +186,7 @@ class BrowseSubjectIT extends BaseIntegrationTest {
     assertThat(actual).isEqualTo(expected);
   }
 
+  @SuppressWarnings("checkstyle:MethodLength")
   private static Stream<Arguments> subjectBrowsingDataProvider() {
     var aroundQuery = "value > {value} or value < {value}";
     var aroundIncludingQuery = "value >= {value} or value < {value}";
@@ -410,7 +413,7 @@ class BrowseSubjectIT extends BaseIntegrationTest {
       .subjects(((List<Object>) data.get(1)).stream()
         .map(val -> {
           if (val instanceof List<?> list) {
-            var subject =  new Subject().value(String.valueOf(list.get(0)));
+            var subject = new Subject().value(String.valueOf(list.get(0)));
             if (list.size() == 4) {
               subject.setAuthorityId(Objects.toString(list.get(1), null));
               subject.setSourceId(Objects.toString(list.get(2), null));
@@ -426,6 +429,7 @@ class BrowseSubjectIT extends BaseIntegrationTest {
       .holdings(emptyList());
   }
 
+  @SuppressWarnings("checkstyle:MethodLength")
   private static List<List<Object>> subjectBrowseInstanceData() {
     return List.of(
       List.of("instance #01", List.of("History",

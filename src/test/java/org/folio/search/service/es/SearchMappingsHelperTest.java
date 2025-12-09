@@ -61,6 +61,7 @@ class SearchMappingsHelperTest {
   private final JsonConverter jsonConverter = new JsonConverter(OBJECT_MAPPER);
 
   @Test
+  @SuppressWarnings("checkstyle:MethodLength")
   void getMappings_positive() {
     var keywordType = fieldType(jsonObject("type", KEYWORD_FIELD_INDEX));
     var dateType = fieldType(jsonObject("type", "date", "format", "epoch_millis"));
@@ -122,6 +123,7 @@ class SearchMappingsHelperTest {
   }
 
   @Test
+  @SuppressWarnings("checkstyle:MethodLength")
   void getMappings_positive_resourceWithMultilangIndexMappings() {
     var resourceDescription = TestUtils.resourceDescription(mapOf(
       "id", plainField(KEYWORD_FIELD_INDEX),

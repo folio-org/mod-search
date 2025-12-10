@@ -37,6 +37,7 @@
   * Normalize ISSN search ([MSEARCH-658](https://folio-org.atlassian.net/browse/MSEARCH-658))
   * Separate LCCN and Canceled LCCN identifiers search to lccn and canceledLccn options ([MSEARCH-1065](https://folio-org.atlassian.net/browse/MSEARCH-1065))
   * Add sorting options for instances by created and updated date ([MSEARCH-825](https://folio-org.atlassian.net/browse/MSEARCH-825))
+  * Add identifiers to default Instance search response ([MSEARCH-1121](https://folio-org.atlassian.net/browse/MSEARCH-1121))
 * **Linked Data Instance, Work and Hub**
   * Search by classification type/number/additionalNumber ([MSEARCH-989](https://folio-org.atlassian.net/browse/MSEARCH-989))
   * Rename "AAP" to "label" to be consistent with the terminology used in mod-linked-data ([MSEARCH-1099](https://folio-org.atlassian.net/browse/MSEARCH-1099))

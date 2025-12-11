@@ -7,6 +7,56 @@
       "shared": false,
       "hrid": "inst000000000022",
       "title": "A sem\\ntic web primer :0747-0850 & wolves",
+      "identifiers": [
+        {
+          "value": "0262012103",
+          "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+        },
+        {
+          "value": "9781609383657",
+          "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+        },
+        {
+          "value": "9780262012102",
+          "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+        },
+        {
+          "value": "978-0-471-44250-9 (cloth : alk. paper)",
+          "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+        },
+        {
+          "value": "047144250X",
+          "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+        },
+        {
+          "value": "2003065165",
+          "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
+        },
+        {
+          "value": "n 2003075732",
+          "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
+        },
+        {
+          "value": "canceled LCCN",
+          "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9"
+        },
+        {
+          "value": "0317-8471",
+          "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
+        },
+        {
+          "value": "0040-781X",
+          "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
+        },
+        {
+          "value": "(OCoLC)ocm0060710867",
+          "identifierTypeId": "c3c651c7-96b4-416c-a1af-17146ce0a409"
+        },
+        {
+          "value": "ocm0012345 800630",
+          "identifierTypeId": "82fb97e1-f460-4099-9ac8-97518341ed1a"
+        }
+      ],
       "contributors": [
         {
           "name": "Ant\\niou, Grigoris matthew",

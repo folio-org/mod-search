@@ -79,7 +79,7 @@ public class UploadInstanceRepository extends UploadRangeRepository {
     var instanceWhereClause = INSTANCE_IDS_WHERE_CLAUSE.formatted("i.id",
       JdbcUtils.getParamPlaceholderForUuid(ids.size()));
     var itemWhereClause = INSTANCE_IDS_WHERE_CLAUSE.formatted("it.instance_id",
-      JdbcUtils.getParamPlaceholderForUuid(ids.size()));
+      JdbcUtils.getParamPlaceholderForUuid(ids.size())) + " AND it.is_deleted = false";
     var holdingsWhereClause = INSTANCE_IDS_WHERE_CLAUSE.formatted("h.instance_id",
       JdbcUtils.getParamPlaceholderForUuid(ids.size()));
     var sql = SELECT_SQL_TEMPLATE.formatted(getFullTableName(context, entityTable()),

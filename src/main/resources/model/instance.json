@@ -80,10 +80,12 @@
       "type": "object",
       "properties": {
         "value": {
-          "index": "whitespace"
+          "index": "whitespace",
+          "showInResponse": true
         },
         "identifierTypeId": {
-          "index": "keyword_lowercase"
+          "index": "keyword_lowercase",
+          "showInResponse": true
         }
       }
     },

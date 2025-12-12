@@ -606,9 +606,16 @@ request parameters:
 
 > *_Basic fields for instances search are following:_
 > * _id_
+> * _tenantId_
+> * _shared_
+> * _hrid_
+> * _discoverySuppress_
+> * _isBoundWith_
 > * _title_
 > * _contributors_
+> * _identifiers_
 > * _publication_
+> * _dates_
 
 > *_Basic fields for authorities search are following:_
 > * _id_
@@ -682,15 +689,15 @@ does not produce any values, so the following search options will return an empt
 | `id`                                   |    term     | `id=="1234567"`                                                          | Matches instance with the id                                                                                                                      |
 | `hrid`                                 |    term     | `hrid=="hr1*0"`                                                          | Matches instances with given HRID                                                                                                                 |
 | `source`                               |    term     | `source=="MARC"`                                                         | Matches instances with given source (FOLIO/MARC)                                                                                                  |
-| `title`                                |  full-text  | `title all "semantic web"`                                               | Matches instances with the given title, searches against `title`, `alternativeTitles`, `indexTitle`, `series` fields                              |
+| `title`                                |  full-text  | `title all "semantic web"`                                               | An alias for: `title`, `alternativeTitles`, `indexTitle`, `series`                                                                                |
 | `alternativeTitles.alternativeTitle`   |  full-text  | `alternativeTitles.alternativeTitle all "semantic web"`                  | Matches instances with the given alternative title                                                                                                |
 | `uniformTitle`                         |  full-text  | `uniformTitle all "semantic web"`                                        | Matches instances with the given uniform title                                                                                                    |
 | `indexTitle`                           |  full-text  | `indexTitle all "semantic web"`                                          | Matches instances with the given index title                                                                                                      |
 | `series`                               |  full-text  | `series all "series"`                                                    | Matches instance with given series value                                                                                                          |
 | `identifiers.value`                    |    term     | `identifiers.value = "1023*"`                                            | Matches instances with the given identifier value                                                                                                 |
 | `identifiers.identifierTypeId`         |    term     | `identifiers.identifierTypeId=="123" identifiers.value = "1023*"`        | Matches instances that have an identifier of type `123` and ANY identifier with value `1023*`                                                     |
-| `contributors`                         |  full-text  | `contributors all "John"`                                                | Matches instances that have a `John` contributor                                                                                                  |
-| `contributors.name`                    |  full-text  | `contributors.name all "John"`                                           | Matches instances that have a primary `John` contributor                                                                                          |
+| `contributors`                         |  full-text  | `contributors all "John"`                                                | An alias for: `contributors.name`                                                                                                                 |
+| `contributors.name`                    |  full-text  | `contributors.name all "John"`                                           | Matches instances that have a `John` contributor                                                                                                  |
 | `contributors.contributorTypeId`       |    term     | `contributors.contributorTypeId all "1234567"`                           | Matches instances that have a contributor type Id `1234567`                                                                                       |
 | `contributors.contributorNameTypeId`   |    term     | `contributors.contributorNameTypeId all "1234567"`                       | Matches instances that have a contributor name type Id `1234567`                                                                                  |
 | `contributors.primary`                 |    term     | `contributors all "John" and contributors.primary==true`                 | Matches instances that have a primary `John` contributor                                                                                          |

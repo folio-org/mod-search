@@ -55,6 +55,7 @@ public class UploadInstanceRepository extends UploadRangeRepository {
 
   private static final String IDS_RANGE_WHERE_CLAUSE = "%1$s >= ?::uuid AND %1$s <= ?::uuid";
   private static final String INSTANCE_IDS_WHERE_CLAUSE = "%s IN (%s)";
+  private static final String ITEM_NOT_DELETED_FILTER = " AND it.is_deleted = false";
 
   protected UploadInstanceRepository(JdbcTemplate jdbcTemplate, JsonConverter jsonConverter,
                                      FolioExecutionContext context,
@@ -79,7 +80,7 @@ public class UploadInstanceRepository extends UploadRangeRepository {
     var instanceWhereClause = INSTANCE_IDS_WHERE_CLAUSE.formatted("i.id",
       JdbcUtils.getParamPlaceholderForUuid(ids.size()));
     var itemWhereClause = INSTANCE_IDS_WHERE_CLAUSE.formatted("it.instance_id",
-      JdbcUtils.getParamPlaceholderForUuid(ids.size()));
+      JdbcUtils.getParamPlaceholderForUuid(ids.size())) + ITEM_NOT_DELETED_FILTER;
     var holdingsWhereClause = INSTANCE_IDS_WHERE_CLAUSE.formatted("h.instance_id",
       JdbcUtils.getParamPlaceholderForUuid(ids.size()));
     var sql = SELECT_SQL_TEMPLATE.formatted(getFullTableName(context, entityTable()),

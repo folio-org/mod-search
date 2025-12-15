@@ -1,9 +1,17 @@
+## v4.0.15 2025-12-15
+### Dependencies
+* Bump `opensearch` from `2.18.0` to `2.19.4` ([MSEARCH-1123](https://folio-org.atlassian.net/browse/MSEARCH-1123))
+
+---
+
 ## v4.0.14 2025-09-17
 ### Features
 * Refactor Sub-Resource Saving to Background Job to Prevent DB Deadlocks ([MSEARCH-1056](https://folio-org.atlassian.net/browse/MSEARCH-1056))
 
 ### Bug fixes
 * Indexing: proper handling of delete item events ([MSEARCH-1064](https://folio-org.atlassian.net/browse/MSEARCH-1064))
+
+---
 
 ## v4.0.13 2025-05-16
 ### Features

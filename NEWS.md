@@ -63,6 +63,7 @@
   * Move index recreation before merge range publishing on full reindex ([MSEARCH-1006](https://folio-org.atlassian.net/browse/MSEARCH-1006))
   * Proper handling of delete item events ([MSEARCH-1064](https://folio-org.atlassian.net/browse/MSEARCH-1064))
   * Fix items handling in a sub-resource background job, process multiple same id events in interceptor ([MSEARCH-1085](https://folio-org.atlassian.net/browse/MSEARCH-1085))
+  * Fix soft-deleted items being indexed into elasticsearch ([MSEARCH-1119](https://folio-org.atlassian.net/browse/MSEARCH-1119))
 
 ### Tech Dept
 * Migrate to Opensearch 3.0.0 ([MSEARCH-1033](https://folio-org.atlassian.net/browse/MSEARCH-1033))

@@ -1,10 +1,20 @@
+## v5.0.8 2025-12-17
+### Bug fixes
+* Fix soft-deleted items being indexed into elasticsearch ([MSEARCH-1119](https://folio-org.atlassian.net/browse/MSEARCH-1119))
+
+---
+
 ## v5.0.7 2025-10-15
 ### Bug fixes
 * Fix items handling in a sub-resource background job, process multiple same id events in interceptor ([MSEARCH-1085](https://folio-org.atlassian.net/browse/MSEARCH-1085))
 
+---
+
 ## v5.0.6 2025-09-30
 ### Tech dept
 * Clean search hits to reduce inmemory records ([MSEARCH-1068](https://folio-org.atlassian.net/browse/MSEARCH-1068))
+
+---
 
 ## v5.0.5 2025-08-26
 ### Features
@@ -13,6 +23,8 @@
 
 ### Bug fixes
 * Indexing: proper handling of delete item events ([MSEARCH-1064](https://folio-org.atlassian.net/browse/MSEARCH-1064))
+
+---
 
 ## v5.0.4 2025-05-15
 ### Features

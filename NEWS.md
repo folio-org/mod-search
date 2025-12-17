@@ -2,6 +2,9 @@
 ### Bug fixes
 * Fix soft-deleted items being indexed into elasticsearch ([MSEARCH-1119](https://folio-org.atlassian.net/browse/MSEARCH-1119))
 
+### Dependencies
+* Bump `opensearch` from `2.19.1` to `2.19.4` ([MSEARCH-1122](https://folio-org.atlassian.net/browse/MSEARCH-1122))
+
 ---
 
 ## v5.0.7 2025-10-15

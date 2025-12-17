@@ -38,7 +38,7 @@
     <folio-service-tools.version>5.0.0</folio-service-tools.version>
     <folio-isbn-utils.version>1.8.0</folio-isbn-utils.version>
     <folio-cql2pgjson.version>35.4.0</folio-cql2pgjson.version>
-    <opensearch.version>2.19.1</opensearch.version>
+    <opensearch.version>2.19.4</opensearch.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <apache-commons-io.version>2.18.0</apache-commons-io.version>
     <apache-commons-collections.version>4.4</apache-commons-collections.version>

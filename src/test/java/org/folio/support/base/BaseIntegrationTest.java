@@ -100,6 +100,9 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 @SpringBootTest(classes = SearchApplication.class)
 public abstract class BaseIntegrationTest {
 
+  protected static final String[] COLLECTION_IGNORING_FIELDS = {"items.id"};
+  protected static final String[] ENTRY_IGNORING_FIELDS = {"id"};
+
   protected static MockMvc mockMvc;
   protected static InventoryApi inventoryApi;
   protected static KafkaTemplate<String, ResourceEvent> kafkaTemplate;

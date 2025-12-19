@@ -99,7 +99,7 @@ class BrowseClassificationIT extends BaseIntegrationTest {
       .param("limit", String.valueOf(limit));
     var actual = parseResponse(doGet(request), ClassificationNumberBrowseResult.class);
 
-    assertThat(actual).isEqualTo(expected);
+    assertThat(actual).usingRecursiveComparison().ignoringFields(COLLECTION_IGNORING_FIELDS).isEqualTo(expected);
   }
 
   @Test
@@ -116,6 +116,7 @@ class BrowseClassificationIT extends BaseIntegrationTest {
         ClassificationNumberBrowseResult::getNext)
       .contains(19, null, "N6679.R64 G88 2010");
     assertThat(actual.getItems())
+      .usingRecursiveFieldByFieldElementComparatorIgnoringFields(ENTRY_IGNORING_FIELDS)
       .startsWith(
         classificationBrowseItem("146.4", DEWEY_TYPE_ID, 2),
         classificationBrowseItem("221.609", DEWEY_TYPE_ID, 1, "instance #07"),
@@ -142,11 +143,13 @@ class BrowseClassificationIT extends BaseIntegrationTest {
       .param("limit", "3")
       .param("precedingRecordsCount", "1");
     var actual = parseResponse(doGet(request), ClassificationNumberBrowseResult.class);
-    assertThat(actual).isEqualTo(classificationBrowseResult("292.07", "333.91", 19, List.of(
-      classificationBrowseItem("292.07", DEWEY_TYPE_ID, 1, "instance #09"),
-      classificationBrowseItem("292.08", null, 0, true),
-      classificationBrowseItem("333.91", DEWEY_TYPE_ID, 1, "instance #09")
-    )));
+    assertThat(actual)
+      .usingRecursiveComparison().ignoringFields(COLLECTION_IGNORING_FIELDS)
+      .isEqualTo(classificationBrowseResult("292.07", "333.91", 19, List.of(
+        classificationBrowseItem("292.07", DEWEY_TYPE_ID, 1, "instance #09"),
+        classificationBrowseItem("292.08", null, 0, true),
+        classificationBrowseItem("333.91", DEWEY_TYPE_ID, 1, "instance #09")
+      )));
   }
 
   @Test
@@ -158,19 +161,21 @@ class BrowseClassificationIT extends BaseIntegrationTest {
       .param("limit", "10")
       .param("precedingRecordsCount", "2");
     var actual = parseResponse(doGet(request), ClassificationNumberBrowseResult.class);
-    assertThat(actual).isEqualTo(classificationBrowseResult(null, "QD453 .M8 1961", 15, List.of(
-      classificationBrowseItem("146.4", DEWEY_TYPE_ID, 2),
-      classificationBrowseItem("221.609", DEWEY_TYPE_ID, 1, "instance #07"),
-      classificationBrowseItem("292.07", DEWEY_TYPE_ID, 1, "instance #09", true),
-      classificationBrowseItem("333.91", DEWEY_TYPE_ID, 1, "instance #09"),
-      classificationBrowseItem("372.4", DEWEY_TYPE_ID, 1, "instance #09"),
-      classificationBrowseItem("BJ1453 .I49 1983", LC_TYPE_ID, 1, "instance #01"),
-      classificationBrowseItem("HD1691 .I5 1967", LC_TYPE_ID, 1, "instance #01"),
-      classificationBrowseItem("N6679.R64 G88 2010", LC_TYPE_ID, 1, "instance #03"),
-      classificationBrowseItem("QD33 .O87", LC_TYPE_ID, 2),
-      classificationBrowseItem("QD453 .M8 1961", LC_TYPE_ID, 1, "instance #05",
-        List.of("Contributor X"))
-    )));
+    assertThat(actual)
+      .usingRecursiveComparison().ignoringFields(COLLECTION_IGNORING_FIELDS)
+      .isEqualTo(classificationBrowseResult(null, "QD453 .M8 1961", 15, List.of(
+        classificationBrowseItem("146.4", DEWEY_TYPE_ID, 2),
+        classificationBrowseItem("221.609", DEWEY_TYPE_ID, 1, "instance #07"),
+        classificationBrowseItem("292.07", DEWEY_TYPE_ID, 1, "instance #09", true),
+        classificationBrowseItem("333.91", DEWEY_TYPE_ID, 1, "instance #09"),
+        classificationBrowseItem("372.4", DEWEY_TYPE_ID, 1, "instance #09"),
+        classificationBrowseItem("BJ1453 .I49 1983", LC_TYPE_ID, 1, "instance #01"),
+        classificationBrowseItem("HD1691 .I5 1967", LC_TYPE_ID, 1, "instance #01"),
+        classificationBrowseItem("N6679.R64 G88 2010", LC_TYPE_ID, 1, "instance #03"),
+        classificationBrowseItem("QD33 .O87", LC_TYPE_ID, 2),
+        classificationBrowseItem("QD453 .M8 1961", LC_TYPE_ID, 1, "instance #05",
+          List.of("Contributor X"))
+      )));
   }
 
   private static void updateLcConfig(List<UUID> typeIds) {

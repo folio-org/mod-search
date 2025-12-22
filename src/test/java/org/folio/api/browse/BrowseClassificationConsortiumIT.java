@@ -109,14 +109,16 @@ class BrowseClassificationConsortiumIT extends BaseConsortiumIntegrationTest {
       .param("limit", "4")
       .param("precedingRecordsCount", "2");
     var actual = parseResponse(doGet(request), ClassificationNumberBrowseResult.class);
-    assertThat(actual).isEqualTo(classificationBrowseResult("HQ536 .A565 2018", null, 8, List.of(
-      classificationBrowseItem("HQ536 .A565 2018", LC2_TYPE_ID, 1, "instance #03"),
-      classificationBrowseItem("N6679.R64 G88 2010", LC_TYPE_ID, 1, "instance #03"),
-      classificationBrowseItem("QD33 .O87", LC_TYPE_ID, 1, "instance #04", true,
-        List.of("Contributor 1", "Contributor 2")),
-      classificationBrowseItem("QD453 .M8 1961", LC_TYPE_ID, 1, "instance #05")
+    assertThat(actual)
+      .usingRecursiveComparison().ignoringFields(COLLECTION_IGNORING_FIELDS)
+      .isEqualTo(classificationBrowseResult("HQ536 .A565 2018", null, 8, List.of(
+        classificationBrowseItem("HQ536 .A565 2018", LC2_TYPE_ID, 1, "instance #03"),
+        classificationBrowseItem("N6679.R64 G88 2010", LC_TYPE_ID, 1, "instance #03"),
+        classificationBrowseItem("QD33 .O87", LC_TYPE_ID, 1, "instance #04", true,
+          List.of("Contributor 1", "Contributor 2")),
+        classificationBrowseItem("QD453 .M8 1961", LC_TYPE_ID, 1, "instance #05")
 
-    )));
+      )));
   }
 
   @Test
@@ -127,13 +129,15 @@ class BrowseClassificationConsortiumIT extends BaseConsortiumIntegrationTest {
       .param("limit", "4")
       .param("precedingRecordsCount", "2");
     var actual = parseResponse(doGet(request), ClassificationNumberBrowseResult.class);
-    assertThat(actual).isEqualTo(classificationBrowseResult("333.91", "SF433 .D47 2004", 11, List.of(
-      classificationBrowseItem("333.91", DEWEY_TYPE_ID, 1, "instance #09"),
-      classificationBrowseItem("372.4", DEWEY_TYPE_ID, 1, "instance #09"),
-      classificationBrowseItem("QD33 .O87", LC_TYPE_ID, 1, "instance #10", true,
-        List.of("Contributor #3", "Contributor #4")),
-      classificationBrowseItem("SF433 .D47 2004", LC_TYPE_ID, 1, "instance #06")
-    )));
+    assertThat(actual)
+      .usingRecursiveComparison().ignoringFields(COLLECTION_IGNORING_FIELDS)
+      .isEqualTo(classificationBrowseResult("333.91", "SF433 .D47 2004", 11, List.of(
+        classificationBrowseItem("333.91", DEWEY_TYPE_ID, 1, "instance #09"),
+        classificationBrowseItem("372.4", DEWEY_TYPE_ID, 1, "instance #09"),
+        classificationBrowseItem("QD33 .O87", LC_TYPE_ID, 1, "instance #10", true,
+          List.of("Contributor #3", "Contributor #4")),
+        classificationBrowseItem("SF433 .D47 2004", LC_TYPE_ID, 1, "instance #06")
+      )));
   }
 
   @MethodSource("facetQueriesProvider")

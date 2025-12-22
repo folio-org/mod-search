@@ -493,7 +493,7 @@
                 <interfaceOnly>true</interfaceOnly>
                 <useSpringBoot3>true</useSpringBoot3>
                 <requestMappingMode>api_interface</requestMappingMode>
-                <generatedConstructorWithRequiredArgs>false</generatedConstructorWithRequiredArgs>
+                <generatedConstructorWithRequiredArgs>true</generatedConstructorWithRequiredArgs>
                 <containerDefaultToNull>true</containerDefaultToNull>
                 <additionalModelTypeAnnotations>
                   @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)

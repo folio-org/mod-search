@@ -1,6 +1,9 @@
 description: Classification number browse search result item
 type: object
 properties:
+  id:
+    type: string
+    description: Classification number ID
   classificationNumber:
     type: string
     description: Classification number value to display
@@ -22,3 +25,7 @@ properties:
   totalRecords:
     type: integer
     description: Amount of records for the classification number value
+required:
+  - id
+  - classificationNumber
+  - totalRecords

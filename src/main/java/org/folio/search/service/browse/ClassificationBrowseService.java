@@ -57,11 +57,9 @@ public class ClassificationBrowseService
         var subResources = consortiumSearchHelper.filterSubResourcesForConsortium(ctx, resource,
           ClassificationResource::instances);
         var totalRecords = getTotalRecords(subResources);
-        var item = new ClassificationNumberBrowseItem()
-          .classificationNumber(resource.number())
+        var item = new ClassificationNumberBrowseItem(resource.id(), resource.number(), totalRecords)
           .classificationTypeId(resource.typeId())
-          .isAnchor(isAnchor ? true : null)
-          .totalRecords(totalRecords);
+          .isAnchor(isAnchor ? true : null);
 
         if (totalRecords == 1) {
           var subResource = subResources.iterator().next();

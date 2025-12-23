@@ -2,7 +2,8 @@ value:
   totalRecords: 2
   prev: "QA76.73.C15"
   items:
-    - classificationNumber: "QA76.73.C15"
+    - id: "b4e6c6b760366d36f4c36d084cb863a3244a8dba"
+      classificationNumber: "QA76.73.C15"
       classificationTypeId: "5af5cb9d-063f-48ea-8148-7da3ecaafd7d"
       instanceTitle: "Introduction to the Theory of Computation"
       instanceContributors:
@@ -10,7 +11,7 @@ value:
         - "John Doe"
       isAnchor: true
       totalRecords: 1
-    - classificationNumber: "TK5105.88815"
+    - id: "f9d3a5edb22aee2e197551a4df4a25cadafc2e0e"
+      classificationNumber: "TK5105.88815"
       classificationTypeId: "7e5684a9-c8c1-4c1e-85b9-d047f53eeb6d"
-      isAnchor: false
       totalRecords: 5

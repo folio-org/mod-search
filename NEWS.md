@@ -76,6 +76,7 @@
 * Process item/instance in batches, add stale sub-resource lock release logic ([MSEARCH-1097](https://folio-org.atlassian.net/browse/MSEARCH-1097))
 * Refactor system user handling and update dependencies in ModuleDescriptor ([MSEARCH-1111](https://folio-org.atlassian.net/browse/MSEARCH-1111))
 * Refactor code to comply with Checkstyle method length limit (max 25 lines) ([MSEARCH-1110](https://folio-org.atlassian.net/browse/MSEARCH-1110))
+* Improve Docker Compose setup for local development ([MSEARCH-1090](https://folio-org.atlassian.net/browse/MSEARCH-1090))
 
 ### Dependencies
 * Bump `LIB_NAME` from `OLD_VERSION` to `NEW_VERSION`

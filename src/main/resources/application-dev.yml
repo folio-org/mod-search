@@ -1,8 +1,6 @@
 spring:
   application:
     name: mod-search
-  profiles:
-    default: "prod"
   threads:
     virtual:
       enabled: true
@@ -18,11 +16,11 @@ spring:
   opensearch:
     username: ${ELASTICSEARCH_USERNAME:}
     password: ${ELASTICSEARCH_PASSWORD:}
-    uris: ${ELASTICSEARCH_URL:http://localhost:9200}
-    compression-enabled: ${ELASTICSEARCH_COMPRESSION_ENABLED:true}
+    uris: http://localhost:9200
+    compression-enabled: false
     elasticsearch-server: ${ELASTICSEARCH_SERVER:false}
   kafka:
-    bootstrap-servers: ${KAFKA_HOST:localhost}:${KAFKA_PORT:9092}
+    bootstrap-servers: localhost:29092
     consumer:
       max-poll-records: ${KAFKA_CONSUMER_MAX_POLL_RECORDS:200}
       properties:
@@ -41,9 +39,9 @@ spring:
         max.in.flight.requests.per.connection: 5
         retries: 5
   datasource:
-    username: ${DB_USERNAME:folio_admin}
-    password: ${DB_PASSWORD:folio_admin}
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_DATABASE:okapi_modules}
+    username: folio_admin
+    password: folio_admin
+    url: jdbc:postgresql://localhost:5432/okapi_modules
     hikari:
       data-source-properties:
         reWriteBatchedInserts: true
@@ -62,6 +60,10 @@ spring:
       spec: maximumSize=500,expireAfterWrite=3600s
   main:
     allow-bean-definition-overriding: true
+  docker:
+    compose:
+      enabled: true
+      file: ./docker/infra-docker-compose.yml
 
 folio:
   environment: ${ENV:folio}
@@ -163,6 +165,7 @@ folio:
       enabled: true
 
 server.port: 8081
+
 management:
   endpoints:
     web:
@@ -173,12 +176,10 @@ management:
     loggers:
       access: unrestricted
 
----
-
-spring:
-  config:
-    activate:
-      on-profile: prod
 logging:
   level:
-    org.folio.spring.filter.LoggingRequestFilter: debug
+    org.folio.spring.filter.LoggingRequestFilter: DEBUG
+    org.opensearch.client: TRACE
+    org.opensearch.client.sniffer: TRACE
+    tracer: TRACE
+

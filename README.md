@@ -93,29 +93,81 @@ The GitHub Action automatically runs whenever a commit is pushed to the master b
 
 ## Running it
 
-Run locally with proper environment variables set (see
-[Environment variables](#environment-variables) below) on listening port 8081 (default
-listening port):
+### Using Docker Compose (Recommended)
 
+The recommended way to run the module locally is using Docker Compose. This provides a complete development environment with all dependencies.
+
+```shell
+# Build the module JAR
+mvn clean package -DskipTests
+
+# Start all services (infrastructure + module)
+docker compose -f docker/app-docker-compose.yml up -d
+
+# View logs
+docker compose -f docker/app-docker-compose.yml logs -f mod-search
 ```
-KAFKA_HOST=localhost KAFKA_PORT=9092 \
-   java -Dserver.port=8081 -jar target/mod-search-*.jar
 
+For detailed Docker Compose documentation, see [docker/README.md](docker/README.md).
+
+### Local Development with IntelliJ IDEA
+
+For local development, you can run the application directly from IntelliJ IDEA with the `dev` profile. Spring Boot will automatically start the required infrastructure services (PostgreSQL, Kafka, OpenSearch) using Docker Compose.
+
+1. Open the project in IntelliJ IDEA
+2. Run the main application class with the `dev` profile active
+3. Spring Boot will automatically start infrastructure containers from `docker/infra-docker-compose.yml`
+
+### Manually Running the Module
+
+Run the module locally on the default listening port (8081) with infrastructure services:
+
+```shell
+# Start infrastructure services
+docker compose -f docker/infra-docker-compose.yml up -d
+
+# Run the module
+KAFKA_HOST=localhost KAFKA_PORT=29092 \
+DB_HOST=localhost DB_PORT=5432 DB_DATABASE=okapi_modules DB_USERNAME=folio_admin DB_PASSWORD=folio_admin \
+ELASTICSEARCH_URL=http://localhost:9200 \
+java -Dserver.port=8081 -jar target/mod-search-*.jar
 ```
 
 ## Docker
 
+### Building the Docker Image
+
 Build the docker container with:
 
 ```shell
+mvn clean package -DskipTests
 docker build -t mod-search .
 ```
 
-Test that it runs with:
+### Running with Docker Compose
+
+The project includes a comprehensive Docker Compose setup with two main configurations:
+
+1. **Infrastructure only** (`infra-docker-compose.yml`) - PostgreSQL, OpenSearch, Kafka, and supporting services
+2. **Full stack** (`app-docker-compose.yml`) - Infrastructure + mod-search module with scalable instances
 
 ```shell
-docker run -t -i -p 8081:8081 mod-search
+# Run infrastructure only (for local development)
+docker compose -f docker/infra-docker-compose.yml up -d
+
+# Run full stack with 2 module instances
+docker compose -f docker/app-docker-compose.yml up -d
+
+# Scale module instances
+docker compose -f docker/app-docker-compose.yml up -d --scale mod-search=3
 ```
+
+See [docker/README.md](docker/README.md) for detailed documentation on:
+- Configuration options via `.env` file
+- Multiple development workflows
+- Service descriptions and ports
+- Troubleshooting guide
+- Best practices
 
 ## Multi-language search support
 

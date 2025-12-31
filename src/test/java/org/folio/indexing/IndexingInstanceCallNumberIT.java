@@ -65,27 +65,29 @@ class IndexingInstanceCallNumberIT extends BaseIntegrationTest {
     var item2 = getItem(randomId());
     inventoryApi.createItem(TENANT_ID, INSTANCE_ID_1, item1);
     inventoryApi.createItem(TENANT_ID, INSTANCE_ID_2, item2);
-    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CALL_NUMBER, TENANT_ID)).hasSize(1));
 
-    // when
-    // fetch all documents from search index
-    var hits = fetchAllDocuments(INSTANCE_CALL_NUMBER, TENANT_ID);
+    awaitAssertion(() -> {
+      // when
+      // fetch all documents from search index
+      var hits = fetchAllDocuments(INSTANCE_CALL_NUMBER, TENANT_ID);
+      assertThat(hits).hasSize(1);
 
-    // then
-    var sourceAsMap = hits[0].getSourceAsMap();
-    // assert that the document contains the expected fields
-    assertCallNumberDocFields(sourceAsMap);
+      // then
+      var sourceAsMap = hits[0].getSourceAsMap();
+      // assert that the document contains the expected fields
+      assertCallNumberDocFields(sourceAsMap);
 
-    // assert that the document contains the expected instances object with count 2
-    @SuppressWarnings("unchecked")
-    var instances = (List<Map<String, Object>>) sourceAsMap.get("instances");
-    assertThat(instances)
-      .hasSize(1)
-      .allSatisfy(map -> assertThat(map).containsEntry("shared", false))
-      .allSatisfy(map -> assertThat(map).containsEntry("tenantId", TENANT_ID));
-    @SuppressWarnings("unchecked")
-    var ids = (List<String>) instances.getFirst().get("instanceId");
-    assertThat(ids).containsExactlyInAnyOrder(INSTANCE_ID_1, INSTANCE_ID_2);
+      // assert that the document contains the expected instances object with count 2
+      @SuppressWarnings("unchecked")
+      var instances = (List<Map<String, Object>>) sourceAsMap.get("instances");
+      assertThat(instances)
+        .hasSize(1)
+        .allSatisfy(map -> assertThat(map).containsEntry("shared", false))
+        .allSatisfy(map -> assertThat(map).containsEntry("tenantId", TENANT_ID));
+      @SuppressWarnings("unchecked")
+      var ids = (List<String>) instances.getFirst().get("instanceId");
+      assertThat(ids).containsExactlyInAnyOrder(INSTANCE_ID_1, INSTANCE_ID_2);
+    });
   }
 
   @Test

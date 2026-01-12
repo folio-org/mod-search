@@ -78,15 +78,12 @@ public class ReindexOrchestrationService {
       var documents = documentConverter.convert(resourceEvents).values().stream().flatMap(Collection::stream).toList();
       return elasticRepository.indexResources(documents);
     } catch (Exception ex) {
-      var errorMessage = String.format(
-        "fetchRecordAndIndexForUploadRange:: Failed to index records for [eventId: %s, error: %s]",
-        event.getId(), ex.getMessage());
-      throw handleReindexUploadFailure(event, errorMessage);
+      throw handleReindexUploadFailure(event, ex.getMessage());
     }
   }
 
   private ReindexException handleReindexUploadFailure(ReindexRangeIndexEvent event, String errorMessage) {
-    log.warn("handleReindexUploadFailure:: ReindexRangeIndexEvent indexing error [id: {}, error: {}]",
+    log.warn("handleReindexUploadFailure:: ReindexRangeIndexEvent indexing error [eventId: {}, error: {}]",
       event.getId(), errorMessage);
     uploadRangeService.updateStatus(event, ReindexRangeStatus.FAIL, errorMessage);
     reindexStatusService.updateReindexUploadFailed(event.getEntityType());

@@ -32,15 +32,10 @@ public class ReindexOrchestrationService {
   public boolean process(ReindexRangeIndexEvent event) {
     log.info("process:: ReindexRangeIndexEvent [id: {}, tenantId: {}, entityType: {}, lower: {}, upper: {}, ts: {}]",
       event.getId(), event.getTenant(), event.getEntityType(), event.getLower(), event.getUpper(), event.getTs());
-    var resourceEvents = uploadRangeService.fetchRecordRange(event);
-    var documents = documentConverter.convert(resourceEvents).values().stream().flatMap(Collection::stream).toList();
-    var folioIndexOperationResponse = elasticRepository.indexResources(documents);
+
+    var folioIndexOperationResponse = fetchRecordsAndIndexForUploadRange(event);
     if (folioIndexOperationResponse.getStatus() == FolioIndexOperationResponse.StatusEnum.ERROR) {
-      log.warn("process:: ReindexRangeIndexEvent indexing error [id: {}, error: {}]",
-        event.getId(), folioIndexOperationResponse.getErrorMessage());
-      uploadRangeService.updateStatus(event, ReindexRangeStatus.FAIL, folioIndexOperationResponse.getErrorMessage());
-      reindexStatusService.updateReindexUploadFailed(event.getEntityType());
-      throw new ReindexException(folioIndexOperationResponse.getErrorMessage());
+      throw handleReindexUploadFailure(event, folioIndexOperationResponse.getErrorMessage());
     }
     uploadRangeService.updateStatus(event, ReindexRangeStatus.SUCCESS, null);
 
@@ -75,5 +70,26 @@ public class ReindexOrchestrationService {
     }
 
     return true;
+  }
+
+  private FolioIndexOperationResponse fetchRecordsAndIndexForUploadRange(ReindexRangeIndexEvent event) {
+    try {
+      var resourceEvents = uploadRangeService.fetchRecordRange(event);
+      var documents = documentConverter.convert(resourceEvents).values().stream().flatMap(Collection::stream).toList();
+      return elasticRepository.indexResources(documents);
+    } catch (Exception ex) {
+      var errorMessage = String.format(
+        "fetchRecordAndIndexForUploadRange:: Failed to index records for [eventId: %s, error: %s]",
+        event.getId(), ex.getMessage());
+      throw handleReindexUploadFailure(event, errorMessage);
+    }
+  }
+
+  private ReindexException handleReindexUploadFailure(ReindexRangeIndexEvent event, String errorMessage) {
+    log.warn("handleReindexUploadFailure:: ReindexRangeIndexEvent indexing error [id: {}, error: {}]",
+      event.getId(), errorMessage);
+    uploadRangeService.updateStatus(event, ReindexRangeStatus.FAIL, errorMessage);
+    reindexStatusService.updateReindexUploadFailed(event.getEntityType());
+    return new ReindexException(errorMessage);
   }
 }

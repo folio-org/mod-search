@@ -77,12 +77,14 @@
 * Refactor system user handling and update dependencies in ModuleDescriptor ([MSEARCH-1111](https://folio-org.atlassian.net/browse/MSEARCH-1111))
 * Refactor code to comply with Checkstyle method length limit (max 25 lines) ([MSEARCH-1110](https://folio-org.atlassian.net/browse/MSEARCH-1110))
 * Improve Docker Compose setup for local development ([MSEARCH-1090](https://folio-org.atlassian.net/browse/MSEARCH-1090))
+* Change spring-kafka-test scope from compile to test ([MSEARCH-1148](https://folio-org.atlassian.net/browse/MSEARCH-1148))
 * Fix race condition in shouldIndexInstanceCallNumber\_createNewDocument\_onItemCreate ([MSEARCH-1149](https://folio-org.atlassian.net/browse/MSEARCH-1149))
 
 ### Dependencies
 * Bump `LIB_NAME` from `OLD_VERSION` to `NEW_VERSION`
 * Add `LIB_NAME VERSION`
 * Remove `LIB_NAME`
+* Change scope of `spring-kafka-test` from `compile` to `test`
 
 ---
 

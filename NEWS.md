@@ -45,7 +45,8 @@
 
 ### Bug fixes
 * **General**
-  * Enhance backslash handling with escaped double quotes in CQL queries ([MSEARCH-1103](https://folio-org.atlassian.net/browse/MSEARCH-1103))  
+  * Enhance backslash handling with escaped double quotes in CQL queries ([MSEARCH-1103](https://folio-org.atlassian.net/browse/MSEARCH-1103))
+  * Ignore shadow locations and location units while indexing domain events ([MSEARCH-1154](https://folio-org.atlassian.net/browse/MSEARCH-1154))
 * **Authority Search**
   * Make searching by all heading fields handled with separate/generated search field  ([MSEARCH-1020](https://folio-org.atlassian.net/browse/MSEARCH-1020))
 * **Browse**

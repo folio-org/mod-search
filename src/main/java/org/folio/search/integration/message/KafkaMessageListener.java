@@ -17,6 +17,7 @@ import static org.folio.search.utils.SearchUtils.SOURCE_CONSORTIUM_PREFIX;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -28,6 +29,7 @@ import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.ResourceService;
 import org.folio.search.service.config.ConfigSynchronizationService;
 import org.folio.search.utils.KafkaConstants;
+import org.folio.search.utils.SearchConverterUtils;
 import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -129,6 +131,7 @@ public class KafkaMessageListener {
     var batch = consumerRecords.stream()
       .map(ConsumerRecord::value)
       .map(location -> location.id(getResourceEventId(location) + "|" + location.getTenant()))
+      .filter(Predicate.not(SearchConverterUtils::isShadowLocationOrUnit))
       .toList();
 
     indexResources(batch, resourceService::indexResources);

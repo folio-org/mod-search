@@ -2,6 +2,7 @@ package org.folio.indexing;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
+import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
 import static org.awaitility.Durations.ONE_MINUTE;
 import static org.awaitility.Durations.ONE_SECOND;
 import static org.folio.search.domain.dto.ResourceEventType.CREATE;
@@ -13,16 +14,22 @@ import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.support.TestConstants.inventoryCampusTopic;
+import static org.folio.support.TestConstants.inventoryLibraryTopic;
 import static org.folio.support.utils.JsonTestUtils.toMap;
 import static org.folio.support.utils.TestUtils.kafkaResourceEvent;
 import static org.folio.support.utils.TestUtils.randomId;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.reset;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.integration.message.KafkaMessageListener;
 import org.folio.search.model.dto.locationunit.CampusDto;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.BaseConsortiumIntegrationTest;
@@ -33,10 +40,13 @@ import org.junit.jupiter.api.Test;
 import org.opensearch.action.search.SearchRequest;
 import org.opensearch.client.RequestOptions;
 import org.opensearch.index.query.QueryBuilders;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 @Log4j2
 @IntegrationTest
 class IndexingCampusesConsortiumIT extends BaseConsortiumIntegrationTest {
+
+  @MockitoSpyBean private KafkaMessageListener kafkaMessageListener;
 
   @BeforeAll
   static void prepare() {
@@ -53,6 +63,7 @@ class IndexingCampusesConsortiumIT extends BaseConsortiumIntegrationTest {
   @AfterEach
   void tearDown() throws IOException {
     cleanUpIndex(CAMPUS, CENTRAL_TENANT_ID);
+    reset(kafkaMessageListener);
   }
 
   @Test
@@ -109,6 +120,27 @@ class IndexingCampusesConsortiumIT extends BaseConsortiumIntegrationTest {
     kafkaTemplate.send(inventoryCampusTopic(MEMBER_TENANT_ID), deleteAllMemberEvent);
 
     awaitAssertCampusCount(1);
+  }
+
+  @Test
+  void shouldIgnoreShadowInstitution() {
+    var libraryMap = toMap(campus());
+    libraryMap.put("isShadow", true);
+    var visited = new AtomicBoolean(false);
+
+    doAnswer(inv -> {
+      visited.set(true);
+      return inv.callRealMethod();
+    }).when(kafkaMessageListener).handleLocationEvents(anyList());
+
+    var libraryEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, libraryMap, null);
+    kafkaTemplate.send(inventoryLibraryTopic(MEMBER_TENANT_ID), libraryEvent);
+
+    await().atMost(ONE_MINUTE)
+      .pollInterval(ONE_HUNDRED_MILLISECONDS)
+      .untilAsserted(() -> assertThat(visited.get()).isTrue());
+
+    awaitAssertCampusCount(0);
   }
 
   public static void awaitAssertCampusCount(int expected) {

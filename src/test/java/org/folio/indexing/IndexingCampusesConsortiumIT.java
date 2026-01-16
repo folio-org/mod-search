@@ -14,7 +14,6 @@ import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.support.TestConstants.inventoryCampusTopic;
-import static org.folio.support.TestConstants.inventoryLibraryTopic;
 import static org.folio.support.utils.JsonTestUtils.toMap;
 import static org.folio.support.utils.TestUtils.kafkaResourceEvent;
 import static org.folio.support.utils.TestUtils.randomId;
@@ -134,7 +133,7 @@ class IndexingCampusesConsortiumIT extends BaseConsortiumIntegrationTest {
     }).when(kafkaMessageListener).handleLocationEvents(anyList());
 
     var libraryEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, libraryMap, null);
-    kafkaTemplate.send(inventoryLibraryTopic(MEMBER_TENANT_ID), libraryEvent);
+    kafkaTemplate.send(inventoryCampusTopic(MEMBER_TENANT_ID), libraryEvent);
 
     await().atMost(ONE_MINUTE)
       .pollInterval(ONE_HUNDRED_MILLISECONDS)

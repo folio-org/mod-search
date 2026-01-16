@@ -3,6 +3,7 @@ package org.folio.search.utils;
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.model.types.ResourceType.INSTANCE;
+import static org.folio.search.model.types.ResourceType.LOCATION;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
 import static org.folio.search.utils.TestConstants.RESOURCE_ID;
 import static org.folio.search.utils.TestUtils.mapOf;
@@ -13,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -84,6 +86,15 @@ class SearchConverterUtilsTest {
     assertThat(actual).isEqualTo(RESOURCE_ID);
   }
 
+  @ParameterizedTest(name = "[{index}] {0}")
+  @MethodSource("isShadowLocationOrUnitProvider")
+  @DisplayName("isShadowLocationOrUnit_parameterized")
+  void isShadowLocationOrUnit_parameterized(@SuppressWarnings("unused") String name,
+    ResourceEvent resourceEvent, boolean expected) {
+    var actual = SearchConverterUtils.isShadowLocationOrUnit(resourceEvent);
+    assertThat(actual).isEqualTo(expected);
+  }
+
   private static Stream<Arguments> getValueByPathProvider() {
     return Stream.of(
       arguments("$.languages", emptyMap(), null),
@@ -112,6 +123,15 @@ class SearchConverterUtilsTest {
         mapOf("holdings", List.of(mapOf("key", "value"), mapOf("key", "value"))),
         mapOf("holdings",
           List.of(mapOf("key", "value", "tenantId", tenantId), mapOf("key", "value", "tenantId", tenantId))))
+    );
+  }
+
+  public static Stream<Arguments> isShadowLocationOrUnitProvider() {
+    return Stream.of(
+      arguments("isShadow=true", resourceEvent(LOCATION, mapOf("isShadow", true)), true),
+      arguments("isShadow=object", resourceEvent(LOCATION, mapOf("isShadow", new Object())), false),
+      arguments("isShadow=false", resourceEvent(LOCATION, mapOf("isShadow", false)), false),
+      arguments("isShadow=null", resourceEvent(LOCATION, mapOf("isShadow", null)), false)
     );
   }
 }

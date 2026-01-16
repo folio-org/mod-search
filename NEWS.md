@@ -1,3 +1,9 @@
+## v5.0.9 2026-01-16
+### Bug fixes
+* Ignore shadow locations and location units while indexing domain events ([MSEARCH-1154](https://folio-org.atlassian.net/browse/MSEARCH-1154))
+
+---
+
 ## v5.0.8 2025-12-17
 ### Bug fixes
 * Fix soft-deleted items being indexed into elasticsearch ([MSEARCH-1119](https://folio-org.atlassian.net/browse/MSEARCH-1119))

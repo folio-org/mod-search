@@ -1,3 +1,12 @@
+## v5.0.10 2026-01-19
+### Features
+* Omit sub-resource if main value is blank ([MSEARCH-1084](https://folio-org.atlassian.net/browse/MSEARCH-1084))
+
+### Bug fixes
+* Add error handling on upload range processing ([MSEARCH-1151](https://folio-org.atlassian.net/browse/MSEARCH-1151))
+
+---
+
 ## v5.0.9 2026-01-16
 ### Bug fixes
 * Ignore shadow locations and location units while indexing domain events ([MSEARCH-1154](https://folio-org.atlassian.net/browse/MSEARCH-1154))

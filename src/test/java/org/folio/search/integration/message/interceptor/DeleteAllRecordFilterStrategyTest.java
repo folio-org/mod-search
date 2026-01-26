@@ -1,5 +1,6 @@
 package org.folio.search.integration.message.interceptor;
 
+import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.never;
@@ -35,7 +36,7 @@ class DeleteAllRecordFilterStrategyTest {
     resourceEvent = new ResourceEvent();
     resourceEvent.setType(ResourceEventType.DELETE_ALL);
     resourceEvent.setResourceName(resourceType.getName());
-    resourceEvent.setTenant("testTenant");
+    resourceEvent.setTenant(TENANT_ID);
 
     consumerRecord = new ConsumerRecord<>("topic", 1, 1, "testKey", resourceEvent);
   }

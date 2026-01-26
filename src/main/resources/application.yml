@@ -82,6 +82,7 @@ folio:
       instance-children-index-enabled: ${INSTANCE_CHILDREN_INDEX_ENABLED:true}
       instance-children-index-delay-ms: ${INSTANCE_CHILDREN_INDEX_DELAY_MS:60000}
       sub-resource-batch-size: ${SUB_RESOURCE_BATCH_SIZE:100}
+      stale-lock-threshold-ms: ${STALE_LOCK_THRESHOLD_MS:600000}
   reindex:
     location-batch-size: ${REINDEX_LOCATION_BATCH_SIZE:1000}
     upload-range-size: ${REINDEX_UPLOAD_RANGE_SIZE:1000}

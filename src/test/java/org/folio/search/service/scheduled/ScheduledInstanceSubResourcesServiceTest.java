@@ -1,14 +1,17 @@
 package org.folio.search.service.scheduled;
 
+import static org.folio.search.utils.TestConstants.TENANT_ID;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.anyList;
+import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.sql.Timestamp;
@@ -76,65 +79,62 @@ class ScheduledInstanceSubResourcesServiceTest {
   @Test
   void persistChildren_ShouldProcessSubResources() {
     // Arrange
-    var tenantId = "testTenant";
     doAnswer(invocation -> invocation.<Callable<?>>getArgument(1).call())
       .when(executionService).executeSystemUserScoped(anyString(), any());
     when(subResourcesLockRepository.lockSubResource(any(), any())).thenReturn(Optional.of(timestamp));
-    when(tenantRepository.fetchDataTenantIds()).thenReturn(List.of(tenantId));
-    mockSubResourceResult(tenantId, timestamp);
+    when(tenantRepository.fetchDataTenantIds()).thenReturn(List.of(TENANT_ID));
+    mockSubResourceResult(TENANT_ID, timestamp);
 
     // Act
     service.persistChildren();
 
     // Assert
-    verify(instanceRepository).fetchByTimestamp(tenantId, timestamp);
-    verify(itemRepository).fetchByTimestamp(tenantId, timestamp);
-    verify(subjectRepository).fetchByTimestamp(tenantId, timestamp, 3);
+    verify(instanceRepository).fetchByTimestamp(TENANT_ID, timestamp, 3);
+    verify(itemRepository).fetchByTimestamp(TENANT_ID, timestamp, 3);
+    verify(subjectRepository).fetchByTimestamp(TENANT_ID, timestamp, 3);
     verify(instanceChildrenResourceService, times(2)).persistChildren(anyString(), any(), anyList());
     verify(resourceService).indexResources(anyList());
-    verify(itemRepository).deleteEntitiesForTenant(List.of("4"), tenantId, true);
+    verify(itemRepository).deleteEntitiesForTenant(List.of("4"), TENANT_ID, true);
     verify(instanceRepository).deleteEntities(List.of("5"), true);
-    verify(subResourcesLockRepository).unlockSubResource(eq(ReindexEntityType.SUBJECT), any(), eq(tenantId));
+    verify(subResourcesLockRepository).unlockSubResource(eq(ReindexEntityType.SUBJECT), any(), eq(TENANT_ID));
   }
 
   @Test
   void persistChildren_ShouldProcessSubResourcesSizeEqualsBatchSize() {
     // Arrange
-    var tenantId = "testTenant";
     doAnswer(invocation -> invocation.<Callable<?>>getArgument(1).call())
       .when(executionService).executeSystemUserScoped(anyString(), any());
     when(subResourcesLockRepository.lockSubResource(any(), any())).thenReturn(Optional.of(timestamp));
-    when(tenantRepository.fetchDataTenantIds()).thenReturn(List.of(tenantId));
-    when(subjectRepository.fetchByTimestamp(tenantId, timestamp, 3))
-      .thenReturn(new SubResourceResult(List.of(Map.of("id", "1", "tenantId", tenantId),
-        Map.of("id", "2", "tenantId", tenantId),
-        Map.of("id", "3", "tenantId", tenantId)), timestamp));
-    when(instanceRepository.fetchByTimestamp(tenantId, timestamp))
-      .thenReturn(new SubResourceResult(List.of(Map.of("id", "2", "tenantId", tenantId, "isDeleted", true)), null));
-    when(itemRepository.fetchByTimestamp(tenantId, timestamp))
-      .thenReturn(new SubResourceResult(List.of(Map.of("id", "3", "tenantId", tenantId)), null));
+    when(tenantRepository.fetchDataTenantIds()).thenReturn(List.of(TENANT_ID));
+    when(subjectRepository.fetchByTimestamp(TENANT_ID, timestamp, 3))
+      .thenReturn(new SubResourceResult(List.of(Map.of("id", "1", "tenantId", TENANT_ID),
+        Map.of("id", "2", "tenantId", TENANT_ID),
+        Map.of("id", "3", "tenantId", TENANT_ID)), timestamp));
+    when(instanceRepository.fetchByTimestamp(TENANT_ID, timestamp, 3))
+      .thenReturn(new SubResourceResult(List.of(Map.of("id", "2", "tenantId", TENANT_ID, "isDeleted", true)), null));
+    when(itemRepository.fetchByTimestamp(TENANT_ID, timestamp, 3))
+      .thenReturn(new SubResourceResult(List.of(Map.of("id", "3", "tenantId", TENANT_ID)), null));
 
     // Act
     service.persistChildren();
 
     // Assert
-    verify(instanceRepository).fetchByTimestamp(tenantId, timestamp);
-    verify(subjectRepository).fetchByTimestamp(tenantId, timestamp, 3);
+    verify(instanceRepository).fetchByTimestamp(TENANT_ID, timestamp, 3);
+    verify(subjectRepository).fetchByTimestamp(TENANT_ID, timestamp, 3);
     verify(resourceService).indexResources(anyList());
-    verify(subResourcesLockRepository).unlockSubResource(eq(ReindexEntityType.SUBJECT), any(), eq(tenantId));
+    verify(subResourcesLockRepository).unlockSubResource(eq(ReindexEntityType.SUBJECT), any(), eq(TENANT_ID));
   }
 
   @Test
   void persistChildren_ShouldSkipProcessingWhenNoTimestamp() {
     // Arrange
-    var tenantId = "testTenant";
-    when(tenantRepository.fetchDataTenantIds()).thenReturn(List.of(tenantId));
+    when(tenantRepository.fetchDataTenantIds()).thenReturn(List.of(TENANT_ID));
 
     // Act
     service.persistChildren();
 
     // Assert
-    verify(subjectRepository, never()).fetchByTimestamp(anyString(), any());
+    verify(subjectRepository, never()).fetchByTimestamp(anyString(), any(), anyInt());
     verify(resourceService, never()).indexResources(anyList());
     verify(subResourcesLockRepository, never()).unlockSubResource(any(), any(), any());
   }
@@ -168,18 +168,58 @@ class ScheduledInstanceSubResourcesServiceTest {
     service.persistChildren();
 
     // Assert
-    verify(subjectRepository, never()).fetchByTimestamp(anyString(), any());
+    verify(subjectRepository, never()).fetchByTimestamp(anyString(), any(), anyInt());
     verify(resourceService, never()).indexResources(anyList());
     verify(subResourcesLockRepository, never()).unlockSubResource(any(), any(), any());
+  }
+
+  @Test
+  void persistChildren_ShouldReleaseStaleLockWhenLockAcquisitionFails() {
+    // Arrange
+    doAnswer(invocation -> invocation.<Callable<?>>getArgument(1).call())
+      .when(executionService).executeSystemUserScoped(anyString(), any());
+    when(tenantRepository.fetchDataTenantIds()).thenReturn(List.of(TENANT_ID));
+    when(subResourcesLockRepository.lockSubResource(any(), eq(TENANT_ID))).thenReturn(Optional.empty());
+    when(subResourcesLockRepository.checkAndReleaseStaleLock(any(), eq(TENANT_ID), anyLong())).thenReturn(true);
+
+    // Act
+    service.persistChildren();
+
+    // Assert
+    verify(subResourcesLockRepository, times(3)).lockSubResource(any(), eq(TENANT_ID));
+    verify(subResourcesLockRepository, times(3)).checkAndReleaseStaleLock(any(), eq(TENANT_ID), anyLong());
+    verify(subResourcesLockRepository, never()).unlockSubResource(any(), any(), any());
+    verify(subjectRepository, never()).fetchByTimestamp(anyString(), any(), anyInt());
+    verifyNoInteractions(instanceRepository, itemRepository, resourceService);
+  }
+
+  @Test
+  void persistChildren_ShouldNotProcessWhenLockFailsAndNoStaleLock() {
+    // Arrange
+    doAnswer(invocation -> invocation.<Callable<?>>getArgument(1).call())
+      .when(executionService).executeSystemUserScoped(anyString(), any());
+    when(tenantRepository.fetchDataTenantIds()).thenReturn(List.of(TENANT_ID));
+    when(subResourcesLockRepository.lockSubResource(any(), eq(TENANT_ID))).thenReturn(Optional.empty());
+    when(subResourcesLockRepository.checkAndReleaseStaleLock(any(), eq(TENANT_ID), anyLong())).thenReturn(false);
+
+    // Act
+    service.persistChildren();
+
+    // Assert
+    verify(subResourcesLockRepository, times(3)).lockSubResource(any(), eq(TENANT_ID));
+    verify(subResourcesLockRepository, times(3)).checkAndReleaseStaleLock(any(), eq(TENANT_ID), anyLong());
+    verify(subResourcesLockRepository, never()).unlockSubResource(any(), any(), any());
+    verify(subjectRepository, never()).fetchByTimestamp(anyString(), any(), anyInt());
+    verifyNoInteractions(instanceRepository, itemRepository, resourceService);
   }
 
   private void mockSubResourceResult(String tenantId, Timestamp timestamp) {
     when(subjectRepository.fetchByTimestamp(tenantId, timestamp, 3))
       .thenReturn(new SubResourceResult(List.of(Map.of("id", "1", "tenantId", tenantId)), null));
-    when(instanceRepository.fetchByTimestamp(tenantId, timestamp))
+    when(instanceRepository.fetchByTimestamp(tenantId, timestamp, 3))
       .thenReturn(new SubResourceResult(List.of(Map.of("id", "2", "tenantId", tenantId),
         Map.of("id", "5", "tenantId", tenantId, "isDeleted", true)), null));
-    when(itemRepository.fetchByTimestamp(tenantId, timestamp))
+    when(itemRepository.fetchByTimestamp(tenantId, timestamp, 3))
       .thenReturn(new SubResourceResult(List.of(Map.of("id", "3", "tenantId", tenantId),
         Map.of("id", "4", "tenantId", tenantId, "isDeleted", true)), null));
   }

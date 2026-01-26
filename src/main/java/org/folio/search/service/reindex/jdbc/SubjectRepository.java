@@ -168,11 +168,6 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
   }
 
   @Override
-  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp) {
-    return fetchByTimestamp(SELECT_BY_UPDATED_QUERY, rowToMapMapper2(), timestamp, tenant);
-  }
-
-  @Override
   public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp, int limit) {
     return fetchByTimestamp(SELECT_BY_UPDATED_QUERY, rowToMapMapper2(), timestamp, limit, tenant);
   }

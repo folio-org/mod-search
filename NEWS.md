@@ -1,3 +1,9 @@
+## v5.0.11 2026-01-26
+### Bug fixes
+* Process item/instance in batches, add stale sub-resource lock release logic ([MSEARCH-1097](https://folio-org.atlassian.net/browse/MSEARCH-1097))
+
+---
+
 ## v5.0.10 2026-01-19
 ### Features
 * Omit sub-resource if main value is blank ([MSEARCH-1084](https://folio-org.atlassian.net/browse/MSEARCH-1084))

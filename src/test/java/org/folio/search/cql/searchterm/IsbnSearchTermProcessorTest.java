@@ -36,4 +36,20 @@ class IsbnSearchTermProcessorTest {
     var actual = isbnSearchTermProcessor.getSearchTerm(searchTerm);
     assertThat(actual).isEqualTo("1861972717 9781861972712 (paper)");
   }
+
+  @Test
+  void getSearchTerm_withTrailingWildcard() {
+    var searchTerm = "9781609383657*";
+    when(isbnProcessor.normalizeIsbn("9781609383657")).thenReturn(List.of("9781609383657"));
+    var actual = isbnSearchTermProcessor.getSearchTerm(searchTerm);
+    assertThat(actual).isEqualTo("9781609383657*");
+  }
+
+  @Test
+  void getSearchTerm_withTrailingWildcard_isbn10() {
+    var searchTerm = "047144250X*";
+    when(isbnProcessor.normalizeIsbn("047144250X")).thenReturn(List.of("047144250x", "9780471442509"));
+    var actual = isbnSearchTermProcessor.getSearchTerm(searchTerm);
+    assertThat(actual).isEqualTo("047144250x 9780471442509*");
+  }
 }

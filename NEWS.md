@@ -67,6 +67,7 @@
   * Fix soft-deleted items being indexed into elasticsearch ([MSEARCH-1119](https://folio-org.atlassian.net/browse/MSEARCH-1119))
   * Add error handling on upload range processing ([MSEARCH-1151](https://folio-org.atlassian.net/browse/MSEARCH-1151))
   * Ignore shadow locations and location units while indexing domain events ([MSEARCH-1154](https://folio-org.atlassian.net/browse/MSEARCH-1154))
+  * Change instance index folio_word_delimiter_graph to catenate_all, honor '*' in IsbnSearchTermProcessor ([MSEARCH-1011](https://folio-org.atlassian.net/browse/MSEARCH-1011))
 
 ### Tech Dept
 * Migrate to Opensearch 3.0.0 ([MSEARCH-1033](https://folio-org.atlassian.net/browse/MSEARCH-1033))

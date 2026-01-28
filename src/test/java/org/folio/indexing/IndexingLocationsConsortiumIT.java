@@ -11,7 +11,6 @@ import static org.folio.search.domain.dto.ResourceEventType.DELETE_ALL;
 import static org.folio.search.model.types.ResourceType.LOCATION;
 import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
-import static org.folio.support.TestConstants.inventoryLibraryTopic;
 import static org.folio.support.TestConstants.inventoryLocationTopic;
 import static org.folio.support.utils.JsonTestUtils.toMap;
 import static org.folio.support.utils.TestUtils.kafkaResourceEvent;
@@ -107,7 +106,7 @@ class IndexingLocationsConsortiumIT extends BaseConsortiumIntegrationTest {
     }).when(kafkaMessageListener).handleLocationEvents(anyList());
 
     var libraryEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, libraryMap, null);
-    kafkaTemplate.send(inventoryLibraryTopic(MEMBER_TENANT_ID), libraryEvent);
+    kafkaTemplate.send(inventoryLocationTopic(MEMBER_TENANT_ID), libraryEvent);
 
     await().atMost(ONE_MINUTE)
       .pollInterval(ONE_HUNDRED_MILLISECONDS)

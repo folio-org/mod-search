@@ -56,7 +56,9 @@ public class InstanceFetchService {
       result.add(createResourceEvent(id, instanceMap, tenantId, ResourceEventType.CREATE));
       notFoundIds.remove(id);
     }
-    
+
+    log.info("Fetched {} instances", result.size());
+    log.info("Instances not found: {}", notFoundIds);
     notFoundIds.forEach(id -> result.add(createResourceEvent(id, null, tenantId, ResourceEventType.DELETE)));
     
     return result;

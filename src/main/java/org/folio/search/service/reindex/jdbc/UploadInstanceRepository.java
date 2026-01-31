@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.reindex.RangeGenerator;
@@ -17,6 +18,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+@Log4j2
 @Repository
 public class UploadInstanceRepository extends UploadRangeRepository {
 
@@ -75,6 +77,7 @@ public class UploadInstanceRepository extends UploadRangeRepository {
   }
 
   public List<Map<String, Object>> fetchByIds(Collection<String> ids) {
+    log.info("Fetching instances by ids: {} on tenant: {}", ids, context.getTenantId());
     if (ids == null || ids.isEmpty()) {
       return Collections.emptyList();
     }
@@ -87,9 +90,7 @@ public class UploadInstanceRepository extends UploadRangeRepository {
     var sql = SELECT_SQL_TEMPLATE.formatted(getFullTableName(context, entityTable()),
       getFullTableName(context, "holding"),
       getFullTableName(context, "item"),
-      holdingsWhereClause,
-      itemWhereClause,
-      instanceWhereClause);
+      holdingsWhereClause, itemWhereClause, instanceWhereClause);
     return jdbcTemplate.query(sql, ps -> {
       int i = 1;
       for (int paramSet = 0; paramSet < 3; paramSet++) {
@@ -98,13 +99,6 @@ public class UploadInstanceRepository extends UploadRangeRepository {
         }
       }
     }, rowToMapMapper());
-  }
-
-  @Override
-  protected List<RangeGenerator.Range> createRanges() {
-    var uploadRangeSize = reindexConfig.getUploadRangeSize();
-    var rangesCount = (int) Math.ceil((double) countEntities() / uploadRangeSize);
-    return RangeGenerator.createUuidRanges(rangesCount);
   }
 
   @Override
@@ -129,5 +123,12 @@ public class UploadInstanceRepository extends UploadRangeRepository {
   @Override
   protected RowMapper<Map<String, Object>> rowToMapMapper() {
     return (rs, rowNum) -> jsonConverter.fromJsonToMap(rs.getString("json"));
+  }
+
+  @Override
+  protected List<RangeGenerator.Range> createRanges() {
+    var uploadRangeSize = reindexConfig.getUploadRangeSize();
+    var rangesCount = (int) Math.ceil((double) countEntities() / uploadRangeSize);
+    return RangeGenerator.createUuidRanges(rangesCount);
   }
 }

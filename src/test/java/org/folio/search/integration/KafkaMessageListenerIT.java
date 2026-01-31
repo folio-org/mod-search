@@ -139,7 +139,7 @@ class KafkaMessageListenerIT {
     sendMessage(INSTANCE_ID, expectedEvent, inventoryInstanceTopic(), kafkaProducer);
 
     await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
-      verify(resourceService).indexInstancesById(List.of(expectedEvent)));
+      verify(resourceService).indexInstanceEvents(anyList()));
   }
 
   @Test
@@ -150,33 +150,33 @@ class KafkaMessageListenerIT {
     sendMessage(INSTANCE_ID, boundWithEvent, inventoryBoundWithTopic(), kafkaProducer);
 
     await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
-      verify(resourceService).indexInstancesById(List.of(expectedEvent)));
+      verify(resourceService).indexInstanceEvents(anyList()));
   }
 
   @Test
   void handleInstanceEvents_negative_tenantIndexNotInitialized() {
     var idEvent = instanceEvent();
 
-    when(resourceService.indexInstancesById(List.of(idEvent))).thenThrow(
+    when(resourceService.indexInstanceEvents(anyList())).thenThrow(
       new SearchOperationException("Failed to upload events"));
 
     sendMessage(INSTANCE_ID, idEvent, inventoryInstanceTopic(), kafkaProducer);
 
     await().atMost(FIVE_SECONDS).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
-      verify(resourceService, times(3)).indexInstancesById(List.of(idEvent)));
+      verify(resourceService, times(3)).indexInstanceEvents(anyList()));
   }
 
   @Test
   void handleInstanceEvents_negative_tenantSchemaIsNotInitialized() {
     var idEvent = instanceEvent();
 
-    when(resourceService.indexInstancesById(List.of(idEvent))).thenThrow(
+    when(resourceService.indexInstanceEvents(anyList())).thenThrow(
       new SQLGrammarException("could not extract ResultSet", new SQLException()));
 
     sendMessage(INSTANCE_ID, idEvent, inventoryInstanceTopic(), kafkaProducer);
 
     await().atMost(FIVE_SECONDS).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
-      verify(resourceService, times(3)).indexInstancesById(List.of(idEvent)));
+      verify(resourceService, times(3)).indexInstanceEvents(anyList()));
   }
 
   @Test

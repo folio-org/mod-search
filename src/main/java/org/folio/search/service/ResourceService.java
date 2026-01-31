@@ -14,12 +14,10 @@ import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperati
 import static org.folio.search.utils.SearchUtils.getNumberOfRequests;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -35,7 +33,6 @@ import org.folio.search.model.types.IndexActionType;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.repository.PrimaryResourceRepository;
 import org.folio.search.repository.ResourceRepository;
-import org.folio.search.service.consortium.ConsortiumTenantExecutor;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.service.reindex.InstanceFetchService;
@@ -54,7 +51,6 @@ public class ResourceService {
   private final ResourceDescriptionService resourceDescriptionService;
   private final MultiTenantSearchDocumentConverter searchDocumentConverter;
   private final Map<String, ResourceRepository> resourceRepositoryBeans;
-  private final ConsortiumTenantExecutor consortiumTenantExecutor;
 
   /**
    * Saves list of resourceEvents to elasticsearch.
@@ -79,45 +75,24 @@ public class ResourceService {
   }
 
   /**
-   * Index list of resource id event to elasticsearch.
+   * Index list of instance events to elasticsearch.
    *
-   * @param resourceIdEvents list of {@link ResourceEvent} objects.
+   * @param instanceEvents list of {@link IndexInstanceEvent} objects.
    * @return index operation response as {@link FolioIndexOperationResponse} object
    */
-  public FolioIndexOperationResponse indexInstancesById(List<ResourceEvent> resourceIdEvents) {
-    log.debug("indexInstancesById: by [resourceIdEvents.size: {}]", collectionToLogMsg(resourceIdEvents, true));
+  public FolioIndexOperationResponse indexInstanceEvents(List<IndexInstanceEvent> instanceEvents) {
+    log.debug("indexInstanceEvents: by [instanceEvents.size: {}]", collectionToLogMsg(instanceEvents, true));
 
-    if (CollectionUtils.isEmpty(resourceIdEvents)) {
+    if (CollectionUtils.isEmpty(instanceEvents)) {
       return getSuccessIndexOperationResponse();
     }
 
-    var groupedByOperation = resourceIdEvents.stream().collect(groupingBy(ResourceService::getEventIndexType));
-    var indexDocuments = processIndexInstanceEvents(groupedByOperation.get(INDEX));
-    var removeDocuments = processDeleteInstanceEvents(groupedByOperation.get(DELETE));
-
-    var bulkIndexResponse = indexSearchDocuments(mergeMaps(indexDocuments, removeDocuments));
-    log.info("indexInstancesById: indexed to elasticsearch [indexRequests: {}, removeRequests: {}{}]",
-      getNumberOfRequests(indexDocuments), getNumberOfRequests(removeDocuments), getErrorMessage(bulkIndexResponse));
-
-    return bulkIndexResponse;
+    var fetchedEvents = resourceFetchService.fetchInstancesByIds(instanceEvents);
+    return indexFetchedInstances(fetchedEvents);
   }
 
-  /**
-   * Index list of resource id event to elasticsearch.
-   *
-   * @param resourceIdEvents list of {@link ResourceEvent} objects.
-   * @return index operation response as {@link FolioIndexOperationResponse} object
-   */
-  public FolioIndexOperationResponse indexInstancesByIdNew(List<IndexInstanceEvent> resourceIdEvents) {
-    log.debug("indexInstancesById: by [resourceIdEvents.size: {}]", collectionToLogMsg(resourceIdEvents, true));
-
-    if (CollectionUtils.isEmpty(resourceIdEvents)) {
-      return getSuccessIndexOperationResponse();
-    }
-
-    var groupedByOperation = resourceFetchService.fetchInstancesByIdsNew(resourceIdEvents).stream()
-      .collect(groupingBy(ResourceService::getEventIndexType));
-
+  private FolioIndexOperationResponse indexFetchedInstances(List<ResourceEvent> fetchedEvents) {
+    var groupedByOperation = fetchedEvents.stream().collect(groupingBy(ResourceService::getEventIndexType));
     var indexDocuments = searchDocumentConverter.convert(groupedByOperation.get(INDEX));
     var removeDocuments = searchDocumentConverter.convert(groupedByOperation.get(DELETE));
 
@@ -126,21 +101,6 @@ public class ResourceService {
       getNumberOfRequests(indexDocuments), getNumberOfRequests(removeDocuments), getErrorMessage(bulkIndexResponse));
 
     return bulkIndexResponse;
-  }
-
-  private Map<String, List<SearchDocumentBody>> processIndexInstanceEvents(List<ResourceEvent> resourceEvents) {
-    var indexEvents = extractEventsForDataMove(resourceEvents);
-    var fetchedInstances = Optional.ofNullable(consortiumTenantExecutor.execute(
-        () -> resourceFetchService.fetchInstancesByIds(indexEvents)))
-      .orElse(Collections.emptyList()).stream()
-      .filter(Objects::nonNull)
-      .toList();
-
-    return searchDocumentConverter.convert(fetchedInstances);
-  }
-
-  private Map<String, List<SearchDocumentBody>> processDeleteInstanceEvents(List<ResourceEvent> deleteEvents) {
-    return searchDocumentConverter.convert(deleteEvents);
   }
 
   private FolioIndexOperationResponse indexSearchDocuments(Map<String, List<SearchDocumentBody>> eventsByResource) {
@@ -171,7 +131,7 @@ public class ResourceService {
    */
   private List<ResourceEvent> extractEventsForDataMove(List<ResourceEvent> resourceEvents) {
     if (resourceEvents == null) {
-      return Collections.emptyList();
+      return List.of();
     }
 
     return resourceEvents.stream()

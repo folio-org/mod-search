@@ -16,10 +16,12 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.model.event.IndexInstanceEvent;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.reindex.InstanceFetchService;
 import org.folio.search.service.reindex.jdbc.UploadInstanceRepository;
@@ -52,63 +54,72 @@ class InstanceFetchServiceTest {
 
   @Test
   void fetchInstancesById_positive() {
-    var events = resourceEvents();
-    var instanceId1 = events.get(0).getId();
-    var instanceId2 = events.get(1).getId();
+    var instanceId1 = randomId();
+    var instanceId2 = randomId();
+    var events = List.of(
+      new IndexInstanceEvent(TENANT_ID, instanceId1),
+      new IndexInstanceEvent(TENANT_ID, instanceId2)
+    );
 
     var instance1 = instanceMap(new Instance().id(instanceId1).title("inst1").isBoundWith(null));
     var instance2 = instanceMap(new Instance().id(instanceId2).title("inst2").isBoundWith(true)
       .holdings(List.of(new Holding().id("holdingId"))).items(List.of(new Item().id("itemId"))));
 
-    when(instanceRepository.fetchByIds(List.of(instanceId1, instanceId2)))
+    when(instanceRepository.fetchByIds(Set.of(instanceId1, instanceId2)))
       .thenReturn(List.of(instance1, instance2));
 
     var actual = resourceFetchService.fetchInstancesByIds(events);
 
-    assertThat(cleanUp(actual)).isEqualTo(List.of(
-      resourceEvent(instanceId1, ResourceType.INSTANCE,
-        mapOf("id", instanceId1, "title", "inst1")),
-      resourceEvent(instanceId2, ResourceType.INSTANCE, UPDATE,
+    assertThat(cleanUp(actual)).containsExactlyInAnyOrder(
+      resourceEvent(instanceId1, ResourceType.INSTANCE, CREATE,
+        mapOf("id", instanceId1, "title", "inst1"), null),
+      resourceEvent(instanceId2, ResourceType.INSTANCE, CREATE,
         mapOf("id", instanceId2, "title", "inst2",
           "isBoundWith", true,
           "items", List.of(mapOf("id", "itemId")),
           "holdings", List.of(mapOf("id", "holdingId"))),
-        mapOf("id", instanceId2, "title", "old"))
-    ));
+        null)
+    );
     verify(instanceRepository, times(1)).fetchByIds(any());
   }
 
   @Test
   void fetchInstancesById_negative_oneOfResourcesByIdIsNotFound() {
-    var events = resourceEvents();
-    var instanceId1 = events.get(0).getId();
-    var instanceId2 = events.get(1).getId();
+    var instanceId1 = randomId();
+    var instanceId2 = randomId();
+    var events = List.of(
+      new IndexInstanceEvent(TENANT_ID, instanceId1),
+      new IndexInstanceEvent(TENANT_ID, instanceId2)
+    );
     var instanceMap = instanceMap(new Instance().id(instanceId1).title("inst1").isBoundWith(null));
 
-    when(instanceRepository.fetchByIds(List.of(instanceId1, instanceId2)))
+    when(instanceRepository.fetchByIds(Set.of(instanceId1, instanceId2)))
       .thenReturn(List.of(instanceMap));
 
     var actual = resourceFetchService.fetchInstancesByIds(events);
-    assertThat(cleanUp(actual)).isEqualTo(List.of(resourceEvent(instanceId1, ResourceType.INSTANCE,
-      mapOf("id", instanceId1, "title", "inst1"))));
+    assertThat(cleanUp(actual)).containsExactlyInAnyOrder(
+      resourceEvent(instanceId1, ResourceType.INSTANCE, CREATE,
+        mapOf("id", instanceId1, "title", "inst1"), null),
+      resourceEvent(instanceId2, ResourceType.INSTANCE, org.folio.search.domain.dto.ResourceEventType.DELETE, null, null)
+    );
   }
 
   @Test
   void fetchInstancesById_negative_resourceReturnedWithInvalidId() {
     var id = randomId();
-    var resourceEvent = resourceEvent(id, ResourceType.INSTANCE, UPDATE,
-      mapOf("id", id, "title", "new"), mapOf("id", id, "title", "old"));
+    var event = new IndexInstanceEvent(TENANT_ID, id);
     var invalidId = randomId();
     var instanceMap = instanceMap(new Instance().id(invalidId).title("inst1").isBoundWith(null));
 
-    when(instanceRepository.fetchByIds(List.of(id)))
+    when(instanceRepository.fetchByIds(Set.of(id)))
       .thenReturn(List.of(instanceMap));
 
-    var actual = resourceFetchService.fetchInstancesByIds(List.of(resourceEvent));
-    assertThat(cleanUp(actual)).isEqualTo(List.of(
-      resourceEvent(invalidId, ResourceType.INSTANCE,
-        mapOf("id", invalidId, "title", "inst1"))
-    ));
+    var actual = resourceFetchService.fetchInstancesByIds(List.of(event));
+    assertThat(cleanUp(actual)).containsExactlyInAnyOrder(
+      resourceEvent(invalidId, ResourceType.INSTANCE, CREATE,
+        mapOf("id", invalidId, "title", "inst1"), null),
+      resourceEvent(id, ResourceType.INSTANCE, org.folio.search.domain.dto.ResourceEventType.DELETE, null, null)
+    );
   }
 
   @Test

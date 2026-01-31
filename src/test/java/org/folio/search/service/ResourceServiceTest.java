@@ -1,7 +1,6 @@
 package org.folio.search.service;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
 import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.domain.dto.ResourceEventType.CREATE;
@@ -156,7 +155,7 @@ class ResourceServiceTest {
     var expectedResponse = getSuccessIndexOperationResponse();
     var expectedDocuments = List.of(searchDocumentBody());
 
-    var indexEvents = List.of(new IndexInstanceEvent(resourceEvents.get(0).getTenant(), RESOURCE_ID));
+    var indexEvents = List.of(new IndexInstanceEvent(resourceEvents.getFirst().getTenant(), RESOURCE_ID));
     when(resourceFetchService.fetchInstancesByIds(indexEvents)).thenReturn(List.of(resourceEvent));
     when(searchDocumentConverter.convert(List.of(resourceEvent)))
       .thenReturn(mapOf(INSTANCE.getName(), expectedDocuments));
@@ -191,8 +190,6 @@ class ResourceServiceTest {
     var oldData = mapOf("instanceId", RESOURCE_ID_SECOND, "title", "old title");
     var newData = mapOf("instanceId", RESOURCE_ID, "title", "new title");
     var resourceEvent = resourceEvent(RESOURCE_ID, INSTANCE, UPDATE, newData, oldData);
-    var oldEvent = resourceEvent(RESOURCE_ID_SECOND, INSTANCE, UPDATE, oldData, null);
-    var newEvent = resourceEvent(RESOURCE_ID, INSTANCE, UPDATE, newData, null);
     var fetchedEvents = List.of(resourceEvent(RESOURCE_ID_SECOND, INSTANCE, CREATE, oldData, null),
       resourceEvent(RESOURCE_ID, INSTANCE, CREATE, newData, null));
     var expectedResponse = getSuccessIndexOperationResponse();
@@ -215,8 +212,6 @@ class ResourceServiceTest {
 
     var indexEvents = List.of(new IndexInstanceEvent(deleteEvent.getTenant(), RESOURCE_ID));
     when(resourceFetchService.fetchInstancesByIds(indexEvents)).thenReturn(List.of(deleteEvent));
-    // For DELETE events: INDEX group is null, DELETE group has the event
-    when(searchDocumentConverter.convert((List<ResourceEvent>) null)).thenReturn(emptyMap());
     when(searchDocumentConverter.convert(List.of(deleteEvent)))
       .thenReturn(mapOf(INSTANCE.getName(), expectedDocuments));
 
@@ -234,7 +229,7 @@ class ResourceServiceTest {
     var expectedResponse = getErrorIndexOperationResponse("Bulk failed: errors: ['test-error']");
     var expectedDocuments = List.of(searchDocumentBody());
 
-    var indexEvents = List.of(new IndexInstanceEvent(resourceEvents.get(0).getTenant(), RESOURCE_ID));
+    var indexEvents = List.of(new IndexInstanceEvent(resourceEvents.getFirst().getTenant(), RESOURCE_ID));
     when(resourceFetchService.fetchInstancesByIds(indexEvents)).thenReturn(List.of(resourceEvent));
     when(searchDocumentConverter.convert(List.of(resourceEvent)))
       .thenReturn(mapOf(INSTANCE.getName(), expectedDocuments));

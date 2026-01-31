@@ -211,12 +211,14 @@ class ResourceServiceTest {
   @Test
   void indexResourcesById_positive_deleteEvent() {
     var expectedDocuments = List.of(searchDocumentBodyToDelete());
-    var resourceEvents = List.of(resourceEvent(RESOURCE_ID, INSTANCE, DELETE));
+    var deleteEvent = resourceEvent(RESOURCE_ID, INSTANCE, DELETE);
 
-    var indexEvents = List.of(new IndexInstanceEvent(resourceEvents.get(0).getTenant(), RESOURCE_ID));
-    when(resourceFetchService.fetchInstancesByIds(indexEvents)).thenReturn(resourceEvents);
-    when(searchDocumentConverter.convert(emptyList())).thenReturn(emptyMap());
-    when(searchDocumentConverter.convert(resourceEvents)).thenReturn(mapOf(INSTANCE.getName(), expectedDocuments));
+    var indexEvents = List.of(new IndexInstanceEvent(deleteEvent.getTenant(), RESOURCE_ID));
+    when(resourceFetchService.fetchInstancesByIds(indexEvents)).thenReturn(List.of(deleteEvent));
+    // For DELETE events: INDEX group is null, DELETE group has the event
+    when(searchDocumentConverter.convert((List<ResourceEvent>) null)).thenReturn(emptyMap());
+    when(searchDocumentConverter.convert(List.of(deleteEvent)))
+      .thenReturn(mapOf(INSTANCE.getName(), expectedDocuments));
 
     var expectedResponse = getSuccessIndexOperationResponse();
     when(primaryResourceRepository.indexResources(expectedDocuments)).thenReturn(expectedResponse);

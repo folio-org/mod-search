@@ -100,7 +100,8 @@ class InstanceFetchServiceTest {
     assertThat(cleanUp(actual)).containsExactlyInAnyOrder(
       resourceEvent(instanceId1, ResourceType.INSTANCE, CREATE,
         mapOf("id", instanceId1, "title", "inst1"), null),
-      resourceEvent(instanceId2, ResourceType.INSTANCE, org.folio.search.domain.dto.ResourceEventType.DELETE, null, null)
+      resourceEvent(instanceId2, ResourceType.INSTANCE, 
+        org.folio.search.domain.dto.ResourceEventType.DELETE, null, null)
     );
   }
 

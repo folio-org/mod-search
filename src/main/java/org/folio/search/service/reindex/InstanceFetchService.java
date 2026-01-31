@@ -7,14 +7,20 @@ import static org.folio.search.model.types.ResourceType.INSTANCE;
 import static org.folio.search.utils.CollectionUtils.findLast;
 import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
+import org.folio.search.model.event.IndexInstanceEvent;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.reindex.jdbc.UploadInstanceRepository;
 import org.folio.spring.FolioExecutionContext;
 import org.springframework.stereotype.Service;
@@ -39,6 +45,41 @@ public class InstanceFetchService {
     }
 
     return fetchInstances(events);
+  }
+
+  public List<ResourceEvent> fetchInstancesByIdsNew(List<IndexInstanceEvent> events) {
+    if (CollectionUtils.isEmpty(events)) {
+      return emptyList();
+    }
+
+    return fetchInstancesNew(events);
+  }
+
+  private List<ResourceEvent> fetchInstancesNew(List<IndexInstanceEvent> events) {
+    var instanceIds = events.stream().map(IndexInstanceEvent::instanceId).collect(Collectors.toSet());
+    var tenantId = context.getTenantId();
+    List<ResourceEvent> list = new ArrayList<>();
+    Set<String> notFoundIds = new HashSet<>(instanceIds);
+    for (Map<String, Object> instanceMap : instanceRepository.fetchByIds(instanceIds)) {
+      var id = getResourceEventId(instanceMap);
+      ResourceEvent resourceEvent = new ResourceEvent()
+        .id(id)
+        .resourceName(ResourceType.INSTANCE.getName())
+        ._new(instanceMap)
+        .tenant(tenantId)
+        .type(ResourceEventType.CREATE);
+      list.add(resourceEvent);
+      notFoundIds.remove(id);
+    }
+    notFoundIds.forEach(id -> {
+      ResourceEvent resourceEvent = new ResourceEvent()
+        .id(id)
+        .resourceName(ResourceType.INSTANCE.getName())
+        .tenant(tenantId)
+        .type(ResourceEventType.DELETE);
+      list.add(resourceEvent);
+    });
+    return list;
   }
 
   private List<ResourceEvent> fetchInstances(List<ResourceEvent> events) {

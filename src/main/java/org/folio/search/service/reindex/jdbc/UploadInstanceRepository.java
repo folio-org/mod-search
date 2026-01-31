@@ -2,6 +2,7 @@ package org.folio.search.service.reindex.jdbc;
 
 import static org.folio.search.utils.JdbcUtils.getFullTableName;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -73,7 +74,7 @@ public class UploadInstanceRepository extends UploadRangeRepository {
     return ReindexConstants.INSTANCE_TABLE;
   }
 
-  public List<Map<String, Object>> fetchByIds(List<String> ids) {
+  public List<Map<String, Object>> fetchByIds(Collection<String> ids) {
     if (ids == null || ids.isEmpty()) {
       return Collections.emptyList();
     }

@@ -4,6 +4,7 @@ import static org.apache.commons.collections4.MapUtils.getString;
 import static org.apache.commons.lang3.RegExUtils.replaceAll;
 import static org.folio.search.configuration.RetryTemplateConfiguration.KAFKA_RETRY_TEMPLATE_NAME;
 import static org.folio.search.configuration.SearchCacheNames.REFERENCE_DATA_CACHE;
+import static org.folio.search.configuration.kafka.KafkaConfiguration.SearchTopic.INDEX_INSTANCE;
 import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.domain.dto.ResourceEventType.DELETE;
 import static org.folio.search.domain.dto.ResourceEventType.REINDEX;
@@ -13,7 +14,9 @@ import static org.folio.search.utils.SearchConverterUtils.getResourceSource;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
 import static org.folio.search.utils.SearchUtils.INSTANCE_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.SOURCE_CONSORTIUM_PREFIX;
+import static org.folio.spring.tools.kafka.FolioKafkaProperties.TENANT_ID;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -23,16 +26,21 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.logging.log4j.message.FormattedMessage;
 import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.model.event.IndexInstanceEvent;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.ResourceService;
 import org.folio.search.service.config.ConfigSynchronizationService;
+import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.utils.KafkaConstants;
 import org.folio.search.utils.SearchConverterUtils;
+import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 /**
@@ -47,6 +55,8 @@ public class KafkaMessageListener {
   private final FolioMessageBatchProcessor folioMessageBatchProcessor;
   private final SystemUserScopedExecutionService executionService;
   private final ConfigSynchronizationService configSynchronizationService;
+  private final KafkaTemplate<String, IndexInstanceEvent> instanceEventProducer;
+  private final ConsortiumTenantService consortiumTenantService;
 
   /**
    * Handles instance events and indexes them by id.
@@ -61,11 +71,58 @@ public class KafkaMessageListener {
     concurrency = "#{folioKafkaProperties.listener['events'].concurrency}")
   public void handleInstanceEvents(List<ConsumerRecord<String, ResourceEvent>> consumerRecords) {
     log.info("Processing instance related events from kafka events [number of events: {}]", consumerRecords.size());
-    var batch = getInstanceResourceEvents(consumerRecords);
-    var batchByTenant = batch.stream().collect(Collectors.groupingBy(ResourceEvent::getTenant));
+    consumerRecords.stream()
+      .map(event -> {
+        var id =  getInstanceId(event);
+        var eventTenant = event.value().getTenant();
+        var targetTenant = consortiumTenantService.getCentralTenant(eventTenant).orElse(eventTenant);
+        var indexInstanceEvent = new IndexInstanceEvent(targetTenant, id);
+        var headers = event.headers();
+        headers.remove(TENANT_ID);
+        headers.remove(XOkapiHeaders.TENANT);
+        var targetTenantBytes = targetTenant.getBytes(StandardCharsets.UTF_8);
+        headers.add(TENANT_ID, targetTenantBytes);
+        headers.add(XOkapiHeaders.TENANT, targetTenantBytes);
+        var producerRecord = new ProducerRecord<>(INDEX_INSTANCE.fullTopicName(targetTenant), id, indexInstanceEvent);
+        headers.forEach(header -> {
+          var key = header.key();
+          if (key.equals(TENANT_ID) || key.equals(XOkapiHeaders.TENANT)) {
+            producerRecord.headers().add(key, targetTenantBytes);
+          } else {
+            producerRecord.headers().add(key, header.value());
+          }
+        });
+        return producerRecord;
+      })
+      .forEach(instanceEventProducer::send);
+
+//    var batch = getInstanceResourceEvents(consumerRecords);
+//    var batchByTenant = batch.stream().collect(Collectors.groupingBy(ResourceEvent::getTenant));
+//    batchByTenant.forEach((tenant, resourceEvents) -> executionService.executeSystemUserScoped(tenant, () -> {
+//      folioMessageBatchProcessor.consumeBatchWithFallback(resourceEvents, KAFKA_RETRY_TEMPLATE_NAME,
+//        resourceService::indexInstancesById, KafkaMessageListener::logFailedEvent);
+//      return null;
+//    }));
+  }
+
+  /**
+   * Handles instance events and indexes them by id.
+   *
+   * @param consumerRecords - list of consumer records from Apache Kafka to process.
+   */
+  @KafkaListener(
+    id = KafkaConstants.INDEX_INSTANCE_LISTENER_ID,
+    containerFactory = "indexInstanceListenerContainerFactory",
+    topicPattern = "#{folioKafkaProperties.listener['index-instance'].topicPattern}",
+    groupId = "#{folioKafkaProperties.listener['index-instance'].groupId}",
+    concurrency = "#{folioKafkaProperties.listener['index-instance'].concurrency}")
+  public void handleIndexInstanceEvents(List<ConsumerRecord<String, IndexInstanceEvent>> consumerRecords) {
+    log.info("Processing index instance events from kafka [number of events: {}]", consumerRecords.size());
+    var batchByTenant = consumerRecords.stream().map(ConsumerRecord::value)
+      .collect(Collectors.groupingBy(IndexInstanceEvent::tenant));
     batchByTenant.forEach((tenant, resourceEvents) -> executionService.executeSystemUserScoped(tenant, () -> {
       folioMessageBatchProcessor.consumeBatchWithFallback(resourceEvents, KAFKA_RETRY_TEMPLATE_NAME,
-        resourceService::indexInstancesById, KafkaMessageListener::logFailedEvent);
+        resourceService::indexInstancesByIdNew, KafkaMessageListener::logFailedEvent);
       return null;
     }));
   }
@@ -206,6 +263,18 @@ public class KafkaMessageListener {
     log.warn(new FormattedMessage(
       "Failed to index resource event [resource: {}, eventType: {}, tenantId: {}, id: {}]",
       resourceName, eventType, event.getTenant(), event.getId()
+    ), e);
+  }
+
+  private static void logFailedEvent(IndexInstanceEvent event, Exception e) {
+    if (event == null) {
+      log.warn("Failed to index resource event [event: null]", e);
+      return;
+    }
+
+    log.warn(new FormattedMessage(
+      "Failed to index instance event [tenantId: {}, id: {}]",
+       event.tenant(), event.instanceId()
     ), e);
   }
 }

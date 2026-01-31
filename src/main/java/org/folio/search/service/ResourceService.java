@@ -27,6 +27,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
+import org.folio.search.model.event.IndexInstanceEvent;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.ResourceIndexingConfiguration;
@@ -93,6 +94,32 @@ public class ResourceService {
     var groupedByOperation = resourceIdEvents.stream().collect(groupingBy(ResourceService::getEventIndexType));
     var indexDocuments = processIndexInstanceEvents(groupedByOperation.get(INDEX));
     var removeDocuments = processDeleteInstanceEvents(groupedByOperation.get(DELETE));
+
+    var bulkIndexResponse = indexSearchDocuments(mergeMaps(indexDocuments, removeDocuments));
+    log.info("indexInstancesById: indexed to elasticsearch [indexRequests: {}, removeRequests: {}{}]",
+      getNumberOfRequests(indexDocuments), getNumberOfRequests(removeDocuments), getErrorMessage(bulkIndexResponse));
+
+    return bulkIndexResponse;
+  }
+
+  /**
+   * Index list of resource id event to elasticsearch.
+   *
+   * @param resourceIdEvents list of {@link ResourceEvent} objects.
+   * @return index operation response as {@link FolioIndexOperationResponse} object
+   */
+  public FolioIndexOperationResponse indexInstancesByIdNew(List<IndexInstanceEvent> resourceIdEvents) {
+    log.debug("indexInstancesById: by [resourceIdEvents.size: {}]", collectionToLogMsg(resourceIdEvents, true));
+
+    if (CollectionUtils.isEmpty(resourceIdEvents)) {
+      return getSuccessIndexOperationResponse();
+    }
+
+    var groupedByOperation = resourceFetchService.fetchInstancesByIdsNew(resourceIdEvents).stream()
+      .collect(groupingBy(ResourceService::getEventIndexType));
+
+    var indexDocuments = searchDocumentConverter.convert(groupedByOperation.get(INDEX));
+    var removeDocuments = searchDocumentConverter.convert(groupedByOperation.get(DELETE));
 
     var bulkIndexResponse = indexSearchDocuments(mergeMaps(indexDocuments, removeDocuments));
     log.info("indexInstancesById: indexed to elasticsearch [indexRequests: {}, removeRequests: {}{}]",

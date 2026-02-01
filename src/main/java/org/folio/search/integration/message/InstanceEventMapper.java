@@ -5,6 +5,7 @@ import static org.folio.search.utils.SearchConverterUtils.getEventPayload;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
 import static org.folio.search.utils.SearchUtils.INSTANCE_ID_FIELD;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -18,13 +19,10 @@ import org.springframework.stereotype.Component;
  * Maps instance resource events to index instance events with producer records.
  */
 @Component
+@RequiredArgsConstructor
 public class InstanceEventMapper {
 
   private final ConsortiumTenantService consortiumTenantService;
-
-  public InstanceEventMapper(ConsortiumTenantService consortiumTenantService) {
-    this.consortiumTenantService = consortiumTenantService;
-  }
 
   /**
    * Maps a consumer record to a producer record for indexing.

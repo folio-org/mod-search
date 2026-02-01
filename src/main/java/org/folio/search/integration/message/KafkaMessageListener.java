@@ -65,9 +65,13 @@ public class KafkaMessageListener {
     concurrency = "#{folioKafkaProperties.listener['events'].concurrency}")
   public void handleInstanceEvents(List<ConsumerRecord<String, ResourceEvent>> consumerRecords) {
     log.info("Processing instance related events from kafka events [number of events: {}]", consumerRecords.size());
-    consumerRecords.stream()
-      .map(instanceEventMapper::mapToProducerRecord)
-      .forEach(instanceEventProducer::send);
+    consumerRecords.stream().collect(Collectors.groupingBy(consumerRecord -> consumerRecord.value().getTenant()))
+      .forEach((tenant, records) -> executionService.executeSystemUserScoped(tenant, () -> {
+        records.stream()
+          .map(instanceEventMapper::mapToProducerRecord)
+          .forEach(instanceEventProducer::send);
+        return null;
+      }));
   }
 
   /**

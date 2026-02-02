@@ -46,8 +46,8 @@ public class InstanceResourceEventKafkaConfiguration extends KafkaConfiguration 
 
   @Bean
   public ConcurrentKafkaListenerContainerFactory<String, IndexInstanceEvent> indexInstanceListenerContainerFactory(
-    @Value("#{folioKafkaProperties.listener['events'].maxPollRecords}") Integer maxPollRecords,
-    @Value("#{folioKafkaProperties.listener['events'].maxPollIntervalMs}") Integer maxPollIntervalMs) {
+    @Value("#{folioKafkaProperties.listener['index-instance'].maxPollRecords}") Integer maxPollRecords,
+    @Value("#{folioKafkaProperties.listener['index-instance'].maxPollIntervalMs}") Integer maxPollIntervalMs) {
     var factory = new ConcurrentKafkaListenerContainerFactory<String, IndexInstanceEvent>();
     factory.setBatchListener(true);
     var deserializer = new JsonDeserializer<>(IndexInstanceEvent.class, false);

@@ -20,7 +20,7 @@
   * Use unique consumer group per instance for inventory classification-type and call-number-type topics ([MSEARCH-1092](https://folio-org.atlassian.net/browse/MSEARCH-1092))
   * Remove identifiers from keyword alias for instance and authority mappings ([MSEARCH-1118](https://folio-org.atlassian.net/browse/MSEARCH-1118))
   * Change `all` query builder to use full term for multimatch search ([MSEARCH-1112](https://folio-org.atlassian.net/browse/MSEARCH-1112))
-* **Indexing**
+* **Authority Search**
   * Implement two-stage Kafka processing with event aggregation for instance indexing ([MSEARCH-1157](https://folio-org.atlassian.net/browse/MSEARCH-1157))
   * Separate LCCN and Canceled LCCN identifiers search to lccn and canceledLccn options ([MSEARCH-1066](https://folio-org.atlassian.net/browse/MSEARCH-1066))
 * **Classification Browse**
@@ -34,6 +34,7 @@
   * Add indexes for instance_(call_number/subject/classification/contributor) ([MSEARCH-1025](https://folio-org.atlassian.net/browse/MSEARCH-1025))
   * Omit sub-resource if main value is blank ([MSEARCH-1084](https://folio-org.atlassian.net/browse/MSEARCH-1084))
   * Remove excessive escaping of backslash character in sub-resources ([MSEARCH-1094](https://folio-org.atlassian.net/browse/MSEARCH-1094))
+  * Implement two-stage Kafka processing with event aggregation for instance indexing ([MSEARCH-1157](https://folio-org.atlassian.net/browse/MSEARCH-1157))
 * **Instance Search**
   * Add support for searching by instance/holdings/item electronic access relationship ID ([MSEARCH-816](https://folio-org.atlassian.net/browse/MSEARCH-816))
   * Normalize ISSN search ([MSEARCH-658](https://folio-org.atlassian.net/browse/MSEARCH-658))

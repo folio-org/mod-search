@@ -191,6 +191,3 @@ spring:
 logging:
   level:
     org.folio.spring.filter.LoggingRequestFilter: debug
-    org.opensearch.client: TRACE
-    org.opensearch.client.sniffer: TRACE
-    tracer: TRACE

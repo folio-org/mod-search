@@ -77,7 +77,7 @@ public class UploadInstanceRepository extends UploadRangeRepository {
   }
 
   public List<Map<String, Object>> fetchByIds(Collection<String> ids) {
-    log.info("Fetching instances by ids: {} on tenant: {}", ids, context.getTenantId());
+    log.debug("Fetching instances by ids: {} on tenant: {}", ids, context.getTenantId());
     if (ids == null || ids.isEmpty()) {
       return Collections.emptyList();
     }

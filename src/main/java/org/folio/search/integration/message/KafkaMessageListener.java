@@ -1,21 +1,13 @@
 package org.folio.search.integration.message;
 
-import static org.apache.commons.collections4.MapUtils.getString;
-import static org.apache.commons.lang3.RegExUtils.replaceAll;
 import static org.folio.search.configuration.RetryTemplateConfiguration.KAFKA_RETRY_TEMPLATE_NAME;
 import static org.folio.search.configuration.SearchCacheNames.REFERENCE_DATA_CACHE;
-import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.domain.dto.ResourceEventType.DELETE;
-import static org.folio.search.domain.dto.ResourceEventType.REINDEX;
-import static org.folio.search.utils.SearchConverterUtils.getEventPayload;
 import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
 import static org.folio.search.utils.SearchConverterUtils.getResourceSource;
-import static org.folio.search.utils.SearchUtils.ID_FIELD;
-import static org.folio.search.utils.SearchUtils.INSTANCE_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.SOURCE_CONSORTIUM_PREFIX;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -25,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.logging.log4j.message.FormattedMessage;
 import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.model.event.IndexInstanceEvent;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.ResourceService;
 import org.folio.search.service.config.ConfigSynchronizationService;
@@ -33,6 +26,7 @@ import org.folio.search.utils.SearchConverterUtils;
 import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 /**
@@ -47,6 +41,8 @@ public class KafkaMessageListener {
   private final FolioMessageBatchProcessor folioMessageBatchProcessor;
   private final SystemUserScopedExecutionService executionService;
   private final ConfigSynchronizationService configSynchronizationService;
+  private final KafkaTemplate<String, IndexInstanceEvent> instanceEventProducer;
+  private final InstanceEventMapper instanceEventMapper;
 
   /**
    * Handles instance events and indexes them by id.
@@ -61,11 +57,34 @@ public class KafkaMessageListener {
     concurrency = "#{folioKafkaProperties.listener['events'].concurrency}")
   public void handleInstanceEvents(List<ConsumerRecord<String, ResourceEvent>> consumerRecords) {
     log.info("Processing instance related events from kafka events [number of events: {}]", consumerRecords.size());
-    var batch = getInstanceResourceEvents(consumerRecords);
-    var batchByTenant = batch.stream().collect(Collectors.groupingBy(ResourceEvent::getTenant));
+    consumerRecords.stream().collect(Collectors.groupingBy(consumerRecord -> consumerRecord.value().getTenant()))
+      .forEach((tenant, records) -> executionService.executeSystemUserScoped(tenant, () -> {
+        records.stream()
+          .map(instanceEventMapper::mapToProducerRecords)
+          .flatMap(List::stream)
+          .forEach(instanceEventProducer::send);
+        return null;
+      }));
+  }
+
+  /**
+   * Handles instance events and indexes them by id.
+   *
+   * @param consumerRecords - list of consumer records from Apache Kafka to process.
+   */
+  @KafkaListener(
+    id = KafkaConstants.INDEX_INSTANCE_LISTENER_ID,
+    containerFactory = "indexInstanceListenerContainerFactory",
+    topicPattern = "#{folioKafkaProperties.listener['index-instance'].topicPattern}",
+    groupId = "#{folioKafkaProperties.listener['index-instance'].groupId}",
+    concurrency = "#{folioKafkaProperties.listener['index-instance'].concurrency}")
+  public void handleIndexInstanceEvents(List<ConsumerRecord<String, IndexInstanceEvent>> consumerRecords) {
+    log.info("Processing index instance events from kafka [number of events: {}]", consumerRecords.size());
+    var batchByTenant = consumerRecords.stream().map(ConsumerRecord::value)
+      .collect(Collectors.groupingBy(IndexInstanceEvent::tenant));
     batchByTenant.forEach((tenant, resourceEvents) -> executionService.executeSystemUserScoped(tenant, () -> {
       folioMessageBatchProcessor.consumeBatchWithFallback(resourceEvents, KAFKA_RETRY_TEMPLATE_NAME,
-        resourceService::indexInstancesById, KafkaMessageListener::logFailedEvent);
+        resourceService::indexInstanceEvents, KafkaMessageListener::logFailedEvent);
       return null;
     }));
   }
@@ -163,38 +182,6 @@ public class KafkaMessageListener {
     }));
   }
 
-  private static List<ResourceEvent> getInstanceResourceEvents(List<ConsumerRecord<String, ResourceEvent>> events) {
-    return events.stream()
-      .map(KafkaMessageListener::getInstanceResourceEvent)
-      .filter(Objects::nonNull)
-      .distinct()
-      .toList();
-  }
-
-  private static ResourceEvent getInstanceResourceEvent(ConsumerRecord<String, ResourceEvent> consumerRecord) {
-    var instanceId = getInstanceId(consumerRecord);
-    var value = consumerRecord.value();
-    if (instanceId == null) {
-      log.warn("Failed to find instance id in record [record: {}]", replaceAll(value.toString(), "\\s+", " "));
-      return null;
-    }
-    var operation = isInstanceResource(consumerRecord) ? value.getType() : CREATE;
-    return value.id(instanceId).type(operation);
-  }
-
-  private static String getInstanceId(ConsumerRecord<String, ResourceEvent> event) {
-    var body = event.value();
-    if (body.getType() == REINDEX) {
-      return event.key();
-    }
-    var eventPayload = getEventPayload(body);
-    return isInstanceResource(event) ? getString(eventPayload, ID_FIELD) : getString(eventPayload, INSTANCE_ID_FIELD);
-  }
-
-  private static boolean isInstanceResource(ConsumerRecord<String, ResourceEvent> consumerRecord) {
-    return consumerRecord.topic().endsWith("inventory.instance");
-  }
-
   private static void logFailedEvent(ResourceEvent event, Exception e) {
     if (event == null) {
       log.warn("Failed to index resource event [event: null]", e);
@@ -206,6 +193,18 @@ public class KafkaMessageListener {
     log.warn(new FormattedMessage(
       "Failed to index resource event [resource: {}, eventType: {}, tenantId: {}, id: {}]",
       resourceName, eventType, event.getTenant(), event.getId()
+    ), e);
+  }
+
+  private static void logFailedEvent(IndexInstanceEvent event, Exception e) {
+    if (event == null) {
+      log.warn("Failed to index resource event [event: null]", e);
+      return;
+    }
+
+    log.warn(new FormattedMessage(
+      "Failed to index instance event [tenantId: {}, id: {}]",
+       event.tenant(), event.instanceId()
     ), e);
   }
 }

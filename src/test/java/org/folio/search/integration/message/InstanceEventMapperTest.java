@@ -211,7 +211,7 @@ class InstanceEventMapperTest {
   void mapToProducerRecords_shouldHandleEventWithoutInstanceId() {
     var boundWithId = randomId();
     var boundWithTopic = "folio.test-tenant.inventory.bound-with";
-    var resourceEvent = resourceEvent(null, ResourceType.INSTANCE, CREATE,
+    var resourceEvent = resourceEvent(null, ResourceType.BOUND_WITH, CREATE,
       mapOf("id", boundWithId, "instanceId", INSTANCE_ID), null);
     resourceEvent.tenant(TENANT_ID);
 

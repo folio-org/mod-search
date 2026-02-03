@@ -1,8 +1,6 @@
 spring:
   application:
     name: mod-search
-  profiles:
-    default: "prod"
   threads:
     virtual:
       enabled: true
@@ -18,10 +16,11 @@ spring:
   opensearch:
     username: ${ELASTICSEARCH_USERNAME:}
     password: ${ELASTICSEARCH_PASSWORD:}
-    uris: ${ELASTICSEARCH_URL:http://localhost:9200}
-    compression-enabled: ${ELASTICSEARCH_COMPRESSION_ENABLED:true}
+    uris: http://localhost:9200
+    compression-enabled: false
+    elasticsearch-server: ${ELASTICSEARCH_SERVER:false}
   kafka:
-    bootstrap-servers: ${KAFKA_HOST:localhost}:${KAFKA_PORT:9092}
+    bootstrap-servers: localhost:29092
     consumer:
       max-poll-records: ${KAFKA_CONSUMER_MAX_POLL_RECORDS:200}
       properties:
@@ -40,9 +39,9 @@ spring:
         max.in.flight.requests.per.connection: 5
         retries: 5
   datasource:
-    username: ${DB_USERNAME:folio_admin}
-    password: ${DB_PASSWORD:folio_admin}
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_DATABASE:okapi_modules}
+    username: folio_admin
+    password: folio_admin
+    url: jdbc:postgresql://localhost:5432/okapi_modules
     hikari:
       data-source-properties:
         reWriteBatchedInserts: true
@@ -61,6 +60,10 @@ spring:
       spec: maximumSize=500,expireAfterWrite=3600s
   main:
     allow-bean-definition-overriding: true
+  docker:
+    compose:
+      enabled: true
+      file: ./docker/infra-docker-compose.yml
 
 folio:
   environment: ${ENV:folio}
@@ -75,6 +78,8 @@ folio:
     search-consortium-records-page-size: ${SEARCH_CONSORTIUM_RECORDS_PAGE_SIZE:5000}
     search-features:
       search-all-fields: ${SEARCH_BY_ALL_FIELDS_ENABLED:false}
+      browse-contributors: ${BROWSE_CONTRIBUTORS_ENABLED:true}
+      browse-subjects: ${BROWSE_SUBJECTS_ENABLED:true}
       browse-classifications: ${BROWSE_CLASSIFICATIONS_ENABLED:true}
       browse-call-numbers: ${BROWSE_CALL_NUMBERS_ENABLED:true}
     indexing:
@@ -95,7 +100,6 @@ folio:
   query:
     properties:
       request-timeout: ${SEARCH_QUERY_TIMEOUT:25s}
-      call-number-browse-optimization-enabled: ${CN_BROWSE_OPTIMIZATION_ENABLED:true}
   system-user:
     enabled: ${SYSTEM_USER_ENABLED:true}
     username: ${SYSTEM_USER_USERNAME:mod-search}
@@ -109,6 +113,7 @@ folio:
     core-pool-size: ${STREAM_ID_CORE_POOL_SIZE:2}
     max-pool-size: ${STREAM_ID_MAX_POOL_SIZE:2}
     queue-capacity: ${STREAM_ID_QUEUE_CAPACITY:500}
+    job-expiration-days: ${STREAM_ID_JOB_EXPIRATION_DAYS:7}
   kafka:
     retry-interval-ms: ${KAFKA_RETRY_INTERVAL_MS:2000}
     retry-delivery-attempts: ${KAFKA_RETRY_DELIVERY_ATTEMPTS:6}
@@ -138,6 +143,7 @@ folio:
         concurrency: ${KAFKA_BROWSE_CONFIG_DATA_CONCURRENCY:1}
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.(classification-type|call-number-type)
         group-id: ${folio.environment}-mod-search-browse-config-data-group
+        shared-group: false
       location:
         concurrency: ${KAFKA_LOCATION_CONCURRENCY:1}
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.(location|campus|institution|library)
@@ -168,6 +174,7 @@ folio:
       enabled: true
 
 server.port: 8081
+
 management:
   endpoints:
     web:
@@ -178,27 +185,10 @@ management:
     loggers:
       access: unrestricted
 
----
-
-spring:
-  config:
-    activate:
-      on-profile: dev
-  opensearch:
-    compression-enabled: false
 logging:
   level:
-    org.folio.spring.filter.LoggingRequestFilter: debug
-    org.opensearch.client: trace
-    org.opensearch.client.sniffer: trace
-    tracer: trace
+    org.folio.spring.filter.LoggingRequestFilter: DEBUG
+    org.opensearch.client: TRACE
+    org.opensearch.client.sniffer: TRACE
+    tracer: TRACE
 
----
-
-spring:
-  config:
-    activate:
-      on-profile: prod
-logging:
-  level:
-    org.folio.spring.filter.LoggingRequestFilter: debug

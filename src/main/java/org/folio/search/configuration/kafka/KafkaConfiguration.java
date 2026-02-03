@@ -51,7 +51,8 @@ public abstract class KafkaConfiguration {
 
   public enum SearchTopic implements FolioKafkaTopic {
     REINDEX_RANGE_INDEX("search.reindex.range-index"),
-    INDEX_SUB_RESOURCE("search.index.sub-resource");
+    INDEX_SUB_RESOURCE("search.index.sub-resource"),
+    INDEX_INSTANCE("search.index.instance");
 
     private final String topicName;
 
@@ -69,5 +70,4 @@ public abstract class KafkaConfiguration {
       return FolioEnvironment.getFolioEnvName();
     }
   }
-
 }

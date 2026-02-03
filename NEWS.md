@@ -1,3 +1,9 @@
+## v5.0.12 2026-02-16
+### Features
+* Implement two-stage Kafka processing with event aggregation for instance indexing ([MSEARCH-1157](https://folio-org.atlassian.net/browse/MSEARCH-1157))
+
+---
+
 ## v5.0.11 2026-01-26
 ### Bug fixes
 * Process item/instance in batches, add stale sub-resource lock release logic ([MSEARCH-1097](https://folio-org.atlassian.net/browse/MSEARCH-1097))

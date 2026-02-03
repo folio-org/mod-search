@@ -134,9 +134,9 @@ class ProducerRecordBuilderTest {
     assertThat(resultHeaders).containsEntry(TENANT_ID, TARGET_TENANT);
   }
 
-  private java.util.Map<String, String> getHeadersAsMap(ProducerRecord<?, ?> record) {
+  private java.util.Map<String, String> getHeadersAsMap(ProducerRecord<?, ?> producerRecord) {
     var map = new java.util.HashMap<String, String>();
-    record.headers().forEach(header -> {
+    producerRecord.headers().forEach(header -> {
       if (header.value() != null) {
         map.put(header.key(), new String(header.value(), StandardCharsets.UTF_8));
       }
@@ -144,9 +144,9 @@ class ProducerRecordBuilderTest {
     return map;
   }
 
-  private long countHeaders(ProducerRecord<?, ?> record, String headerKey) {
+  private long countHeaders(ProducerRecord<?, ?> producerRecord, String headerKey) {
     var count = 0;
-    for (Header header : record.headers()) {
+    for (Header header : producerRecord.headers()) {
       if (header.key().equals(headerKey)) {
         count++;
       }

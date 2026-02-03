@@ -3,7 +3,6 @@ package org.folio.search.integration;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.domain.dto.ResourceEventType.CREATE;
-import static org.folio.search.domain.dto.ResourceEventType.UPDATE;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.utils.TestUtils.mapOf;
 import static org.folio.support.utils.TestUtils.randomId;
@@ -157,15 +156,6 @@ class InstanceFetchServiceTest {
 
   private void cleanMap(Map<?, ?> itemMap) {
     itemMap.entrySet().removeIf(entry -> entry.getValue() instanceof List<?> itemList && itemList.isEmpty());
-  }
-
-  private static List<ResourceEvent> resourceEvents() {
-    var updateEventId = randomId();
-    return List.of(
-      resourceEvent(randomId(), ResourceType.INSTANCE, CREATE),
-      resourceEvent(updateEventId, ResourceType.INSTANCE, UPDATE,
-        mapOf("id", updateEventId, "title", "new"),
-        mapOf("id", updateEventId, "title", "old")));
   }
 
   private static Map<String, Object> instanceMap(Instance instance) {

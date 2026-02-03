@@ -15,12 +15,8 @@ import static org.folio.search.model.types.ResourceType.LINKED_DATA_WORK;
 import static org.folio.support.TestConstants.RESOURCE_ID;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.TestConstants.inventoryAuthorityTopic;
-import static org.folio.support.TestConstants.inventoryBoundWithTopic;
 import static org.folio.support.TestConstants.inventoryCallNumberTopic;
 import static org.folio.support.TestConstants.inventoryClassificationTopic;
-import static org.folio.support.TestConstants.inventoryHoldingTopic;
-import static org.folio.support.TestConstants.inventoryInstanceTopic;
-import static org.folio.support.TestConstants.inventoryItemTopic;
 import static org.folio.support.TestConstants.linkedDataHubTopic;
 import static org.folio.support.TestConstants.linkedDataInstanceTopic;
 import static org.folio.support.TestConstants.linkedDataWorkTopic;
@@ -130,7 +126,7 @@ class KafkaMessageListenerTest {
 
     messageListener.handleIndexInstanceEvents(List.of(
       new ConsumerRecord<>("test-topic", 0, 0, RESOURCE_ID, event)));
-    
+
     verify(resourceService, times(3)).indexInstanceEvents(List.of(event));
   }
 
@@ -314,25 +310,6 @@ class KafkaMessageListenerTest {
 
     verify(configSynchronizationService).sync(List.of(deleteEvent), type);
     verify(batchProcessor).consumeBatchWithFallback(eq(List.of(deleteEvent)), any(), any(), any());
-  }
-
-  private static ConsumerRecord<String, ResourceEvent> boundWithRecord(String instanceId1,
-                                                                       ResourceEvent boundWithEvent) {
-    return new ConsumerRecord<>(inventoryBoundWithTopic(), 0, 0, instanceId1, boundWithEvent);
-  }
-
-  private static ConsumerRecord<String, ResourceEvent> holdingRecord(String instanceId3,
-                                                                     ResourceEvent holdingEvent) {
-    return new ConsumerRecord<>(inventoryHoldingTopic(), 0, 0, instanceId3, holdingEvent);
-  }
-
-  private static ConsumerRecord<String, ResourceEvent> itemRecord(String instanceId2, ResourceEvent itemEvent) {
-    return new ConsumerRecord<>(inventoryItemTopic(), 0, 0, instanceId2, itemEvent);
-  }
-
-  private static ConsumerRecord<String, ResourceEvent> instanceRecord(String instanceId1,
-                                                                      ResourceEvent instanceEvent) {
-    return new ConsumerRecord<>(inventoryInstanceTopic(), 0, 0, instanceId1, instanceEvent);
   }
 
   private static ConsumerRecord<String, ResourceEvent> consumerRecordForType(ResourceType resourceType,

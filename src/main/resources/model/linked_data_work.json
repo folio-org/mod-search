@@ -180,8 +180,7 @@
       "type": "search",
       "processor": "linkedDataWorkIsbnProcessor",
       "searchTermProcessor": "isbnSearchTermProcessor",
-      "index": "standard",
-      "indexPlainValue": false
+      "index": "standard"
     },
     "lccn": {
       "type": "search",

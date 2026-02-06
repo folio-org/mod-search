@@ -165,6 +165,10 @@ public final class CollectionUtils {
     return isEmpty(list) ? Optional.empty() : Optional.ofNullable(list.getLast());
   }
 
+  public static <T> Optional<T> findOne(List<T> list, Predicate<T> predicate) {
+    return list.stream().filter(predicate).findFirst();
+  }
+
   /**
    * Return the first element of the given list.
    *

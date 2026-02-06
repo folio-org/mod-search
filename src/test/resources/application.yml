@@ -134,6 +134,9 @@ folio:
       - name: inventory.reindex-records
         numPartitions: 1
         replicationFactor: 1
+      - name: search.index.instance
+        numPartitions: 1
+        replicationFactor: 1
     listener:
       events:
         concurrency: 1
@@ -170,6 +173,12 @@ folio:
         concurrency: 1
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.reindex-records
         group-id: ${folio.environment}-mod-search-reindex-records-group
+      index-instance:
+        concurrency: 1
+        topic-pattern: (${folio.environment}\.)(.*\.)search\.index.instance
+        group-id: ${folio.environment}-mod-search-index-instance-group
+        max-poll-records: 5
+        max-poll-interval-ms: 6000
   okapiUrl: ${okapi.url}
   logging:
     request:

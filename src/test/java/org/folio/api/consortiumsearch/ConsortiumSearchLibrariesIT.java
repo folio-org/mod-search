@@ -115,9 +115,9 @@ class ConsortiumSearchLibrariesIT extends BaseConsortiumIntegrationTest {
 
     assertThat(actual.getLibraries()).hasSize(1);
     assertThat(actual.getTotalRecords()).isEqualTo(1);
-    assertThat(actual.getLibraries().get(0).getTenantId()).isEqualTo(CENTRAL_TENANT_ID);
-    assertThat(actual.getLibraries().get(0).getName()).isEqualTo("My library 1");
-    assertThat(actual.getLibraries().get(0).getCode()).isEqualTo("ML1");
+    assertThat(actual.getLibraries().getFirst().getTenantId()).isEqualTo(CENTRAL_TENANT_ID);
+    assertThat(actual.getLibraries().getFirst().getName()).isEqualTo("My library 1");
+    assertThat(actual.getLibraries().getFirst().getCode()).isEqualTo("ML1");
   }
 
   private static void saveLibraryRecords() {

@@ -153,7 +153,7 @@ class ConfigControllerTest {
         .content(asJsonString(languageConfig))
         .header(XOkapiHeaders.TENANT, TENANT_ID)
         .contentType(APPLICATION_JSON))
-      .andExpect(status().isUnprocessableEntity())
+      .andExpect(status().isUnprocessableContent())
       .andExpect(jsonPath("total_records", is(1)))
       .andExpect(jsonPath("errors[0].code", is("validation_error")))
       .andExpect(jsonPath("errors[0].type", is("ValidationException")))

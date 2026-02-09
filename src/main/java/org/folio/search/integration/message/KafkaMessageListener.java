@@ -13,7 +13,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.logging.log4j.message.FormattedMessage;
 import org.folio.search.domain.dto.ResourceEvent;
@@ -104,7 +104,7 @@ public class KafkaMessageListener {
     log.info("Processing authority events from Kafka [number of events: {}]", consumerRecords.size());
     var batch = consumerRecords.stream()
       .map(ConsumerRecord::value)
-      .filter(authority -> !StringUtils.startsWith(getResourceSource(authority), SOURCE_CONSORTIUM_PREFIX))
+      .filter(authority -> !Strings.CS.startsWith(getResourceSource(authority), SOURCE_CONSORTIUM_PREFIX))
       .map(authority -> authority.id(getResourceEventId(authority)))
       .toList();
 
@@ -204,7 +204,7 @@ public class KafkaMessageListener {
 
     log.warn(new FormattedMessage(
       "Failed to index instance event [tenantId: {}, id: {}]",
-       event.tenant(), event.instanceId()
+      event.tenant(), event.instanceId()
     ), e);
   }
 }

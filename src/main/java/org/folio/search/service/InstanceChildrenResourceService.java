@@ -1,6 +1,5 @@
 package org.folio.search.service;
 
-import static org.apache.commons.lang3.StringUtils.startsWith;
 import static org.folio.search.utils.SearchConverterUtils.getResourceSource;
 import static org.folio.search.utils.SearchUtils.SOURCE_CONSORTIUM_PREFIX;
 
@@ -8,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.Strings;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.types.ResourceType;
@@ -46,7 +46,7 @@ public class InstanceChildrenResourceService {
     var noShadowCopiesInstanceEvents = events.stream()
       .filter(resourceEvent -> {
         if (ResourceType.INSTANCE.getName().equals(resourceEvent.getResourceName())) {
-          return !startsWith(getResourceSource(resourceEvent), SOURCE_CONSORTIUM_PREFIX);
+          return !Strings.CS.startsWith(getResourceSource(resourceEvent), SOURCE_CONSORTIUM_PREFIX);
         }
         return true;
       })

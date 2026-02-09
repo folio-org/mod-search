@@ -48,7 +48,7 @@ public class InstanceEventMapper {
       var newInstanceId = getInstanceId(getNewAsMap(resourceEvent));
       if (oldInstanceId != null && !oldInstanceId.equals(newInstanceId)) {
         return List.of(toProducerRecord(oldInstanceId, targetTenant, event.headers()),
-          toProducerRecord(oldInstanceId, targetTenant, event.headers()));
+          toProducerRecord(newInstanceId, targetTenant, event.headers()));
       }
       return List.of(toProducerRecord(newInstanceId, targetTenant, event.headers()));
     }

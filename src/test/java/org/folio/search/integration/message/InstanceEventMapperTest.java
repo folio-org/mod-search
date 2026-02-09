@@ -237,6 +237,27 @@ class InstanceEventMapperTest {
       .isEqualTo(KafkaConfiguration.SearchTopic.INDEX_INSTANCE.fullTopicName(TENANT_ID));
   }
 
+  @Test
+  void mapToProducerRecords_shouldCreateTwoRecordsWhenInstanceIdChanges() {
+    var itemId = randomId();
+    var oldInstanceId = randomId();
+    var newInstanceId = randomId();
+    var resourceEvent = resourceEvent(null, ResourceType.ITEM, UPDATE,
+      mapOf("id", itemId, "instanceId", newInstanceId),
+      mapOf("id", itemId, "instanceId", oldInstanceId));
+    resourceEvent.tenant(TENANT_ID);
+
+    var consumerRecord = createConsumerRecord(itemId, resourceEvent, ITEM_TOPIC);
+
+    var result = mapper.mapToProducerRecords(consumerRecord);
+
+    assertThat(result).hasSize(2);
+    assertThat(result.get(0).value().instanceId()).isEqualTo(oldInstanceId);
+    assertThat(result.get(0).value().tenant()).isEqualTo(TENANT_ID);
+    assertThat(result.get(1).value().instanceId()).isEqualTo(newInstanceId);
+    assertThat(result.get(1).value().tenant()).isEqualTo(TENANT_ID);
+  }
+
   private ConsumerRecord<String, ResourceEvent> createConsumerRecord(
       String key, ResourceEvent value, String topic) {
     return new ConsumerRecord<>(topic, 0, 0, key, value);

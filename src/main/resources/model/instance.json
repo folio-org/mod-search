@@ -622,8 +622,7 @@
       "type": "search",
       "processor": "isbnProcessor",
       "searchTermProcessor": "isbnSearchTermProcessor",
-      "index": "standard",
-      "indexPlainValue": false
+      "index": "standard"
     },
     "issn": {
       "type": "search",

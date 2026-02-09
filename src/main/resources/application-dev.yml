@@ -121,6 +121,9 @@ folio:
       - name: search.reindex.range-index
         numPartitions: ${KAFKA_REINDEX_RANGE_INDEX_TOPIC_PARTITIONS:16}
         replicationFactor: ${KAFKA_REINDEX_RANGE_INDEX_TOPIC_REPLICATION_FACTOR:}
+      - name: search.index.instance
+        numPartitions: ${KAFKA_INDEX_INSTANCE_TOPIC_PARTITIONS:16}
+        replicationFactor: ${KAFKA_REINDEX_RANGE_INDEX_TOPIC_REPLICATION_FACTOR:}
     listener:
       events:
         concurrency: ${KAFKA_EVENTS_CONCURRENCY:2}
@@ -157,6 +160,12 @@ folio:
         concurrency: ${KAFKA_REINDEX_RECORDS_CONCURRENCY:2}
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.reindex-records
         group-id: ${folio.environment}-mod-search-reindex-records-group
+      index-instance:
+        concurrency: ${KAFKA_INDEX_INSTANCE_CONCURRENCY:2}
+        topic-pattern: (${folio.environment}\.)(.*\.)search\.index.instance
+        group-id: ${folio.environment}-mod-search-index-instance-group
+        max-poll-records: ${KAFKA_CONSUMER_INSTANCE_MAX_POLL_RECORDS:200}
+        max-poll-interval-ms: ${KAFKA_CONSUMER_INSTANCE_MAX_POLL_INTERVAL_MS:600000}
   okapiUrl: ${okapi.url:http://localhost:9130}
   logging:
     request:

@@ -7,6 +7,7 @@ public class KafkaConstants {
 
   public static final String AUTHORITY_LISTENER_ID = "mod-search-authorities-listener";
   public static final String EVENT_LISTENER_ID = "mod-search-events-listener";
+  public static final String INDEX_INSTANCE_LISTENER_ID = "mod-search-index-instance-listener";
   public static final String BROWSE_CONFIG_DATA_LISTENER_ID = "mod-search-browse-config-data-listener";
   public static final String LOCATION_LISTENER_ID = "mod-search-location-listener";
   public static final String LINKED_DATA_LISTENER_ID = "mod-search-linked-data-listener";

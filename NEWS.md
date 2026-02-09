@@ -21,6 +21,7 @@
   * Remove identifiers from keyword alias for instance and authority mappings ([MSEARCH-1118](https://folio-org.atlassian.net/browse/MSEARCH-1118))
   * Change `all` query builder to use full term for multimatch search ([MSEARCH-1112](https://folio-org.atlassian.net/browse/MSEARCH-1112))
 * **Authority Search**
+  * Implement two-stage Kafka processing with event aggregation for instance indexing ([MSEARCH-1157](https://folio-org.atlassian.net/browse/MSEARCH-1157))
   * Separate LCCN and Canceled LCCN identifiers search to lccn and canceledLccn options ([MSEARCH-1066](https://folio-org.atlassian.net/browse/MSEARCH-1066))
 * **Classification Browse**
   * Add title and contributors to classification browse response ([MSEARCH-1045](https://folio-org.atlassian.net/browse/MSEARCH-1045))
@@ -33,6 +34,7 @@
   * Add indexes for instance_(call_number/subject/classification/contributor) ([MSEARCH-1025](https://folio-org.atlassian.net/browse/MSEARCH-1025))
   * Omit sub-resource if main value is blank ([MSEARCH-1084](https://folio-org.atlassian.net/browse/MSEARCH-1084))
   * Remove excessive escaping of backslash character in sub-resources ([MSEARCH-1094](https://folio-org.atlassian.net/browse/MSEARCH-1094))
+  * Implement two-stage Kafka processing with event aggregation for instance indexing ([MSEARCH-1157](https://folio-org.atlassian.net/browse/MSEARCH-1157))
 * **Instance Search**
   * Add support for searching by instance/holdings/item electronic access relationship ID ([MSEARCH-816](https://folio-org.atlassian.net/browse/MSEARCH-816))
   * Normalize ISSN search ([MSEARCH-658](https://folio-org.atlassian.net/browse/MSEARCH-658))
@@ -67,6 +69,7 @@
   * Fix soft-deleted items being indexed into elasticsearch ([MSEARCH-1119](https://folio-org.atlassian.net/browse/MSEARCH-1119))
   * Add error handling on upload range processing ([MSEARCH-1151](https://folio-org.atlassian.net/browse/MSEARCH-1151))
   * Ignore shadow locations and location units while indexing domain events ([MSEARCH-1154](https://folio-org.atlassian.net/browse/MSEARCH-1154))
+  * Add support for exact match on isbn, honor '*' in IsbnSearchTermProcessor ([MSEARCH-1011](https://folio-org.atlassian.net/browse/MSEARCH-1011))
 
 ### Tech Dept
 * Migrate to Opensearch 3.0.0 ([MSEARCH-1033](https://folio-org.atlassian.net/browse/MSEARCH-1033))
@@ -81,6 +84,7 @@
 * Improve Docker Compose setup for local development ([MSEARCH-1090](https://folio-org.atlassian.net/browse/MSEARCH-1090))
 * Change spring-kafka-test scope from compile to test ([MSEARCH-1148](https://folio-org.atlassian.net/browse/MSEARCH-1148))
 * Fix race condition in shouldIndexInstanceCallNumber\_createNewDocument\_onItemCreate ([MSEARCH-1149](https://folio-org.atlassian.net/browse/MSEARCH-1149))
+* Use GitHub Workflows for builds ([MSEARCH-1158](https://folio-org.atlassian.net/browse/MSEARCH-1158))
 
 ### Dependencies
 * Bump `LIB_NAME` from `OLD_VERSION` to `NEW_VERSION`

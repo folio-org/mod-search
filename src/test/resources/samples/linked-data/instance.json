@@ -43,6 +43,10 @@
     {
       "value": "0987654321",
       "type": "IAN"
+    },
+    {
+      "value": "047144250X",
+      "type": "ISBN"
     }
   ],
   "notes": [

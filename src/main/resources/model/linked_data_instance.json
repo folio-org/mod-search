@@ -191,8 +191,7 @@
       "type": "search",
       "processor": "linkedDataInstanceIsbnProcessor",
       "searchTermProcessor": "isbnSearchTermProcessor",
-      "index": "standard",
-      "indexPlainValue": false
+      "index": "standard"
     },
     "lccn": {
       "type": "search",

@@ -1,7 +1,6 @@
 package org.folio.search.service;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
 import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.domain.dto.ResourceEventType.CREATE;
@@ -32,6 +31,7 @@ import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.model.event.IndexInstanceEvent;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.ResourceDescription;
 import org.folio.search.model.metadata.ResourceIndexingConfiguration;
@@ -155,12 +155,13 @@ class ResourceServiceTest {
     var expectedResponse = getSuccessIndexOperationResponse();
     var expectedDocuments = List.of(searchDocumentBody());
 
-    when(resourceFetchService.fetchInstancesByIds(any())).thenReturn(List.of(resourceEvent));
+    var indexEvents = List.of(new IndexInstanceEvent(resourceEvents.getFirst().getTenant(), RESOURCE_ID));
+    when(resourceFetchService.fetchInstancesByIds(indexEvents)).thenReturn(List.of(resourceEvent));
     when(searchDocumentConverter.convert(List.of(resourceEvent)))
       .thenReturn(mapOf(INSTANCE.getName(), expectedDocuments));
     when(primaryResourceRepository.indexResources(expectedDocuments)).thenReturn(expectedResponse);
 
-    var actual = indexService.indexInstancesById(resourceEvents);
+    var actual = indexService.indexInstanceEvents(indexEvents);
     assertThat(actual).isEqualTo(expectedResponse);
   }
 
@@ -173,13 +174,14 @@ class ResourceServiceTest {
     var expectedResponse = getSuccessIndexOperationResponse();
     var searchBody = searchDocumentBody(asJsonString(newData));
 
-    when(resourceFetchService.fetchInstancesByIds(List.of(resourceEvent))).thenReturn(List.of(fetchedEvent));
+    var indexEvent = new IndexInstanceEvent(resourceEvent.getTenant(), RESOURCE_ID);
+    when(resourceFetchService.fetchInstancesByIds(List.of(indexEvent))).thenReturn(List.of(fetchedEvent));
     when(searchDocumentConverter.convert(List.of(fetchedEvent)))
       .thenReturn(mapOf(INSTANCE.getName(), List.of(searchBody)));
     when(primaryResourceRepository.indexResources(List.of(searchBody))).thenReturn(expectedResponse);
     when(resourceDescriptionService.find(INSTANCE)).thenReturn(of(resourceDescription(INSTANCE)));
 
-    var response = indexService.indexInstancesById(List.of(resourceEvent));
+    var response = indexService.indexInstanceEvents(List.of(indexEvent));
     assertThat(response).isEqualTo(expectedResponse);
   }
 
@@ -188,35 +190,35 @@ class ResourceServiceTest {
     var oldData = mapOf("instanceId", RESOURCE_ID_SECOND, "title", "old title");
     var newData = mapOf("instanceId", RESOURCE_ID, "title", "new title");
     var resourceEvent = resourceEvent(RESOURCE_ID, INSTANCE, UPDATE, newData, oldData);
-    var oldEvent = resourceEvent(RESOURCE_ID_SECOND, INSTANCE, UPDATE, oldData, null);
-    var newEvent = resourceEvent(RESOURCE_ID, INSTANCE, UPDATE, newData, null);
     var fetchedEvents = List.of(resourceEvent(RESOURCE_ID_SECOND, INSTANCE, CREATE, oldData, null),
       resourceEvent(RESOURCE_ID, INSTANCE, CREATE, newData, null));
     var expectedResponse = getSuccessIndexOperationResponse();
     var searchBodies = List.of(searchDocumentBody(asJsonString(oldData)), searchDocumentBody(asJsonString(newData)));
 
-    when(resourceFetchService.fetchInstancesByIds(List.of(oldEvent, newEvent))).thenReturn(fetchedEvents);
+    var indexEvent = new IndexInstanceEvent(resourceEvent.getTenant(), RESOURCE_ID);
+    when(resourceFetchService.fetchInstancesByIds(List.of(indexEvent))).thenReturn(fetchedEvents);
     when(searchDocumentConverter.convert(fetchedEvents)).thenReturn(mapOf(INSTANCE.getName(), searchBodies));
     when(primaryResourceRepository.indexResources(searchBodies)).thenReturn(expectedResponse);
     when(resourceDescriptionService.find(INSTANCE)).thenReturn(of(resourceDescription(INSTANCE)));
 
-    var response = indexService.indexInstancesById(List.of(resourceEvent));
+    var response = indexService.indexInstanceEvents(List.of(indexEvent));
     assertThat(response).isEqualTo(expectedResponse);
   }
 
   @Test
   void indexResourcesById_positive_deleteEvent() {
     var expectedDocuments = List.of(searchDocumentBodyToDelete());
-    var resourceEvents = List.of(resourceEvent(RESOURCE_ID, INSTANCE, DELETE));
+    var deleteEvent = resourceEvent(RESOURCE_ID, INSTANCE, DELETE);
 
-    when(resourceFetchService.fetchInstancesByIds(emptyList())).thenReturn(emptyList());
-    when(searchDocumentConverter.convert(emptyList())).thenReturn(emptyMap());
-    when(searchDocumentConverter.convert(resourceEvents)).thenReturn(mapOf(INSTANCE.getName(), expectedDocuments));
+    var indexEvents = List.of(new IndexInstanceEvent(deleteEvent.getTenant(), RESOURCE_ID));
+    when(resourceFetchService.fetchInstancesByIds(indexEvents)).thenReturn(List.of(deleteEvent));
+    when(searchDocumentConverter.convert(List.of(deleteEvent)))
+      .thenReturn(mapOf(INSTANCE.getName(), expectedDocuments));
 
     var expectedResponse = getSuccessIndexOperationResponse();
     when(primaryResourceRepository.indexResources(expectedDocuments)).thenReturn(expectedResponse);
 
-    var actual = indexService.indexInstancesById(resourceEvents);
+    var actual = indexService.indexInstanceEvents(indexEvents);
     assertThat(actual).isEqualTo(expectedResponse);
   }
 
@@ -227,24 +229,25 @@ class ResourceServiceTest {
     var expectedResponse = getErrorIndexOperationResponse("Bulk failed: errors: ['test-error']");
     var expectedDocuments = List.of(searchDocumentBody());
 
-    when(resourceFetchService.fetchInstancesByIds(resourceEvents)).thenReturn(List.of(resourceEvent));
+    var indexEvents = List.of(new IndexInstanceEvent(resourceEvents.getFirst().getTenant(), RESOURCE_ID));
+    when(resourceFetchService.fetchInstancesByIds(indexEvents)).thenReturn(List.of(resourceEvent));
     when(searchDocumentConverter.convert(List.of(resourceEvent)))
       .thenReturn(mapOf(INSTANCE.getName(), expectedDocuments));
     when(primaryResourceRepository.indexResources(expectedDocuments)).thenReturn(expectedResponse);
 
-    var actual = indexService.indexInstancesById(resourceEvents);
+    var actual = indexService.indexInstanceEvents(indexEvents);
     assertThat(actual).isEqualTo(expectedResponse);
   }
 
   @Test
   void indexResourcesById_positive_emptyList() {
-    var actual = indexService.indexInstancesById(emptyList());
+    var actual = indexService.indexInstanceEvents(emptyList());
     assertThat(actual).isEqualTo(getSuccessIndexOperationResponse());
   }
 
   @Test
   void indexResourcesById_positive_null() {
-    var actual = indexService.indexInstancesById(null);
+    var actual = indexService.indexInstanceEvents(null);
     assertThat(actual).isEqualTo(getSuccessIndexOperationResponse());
   }
 

@@ -165,6 +165,13 @@ class SearchLinkedDataWorkIT extends BaseIntegrationTest {
     "71, classificationAdditionalNumber == \"456\"",
     "72, classificationNumber == \"1 2 3\"",
     "73, classificationAdditionalNumber == \"4  56\"",
+    "74, isbn = \"0471442*\"",
+    "75, isbn = \"047144250X*\"",
+    "76, isbn == \"047144250X\"",
+    "77, isbn == \"047144250\"",
+    "78, isbn = \"1234567890*\"",
+    "79, isbn = \"1234567890123*\"",
+    "80, isbn == \"1234567890123\""
   })
   void searchByLinkedDataWork_parameterized_singleResult(int index, String query) throws Throwable {
     doSearchByLinkedDataWork(query)

@@ -11,7 +11,6 @@ import static org.folio.search.model.reindex.UploadRangeEntity.UPPER_BOUND_COLUM
 import static org.folio.search.service.reindex.ReindexConstants.UPLOAD_RANGE_TABLE;
 import static org.folio.search.utils.JdbcUtils.getFullTableName;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.LinkedHashSet;
@@ -29,6 +28,7 @@ import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import tools.jackson.core.type.TypeReference;
 
 public abstract class UploadRangeRepository extends ReindexJdbcRepository {
 

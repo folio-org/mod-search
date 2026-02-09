@@ -19,10 +19,11 @@ import org.folio.search.domain.dto.ResourceIdsJob;
 import org.folio.search.service.id.ResourceIdsJobService;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.testing.type.UnitTest;
+import org.folio.support.config.TestNoOpCacheConfig;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -30,7 +31,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @UnitTest
 @WebMvcTest(ResourcesIdsController.class)
-@Import({ApiExceptionHandler.class})
+@Import({ApiExceptionHandler.class, TestNoOpCacheConfig.class})
 class ResourcesIdsControllerTest {
 
   @Autowired

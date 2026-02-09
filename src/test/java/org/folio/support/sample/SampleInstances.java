@@ -6,13 +6,13 @@ import static org.folio.support.utils.JsonTestUtils.toObject;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
 import java.util.Map;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.folio.search.domain.dto.Instance;
 import org.springframework.test.web.servlet.ResultMatcher;
+import tools.jackson.core.type.TypeReference;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SampleInstances {

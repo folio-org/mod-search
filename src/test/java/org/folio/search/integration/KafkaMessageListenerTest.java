@@ -33,7 +33,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.retry.support.RetryTemplate.defaultInstance;
 
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -63,6 +62,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.retry.RetryTemplate;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -70,7 +70,7 @@ class KafkaMessageListenerTest {
 
   @Spy
   private final FolioMessageBatchProcessor batchProcessor =
-    new FolioMessageBatchProcessor(emptyMap(), defaultInstance());
+    new FolioMessageBatchProcessor(emptyMap(), new RetryTemplate());
   @Spy
   @SuppressWarnings("unused")
   private final JsonConverter jsonConverter = new JsonConverter(OBJECT_MAPPER);
@@ -127,7 +127,7 @@ class KafkaMessageListenerTest {
     messageListener.handleIndexInstanceEvents(List.of(
       new ConsumerRecord<>("test-topic", 0, 0, RESOURCE_ID, event)));
 
-    verify(resourceService, times(3)).indexInstanceEvents(List.of(event));
+    verify(resourceService, times(4)).indexInstanceEvents(List.of(event));
   }
 
   @Test

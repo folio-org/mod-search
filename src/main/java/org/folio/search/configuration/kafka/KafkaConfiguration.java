@@ -13,12 +13,12 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.folio.spring.config.properties.FolioEnvironment;
 import org.folio.spring.tools.kafka.FolioKafkaTopic;
-import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
+import org.springframework.boot.kafka.autoconfigure.KafkaProperties;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.ProducerFactory;
-import org.springframework.kafka.support.serializer.JsonDeserializer;
-import org.springframework.kafka.support.serializer.JsonSerializer;
+import org.springframework.kafka.support.serializer.JacksonJsonDeserializer;
+import org.springframework.kafka.support.serializer.JacksonJsonSerializer;
 
 /**
  * Responsible for configuration of kafka consumer bean factories and creation of topics at application startup for
@@ -28,21 +28,23 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 public abstract class KafkaConfiguration {
 
   protected static <T> ProducerFactory<String, T> getProducerFactory(KafkaProperties kafkaProperties) {
-    Map<String, Object> configProps = new HashMap<>(kafkaProperties.buildProducerProperties(null));
+    Map<String, Object> configProps = new HashMap<>(kafkaProperties.buildProducerProperties());
     configProps.put(KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-    configProps.put(VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+    configProps.put(VALUE_SERIALIZER_CLASS_CONFIG, JacksonJsonSerializer.class);
     return new DefaultKafkaProducerFactory<>(configProps);
   }
 
-  protected static <T> DefaultKafkaConsumerFactory<String, T> getConsumerFactory(JsonDeserializer<T> deserializer,
-                                                                                 KafkaProperties kafkaProperties) {
+  protected static <T> DefaultKafkaConsumerFactory<String, T> getConsumerFactory(
+    JacksonJsonDeserializer<T> deserializer,
+    KafkaProperties kafkaProperties) {
     return getConsumerFactory(deserializer, kafkaProperties, Collections.emptyMap());
   }
 
-  protected static <T> DefaultKafkaConsumerFactory<String, T> getConsumerFactory(JsonDeserializer<T> deserializer,
-                                                                                 KafkaProperties kafkaProperties,
-                                                                                 Map<String, Object> overrideProps) {
-    var config = new HashMap<>(kafkaProperties.buildConsumerProperties(null));
+  protected static <T> DefaultKafkaConsumerFactory<String, T> getConsumerFactory(
+    JacksonJsonDeserializer<T> deserializer,
+    KafkaProperties kafkaProperties,
+    Map<String, Object> overrideProps) {
+    var config = new HashMap<>(kafkaProperties.buildConsumerProperties());
     config.put(KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
     config.put(VALUE_DESERIALIZER_CLASS_CONFIG, deserializer);
     config.putAll(overrideProps);

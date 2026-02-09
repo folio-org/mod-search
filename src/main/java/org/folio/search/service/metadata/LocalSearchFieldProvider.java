@@ -307,7 +307,7 @@ public class LocalSearchFieldProvider implements SearchFieldProvider {
     var indexFieldType = elasticsearchFieldTypes.get(MULTILANG_FIELD_TYPE);
     var supportedLanguagesSet = new LinkedHashSet<String>();
     var mapping = indexFieldType.getMapping();
-    mapping.path("properties").fieldNames().forEachRemaining(field -> {
+    mapping.path("properties").propertyNames().iterator().forEachRemaining(field -> {
       if (!field.equals(MULTILANG_SOURCE_SUBFIELD)) {
         supportedLanguagesSet.add(field);
       }

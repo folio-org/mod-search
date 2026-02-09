@@ -25,6 +25,7 @@ import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import org.apache.lucene.search.TotalHits;
 import org.apache.lucene.search.TotalHits.Relation;
@@ -55,8 +56,7 @@ import org.opensearch.common.unit.TimeValue;
 import org.opensearch.core.common.bytes.BytesArray;
 import org.opensearch.search.SearchHit;
 import org.opensearch.search.SearchHits;
-import org.springframework.retry.RetryCallback;
-import org.springframework.retry.support.RetryTemplate;
+import org.springframework.core.retry.RetryTemplate;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -99,11 +99,12 @@ class SearchRepositoryTest {
   void streamResourceIds_positive() throws Throwable {
     var searchIds = randomIds();
     var scrollIds = randomIds();
-    when(retryTemplate.execute(any(RetryCallback.class))).thenAnswer(
-      invocation -> invocation.<RetryCallback>getArgument(0).doWithRetry(null));
+    when(retryTemplate.invoke(any(Supplier.class))).thenAnswer(
+      invocation -> invocation.<Supplier>getArgument(0).get());
     doReturn(searchResponse(searchIds)).when(esClient).search(searchRequest(), DEFAULT);
     doReturn(searchResponse(scrollIds), searchResponse(emptyList())).when(esClient).scroll(scrollRequest(), DEFAULT);
-    doReturn(new ClearScrollResponse(true, 0)).when(esClient).clearScroll(any(ClearScrollRequest.class), eq(DEFAULT));
+    doReturn(new ClearScrollResponse(true, 0))
+      .when(esClient).clearScroll(any(ClearScrollRequest.class), eq(DEFAULT));
 
     var request = new CqlResourceIdsRequest(ResourceType.INSTANCE, TENANT_ID, "query", INSTANCE_ID_PATH);
     var actualIds = new ArrayList<List<String>>();
@@ -116,12 +117,13 @@ class SearchRepositoryTest {
   @Test
   @SuppressWarnings({"rawtypes", "unchecked"})
   void streamResourceIds_negative_clearScrollFailed() throws Throwable {
-    when(retryTemplate.execute(any(RetryCallback.class))).thenAnswer(
-      invocation -> invocation.<RetryCallback>getArgument(0).doWithRetry(null));
+    when(retryTemplate.invoke(any(Supplier.class))).thenAnswer(
+      invocation -> invocation.<Supplier>getArgument(0).get());
     var searchIds = randomIds();
     doReturn(searchResponse(searchIds)).when(esClient).search(searchRequest(), DEFAULT);
     doReturn(searchResponse(emptyList())).when(esClient).scroll(scrollRequest(), DEFAULT);
-    doReturn(new ClearScrollResponse(false, 0)).when(esClient).clearScroll(any(ClearScrollRequest.class), eq(DEFAULT));
+    doReturn(new ClearScrollResponse(false, 0))
+      .when(esClient).clearScroll(any(ClearScrollRequest.class), eq(DEFAULT));
 
     var request = new CqlResourceIdsRequest(ResourceType.INSTANCE, TENANT_ID, "query", INSTANCE_ID_PATH);
     var actualIds = new ArrayList<String>();

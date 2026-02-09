@@ -23,7 +23,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.ArrayList;
 import java.util.List;
 import org.folio.search.domain.dto.LanguageConfig;
@@ -44,6 +43,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.databind.node.ObjectNode;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -268,7 +268,7 @@ class SearchMappingsHelperTest {
 
   private static LanguageConfigs getSupportedLanguages() {
     var languageConfigs = new ArrayList<LanguageConfig>();
-    multilangFieldType().getMapping().path("properties").fieldNames()
+    multilangFieldType().getMapping().path("properties").propertyNames().iterator()
       .forEachRemaining(name -> languageConfigs.add(languageConfig(name)));
 
     return languageConfigs(languageConfigs);

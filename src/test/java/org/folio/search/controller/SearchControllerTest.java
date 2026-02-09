@@ -24,6 +24,7 @@ import org.folio.search.service.SearchService;
 import org.folio.search.service.consortium.TenantProvider;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.testing.type.UnitTest;
+import org.folio.support.config.TestNoOpCacheConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -33,14 +34,14 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.opensearch.OpenSearchException;
 import org.opensearch.core.index.Index;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @UnitTest
-@Import({ApiExceptionHandler.class})
 @WebMvcTest(SearchController.class)
+@Import({ApiExceptionHandler.class, TestNoOpCacheConfig.class})
 class SearchControllerTest {
 
   @MockitoBean
@@ -114,8 +115,8 @@ class SearchControllerTest {
                                      int limit) throws Exception {
     var cqlQuery = "title all \"test-query\"";
     var openSearchException = new OpenSearchException("Elasticsearch exception ["
-      + "type=index_not_found_exception, "
-      + "reason=no such index [instance_test-tenant]]");
+                                                      + "type=index_not_found_exception, "
+                                                      + "reason=no such index [instance_test-tenant]]");
     openSearchException.setIndex(new Index(INDEX_NAME, randomId()));
     var expectedSearchRequest = searchServiceRequest(requestClass, TENANT_ID, cqlQuery, expandAll, limit);
     when(searchService.search(expectedSearchRequest)).thenThrow(
@@ -141,7 +142,7 @@ class SearchControllerTest {
     "LinkedDataWorks       , 100 , /search/linked-data/works",
     "LinkedDataHubs        , 100 , /search/linked-data/hubs",
   })
-  void search_negative_invalidLimitParameter(String classMessagePart, int limit,  String searchPass) throws Exception {
+  void search_negative_invalidLimitParameter(String classMessagePart, int limit, String searchPass) throws Exception {
     var expectedMessage = String.format("search%s.limit must be less than or equal to %s", classMessagePart, limit);
     var requestBuilder = get(searchPass)
       .queryParam("query", "title all \"test-query\"")

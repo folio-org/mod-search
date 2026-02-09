@@ -2,13 +2,13 @@ package org.folio.search.model.metadata;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.folio.search.model.types.SearchType;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * POJO class for specifying a plain field description for search engine.

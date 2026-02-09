@@ -48,13 +48,14 @@ import org.folio.search.service.reindex.ReindexService;
 import org.folio.search.service.reindex.ReindexStatusService;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.testing.type.UnitTest;
+import org.folio.support.config.TestNoOpCacheConfig;
 import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
 import org.hibernate.validator.internal.engine.path.PathImpl;
 import org.junit.jupiter.api.Test;
 import org.opensearch.OpenSearchException;
 import org.opensearch.core.index.Index;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -62,7 +63,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 
 @UnitTest
 @WebMvcTest(IndexManagementController.class)
-@Import(ApiExceptionHandler.class)
+@Import({ApiExceptionHandler.class, TestNoOpCacheConfig.class})
 class IndexManagementControllerTest {
 
   private static final ResourceType RESOURCE = ResourceType.INSTANCE;

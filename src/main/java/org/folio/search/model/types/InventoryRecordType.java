@@ -5,9 +5,9 @@ import lombok.Getter;
 
 @Getter
 public enum InventoryRecordType {
-  INSTANCE("instance", "http://instance-storage/instances"),
-  ITEM("item", "http://item-storage/items"),
-  HOLDING("holding", "http://holdings-storage/holdings");
+  INSTANCE("instance", "instance-storage/instances"),
+  ITEM("item", "item-storage/items"),
+  HOLDING("holding", "holdings-storage/holdings");
 
   /**
    * record name.

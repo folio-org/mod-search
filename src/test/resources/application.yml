@@ -12,10 +12,6 @@ spring:
     deserialization:
       fail-on-unknown-properties: false
       accept-single-value-as-array: true
-  cloud:
-    openfeign:
-      okhttp:
-        enabled: true
   opensearch:
     username: elastic
     password: s3cret
@@ -48,6 +44,8 @@ server.port: 8081
 
 folio:
   environment: folio-test
+  exchange:
+    enabled: true
   system:
     schemaName: mod_search__system
     change-log: classpath:changelog/changelog-system.xml
@@ -183,10 +181,15 @@ folio:
   logging:
     request:
       enabled: true
-    feign:
+    exchange:
       enabled: true
 
 logging:
   level:
     org.apache.kafka.clients.consumer.*: warn
     org.folio.spring.config.*: debug
+    org.folio.spring.filter.IncomingRequestLoggingFilter: debug
+    org.folio.spring.client.ExchangeLoggingInterceptor: debug
+    org.opensearch.client: trace
+    org.opensearch.client.sniffer: trace
+    tracer: trace

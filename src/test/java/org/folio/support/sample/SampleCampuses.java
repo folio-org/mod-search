@@ -2,11 +2,11 @@ package org.folio.support.sample;
 
 import static org.folio.support.utils.JsonTestUtils.readJsonFromFile;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
 import java.util.Map;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import tools.jackson.core.type.TypeReference;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SampleCampuses {

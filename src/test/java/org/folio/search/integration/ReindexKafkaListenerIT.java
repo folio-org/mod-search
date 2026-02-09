@@ -44,7 +44,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
+import org.springframework.boot.kafka.autoconfigure.KafkaAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -52,7 +52,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
-import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.resilience.annotation.EnableResilientMethods;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @EmbeddedKafka(topics = {
@@ -147,7 +147,7 @@ class ReindexKafkaListenerIT {
   }
 
   @TestConfiguration
-  @EnableRetry(proxyTargetClass = true)
+  @EnableResilientMethods(proxyTargetClass = true)
   @Import({ReindexKafkaConfiguration.class, KafkaAutoConfiguration.class})
   static class KafkaListenerTestConfiguration {
 

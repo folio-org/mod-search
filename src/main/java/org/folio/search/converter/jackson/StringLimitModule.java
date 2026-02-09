@@ -1,6 +1,6 @@
 package org.folio.search.converter.jackson;
 
-import com.fasterxml.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.module.SimpleModule;
 
 /**
  * The StringLimitModule is a custom Jackson module designed to register

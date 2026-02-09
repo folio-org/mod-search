@@ -1,9 +1,9 @@
 package org.folio.search.model.metadata;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * Contains description for common local/remote index field settings.

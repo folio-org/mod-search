@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.UUID;
@@ -18,20 +17,24 @@ import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
 import org.folio.spring.testing.extension.EnablePostgres;
 import org.folio.spring.testing.type.IntegrationTest;
+import org.folio.support.config.TestNoOpCacheConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
+import org.springframework.boot.jdbc.test.autoconfigure.JdbcTest;
 import org.springframework.boot.test.autoconfigure.json.AutoConfigureJson;
+import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.jdbc.Sql;
+import tools.jackson.databind.json.JsonMapper;
 
 @IntegrationTest
 @JdbcTest
 @EnablePostgres
 @AutoConfigureJson
+@Import(TestNoOpCacheConfig.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class ReindexJdbcRepositoriesIT {
 
@@ -45,7 +48,7 @@ class ReindexJdbcRepositoriesIT {
 
   @BeforeEach
   void setUp() {
-    var jsonConverter = new JsonConverter(new ObjectMapper());
+    var jsonConverter = new JsonConverter(new JsonMapper());
     searchConfig = new SearchConfigurationProperties();
     searchConfig.setIndexing(new SearchConfigurationProperties.IndexingSettings());
     mergeRepository = new MergeInstanceRepository(jdbcTemplate, jsonConverter, context, tenantProvider,

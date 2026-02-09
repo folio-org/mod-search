@@ -14,7 +14,7 @@ import org.folio.search.domain.dto.ConsortiumInstitution;
 import org.folio.search.domain.dto.SortOrder;
 import org.folio.search.model.SearchResult;
 import org.folio.search.service.converter.ElasticsearchDocumentConverter;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.opensearch.action.search.SearchRequest;
 import org.opensearch.action.search.SearchResponse;
 import org.opensearch.client.RequestOptions;
@@ -48,7 +48,7 @@ public class ConsortiumInstitutionRepository {
     return documentConverter.convertToSearchResult(response, ConsortiumInstitution.class);
   }
 
-  @NotNull
+  @NonNull
   private static SearchSourceBuilder getSearchSourceBuilder(String tenantId,
                                                             String institutionId,
                                                             Integer limit,
@@ -60,11 +60,11 @@ public class ConsortiumInstitutionRepository {
 
     Optional.ofNullable(tenantId)
       .ifPresent(id -> boolQuery
-          .filter(QueryBuilders.termQuery(TENANT_ID_FIELD_NAME, id)));
+        .filter(QueryBuilders.termQuery(TENANT_ID_FIELD_NAME, id)));
 
     Optional.ofNullable(institutionId)
-        .ifPresent(id -> boolQuery
-            .filter(QueryBuilders.termQuery(ID_FIELD, id)));
+      .ifPresent(id -> boolQuery
+        .filter(QueryBuilders.termQuery(ID_FIELD, id)));
 
     if (boolQuery.hasClauses()) {
       sourceBuilder.query(boolQuery);

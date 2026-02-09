@@ -5,7 +5,7 @@ import static org.apache.commons.lang3.StringUtils.truncate;
 import java.util.Objects;
 import lombok.Getter;
 import org.folio.search.utils.ShaUtils;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 @Getter
 public class CallNumberEntity implements Comparable<CallNumberEntity> {
@@ -48,7 +48,7 @@ public class CallNumberEntity implements Comparable<CallNumberEntity> {
   }
 
   @Override
-  public int compareTo(@NotNull CallNumberEntity o) {
+  public int compareTo(@NonNull CallNumberEntity o) {
     return id.compareTo(o.id);
   }
 

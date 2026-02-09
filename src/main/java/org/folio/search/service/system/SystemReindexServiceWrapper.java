@@ -8,9 +8,7 @@ import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.IndexService;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.service.reindex.ReindexService;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Recover;
-import org.springframework.retry.annotation.Retryable;
+import org.springframework.resilience.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 @Log4j2
@@ -22,7 +20,7 @@ public class SystemReindexServiceWrapper {
   private final IndexService indexService;
   private final ResourceDescriptionService resourceDescriptionService;
 
-  @Retryable(maxAttempts = 2, backoff = @Backoff(delay = 1000, multiplier = 2), recover = "failureReindex")
+  @Retryable(maxRetries = 2, delay = 1000, multiplier = 2)
   public void doReindex(ResourceType resource, String tenantId) {
     try {
       if (!resourceDescriptionService.get(resource).isReindexSupported()) {
@@ -38,13 +36,5 @@ public class SystemReindexServiceWrapper {
       log.warn("Reindex failed for tenant {} with exception: {}", tenantId, e.getMessage());
       throw e;
     }
-  }
-
-  /**
-   * Method to handle reindex failure after retries are exhausted.
-   */
-  @Recover
-  private void failureReindex(Exception e, ResourceType resource, String tenantId) {
-    log.error("{} reindex failed for tenant {} with exception: {}", resource, tenantId, e.getMessage());
   }
 }

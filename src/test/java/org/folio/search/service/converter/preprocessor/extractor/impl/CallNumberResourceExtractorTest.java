@@ -13,7 +13,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
 import java.util.function.Supplier;
 import org.folio.search.domain.dto.TenantConfiguredFeature;
@@ -28,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.databind.json.JsonMapper;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -49,7 +49,7 @@ class CallNumberResourceExtractorTest extends ChildResourceExtractorTestBase {
 
   @BeforeEach
   void setUp() {
-    extractor = new CallNumberResourceExtractor(repository, new JsonConverter(new ObjectMapper()), configService);
+    extractor = new CallNumberResourceExtractor(repository, new JsonConverter(new JsonMapper()), configService);
   }
 
   @Test

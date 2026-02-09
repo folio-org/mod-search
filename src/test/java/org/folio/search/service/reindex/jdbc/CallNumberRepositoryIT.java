@@ -7,7 +7,6 @@ import static org.folio.support.utils.TestUtils.mapOf;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -21,21 +20,25 @@ import org.folio.spring.FolioModuleMetadata;
 import org.folio.spring.testing.extension.EnablePostgres;
 import org.folio.spring.testing.extension.impl.RandomParametersExtension;
 import org.folio.spring.testing.type.IntegrationTest;
+import org.folio.support.config.TestNoOpCacheConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
+import org.springframework.boot.jdbc.test.autoconfigure.JdbcTest;
 import org.springframework.boot.test.autoconfigure.json.AutoConfigureJson;
+import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.jdbc.Sql;
+import tools.jackson.databind.json.JsonMapper;
 
 @IntegrationTest
 @JdbcTest
 @EnablePostgres
 @AutoConfigureJson
+@Import(TestNoOpCacheConfig.class)
 @ExtendWith(RandomParametersExtension.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class CallNumberRepositoryIT {
@@ -50,7 +53,7 @@ class CallNumberRepositoryIT {
   @BeforeEach
   void setUp() {
     var properties = new ReindexConfigurationProperties();
-    var jsonConverter = new JsonConverter(new ObjectMapper());
+    var jsonConverter = new JsonConverter(new JsonMapper());
     repository = spy(new CallNumberRepository(jdbcTemplate, jsonConverter, context, properties));
     when(context.getFolioModuleMetadata()).thenReturn(new FolioModuleMetadata() {
       @Override
@@ -102,11 +105,11 @@ class CallNumberRepositoryIT {
       .extracting("callNumber", "instances")
       .contains(
         tuple("number1",
-          List.of(mapOf("count", 0, "instanceContributors", null,
+          List.of(mapOf("count", null, "instanceContributors", null,
             "instanceId", List.of("9f8febd1-e96c-46c4-a5f4-84a45cc499a2"), "instanceTitle", null,
             "locationId", null, "resourceId", null, "shared", false, "tenantId", TENANT_ID, "typeId", null))),
         tuple("number2",
-          List.of(mapOf("count", 0, "instanceContributors", null,
+          List.of(mapOf("count", null, "instanceContributors", null,
             "instanceId", List.of("9f8febd1-e96c-46c4-a5f4-84a45cc499a2"), "instanceTitle", null,
             "locationId", null, "resourceId", null, "shared", false, "tenantId", TENANT_ID, "typeId", null))));
   }

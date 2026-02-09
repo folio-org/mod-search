@@ -42,17 +42,15 @@ class ReindexJdbcRepositoriesIT {
   private @MockitoBean FolioExecutionContext context;
   private @MockitoBean ReindexConfigurationProperties reindexConfig;
   private @MockitoBean ConsortiumTenantProvider tenantProvider;
-  private SearchConfigurationProperties searchConfig;
   private MergeInstanceRepository mergeRepository;
   private UploadInstanceRepository uploadRepository;
 
   @BeforeEach
   void setUp() {
     var jsonConverter = new JsonConverter(new JsonMapper());
-    searchConfig = new SearchConfigurationProperties();
+    var searchConfig = new SearchConfigurationProperties();
     searchConfig.setIndexing(new SearchConfigurationProperties.IndexingSettings());
-    mergeRepository = new MergeInstanceRepository(jdbcTemplate, jsonConverter, context, tenantProvider,
-      searchConfig);
+    mergeRepository = new MergeInstanceRepository(jdbcTemplate, jsonConverter, context, tenantProvider, searchConfig);
     uploadRepository = new UploadInstanceRepository(jdbcTemplate, jsonConverter, context, reindexConfig);
     when(context.getFolioModuleMetadata()).thenReturn(new FolioModuleMetadata() {
       @Override

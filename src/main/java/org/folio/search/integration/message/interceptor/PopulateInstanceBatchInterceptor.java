@@ -3,7 +3,6 @@ package org.folio.search.integration.message.interceptor;
 import static java.util.Collections.emptyList;
 import static java.util.function.Function.identity;
 import static org.apache.commons.collections4.MapUtils.getString;
-import static org.apache.commons.lang3.StringUtils.startsWith;
 import static org.folio.search.utils.SearchConverterUtils.getEventPayload;
 import static org.folio.search.utils.SearchConverterUtils.getResourceSource;
 import static org.folio.search.utils.SearchUtils.INSTANCE_ID_FIELD;
@@ -17,6 +16,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.Strings;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -76,15 +76,15 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
   }
 
   /**
-  * Needed in case 2 item events with same id come in 1 batch on update ownership case.
-  * When mod-inventory-storage send CREATE event for new tenant and DELETE event for old tenant.
-  * DELETE event in such case could have higher timestamp value and
-  * caller method (intercept) logic would filter out the CREATE event since both events have same id.
-  * This method helps identify such case.
-  */
+   * Needed in case 2 item events with same id come in 1 batch on update ownership case.
+   * When mod-inventory-storage send CREATE event for new tenant and DELETE event for old tenant.
+   * DELETE event in such case could have higher timestamp value and
+   * caller method (intercept) logic would filter out the CREATE event since both events have same id.
+   * This method helps identify such case.
+   */
   private boolean isUpdateOwnershipEvents(List<ConsumerRecord<String, ResourceEvent>> records) {
     if (records.size() != 2
-      || Objects.equals(records.getFirst().value().getTenant(), records.getLast().value().getTenant())) {
+        || Objects.equals(records.getFirst().value().getTenant(), records.getLast().value().getTenant())) {
       return false;
     }
     var eventTypes = records.stream()
@@ -92,7 +92,7 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
       .toList();
 
     return eventTypes.contains(ResourceEventType.CREATE)
-      && eventTypes.contains(ResourceEventType.DELETE);
+           && eventTypes.contains(ResourceEventType.DELETE);
   }
 
   private void populate(List<ResourceEvent> records) {
@@ -126,7 +126,7 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
         deleteEntities(tenant, resourceType, recordByOperation.getOrDefault(false, emptyList()), repository);
 
         log.debug("process::Saved {} entities for resource type {} in tenant {}, "
-            + "sub-resource processing will be handled by background job",
+                  + "sub-resource processing will be handled by background job",
           recordCollection.getValue().size(), resourceType, tenant);
       }
     }
@@ -148,7 +148,7 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
     return recordCollection.getValue().stream()
       .filter(resourceEvent -> {
         if (ResourceType.INSTANCE.getName().equals(resourceEvent.getResourceName())) {
-          return !startsWith(getResourceSource(resourceEvent), SOURCE_CONSORTIUM_PREFIX);
+          return !Strings.CS.startsWith(getResourceSource(resourceEvent), SOURCE_CONSORTIUM_PREFIX);
         }
         return true;
       })

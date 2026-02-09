@@ -51,10 +51,11 @@ public final class ClassificationSearchResponsePostProcessor
       return;
     }
     var subResources = res.stream()
-      .flatMap(resource -> resource.instances().stream().map(subResource -> {
-        subResource.setResourceId(resource.id());
-        return subResource;
-      }))
+      .flatMap(resource -> resource.instances().stream()
+        .map(subResource -> {
+          subResource.setResourceId(resource.id());
+          return subResource;
+        }))
       .toList();
 
     countAndSetInstanceProperties(subResources);

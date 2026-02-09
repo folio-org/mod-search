@@ -164,7 +164,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
   @ParameterizedTest(name = "[{index}] value={1}")
   void searchByInstances_negative_invalidDateFormat(String name, String value) throws Exception {
     attemptSearchByInstances("(" + name + "==" + value + ")")
-      .andExpect(status().isUnprocessableEntity())
+      .andExpect(status().isUnprocessableContent())
       .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is("Invalid date format")))
       .andExpect(jsonPath("$.errors[0].type", is("ValidationException")))

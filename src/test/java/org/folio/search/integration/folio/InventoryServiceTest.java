@@ -56,7 +56,7 @@ class InventoryServiceTest {
 
   @Test
   void fetchInventoryRecordsCount_ShouldReturnCorrectCount() {
-    var uri = URI.create("http://instance-storage/instances?limit=0&totalRecords=exact");
+    var uri = URI.create("instance-storage/instances?limit=0&totalRecords=exact");
     when(inventoryInstanceClient.getInventoryRecordsCount(uri)).thenReturn(
       new InventoryInstanceClient.InventoryRecordsCountDto(10));
     int count = inventoryService.fetchInventoryRecordsCount(InventoryRecordType.INSTANCE);
@@ -98,6 +98,6 @@ class InventoryServiceTest {
 
     assertThrows(FolioIntegrationException.class, () -> inventoryService.publishReindexRecordsRange(validRange));
 
-    verify(reindexRecordsClient, times(5)).publishReindexRecords(request);
+    verify(reindexRecordsClient, times(6)).publishReindexRecords(request);
   }
 }

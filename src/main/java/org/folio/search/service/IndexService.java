@@ -6,8 +6,6 @@ import static org.folio.search.model.types.ResourceType.LINKED_DATA_INSTANCE;
 import static org.folio.search.model.types.ResourceType.LINKED_DATA_WORK;
 import static org.springframework.web.util.UriComponentsBuilder.fromUriString;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -34,6 +32,8 @@ import org.folio.search.service.es.SearchSettingsHelper;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.opensearch.action.support.clustermanager.AcknowledgedResponse;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 
 @Log4j2
 @Service
@@ -41,7 +41,7 @@ import org.springframework.stereotype.Service;
 public class IndexService {
 
   private static final String RESOURCE_NAME_PARAMETER = "resourceName";
-  private static final String RESOURCE_STORAGE_REINDEX_URI = "http://{resource}-storage/reindex";
+  private static final String RESOURCE_STORAGE_REINDEX_URI = "{resource}-storage/reindex";
 
   private final IndexRepository indexRepository;
   private final SearchMappingsHelper mappingHelper;

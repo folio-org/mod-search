@@ -15,9 +15,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.opensearch.search.sort.SortBuilders.fieldSort;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.util.List;
 import java.util.function.Consumer;
@@ -44,6 +42,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.jdbc.core.RowCallbackHandler;
+import tools.jackson.databind.ObjectMapper;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -66,7 +65,7 @@ class ResourceIdServiceTest {
   private ResourceIdsTemporaryRepository idsTemporaryRepository;
 
   @Test
-  void streamIdsFromDatabaseAsJson_positive() throws IOException {
+  void streamIdsFromDatabaseAsJson_positive() {
     // Arrange
     final var jobId = randomId();
     final var temporaryTableName = "temp_table";

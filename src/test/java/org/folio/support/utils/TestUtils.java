@@ -30,9 +30,6 @@ import static org.opensearch.common.xcontent.json.JsonXContent.jsonXContent;
 import static org.opensearch.core.xcontent.DeprecationHandler.IGNORE_DEPRECATIONS;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.dataformat.smile.databind.SmileMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import java.math.BigDecimal;
@@ -92,6 +89,9 @@ import org.opensearch.search.aggregations.bucket.range.ParsedRange;
 import org.opensearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpHeaders;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
+import tools.jackson.dataformat.smile.SmileMapper;
 
 @UtilityClass
 public class TestUtils {

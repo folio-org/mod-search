@@ -33,7 +33,7 @@ import org.opensearch.search.Scroll;
 import org.opensearch.search.SearchHit;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.retry.support.RetryTemplate;
+import org.springframework.core.retry.RetryTemplate;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -136,7 +136,7 @@ public class SearchRepository {
     while (isNotEmpty(searchHits)) {
       consumer.accept(getResourceIds(searchHits, req.sourceFieldPath()));
       var scrollRequest = new SearchScrollRequest(scrollId).scroll(KEEP_ALIVE_INTERVAL);
-      var scrollResponse = retryTemplate.execute(v -> performExceptionalOperation(
+      var scrollResponse = retryTemplate.invoke(() -> performExceptionalOperation(
         () -> client.scroll(scrollRequest, DEFAULT), index, "scrollApi"));
       scrollId = scrollResponse.getScrollId();
       searchHits = scrollResponse.getHits().getHits();

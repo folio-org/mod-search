@@ -18,7 +18,7 @@
     {
       "request": {
         "method": "GET",
-        "url": "/identifier-types?query=name%3D%3D%28%22ISSN%22%20or%20%22Invalid%20ISSN%22%20or%20%22Linking%20ISSN%22%29&limit=100"
+        "url": "/identifier-types?query=name%3D%3D(%22ISSN%22%20or%20%22Invalid%20ISSN%22%20or%20%22Linking%20ISSN%22)&limit=100"
       },
       "response": {
         "status": 200,
@@ -46,7 +46,7 @@
     {
       "request": {
         "method": "GET",
-        "url": "/identifier-types?query=name%3D%3D%28%22OCLC%22%20or%20%22Cancelled%20OCLC%22%29&limit=100"
+        "url": "/identifier-types?query=name%3D%3D(%22OCLC%22%20or%20%22Cancelled%20OCLC%22)&limit=100"
       },
       "response": {
         "status": 200,
@@ -70,7 +70,7 @@
     {
       "request": {
         "method": "GET",
-        "url": "/identifier-types?query=name%3D%3D%28%22ISBN%22%20or%20%22Invalid%20ISBN%22%29&limit=100"
+        "url": "/identifier-types?query=name%3D%3D(%22ISBN%22%20or%20%22Invalid%20ISBN%22)&limit=100"
       },
       "response": {
         "status": 200,
@@ -94,7 +94,7 @@
     {
       "request": {
         "method": "GET",
-        "url": "/identifier-types?query=name%3D%3D%28%22LCCN%22%29&limit=100"
+        "url": "/identifier-types?query=name%3D%3D(%22LCCN%22)&limit=100"
       },
       "response": {
         "status": 200,
@@ -114,7 +114,7 @@
     {
       "request": {
         "method": "GET",
-        "url": "/identifier-types?query=name%3D%3D%28%22Canceled%20LCCN%22%29&limit=100"
+        "url": "/identifier-types?query=name%3D%3D(%22Canceled%20LCCN%22)&limit=100"
       },
       "response": {
         "status": 200,
@@ -134,7 +134,7 @@
     {
       "request": {
         "method": "GET",
-        "url": "/alternative-title-types?query=name%3D%3D%28%22Uniform%20Title%22%29&limit=100"
+        "url": "/alternative-title-types?query=name%3D%3D(%22Uniform%20Title%22)&limit=100"
       },
       "response": {
         "status": 200,
@@ -155,7 +155,7 @@
     {
       "request": {
         "method": "GET",
-        "url": "/call-number-types?query=source%3D%3D%28%22local%22%29&limit=100"
+        "url": "/call-number-types?query=source%3D%3D(%22local%22)&limit=100"
       },
       "response": {
         "status": 200,
@@ -186,7 +186,7 @@
     {
       "request": {
         "method": "GET",
-        "url": "/call-number-types?query=source%3D%3D%28%22folio%22%29&limit=100"
+        "url": "/call-number-types?query=source%3D%3D(%22folio%22)&limit=100"
       },
       "response": {
         "status": 200,

@@ -11,7 +11,7 @@ import org.folio.search.exception.FolioIntegrationException;
 import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.InventoryRecordType;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.retry.support.RetryTemplate;
+import org.springframework.core.retry.RetryTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -68,13 +68,6 @@ public class InventoryService {
       rangeEntity.getLowerId(),
       rangeEntity.getUpperId());
 
-    retryTemplate.execute(context -> {
-      reindexRecordsClient.publishReindexRecords(recordsRange);
-      return null;
-    }, context -> {
-      var lastThrowable = context.getLastThrowable();
-      log.error(new FormattedMessage("Failed to publish reindex records range {}", recordsRange), lastThrowable);
-      throw new FolioIntegrationException("Failed to publish reindex records range after all retries", lastThrowable);
-    });
+    retryTemplate.invoke(() -> reindexRecordsClient.publishReindexRecords(recordsRange));
   }
 }

@@ -7,8 +7,6 @@ import static org.folio.search.model.metadata.PlainFieldDescription.FULLTEXT_FIE
 import static org.folio.search.utils.SearchUtils.MULTILANG_SOURCE_SUBFIELD;
 import static org.folio.search.utils.SearchUtils.PLAIN_FULLTEXT_PREFIX;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -27,6 +25,8 @@ import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.search.utils.JsonConverter;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 
 @Log4j2
 @Service

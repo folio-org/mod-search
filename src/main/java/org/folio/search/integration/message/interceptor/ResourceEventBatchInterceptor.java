@@ -8,7 +8,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.utils.KafkaUtils;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.kafka.listener.BatchInterceptor;
@@ -38,8 +38,8 @@ public class ResourceEventBatchInterceptor implements BatchInterceptor<String, R
   );
 
   @Override
-  public ConsumerRecords<String, ResourceEvent> intercept(@NotNull ConsumerRecords<String, ResourceEvent> records,
-                                                          @NotNull Consumer<String, ResourceEvent> consumer) {
+  public ConsumerRecords<String, ResourceEvent> intercept(@NonNull ConsumerRecords<String, ResourceEvent> records,
+                                                          @NonNull Consumer<String, ResourceEvent> consumer) {
     records.forEach(consumerRecord -> {
       var topicName = KafkaUtils.getTopicName(consumerRecord);
       var resourceType = TOPIC_TO_RESOURCE_MAP.getOrDefault(topicName, ResourceType.UNKNOWN);

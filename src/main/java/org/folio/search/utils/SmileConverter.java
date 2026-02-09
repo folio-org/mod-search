@@ -1,11 +1,11 @@
 package org.folio.search.utils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.dataformat.smile.databind.SmileMapper;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.SerializationException;
 import org.opensearch.core.common.bytes.BytesArray;
 import org.springframework.stereotype.Component;
+import tools.jackson.core.JacksonException;
+import tools.jackson.dataformat.smile.SmileMapper;
 
 /**
  * A Spring component for serialization and deserialization operations basing on jackson smileMapper.
@@ -34,9 +34,8 @@ public class SmileConverter {
     }
     try {
       return new BytesArray(smileMapper.writeValueAsBytes(value));
-    } catch (JsonProcessingException e) {
-      throw new SerializationException(String.format(
-        SERIALIZATION_ERROR_MSG_TEMPLATE, e.getMessage()));
+    } catch (JacksonException e) {
+      throw new SerializationException(String.format(SERIALIZATION_ERROR_MSG_TEMPLATE, e.getMessage()));
     }
   }
 }

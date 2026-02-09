@@ -2,8 +2,7 @@ package org.folio.search.service.system;
 
 import lombok.RequiredArgsConstructor;
 import org.folio.spring.service.PrepareSystemUserService;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
+import org.springframework.resilience.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 /**
@@ -17,7 +16,7 @@ public class OkapiSystemUserService {
 
   private final PrepareSystemUserService prepareSystemUserService;
 
-  @Retryable(maxAttempts = 10, backoff = @Backoff(delay = 2000, multiplier = 2))
+  @Retryable(maxRetries = 10, delay = 2000, multiplier = 2)
   public void prepareSystemUser() {
     prepareSystemUserService.setupSystemUser();
   }

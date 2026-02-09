@@ -33,7 +33,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +64,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.databind.ObjectMapper;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -254,7 +254,7 @@ class IndexServiceTest {
     var indexName = getIndexName(AUTHORITY, TENANT_ID);
     var createIndexResponse = getSuccessFolioCreateIndexResponse(List.of(indexName));
     var expectedResponse = new ReindexJob().id(randomId());
-    var expectedUri = URI.create("http://authority-storage/reindex");
+    var expectedUri = URI.create("authority-storage/reindex");
 
     when(resourceReindexClient.submitReindex(expectedUri)).thenReturn(expectedResponse);
     when(mappingsHelper.getMappings(AUTHORITY)).thenReturn(EMPTY_OBJECT);
@@ -275,7 +275,7 @@ class IndexServiceTest {
   @Test
   void reindexInventory_positive_recreateIndexIsTrue_memberTenant() {
     var expectedResponse = new ReindexJob().id(randomId());
-    var expectedUri = URI.create("http://authority-storage/reindex");
+    var expectedUri = URI.create("authority-storage/reindex");
 
     when(resourceReindexClient.submitReindex(expectedUri)).thenReturn(expectedResponse);
     when(resourceDescriptionService.find(AUTHORITY)).thenReturn(
@@ -293,7 +293,7 @@ class IndexServiceTest {
   @Test
   void reindexInventory_positive_recreateIndexIsFalse() {
     var expectedResponse = new ReindexJob().id(randomId());
-    var expectedUri = URI.create("http://authority-storage/reindex");
+    var expectedUri = URI.create("authority-storage/reindex");
 
     when(resourceReindexClient.submitReindex(expectedUri)).thenReturn(expectedResponse);
     when(resourceDescriptionService.find(AUTHORITY)).thenReturn(

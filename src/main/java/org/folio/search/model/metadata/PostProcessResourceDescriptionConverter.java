@@ -4,9 +4,9 @@ import static java.util.Collections.unmodifiableMap;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-import com.fasterxml.jackson.databind.util.StdConverter;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import tools.jackson.databind.util.StdConverter;
 
 /**
  * This Jackson converter is used to post-process ResourceDescription after it has been deserialized.
@@ -37,8 +37,8 @@ public class PostProcessResourceDescriptionConverter extends StdConverter<Resour
 
       // Resolve nested properties recursively
       var field = entry.getValue();
-      if (field instanceof ObjectFieldDescription) {
-        resolveFieldByType(desc, ((ObjectFieldDescription) field).getProperties());
+      if (field instanceof ObjectFieldDescription objectFieldDescription) {
+        resolveFieldByType(desc, objectFieldDescription.getProperties());
       }
     }
   }

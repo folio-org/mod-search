@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
     <version>4.0.2</version>
-    <relativePath />
+    <relativePath/>
   </parent>
 
   <name>mod-search</name>
@@ -37,8 +39,8 @@
     <folio-spring-support.version>10.0.0-RC1</folio-spring-support.version>
     <folio-service-tools.version>6.0.0-SNAPSHOT</folio-service-tools.version>
     <folio-isbn-utils.version>1.9.0-SNAPSHOT</folio-isbn-utils.version>
-    <folio-cql2pgjson.version>35.4.0</folio-cql2pgjson.version>
-    <opensearch.version>3.3.2</opensearch.version>
+    <folio-cql2pgjson.version>35.4.2</folio-cql2pgjson.version>
+    <opensearch.version>3.4.0</opensearch.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <apache-commons-io.version>2.21.0</apache-commons-io.version>
     <apache-commons-collections.version>4.5.0</apache-commons-collections.version>
@@ -49,18 +51,18 @@
 
     <!-- Plugins versions -->
     <folio-module-descriptor-validator.version>1.0.1</folio-module-descriptor-validator.version>
-    <maven-openapi-generator-plugin.version>7.17.0</maven-openapi-generator-plugin.version>
+    <maven-openapi-generator-plugin.version>7.19.0</maven-openapi-generator-plugin.version>
     <maven-copy-rename-plugin.version>1.0.1</maven-copy-rename-plugin.version>
     <maven-build-helper-plugin.version>3.6.1</maven-build-helper-plugin.version>
     <maven-clean-plugin.version>3.5.0</maven-clean-plugin.version>
     <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
     <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
     <folio-java-checkstyle.version>1.2.0</folio-java-checkstyle.version>
-    <checkstyle.version>12.1.2</checkstyle.version>
+    <checkstyle.version>13.2.0</checkstyle.version>
     <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
     <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
     <maven-failsafe-plugin.version>3.5.4</maven-failsafe-plugin.version>
-    <maven-release-plugin.version>3.2.0</maven-release-plugin.version>
+    <maven-release-plugin.version>3.3.1</maven-release-plugin.version>
   </properties>
 
   <dependencies>
@@ -73,12 +75,6 @@
       <groupId>org.folio</groupId>
       <artifactId>folio-spring-system-user</artifactId>
       <version>${folio-spring-support.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>software.amazon.ion</groupId>
-          <artifactId>ion-java</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>
@@ -86,12 +82,8 @@
       <artifactId>spring-boot-starter-web</artifactId>
       <exclusions>
         <exclusion>
-          <groupId>org.apache.logging.log4j</groupId>
-          <artifactId>log4j-to-slf4j</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>ch.qos.logback</groupId>
-          <artifactId>logback-classic</artifactId>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-logging</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -101,12 +93,8 @@
       <artifactId>spring-boot-starter-validation</artifactId>
       <exclusions>
         <exclusion>
-          <groupId>org.apache.logging.log4j</groupId>
-          <artifactId>log4j-to-slf4j</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>ch.qos.logback</groupId>
-          <artifactId>logback-classic</artifactId>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-logging</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -116,12 +104,8 @@
       <artifactId>spring-boot-starter-kafka</artifactId>
       <exclusions>
         <exclusion>
-          <groupId>org.apache.logging.log4j</groupId>
-          <artifactId>log4j-to-slf4j</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>ch.qos.logback</groupId>
-          <artifactId>logback-classic</artifactId>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-logging</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -285,16 +269,8 @@
       <scope>test</scope>
       <exclusions>
         <exclusion>
-          <groupId>org.junit.vintage</groupId>
-          <artifactId>junit-vintage-engine</artifactId>
-        </exclusion>
-        <exclusion>
           <groupId>org.apache.logging.log4j</groupId>
           <artifactId>log4j-to-slf4j</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>ch.qos.logback</groupId>
-          <artifactId>logback-classic</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -302,17 +278,13 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-kafka-test</artifactId>
+      <scope>test</scope>
       <exclusions>
         <exclusion>
           <groupId>org.apache.logging.log4j</groupId>
           <artifactId>log4j-to-slf4j</artifactId>
         </exclusion>
-        <exclusion>
-          <groupId>ch.qos.logback</groupId>
-          <artifactId>logback-classic</artifactId>
-        </exclusion>
       </exclusions>
-      <scope>test</scope>
     </dependency>
 
     <dependency>
@@ -529,6 +501,7 @@
             </configuration>
           </execution>
           <execution>
+            <id>mod-search-html-docs</id>
             <goals>
               <goal>generate</goal>
             </goals>
@@ -610,6 +583,14 @@
         <configuration>
           <groups>integration</groups>
         </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
 
       <plugin>

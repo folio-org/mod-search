@@ -403,3 +403,4 @@ Case,Query,Value
 402,"isbn == ""{value}""",9781609383657
 403,"isbn = ""{value}""",0262012103*
 404,"isbn == ""{value}""",0262012103
+405,"isbn all ""{value}""",9780471442509 paper

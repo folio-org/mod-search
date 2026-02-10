@@ -96,12 +96,20 @@ class ConsortiumTenantExecutorTest {
   }
 
   private Supplier<String> operation() {
-    return () -> OPERATION_RESPONSE_MOCK;
+    return new Supplier<String>() {
+      @Override
+      public String get() {
+        return OPERATION_RESPONSE_MOCK;
+      }
+    };
   }
 
   private Runnable operationRunnable() {
-    return () -> {
-      // do nothing
+    return new Runnable() {
+      @Override
+      public void run() {
+        // do nothing
+      }
     };
   }
 }

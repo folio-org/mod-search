@@ -171,7 +171,9 @@ class SearchLinkedDataInstanceIT extends BaseIntegrationTest {
     "77, isbn == \"047144250\"",
     "78, isbn = \"1234567890*\"",
     "79, isbn = \"1234567890123*\"",
-    "80, isbn == \"1234567890123\""
+    "80, isbn == \"1234567890123\"",
+    "81, isbn == \"0262012103\"", //ISBN10 which is also indexed in ISBN13 form by IsbnProcessor
+    "82, isbn == \"0262012103*\""
   })
   void searchByLinkedDataInstance_parameterized_singleResult(int index, String query) throws Throwable {
     doSearchByLinkedDataInstance(query)

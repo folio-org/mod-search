@@ -9,11 +9,7 @@ import static org.folio.support.utils.JsonTestUtils.jsonObject;
 import static org.folio.support.utils.TestUtils.mapOf;
 import static org.mockito.Mockito.verify;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import org.apache.commons.lang3.SerializationException;
@@ -26,6 +22,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.core.common.bytes.BytesArray;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -42,7 +41,7 @@ class JsonConverterTest {
   private JsonConverter jsonConverter;
 
   @Test
-  void toJson_positive() throws JsonProcessingException {
+  void toJson_positive() throws JacksonException {
     var actual = jsonConverter.toJson(TestClass.of(FIELD_VALUE));
     assertThat(actual).isEqualTo(JSON_BODY);
 
@@ -64,7 +63,7 @@ class JsonConverterTest {
   }
 
   @Test
-  void toJsonBytes_positive() throws JsonProcessingException {
+  void toJsonBytes_positive() throws JacksonException {
     var actual = jsonConverter.toJsonBytes(TestClass.of(FIELD_VALUE));
     assertThat(actual).isEqualTo(JSON_BYTES_BODY);
 
@@ -78,7 +77,7 @@ class JsonConverterTest {
   }
 
   @Test
-  void fromJsonForClass_positive() throws JsonProcessingException {
+  void fromJsonForClass_positive() throws JacksonException {
     var actual = jsonConverter.fromJson(JSON_BODY, TestClass.class);
     assertThat(actual).isEqualTo(TestClass.of(FIELD_VALUE));
     verify(objectMapper).readValue(JSON_BODY, TestClass.class);
@@ -98,7 +97,7 @@ class JsonConverterTest {
   }
 
   @Test
-  void fromJsonForType_positive() throws JsonProcessingException {
+  void fromJsonForType_positive() throws JacksonException {
     var actual = jsonConverter.fromJson(JSON_BODY, MAP_TYPE_REFERENCE);
     assertThat(actual).isEqualTo(Map.of("field", FIELD_VALUE));
     verify(objectMapper).readValue(JSON_BODY, MAP_TYPE_REFERENCE);
@@ -118,7 +117,7 @@ class JsonConverterTest {
   }
 
   @Test
-  void fromJsonInputStreamForClass_positive() throws IOException {
+  void fromJsonInputStreamForClass_positive() {
     InputStream is = new ByteArrayInputStream(JSON_BODY.getBytes(UTF_8));
     var actual = jsonConverter.readJson(is, TestClass.class);
     assertThat(actual).isEqualTo(TestClass.of(FIELD_VALUE));
@@ -140,7 +139,7 @@ class JsonConverterTest {
   }
 
   @Test
-  void fromJsonInputStreamForType_positive() throws IOException {
+  void fromJsonInputStreamForType_positive() {
     InputStream is = new ByteArrayInputStream(JSON_BODY.getBytes(UTF_8));
     var actual = jsonConverter.readJson(is, MAP_TYPE_REFERENCE);
     assertThat(actual).isEqualTo(Map.of("field", FIELD_VALUE));

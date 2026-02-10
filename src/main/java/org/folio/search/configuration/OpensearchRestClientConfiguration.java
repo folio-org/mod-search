@@ -138,7 +138,7 @@ public class OpensearchRestClientConfiguration {
 
     @Override
     public void customize(RequestConfig.Builder builder) {
-      MAPPER.from(this.properties::getSocketTimeout).whenNonNull().asInt(Duration::toMillis)
+      MAPPER.from(this.properties::getSocketTimeout).asInt(Duration::toMillis)
         .to(timeout -> builder.setResponseTimeout(Timeout.ofMilliseconds(timeout)));
     }
 
@@ -152,9 +152,9 @@ public class OpensearchRestClientConfiguration {
     }
 
     private ConnectionConfig getConnectionConfig(ConnectionConfig.Builder builder) {
-      MAPPER.from(this.properties::getConnectionTimeout).whenNonNull().asInt(Duration::toMillis)
+      MAPPER.from(this.properties::getConnectionTimeout).asInt(Duration::toMillis)
         .to(timeout -> builder.setConnectTimeout(Timeout.ofMilliseconds(timeout)));
-      MAPPER.from(this.properties::getSocketTimeout).whenNonNull().asInt(Duration::toMillis)
+      MAPPER.from(this.properties::getSocketTimeout).asInt(Duration::toMillis)
         .to(timeout -> builder.setSocketTimeout(Timeout.ofMilliseconds(timeout)));
       return builder.build();
     }
@@ -163,7 +163,7 @@ public class OpensearchRestClientConfiguration {
       try {
         return ClientTlsStrategyBuilder.create()
           .setSslContext(SSLContext.getDefault())
-          .build();
+          .buildAsync();
       } catch (NoSuchAlgorithmException e) {
         throw new IllegalStateException("Could not create the default ssl context", e);
       }

@@ -1,10 +1,5 @@
 package org.folio.search.utils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +8,10 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.SerializationException;
 import org.opensearch.core.common.bytes.BytesArray;
 import org.springframework.stereotype.Component;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * A Spring component for serialization and deserialization operations basing on jackson objectMapper.
@@ -28,7 +27,7 @@ public class JsonConverter {
   public static final String SERIALIZATION_ERROR_MSG_TEMPLATE = "Failed to serialize value [message: %s]";
   public static final String DESERIALIZATION_ERROR_MSG_TEMPLATE = "Failed to deserialize value [value: {}]";
 
-  private final ObjectMapper objectMapper;
+  private final JsonMapper objectMapper;
 
   /**
    * Converts {@link String} value as {@link T} class value.
@@ -45,7 +44,7 @@ public class JsonConverter {
     }
     try {
       return objectMapper.readValue(value, type);
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       throw deserializationException(value, e);
     }
   }
@@ -65,7 +64,7 @@ public class JsonConverter {
     }
     try {
       return objectMapper.readValue(value, type);
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       throw deserializationException(value, e);
     }
   }
@@ -104,7 +103,7 @@ public class JsonConverter {
     }
     try {
       return objectMapper.readValue(inputStream, type);
-    } catch (IOException e) {
+    } catch (JacksonException e) {
       throw deserializationException(inputStream.toString(), e);
     }
   }
@@ -123,7 +122,7 @@ public class JsonConverter {
     }
     try {
       return objectMapper.readValue(inputStream, type);
-    } catch (IOException e) {
+    } catch (JacksonException e) {
       throw deserializationException(inputStream.toString(), e);
     }
   }
@@ -140,7 +139,7 @@ public class JsonConverter {
     }
     try {
       return objectMapper.readTree(value);
-    } catch (IOException e) {
+    } catch (JacksonException e) {
       throw deserializationException(value, e);
     }
   }
@@ -157,7 +156,7 @@ public class JsonConverter {
     }
     try {
       return objectMapper.readTree(inputStream);
-    } catch (IOException e) {
+    } catch (JacksonException e) {
       throw deserializationException(inputStream.toString(), e);
     }
   }
@@ -187,7 +186,7 @@ public class JsonConverter {
     }
     try {
       objectMapper.readTree(value);
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       return false;
     }
     return true;
@@ -205,7 +204,7 @@ public class JsonConverter {
     }
     try {
       return objectMapper.writeValueAsString(value);
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       throw new SerializationException(String.format(
         SERIALIZATION_ERROR_MSG_TEMPLATE, e.getMessage()), e);
     }

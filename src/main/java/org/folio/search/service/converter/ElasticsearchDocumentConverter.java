@@ -3,7 +3,6 @@ package org.folio.search.service.converter;
 import static java.util.Collections.emptyList;
 import static org.folio.search.utils.SearchUtils.PLAIN_FULLTEXT_PREFIX;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -18,6 +17,7 @@ import org.opensearch.action.search.SearchResponse;
 import org.opensearch.search.SearchHit;
 import org.opensearch.search.SearchHits;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.ObjectMapper;
 
 @Component
 @RequiredArgsConstructor

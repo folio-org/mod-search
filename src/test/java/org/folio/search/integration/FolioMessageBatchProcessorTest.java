@@ -9,6 +9,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -19,14 +20,15 @@ import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.retry.support.RetryTemplate;
+import org.springframework.core.retry.RetryPolicy;
+import org.springframework.core.retry.RetryTemplate;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
 class FolioMessageBatchProcessorTest {
 
-  private final RetryTemplate retryTemplate = spy(RetryTemplate.builder().maxAttempts(3).fixedBackoff(1).build());
-  private final RetryTemplate customRetryTemplate = spy(RetryTemplate.builder().maxAttempts(5).fixedBackoff(1).build());
+  private final RetryTemplate retryTemplate = spy(getRetryTemplate(3));
+  private final RetryTemplate customRetryTemplate = spy(getRetryTemplate(5));
 
   private final FolioMessageBatchProcessor folioMessageBatchProcessor = new FolioMessageBatchProcessor(
     mapOf("default", retryTemplate, "custom", customRetryTemplate), retryTemplate);
@@ -40,8 +42,8 @@ class FolioMessageBatchProcessorTest {
 
     assertThat(consumedMessages).containsExactly(1, 2, 3);
     assertThat(failedMessages).isEmpty();
-    verify(customRetryTemplate).execute(any());
-    verify(retryTemplate, never()).execute(any());
+    verify(customRetryTemplate).invoke(any(Runnable.class));
+    verify(retryTemplate, never()).invoke(any(Runnable.class));
   }
 
   @Test
@@ -54,7 +56,7 @@ class FolioMessageBatchProcessorTest {
     assertThat(consumedMessages).isEmpty();
     assertThat(failedMessages).isEmpty();
     verifyNoInteractions(customRetryTemplate);
-    verify(retryTemplate, never()).execute(any());
+    verify(retryTemplate, never()).invoke(any(Runnable.class));
   }
 
   @Test
@@ -66,8 +68,8 @@ class FolioMessageBatchProcessorTest {
 
     assertThat(consumedMessages).containsExactly(1, 2, 3);
     assertThat(failedMessages).isEmpty();
-    verify(retryTemplate).execute(any());
-    verify(customRetryTemplate, never()).execute(any());
+    verify(retryTemplate).invoke(any(Runnable.class));
+    verify(customRetryTemplate, never()).invoke(any(Runnable.class));
   }
 
   @Test
@@ -100,7 +102,7 @@ class FolioMessageBatchProcessorTest {
     var failedMessages = new ArrayList<Pair<Integer, Exception>>();
     var attemptsCounter = new AtomicInteger(1);
     folioMessageBatchProcessor.consumeBatchWithFallback(singletonList(1), null,
-      attemptThrowingConsumer(consumedMessages, attemptsCounter, 3),
+      attemptThrowingConsumer(consumedMessages, attemptsCounter, 4),
       (value, err) -> failedMessages.add(Pair.of(value, err)));
     assertThat(consumedMessages).isEmpty();
     assertThat(failedMessages).hasSize(1).satisfies(list -> verifyFailedMessage(list.getFirst(), 1));
@@ -112,13 +114,17 @@ class FolioMessageBatchProcessorTest {
     var failedMessages = new ArrayList<Pair<Integer, Exception>>();
     var attemptsCounter = new AtomicInteger(1);
     folioMessageBatchProcessor.consumeBatchWithFallback(List.of(1, 2, 3), null,
-      attemptThrowingConsumer(consumedMessages, attemptsCounter, 12),
+      attemptThrowingConsumer(consumedMessages, attemptsCounter, 16),
       (value, err) -> failedMessages.add(Pair.of(value, err)));
     assertThat(failedMessages).hasSize(3).satisfies(list -> {
       verifyFailedMessage(list.get(0), 1);
       verifyFailedMessage(list.get(1), 2);
       verifyFailedMessage(list.get(2), 3);
     });
+  }
+
+  private static RetryTemplate getRetryTemplate(int maxRetries) {
+    return new RetryTemplate(RetryPolicy.builder().maxRetries(maxRetries).delay(Duration.ofMillis(1)).build());
   }
 
   private void verifyFailedMessage(Pair<Integer, Exception> value, int expectedValue) {

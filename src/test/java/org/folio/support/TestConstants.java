@@ -3,12 +3,12 @@ package org.folio.support;
 import static org.folio.spring.config.properties.FolioEnvironment.getFolioEnvName;
 import static org.folio.support.utils.TestUtils.randomId;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.folio.search.model.types.ResourceType;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.JsonNodeFactory;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TestConstants {

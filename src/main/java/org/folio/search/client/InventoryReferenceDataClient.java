@@ -6,12 +6,12 @@ import lombok.Getter;
 import org.folio.search.model.client.CqlQuery;
 import org.folio.search.model.service.ReferenceRecord;
 import org.folio.search.model.service.ResultList;
-import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.service.annotation.GetExchange;
+import org.springframework.web.service.annotation.HttpExchange;
 import org.springframework.web.util.UriComponentsBuilder;
 
-@FeignClient("inventory-reference-data-client")
+@HttpExchange
 public interface InventoryReferenceDataClient {
 
   /**
@@ -21,16 +21,16 @@ public interface InventoryReferenceDataClient {
    * @param query - cql query as {@link CqlQuery} object
    * @return {@link  ResultList} with {@link  ReferenceRecord} object
    */
-  @GetMapping
+  @GetExchange
   ResultList<ReferenceRecord> getReferenceData(URI uri, @RequestParam CqlQuery query, @RequestParam int limit);
 
   @Getter
   enum ReferenceDataType {
 
-    IDENTIFIER_TYPES("http://identifier-types"),
-    ALTERNATIVE_TITLE_TYPES("http://alternative-title-types"),
-    CALL_NUMBER_TYPES("http://call-number-types"),
-    CLASSIFICATION_TYPES("http://classification-types");
+    IDENTIFIER_TYPES("identifier-types"),
+    ALTERNATIVE_TITLE_TYPES("alternative-title-types"),
+    CALL_NUMBER_TYPES("call-number-types"),
+    CLASSIFICATION_TYPES("classification-types");
 
     /**
      * Request URI for feign client.

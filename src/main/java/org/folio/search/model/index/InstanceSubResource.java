@@ -10,7 +10,7 @@ public class InstanceSubResource {
   private String resourceId;
   private String tenantId;
   private Boolean shared;
-  private int count;
+  private Integer count;
   private List<String> typeId;
   private String locationId;
   private List<String> instanceId;

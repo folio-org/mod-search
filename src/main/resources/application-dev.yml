@@ -9,10 +9,6 @@ spring:
     deserialization:
       fail-on-unknown-properties: false
       accept-single-value-as-array: true
-  cloud:
-    openfeign:
-      okhttp:
-        enabled: true
   opensearch:
     username: ${ELASTICSEARCH_USERNAME:}
     password: ${ELASTICSEARCH_PASSWORD:}
@@ -67,6 +63,8 @@ spring:
 
 folio:
   environment: ${ENV:folio}
+  exchange:
+    enabled: true
   system:
     schemaName: mod_search__system
     change-log: classpath:changelog/changelog-system.xml
@@ -170,7 +168,7 @@ folio:
   logging:
     request:
       enabled: true
-    feign:
+    exchange:
       enabled: true
 
 server.port: 8081
@@ -187,7 +185,7 @@ management:
 
 logging:
   level:
-    org.folio.spring.filter.LoggingRequestFilter: DEBUG
+    org.folio.spring.filter.IncomingRequestLoggingFilter: DEBUG
     org.opensearch.client: TRACE
     org.opensearch.client.sniffer: TRACE
     tracer: TRACE

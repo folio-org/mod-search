@@ -3,10 +3,10 @@ package org.folio.search.client;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import java.net.URI;
-import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.service.annotation.GetExchange;
+import org.springframework.web.service.annotation.HttpExchange;
 
-@FeignClient("instance-storage")
+@HttpExchange
 public interface InventoryInstanceClient {
 
   /**
@@ -15,7 +15,7 @@ public interface InventoryInstanceClient {
    * @param uri URI to retrieve count of inventory record
    * @return count represented as {@link InventoryRecordsCountDto}
    */
-  @GetMapping(produces = APPLICATION_JSON_VALUE)
+  @GetExchange(accept = APPLICATION_JSON_VALUE)
   InventoryRecordsCountDto getInventoryRecordsCount(URI uri);
 
   record InventoryRecordsCountDto(int totalRecords) { }

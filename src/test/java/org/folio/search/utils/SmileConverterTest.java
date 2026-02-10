@@ -4,8 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.support.utils.TestUtils.SMILE_MAPPER;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.dataformat.smile.databind.SmileMapper;
 import org.apache.commons.lang3.SerializationException;
 import org.folio.spring.testing.type.UnitTest;
 import org.folio.support.utils.TestUtils.NonSerializableByJacksonClass;
@@ -16,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.core.common.bytes.BytesArray;
+import tools.jackson.dataformat.smile.SmileMapper;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -29,7 +28,7 @@ class SmileConverterTest {
   private SmileConverter smileConverter;
 
   @Test
-  void toSmile_positive() throws JsonProcessingException {
+  void toSmile_positive() {
     var object = TestClass.of(FIELD_VALUE);
     var expected = new BytesArray(SMILE_MAPPER.writeValueAsBytes(object));
     var actual = smileConverter.toSmile(object);

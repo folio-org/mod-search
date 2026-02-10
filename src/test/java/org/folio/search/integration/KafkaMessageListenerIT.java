@@ -53,10 +53,12 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
+import org.springframework.boot.kafka.autoconfigure.KafkaAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -66,7 +68,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
-import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.resilience.annotation.EnableResilientMethods;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @Log4j2
@@ -77,6 +79,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 })
 @IntegrationTest
 @Import(KafkaListenerTestConfiguration.class)
+@ExtendWith(MockitoExtension.class)
 @SpringBootTest(
   classes = {KafkaMessageListener.class, FolioKafkaProperties.class, InstanceEventMapper.class},
   properties = {
@@ -194,7 +197,7 @@ class KafkaMessageListenerIT {
   }
 
   @TestConfiguration
-  @EnableRetry(proxyTargetClass = true)
+  @EnableResilientMethods(proxyTargetClass = true)
   @Import({
     InstanceResourceEventKafkaConfiguration.class, ResourceEventKafkaConfiguration.class,
     KafkaAutoConfiguration.class, FolioMessageBatchProcessor.class,

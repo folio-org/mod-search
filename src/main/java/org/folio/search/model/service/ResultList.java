@@ -18,7 +18,7 @@ public class ResultList<T> {
    * Page number.
    */
   @JsonAlias("total_records")
-  private int totalRecords = 0;
+  private Integer totalRecords = 0;
 
   /**
    * Paged result data.

@@ -8,33 +8,33 @@ import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.folio.search.model.service.ResultList;
-import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.service.annotation.GetExchange;
+import org.springframework.web.service.annotation.HttpExchange;
 import org.springframework.web.util.UriComponentsBuilder;
 
-@FeignClient("locations")
+@HttpExchange
 public interface LocationsClient {
 
   /**
    * Retrieves locations and location-unit data from inventory storage.
    *
-   * @param uri - uri address to request for as {@link URI} object
+   * @param uri    - uri address to request for as {@link URI} object
    * @param offset - number of resources to skip
-   * @param limit - limit of resources to fetch
+   * @param limit  - limit of resources to fetch
    * @return {@link ResultList} with Instance objects inside.
    */
-  @GetMapping(produces = APPLICATION_JSON_VALUE)
+  @GetExchange(accept = APPLICATION_JSON_VALUE)
   ResultList<Map<String, Object>> getLocationsData(URI uri, @RequestParam int offset, @RequestParam int limit);
 
   @Getter
   @AllArgsConstructor
   enum DocumentType {
 
-    LOCATION("http://locations"),
-    CAMPUS("http://location-units/campuses"),
-    LIBRARY("http://location-units/libraries"),
-    INSTITUTION("http://location-units/institutions");
+    LOCATION("locations"),
+    CAMPUS("location-units/campuses"),
+    LIBRARY("location-units/libraries"),
+    INSTITUTION("location-units/institutions");
 
     /**
      * Request URI for feign client.

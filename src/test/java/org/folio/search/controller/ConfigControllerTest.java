@@ -38,20 +38,21 @@ import org.folio.search.service.consortium.LanguageConfigServiceDecorator;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.testing.type.UnitTest;
 import org.folio.support.base.ApiEndpoints;
+import org.folio.support.config.TestNoOpCacheConfig;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @UnitTest
-@Import(ApiExceptionHandler.class)
 @WebMvcTest(ConfigController.class)
+@Import({ApiExceptionHandler.class, TestNoOpCacheConfig.class})
 class ConfigControllerTest {
 
   @Autowired
@@ -152,7 +153,7 @@ class ConfigControllerTest {
         .content(asJsonString(languageConfig))
         .header(XOkapiHeaders.TENANT, TENANT_ID)
         .contentType(APPLICATION_JSON))
-      .andExpect(status().isUnprocessableEntity())
+      .andExpect(status().isUnprocessableContent())
       .andExpect(jsonPath("total_records", is(1)))
       .andExpect(jsonPath("errors[0].code", is("validation_error")))
       .andExpect(jsonPath("errors[0].type", is("ValidationException")))

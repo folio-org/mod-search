@@ -11,14 +11,14 @@ import org.folio.search.model.event.ReindexRangeIndexEvent;
 import org.folio.search.model.event.ReindexRecordsEvent;
 import org.folio.spring.tools.kafka.FolioKafkaProperties;
 import org.folio.spring.tools.kafka.FolioMessageProducer;
-import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
+import org.springframework.boot.kafka.autoconfigure.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.listener.CommonErrorHandler;
 import org.springframework.kafka.listener.DefaultErrorHandler;
-import org.springframework.kafka.support.serializer.JsonDeserializer;
+import org.springframework.kafka.support.serializer.JacksonJsonDeserializer;
 import org.springframework.util.backoff.FixedBackOff;
 
 @Log4j2
@@ -32,7 +32,7 @@ public class ReindexKafkaConfiguration extends KafkaConfiguration {
   public ConcurrentKafkaListenerContainerFactory<String, ReindexRangeIndexEvent> rangeIndexListenerContainerFactory(
     CommonErrorHandler commonErrorHandler) {
     var factory = new ConcurrentKafkaListenerContainerFactory<String, ReindexRangeIndexEvent>();
-    var deserializer = new JsonDeserializer<>(ReindexRangeIndexEvent.class, false);
+    var deserializer = new JacksonJsonDeserializer<>(ReindexRangeIndexEvent.class, false);
     Map<String, Object> overrideProperties = Map.of(MAX_POLL_RECORDS_CONFIG, 10);
     factory.setConsumerFactory(getConsumerFactory(deserializer, kafkaProperties, overrideProperties));
     factory.setCommonErrorHandler(commonErrorHandler);
@@ -43,7 +43,7 @@ public class ReindexKafkaConfiguration extends KafkaConfiguration {
   public ConcurrentKafkaListenerContainerFactory<String, ReindexRecordsEvent> reindexRecordsListenerContainerFactory(
     CommonErrorHandler commonErrorHandler) {
     var factory = new ConcurrentKafkaListenerContainerFactory<String, ReindexRecordsEvent>();
-    var deserializer = new JsonDeserializer<>(ReindexRecordsEvent.class, false);
+    var deserializer = new JacksonJsonDeserializer<>(ReindexRecordsEvent.class, false);
     Map<String, Object> overrideProperties = Map.of(MAX_POLL_RECORDS_CONFIG, 10);
     factory.setConsumerFactory(getConsumerFactory(deserializer, kafkaProperties, overrideProperties));
     factory.setCommonErrorHandler(commonErrorHandler);

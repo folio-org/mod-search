@@ -18,11 +18,11 @@ import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.resilience.annotation.EnableResilientMethods;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @UnitTest
-@EnableRetry(proxyTargetClass = true)
+@EnableResilientMethods(proxyTargetClass = true)
 @SpringBootTest(classes = SystemReindexServiceWrapper.class, webEnvironment = NONE)
 class SystemReindexServiceWrapperTest {
 

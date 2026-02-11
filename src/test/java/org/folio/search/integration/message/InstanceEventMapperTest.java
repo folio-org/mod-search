@@ -58,7 +58,7 @@ class InstanceEventMapperTest {
 
     var result = mapper.mapToProducerRecords(consumerRecord);
 
-    assertThat(result).isNotNull();
+    assertThat(result).isNotNull().hasSize(1);
     assertThat(result.getFirst().key()).isEqualTo(INSTANCE_ID);
     assertThat(result.getFirst().value()).isNotNull();
     assertThat(result.getFirst().value().instanceId()).isEqualTo(INSTANCE_ID);
@@ -78,6 +78,7 @@ class InstanceEventMapperTest {
 
     var result = mapper.mapToProducerRecords(consumerRecord);
 
+    assertThat(result).hasSize(1);
     assertThat(result.getFirst().value().instanceId()).isEqualTo(INSTANCE_ID);
     assertThat(result.getFirst().value().tenant()).isEqualTo(TENANT_ID);
   }
@@ -92,6 +93,23 @@ class InstanceEventMapperTest {
 
     var result = mapper.mapToProducerRecords(consumerRecord);
 
+    assertThat(result).hasSize(1);
+    assertThat(result.getFirst().value().instanceId()).isEqualTo(INSTANCE_ID);
+    assertThat(result.getFirst().value().tenant()).isEqualTo(TENANT_ID);
+  }
+
+  @Test
+  void mapToProducerRecord_shouldMapItemDeleteEvent() {
+    var itemId = randomId();
+    var resourceEvent = resourceEvent(null, ResourceType.ITEM, DELETE,
+      null, mapOf("id", itemId, "instanceId", INSTANCE_ID));
+    resourceEvent.tenant(TENANT_ID);
+
+    var consumerRecord = createConsumerRecord(itemId, resourceEvent, ITEM_TOPIC);
+
+    var result = mapper.mapToProducerRecords(consumerRecord);
+
+    assertThat(result).hasSize(1);
     assertThat(result.getFirst().value().instanceId()).isEqualTo(INSTANCE_ID);
     assertThat(result.getFirst().value().tenant()).isEqualTo(TENANT_ID);
   }
@@ -107,6 +125,7 @@ class InstanceEventMapperTest {
 
     var result = mapper.mapToProducerRecords(consumerRecord);
 
+    assertThat(result).hasSize(1);
     assertThat(result.getFirst().value().instanceId()).isEqualTo(INSTANCE_ID);
     assertThat(result.getFirst().value().tenant()).isEqualTo(TENANT_ID);
   }
@@ -123,6 +142,7 @@ class InstanceEventMapperTest {
 
     var result = mapper.mapToProducerRecords(consumerRecord);
 
+    assertThat(result).hasSize(1);
     assertThat(result.getFirst().value().instanceId()).isEqualTo(INSTANCE_ID);
     assertThat(result.getFirst().value().tenant()).isEqualTo(TENANT_ID);
   }
@@ -140,6 +160,7 @@ class InstanceEventMapperTest {
 
     var result = mapper.mapToProducerRecords(consumerRecord);
 
+    assertThat(result).hasSize(1);
     assertThat(result.getFirst().value().tenant()).isEqualTo(CENTRAL_TENANT_ID);
     assertThat(result.getFirst().topic()).contains(CENTRAL_TENANT_ID);
   }
@@ -201,14 +222,11 @@ class InstanceEventMapperTest {
 
     var result = mapper.mapToProducerRecords(consumerRecord);
 
-    // When both new and old are null, extractInstanceId returns null for non-REINDEX non-instance topics
-    // But for instance topics with DELETE, it should use the key
-    assertThat(result.getFirst().value().tenant()).isEqualTo(TENANT_ID);
-    // The instance ID extraction logic depends on topic and event type
+    assertThat(result).isEmpty();
   }
 
   @Test
-  void mapToProducerRecords_shouldHandleEventWithoutInstanceId() {
+  void mapToProducerRecords_shouldHandleBoundWithEvent() {
     var boundWithId = randomId();
     var boundWithTopic = "folio.test-tenant.inventory.bound-with";
     var resourceEvent = resourceEvent(null, ResourceType.BOUND_WITH, CREATE,
@@ -219,7 +237,7 @@ class InstanceEventMapperTest {
 
     var result = mapper.mapToProducerRecords(consumerRecord);
 
-    // Should extract instanceId from payload
+    assertThat(result).hasSize(1);
     assertThat(result.getFirst().value().instanceId()).isEqualTo(INSTANCE_ID);
   }
 

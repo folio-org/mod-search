@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.listener.BatchInterceptor;
 import org.springframework.kafka.listener.CompositeBatchInterceptor;
 import org.springframework.kafka.support.serializer.JacksonJsonDeserializer;
@@ -59,6 +60,7 @@ public class InstanceResourceEventKafkaConfiguration extends KafkaConfiguration 
 
   @Bean
   public KafkaTemplate<String, IndexInstanceEvent> indexInstanceKafkaTemplate() {
-    return new KafkaTemplate<>(getProducerFactory(kafkaProperties));
+    ProducerFactory<String, IndexInstanceEvent> producerFactory = getProducerFactory(kafkaProperties);
+    return new KafkaTemplate<>(producerFactory);
   }
 }

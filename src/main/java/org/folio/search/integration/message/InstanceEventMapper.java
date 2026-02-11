@@ -7,8 +7,10 @@ import static org.folio.search.utils.SearchConverterUtils.getOldAsMap;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
 import static org.folio.search.utils.SearchUtils.INSTANCE_ID_FIELD;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -42,15 +44,20 @@ public class InstanceEventMapper {
     var targetTenant = consortiumTenantService.getCentralTenant(eventTenant).orElse(eventTenant);
     if (isInstanceResource(resourceEvent)) {
       var instanceId = MapUtils.getString(getEventPayload(resourceEvent), ID_FIELD);
-      return List.of(toProducerRecord(instanceId, targetTenant, event.headers()));
+      return toProducerRecord(instanceId, targetTenant, event.headers()).map(List::of).orElseGet(List::of);
     } else {
       var oldInstanceId = getInstanceId(getOldAsMap(resourceEvent));
       var newInstanceId = getInstanceId(getNewAsMap(resourceEvent));
-      if (oldInstanceId != null && !oldInstanceId.equals(newInstanceId)) {
-        return List.of(toProducerRecord(oldInstanceId, targetTenant, event.headers()),
-          toProducerRecord(newInstanceId, targetTenant, event.headers()));
+      if (oldInstanceId != null && newInstanceId != null && !oldInstanceId.equals(newInstanceId)) {
+        List<ProducerRecord<String, IndexInstanceEvent>> records = new ArrayList<>();
+        var oldProducerRecord = toProducerRecord(oldInstanceId, targetTenant, event.headers());
+        var newProducerRecord = toProducerRecord(newInstanceId, targetTenant, event.headers());
+        oldProducerRecord.ifPresent(records::add);
+        newProducerRecord.ifPresent(records::add);
+        return records;
       }
-      return List.of(toProducerRecord(newInstanceId, targetTenant, event.headers()));
+      var instanceId = newInstanceId == null ? oldInstanceId : newInstanceId;
+      return toProducerRecord(instanceId, targetTenant, event.headers()).map(List::of).orElseGet(List::of);
     }
   }
 
@@ -62,12 +69,17 @@ public class InstanceEventMapper {
     return ResourceType.byName(resourceEvent.getResourceName()).equals(ResourceType.INSTANCE);
   }
 
-  private ProducerRecord<String, IndexInstanceEvent> toProducerRecord(String instanceId, String targetTenant,
-                                                                      Headers headers) {
+  private Optional<ProducerRecord<String, IndexInstanceEvent>> toProducerRecord(String instanceId,
+                                                                                String targetTenant,
+                                                                                Headers headers) {
+    if (instanceId == null || targetTenant == null) {
+      return Optional.empty();
+    }
     var topic = getFullTopicName(targetTenant);
     var value = new IndexInstanceEvent(targetTenant, instanceId);
 
-    return new ProducerRecordBuilder<>(topic, instanceId, value, headers).withUpdatedTenantHeaders(targetTenant);
+    return Optional.of(new ProducerRecordBuilder<>(topic, instanceId, value, headers)
+      .withUpdatedTenantHeaders(targetTenant));
   }
 
   private String getFullTopicName(String targetTenant) {

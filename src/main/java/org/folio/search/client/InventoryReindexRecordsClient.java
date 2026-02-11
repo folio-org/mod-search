@@ -4,6 +4,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.service.annotation.HttpExchange;
+import org.springframework.web.service.annotation.PostExchange;
 
 @HttpExchange("inventory-reindex-records")
 public interface InventoryReindexRecordsClient {
@@ -12,7 +13,7 @@ public interface InventoryReindexRecordsClient {
     return new ReindexRecordsRequest(id, recordType, new ReindexRecordsRange(from, to));
   }
 
-  @HttpExchange(value = "/publish", accept = APPLICATION_JSON_VALUE)
+  @PostExchange(value = "/publish", accept = APPLICATION_JSON_VALUE)
   void publishReindexRecords(@RequestBody ReindexRecordsRequest reindexRecordsRequest);
 
   record ReindexRecordsRequest(String id, String recordType, ReindexRecordsRange recordIdsRange) { }

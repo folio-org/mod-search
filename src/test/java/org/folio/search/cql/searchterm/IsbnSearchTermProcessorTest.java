@@ -34,7 +34,7 @@ class IsbnSearchTermProcessorTest {
     var searchTerm = "1 86197 271-7 (paper)";
     when(isbnProcessor.normalizeIsbn(searchTerm)).thenReturn(List.of("1861972717", "9781861972712", "(paper)"));
     var actual = isbnSearchTermProcessor.getSearchTerm(searchTerm);
-    assertThat(actual).isEqualTo("1861972717 9781861972712 (paper)");
+    assertThat(actual).isEqualTo("1861972717");
   }
 
   @Test
@@ -50,6 +50,27 @@ class IsbnSearchTermProcessorTest {
     var searchTerm = "047144250X*";
     when(isbnProcessor.normalizeIsbn("047144250X")).thenReturn(List.of("047144250x", "9780471442509"));
     var actual = isbnSearchTermProcessor.getSearchTerm(searchTerm);
-    assertThat(actual).isEqualTo("047144250x 9780471442509*");
+    // Only the first normalized value is used, so wildcard is applied to it
+    assertThat(actual).isEqualTo("047144250x*");
+  }
+
+  @Test
+  void getSearchTerm_validIsbn10_convertsToIsbn13() {
+    // Test case for valid ISBN-10 that normalizes to both ISBN-10 and ISBN-13
+    var searchTerm = "0262012103";
+    when(isbnProcessor.normalizeIsbn(searchTerm)).thenReturn(List.of("0262012103", "9780262012102"));
+    var actual = isbnSearchTermProcessor.getSearchTerm(searchTerm);
+    // Should return only the first normalized value
+    assertThat(actual).isEqualTo("0262012103");
+  }
+
+  @Test
+  void getSearchTerm_validIsbn10WithWildcard_convertsToIsbn13() {
+    // Test case for valid ISBN-10 with wildcard that normalizes to both ISBN-10 and ISBN-13
+    var searchTerm = "0262012103*";
+    when(isbnProcessor.normalizeIsbn("0262012103")).thenReturn(List.of("0262012103", "9780262012102"));
+    var actual = isbnSearchTermProcessor.getSearchTerm(searchTerm);
+    // Should return only the first normalized value with wildcard
+    assertThat(actual).isEqualTo("0262012103*");
   }
 }

@@ -70,6 +70,7 @@ class ReindexContextTest {
   }
 
   @Test
+  @SuppressWarnings("checkstyle:MethodLength")
   void threadLocal_shouldIsolateValuesBetweenThreads() throws InterruptedException {
     var mainThreadTenantId = "main_tenant";
     var workerThreadTenantId = "worker_tenant";
@@ -115,6 +116,7 @@ class ReindexContextTest {
   }
 
   @Test
+  @SuppressWarnings("checkstyle:MethodLength")
   void multipleThreads_shouldMaintainIsolation() throws InterruptedException {
     var threadCount = 5;
     var latch = new CountDownLatch(threadCount);

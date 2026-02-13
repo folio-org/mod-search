@@ -31,7 +31,6 @@ import org.springframework.stereotype.Repository;
 
 @Log4j2
 @Repository
-@SuppressWarnings("java:S2077")
 public class SubjectRepository extends UploadRangeRepository implements InstanceChildResourceRepository {
 
   private static final String SELECT_QUERY = """
@@ -237,7 +236,6 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
   }
 
   @Override
-  @SuppressWarnings("checkstyle:MethodLength")
   public void saveAll(ChildResourceEntityBatch entityBatch) {
     // Use staging tables only for member tenant specific full reindex
     if (ReindexContext.isReindexMode() && ReindexContext.isMemberTenantReindex()) {

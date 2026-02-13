@@ -30,7 +30,6 @@ import org.springframework.stereotype.Repository;
 
 @Log4j2
 @Repository
-@SuppressWarnings("java:S2077")
 public class ClassificationRepository extends UploadRangeRepository implements InstanceChildResourceRepository {
 
   private static final String SELECT_QUERY = """
@@ -227,7 +226,6 @@ public class ClassificationRepository extends UploadRangeRepository implements I
     deleteByInstanceIds(DELETE_QUERY, instanceIds, tenantId);
   }
 
-  @SuppressWarnings("checkstyle:MethodLength")
   @Override
   public void saveAll(ChildResourceEntityBatch entityBatch) {
     // Use staging tables only for member tenant specific full reindex

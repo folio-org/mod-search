@@ -84,66 +84,49 @@ public class ReindexService {
     reindexCommonService.deleteAllRecords(targetTenantId);
     statusService.recreateMergeStatusRecords(targetTenantId);
 
-    if (targetTenantId == null) {
-      // Full reindex - recreate all indexes (existing behavior)
-      recreateIndices(tenantId, ReindexEntityType.supportUploadTypes(), indexSettings);
-      log.info("submitFullReindex:: recreated indexes for full reindex [requestingTenant: {}]", tenantId);
-    } else {
-      // Tenant-specific reindex - ensure indexes exist without recreating existing ones
-      ensureIndicesExist(tenantId, ReindexEntityType.supportUploadTypes(), indexSettings);
-      log.info("submitFullReindex:: ensured indexes exist for tenant-specific reindex "
-        + "[requestingTenant: {}, targetTenant: {}]", tenantId, targetTenantId);
-    }
+    recreateIndices(tenantId, targetTenantId, indexSettings);
 
     // Capture context before async execution
     final var memberTenantIdContext = targetTenantId;
 
-    var future = CompletableFuture.runAsync(() -> {
-      try {
-        // Restore context in executor thread
-        if (memberTenantIdContext != null) {
-          ReindexContext.setMemberTenantId(memberTenantIdContext);
-          ReindexContext.setReindexMode(true); // Enable staging
-        }
-
-        mergeRangeService.truncateMergeRanges();
-
-        List<MergeRangeEntity> rangesForAllTenants;
-        if (memberTenantIdContext != null) {
-          // Only process the member tenant (no central tenant in merge)
-          rangesForAllTenants = processForConsortium(tenantId, memberTenantIdContext);
-        } else {
-          // Full consortium reindex: Process central + all members (no staging)
-          rangesForAllTenants = Stream.of(mergeRangeService.createMergeRanges(tenantId),  // Central
-            processForConsortium(tenantId, null)             // Members
-          ).flatMap(List::stream).toList();
-        }
-
-        mergeRangeService.saveMergeRanges(rangesForAllTenants);
-      } finally {
-        // Clean up context in executor thread
-        if (memberTenantIdContext != null) {
-          ReindexContext.clearMemberTenantId();
-          ReindexContext.setReindexMode(false);
-        }
-      }
-    }, reindexFullExecutor).thenRun(() -> {
-      // Restore context before publishing
-      if (memberTenantIdContext != null) {
-        ReindexContext.setMemberTenantId(memberTenantIdContext);
-      }
-      try {
-        publishRecordsRange(tenantId, memberTenantIdContext);
-      } finally {
-        if (memberTenantIdContext != null) {
-          ReindexContext.clearMemberTenantId();
-        }
-      }
-    }).handle(handleReindexingFailure(tenantId, targetTenantId));
+    var future = CompletableFuture.runAsync(() -> recreateMergeRanges(tenantId, targetTenantId), reindexFullExecutor)
+      .thenRun(() -> publishRecordsRange(tenantId, memberTenantIdContext))
+      .handle(handleReindexingFailure(tenantId, targetTenantId));
 
     log.info("submitFullReindex:: submitted [requestingTenant: {}, targetTenant: {}]", tenantId,
       targetTenantId != null ? targetTenantId : "all consortium members");
     return future;
+  }
+
+  private void recreateMergeRanges(String tenantId, String memberTenantIdContext) {
+    try {
+      // Restore context in executor thread
+      if (memberTenantIdContext != null) {
+        ReindexContext.setMemberTenantId(memberTenantIdContext);
+        ReindexContext.setReindexMode(true); // Enable staging
+      }
+
+      mergeRangeService.truncateMergeRanges();
+
+      List<MergeRangeEntity> rangesForAllTenants;
+      if (memberTenantIdContext != null) {
+        // Only process the member tenant (no central tenant in merge)
+        rangesForAllTenants = processForConsortium(tenantId, memberTenantIdContext);
+      } else {
+        // Full consortium reindex: Process central + all members (no staging)
+        rangesForAllTenants = Stream.of(mergeRangeService.createMergeRanges(tenantId),  // Central
+          processForConsortium(tenantId, null)             // Members
+        ).flatMap(List::stream).toList();
+      }
+
+      mergeRangeService.saveMergeRanges(rangesForAllTenants);
+    } finally {
+      // Clean up context in executor thread
+      if (memberTenantIdContext != null) {
+        ReindexContext.clearMemberTenantId();
+        ReindexContext.setReindexMode(false);
+      }
+    }
   }
 
   public CompletableFuture<Void> submitUploadReindex(String tenantId, ReindexUploadDto reindexUploadDto) {
@@ -162,7 +145,31 @@ public class ReindexService {
     log.info("submitUploadReindex:: for [tenantId: {}, entities: {}]", tenantId, entityTypes);
 
     validateUploadReindex(tenantId, entityTypes);
+    prepareForUploadReindex(tenantId, entityTypes, recreateIndex, indexSettings);
 
+    // Capture context before async execution
+    final var memberTenantIdContext = ReindexContext.getMemberTenantId();
+
+    var futures = new ArrayList<>();
+    for (var entityType : entityTypes) {
+      var future = CompletableFuture.runAsync(() ->
+          sendIndexRanges(memberTenantIdContext, entityType), reindexUploadExecutor)
+        .handle((unused, throwable) -> {
+          if (throwable != null) {
+            log.error("submitUploadReindex:: reindex upload process failed: {}", throwable.getMessage());
+            statusService.updateReindexUploadFailed(entityType);
+          }
+          return unused;
+        });
+      futures.add(future);
+    }
+
+    log.info("submitUploadReindex:: submitted [tenantId: {}]", tenantId);
+    return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+  }
+
+  private void prepareForUploadReindex(String tenantId, List<ReindexEntityType> entityTypes,
+                                      boolean recreateIndex, IndexSettings indexSettings) {
     var targetTenantId = statusService.getTargetTenantId();
     for (var reindexEntityType : entityTypes) {
       statusService.recreateUploadStatusRecord(reindexEntityType, targetTenantId);
@@ -170,37 +177,21 @@ public class ReindexService {
         reindexCommonService.recreateIndex(reindexEntityType, tenantId, indexSettings);
       }
     }
+  }
 
-    // Capture context before async execution
-    final var memberTenantIdContext = ReindexContext.getMemberTenantId();
-
-    var futures = new ArrayList<>();
-    for (var entityType : entityTypes) {
-      var future = CompletableFuture.runAsync(() -> {
-        // Restore context in executor thread
-        if (memberTenantIdContext != null) {
-          ReindexContext.setMemberTenantId(memberTenantIdContext);
-        }
-        try {
-          uploadRangeService.prepareAndSendIndexRanges(entityType);
-        } finally {
-          // Clean up context in executor thread
-          if (memberTenantIdContext != null) {
-            ReindexContext.clearMemberTenantId();
-          }
-        }
-      }, reindexUploadExecutor).handle((unused, throwable) -> {
-        if (throwable != null) {
-          log.error("submitUploadReindex:: reindex upload process failed: {}", throwable.getMessage());
-          statusService.updateReindexUploadFailed(entityType);
-        }
-        return unused;
-      });
-      futures.add(future);
+  private void sendIndexRanges(String memberTenantIdContext, ReindexEntityType entityType) {
+    // Restore context in executor thread
+    if (memberTenantIdContext != null) {
+      ReindexContext.setMemberTenantId(memberTenantIdContext);
     }
-
-    log.info("submitUploadReindex:: submitted [tenantId: {}]", tenantId);
-    return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+    try {
+      uploadRangeService.prepareAndSendIndexRanges(entityType);
+    } finally {
+      // Clean up context in executor thread
+      if (memberTenantIdContext != null) {
+        ReindexContext.clearMemberTenantId();
+      }
+    }
   }
 
   /**
@@ -220,19 +211,7 @@ public class ReindexService {
       entityTypes, targetTenantId);
 
     // Perform tenant-specific document cleanup before upload processing
-    if (targetTenantId != null) {
-      log.info("submitUploadReindexWithTenantCleanup:: performing OpenSearch document cleanup "
-        + "for tenant [{}] while preserving shared instances", targetTenantId);
-      try {
-        reindexCommonService.deleteInstanceDocumentsByTenantId(targetTenantId);
-        log.info("submitUploadReindexWithTenantCleanup:: completed OpenSearch cleanup for tenant [{}]", targetTenantId);
-      } catch (Exception e) {
-        log.error(
-          "submitUploadReindexWithTenantCleanup:: failed to cleanup OpenSearch documents " + "for tenant [{}]: {}",
-          targetTenantId, e.getMessage(), e);
-        throw new ReindexException("Failed to cleanup tenant documents before upload", e);
-      }
-    }
+    performTenantCleanup(targetTenantId);
 
     // Set member tenant context for upload phase
     if (targetTenantId != null) {
@@ -245,6 +224,22 @@ public class ReindexService {
     } finally {
       if (targetTenantId != null) {
         ReindexContext.clearMemberTenantId();
+      }
+    }
+  }
+
+  private void performTenantCleanup(String targetTenantId) {
+    if (targetTenantId != null) {
+      log.info("submitUploadReindexWithTenantCleanup:: performing OpenSearch document cleanup "
+        + "for tenant [{}] while preserving shared instances", targetTenantId);
+      try {
+        reindexCommonService.deleteInstanceDocumentsByTenantId(targetTenantId);
+        log.info("submitUploadReindexWithTenantCleanup:: completed OpenSearch cleanup for tenant [{}]", targetTenantId);
+      } catch (Exception e) {
+        log.error(
+          "submitUploadReindexWithTenantCleanup:: failed to cleanup OpenSearch documents " + "for tenant [{}]: {}",
+          targetTenantId, e.getMessage(), e);
+        throw new ReindexException("Failed to cleanup tenant documents before upload", e);
       }
     }
   }
@@ -288,15 +283,20 @@ public class ReindexService {
     };
   }
 
-  private void recreateIndices(String tenantId, List<ReindexEntityType> entityTypes, IndexSettings indexSettings) {
-    for (var reindexEntityType : entityTypes) {
-      reindexCommonService.recreateIndex(reindexEntityType, tenantId, indexSettings);
-    }
-  }
-
-  private void ensureIndicesExist(String tenantId, List<ReindexEntityType> entityTypes, IndexSettings indexSettings) {
-    for (var reindexEntityType : entityTypes) {
-      reindexCommonService.ensureIndexExists(reindexEntityType, tenantId, indexSettings);
+  private void recreateIndices(String tenantId, String targetTenantId, IndexSettings indexSettings) {
+    if (targetTenantId == null) {
+      // Full reindex - recreate all indexes (existing behavior)
+      for (var reindexEntityType : ReindexEntityType.supportUploadTypes()) {
+        reindexCommonService.recreateIndex(reindexEntityType, tenantId, indexSettings);
+      }
+      log.info("submitFullReindex:: recreated indexes for full reindex [requestingTenant: {}]", tenantId);
+    } else {
+      // Tenant-specific reindex - ensure indexes exist without recreating existing ones
+      for (var reindexEntityType : ReindexEntityType.supportUploadTypes()) {
+        reindexCommonService.ensureIndexExists(reindexEntityType, tenantId, indexSettings);
+      }
+      log.info("submitFullReindex:: ensured indexes exist for tenant-specific reindex "
+        + "[requestingTenant: {}, targetTenant: {}]", tenantId, targetTenantId);
     }
   }
 
@@ -330,41 +330,56 @@ public class ReindexService {
   }
 
   private void publishRecordsRange(String tenantId, String targetTenantId) {
-    // Capture context before async execution
-    final String memberTenantIdContext = ReindexContext.getMemberTenantId();
+    // Restore context before publishing
+    if (targetTenantId != null) {
+      ReindexContext.setMemberTenantId(targetTenantId);
+    }
+    try {
+      // Capture context before async execution
+      final String memberTenantIdContext = ReindexContext.getMemberTenantId();
 
-    var futures = new ArrayList<>();
-    for (var entityType : ReindexEntityType.supportMergeTypes()) {
-      var rangeEntities = mergeRangeService.fetchMergeRanges(entityType);
-      if (CollectionUtils.isNotEmpty(rangeEntities)) {
-        log.info("publishRecordsRange:: publishing merge ranges "
-            + "[requestingTenant: {}, entityType: {}, count: {}, targetTenant: {}]", tenantId, entityType,
-          rangeEntities.size(), targetTenantId != null ? targetTenantId : "all");
+      var futures = new ArrayList<CompletableFuture<Void>>();
+      for (var entityType : ReindexEntityType.supportMergeTypes()) {
+        var rangeEntities = mergeRangeService.fetchMergeRanges(entityType);
+        if (CollectionUtils.isNotEmpty(rangeEntities)) {
+          log.info("publishRecordsRange:: publishing merge ranges "
+              + "[requestingTenant: {}, entityType: {}, count: {}, targetTenant: {}]", tenantId, entityType,
+            rangeEntities.size(), targetTenantId != null ? targetTenantId : "all");
 
-        statusService.updateReindexMergeStarted(entityType, rangeEntities.size());
-        for (var rangeEntity : rangeEntities) {
-          var publishFuture = CompletableFuture.runAsync(() -> {
-            // Restore context in executor thread
-            if (memberTenantIdContext != null) {
-              ReindexContext.setMemberTenantId(memberTenantIdContext);
-            }
-            try {
-              executionService.executeSystemUserScoped(rangeEntity.getTenantId(), () -> {
-                inventoryService.publishReindexRecordsRange(rangeEntity);
-                return null;
-              });
-            } finally {
-              // Clean up context in executor thread
-              if (memberTenantIdContext != null) {
-                ReindexContext.clearMemberTenantId();
-              }
-            }
-          }, reindexPublisherExecutor);
-          futures.add(publishFuture);
+          statusService.updateReindexMergeStarted(entityType, rangeEntities.size());
+          submitRecordsRangePublishing(memberTenantIdContext, rangeEntities, futures);
         }
       }
+      CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+    } finally {
+      if (targetTenantId != null) {
+        ReindexContext.clearMemberTenantId();
+      }
     }
-    CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+  }
+
+  private void submitRecordsRangePublishing(String memberTenantIdContext, List<MergeRangeEntity> rangeEntities,
+                                            List<CompletableFuture<Void>> futures) {
+    for (var rangeEntity : rangeEntities) {
+      var publishFuture = CompletableFuture.runAsync(() -> {
+        // Restore context in executor thread
+        if (memberTenantIdContext != null) {
+          ReindexContext.setMemberTenantId(memberTenantIdContext);
+        }
+        try {
+          executionService.executeSystemUserScoped(rangeEntity.getTenantId(), () -> {
+            inventoryService.publishReindexRecordsRange(rangeEntity);
+            return null;
+          });
+        } finally {
+          // Clean up context in executor thread
+          if (memberTenantIdContext != null) {
+            ReindexContext.clearMemberTenantId();
+          }
+        }
+      }, reindexPublisherExecutor);
+      futures.add(publishFuture);
+    }
   }
 
   private void validateUploadReindex(String tenantId, List<ReindexEntityType> entityTypes) {

@@ -64,6 +64,40 @@ public class UploadInstanceRepository extends UploadRangeRepository {
   private static final String INSTANCE_IDS_WHERE_CLAUSE = "%s IN (%s)";
   private static final String ITEM_NOT_DELETED_FILTER = " AND it.is_deleted = false";
 
+  private static final String CONDITIONAL_INSTANCE_QUERY = """
+        SELECT combined.json
+          || jsonb_build_object('tenantId', combined.tenant_id,
+                                'shared', combined.shared,
+                                'isBoundWith', combined.is_bound_with,
+                                'holdings', COALESCE(jsonb_agg(DISTINCT h.json ||
+                                    jsonb_build_object('tenantId', h.tenant_id))
+                                    FILTER (WHERE h.json IS NOT NULL), '[]'::jsonb),
+                                'items', COALESCE(jsonb_agg(it.json ||
+                                    jsonb_build_object('tenantId', it.tenant_id))
+                                    FILTER (WHERE it.json IS NOT NULL), '[]'::jsonb)) as json
+        FROM (
+            -- Local instances from central tenant (after merge)
+            SELECT i.id, i.tenant_id, i.shared, i.is_bound_with, i.json
+            FROM %s.instance i
+            WHERE i.id >= ?::uuid AND i.id <= ?::uuid
+              AND i.tenant_id = ?
+            UNION ALL
+            -- Shared instances that have holdings for member tenant
+            SELECT i.id, i.tenant_id, i.shared, i.is_bound_with, i.json
+            FROM %s.instance i
+            WHERE i.id >= ?::uuid AND i.id <= ?::uuid
+              AND i.shared = true
+              AND EXISTS (
+                SELECT 1 FROM %s.holding h
+                WHERE h.instance_id = i.id AND h.tenant_id = ?
+              )
+        ) combined
+        LEFT JOIN %s.holding h ON h.instance_id = combined.id
+        LEFT JOIN %s.item it ON it.holding_id = h.id
+        GROUP BY combined.id, combined.tenant_id, combined.shared,
+                 combined.is_bound_with, combined.json
+        """;
+
   private final ConsortiumTenantService consortiumTenantService;
 
   protected UploadInstanceRepository(JdbcTemplate jdbcTemplate, JsonConverter jsonConverter,
@@ -168,52 +202,13 @@ public class UploadInstanceRepository extends UploadRangeRepository {
    * - Applies UUID range filtering
    */
   private String buildConditionalInstanceQuery(String centralSchema) {
-    return """
-        SELECT combined.json
-          || jsonb_build_object('tenantId', combined.tenant_id,
-                                'shared', combined.shared,
-                                'isBoundWith', combined.is_bound_with,
-                                'holdings', COALESCE(jsonb_agg(DISTINCT h.json ||
-                                    jsonb_build_object('tenantId', h.tenant_id))
-                                    FILTER (WHERE h.json IS NOT NULL), '[]'::jsonb),
-                                'items', COALESCE(jsonb_agg(it.json ||
-                                    jsonb_build_object('tenantId', it.tenant_id))
-                                    FILTER (WHERE it.json IS NOT NULL), '[]'::jsonb)) as json
-        FROM (
-            -- Local instances from central tenant (after merge)
-            SELECT i.id, i.tenant_id, i.shared, i.is_bound_with, i.json
-            FROM %s.instance i
-            WHERE i.id >= ?::uuid AND i.id <= ?::uuid
-              AND i.tenant_id = ?
-            UNION ALL
-            -- Shared instances that have holdings for member tenant
-            SELECT i.id, i.tenant_id, i.shared, i.is_bound_with, i.json
-            FROM %s.instance i
-            WHERE i.id >= ?::uuid AND i.id <= ?::uuid
-              AND i.shared = true
-              AND EXISTS (
-                SELECT 1 FROM %s.holding h
-                WHERE h.instance_id = i.id AND h.tenant_id = ?
-              )
-        ) combined
-        LEFT JOIN %s.holding h ON h.instance_id = combined.id
-        LEFT JOIN %s.item it ON it.holding_id = h.id
-        GROUP BY combined.id, combined.tenant_id, combined.shared,
-                 combined.is_bound_with, combined.json
-        """.formatted(
+    return CONDITIONAL_INSTANCE_QUERY.formatted(
       centralSchema, // Local instances table
       centralSchema, // Shared instances table
       centralSchema, // Holdings subquery table
       centralSchema, // Holdings join table
       centralSchema  // Items join table
     );
-  }
-
-  @Override
-  protected List<RangeGenerator.Range> createRanges() {
-    var uploadRangeSize = reindexConfig.getUploadRangeSize();
-    var rangesCount = (int) Math.ceil((double) countEntities() / uploadRangeSize);
-    return RangeGenerator.createUuidRanges(rangesCount);
   }
 
   @Override

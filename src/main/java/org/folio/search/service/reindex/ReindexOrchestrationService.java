@@ -75,10 +75,9 @@ public class ReindexOrchestrationService {
         event.getId(), event.getTenant(), memberTenantId,
         event.getEntityType(), event.getLower(), event.getUpper(), event.getTs());
 
-
       var folioIndexOperationResponse = fetchRecordsAndIndexForUploadRange(event);
       if (folioIndexOperationResponse.getStatus() == FolioIndexOperationResponse.StatusEnum.ERROR) {
-        throw handleReindexUploadFailure(event,folioIndexOperationResponse.getErrorMessage());
+        throw handleReindexUploadFailure(event, folioIndexOperationResponse.getErrorMessage());
       }
       uploadRangeService.updateStatus(event, ReindexRangeStatus.SUCCESS, null);
 
@@ -95,16 +94,13 @@ public class ReindexOrchestrationService {
 
   public boolean process(ReindexRecordsEvent event) {
     var memberTenantId = getMemberTenantIdForProcessing();
-    var entityType = event.getRecordType().getEntityType();
 
     try {
       log.info("process:: ReindexRecordsEvent [rangeId: {}, tenantId: {}, memberTenantId: {}, "
         + "recordType: {}, recordsCount: {}]",
         event.getRangeId(), event.getTenant(), memberTenantId, event.getRecordType(), event.getRecords().size());
 
-      mergeRangeService.saveEntities(event);
-      mergeRangeService.updateStatus(entityType, event.getRangeId(), ReindexRangeStatus.SUCCESS, null);
-      reindexStatusService.addProcessedMergeRanges(entityType, 1);
+      persistEntities(event);
       log.info("process:: ReindexRecordsEvent processed [rangeId: {}, recordType: {}]",
         event.getRangeId(), event.getRecordType());
     } catch (PessimisticLockingFailureException ex) {
@@ -112,10 +108,7 @@ public class ReindexOrchestrationService {
                                     + " [rangeId: {}, error: {}]", event.getRangeId(), ex.getMessage()), ex);
       throw new ReindexException(ex.getMessage());
     } catch (Exception ex) {
-      log.error(new FormattedMessage("process:: ReindexRecordsEvent indexing error [rangeId: {}, error: {}]",
-        event.getRangeId(), ex.getMessage()), ex);
-      reindexStatusService.updateReindexMergeFailed(entityType);
-      mergeRangeService.updateStatus(entityType, event.getRangeId(), ReindexRangeStatus.FAIL, ex.getMessage());
+      handleReindexMergeFailure(event, ex.getMessage());
       return true;
     } finally {
       // Clean up member tenant context
@@ -124,6 +117,18 @@ public class ReindexOrchestrationService {
       }
     }
 
+    startUploadOnMergeCompletion();
+    return true;
+  }
+
+  private void persistEntities(ReindexRecordsEvent event) {
+    var entityType = event.getRecordType().getEntityType();
+    mergeRangeService.saveEntities(event);
+    mergeRangeService.updateStatus(entityType, event.getRangeId(), ReindexRangeStatus.SUCCESS, null);
+    reindexStatusService.addProcessedMergeRanges(entityType, 1);
+  }
+
+  private void startUploadOnMergeCompletion() {
     if (reindexStatusService.isMergeCompleted()) {
       // Get targetTenantId before migration
       var targetTenantId = reindexStatusService.getTargetTenantId();
@@ -147,8 +152,6 @@ public class ReindexOrchestrationService {
       log.info("process:: Migration and upload phase completed for {}",
         targetTenantId != null ? "tenant: " + targetTenantId : "consortium");
     }
-
-    return true;
   }
 
   private void performStagingMigration(String targetTenantId) {
@@ -183,5 +186,13 @@ public class ReindexOrchestrationService {
     uploadRangeService.updateStatus(event, ReindexRangeStatus.FAIL, errorMessage);
     reindexStatusService.updateReindexUploadFailed(event.getEntityType());
     return new ReindexException(errorMessage);
+  }
+
+  private void handleReindexMergeFailure(ReindexRecordsEvent event, String errorMessage) {
+    log.warn("handleReindexMergeFailure:: ReindexRecordsEvent indexing error [rangeId: {}, error: {}]",
+      event.getRangeId(), errorMessage);
+    var entityType = event.getRecordType().getEntityType();
+    reindexStatusService.updateReindexMergeFailed(entityType);
+    mergeRangeService.updateStatus(entityType, event.getRangeId(), ReindexRangeStatus.FAIL, errorMessage);
   }
 }

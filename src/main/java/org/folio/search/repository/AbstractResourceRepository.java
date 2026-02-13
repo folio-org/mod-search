@@ -77,15 +77,7 @@ public abstract class AbstractResourceRepository implements ResourceRepository {
     var indexName = indexNameProvider.getIndexName(resourceType, tenantId);
     log.debug("deleteConsortiumDocumentsByTenantId:: by [indexName: {}, tenantId: {}]", indexName, tenantId);
 
-    var deleteByQueryRequest = new DeleteByQueryRequest(indexName);
-
-    // Configure performance settings
-    deleteByQueryRequest.setBatchSize(indexManagementConfig.getDeleteQueryBatchSize());
-    deleteByQueryRequest.setScroll(
-      TimeValue.timeValueMinutes(indexManagementConfig.getDeleteQueryScrollTimeoutMinutes()));
-    deleteByQueryRequest.setTimeout(
-      TimeValue.timeValueMinutes(indexManagementConfig.getDeleteQueryRequestTimeoutMinutes()));
-    deleteByQueryRequest.setRefresh(indexManagementConfig.getDeleteQueryRefresh());
+    var deleteByQueryRequest = buildDeleteByQueryRequest(indexName);
 
     // Build query: tenantId = targetTenant AND (NOT shared = true)
     var query = boolQuery()
@@ -106,6 +98,20 @@ public abstract class AbstractResourceRepository implements ResourceRepository {
     return bulkByScrollResponse.getBulkFailures().isEmpty()
       ? getSuccessIndexOperationResponse()
       : getErrorIndexOperationResponse(getBulkByScrollResponseErrorMessage(bulkByScrollResponse));
+  }
+
+  private DeleteByQueryRequest buildDeleteByQueryRequest(String indexName) {
+    var deleteByQueryRequest = new DeleteByQueryRequest(indexName);
+
+    // Configure performance settings
+    deleteByQueryRequest.setBatchSize(indexManagementConfig.getDeleteQueryBatchSize());
+    deleteByQueryRequest.setScroll(
+      TimeValue.timeValueMinutes(indexManagementConfig.getDeleteQueryScrollTimeoutMinutes()));
+    deleteByQueryRequest.setTimeout(
+      TimeValue.timeValueMinutes(indexManagementConfig.getDeleteQueryRequestTimeoutMinutes()));
+    deleteByQueryRequest.setRefresh(indexManagementConfig.getDeleteQueryRefresh());
+
+    return deleteByQueryRequest;
   }
 
   @Autowired

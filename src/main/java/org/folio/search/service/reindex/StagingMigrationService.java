@@ -37,6 +37,7 @@ public class StagingMigrationService {
   }
 
   @Transactional
+  @SuppressWarnings("checkstyle:MethodLength")
   public MigrationResult migrateAllStagingTables(String targetTenantId) {
     var isMemberTenantRefresh = targetTenantId != null;
     var result = new MigrationResult();
@@ -45,9 +46,8 @@ public class StagingMigrationService {
     try {
       // Set work_mem for this transaction to optimize query performance
       setWorkMem();
-
       log.info("migrateAllStagingTables:: Starting migration for: [targetTenantId: {}]", targetTenantId);
-      
+
       // Analyze staging tables for better query performance
       analyzeStagingTables();
 
@@ -84,6 +84,7 @@ public class StagingMigrationService {
     log.info("handleMemberTenantPreMigration:: Main table cleanup completed for tenant: {}", targetTenantId);
   }
 
+  @SuppressWarnings("checkstyle:MethodLength")
   private void executeMainMigrationPhases(MigrationResult result) {
     // Phase 1: Instances
     log.info("executeMainMigrationPhases:: Starting instances migration...");

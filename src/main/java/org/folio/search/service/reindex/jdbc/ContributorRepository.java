@@ -232,7 +232,6 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
   }
 
   @Override
-  @SuppressWarnings("checkstyle:MethodLength")
   public void saveAll(ChildResourceEntityBatch entityBatch) {
     // Use staging tables only for member tenant specific full reindex
     if (ReindexContext.isReindexMode() && ReindexContext.isMemberTenantReindex()) {
@@ -329,18 +328,22 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
         });
     } catch (DataAccessException e) {
       log.warn("saveRelationshipsToStaging::Failed to save relationships batch. Processing one-by-one", e);
-      for (var entityRelation : relationships) {
-        try {
-          jdbcTemplate.update(stagingRelationsSql, entityRelation.get("instanceId"),
-            entityRelation.get("contributorId"), entityRelation.get(CONTRIBUTOR_TYPE_FIELD),
-            entityRelation.get("tenantId"), entityRelation.get("shared"));
-        } catch (DataAccessException ex) {
-          log.debug("Failed to save staging contributor relationship for {}: {}",
-            entityRelation.get("contributorId"), ex.getMessage());
-        }
-      }
+      retrySaveRelationshipsToStagingOneByOne(stagingRelationsSql, relationships);
     }
     log.debug("Saved {} contributor relationships to staging table", relationships.size());
+  }
+
+  private void retrySaveRelationshipsToStagingOneByOne(String sql, List<Map<String, Object>> relationships) {
+    for (var entityRelation : relationships) {
+      try {
+        jdbcTemplate.update(sql, entityRelation.get("instanceId"),
+          entityRelation.get("contributorId"), entityRelation.get(CONTRIBUTOR_TYPE_FIELD),
+          entityRelation.get("tenantId"), entityRelation.get("shared"));
+      } catch (DataAccessException ex) {
+        log.debug("Failed to save staging contributor relationship for {}: {}",
+          entityRelation.get("contributorId"), ex.getMessage());
+      }
+    }
   }
 
   @Override

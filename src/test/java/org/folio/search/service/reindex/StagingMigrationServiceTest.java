@@ -63,6 +63,7 @@ class StagingMigrationServiceTest {
   }
 
   @Test
+  @SuppressWarnings("checkstyle:MethodLength")
   void migrateAllStagingTables_fullReindex() {
     // Arrange
     when(jdbcTemplate.update(contains("staging_instance"), any(Timestamp.class))).thenReturn(10);

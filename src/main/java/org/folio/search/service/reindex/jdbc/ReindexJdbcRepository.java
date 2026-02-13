@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 public abstract class ReindexJdbcRepository {
 
-  public static final int BATCH_OPERATION_SIZE = 100;
+  protected static final int BATCH_OPERATION_SIZE = 100;
   protected static final String LAST_UPDATED_DATE_FIELD = "lastUpdatedDate";
 
   private static final String COUNT_SQL = "SELECT COUNT(*) FROM %s;";

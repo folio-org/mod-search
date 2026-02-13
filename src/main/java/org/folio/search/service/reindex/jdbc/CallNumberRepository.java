@@ -19,6 +19,7 @@ import static org.folio.search.utils.SearchUtils.SUB_RESOURCE_INSTANCES_FIELD;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +41,6 @@ import org.springframework.stereotype.Repository;
 
 @Log4j2
 @Repository
-@SuppressWarnings("java:S2077")
 public class CallNumberRepository extends UploadRangeRepository implements InstanceChildResourceRepository {
 
   private static final String SELECT_QUERY = """
@@ -393,17 +393,21 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
         });
     } catch (DataAccessException e) {
       log.warn("saveRelationshipEntitiesToStaging::Failed to save staging relations batch. Processing one-by-one", e);
-      for (var entityRelation : entityBatch.relationshipEntities()) {
-        try {
-          jdbcTemplate.update(stagingInstanceCallNumberSql, getCallNumberId(entityRelation), getItemId(entityRelation),
-            getInstanceId(entityRelation), getTenantId(entityRelation), getLocationId(entityRelation));
-        } catch (DataAccessException ex) {
-          log.debug("Failed to save staging call number relationship for {}: {}",
-            getCallNumberId(entityRelation), ex.getMessage());
-        }
-      }
+      retrySaveRelationshipsToStagingOneByOne(stagingInstanceCallNumberSql, entityBatch.relationshipEntities());
     }
     log.debug("Saved {} call number relationships to staging table", entityBatch.relationshipEntities().size());
+  }
+
+  private void retrySaveRelationshipsToStagingOneByOne(String sql, Collection<Map<String, Object>> relationships) {
+    for (var entityRelation : relationships) {
+      try {
+        jdbcTemplate.update(sql, getCallNumberId(entityRelation), getItemId(entityRelation),
+          getInstanceId(entityRelation), getTenantId(entityRelation), getLocationId(entityRelation));
+      } catch (DataAccessException ex) {
+        log.debug("Failed to save staging call number relationship for {}: {}",
+          getCallNumberId(entityRelation), ex.getMessage());
+      }
+    }
   }
 
   private String getCallNumberSuffix(ResultSet rs) throws SQLException {

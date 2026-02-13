@@ -12,6 +12,7 @@ import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexRangeStatus;
 import org.folio.search.service.consortium.ConsortiumTenantProvider;
+import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
@@ -42,6 +43,7 @@ class ReindexJdbcRepositoriesIT {
   private @MockitoBean FolioExecutionContext context;
   private @MockitoBean ReindexConfigurationProperties reindexConfig;
   private @MockitoBean ConsortiumTenantProvider tenantProvider;
+  private @MockitoBean ConsortiumTenantService consortiumTenantService;
   private MergeInstanceRepository mergeRepository;
   private UploadInstanceRepository uploadRepository;
 
@@ -51,7 +53,8 @@ class ReindexJdbcRepositoriesIT {
     var searchConfig = new SearchConfigurationProperties();
     searchConfig.setIndexing(new SearchConfigurationProperties.IndexingSettings());
     mergeRepository = new MergeInstanceRepository(jdbcTemplate, jsonConverter, context, tenantProvider, searchConfig);
-    uploadRepository = new UploadInstanceRepository(jdbcTemplate, jsonConverter, context, reindexConfig);
+    uploadRepository = new UploadInstanceRepository(jdbcTemplate, jsonConverter, context,
+      reindexConfig, consortiumTenantService);
     when(context.getFolioModuleMetadata()).thenReturn(new FolioModuleMetadata() {
       @Override
       public String getModuleName() {

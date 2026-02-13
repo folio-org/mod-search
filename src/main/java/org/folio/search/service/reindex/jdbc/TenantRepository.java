@@ -24,12 +24,14 @@ public class TenantRepository {
   private final JdbcTemplate jdbcTemplate;
   private final SystemProperties systemProperties;
 
+  @SuppressWarnings("java:S2077")
   public void saveTenant(TenantEntity tenantEntity) {
     String query = INSERT_QUERY.formatted(systemProperties.getSchemaName());
     jdbcTemplate.update(query, tenantEntity.id(), tenantEntity.centralId(), tenantEntity.active(),
       tenantEntity.active());
   }
 
+  @SuppressWarnings("java:S2077")
   public List<String> fetchDataTenantIds() {
     String query = FETCH_QUERY.formatted(systemProperties.getSchemaName());
     return jdbcTemplate.query(query, (rs, rowNum) -> rs.getString("id"));

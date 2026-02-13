@@ -2,10 +2,10 @@ package org.folio.search.client;
 
 import java.net.URI;
 import org.folio.search.domain.dto.ReindexJob;
-import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.service.annotation.HttpExchange;
+import org.springframework.web.service.annotation.PostExchange;
 
-@FeignClient("reindex-client")
+@HttpExchange
 public interface ResourceReindexClient {
 
   /**
@@ -14,6 +14,6 @@ public interface ResourceReindexClient {
    * @param reindexUri - generated reindex uri object
    * @return response body as {@link ReindexJob} object
    */
-  @PostMapping
+  @PostExchange
   ReindexJob submitReindex(URI reindexUri);
 }

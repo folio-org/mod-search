@@ -153,6 +153,7 @@ class SortInstanceIT extends BaseIntegrationTest {
       .andExpect(jsonPath("$.errors[0].parameters[0].value", is("unknownSort")));
   }
 
+  @SuppressWarnings("checkstyle:MethodLength")
   private static Instance[] instances() {
     var instances = new Instance[] {
       getSemanticWeb().id(ID_ANIMAL_FARM).contributors(new ArrayList<>()),

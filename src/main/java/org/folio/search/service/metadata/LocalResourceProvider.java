@@ -1,6 +1,5 @@
 package org.folio.search.service.metadata;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +14,7 @@ import org.folio.search.utils.JsonConverter;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Component;
+import tools.jackson.core.type.TypeReference;
 
 @Log4j2
 @Component

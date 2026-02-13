@@ -1,5 +1,6 @@
 ## v6.0.0 YYYY-mm-DD
 ### Breaking changes
+* Migrate to Spring Boot 4 ([MSEARCH-1104](https://folio-org.atlassian.net/browse/MSEARCH-1104))
 * Delete deprecated stream resource ids endpoints ([MSEARCH-1053](https://folio-org.atlassian.net/browse/MSEARCH-1053))
 * Remove unused fields from the response body and enhance fields handling in OpenSearch responses ([MSEARCH-1060](https://folio-org.atlassian.net/browse/MSEARCH-1060))
 * Linked Data: Change 'Ean' Identifier to 'IAN' Identifier to be consistent with the terminology used in mod-linked-data ([MSEARCH-1061](https://folio-org.atlassian.net/browse/MSEARCH-1061))
@@ -19,10 +20,14 @@
 ### Features
 * **General**
   * Use unique consumer group per instance for inventory classification-type and call-number-type topics ([MSEARCH-1092](https://folio-org.atlassian.net/browse/MSEARCH-1092))
+  * Remove identifiers from keyword alias for instance and authority mappings ([MSEARCH-1118](https://folio-org.atlassian.net/browse/MSEARCH-1118))
+  * Change `all` query builder to use full term for multimatch search ([MSEARCH-1112](https://folio-org.atlassian.net/browse/MSEARCH-1112))
 * **Authority Search**
+  * Implement two-stage Kafka processing with event aggregation for instance indexing ([MSEARCH-1157](https://folio-org.atlassian.net/browse/MSEARCH-1157))
   * Separate LCCN and Canceled LCCN identifiers search to lccn and canceledLccn options ([MSEARCH-1066](https://folio-org.atlassian.net/browse/MSEARCH-1066))
 * **Classification Browse**
   * Add title and contributors to classification browse response ([MSEARCH-1045](https://folio-org.atlassian.net/browse/MSEARCH-1045))
+  * Add id to classification browse response ([MSEARCH-1093](https://folio-org.atlassian.net/browse/MSEARCH-1093))
 * **Index Management**
   * Allow to set numberOfReplicas to 0 ([MSEARCH-1015](https://folio-org.atlassian.net/browse/MSEARCH-1015))
   * Remove mappingsSource configuration ([MSEARCH-1031](https://folio-org.atlassian.net/browse/MSEARCH-1031))
@@ -31,19 +36,21 @@
   * Add indexes for instance_(call_number/subject/classification/contributor) ([MSEARCH-1025](https://folio-org.atlassian.net/browse/MSEARCH-1025))
   * Omit sub-resource if main value is blank ([MSEARCH-1084](https://folio-org.atlassian.net/browse/MSEARCH-1084))
   * Remove excessive escaping of backslash character in sub-resources ([MSEARCH-1094](https://folio-org.atlassian.net/browse/MSEARCH-1094))
+  * Implement two-stage Kafka processing with event aggregation for instance indexing ([MSEARCH-1157](https://folio-org.atlassian.net/browse/MSEARCH-1157))
   * Implement member tenant reindex ([MSEARCH-1100](https://folio-org.atlassian.net/browse/MSEARCH-1100))
 * **Instance Search**
   * Add support for searching by instance/holdings/item electronic access relationship ID ([MSEARCH-816](https://folio-org.atlassian.net/browse/MSEARCH-816))
   * Normalize ISSN search ([MSEARCH-658](https://folio-org.atlassian.net/browse/MSEARCH-658))
   * Separate LCCN and Canceled LCCN identifiers search to lccn and canceledLccn options ([MSEARCH-1065](https://folio-org.atlassian.net/browse/MSEARCH-1065))
   * Add sorting options for instances by created and updated date ([MSEARCH-825](https://folio-org.atlassian.net/browse/MSEARCH-825))
+  * Add identifiers to default Instance search response ([MSEARCH-1121](https://folio-org.atlassian.net/browse/MSEARCH-1121))
 * **Linked Data Instance, Work and Hub**
   * Search by classification type/number/additionalNumber ([MSEARCH-989](https://folio-org.atlassian.net/browse/MSEARCH-989))
   * Rename "AAP" to "label" to be consistent with the terminology used in mod-linked-data ([MSEARCH-1099](https://folio-org.atlassian.net/browse/MSEARCH-1099))
 
 ### Bug fixes
 * **General**
-  * Enhance backslash handling with escaped double quotes in CQL queries ([MSEARCH-1103](https://folio-org.atlassian.net/browse/MSEARCH-1103))  
+  * Enhance backslash handling with escaped double quotes in CQL queries ([MSEARCH-1103](https://folio-org.atlassian.net/browse/MSEARCH-1103))
 * **Authority Search**
   * Make searching by all heading fields handled with separate/generated search field  ([MSEARCH-1020](https://folio-org.atlassian.net/browse/MSEARCH-1020))
 * **Browse**
@@ -62,6 +69,10 @@
   * Move index recreation before merge range publishing on full reindex ([MSEARCH-1006](https://folio-org.atlassian.net/browse/MSEARCH-1006))
   * Proper handling of delete item events ([MSEARCH-1064](https://folio-org.atlassian.net/browse/MSEARCH-1064))
   * Fix items handling in a sub-resource background job, process multiple same id events in interceptor ([MSEARCH-1085](https://folio-org.atlassian.net/browse/MSEARCH-1085))
+  * Fix soft-deleted items being indexed into elasticsearch ([MSEARCH-1119](https://folio-org.atlassian.net/browse/MSEARCH-1119))
+  * Add error handling on upload range processing ([MSEARCH-1151](https://folio-org.atlassian.net/browse/MSEARCH-1151))
+  * Ignore shadow locations and location units while indexing domain events ([MSEARCH-1154](https://folio-org.atlassian.net/browse/MSEARCH-1154))
+  * Add support for exact match on isbn, honor '*' in IsbnSearchTermProcessor ([MSEARCH-1011](https://folio-org.atlassian.net/browse/MSEARCH-1011))
 
 ### Tech Dept
 * Migrate to Opensearch 3.0.0 ([MSEARCH-1033](https://folio-org.atlassian.net/browse/MSEARCH-1033))
@@ -70,11 +81,19 @@
 * Add missing `holdings-storage` and `item-storage` dependencies in module descriptor ([MSEARCH-1062](https://folio-org.atlassian.net/browse/MSEARCH-1062))
 * Clean search hits to reduce inmemory records ([MSEARCH-1068](https://folio-org.atlassian.net/browse/MSEARCH-1068))
 * Update contributors.name search option type to full-text in documentation ([MSEARCH-814](https://folio-org.atlassian.net/browse/MSEARCH-814))
+* Process item/instance in batches, add stale sub-resource lock release logic ([MSEARCH-1097](https://folio-org.atlassian.net/browse/MSEARCH-1097))
+* Refactor system user handling and update dependencies in ModuleDescriptor ([MSEARCH-1111](https://folio-org.atlassian.net/browse/MSEARCH-1111))
+* Refactor code to comply with Checkstyle method length limit (max 25 lines) ([MSEARCH-1110](https://folio-org.atlassian.net/browse/MSEARCH-1110))
+* Improve Docker Compose setup for local development ([MSEARCH-1090](https://folio-org.atlassian.net/browse/MSEARCH-1090))
+* Change spring-kafka-test scope from compile to test ([MSEARCH-1148](https://folio-org.atlassian.net/browse/MSEARCH-1148))
+* Fix race condition in shouldIndexInstanceCallNumber\_createNewDocument\_onItemCreate ([MSEARCH-1149](https://folio-org.atlassian.net/browse/MSEARCH-1149))
+* Use GitHub Workflows for builds ([MSEARCH-1158](https://folio-org.atlassian.net/browse/MSEARCH-1158))
 
 ### Dependencies
 * Bump `LIB_NAME` from `OLD_VERSION` to `NEW_VERSION`
 * Add `LIB_NAME VERSION`
 * Remove `LIB_NAME`
+* Change scope of `spring-kafka-test` from `compile` to `test`
 
 ---
 

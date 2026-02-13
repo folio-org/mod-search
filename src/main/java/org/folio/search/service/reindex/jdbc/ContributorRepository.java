@@ -29,7 +29,6 @@ import org.springframework.stereotype.Repository;
 
 @Log4j2
 @Repository
-@SuppressWarnings("java:S2077")
 public class ContributorRepository extends UploadRangeRepository implements InstanceChildResourceRepository {
 
   private static final String SELECT_QUERY = """
@@ -194,21 +193,6 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
   }
 
   @Override
-  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp) {
-    return fetchByTimestamp(SELECT_BY_UPDATED_QUERY, rowToMapMapper2(), timestamp, tenant);
-  }
-
-  @Override
-  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp, int limit) {
-    return fetchByTimestamp(SELECT_BY_UPDATED_QUERY, rowToMapMapper2(), timestamp, limit, tenant);
-  }
-
-  @Override
-  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp, String fromId, int limit) {
-    return fetchByTimestamp(SELECT_BY_UPDATED_QUERY, rowToMapMapper2(), timestamp, fromId, limit, tenant);
-  }
-
-  @Override
   protected String getFetchBySql() {
     return SELECT_QUERY.formatted(JdbcUtils.getSchemaName(context),
       ID_RANGE_INS_WHERE_CLAUSE, ID_RANGE_CONTR_WHERE_CLAUSE);
@@ -232,22 +216,14 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
     };
   }
 
-  protected RowMapper<Map<String, Object>> rowToMapMapper2() {
-    return (rs, rowNum) -> {
-      Map<String, Object> contributor = new HashMap<>();
-      contributor.put("id", getId(rs));
-      contributor.put("name", getName(rs));
-      contributor.put("contributorNameTypeId", getNameTypeId(rs));
-      contributor.put(LAST_UPDATED_DATE_FIELD, rs.getTimestamp("last_updated_date"));
-      contributor.put(AUTHORITY_ID_FIELD, getAuthorityId(rs));
+  @Override
+  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp, int limit) {
+    return fetchByTimestamp(SELECT_BY_UPDATED_QUERY, rowToMapMapper2(), timestamp, limit, tenant);
+  }
 
-      var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
-      if (!maps.isEmpty()) {
-        contributor.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
-      }
-
-      return contributor;
-    };
+  @Override
+  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp, String fromId, int limit) {
+    return fetchByTimestamp(SELECT_BY_UPDATED_QUERY, rowToMapMapper2(), timestamp, fromId, limit, tenant);
   }
 
   @Override
@@ -256,6 +232,7 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
   }
 
   @Override
+  @SuppressWarnings("checkstyle:MethodLength")
   public void saveAll(ChildResourceEntityBatch entityBatch) {
     // Use staging tables only for member tenant specific full reindex
     if (ReindexContext.isReindexMode() && ReindexContext.isMemberTenantReindex()) {
@@ -372,6 +349,24 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
       ID_RANGE_INS_WHERE_CLAUSE,
       ID_RANGE_CONTR_WHERE_CLAUSE + " AND c.last_updated_date = ?");
     return jdbcTemplate.query(sql, rowToMapMapper(), lower, upper, lower, upper, timestamp);
+  }
+
+  protected RowMapper<Map<String, Object>> rowToMapMapper2() {
+    return (rs, rowNum) -> {
+      Map<String, Object> contributor = new HashMap<>();
+      contributor.put("id", getId(rs));
+      contributor.put("name", getName(rs));
+      contributor.put("contributorNameTypeId", getNameTypeId(rs));
+      contributor.put(LAST_UPDATED_DATE_FIELD, rs.getTimestamp("last_updated_date"));
+      contributor.put(AUTHORITY_ID_FIELD, getAuthorityId(rs));
+
+      var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
+      if (!maps.isEmpty()) {
+        contributor.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
+      }
+
+      return contributor;
+    };
   }
 
   private String getId(ResultSet rs) throws SQLException {

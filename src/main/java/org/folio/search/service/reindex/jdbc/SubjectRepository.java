@@ -196,11 +196,6 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
   }
 
   @Override
-  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp) {
-    return fetchByTimestamp(SELECT_BY_UPDATED_QUERY, rowToMapMapper2(), timestamp, tenant);
-  }
-
-  @Override
   public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp, int limit) {
     return fetchByTimestamp(SELECT_BY_UPDATED_QUERY, rowToMapMapper2(), timestamp, limit, tenant);
   }
@@ -242,6 +237,7 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
   }
 
   @Override
+  @SuppressWarnings("checkstyle:MethodLength")
   public void saveAll(ChildResourceEntityBatch entityBatch) {
     // Use staging tables only for member tenant specific full reindex
     if (ReindexContext.isReindexMode() && ReindexContext.isMemberTenantReindex()) {

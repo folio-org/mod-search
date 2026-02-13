@@ -1,0 +1,406 @@
+Case,Query,Value
+1,"administrativeNotes == ""{value}""",original + pcc
+2,"administrativeNotes == ""{value}""",ORIGINAL + PCC
+3,"administrativeNotes any ""{value}""",original pcc
+4,"administrativeNotes any ""{value}""",ORIGINAL PCC
+5,"alternativeTitles.alternativeTitle == ""{value}""",An alternative title
+6,"alternativeTitles.alternativeTitle == ""{value}""",AN ALTERNATIVE TITLE
+7,"alternativeTitles.alternativeTitle all ""{value}""",asyurangsŭ
+8,"alternativeTitles.alternativeTitle all ""{value}""",ASYURANGSŬ
+9,"alternativeTitles.alternativeTitle all ""{value}""",bangk'asyurangsŭ
+10,"alternativeTitles.alternativeTitle all ""{value}""",BANGK'ASYURANGSŬ
+11,"alternativeTitles.alternativeTitle all ""{value}""",deja vu
+12,"alternativeTitles.alternativeTitle all ""{value}""",DEJA VU
+13,"alternativeTitles.alternativeTitle all ""{value}""",déjà vu
+14,"alternativeTitles.alternativeTitle all ""{value}""",DÉJÀ VU
+15,"alternativeTitles.alternativeTitle all ""{value}""",pang ok
+16,"alternativeTitles.alternativeTitle all ""{value}""",PANG OK
+17,"alternativeTitles.alternativeTitle all ""{value}""",pang'ok
+18,"alternativeTitles.alternativeTitle all ""{value}""",PANG'OK
+19,"alternativeTitles.alternativeTitle all ""{value}""",pangok
+20,"alternativeTitles.alternativeTitle all ""{value}""",PANGOK
+21,"alternativeTitles.alternativeTitle all ""{value}""",uniform
+22,"alternativeTitles.alternativeTitle all ""{value}""",UNIFORM
+23,"authorityId == ""{value}""",55294032-fcf6-45cc-b6da-4420a61ef72c
+24,"authorityId == ""{value}""",55294032-FCF6-45CC-B6DA-4420A61EF72C
+25,"canceledLccn = ""{value}""",CANCELED*
+26,"classifications.classificationNumber==""{value}""",025*
+27,"classifications.classificationNumber==""{value}""",025*
+28,"classifications.classificationNumber==""{value}""",025.04
+29,"classifications.classificationNumber==""{value}""",025.04
+30,"contributors = ""{value}""","*rmelen, Frank"
+31,"contributors = ""{value}""","*RMELEN, FRANK"
+32,"contributors = ""{value}""","Van Harmelen, Fr*"
+33,"contributors = ""{value}""","VAN HARMELEN, FR*"
+34,"contributors == ""{value}""","Van Harmelen, Frank"
+35,"contributors == ""{value}""","VAN HARMELEN, FRANK"
+36,"contributors ==/string ""{value}""","Van Harmelen, Frank"
+37,"contributors ==/string ""{value}""","VAN HARMELEN, FRANK"
+38,"contributors all ""{value}""","Van Harmelen, Frank"
+39,"contributors all ""{value}""","VAN HARMELEN, FRANK"
+40,"contributors all ""{value}""",frank
+41,"contributors all ""{value}""",Frank
+42,"contributors all ""{value}""",FRANK
+43,"contributors all ""{value}""",FRANK
+44,"contributors all ""{value}""",grigoris
+45,"contributors all ""{value}""",GRIGORIS
+46,"contributors all ""{value}""",Grigoris Ant\\niou
+47,"contributors all ""{value}""",GRIGORIS ANT\\NIOU
+48,"contributors any ""{value}""",Grigoris frank
+49,"contributors any ""{value}""",GRIGORIS FRANK
+50,"contributors.authorityId == ""{value}""",55294032-fcf6-45cc-b6da-4420a61ef72c
+51,"contributors.authorityId == ""{value}""",55294032-FCF6-45CC-B6DA-4420A61EF72C
+52,"contributors.name = ""{value}""","*rmelen, Frank"
+53,"contributors.name = ""{value}""","*RMELEN, FRANK"
+54,"contributors.name = ""{value}""","Van Harmelen, Fr*"
+55,"contributors.name = ""{value}""","VAN HARMELEN, FR*"
+56,"contributors.name = ""{value}""","Van Harmelen, Frank"
+57,"contributors.name = ""{value}""","VAN HARMELEN, FRANK"
+58,"contributors.name = ""{value}""",Ant\\n*
+59,"contributors.name = ""{value}""",ANT\\N*
+60,"contributors.name == ""{value}""",Van Harmelen
+61,"contributors.name == ""{value}""",VAN HARMELEN
+62,"contributors.name ==/string ""{value}""","Van Harmelen, Frank"
+63,"contributors.name ==/string ""{value}""","VAN HARMELEN, FRANK"
+64,cql.allRecords = 1,""
+65,"dates.date1 == ""{value}""",*9u
+66,"dates.date1 == ""{value}""",*\\9*
+67,"dates.date1 == ""{value}""",1\\*
+68,"dates.date2 == ""{value}""",*02*
+69,"dates.date2 == ""{value}""",*22
+70,"dates.date2 == ""{value}""",20*
+71,"dates.date2 > ""{value}""", 2021
+72,"electronicAccess.linkText all ""{value}""",access
+73,"electronicAccess.linkText all ""{value}""",ACCESS
+74,"electronicAccess.publicNote all ""{value}""",online
+75,"electronicAccess.publicNote all ""{value}""",ONLINE
+76,"electronicAccess.relationshipId == ""{value}""",a1c0b4f2-3d8e-4b5f-8a7c-6d9e0f2b1c3d
+77,"electronicAccess.uri==""{value}""",https://testlibrary.sample.com/journal/10.1002/(ISSN)1938-3703
+78,"electronicAccess.uri==""{value}""",HTTPS://TESTLIBRARY.SAMPLE.COM/JOURNAL/10.1002/(ISSN)1938-3703
+79,"holdings.administrativeNotes == ""{value}""",for deletion
+80,"holdings.administrativeNotes == ""{value}""",FOR DELETION
+81,"holdings.administrativeNotes all ""{value}""",v2.0
+82,"holdings.administrativeNotes all ""{value}""",V2.0
+83,"holdings.electronicAccess.linkText all ""{value}""",link text
+84,"holdings.electronicAccess.linkText all ""{value}""",LINK TEXT
+85,"holdings.electronicAccess.publicNote all ""{value}""",note
+86,"holdings.electronicAccess.publicNote all ""{value}""",NOTE
+87,"holdings.electronicAccess.relationshipId == ""{value}""",3b430592-2e09-4b48-9a0c-0636d66b9fb3
+88,"holdings.electronicAccess.uri==""{value}""",https://testlibrary.sample.com/holdings?hrid=ho0000006
+89,"holdings.electronicAccess.uri==""{value}""",HTTPS://TESTLIBRARY.SAMPLE.COM/HOLDINGS?HRID=HO0000006
+90,"holdings.electronicAccess==""{value}""",electronicAccess
+91,"holdings.electronicAccess==""{value}""",ELECTRONICACCESS
+92,"holdings.notes.note == ""{value}""",Librarian private note for holding
+93,"holdings.notes.note == ""{value}""",LIBRARIAN PRIVATE NOTE FOR HOLDING
+94,"holdings.notes.note == ""{value}""",Librarian public note for holding
+95,"holdings.notes.note == ""{value}""",LIBRARIAN PUBLIC NOTE FOR HOLDING
+96,"holdings.tags.tagList == ""{value}""",holdings-tag
+97,"holdings.tags.tagList == ""{value}""",HOLDINGS-TAG
+98,"holdingsIdentifiers == ""{value}""",1d76ee84-d776-48d2-ab96-140c24e39ac5
+99,"holdingsIdentifiers == ""{value}""",1D76EE84-D776-48D2-AB96-140C24E39AC5
+100,"holdingsIdentifiers all ""{value}""",9b8ec096-fa2e-451b-8e7a-6d1c977ee946
+101,"holdingsIdentifiers all ""{value}""",9B8EC096-FA2E-451B-8E7A-6D1C977EE946
+102,"holdingsIdentifiers all ""{value}""",e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19
+103,"holdingsIdentifiers all ""{value}""",E3FF6133-B9A2-4D4C-A1C9-DC1867D4DF19
+104,"holdingsIdentifiers all ""{value}""",hold000000000009
+105,"holdingsIdentifiers all ""{value}""",HOLD000000000009
+106,"holdingsPublicNotes all ""{value}""",bibliographical references
+107,"holdingsPublicNotes all ""{value}""",BIBLIOGRAPHICAL REFERENCES
+108,"hrid == ""{value}""",*00000002*
+109,"hrid == ""{value}""",*00000002*
+110,"hrid == ""{value}""",*00022
+111,"hrid == ""{value}""",*00022
+112,"hrid == ""{value}""",inst00*
+113,"hrid == ""{value}""",INST00*
+114,"hrid == ""{value}""",inst000000000022
+115,"hrid == ""{value}""",INST000000000022
+116,"id = ""{value}""",""
+117,"id = ""{value}""",5bf370e0*a0a39
+118,"id = ""{value}""",5bf370e0-8cca-4d9c-82e4-5170ab2a0a39
+119,"id == ""{value}""",5bf370e0-8cca-4d9c-82e4-5170ab2a0a39
+120,"identifiers.identifierTypeId == ""{value}""",c858e4f2-2b6b-4385-842b-60732ee14abb
+121,"identifiers.identifierTypeId == ""{value}""",C858E4F2-2B6B-4385-842B-60732EE14ABB
+122,"identifiers.identifierTypeId == 8261054f-be78-422d-bd51-4ed9f33c3422 and identifiers.value == ""{value}""",0262012103
+123,"identifiers.identifierTypeId == 8261054F-BE78-422D-BD51-4ED9F33C3422 AND identifiers.value == ""{value}""",0262012103
+124,"identifiers.value == ""{value}""",0262012103
+125,"identifiers.value == ""{value}""",0262012103
+126,"identifiers.value all ""{value}""",200306*
+127,"identifiers.value all ""{value}""",200306*
+128,identifiers.value all ({value}),047144250X and 2003065165 and 0317-8471
+129,identifiers.value all ({value}),047144250X AND 2003065165 AND 0317-8471
+130,identifiers.value all ({value}),047144250X or 2003065165 or 0000-0000
+131,identifiers.value all ({value}),047144250X OR 2003065165 OR 0000-0000
+132,"indexTitle <> ""{value}""",unknown value
+133,"indexTitle <> ""{value}""",UNKNOWN VALUE
+134,"instanceFormatIds == ""{value}""",7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da
+135,"instanceFormatIds == ""{value}""",7F9C4AC0-FA3D-43B7-B978-3BF0BE38C4DA
+136,"isbn = ""{value}""",0471-4*
+137,"isbn = ""{value}""",0471-4*
+138,"isbn = ""{value}""",978-0471*
+139,"isbn = ""{value}""",978-0471*
+140,"isbn = ""{value}""",978-0471-44250-9
+141,"isbn = ""{value}""",978-0471-44250-9
+142,"isbn = ""{value}""",04714*
+143,"isbn = ""{value}""",04714*
+144,"isbn = ""{value}""",9780471*
+145,"isbn = ""{value}""",9780471*
+146,"isbn = ""{value}""",047144250X
+147,"isbn = ""{value}""",047144250X
+148,"isbn = ""{value}""",9780471442509
+149,"isbn = ""{value}""",9780471442509
+150,"isbn = ""{value}""",paper
+151,"isbn = ""{value}""",PAPER
+152,"issn = ""{value}""",0317*
+153,"issn = ""{value}""",0317*
+154,"issn = ""{value}""",0317-8471
+155,"issn = ""{value}""",0317-8471
+156,"item.administrativeNotes == ""{value}""",need attention
+157,"item.administrativeNotes == ""{value}""",NEED ATTENTION
+158,"item.administrativeNotes all ""{value}""",v1.1
+159,"item.administrativeNotes all ""{value}""",V1.1
+160,"item.circulationNotes.note == ""{value}""",testCirculationNote
+161,"item.circulationNotes.note == ""{value}""",TESTCIRCULATIONNOTE
+162,"item.circulationNotes.note all ""{value}""",*Note
+163,"item.circulationNotes.note all ""{value}""",*NOTE
+164,"item.circulationNotes.note all ""{value}""",private circulation note
+165,"item.circulationNotes.note all ""{value}""",PRIVATE CIRCULATION NOTE
+166,"item.circulationNotes.note all ""{value}""",private circulation*
+167,"item.circulationNotes.note all ""{value}""",PRIVATE CIRCULATION*
+168,"item.circulationNotes.note all ""{value}""",public circulation note
+169,"item.circulationNotes.note all ""{value}""",PUBLIC CIRCULATION NOTE
+170,"item.electronicAccess.linkText all ""{value}""",links available
+171,"item.electronicAccess.linkText all ""{value}""",LINKS AVAILABLE
+172,"item.electronicAccess.publicNote all ""{value}""",table of contents
+173,"item.electronicAccess.publicNote all ""{value}""",TABLE OF CONTENTS
+174,"item.electronicAccess.relationshipId == ""{value}""",3b430592-2e09-4b48-9a0c-0636d66b9fb3
+175,"item.electronicAccess.uri==""{value}""",https://www.loc.gov/catdir/toc/ecip0718/2007020429.html
+176,"item.electronicAccess.uri==""{value}""",HTTPS://WWW.LOC.GOV/CATDIR/TOC/ECIP0718/2007020429.HTML
+177,"item.electronicAccess==""{value}""",table
+178,"item.electronicAccess==""{value}""",TABLE
+179,"item.hrid = ""{value}""",*00014
+180,"item.hrid = ""{value}""",*00014
+181,"item.hrid = ""{value}""",item*
+182,"item.hrid = ""{value}""",ITEM*
+183,"item.hrid = ""{value}""",item*00014
+184,"item.hrid = ""{value}""",ITEM*00014
+185,"item.hrid = ""{value}""",item000000000014
+186,"item.hrid = ""{value}""",ITEM000000000014
+187,"item.notes.note == ""{value}""",Librarian private note for item
+188,"item.notes.note == ""{value}""",LIBRARIAN PRIVATE NOTE FOR ITEM
+189,"item.notes.note == ""{value}""",Librarian public note for item
+190,"item.notes.note == ""{value}""",LIBRARIAN PUBLIC NOTE FOR ITEM
+191,"item.notes.note == ""{value}""",private circulation note
+192,"item.notes.note == ""{value}""",PRIVATE CIRCULATION NOTE
+193,"item.notes.note == ""{value}""",testCirculationNote
+194,"item.notes.note == ""{value}""",TESTCIRCULATIONNOTE
+195,"itemIdentifiers all ""{value}""",81ae0f60-f2bc-450c-84c8-5a21096daed9
+196,"itemIdentifiers all ""{value}""",81AE0F60-F2BC-450C-84C8-5A21096DAED9
+197,"itemIdentifiers all ""{value}""",7212ba6a-8dcf-45a1-be9a-ffaa847c4423
+198,"itemIdentifiers all ""{value}""",7212BA6A-8DCF-45A1-BE9A-FFAA847C4423
+199,"itemIdentifiers all ""{value}""",item000000000014
+200,"itemIdentifiers all ""{value}""",ITEM000000000014
+201,"itemIdentifiers all ""{value}""",item_accession_number
+202,"itemIdentifiers all ""{value}""",ITEM_ACCESSION_NUMBER
+203,"itemIdentifiers all ""{value}""",itemIdentifierFieldValue
+204,"itemIdentifiers all ""{value}""",ITEMIDENTIFIERFIELDVALUE
+205,"itemPublicNotes all ""{value}""",bibliographical references
+206,"itemPublicNotes all ""{value}""",BIBLIOGRAPHICAL REFERENCES
+207,"itemPublicNotes all ""{value}""",public circulation note
+208,"itemPublicNotes all ""{value}""",PUBLIC CIRCULATION NOTE
+209,"items.circulationNotes.note == ""{value}""",testCirculationNote
+210,"items.circulationNotes.note == ""{value}""",TESTCIRCULATIONNOTE
+211,"items.circulationNotes.note all ""{value}""",*Note
+212,"items.circulationNotes.note all ""{value}""",*NOTE
+213,"items.circulationNotes.note all ""{value}""",private circulation note
+214,"items.circulationNotes.note all ""{value}""",PRIVATE CIRCULATION NOTE
+215,"items.circulationNotes.note all ""{value}""",private circulation*
+216,"items.circulationNotes.note all ""{value}""",PRIVATE CIRCULATION*
+217,"items.circulationNotes.note all ""{value}""",public circulation note
+218,"items.circulationNotes.note all ""{value}""",PUBLIC CIRCULATION NOTE
+219,"items.effectiveCallNumberComponents.typeId = ""{value}""",512173a7-bd09-490e-b773-17d83f2b63fe
+220,"items.electronicAccess.linkText all ""{value}""",links available
+221,"items.electronicAccess.linkText all ""{value}""",LINKS AVAILABLE
+222,"items.electronicAccess.publicNote all ""{value}""",table of contents
+223,"items.electronicAccess.publicNote all ""{value}""",TABLE OF CONTENTS
+224,"items.electronicAccess.uri==""{value}""",https://www.loc.gov/catdir/toc/ecip0718/2007020429.html
+225,"items.electronicAccess.uri==""{value}""",HTTPS://WWW.LOC.GOV/CATDIR/TOC/ECIP0718/2007020429.HTML
+226,"items.electronicAccess==""{value}""",table
+227,"items.electronicAccess==""{value}""",TABLE
+228,"items.hrid = ""{value}""",*00014
+229,"items.hrid = ""{value}""",*00014
+230,"items.hrid = ""{value}""",item*
+231,"items.hrid = ""{value}""",ITEM*
+232,"items.hrid = ""{value}""",item*00014
+233,"items.hrid = ""{value}""",ITEM*00014
+234,"items.hrid = ""{value}""",item000000000014
+235,"items.hrid = ""{value}""",ITEM000000000014
+236,"items.notes.note == ""{value}""",Librarian private note for item
+237,"items.notes.note == ""{value}""",LIBRARIAN PRIVATE NOTE FOR ITEM
+238,"items.notes.note == ""{value}""",Librarian public note for item
+239,"items.notes.note == ""{value}""",LIBRARIAN PUBLIC NOTE FOR ITEM
+240,"items.notes.note == ""{value}""",private circulation note
+241,"items.notes.note == ""{value}""",PRIVATE CIRCULATION NOTE
+242,"items.notes.note == ""{value}""",testCirculationNote
+243,"items.notes.note == ""{value}""",TESTCIRCULATIONNOTE
+244,"items.tags.tagList all ""{value}""",item-tag
+245,"items.tags.tagList all ""{value}""",ITEM-TAG
+246,keyword = *,""
+247,keyword = *,""""""
+248,"keyword == ""{value}""","Van Harmelen, Frank"
+249,"keyword == ""{value}""","VAN HARMELEN, FRANK"
+250,"keyword ==/string ""{value}""",An Uniform title
+251,"keyword ==/string ""{value}""",AN UNIFORM TITLE
+252,"keyword all ""{value}""","""semantic web primer"""
+253,"keyword all ""{value}""",A semantic web primer & wolves
+254,"keyword all ""{value}""",A SEMANTIC WEB PRIMER & WOLVES
+255,"keyword all ""{value}""",A semantic web primer / wolves
+256,"keyword all ""{value}""",A SEMANTIC WEB PRIMER / WOLVES
+257,"keyword all ""{value}""",A semantic web primer : wolves
+258,"keyword all ""{value}""",A SEMANTIC WEB PRIMER : WOLVES
+259,"keyword all ""{value}""",A semantic web primer ; wolves
+260,"keyword all ""{value}""",A semantic web primer = wolves
+261,"keyword all ""{value}""",A semantic web primer + wolves
+262,"keyword all ""{value}""",A semantic web primer - wolves
+263,"keyword all ""{value}""",semantic Ant\\niou
+264,"keyword all ""{value}""",SEMANTIC ANT\\NIOU
+265,"keyword all ""{value}""",semantic web primer
+266,"keyword all ""{value}""",SEMANTIC WEB PRIMER
+267,"keyword all ""{value}""",wolves matthew
+268,"keyword all ""{value}""",WOLVES MATTHEW
+269,"lccn = ""{value}""",*65165
+270,"lccn = ""{value}""",*65165
+271,"lccn = ""{value}""",*75732
+272,"lccn = ""{value}""",*75732
+273,"lccn = ""{value}""",20030*
+274,"lccn = ""{value}""",20030*
+275,"lccn = ""{value}""",2003065165
+276,"lccn = ""{value}""",2003065165
+277,"lccn = ""{value}""",n 2003075732
+278,"lccn = ""{value}""",N 2003075732
+279,"lccn = ""{value}""",N2003075732
+280,"lccn = ""{value}""",N2003075732
+281,"normalizedClassificationNumber==""{value}""",  HD1691 .I5 1967
+282,"normalizedClassificationNumber==""{value}""",*1691 .I5 1967
+283,"normalizedClassificationNumber==""{value}""",*1691*
+284,"normalizedClassificationNumber==""{value}""",HD1691 .I5 1967
+285,"normalizedClassificationNumber==""{value}""",hd1691 .I5 1967
+286,"normalizedClassificationNumber==""{value}""",HD1691 .I5 1967
+287,"normalizedClassificationNumber==""{value}""",HD1691 I5 1967
+288,"normalizedClassificationNumber==""{value}""",HD1691*
+289,"normalizedClassificationNumber==""{value}""",HD1691I51967
+290,"normalizedClassificationNumber==""{value}""",HD1691.I51967
+291,"notes.note == ""{value}""",Librarian private note
+292,"notes.note == ""{value}""",LIBRARIAN PRIVATE NOTE
+293,"notes.note == ""{value}""",The development of the Semantic Web
+294,"notes.note == ""{value}""",THE DEVELOPMENT OF THE SEMANTIC WEB
+295,"oclc = ""{value}""",12345 800630
+296,"oclc = ""{value}""",12345 800630
+297,"oclc = ""{value}""",60710*
+298,"oclc = ""{value}""",60710*
+299,"oclc = ""{value}""",ocm60710867
+300,"oclc = ""{value}""",OCM60710867
+301,"publication.place = ""{value}""","*mbridge, Mass."
+302,"publication.place = ""{value}""","Cambridge, Ma*"
+303,"publication.place = ""{value}""","Cambridge, Mass."
+304,"publication.place == ""{value}""",Cambridge
+305,"publication.place ==/string ""{value}""","Cambridge, Mass."
+306,"publication.place all ""{value}""",cambridge
+307,"publication.place all ""{value}""",Cambridge
+308,"publication.place all ""{value}""",Cambridge mass
+309,"publication.place all ""{value}""",mass
+310,"publication.place all ""{value}""",Mass.
+311,"publication.place any ""{value}""",Cambridge mass
+312,"publicNotes all ""{value}""",development
+313,"publicNotes all ""{value}""",DEVELOPMENT
+314,"publisher all ""{value}""",MIT
+315,"publisher all ""{value}""",mit
+316,"publisher all ""{value}""",MIT
+317,"publisher all ""{value}""",MIT
+318,"publisher all ""{value}""",press
+319,"publisher all ""{value}""",PRESS
+320,"series all ""{value}""",cooperate
+321,"series all ""{value}""",COOPERATE
+322,"series all ""{value}""",cooperative
+323,"series all ""{value}""",COOPERATIVE
+324,"series all ""{value}""",Cooperative information systems
+325,"series all ""{value}""",COOPERATIVE INFORMATION SYSTEMS
+326,"shared == ""{value}""",false
+327,"subjects ==/string ""{value}""","backslash\\ \""double\\-quotes\\\"" te\\st"
+328,"subjects ==/string ""{value}""",semantic web
+329,"subjects ==/string ""{value}""",SEMANTIC WEB
+330,"subjects all ""{value}""",semantic
+331,"subjects all ""{value}""",SEMANTIC
+332,"tags.tagList all ""{value}""",book
+333,"tags.tagList all ""{value}""",BOOK
+334,"tags.tagList all ""{value}""",electronic
+335,"tags.tagList all ""{value}""",ELECTRONIC
+336,"tenantId = ""{value}""",test_tenant
+337,"title <> ""{value}""",unknown value
+338,"title <> ""{value}""",UNKNOWN VALUE
+339,"title == ""{value}""",a semantic web primer
+340,"title == ""{value}""",A SEMANTIC WEB PRIMER
+341,"title == ""{value}""",cooperative information systems
+342,"title == ""{value}""",COOPERATIVE INFORMATION SYSTEMS
+343,"title == ""{value}""",semantic web
+344,"title == ""{value}""",SEMANTIC WEB
+345,"title all ""{value}""",A semantic web primer : 0747-0850
+346,"title all ""{value}""",A SEMANTIC WEB PRIMER : 0747-0850
+347,"title all ""{value}""",algerie
+348,"title all ""{value}""",ALGERIE
+349,"title all ""{value}""",Algérie
+350,"title all ""{value}""",ALGÉRIE
+351,"title all ""{value}""",cherchell
+352,"title all ""{value}""",CHERCHELL
+353,"title all ""{value}""",cooperate
+354,"title all ""{value}""",COOPERATE
+355,"title all ""{value}""",cooperative
+356,"title all ""{value}""",COOPERATIVE
+357,"title all ""{value}""",deja vu
+358,"title all ""{value}""",DEJA VU
+359,"title all ""{value}""",Der Preis der Verfuhrung
+360,"title all ""{value}""",Der Preis der Verfuhrung*
+361,"title all ""{value}""",Der Preis der Verführung
+362,"title all ""{value}""",Der Preis der Verführung*
+363,"title all ""{value}""",déjà vu
+364,"title all ""{value}""",DÉJÀ VU
+365,"title all ""{value}""",primers
+366,"title all ""{value}""",PRIMERS
+367,"title all ""{value}""",semantic
+368,"title all ""{value}""",SEMANTIC
+369,"title all ""{value}""",system information
+370,"title all ""{value}""",SYSTEM INFORMATION
+371,"title any ""{value}""",semantic web word
+372,"title any ""{value}""",SEMANTIC WEB WORD
+373,"title any ""{value}""",systems alternative semantic
+374,"title any ""{value}""",SYSTEMS ALTERNATIVE SEMANTIC
+375,"uniformTitle all ""{value}""",uniform
+376,"uniformTitle all ""{value}""",UNIFORM
+377,"issn = ""{value}""",0040-781X
+378,"issn = ""{value}""",0040781x
+379,"issn = ""{value}""",*0-781X
+380,"issn = ""{value}""",*0-781x
+381,"issn = ""{value}""",**0-781X
+382,"issn = ""{value}""",**0-781x
+383,"issn = ""{value}""",***0-***X
+384,"issn = ""{value}""",***0-***x
+385,"issn = ""{value}""",00*0-*8*X
+386,"issn = ""{value}""",00*0-*8*x
+387,"issn = ""{value}""",***0-***X
+388,"issn = ""{value}""",***0-***x
+389,"issn = ""{value}""",***0-*X
+390,"issn = ""{value}""",***0-**x
+391,"issn = ""{value}""",0**-**x
+392,"issn = ""{value}""",0*-*x
+393,"issn = ""{value}""",*X
+394,"issn = ""{value}""",*x
+395,"issn = ""{value}""",0040-781*
+396,"isbn = ""{value}""",0471442*
+397,"isbn = ""{value}""",047144250X*
+398,"isbn == ""{value}""",047144250X
+399,"isbn == ""{value}""",047144250
+400,"isbn = ""{value}""",9781609383*
+401,"isbn = ""{value}""",9781609383657*
+402,"isbn == ""{value}""",9781609383657
+403,"isbn = ""{value}""",0262012103*
+404,"isbn == ""{value}""",0262012103
+405,"isbn all ""{value}""",9780471442509 paper

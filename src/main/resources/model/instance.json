@@ -80,11 +80,12 @@
       "type": "object",
       "properties": {
         "value": {
-          "searchAliases": [ "keyword" ],
-          "index": "whitespace"
+          "index": "whitespace",
+          "showInResponse": true
         },
         "identifierTypeId": {
-          "index": "keyword_lowercase"
+          "index": "keyword_lowercase",
+          "showInResponse": true
         }
       }
     },
@@ -621,8 +622,7 @@
       "type": "search",
       "processor": "isbnProcessor",
       "searchTermProcessor": "isbnSearchTermProcessor",
-      "index": "standard",
-      "indexPlainValue": false
+      "index": "standard"
     },
     "issn": {
       "type": "search",

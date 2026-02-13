@@ -26,8 +26,6 @@ import static org.folio.support.utils.TestUtils.spyLambda;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.dataformat.smile.databind.SmileMapper;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -55,6 +53,8 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.core.common.bytes.BytesArray;
 import org.opensearch.core.common.bytes.BytesReference;
+import tools.jackson.databind.node.ObjectNode;
+import tools.jackson.dataformat.smile.SmileMapper;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)

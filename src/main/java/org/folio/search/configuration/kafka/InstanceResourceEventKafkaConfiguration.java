@@ -6,14 +6,17 @@ import static org.apache.kafka.clients.consumer.ConsumerConfig.MAX_POLL_RECORDS_
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.model.event.IndexInstanceEvent;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
+import org.springframework.boot.kafka.autoconfigure.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.listener.BatchInterceptor;
 import org.springframework.kafka.listener.CompositeBatchInterceptor;
-import org.springframework.kafka.support.serializer.JsonDeserializer;
+import org.springframework.kafka.support.serializer.JacksonJsonDeserializer;
 
 @Configuration
 @RequiredArgsConstructor
@@ -34,11 +37,30 @@ public class InstanceResourceEventKafkaConfiguration extends KafkaConfiguration 
     @Value("#{folioKafkaProperties.listener['events'].maxPollIntervalMs}") Integer maxPollIntervalMs) {
     var factory = new ConcurrentKafkaListenerContainerFactory<String, ResourceEvent>();
     factory.setBatchListener(true);
-    var deserializer = new JsonDeserializer<>(ResourceEvent.class, false);
+    var deserializer = new JacksonJsonDeserializer<>(ResourceEvent.class, false);
     var overrideProperties = Map.<String, Object>of(MAX_POLL_RECORDS_CONFIG, maxPollRecords,
       MAX_POLL_INTERVAL_MS_CONFIG, maxPollIntervalMs);
     factory.setConsumerFactory(getConsumerFactory(deserializer, kafkaProperties, overrideProperties));
     factory.setBatchInterceptor(new CompositeBatchInterceptor<>(batchInterceptors));
     return factory;
+  }
+
+  @Bean
+  public ConcurrentKafkaListenerContainerFactory<String, IndexInstanceEvent> indexInstanceListenerContainerFactory(
+    @Value("#{folioKafkaProperties.listener['index-instance'].maxPollRecords}") Integer maxPollRecords,
+    @Value("#{folioKafkaProperties.listener['index-instance'].maxPollIntervalMs}") Integer maxPollIntervalMs) {
+    var factory = new ConcurrentKafkaListenerContainerFactory<String, IndexInstanceEvent>();
+    factory.setBatchListener(true);
+    var deserializer = new JacksonJsonDeserializer<>(IndexInstanceEvent.class, false);
+    var overrideProperties = Map.<String, Object>of(MAX_POLL_RECORDS_CONFIG, maxPollRecords,
+      MAX_POLL_INTERVAL_MS_CONFIG, maxPollIntervalMs);
+    factory.setConsumerFactory(getConsumerFactory(deserializer, kafkaProperties, overrideProperties));
+    return factory;
+  }
+
+  @Bean
+  public KafkaTemplate<String, IndexInstanceEvent> indexInstanceKafkaTemplate() {
+    ProducerFactory<String, IndexInstanceEvent> producerFactory = getProducerFactory(kafkaProperties);
+    return new KafkaTemplate<>(producerFactory);
   }
 }

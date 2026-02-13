@@ -88,6 +88,7 @@ class SearchLinkedDataInstanceIT extends BaseIntegrationTest {
       .andExpect(jsonPath(toTitleValue(toRootContent(1), 0), is(asc ? "titleAbc xyz" : "titleAbc def")));
   }
 
+  @SuppressWarnings("checkstyle:MethodLength")
   @DisplayName("search by linked data instance (single instance is found)")
   @ParameterizedTest(name = "[{0}] {1}")
   @CsvSource({
@@ -164,6 +165,15 @@ class SearchLinkedDataInstanceIT extends BaseIntegrationTest {
     "71, classificationAdditionalNumber == \"456\"",
     "72, classificationNumber == \"1 2  3\"",
     "73, classificationAdditionalNumber == \"45  6\"",
+    "74, isbn = \"0471442*\"",
+    "75, isbn = \"047144250X*\"",
+    "76, isbn == \"047144250X\"",
+    "77, isbn == \"047144250\"",
+    "78, isbn = \"1234567890*\"",
+    "79, isbn = \"1234567890123*\"",
+    "80, isbn == \"1234567890123\"",
+    "81, isbn == \"0262012103\"", //ISBN10 which is also indexed in ISBN13 form by IsbnProcessor
+    "82, isbn == \"0262012103*\""
   })
   void searchByLinkedDataInstance_parameterized_singleResult(int index, String query) throws Throwable {
     doSearchByLinkedDataInstance(query)

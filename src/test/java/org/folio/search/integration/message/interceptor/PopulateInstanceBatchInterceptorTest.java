@@ -69,7 +69,7 @@ class PopulateInstanceBatchInterceptorTest {
     // Arrange
     var resourceEvent = new ResourceEvent().tenant(TENANT_ID).resourceName("instance");
     var consumerRecord = new ConsumerRecord<>("topic", 0, 0L, "key", resourceEvent);
-    var records = new ConsumerRecords<>(Map.of(new TopicPartition("topic", 0), List.of(consumerRecord)));
+    var records = getConsumerRecords(List.of(consumerRecord));
 
     doThrow(new SystemUserAuthorizationException("Authorization failed"))
       .when(systemUserScopedExecutionService).executeSystemUserScoped(eq(TENANT_ID), any());
@@ -89,7 +89,7 @@ class PopulateInstanceBatchInterceptorTest {
 
     var resourceEvent = new ResourceEvent().tenant(TENANT_ID).resourceName("instance");
     var consumerRecord = new ConsumerRecord<>("topic", 0, 0L, "key", resourceEvent);
-    var records = new ConsumerRecords<>(Map.of(new TopicPartition("topic", 0), List.of(consumerRecord)));
+    var records = getConsumerRecords(List.of(consumerRecord));
 
     // Act
     populateInstanceBatchInterceptor.intercept(records, consumer);
@@ -109,8 +109,7 @@ class PopulateInstanceBatchInterceptorTest {
     var consumerRecord1 = createConsumerRecord(Map.of("id", 1), now);
     var consumerRecord2 = createConsumerRecord(Map.of("id", 2), now + 1);
     var consumerRecord3 = createConsumerRecord(expected, now + 2);
-    var records = new ConsumerRecords<>(Map.of(new TopicPartition("topic", 0),
-      List.of(consumerRecord3, consumerRecord2, consumerRecord1)));
+    var records = getConsumerRecords(List.of(consumerRecord3, consumerRecord2, consumerRecord1));
 
     // Act
     populateInstanceBatchInterceptor.intercept(records, consumer);
@@ -131,15 +130,19 @@ class PopulateInstanceBatchInterceptorTest {
       ResourceEventType.CREATE, "item", "1", expected.get(0), now);
     var consumerRecord2 = createConsumerRecord(MEMBER2_TENANT_ID,
       ResourceEventType.DELETE, "item", "2", expected.get(1), now + 1);
-    var records = new ConsumerRecords<>(Map.of(new TopicPartition("topic", 0),
-      List.of(consumerRecord2, consumerRecord1)));
+    var records = getConsumerRecords(List.of(consumerRecord2, consumerRecord1));
 
     // Act
     populateInstanceBatchInterceptor.intercept(records, consumer);
 
     // Assert
-    verify(itemRepository).saveEntities(MEMBER_TENANT_ID, List.of(expected.get(0)));
+    verify(itemRepository).saveEntities(MEMBER_TENANT_ID, List.of(expected.getFirst()));
     verify(itemRepository).deleteEntitiesForTenant(List.of("2"), MEMBER2_TENANT_ID);
+  }
+
+  private ConsumerRecords<String, ResourceEvent> getConsumerRecords(
+    List<ConsumerRecord<String, ResourceEvent>> records) {
+    return new ConsumerRecords<>(Map.of(new TopicPartition("topic", 0), records), Map.of());
   }
 
   private void mockExecutionServices() {

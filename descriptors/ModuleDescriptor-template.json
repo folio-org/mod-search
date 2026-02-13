@@ -641,30 +641,16 @@
       "version": "2.0"
     },
     {
+      "id": "instance-storage",
+      "version": "10.3 11.0"
+    },
+    {
       "id": "holdings-storage",
       "version": "8.0"
     },
     {
       "id": "item-storage",
       "version": "11.0"
-    }
-  ],
-  "requires": [
-    {
-      "id": "instance-storage",
-      "version": "10.3 11.0"
-    },
-    {
-      "id": "login",
-      "version": "7.0"
-    },
-    {
-      "id": "permissions",
-      "version": "5.3"
-    },
-    {
-      "id": "users",
-      "version": "15.3 16.0"
     },
     {
       "id": "authority-reindex",
@@ -685,6 +671,20 @@
     {
       "id": "classification-types",
       "version": "1.2"
+    }
+  ],
+  "requires": [
+    {
+      "id": "login",
+      "version": "7.0"
+    },
+    {
+      "id": "permissions",
+      "version": "5.3"
+    },
+    {
+      "id": "users",
+      "version": "15.3 16.0"
     }
   ],
   "permissionSets": [
@@ -1155,6 +1155,16 @@
         "name": "INSTANCE_CHILDREN_INDEX_BATCH_SIZE",
         "value": "500",
         "description": "Batch size for indexing subjects/contributors/classifications"
+      },
+      {
+        "name": "SUB_RESOURCE_BATCH_SIZE",
+        "value": "100",
+        "description": "Defines number of sub-resources to process at a time during background indexing"
+      },
+      {
+        "name": "STALE_LOCK_THRESHOLD_MS",
+        "value": "600000",
+        "description": "Threshold to consider a sub-resource lock as stale and eligible for release"
       },
       {
         "name": "INITIAL_LANGUAGES",

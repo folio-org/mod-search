@@ -6,7 +6,6 @@ import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Collection;
@@ -26,21 +25,25 @@ import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
 import org.folio.spring.testing.extension.EnablePostgres;
 import org.folio.spring.testing.type.IntegrationTest;
+import org.folio.support.config.TestNoOpCacheConfig;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
+import org.springframework.boot.jdbc.test.autoconfigure.JdbcTest;
 import org.springframework.boot.test.autoconfigure.json.AutoConfigureJson;
+import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.jdbc.Sql;
+import tools.jackson.databind.json.JsonMapper;
 
 @IntegrationTest
 @JdbcTest
 @EnablePostgres
 @AutoConfigureJson
+@Import(TestNoOpCacheConfig.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class MergeRangeRepositoriesIT {
 
@@ -56,7 +59,7 @@ class MergeRangeRepositoriesIT {
 
   @BeforeEach
   void setUp() {
-    var jsonConverter = new JsonConverter(new ObjectMapper());
+    var jsonConverter = new JsonConverter(new JsonMapper());
     var searchConfig = new SearchConfigurationProperties();
     searchConfig.setIndexing(new SearchConfigurationProperties.IndexingSettings());
     holdingRepository = new HoldingRepository(jdbcTemplate, jsonConverter, context, searchConfig);
@@ -156,12 +159,13 @@ class MergeRangeRepositoriesIT {
     assertThat(failedRanges)
       .hasSize(3)
       .anyMatch(range -> range.getEntityType() == ReindexEntityType.INSTANCE
-        || range.getEntityType() == ReindexEntityType.HOLDINGS)
+                         || range.getEntityType() == ReindexEntityType.HOLDINGS)
       .allMatch(range -> range.getStatus() == ReindexRangeStatus.FAIL
-        && "Some error".equals(range.getFailCause()));
+                         && "Some error".equals(range.getFailCause()));
   }
 
   @Test
+  @SuppressWarnings("checkstyle:MethodLength")
   void saveEntities() {
     var mainInstanceId = UUID.randomUUID();
     var holdingId1 = UUID.randomUUID();
@@ -190,8 +194,7 @@ class MergeRangeRepositoriesIT {
 
     var actual = uploadInstanceRepository.fetchByIdRange("00000000000000000000000000000000",
       "ffffffffffffffffffffffffffffffff");
-    assertThat(actual)
-      .hasSize(2);
+    assertThat(actual).hasSize(2);
     var optionalMap = actual.stream().filter(map -> map.get("id").equals(mainInstanceId.toString())).findFirst();
     if (optionalMap.isEmpty()) {
       Assertions.fail();
@@ -199,18 +202,17 @@ class MergeRangeRepositoriesIT {
     var mainInstance = optionalMap.get();
     @SuppressWarnings("unchecked")
     var instanceItems = (List<Map<String, Object>>) mainInstance.get("items");
-    assertThat(instanceItems)
-      .hasSize(2);
+    assertThat(instanceItems).hasSize(2);
     assertThat(extractMapValues(instanceItems)).contains(holdingId1.toString(), holdingId2.toString());
     @SuppressWarnings("unchecked")
     var instanceHoldings = (List<Map<String, Object>>) mainInstance.get("holdings");
-    assertThat(instanceHoldings)
-      .hasSize(2);
+    assertThat(instanceHoldings).hasSize(2);
     assertThat(extractMapValues(instanceHoldings))
       .contains(mainInstanceId.toString(), holdingId1.toString(), holdingId2.toString());
   }
 
   @Test
+  @SuppressWarnings("checkstyle:MethodLength")
   void deleteEntities() {
     // given
     var instanceId = UUID.randomUUID();

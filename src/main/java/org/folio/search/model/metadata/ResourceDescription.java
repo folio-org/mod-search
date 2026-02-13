@@ -1,8 +1,6 @@
 package org.folio.search.model.metadata;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +8,8 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
 import org.folio.search.model.types.ResourceType;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 /**
  * POJO class for specifying a resource description in local json files or dedicated database.

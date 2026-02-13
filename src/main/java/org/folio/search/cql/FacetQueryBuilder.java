@@ -118,13 +118,7 @@ public class FacetQueryBuilder {
     var facetTerms = new ArrayList<String>();
 
     List<QueryBuilder> filters = new ArrayList<>(((BoolQueryBuilder) query).filter());
-    var musts = ((BoolQueryBuilder) query).must();
-    for (var must : musts) {
-      if (must instanceof NestedQueryBuilder nestedQueryBuilder
-          && nestedQueryBuilder.query() instanceof BoolQueryBuilder boolQueryBuilder) {
-        filters.addAll(boolQueryBuilder.filter());
-      }
-    }
+    addNestedQueryFilters(((BoolQueryBuilder) query).must(), filters);
     for (var filterQuery : filters) {
       if (isFilterQuery(filterQuery, field::equals)) {
         getValueFromFilerQuery(filterQuery).ifPresent(facetTerms::add);
@@ -140,6 +134,15 @@ public class FacetQueryBuilder {
     }
 
     return isNotEmpty(facetFilterQuery.filter()) ? Pair.of(facetFilterQuery, facetTerms) : Pair.of(null, facetTerms);
+  }
+
+  private static void addNestedQueryFilters(List<QueryBuilder> musts, List<QueryBuilder> filters) {
+    for (var must : musts) {
+      if (must instanceof NestedQueryBuilder nestedQueryBuilder
+          && nestedQueryBuilder.query() instanceof BoolQueryBuilder boolQueryBuilder) {
+        filters.addAll(boolQueryBuilder.filter());
+      }
+    }
   }
 
   private static AggregationBuilder getFilterAggregation(

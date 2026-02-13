@@ -11,10 +11,6 @@ spring:
     deserialization:
       fail-on-unknown-properties: false
       accept-single-value-as-array: true
-  cloud:
-    openfeign:
-      okhttp:
-        enabled: true
   opensearch:
     username: ${ELASTICSEARCH_USERNAME:}
     password: ${ELASTICSEARCH_PASSWORD:}
@@ -65,6 +61,8 @@ spring:
 
 folio:
   environment: ${ENV:folio}
+  exchange:
+    enabled: true
   system:
     schemaName: mod_search__system
     change-log: classpath:changelog/changelog-system.xml
@@ -85,6 +83,7 @@ folio:
       instance-children-index-enabled: ${INSTANCE_CHILDREN_INDEX_ENABLED:true}
       instance-children-index-delay-ms: ${INSTANCE_CHILDREN_INDEX_DELAY_MS:60000}
       sub-resource-batch-size: ${SUB_RESOURCE_BATCH_SIZE:100}
+      stale-lock-threshold-ms: ${STALE_LOCK_THRESHOLD_MS:600000}
   reindex:
     location-batch-size: ${REINDEX_LOCATION_BATCH_SIZE:1000}
     upload-range-size: ${REINDEX_UPLOAD_RANGE_SIZE:1000}
@@ -124,6 +123,9 @@ folio:
       - name: search.reindex.range-index
         numPartitions: ${KAFKA_REINDEX_RANGE_INDEX_TOPIC_PARTITIONS:16}
         replicationFactor: ${KAFKA_REINDEX_RANGE_INDEX_TOPIC_REPLICATION_FACTOR:}
+      - name: search.index.instance
+        numPartitions: ${KAFKA_INDEX_INSTANCE_TOPIC_PARTITIONS:16}
+        replicationFactor: ${KAFKA_REINDEX_RANGE_INDEX_TOPIC_REPLICATION_FACTOR:}
     listener:
       events:
         concurrency: ${KAFKA_EVENTS_CONCURRENCY:2}
@@ -160,12 +162,18 @@ folio:
         concurrency: ${KAFKA_REINDEX_RECORDS_CONCURRENCY:2}
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.reindex-records
         group-id: ${folio.environment}-mod-search-reindex-records-group
+      index-instance:
+        concurrency: ${KAFKA_INDEX_INSTANCE_CONCURRENCY:2}
+        topic-pattern: (${folio.environment}\.)(.*\.)search\.index.instance
+        group-id: ${folio.environment}-mod-search-index-instance-group
+        max-poll-records: ${KAFKA_CONSUMER_INSTANCE_MAX_POLL_RECORDS:200}
+        max-poll-interval-ms: ${KAFKA_CONSUMER_INSTANCE_MAX_POLL_INTERVAL_MS:600000}
   okapiUrl: ${okapi.url:http://localhost:9130}
   logging:
     request:
       enabled: true
-    feign:
-      enabled: true
+    exchange:
+      enabled: false
 
 server.port: 8081
 management:
@@ -183,22 +191,7 @@ management:
 spring:
   config:
     activate:
-      on-profile: dev
-  opensearch:
-    compression-enabled: false
-logging:
-  level:
-    org.folio.spring.filter.LoggingRequestFilter: debug
-    org.opensearch.client: trace
-    org.opensearch.client.sniffer: trace
-    tracer: trace
-
----
-
-spring:
-  config:
-    activate:
       on-profile: prod
 logging:
   level:
-    org.folio.spring.filter.LoggingRequestFilter: debug
+    org.folio.spring.filter.IncomingRequestLoggingFilter: debug

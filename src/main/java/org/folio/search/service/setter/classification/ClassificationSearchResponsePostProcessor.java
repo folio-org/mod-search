@@ -19,6 +19,7 @@ import org.folio.search.repository.SearchRepository;
 import org.folio.search.service.consortium.TenantProvider;
 import org.folio.search.service.setter.SearchResponsePostProcessor;
 import org.folio.spring.FolioExecutionContext;
+import org.opensearch.search.SearchHit;
 import org.opensearch.search.builder.SearchSourceBuilder;
 import org.springframework.stereotype.Component;
 
@@ -50,10 +51,11 @@ public final class ClassificationSearchResponsePostProcessor
       return;
     }
     var subResources = res.stream()
-      .flatMap(resource -> resource.instances().stream().map(subResource -> {
-        subResource.setResourceId(resource.id());
-        return subResource;
-      }))
+      .flatMap(resource -> resource.instances().stream()
+        .map(subResource -> {
+          subResource.setResourceId(resource.id());
+          return subResource;
+        }))
       .toList();
 
     countAndSetInstanceProperties(subResources);
@@ -71,6 +73,10 @@ public final class ClassificationSearchResponsePostProcessor
       tenantProvider.getTenant(context.getTenantId()));
     var searchHits = searchRepository.search(resourceRequest, queries).getHits().getHits();
 
+    populateInstanceFields(subResources, searchHits);
+  }
+
+  private void populateInstanceFields(List<InstanceSubResource> subResources, SearchHit[] searchHits) {
     for (var subResource : subResources) {
       if (subResource.getCount() != 1) {
         continue;
@@ -82,7 +88,7 @@ public final class ClassificationSearchResponsePostProcessor
         var instanceTitle = MapUtils.getString(source, INSTANCE_TITLE_FIELD);
         var instanceContributors = getValuesByPath(source, "contributors.name");
         if (classificationIdsFromSource.contains(subResource.getResourceId())
-          && Objects.equals(subResource.getTenantId(), tenantId)) {
+            && Objects.equals(subResource.getTenantId(), tenantId)) {
           subResource.setInstanceTitle(instanceTitle);
           subResource.setInstanceContributors(instanceContributors);
           break;
@@ -105,8 +111,8 @@ public final class ClassificationSearchResponsePostProcessor
     return new SearchSourceBuilder()
       .query(boolQueryBuilder)
       .size(10_000)
-      .fetchSource(new String[]{INSTANCE_TENANT_FIELD, INSTANCE_CLASSIFICATION_IDS_FIELD, INSTANCE_TITLE_FIELD,
-        INSTANCE_CONTRIBUTORS_FIELD}, null)
+      .fetchSource(new String[] {INSTANCE_TENANT_FIELD, INSTANCE_CLASSIFICATION_IDS_FIELD, INSTANCE_TITLE_FIELD,
+                                 INSTANCE_CONTRIBUTORS_FIELD}, null)
       .trackTotalHits(true);
   }
 }

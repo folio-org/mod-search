@@ -1,6 +1,5 @@
 package org.folio.search.service.es;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.SerializationException;
@@ -9,6 +8,7 @@ import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.metadata.LocalFileProvider;
 import org.folio.search.utils.JsonConverter;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.JsonNode;
 
 @Log4j2
 @Service

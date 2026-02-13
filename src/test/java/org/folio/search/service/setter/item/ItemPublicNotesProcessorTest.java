@@ -29,6 +29,7 @@ class ItemPublicNotesProcessorTest {
     assertThat(actual).containsExactlyElementsOf(expected);
   }
 
+  @SuppressWarnings("checkstyle:MethodLength")
   private static Stream<Arguments> notesDataProvider() {
     return Stream.of(
       arguments("all empty fields", new Instance(), emptyList()),

@@ -6,7 +6,7 @@ import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.SystemProperties;
 import org.folio.spring.liquibase.FolioSpringLiquibase;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
+import org.springframework.boot.liquibase.autoconfigure.LiquibaseProperties;
 import org.springframework.stereotype.Component;
 
 @Component

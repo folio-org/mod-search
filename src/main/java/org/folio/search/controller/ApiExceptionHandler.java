@@ -1,6 +1,7 @@
 package org.folio.search.controller;
 
 import static java.util.Collections.emptyList;
+import static org.apache.commons.collections4.CollectionUtils.size;
 import static org.apache.logging.log4j.Level.DEBUG;
 import static org.apache.logging.log4j.Level.WARN;
 import static org.folio.search.model.types.ErrorCode.ELASTICSEARCH_ERROR;
@@ -11,14 +12,14 @@ import static org.folio.search.model.types.ErrorCode.VALIDATION_ERROR;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
+import static org.springframework.http.HttpStatus.UNPROCESSABLE_CONTENT;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.Level;
 import org.folio.search.domain.dto.Error;
 import org.folio.search.domain.dto.ErrorResponse;
@@ -104,7 +105,7 @@ public class ApiExceptionHandler {
         .addParametersItem(new Parameter()
           .key(((FieldError) error).getField())
           .value(String.valueOf(((FieldError) error).getRejectedValue())))));
-    errorResponse.totalRecords(errorResponse.getErrors().size());
+    errorResponse.totalRecords(size(errorResponse.getErrors()));
 
     return buildResponseEntity(errorResponse, BAD_REQUEST);
   }
@@ -124,7 +125,7 @@ public class ApiExceptionHandler {
         .message(String.format("%s %s", constraintViolation.getPropertyPath(), constraintViolation.getMessage()))
         .code(ErrorCode.VALIDATION_ERROR.getValue())
         .type(ConstraintViolationException.class.getSimpleName())));
-    errorResponse.totalRecords(errorResponse.getErrors().size());
+    errorResponse.totalRecords(size(errorResponse.getErrors()));
 
     return buildResponseEntity(errorResponse, BAD_REQUEST);
   }
@@ -138,7 +139,7 @@ public class ApiExceptionHandler {
   @ExceptionHandler(ValidationException.class)
   public ResponseEntity<ErrorResponse> handleValidationException(ValidationException exception) {
     var errorResponse = buildValidationError(exception, exception.getKey(), exception.getValue());
-    return buildResponseEntity(errorResponse, UNPROCESSABLE_ENTITY);
+    return buildResponseEntity(errorResponse, UNPROCESSABLE_CONTENT);
   }
 
   /**
@@ -248,11 +249,11 @@ public class ApiExceptionHandler {
   private static ResponseEntity<ErrorResponse> handleOpenSearchException(OpenSearchException exception) {
     var message = exception.getMessage();
     var indexName = Optional.ofNullable(exception.getIndex()).map(Index::getName).orElse(null);
-    if (StringUtils.contains(message, "index_not_found")) {
+    if (Strings.CS.contains(message, "index_not_found")) {
       logException(DEBUG, exception);
       return buildResponseEntity(buildErrorResponse("Index not found: " + indexName), BAD_REQUEST);
     }
-    if (StringUtils.contains(message, "resource_already_exists")) {
+    if (Strings.CS.contains(message, "resource_already_exists")) {
       logException(DEBUG, exception);
       return buildResponseEntity(buildErrorResponse("Index already exists: " + indexName), BAD_REQUEST);
     }

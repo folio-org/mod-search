@@ -1,0 +1,54 @@
+# Application + Infrastructure services for mod-search
+# This compose file includes both the mod-search module and all infrastructure dependencies
+# Use this for full local testing and development
+include:
+  - infra-docker-compose.yml
+
+services:
+  mod-search:
+    image: dev.folio/mod-search
+    build:
+      context: ../
+      dockerfile: Dockerfile
+    ports:
+      - "8081" # Allow Docker to dynamically assign a host port
+    environment:
+      ENV: ${ENV}
+      KAFKA_HOST: ${KAFKA_HOST}
+      KAFKA_PORT: ${KAFKA_PORT}
+      DB_PORT: ${DB_PORT}
+      DB_HOST: ${DB_HOST}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_DATABASE: ${DB_DATABASE}
+      ELASTICSEARCH_URL: ${ELASTICSEARCH_URL}
+      ELASTICSEARCH_USERNAME: ${ELASTICSEARCH_USERNAME}
+      ELASTICSEARCH_PASSWORD: ${ELASTICSEARCH_PASSWORD}
+    depends_on:
+      - postgres
+      - opensearch
+      - kafka-topic-init
+    networks:
+      - mod-search-local
+      - opensearch-net
+    deploy:
+      replicas: ${MODULE_REPLICAS:-1}
+      restart_policy:
+        condition: on-failure
+      update_config:
+        parallelism: 1
+        delay: 10s
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: "1024M"
+        reservations:
+          cpus: "0.5"
+          memory: "512M"
+
+networks:
+  mod-search-local:
+    driver: bridge
+  opensearch-net:
+    driver: bridge
+

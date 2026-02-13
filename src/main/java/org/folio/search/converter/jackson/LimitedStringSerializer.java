@@ -1,11 +1,11 @@
 package org.folio.search.converter.jackson;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import lombok.extern.log4j.Log4j2;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 /**
  * A custom serializer for {@link String} that enforces a byte size limit
@@ -37,7 +37,7 @@ public class LimitedStringSerializer extends StdSerializer<String> {
   }
 
   @Override
-  public void serialize(String value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+  public void serialize(String value, JsonGenerator gen, SerializationContext provider) throws JacksonException {
     if (value == null) {
       gen.writeNull();
       return;

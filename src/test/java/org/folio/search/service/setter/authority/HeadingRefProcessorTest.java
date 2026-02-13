@@ -42,7 +42,7 @@ class HeadingRefProcessorTest {
   @Test
   void getFieldValue_positive_sftPersonalName() {
     when(fieldProvider.getPlainFieldByPath(AUTHORITY, "sftPersonalName")).thenReturn(of(authorityField()));
-    var authority = new Authority().sftPersonalName(List.of("test-name")).saftPersonalName(List.of("test-name-2"));
+    var authority = new Authority().sftPersonalName(List.of("test-name"));
     var actual = headingRefProcessor.getFieldValue(toMap(authority));
     assertThat(actual).isEqualTo("test-name");
   }

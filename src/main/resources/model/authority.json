@@ -389,7 +389,6 @@
       "type": "object",
       "properties": {
         "value": {
-          "searchAliases": [ "keyword" ],
           "index": "keyword_lowercase"
         },
         "identifierTypeId": {

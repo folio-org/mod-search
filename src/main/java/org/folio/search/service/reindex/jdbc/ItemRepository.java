@@ -1,7 +1,6 @@
 package org.folio.search.service.reindex.jdbc;
 
 import static org.folio.search.utils.JdbcUtils.getFullTableName;
-import static org.folio.search.utils.JdbcUtils.getSchemaName;
 
 import java.sql.Timestamp;
 import java.util.HashMap;
@@ -38,8 +37,9 @@ public class ItemRepository extends MergeRangeRepository {
   private static final String SELECT_BY_UPDATED_QUERY = """
     SELECT id, tenant_id, instance_id, holding_id, json, last_updated_date, is_deleted
     FROM %s.item
-    WHERE last_updated_date > ?
-    ORDER BY last_updated_date ASC
+    WHERE %s
+    ORDER BY %s
+    %s
     """;
 
   private static final String INSERT_STAGING_SQL = """
@@ -109,12 +109,13 @@ public class ItemRepository extends MergeRangeRepository {
   }
 
   @Override
-  @SuppressWarnings("java:S2077")
-  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp) {
-    var sql = SELECT_BY_UPDATED_QUERY.formatted(getSchemaName(tenant, context.getFolioModuleMetadata()));
-    var records = jdbcTemplate.query(sql, itemRowMapper(), timestamp);
-    var lastUpdateDate = records.isEmpty() ? null : records.getLast().get(LAST_UPDATED_DATE_FIELD);
-    return new SubResourceResult(records, (Timestamp) lastUpdateDate);
+  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp, int limit) {
+    return fetchByTimestamp(SELECT_BY_UPDATED_QUERY, itemRowMapper(), timestamp, limit, tenant);
+  }
+
+  @Override
+  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp, String fromId, int limit) {
+    return fetchByTimestamp(SELECT_BY_UPDATED_QUERY, itemRowMapper(), timestamp, fromId, limit, tenant);
   }
 
   private RowMapper<Map<String, Object>> itemRowMapper() {

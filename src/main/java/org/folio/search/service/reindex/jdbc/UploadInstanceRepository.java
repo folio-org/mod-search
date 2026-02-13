@@ -3,6 +3,7 @@ package org.folio.search.service.reindex.jdbc;
 import static org.folio.search.utils.JdbcUtils.getFullTableName;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -21,8 +22,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-@Repository
 @Log4j2
+@Repository
 public class UploadInstanceRepository extends UploadRangeRepository {
 
   private static final String SELECT_SQL_TEMPLATE = """
@@ -61,6 +62,7 @@ public class UploadInstanceRepository extends UploadRangeRepository {
 
   private static final String IDS_RANGE_WHERE_CLAUSE = "%1$s >= ?::uuid AND %1$s <= ?::uuid";
   private static final String INSTANCE_IDS_WHERE_CLAUSE = "%s IN (%s)";
+  private static final String ITEM_NOT_DELETED_FILTER = " AND it.is_deleted = false";
 
   private final ConsortiumTenantService consortiumTenantService;
 
@@ -87,22 +89,21 @@ public class UploadInstanceRepository extends UploadRangeRepository {
     return Optional.of(ReindexConstants.STAGING_INSTANCE_TABLE);
   }
 
-  public List<Map<String, Object>> fetchByIds(List<String> ids) {
+  public List<Map<String, Object>> fetchByIds(Collection<String> ids) {
+    log.debug("Fetching instances by ids: {} on tenant: {}", ids, context.getTenantId());
     if (ids == null || ids.isEmpty()) {
       return Collections.emptyList();
     }
     var instanceWhereClause = INSTANCE_IDS_WHERE_CLAUSE.formatted("i.id",
       JdbcUtils.getParamPlaceholderForUuid(ids.size()));
     var itemWhereClause = INSTANCE_IDS_WHERE_CLAUSE.formatted("it.instance_id",
-      JdbcUtils.getParamPlaceholderForUuid(ids.size()));
+      JdbcUtils.getParamPlaceholderForUuid(ids.size())) + ITEM_NOT_DELETED_FILTER;
     var holdingsWhereClause = INSTANCE_IDS_WHERE_CLAUSE.formatted("h.instance_id",
       JdbcUtils.getParamPlaceholderForUuid(ids.size()));
     var sql = SELECT_SQL_TEMPLATE.formatted(getFullTableName(context, entityTable()),
       getFullTableName(context, "holding"),
       getFullTableName(context, "item"),
-      holdingsWhereClause,
-      itemWhereClause,
-      instanceWhereClause);
+      holdingsWhereClause, itemWhereClause, instanceWhereClause);
     return jdbcTemplate.query(sql, ps -> {
       int i = 1;
       for (int paramSet = 0; paramSet < 3; paramSet++) {
@@ -246,6 +247,13 @@ public class UploadInstanceRepository extends UploadRangeRepository {
   @Override
   protected RowMapper<Map<String, Object>> rowToMapMapper() {
     return (rs, rowNum) -> jsonConverter.fromJsonToMap(rs.getString("json"));
+  }
+
+  @Override
+  protected List<RangeGenerator.Range> createRanges() {
+    var uploadRangeSize = reindexConfig.getUploadRangeSize();
+    var rangesCount = (int) Math.ceil((double) countEntities() / uploadRangeSize);
+    return RangeGenerator.createUuidRanges(rangesCount);
   }
 
   @Override

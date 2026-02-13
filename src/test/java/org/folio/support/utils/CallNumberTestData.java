@@ -1,9 +1,9 @@
 package org.folio.support.utils;
 
+import static java.util.Objects.requireNonNull;
 import static org.folio.search.utils.CallNumberUtils.calculateFullCallNumber;
 import static org.folio.support.utils.TestUtils.randomId;
 
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
+import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.CallNumberBrowseResult;
 import org.folio.search.domain.dto.Holding;
@@ -20,9 +21,9 @@ import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
 import org.folio.search.model.index.CallNumberResource;
-import org.junit.jupiter.params.shadow.com.univocity.parsers.common.record.Record;
-import org.junit.jupiter.params.shadow.com.univocity.parsers.csv.CsvParser;
-import org.junit.jupiter.params.shadow.com.univocity.parsers.csv.CsvParserSettings;
+import org.jspecify.annotations.Nullable;
+import org.junit.jupiter.params.shadow.de.siegmar.fastcsv.reader.CsvReader;
+import org.junit.jupiter.params.shadow.de.siegmar.fastcsv.reader.NamedCsvRecord;
 
 @UtilityClass
 public class CallNumberTestData {
@@ -36,8 +37,8 @@ public class CallNumberTestData {
   public static Map<Integer, String> locations() {
     var locationsPath = "/samples/cn-browse/locations.csv";
     return readCsvEntities(locationsPath, csvRecord -> Map.entry(
-      Integer.parseInt(csvRecord.getString(0)),
-      csvRecord.getString(1)
+      Integer.parseInt(csvRecord.getField(0)),
+      csvRecord.getField(1)
     )).stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
@@ -101,10 +102,10 @@ public class CallNumberTestData {
       .isAnchor(isAnchor);
   }
 
-  private static Function<Record, Instance> instanceMapper(List<CallNumberTestDataRecord> callNumbers) {
+  private static Function<NamedCsvRecord, Instance> instanceMapper(List<CallNumberTestDataRecord> callNumbers) {
     return csvRecord -> {
-      var id = csvRecord.getString(InstanceCsvHeader.ID.getHeader());
-      var callNumberList = Arrays.stream(csvRecord.getString(InstanceCsvHeader.CALL_NUMBER_NUMS.getHeader()).split(";"))
+      var id = getField(csvRecord, InstanceCsvHeader.ID.getHeader());
+      var callNumberList = Arrays.stream(getField(csvRecord, InstanceCsvHeader.CALL_NUMBER_NUMS.getHeader()).split(";"))
         .map(callNumberId -> callNumbers.stream()
           .filter(cn -> cn.callNumber().id().equals(callNumberId))
           .findFirst())
@@ -115,31 +116,31 @@ public class CallNumberTestData {
     };
   }
 
-  private static Function<Record, CallNumberTestDataRecord> callNumberMapper(Map<Integer, String> locations) {
+  private static Function<NamedCsvRecord, CallNumberTestDataRecord> callNumberMapper(Map<Integer, String> locations) {
     return csvRecord -> {
-      var id = csvRecord.getString(CallNumberCsvHeader.ID.getHeader());
-      var callNumber = csvRecord.getString(CallNumberCsvHeader.CALL_NUMBER.getHeader());
-      var typeId = CallNumberTypeId.getIdByName(csvRecord.getString(CallNumberCsvHeader.TYPE.getHeader()));
-      var prefix = csvRecord.getString(CallNumberCsvHeader.PREFIX.getHeader());
-      var suffix = csvRecord.getString(CallNumberCsvHeader.SUFFIX.getHeader());
+      var id = getField(csvRecord, CallNumberCsvHeader.ID.getHeader());
+      var callNumber = getField(csvRecord, CallNumberCsvHeader.CALL_NUMBER.getHeader());
+      var typeId = CallNumberTypeId.getIdByName(getField(csvRecord, CallNumberCsvHeader.TYPE.getHeader()));
+      var prefix = getField(csvRecord, CallNumberCsvHeader.PREFIX.getHeader());
+      var suffix = getField(csvRecord, CallNumberCsvHeader.SUFFIX.getHeader());
       var fullCallNumber = calculateFullCallNumber(callNumber, suffix);
       var callNumberResource = new CallNumberResource(id, fullCallNumber, callNumber, prefix, suffix, typeId, null);
-      var locationNum = csvRecord.getString(CallNumberCsvHeader.LOCATION.getHeader());
-      var locationId = locations.get(Integer.parseInt(locationNum));
+      var locationNum = getField(csvRecord, CallNumberCsvHeader.LOCATION.getHeader());
+      var locationId = locations.get(Integer.parseInt(requireNonNull(locationNum)));
       return new CallNumberTestDataRecord(callNumberResource, locationId);
     };
   }
 
+  private static @Nullable String getField(NamedCsvRecord csvRecord, String header) {
+    var value = csvRecord.getField(header);
+    return StringUtils.isBlank(value) ? null : value;
+  }
+
   @SneakyThrows
-  private static <T> List<T> readCsvEntities(String filePath, Function<Record, T> mapper) {
-    var settings = new CsvParserSettings();
-    settings.setHeaderExtractionEnabled(true);
-    var csvParser = new CsvParser(settings);
-    try (InputStream inputStream = CallNumberTestData.class.getResourceAsStream(filePath)) {
-      csvParser.beginParsing(inputStream);
-      return csvParser.parseAllRecords().stream()
-        .map(mapper)
-        .toList();
+  private static <T> List<T> readCsvEntities(String filePath, Function<NamedCsvRecord, T> mapper) {
+    try (var inputStream = CallNumberTestData.class.getResourceAsStream(filePath)) {
+      return CsvReader.builder()
+        .ofNamedCsvRecord(requireNonNull(inputStream)).stream().map(mapper).toList();
     }
   }
 

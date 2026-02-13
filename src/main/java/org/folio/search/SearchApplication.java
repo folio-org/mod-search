@@ -2,14 +2,16 @@ package org.folio.search;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.resilience.annotation.EnableResilientMethods;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * Folio search application.
  */
+@EnableCaching
 @EnableScheduling
-@EnableFeignClients
+@EnableResilientMethods
 @SpringBootApplication
 public class SearchApplication {
 

@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.retry.support.RetryTemplate;
+import org.springframework.core.retry.RetryTemplate;
 import org.springframework.stereotype.Component;
 
 @Log4j2
@@ -68,9 +68,6 @@ public class FolioMessageBatchProcessor {
   }
 
   private <T> void executeWithRetryTemplate(RetryTemplate retryTemplate, List<T> batch, Consumer<List<T>> consumer) {
-    retryTemplate.execute(ctx -> {
-      consumer.accept(batch);
-      return null;
-    });
+    retryTemplate.invoke(() -> consumer.accept(batch));
   }
 }

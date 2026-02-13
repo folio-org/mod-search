@@ -2,8 +2,7 @@ package org.folio.search.utils;
 
 import static java.util.Collections.emptyMap;
 import static org.apache.commons.collections4.MapUtils.getString;
-import static org.apache.commons.lang3.StringUtils.removeStart;
-import static org.apache.commons.lang3.StringUtils.startsWith;
+import static org.apache.commons.lang3.BooleanUtils.isTrue;
 import static org.folio.search.domain.dto.ResourceEventType.UPDATE;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
 import static org.folio.search.utils.SearchUtils.SOURCE_CONSORTIUM_PREFIX;
@@ -18,6 +17,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.Strings;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.springframework.stereotype.Component;
 
@@ -189,8 +189,20 @@ public class SearchConverterUtils {
   public static boolean isUpdateEventForResourceSharing(ResourceEvent event) {
     var newSource = getResourceSource(getNewAsMap(event));
     return event.getType() == UPDATE
-      && startsWith(newSource, SOURCE_CONSORTIUM_PREFIX)
-      && Objects.equals(getResourceSource(getOldAsMap(event)), removeStart(newSource, SOURCE_CONSORTIUM_PREFIX));
+           && Strings.CS.startsWith(newSource, SOURCE_CONSORTIUM_PREFIX)
+           && Objects.equals(getResourceSource(getOldAsMap(event)),
+      Strings.CS.removeStart(newSource, SOURCE_CONSORTIUM_PREFIX));
+  }
+
+  /**
+   * Checks if the given {@link ResourceEvent} represents a shadow location or unit.
+   *
+   * @param resourceEvent the resource event to analyze
+   * @return true if the payload contains "isShadow" as a {@link Boolean} and its value is true, otherwise false
+   */
+  public static boolean isShadowLocationOrUnit(ResourceEvent resourceEvent) {
+    var payload = getEventPayload(resourceEvent);
+    return payload.get("isShadow") instanceof Boolean isShadow && isTrue(isShadow);
   }
 
   @SuppressWarnings("unchecked")

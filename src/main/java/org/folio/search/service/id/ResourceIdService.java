@@ -3,10 +3,9 @@ package org.folio.search.service.id;
 import static java.lang.String.format;
 import static org.opensearch.search.sort.SortBuilders.fieldSort;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
 import java.io.OutputStream;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
@@ -24,11 +23,18 @@ import org.folio.search.repository.ResourceIdsTemporaryRepository;
 import org.folio.search.repository.SearchRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ObjectMapper;
 
 @Log4j2
 @Service
 @RequiredArgsConstructor
 public class ResourceIdService {
+
+  private static final String ID_PROPERTY = "id";
+  private static final String IDS_PROPERTY = "ids";
+  private static final String TOTAL_RECORDS_PROPERTY = "totalRecords";
 
   private final StreamIdsProperties streamIdsProperties;
   private final ObjectMapper objectMapper;
@@ -41,7 +47,7 @@ public class ResourceIdService {
    * Streams resource IDs as JSON from the database for a given job.
    * The job must be completed and have IDs prepared in a temporary table.
    *
-   * @param jobId the ID of the async job with the prepared query
+   * @param jobId        the ID of the async job with the prepared query
    * @param outputStream the output stream to write the JSON data to
    */
   @Transactional
@@ -56,11 +62,9 @@ public class ResourceIdService {
     processStreamToJson(outputStream, (json, counter) ->
       idsTemporaryRepository.streamIds(job.getTemporaryTableName(), resultSet -> {
         try {
-          json.writeStartObject();
-          json.writeStringField("id", resultSet.getString(1));
-          json.writeEndObject();
+          writeIdObject(json, resultSet);
           counter.incrementAndGet();
-        } catch (IOException e) {
+        } catch (JacksonException e) {
           throw new SearchServiceException(
             format("Failed to write id value into json stream [reason: %s]", e.getMessage()), e);
         }
@@ -101,6 +105,12 @@ public class ResourceIdService {
     }
   }
 
+  private void writeIdObject(JsonGenerator json, ResultSet resultSet) throws SQLException {
+    json.writeStartObject();
+    json.writeStringProperty(ID_PROPERTY, resultSet.getString(1));
+    json.writeEndObject();
+  }
+
   private void streamIdsFromSearch(CqlResourceIdsRequest request, Consumer<List<String>> idsConsumer) {
     log.info("streamResourceIds:: by [query: {}, resource: {}]", request.query(), request.resource());
 
@@ -117,18 +127,16 @@ public class ResourceIdService {
                                    BiConsumer<JsonGenerator, AtomicInteger> idsStreamProcessor) {
     try (var json = objectMapper.createGenerator(outputStream)) {
       json.writeStartObject();
-      json.writeFieldName("ids");
-      json.writeStartArray();
+      json.writeArrayPropertyStart(IDS_PROPERTY);
 
       var totalRecordsCounter = new AtomicInteger();
-
       idsStreamProcessor.accept(json, totalRecordsCounter);
 
       json.writeEndArray();
-      json.writeNumberField("totalRecords", totalRecordsCounter.get());
+      json.writeNumberProperty(TOTAL_RECORDS_PROPERTY, totalRecordsCounter.get());
       json.writeEndObject();
       json.flush();
-    } catch (IOException e) {
+    } catch (JacksonException e) {
       throw new SearchServiceException(
         format("Failed to write data into json [reason: %s]", e.getMessage()), e);
     }

@@ -1,5 +1,6 @@
 value:
   - resourceName: instance
+    id: 83249565-16a8-4687-9061-fd1de43d7f34
     type: CREATE
     tenant: diku
     new:

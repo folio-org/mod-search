@@ -1,6 +1,5 @@
 package org.folio.search.integration;
 
-import static java.util.Collections.emptyMap;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
@@ -15,12 +14,9 @@ import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.TestConstants.UNIFORM_ALTERNATIVE_TITLE_ID;
 import static org.folio.support.utils.TestUtils.cleanUpCaches;
 import static org.folio.support.utils.TestUtils.mapOf;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 
-import feign.FeignException.Forbidden;
-import feign.Request;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -45,7 +41,10 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.web.client.HttpClientErrorException;
 
 @UnitTest
 @Import(TestContextConfiguration.class)
@@ -84,9 +83,9 @@ class ReferenceDataServiceTest {
   void getReferenceData_negative_exceptionalResponseFromReferenceDataClient() {
     var isbnIdentifierNames = List.of("ISBN", "Invalid ISBN");
     var query = CqlQuery.exactMatchAny(CqlQueryParam.NAME, isbnIdentifierNames);
-    var request = mock(Request.class);
     when(inventoryReferenceDataClient.getReferenceData(IDENTIFIER_TYPES.getUri(), query, 100))
-      .thenThrow(new Forbidden("invalid permission", request, null, emptyMap()));
+      .thenThrow(HttpClientErrorException.create(HttpStatus.UNAUTHORIZED, "Unauthorized",
+        new HttpHeaders(), null, null));
 
     var actual = referenceDataService.fetchReferenceData(IDENTIFIER_TYPES, CqlQueryParam.NAME, isbnIdentifierNames);
 

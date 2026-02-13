@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.kafka.listener.adapter.RecordFilterStrategy;
 import org.springframework.util.Assert;
 
@@ -26,7 +26,7 @@ public class CompositeRecordFilterStrategy<K, V> implements RecordFilterStrategy
   }
 
   @Override
-  public boolean filter(@NotNull ConsumerRecord<K, V> consumerRecord) {
+  public boolean filter(@NonNull ConsumerRecord<K, V> consumerRecord) {
     for (RecordFilterStrategy<K, V> delegate : delegates) {
       if (delegate.filter(consumerRecord)) {
         return true;

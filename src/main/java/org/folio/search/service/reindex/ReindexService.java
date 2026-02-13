@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.extern.log4j.Log4j2;
@@ -138,14 +139,7 @@ public class ReindexService {
           ReindexContext.clearMemberTenantId();
         }
       }
-    }).handle((unused, throwable) -> {
-      if (throwable != null) {
-        log.error("initFullReindex:: process failed [tenantId: {}, targetTenant: {}, error: {}]", tenantId,
-          targetTenantId, throwable);
-        statusService.updateReindexMergeFailed();
-      }
-      return unused;
-    });
+    }).handle(handleReindexingFailure(tenantId, targetTenantId));
 
     log.info("submitFullReindex:: submitted [requestingTenant: {}, targetTenant: {}]", tenantId,
       targetTenantId != null ? targetTenantId : "all consortium members");
@@ -153,9 +147,9 @@ public class ReindexService {
   }
 
   public CompletableFuture<Void> submitUploadReindex(String tenantId, ReindexUploadDto reindexUploadDto) {
-    var entityTypes =
-      entityTypeMapper.convert(reindexUploadDto.getEntityTypes()).stream().filter(ReindexEntityType::isSupportsUpload)
-        .toList();
+    var entityTypes = entityTypeMapper.convert(reindexUploadDto.getEntityTypes()).stream()
+      .filter(ReindexEntityType::isSupportsUpload)
+      .toList();
     return submitUploadReindex(tenantId, entityTypes, true, reindexUploadDto.getIndexSettings());
   }
 
@@ -283,6 +277,17 @@ public class ReindexService {
     return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
   }
 
+  private BiFunction<Void, Throwable, Void> handleReindexingFailure(String tenantId, String targetTenantId) {
+    return (unused, throwable) -> {
+      if (throwable != null) {
+        log.error("initFullReindex:: process failed [tenantId: {}, targetTenant: {}, error: {}]", tenantId,
+          targetTenantId, throwable);
+        statusService.updateReindexMergeFailed();
+      }
+      return unused;
+    };
+  }
+
   private void recreateIndices(String tenantId, List<ReindexEntityType> entityTypes, IndexSettings indexSettings) {
     for (var reindexEntityType : entityTypes) {
       reindexCommonService.recreateIndex(reindexEntityType, tenantId, indexSettings);
@@ -375,12 +380,14 @@ public class ReindexService {
       var mergeEntityStatus = mergeNotComplete.get();
       // full reindex is either in progress or failed
       throw new RequestValidationException(
-        "Merge phase is in progress or failed for: %s".formatted(mergeEntityStatus.getKey()), "reindexStatus",
-        mergeEntityStatus.getValue().getValue());
+        "Merge phase is in progress or failed for: %s".formatted(mergeEntityStatus.getKey()),
+        "reindexStatus", mergeEntityStatus.getValue().getValue());
     }
 
-    var uploadInProgress = entityTypes.stream().filter(statusesByType::containsKey)
-      .filter(entityType -> statusesByType.get(entityType) == ReindexStatus.UPLOAD_IN_PROGRESS).findAny();
+    var uploadInProgress = entityTypes.stream()
+      .filter(statusesByType::containsKey)
+      .filter(entityType -> statusesByType.get(entityType) == ReindexStatus.UPLOAD_IN_PROGRESS)
+      .findAny();
     if (uploadInProgress.isPresent()) {
       throw new RequestValidationException("Reindex Upload in Progress", "entityType",
         uploadInProgress.get().getType());

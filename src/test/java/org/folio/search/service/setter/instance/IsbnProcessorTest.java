@@ -60,6 +60,55 @@ class IsbnProcessorTest {
     assertThat(actual).isEmpty();
   }
 
+  @MethodSource("normalizeIsbnDataProvider")
+  @DisplayName("normalizeIsbn_parameterized")
+  @ParameterizedTest(name = "[{index}] input=''{0}'', expected={1}")
+  void normalizeIsbn_parameterized(String input, List<String> expected) {
+    var actual = isbnProcessor.normalizeIsbn(input);
+    assertThat(actual).containsExactlyElementsOf(expected);
+  }
+
+  @SuppressWarnings("checkstyle:MethodLength")
+  private static Stream<Arguments> normalizeIsbnDataProvider() {
+    return Stream.of(
+      // Empty/whitespace cases
+      arguments("", emptyList()),
+      arguments("  ", emptyList()),
+
+      // Valid ISBN-10 (with valid checksum - converts to ISBN-13)
+      arguments("  1-86197-271-7  ", List.of("1861972717", "9781861972712")),  // Covers trimming + formatting
+      arguments("1 86197 271-7 (paper)", List.of("1861972717", "9781861972712", "(paper)")),
+
+      // Invalid ISBN-10 checksum (normalized only, no conversion)
+      arguments("047144250X", List.of("047144250x")),
+      arguments("047144250X (paper)", List.of("047144250x (paper)")),
+
+      // Invalid ISBN-10 format (non-standard spacing/hyphens)
+      arguments("1-86-197 271-7", List.of("1861972717")),  // Invalid spacing
+      arguments("1 86197 2717 (paper)", List.of("1861972717 (paper)")),
+
+      // Valid ISBN-13
+      arguments("9781609383657", List.of("9781609383657")),
+      arguments("9790471442509", List.of("9790471442509")),  // 979 prefix
+
+      // ISBN-13 with formatting variations
+      arguments("978   0   471   44250   9", List.of("9780471442509")),  // Multiple spaces
+      arguments("978 0 471 44250 9 (alk. paper)", List.of("9780471442509", "(alk. paper)")),
+
+      // Invalid ISBN-13 (wrong prefix or malformed)
+      arguments("89780471442509 (alk. paper)", List.of("89780471442509 (alk. paper)")),
+      arguments("978-0 4712 442509 (alk. paper)", List.of("97804712442509 (alk. paper)")),
+
+      // Valid ISBN-10 with qualifier treated as extra text
+      arguments("1861972717 extra text", List.of("1861972717", "9781861972712", "extra text")),
+
+      // Non-ISBN strings (normalized with char removal)
+      arguments("ISBN 047144250X", List.of("isbn 047144250x")),
+      arguments("1 2 3 4 5", List.of("12345"))
+    );
+  }
+
+  @SuppressWarnings("checkstyle:MethodLength")
   private static Stream<Arguments> isbnDataProvider() {
     return Stream.of(
       arguments("all empty fields", new Instance(), emptyList()),

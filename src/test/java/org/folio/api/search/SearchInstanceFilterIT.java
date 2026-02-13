@@ -12,6 +12,7 @@ import static org.folio.support.utils.TestUtils.facet;
 import static org.folio.support.utils.TestUtils.facetItem;
 import static org.folio.support.utils.TestUtils.mapOf;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -149,6 +150,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
     var actual = parseResponse(doGet(recordFacetsPath(RecordType.INSTANCES, query, facets)), FacetResult.class);
 
     expected.forEach((facetName, expectedFacet) -> {
+      assertNotNull(actual.getFacets());
       var actualFacet = actual.getFacets().get(facetName);
 
       assertThat(actualFacet).isNotNull();
@@ -162,7 +164,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
   @ParameterizedTest(name = "[{index}] value={1}")
   void searchByInstances_negative_invalidDateFormat(String name, String value) throws Exception {
     attemptSearchByInstances("(" + name + "==" + value + ")")
-      .andExpect(status().isUnprocessableEntity())
+      .andExpect(status().isUnprocessableContent())
       .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is("Invalid date format")))
       .andExpect(jsonPath("$.errors[0].type", is("ValidationException")))
@@ -183,6 +185,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .andExpect(jsonPath("$.errors[0].parameters[0].value", is("unknownFacet")));
   }
 
+  @SuppressWarnings("checkstyle:MethodLength")
   private static Stream<Arguments> filteredSearchQueriesProvider() {
     return Stream.of(
       arguments("(id=*) sortby title", List.of(IDS)),
@@ -283,10 +286,10 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments("(holdings.metadata.createdDate>= 2021-03-01 and metadata.createdDate < 2021-03-10) sortby title",
         List.of(IDS[0])),
       arguments("(holdings.metadata.createdDate>=2016-01-01 and holdings.metadata.createdDate<=2018-12-12) "
-        + "sortby title", null),
+                + "sortby title", null),
       arguments("(staffSuppress==false "
-        + "and holdings.metadata.createdDate>=2016-01-01 and holdings.metadata.createdDate<=2018-12-12) "
-        + "sortby title", null),
+                + "and holdings.metadata.createdDate>=2016-01-01 and holdings.metadata.createdDate<=2018-12-12) "
+                + "sortby title", null),
 
       arguments("(holdings.metadata.updatedDate >= 2021-03-14) sortby title", List.of(IDS[3])),
       arguments("(holdings.metadata.updatedDate > 2021-03-01) sortby title", List.of(IDS[0], IDS[1], IDS[3])),
@@ -347,7 +350,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       arguments("(items.metadata.createdDate>=2016-01-01 and items.metadata.createdDate<=2018-12-12) sortby title",
         null),
       arguments("(staffSuppress==false "
-          + "and items.metadata.createdDate>=2016-01-01 and items.metadata.createdDate<=2018-12-12) sortby title",
+                + "and items.metadata.createdDate>=2016-01-01 and items.metadata.createdDate<=2018-12-12) sortby title",
         null),
 
       arguments("(items.metadata.updatedDate >= 2021-03-14) sortby title", List.of(IDS[2], IDS[3])),
@@ -375,6 +378,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
     );
   }
 
+  @SuppressWarnings("checkstyle:MethodLength")
   private static Stream<Arguments> facetQueriesProvider() {
     var allFacets = array("discoverySuppress", "staffSuppress", "languages", "instanceTags", "source",
       "instanceTypeId", "statusId", "instanceFormatIds", "items.effectiveLocationId", "items.status.name",
@@ -509,6 +513,7 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
     );
   }
 
+  @SuppressWarnings("checkstyle:MethodLength")
   private static Instance[] instances() {
     var instances = IntStream.range(0, 5)
       .mapToObj(i -> new Instance().id(IDS[i]).title("Resource" + i))
@@ -609,10 +614,10 @@ class SearchInstanceFilterIT extends BaseIntegrationTest {
       .metadata(metadata("2021-03-15T12:00:00.000+00:00", "2021-03-15T12:00:00.000+00:00"))
       .dates(new Dates().date1(DATES[3]))
       .items(List.of(new Item().id(ITEM_IDS[4])
-        .holdingsRecordId(HOLDINGS_IDS[3])
-        .effectiveLocationId(LOCATIONS[0]).status(itemStatus(MISSING))
-        .metadata(metadata("2014-03-15T12:00:00.000+00:00", "2014-03-15T12:00:00.000+00:00"))
-        .materialTypeId(MATERIAL_TYPES[1]),
+          .holdingsRecordId(HOLDINGS_IDS[3])
+          .effectiveLocationId(LOCATIONS[0]).status(itemStatus(MISSING))
+          .metadata(metadata("2014-03-15T12:00:00.000+00:00", "2014-03-15T12:00:00.000+00:00"))
+          .materialTypeId(MATERIAL_TYPES[1]),
         new Item().id(ITEM_IDS[7])
           .holdingsRecordId(HOLDINGS_IDS[4])
           .effectiveLocationId(LOCATIONS[0]).status(itemStatus(MISSING))

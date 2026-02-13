@@ -183,7 +183,8 @@ class BrowseContextProviderTest {
       });
   }
 
-  public static Stream<Arguments> invalidQueriesDataSource() {
+  @SuppressWarnings("checkstyle:MethodLength")
+  private static Stream<Arguments> invalidQueriesDataSource() {
     var filterQuery = termQuery("location", "locationId");
     return Stream.of(
       arguments("callNumber == A", termQuery(LEGACY_CALL_NUMBER_BROWSING_FIELD, "A")),

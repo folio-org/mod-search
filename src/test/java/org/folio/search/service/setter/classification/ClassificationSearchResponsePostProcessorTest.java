@@ -32,6 +32,9 @@ import org.opensearch.search.SearchHits;
 @ExtendWith(MockitoExtension.class)
 class ClassificationSearchResponsePostProcessorTest {
 
+  private static final String TENANT_1 = "tenant1";
+  private static final String TENANT_2 = "tenant2";
+
   @Mock
   private SearchRepository searchRepository;
   @Mock
@@ -52,7 +55,7 @@ class ClassificationSearchResponsePostProcessorTest {
   void setUp() {
     lenient().when(searchRepository.search(any(), any())).thenReturn(searchResponse);
     lenient().when(searchResponse.getHits()).thenReturn(searchHits);
-    lenient().when(searchHits.getHits()).thenReturn(new SearchHit[]{searchHit});
+    lenient().when(searchHits.getHits()).thenReturn(new SearchHit[] {searchHit});
   }
 
   @Test
@@ -85,36 +88,21 @@ class ClassificationSearchResponsePostProcessorTest {
   @Test
   void process_shouldProcessResources() {
     // Arrange
-    var source1 = Map.of(
-      "tenantId", "tenant1",
-      "classificationId", List.of("classification1"),
-      "plain_title", "Title 1",
-      "contributors", List.of(Map.of("name", "Contributor 1"))
-    );
-
-    var source2 = Map.of(
-      "tenantId", "tenant2",
-      "classificationId", List.of("classification1"),
-      "plain_title", "Title 2",
-      "contributors", List.of(Map.of("name", "Contributor 2"))
-    );
+    var title1 = "Title 1";
+    var title2 = "Title 2";
+    var contributor1 = "Contributor 1";
+    var contributor2 = "Contributor 2";
 
     var searchHit1 = mock(SearchHit.class);
     var searchHit2 = mock(SearchHit.class);
-    when(searchHit1.getSourceAsMap()).thenReturn(source1);
-    when(searchHit2.getSourceAsMap()).thenReturn(source2);
+    when(searchHit1.getSourceAsMap()).thenReturn(prepareSource(TENANT_1, title1, contributor1));
+    when(searchHit2.getSourceAsMap()).thenReturn(prepareSource(TENANT_2, title2, contributor2));
 
-    when(searchHits.getHits()).thenReturn(new SearchHit[]{searchHit1, searchHit2});
-    when(context.getTenantId()).thenReturn("tenant1");
+    when(searchHits.getHits()).thenReturn(new SearchHit[] {searchHit1, searchHit2});
+    when(context.getTenantId()).thenReturn(TENANT_1);
 
-    var instanceSubResource1 = InstanceSubResource.builder()
-      .tenantId("tenant1")
-      .count(1)
-      .build();
-    var instanceSubResource2 = InstanceSubResource.builder()
-      .tenantId("tenant2")
-      .count(1)
-      .build();
+    var instanceSubResource1 = InstanceSubResource.builder().tenantId(TENANT_1).count(1).build();
+    var instanceSubResource2 = InstanceSubResource.builder().tenantId(TENANT_2).count(1).build();
 
     var classificationResource = new ClassificationResource("classification1", null, "cl1",
       Set.of(instanceSubResource1, instanceSubResource2));
@@ -123,10 +111,10 @@ class ClassificationSearchResponsePostProcessorTest {
     postProcessor.process(List.of(classificationResource));
 
     // Assert
-    assertThat(instanceSubResource1.getInstanceTitle()).isEqualTo("Title 1");
-    assertThat(instanceSubResource1.getInstanceContributors()).containsExactly("Contributor 1");
-    assertThat(instanceSubResource2.getInstanceTitle()).isEqualTo("Title 2");
-    assertThat(instanceSubResource2.getInstanceContributors()).containsExactly("Contributor 2");
+    assertThat(instanceSubResource1.getInstanceTitle()).isEqualTo(title1);
+    assertThat(instanceSubResource1.getInstanceContributors()).containsExactly(contributor1);
+    assertThat(instanceSubResource2.getInstanceTitle()).isEqualTo(title2);
+    assertThat(instanceSubResource2.getInstanceContributors()).containsExactly(contributor2);
   }
 
   @Test
@@ -140,15 +128,8 @@ class ClassificationSearchResponsePostProcessorTest {
     var classificationResource = new ClassificationResource("classification1", null, "cl1",
       Set.of(instanceSubResource));
 
-    var source = Map.of(
-      "tenantId", "tenant1",
-      "classificationId", List.of("classification1"),
-      "plain_title", "Test Title",
-      "contributors", List.of(Map.of("name", "Contributor Name"))
-    );
-
-    when(searchHit.getSourceAsMap()).thenReturn(source);
-    when(context.getTenantId()).thenReturn("tenant1");
+    when(searchHit.getSourceAsMap()).thenReturn(prepareSource(TENANT_1, "Test Title", "Contributor Name"));
+    when(context.getTenantId()).thenReturn(TENANT_1);
 
     // Act
     postProcessor.process(List.of(classificationResource));
@@ -162,7 +143,7 @@ class ClassificationSearchResponsePostProcessorTest {
   void process_shouldHandleMissingClassificationIds() {
     // Arrange
     var instanceSubResource = InstanceSubResource.builder()
-      .tenantId("tenant1")
+      .tenantId(TENANT_1)
       .count(1)
       .build();
 
@@ -170,13 +151,13 @@ class ClassificationSearchResponsePostProcessorTest {
       Set.of(instanceSubResource));
 
     var source = Map.of(
-      "tenantId", "tenant1",
+      "tenantId", TENANT_1,
       "plain_title", "Test Title",
       "contributors", List.of(Map.of("name", "Contributor Name"))
     );
 
     when(searchHit.getSourceAsMap()).thenReturn(source);
-    when(context.getTenantId()).thenReturn("tenant1");
+    when(context.getTenantId()).thenReturn(TENANT_1);
 
     // Act
     postProcessor.process(List.of(classificationResource));
@@ -219,5 +200,14 @@ class ClassificationSearchResponsePostProcessorTest {
       System.out.println("Query sent to search repository: " + queryString);
       return true;
     }));
+  }
+
+  private Map<String, Object> prepareSource(String tenant, String title, String contributor) {
+    return Map.of(
+      "tenantId", tenant,
+      "classificationId", List.of("classification1"),
+      "plain_title", title,
+      "contributors", List.of(Map.of("name", contributor))
+    );
   }
 }

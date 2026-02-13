@@ -23,7 +23,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.ArrayList;
 import java.util.List;
 import org.folio.search.domain.dto.LanguageConfig;
@@ -44,6 +43,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.databind.node.ObjectNode;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -61,6 +61,7 @@ class SearchMappingsHelperTest {
   private final JsonConverter jsonConverter = new JsonConverter(OBJECT_MAPPER);
 
   @Test
+  @SuppressWarnings("checkstyle:MethodLength")
   void getMappings_positive() {
     var keywordType = fieldType(jsonObject("type", KEYWORD_FIELD_INDEX));
     var dateType = fieldType(jsonObject("type", "date", "format", "epoch_millis"));
@@ -122,6 +123,7 @@ class SearchMappingsHelperTest {
   }
 
   @Test
+  @SuppressWarnings("checkstyle:MethodLength")
   void getMappings_positive_resourceWithMultilangIndexMappings() {
     var resourceDescription = TestUtils.resourceDescription(mapOf(
       "id", plainField(KEYWORD_FIELD_INDEX),
@@ -266,7 +268,7 @@ class SearchMappingsHelperTest {
 
   private static LanguageConfigs getSupportedLanguages() {
     var languageConfigs = new ArrayList<LanguageConfig>();
-    multilangFieldType().getMapping().path("properties").fieldNames()
+    multilangFieldType().getMapping().path("properties").propertyNames().iterator()
       .forEachRemaining(name -> languageConfigs.add(languageConfig(name)));
 
     return languageConfigs(languageConfigs);

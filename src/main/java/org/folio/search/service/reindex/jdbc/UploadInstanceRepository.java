@@ -59,6 +59,7 @@ public class UploadInstanceRepository extends UploadRangeRepository {
   private static final String IDS_RANGE_WHERE_CLAUSE = "%1$s >= ?::uuid AND %1$s <= ?::uuid";
   private static final String INSTANCE_IDS_WHERE_CLAUSE = "%s IN (%s)";
   private static final String ITEM_NOT_DELETED_FILTER = " AND it.is_deleted = false";
+  private static final String INSTANCE_NOT_DELETED_FILTER = "i.is_deleted = false AND ";
 
   protected UploadInstanceRepository(JdbcTemplate jdbcTemplate, JsonConverter jsonConverter,
                                      FolioExecutionContext context,
@@ -81,7 +82,7 @@ public class UploadInstanceRepository extends UploadRangeRepository {
     if (ids == null || ids.isEmpty()) {
       return Collections.emptyList();
     }
-    var instanceWhereClause = INSTANCE_IDS_WHERE_CLAUSE.formatted("i.id",
+    var instanceWhereClause = INSTANCE_NOT_DELETED_FILTER + INSTANCE_IDS_WHERE_CLAUSE.formatted("i.id",
       JdbcUtils.getParamPlaceholderForUuid(ids.size()));
     var itemWhereClause = INSTANCE_IDS_WHERE_CLAUSE.formatted("it.instance_id",
       JdbcUtils.getParamPlaceholderForUuid(ids.size())) + ITEM_NOT_DELETED_FILTER;
@@ -91,6 +92,7 @@ public class UploadInstanceRepository extends UploadRangeRepository {
       getFullTableName(context, "holding"),
       getFullTableName(context, "item"),
       holdingsWhereClause, itemWhereClause, instanceWhereClause);
+    log.debug("fetchByIds:: SQL query: {}", sql);
     return jdbcTemplate.query(sql, ps -> {
       int i = 1;
       for (int paramSet = 0; paramSet < 3; paramSet++) {

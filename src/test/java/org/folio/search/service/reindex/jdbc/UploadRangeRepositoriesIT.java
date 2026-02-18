@@ -5,6 +5,7 @@ import static org.folio.support.TestConstants.TENANT_ID;
 import static org.mockito.Mockito.when;
 
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
+import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
@@ -34,12 +35,14 @@ class UploadRangeRepositoriesIT {
   private @Autowired JdbcTemplate jdbcTemplate;
   private @MockitoBean FolioExecutionContext context;
   private @MockitoBean ReindexConfigurationProperties reindexConfig;
+  private @MockitoBean ConsortiumTenantService consortiumTenantService;
   private UploadInstanceRepository uploadRepository;
 
   @BeforeEach
   void setUp() {
     var jsonConverter = new JsonConverter(new JsonMapper());
-    uploadRepository = new UploadInstanceRepository(jdbcTemplate, jsonConverter, context, reindexConfig);
+    uploadRepository = new UploadInstanceRepository(jdbcTemplate, jsonConverter, context,
+      reindexConfig, consortiumTenantService);
     when(context.getFolioModuleMetadata()).thenReturn(new FolioModuleMetadata() {
       @Override
       public String getModuleName() {

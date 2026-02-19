@@ -178,6 +178,7 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
   }
 
   @Override
+  @SuppressWarnings("java:S2077")
   public void deleteByInstanceIds(List<String> itemIds, String tenantId) {
     var sql = DELETE_QUERY.formatted(JdbcUtils.getSchemaName(context), getParamPlaceholderForUuid(itemIds.size()),
       tenantId == null ? "" : "AND tenant_id = ?");

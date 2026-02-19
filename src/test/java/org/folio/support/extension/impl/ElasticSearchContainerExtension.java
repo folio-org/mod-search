@@ -1,11 +1,13 @@
 package org.folio.support.extension.impl;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.images.builder.ImageFromDockerfile;
 
 @Log4j2
@@ -48,7 +50,9 @@ public class ElasticSearchContainerExtension implements BeforeAllCallback, After
       var container = new GenericContainer<>(new ImageFromDockerfile(IMAGE_NAME, false)
         .withDockerfile(dockerfilePath))
         .withEnv("discovery.type", "single-node")
-        .withExposedPorts(9200);
+        .withExposedPorts(9200).waitingFor(Wait.forHttp("/").forPort(9200)
+          .forStatusCodeMatching(code -> code < 500).withStartupTimeout(Duration.ofMinutes(2))
+        );
       if (dockerfile.contains("opensearch")) {
         container.withEnv("DISABLE_SECURITY_PLUGIN", "true");
       } else {  // elasticsearch

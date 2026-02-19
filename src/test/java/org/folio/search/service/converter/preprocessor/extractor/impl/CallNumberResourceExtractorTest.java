@@ -56,7 +56,7 @@ class CallNumberResourceExtractorTest extends ChildResourceExtractorTestBase {
   void persistChildren() {
     when(configService.isEnabled(TenantConfiguredFeature.BROWSE_CALL_NUMBERS)).thenReturn(true);
     persistChildrenTest(extractor, repository, callNumberBodySupplier());
-    verify(repository, times(2)).deleteByInstanceIds(anyList(), eq(TENANT_ID));
+    verify(repository, times(1)).deleteByInstanceIds(anyList(), eq(TENANT_ID));
   }
 
   @Test

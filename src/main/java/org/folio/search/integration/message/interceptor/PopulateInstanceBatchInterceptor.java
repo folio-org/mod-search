@@ -65,7 +65,7 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
       if (list.size() > 1) {
         list.sort(Comparator.comparingLong(ConsumerRecord::timestamp));
       }
-      if (isUpdateOwnershipEvents(list)) {
+      if (processAll(list)) {
         consumerRecords.addAll(list.stream().map(ConsumerRecord::value).toList());
       } else {
         consumerRecords.add(list.getLast().value());
@@ -73,6 +73,15 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
     }
     populate(consumerRecords);
     return records;
+  }
+
+  private boolean processAll(List<ConsumerRecord<String, ResourceEvent>> records) {
+    if (records.size() != 2
+      || Objects.equals(records.getFirst().value().getTenant(), records.getLast().value().getTenant())) {
+      return false;
+    }
+    return isUpdateOwnershipEvents(records)
+      || isInstanceSharingEvents(records);
   }
 
   /**
@@ -83,16 +92,29 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
    * This method helps identify such case.
    */
   private boolean isUpdateOwnershipEvents(List<ConsumerRecord<String, ResourceEvent>> records) {
-    if (records.size() != 2
-        || Objects.equals(records.getFirst().value().getTenant(), records.getLast().value().getTenant())) {
-      return false;
-    }
     var eventTypes = records.stream()
       .map(consumerRecord -> consumerRecord.value().getType())
       .toList();
 
     return eventTypes.contains(ResourceEventType.CREATE)
            && eventTypes.contains(ResourceEventType.DELETE);
+  }
+
+  /**
+   * Needed in case 2 instance events with same id come in 1 batch on instance sharing case.
+   * When mod-inventory-storage send CREATE event for central tenant and UPDATE event for member tenant.
+   * UPDATE event in such case could have higher timestamp value and
+   * caller method (intercept) logic would filter out the CREATE event since both events have same id.
+   * This method helps identify such case.
+   * UPDATE event would be filtered out later in process method since source of such event would have consortium prefix.
+   * */
+  private boolean isInstanceSharingEvents(List<ConsumerRecord<String, ResourceEvent>> records) {
+    var eventTypes = records.stream()
+      .map(consumerRecord -> consumerRecord.value().getType())
+      .toList();
+
+    return eventTypes.contains(ResourceEventType.CREATE)
+           && eventTypes.contains(ResourceEventType.UPDATE);
   }
 
   private void populate(List<ResourceEvent> records) {

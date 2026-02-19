@@ -40,15 +40,12 @@ public abstract class ChildResourceExtractorTestBase {
     newBody.put(SOURCE_FIELD, SOURCE_CONSORTIUM_PREFIX + "FOLIO");
     var events = getResourceEvents(resource, eventBody, eventBodySupplier);
 
-    var sharedResourceEvent = resourceEvent(ResourceEventType.UPDATE, resource, oldBody, newBody);
     var instanceIdsForDeletion = List.of(events.get(2).getId(), events.get(3).getId(), events.get(4).getId());
-    var sharedInstanceIds = List.of(sharedResourceEvent.getId());
 
     extractor.persistChildren(TENANT_ID, false, events);
-    extractor.persistChildrenForResourceSharing(false, List.of(sharedResourceEvent));
 
-    verify(repository, times(2)).deleteByInstanceIds(
-      argThat(list -> list.equals(instanceIdsForDeletion) || list.equals(sharedInstanceIds)),
+    verify(repository, times(1)).deleteByInstanceIds(
+      argThat(list -> list.equals(instanceIdsForDeletion)),
       argThat(tenant -> tenant == null || tenant.equals(TENANT_ID)));
     verify(repository).saveAll(argThat(set -> set.resourceEntities().size() == getExpectedEntitiesSize()
                                               && set.relationshipEntities().size() == 3));

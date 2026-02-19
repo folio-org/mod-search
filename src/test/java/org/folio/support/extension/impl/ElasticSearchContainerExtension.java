@@ -5,8 +5,11 @@ import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
+import org.opensearch.testcontainers.OpenSearchContainer;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.elasticsearch.ElasticsearchContainer;
 import org.testcontainers.images.builder.ImageFromDockerfile;
+import org.testcontainers.utility.DockerImageName;
 
 @Log4j2
 public class ElasticSearchContainerExtension implements BeforeAllCallback, AfterAllCallback {
@@ -30,6 +33,19 @@ public class ElasticSearchContainerExtension implements BeforeAllCallback, After
     System.clearProperty(SPRING_PROPERTY_NAME);
   }
 
+  private static GenericContainer<?> buildSearchContainer(String dockerfile, String imageTag) {
+    if (dockerfile.contains("opensearch")) {
+      return new OpenSearchContainer<>(
+        DockerImageName.parse(imageTag)
+          .asCompatibleSubstituteFor("opensearchproject/opensearch"));
+    } else {
+      return new ElasticsearchContainer(
+        DockerImageName.parse(imageTag)
+          .asCompatibleSubstituteFor("docker.elastic.co/elasticsearch/elasticsearch"))
+        .withEnv("xpack.security.enabled", "false");
+    }
+  }
+
   private String getSearchUrl() {
     return "http://" + CONTAINER.getHost() + ":" + CONTAINER.getMappedPort(9200);
   }
@@ -38,26 +54,20 @@ public class ElasticSearchContainerExtension implements BeforeAllCallback, After
     var dockerfile = System.getenv().getOrDefault("SEARCH_ENGINE_DOCKERFILE", DEFAULT_DOCKERFILE);
     log.info("search engine dockerfile: {}", dockerfile);
 
-    // Verify dockerfile exists
     Path dockerfilePath = Path.of(dockerfile);
     if (!dockerfilePath.toFile().exists()) {
       throw new RuntimeException("Dockerfile not found at: " + dockerfile);
     }
 
-    try {
-      var container = new GenericContainer<>(new ImageFromDockerfile(IMAGE_NAME, false)
-        .withDockerfile(dockerfilePath))
-        .withEnv("discovery.type", "single-node")
-        .withExposedPorts(9200);
-      if (dockerfile.contains("opensearch")) {
-        container.withEnv("DISABLE_SECURITY_PLUGIN", "true");
-      } else {  // elasticsearch
-        container.withEnv("xpack.security.enabled", "false");
-      }
-      return container;
-    } catch (Exception e) {
-      log.error("Failed to create container with dockerfile: {}", dockerfile, e);
-      throw e;
-    }
+    String imageTag = buildImage(dockerfilePath);
+    return buildSearchContainer(dockerfile, imageTag);
+  }
+
+  private static String buildImage(Path dockerfilePath) {
+    new ImageFromDockerfile(IMAGE_NAME, false)
+      .withDockerfile(dockerfilePath)
+      .get();
+    return IMAGE_NAME + ":latest";
   }
 }
+

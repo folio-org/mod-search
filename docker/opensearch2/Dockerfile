@@ -15,3 +15,4 @@ RUN opensearch-plugin install --batch \
   analysis-phonetic
 
 RUN opensearch-plugin remove opensearch-security
+ENV OPENSEARCH_JAVA_OPTS="-Xms512m -Xmx512m"

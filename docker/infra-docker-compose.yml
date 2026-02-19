@@ -33,7 +33,7 @@ services:
   opensearch:
     image: dev.folio/opensearch:latest
     build:
-      context: opensearch
+      context: elasticsearch8
       dockerfile: Dockerfile
     networks:
       - opensearch-net

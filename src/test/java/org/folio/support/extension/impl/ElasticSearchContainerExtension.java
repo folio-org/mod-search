@@ -50,13 +50,11 @@ public class ElasticSearchContainerExtension implements BeforeAllCallback, After
       var container = new GenericContainer<>(new ImageFromDockerfile(IMAGE_NAME, false)
         .withDockerfile(dockerfilePath))
         .withEnv("discovery.type", "single-node")
-        .withExposedPorts(9200).waitingFor(Wait.forHttp("/").forPort(9200)
-          .forStatusCodeMatching(code -> code < 500).withStartupTimeout(Duration.ofMinutes(2))
-        );
+        .withExposedPorts(9200)
+        .waitingFor(Wait.forHttp("/_cluster/health").forPort(9200).forStatusCode(200))
+        .withStartupTimeout(Duration.ofMinutes(3));
       if (dockerfile.contains("opensearch")) {
         container.withEnv("DISABLE_SECURITY_PLUGIN", "true");
-      } else {  // elasticsearch
-        container.withEnv("xpack.security.enabled", "false");
       }
       return container;
     } catch (Exception e) {

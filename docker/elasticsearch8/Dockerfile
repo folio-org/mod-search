@@ -15,3 +15,6 @@ RUN elasticsearch-plugin install --batch \
   analysis-smartcn \
   analysis-nori \
   analysis-phonetic
+
+RUN echo "xpack.security.enabled: false" >> /usr/share/elasticsearch/config/elasticsearch.yml
+ENV ES_JAVA_OPTS="-Xms512m -Xmx512m"

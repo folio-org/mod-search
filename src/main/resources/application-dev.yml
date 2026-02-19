@@ -12,11 +12,11 @@ spring:
   opensearch:
     username: ${ELASTICSEARCH_USERNAME:}
     password: ${ELASTICSEARCH_PASSWORD:}
-    uris: http://localhost:9200
+    uris: ${ELASTICSEARCH_URL:http://localhost:9200}
     compression-enabled: false
     elasticsearch-server: ${ELASTICSEARCH_SERVER:false}
   kafka:
-    bootstrap-servers: localhost:29092
+    bootstrap-servers: ${KAFKA_HOST:localhost}:${KAFKA_PORT:9092}
     consumer:
       max-poll-records: ${KAFKA_CONSUMER_MAX_POLL_RECORDS:200}
       properties:
@@ -35,9 +35,9 @@ spring:
         max.in.flight.requests.per.connection: 5
         retries: 5
   datasource:
-    username: folio_admin
-    password: folio_admin
-    url: jdbc:postgresql://localhost:5432/okapi_modules
+    username: ${DB_USERNAME:folio_admin}
+    password: ${DB_PASSWORD:folio_admin}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_DATABASE:okapi_modules}
     hikari:
       data-source-properties:
         reWriteBatchedInserts: true
@@ -81,7 +81,7 @@ folio:
       browse-classifications: ${BROWSE_CLASSIFICATIONS_ENABLED:true}
       browse-call-numbers: ${BROWSE_CALL_NUMBERS_ENABLED:true}
     indexing:
-      data-format: ${INDEXING_DATA_FORMAT:smile}
+      data-format: ${INDEXING_DATA_FORMAT:json}
       instance-children-index-enabled: ${INSTANCE_CHILDREN_INDEX_ENABLED:true}
       instance-children-index-delay-ms: ${INSTANCE_CHILDREN_INDEX_DELAY_MS:60000}
       sub-resource-batch-size: ${SUB_RESOURCE_BATCH_SIZE:100}
@@ -168,8 +168,10 @@ folio:
   logging:
     request:
       enabled: true
+      level: full
     exchange:
       enabled: true
+      level: full
 
 server.port: 8081
 
@@ -185,8 +187,9 @@ management:
 
 logging:
   level:
-    org.folio.spring.filter.IncomingRequestLoggingFilter: DEBUG
-    org.opensearch.client: TRACE
-    org.opensearch.client.sniffer: TRACE
-    tracer: TRACE
+    org.folio.spring.filter.IncomingRequestLoggingFilter: debug
+    org.folio.spring.client.ExchangeLoggingInterceptor: debug
+    org.opensearch.client: trace
+    org.opensearch.client.sniffer: trace
+    tracer: trace
 

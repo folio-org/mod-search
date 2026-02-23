@@ -52,6 +52,7 @@ class SearchTenantServiceTest {
       return null;
     }
   };
+
   @InjectMocks
   private SearchTenantService searchTenantService;
   @Mock
@@ -74,8 +75,6 @@ class SearchTenantServiceTest {
   private JdbcTemplate jdbcTemplate;
   @Mock
   private TenantRepository tenantRepository;
-  @Mock
-  private SystemReindexServiceWrapper reindexServiceWrapper;
 
   @Test
   void createOrUpdateTenant_positive() {
@@ -92,7 +91,6 @@ class SearchTenantServiceTest {
     verify(tenantRepository).saveTenant(new TenantEntity(TENANT_ID, null, true));
     verify(languageConfigService).create(new LanguageConfig().code("eng"));
     verify(indexService).createIndexIfNotExist(UNKNOWN, TENANT_ID);
-    verify(reindexServiceWrapper, never()).doReindex(UNKNOWN, TENANT_ID);
     verify(kafkaAdminService).createTopics(TENANT_ID);
     verify(kafkaAdminService).restartEventListeners();
   }
@@ -127,7 +125,6 @@ class SearchTenantServiceTest {
 
     verify(languageConfigService).create(new LanguageConfig().code("eng"));
     verify(indexService).createIndexIfNotExist(UNKNOWN, TENANT_ID);
-    verify(reindexServiceWrapper, never()).doReindex(UNKNOWN, TENANT_ID);
     verify(kafkaAdminService).createTopics(TENANT_ID);
     verify(kafkaAdminService).restartEventListeners();
   }
@@ -148,28 +145,6 @@ class SearchTenantServiceTest {
     verify(indexService).createIndexIfNotExist(UNKNOWN, TENANT_ID);
     verify(kafkaAdminService).createTopics(TENANT_ID);
     verify(kafkaAdminService).restartEventListeners();
-  }
-
-  @Test
-  void shouldNotRunReindexOnTenantParamPresentFalse() {
-    when(context.getTenantId()).thenReturn(TENANT_ID);
-    when(resourceDescriptionService.getResourceTypes()).thenReturn(List.of(UNKNOWN));
-    var attributes = tenantAttributes().addParametersItem(new Parameter().key("runReindex").value("false"));
-
-    searchTenantService.afterTenantUpdate(attributes);
-
-    verify(reindexServiceWrapper, never()).doReindex(UNKNOWN, TENANT_ID);
-  }
-
-  @Test
-  void shouldNotRunReindexOnTenantParamPresentWrong() {
-    when(context.getTenantId()).thenReturn(TENANT_ID);
-    when(resourceDescriptionService.getResourceTypes()).thenReturn(List.of(UNKNOWN));
-    var attributes = tenantAttributes().addParametersItem(new Parameter().key("runReindexx").value("true"));
-
-    searchTenantService.afterTenantUpdate(attributes);
-
-    verify(reindexServiceWrapper, never()).doReindex(UNKNOWN, TENANT_ID);
   }
 
   @Test

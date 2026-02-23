@@ -1,10 +1,6 @@
 package org.folio.search.service.system;
 
-import static java.lang.Boolean.parseBoolean;
-
-import java.util.Collection;
 import java.util.Optional;
-import java.util.stream.Stream;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.LanguageConfig;
@@ -28,7 +24,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class SearchTenantService extends TenantService {
 
-  private static final String REINDEX_PARAM_NAME = "runReindex";
   private static final String CENTRAL_TENANT_ID_PARAM_NAME = "centralTenantId";
 
   private final IndexService indexService;
@@ -38,7 +33,6 @@ public class SearchTenantService extends TenantService {
   private final ResourceDescriptionService resourceDescriptionService;
   private final SearchConfigurationProperties searchConfigurationProperties;
   private final TenantRepository tenantRepository;
-  private final SystemReindexServiceWrapper reindexServiceWrapper;
 
   public SearchTenantService(JdbcTemplate jdbcTemplate, FolioExecutionContext context,
                              FolioSpringLiquibase folioSpringLiquibase, KafkaAdminService kafkaAdminService,
@@ -47,7 +41,7 @@ public class SearchTenantService extends TenantService {
                              LanguageConfigServiceDecorator languageConfigService,
                              ResourceDescriptionService resourceDescriptionService,
                              SearchConfigurationProperties searchConfigurationProperties,
-                             TenantRepository tenantRepository, SystemReindexServiceWrapper reindexServiceWrapper) {
+                             TenantRepository tenantRepository) {
     super(jdbcTemplate, context, folioSpringLiquibase);
     this.kafkaAdminService = kafkaAdminService;
     this.indexService = indexService;
@@ -56,7 +50,6 @@ public class SearchTenantService extends TenantService {
     this.resourceDescriptionService = resourceDescriptionService;
     this.searchConfigurationProperties = searchConfigurationProperties;
     this.tenantRepository = tenantRepository;
-    this.reindexServiceWrapper = reindexServiceWrapper;
   }
 
   /**
@@ -134,7 +127,7 @@ public class SearchTenantService extends TenantService {
   protected void afterTenantUpdate(TenantAttributes tenantAttributes) {
     baseAfterTenantUpdate();
     createLanguages();
-    createIndexesAndReindex(tenantAttributes);
+    createIndexes();
     log.info("Tenant init has been completed");
   }
 
@@ -166,15 +159,9 @@ public class SearchTenantService extends TenantService {
     kafkaAdminService.deleteTopics(tenantId);
   }
 
-  private void createIndexesAndReindex(TenantAttributes tenantAttributes) {
+  private void createIndexes() {
     var resourceNames = resourceDescriptionService.getResourceTypes();
     resourceNames.forEach(resourceName -> indexService.createIndexIfNotExist(resourceName, context.getTenantId()));
-    Stream.ofNullable(tenantAttributes.getParameters())
-      .flatMap(Collection::stream)
-      .filter(parameter -> parameter.getKey().equals(REINDEX_PARAM_NAME) && parseBoolean(parameter.getValue()))
-      .findFirst()
-      .ifPresent(parameter -> resourceNames
-        .forEach(resource -> reindexServiceWrapper.doReindex(resource, context.getTenantId())));
   }
 
   private void createLanguages() {

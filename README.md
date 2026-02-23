@@ -368,7 +368,6 @@ It is possible to define specific tenant parameters during module's initializati
 
 | Tenant parameter | Default value | Description                                                                       |
 |:-----------------|:-------------:|:----------------------------------------------------------------------------------|
-| runReindex       |     false     | Start reindex procedure automatically after module will be enabled for the tenant |
 | centralTenantId  |     null      | Central tenant Id when module is in consortia mode                                |
 
 ## Data Indexing

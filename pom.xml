@@ -41,6 +41,10 @@
     <folio-isbn-utils.version>1.9.0-SNAPSHOT</folio-isbn-utils.version>
     <folio-cql2pgjson.version>35.4.2</folio-cql2pgjson.version>
     <opensearch.version>3.5.0</opensearch.version>
+    <!-- opensearch-rest-client:3.5.0 removed manual gzip decompression relying on httpclient5 5.6's
+         automatic async decompression. Spring Boot 4.x manages older versions, so we pin to 5.6/5.4. -->
+    <httpclient5.version>5.6</httpclient5.version>
+    <httpcore5.version>5.4</httpcore5.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <apache-commons-io.version>2.21.0</apache-commons-io.version>
     <apache-commons-collections.version>4.5.0</apache-commons-collections.version>

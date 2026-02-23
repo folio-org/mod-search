@@ -140,6 +140,32 @@ class PopulateInstanceBatchInterceptorTest {
     verify(itemRepository).deleteEntitiesForTenant(List.of("2"), MEMBER2_TENANT_ID);
   }
 
+  @Test
+  void shouldProcessAllRecordsForSameIdWhenInstanceSharing() {
+    // Arrange
+    mockExecutionServices();
+
+    var now = System.currentTimeMillis();
+    var instanceId = "instance-123";
+    var centralInstance = Map.<String, Object>of("id", instanceId, "source", "FOLIO");
+    var memberInstance = Map.<String, Object>of("id", instanceId, "source", "CONSORTIUM-FOLIO");
+
+    var consumerRecord1 = createConsumerRecord(TENANT_ID,
+      ResourceEventType.CREATE, "instance", instanceId, centralInstance, now);
+    var consumerRecord2 = createConsumerRecord(MEMBER_TENANT_ID,
+      ResourceEventType.UPDATE, "instance", instanceId, memberInstance, now + 1);
+    var records = getConsumerRecords(List.of(consumerRecord2, consumerRecord1));
+
+    // Act
+    populateInstanceBatchInterceptor.intercept(records, consumer);
+
+    // Assert
+    // Central tenant instance should be saved
+    verify(instanceRepository).saveEntities(TENANT_ID, List.of(centralInstance));
+    // Member tenant UPDATE event with consortium prefix should be filtered out in process method
+    verify(instanceRepository, never()).saveEntities(eq(MEMBER_TENANT_ID), any());
+  }
+
   private ConsumerRecords<String, ResourceEvent> getConsumerRecords(
     List<ConsumerRecord<String, ResourceEvent>> records) {
     return new ConsumerRecords<>(Map.of(new TopicPartition("topic", 0), records), Map.of());

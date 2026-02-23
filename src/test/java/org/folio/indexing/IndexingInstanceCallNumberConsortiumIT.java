@@ -47,6 +47,9 @@ class IndexingInstanceCallNumberConsortiumIT extends BaseIntegrationTest {
     enableFeature(CENTRAL_TENANT_ID, TenantConfiguredFeature.BROWSE_CALL_NUMBERS);
 
     setUpTestData();
+
+    // fetch call number documents for the instance and check that tenant field contains member tenant id
+    awaitAssertion(() -> assertInstanceCallNumberTenantId(MEMBER_TENANT_ID, false));
   }
 
   @AfterAll
@@ -62,9 +65,6 @@ class IndexingInstanceCallNumberConsortiumIT extends BaseIntegrationTest {
 
   @Test
   void shouldUpdateInstanceCallNumber_onInstanceSharing() {
-    // given - fetch call number documents for the instance and check that tenant field contains member tenant id
-    awaitAssertion(() -> assertInstanceCallNumberTenantId(MEMBER_TENANT_ID, false));
-
     // when - create instance in central tenant with the same instance id/title
     var centralInstance = new Instance().id(INSTANCE_ID).title(INSTANCE_TITLE).source("FOLIO");
     inventoryApi.createInstance(CENTRAL_TENANT_ID, centralInstance);
@@ -77,7 +77,7 @@ class IndexingInstanceCallNumberConsortiumIT extends BaseIntegrationTest {
     awaitAssertion(() -> assertInstanceCallNumberTenantId(CENTRAL_TENANT_ID, true));
   }
 
-  private void assertInstanceCallNumberTenantId(String expectedTenantId, boolean shared) {
+  private static void assertInstanceCallNumberTenantId(String expectedTenantId, boolean shared) {
     var hits = fetchAllDocuments(INSTANCE_CALL_NUMBER, CENTRAL_TENANT_ID);
     assertThat(hits).hasSize(1);
 

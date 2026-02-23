@@ -189,3 +189,8 @@ spring:
 logging:
   level:
     org.folio.spring.filter.IncomingRequestLoggingFilter: debug
+    org.apache.kafka.clients.consumer: warn
+    org.apache.kafka.common.config.AbstractConfig: warn
+    org.apache.kafka.common.metrics: warn
+    org.apache.kafka.common.utils.AppInfoParser: warn
+    org.apache.kafka.common.telemetry: warn

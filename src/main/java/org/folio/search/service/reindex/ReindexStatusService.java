@@ -131,6 +131,17 @@ public class ReindexStatusService {
     return statusRepository.isMergeCompleted();
   }
 
+  /**
+   * Checks if any reindex operation is currently in progress (merge or upload).
+   *
+   * @return true if any entity type has a status of MERGE_IN_PROGRESS or UPLOAD_IN_PROGRESS
+   */
+  public boolean isReindexInProgress() {
+    return statusRepository.getReindexStatuses().stream()
+      .anyMatch(status -> status.getStatus() == ReindexStatus.MERGE_IN_PROGRESS
+                          || status.getStatus() == ReindexStatus.UPLOAD_IN_PROGRESS);
+  }
+
   private List<ReindexStatusEntity> constructNewStatusRecords(List<ReindexEntityType> entityTypes,
                                                               String targetTenantId) {
     return entityTypes.stream()

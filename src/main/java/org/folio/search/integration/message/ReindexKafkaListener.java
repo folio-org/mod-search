@@ -55,7 +55,7 @@ public class ReindexKafkaListener {
     groupId = "#{folioKafkaProperties.listener['reindex-file-ready'].groupId}",
     concurrency = "#{folioKafkaProperties.listener['reindex-file-ready'].concurrency}")
   public void handleReindexFileReadyEvent(ConsumerRecord<String, ReindexFileReadyEvent> consumerRecord) {
-    log.debug("handleReindexRecordsEvent::received reindex event [id={}]", consumerRecord.key());
+    log.debug("handleReindexFileReadyEvent::received reindex event [id={}]", consumerRecord.key());
     var event = consumerRecord.value();
     systemUserScopedExecutionService.executeSystemUserScoped(event.getTenantId(),
       () -> executionService.execute(() -> reindexService.process(event)));

@@ -27,39 +27,26 @@ import org.springframework.util.backoff.FixedBackOff;
 @RequiredArgsConstructor
 public class ReindexKafkaConfiguration extends KafkaConfiguration {
 
+  private static final Map<String, Object> REINDEX_CONSUMER_OVERRIDE_PROPERTIES = Map.of(MAX_POLL_RECORDS_CONFIG, 10);
+
   private final KafkaProperties kafkaProperties;
 
   @Bean
   public ConcurrentKafkaListenerContainerFactory<String, ReindexRangeIndexEvent> rangeIndexListenerContainerFactory(
     CommonErrorHandler commonErrorHandler) {
-    var factory = new ConcurrentKafkaListenerContainerFactory<String, ReindexRangeIndexEvent>();
-    var deserializer = new JacksonJsonDeserializer<>(ReindexRangeIndexEvent.class, false);
-    Map<String, Object> overrideProperties = Map.of(MAX_POLL_RECORDS_CONFIG, 10);
-    factory.setConsumerFactory(getConsumerFactory(deserializer, kafkaProperties, overrideProperties));
-    factory.setCommonErrorHandler(commonErrorHandler);
-    return factory;
+    return listenerContainerFactory(ReindexRangeIndexEvent.class, commonErrorHandler);
   }
 
   @Bean
   public ConcurrentKafkaListenerContainerFactory<String, ReindexRecordsEvent> reindexRecordsListenerContainerFactory(
     CommonErrorHandler commonErrorHandler) {
-    var factory = new ConcurrentKafkaListenerContainerFactory<String, ReindexRecordsEvent>();
-    var deserializer = new JacksonJsonDeserializer<>(ReindexRecordsEvent.class, false);
-    Map<String, Object> overrideProperties = Map.of(MAX_POLL_RECORDS_CONFIG, 10);
-    factory.setConsumerFactory(getConsumerFactory(deserializer, kafkaProperties, overrideProperties));
-    factory.setCommonErrorHandler(commonErrorHandler);
-    return factory;
+    return listenerContainerFactory(ReindexRecordsEvent.class, commonErrorHandler);
   }
 
   @Bean
   public ConcurrentKafkaListenerContainerFactory<String, ReindexFileReadyEvent>
     reindexFileReadyListenerContainerFactory(CommonErrorHandler commonErrorHandler) {
-    var factory = new ConcurrentKafkaListenerContainerFactory<String, ReindexFileReadyEvent>();
-    var deserializer = new JacksonJsonDeserializer<>(ReindexFileReadyEvent.class, false);
-    Map<String, Object> overrideProperties = Map.of(MAX_POLL_RECORDS_CONFIG, 10);
-    factory.setConsumerFactory(getConsumerFactory(deserializer, kafkaProperties, overrideProperties));
-    factory.setCommonErrorHandler(commonErrorHandler);
-    return factory;
+    return listenerContainerFactory(ReindexFileReadyEvent.class, commonErrorHandler);
   }
 
   @Bean
@@ -80,5 +67,15 @@ public class ReindexKafkaConfiguration extends KafkaConfiguration {
   @Bean
   public FolioMessageProducer<ReindexRangeIndexEvent> rangeIndexMessageProducer() {
     return new FolioMessageProducer<>(rangeIndexKafkaTemplate(), REINDEX_RANGE_INDEX);
+  }
+
+  private <T> ConcurrentKafkaListenerContainerFactory<String, T> listenerContainerFactory(
+    Class<T> valueType, CommonErrorHandler errorHandler) {
+    var factory = new ConcurrentKafkaListenerContainerFactory<String, T>();
+    var deserializer = new JacksonJsonDeserializer<>(valueType, false);
+    factory.setConsumerFactory(
+      getConsumerFactory(deserializer, kafkaProperties, REINDEX_CONSUMER_OVERRIDE_PROPERTIES));
+    factory.setCommonErrorHandler(errorHandler);
+    return factory;
   }
 }

@@ -28,6 +28,8 @@ import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
@@ -360,25 +362,12 @@ class ReindexStatusServiceTest {
     verify(statusRepository, times(2)).getTargetTenantId();
   }
 
-  @Test
-  void isReindexInProgress_trueWhenMerge() {
+  @ParameterizedTest
+  @EnumSource(value = ReindexStatus.class, names = {"MERGE_IN_PROGRESS", "UPLOAD_IN_PROGRESS", "STAGING_IN_PROGRESS"})
+  void isReindexInProgress_true(ReindexStatus inProgressStatus) {
     // given
     when(statusRepository.getReindexStatuses()).thenReturn(List.of(
-      new ReindexStatusEntity(ReindexEntityType.INSTANCE, ReindexStatus.MERGE_IN_PROGRESS),
-      new ReindexStatusEntity(ReindexEntityType.HOLDINGS, ReindexStatus.MERGE_COMPLETED)));
-
-    // act
-    var actual = service.isReindexInProgress();
-
-    // assert
-    assertThat(actual).isTrue();
-  }
-
-  @Test
-  void isReindexInProgress_trueWhenUpload() {
-    // given
-    when(statusRepository.getReindexStatuses()).thenReturn(List.of(
-      new ReindexStatusEntity(ReindexEntityType.INSTANCE, ReindexStatus.UPLOAD_IN_PROGRESS),
+      new ReindexStatusEntity(ReindexEntityType.INSTANCE, inProgressStatus),
       new ReindexStatusEntity(ReindexEntityType.HOLDINGS, ReindexStatus.MERGE_COMPLETED)));
 
     // act

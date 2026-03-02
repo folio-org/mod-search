@@ -2,11 +2,14 @@ package org.folio.search.service.reindex.jdbc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
+import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.utils.TestUtils.mapOf;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -112,6 +115,49 @@ class CallNumberRepositoryIT {
           List.of(mapOf("count", null, "instanceContributors", null,
             "instanceId", List.of("9f8febd1-e96c-46c4-a5f4-84a45cc499a2"), "instanceTitle", null,
             "locationId", null, "resourceId", null, "shared", false, "tenantId", TENANT_ID, "typeId", null))));
+  }
+
+  @Test
+  @Sql("/sql/populate-instances.sql")
+  void updateTenantIdForCentralInstances_updatesCallNumberRelationsAndCallNumber() {
+    var callNumberId = "cn-test";
+
+    //manually set last_updated_date to past to verify it's updated after tenantId update
+    var pastTimestamp = Timestamp.valueOf("2000-01-01 00:00:00");
+    jdbcTemplate.update(
+      "INSERT INTO call_number (id, call_number, last_updated_date) VALUES (?, ?, ?)",
+      callNumberId, "TEST-001", pastTimestamp);
+    var relation = Map.<String, Object>of(
+      "instanceId", INSTANCE_ID,
+      "itemId", UUID.randomUUID().toString(),
+      "callNumberId", callNumberId,
+      "tenantId", MEMBER_TENANT_ID,
+      "shared", false
+    );
+    repository.saveAll(new ChildResourceEntityBatch(Set.of(), List.of(relation)));
+
+    // verify member tenant is set before update
+    var before = repository.fetchByIdRange(callNumberId, callNumberId);
+    assertCallNumberInstanceTenantId(before, MEMBER_TENANT_ID);
+
+    // act
+    repository.updateTenantIdForCentralInstances(List.of(INSTANCE_ID), CENTRAL_TENANT_ID);
+
+    // assert tenant is updated to central
+    var after = repository.fetchByIdRange(callNumberId, callNumberId);
+    assertCallNumberInstanceTenantId(after, CENTRAL_TENANT_ID);
+
+    // assert last_updated_date is updated
+    var lastUpdatedAfter = jdbcTemplate.queryForObject(
+      "SELECT last_updated_date FROM call_number WHERE id = ?", Timestamp.class, callNumberId);
+    assertThat(lastUpdatedAfter).isNotNull().isAfter(pastTimestamp);
+  }
+
+  private void assertCallNumberInstanceTenantId(List<Map<String, Object>> callNumbers, String expectedTenantId) {
+    assertThat(callNumbers).hasSize(1)
+      .flatExtracting(m -> (List<?>) m.get("instances"))
+      .extracting(i -> (String) ((Map<?, ?>) i).get("tenantId"))
+      .containsExactly(expectedTenantId);
   }
 
   private static List<UUID> getList(int size) {

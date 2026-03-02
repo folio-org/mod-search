@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>4.0.2</version>
+    <version>4.0.3</version>
     <relativePath/>
   </parent>
 
@@ -40,28 +40,32 @@
     <folio-service-tools.version>6.0.0-SNAPSHOT</folio-service-tools.version>
     <folio-isbn-utils.version>1.9.0-SNAPSHOT</folio-isbn-utils.version>
     <folio-cql2pgjson.version>35.4.2</folio-cql2pgjson.version>
-    <opensearch.version>3.4.0</opensearch.version>
+    <opensearch.version>3.5.0</opensearch.version>
+    <!-- opensearch-rest-client:3.5.0 removed manual gzip decompression relying on httpclient5 5.6's
+         automatic async decompression. Spring Boot 4.x manages older versions, so we pin to 5.6/5.4. -->
+    <httpclient5.version>5.6</httpclient5.version>
+    <httpcore5.version>5.4</httpcore5.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <apache-commons-io.version>2.21.0</apache-commons-io.version>
     <apache-commons-collections.version>4.5.0</apache-commons-collections.version>
-    <marc4j.version>2.9.5</marc4j.version>
+    <marc4j.version>2.9.6</marc4j.version>
     <lombok.version>1.18.42</lombok.version>
     <lombok.mapstruct-binding.version>0.2.0</lombok.mapstruct-binding.version>
     <streamex.version>0.8.4</streamex.version>
 
     <!-- Plugins versions -->
     <folio-module-descriptor-validator.version>1.0.1</folio-module-descriptor-validator.version>
-    <maven-openapi-generator-plugin.version>7.19.0</maven-openapi-generator-plugin.version>
+    <maven-openapi-generator-plugin.version>7.20.0</maven-openapi-generator-plugin.version>
     <maven-copy-rename-plugin.version>1.0.1</maven-copy-rename-plugin.version>
     <maven-build-helper-plugin.version>3.6.1</maven-build-helper-plugin.version>
     <maven-clean-plugin.version>3.5.0</maven-clean-plugin.version>
-    <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
+    <maven-resources-plugin.version>3.4.0</maven-resources-plugin.version>
     <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
     <folio-java-checkstyle.version>1.2.0</folio-java-checkstyle.version>
     <checkstyle.version>13.2.0</checkstyle.version>
-    <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
-    <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
-    <maven-failsafe-plugin.version>3.5.4</maven-failsafe-plugin.version>
+    <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
+    <maven-surefire-plugin.version>3.5.5</maven-surefire-plugin.version>
+    <maven-failsafe-plugin.version>3.5.5</maven-failsafe-plugin.version>
     <maven-release-plugin.version>3.3.1</maven-release-plugin.version>
   </properties>
 
@@ -303,6 +307,20 @@
       <groupId>org.folio</groupId>
       <artifactId>folio-spring-testing</artifactId>
       <version>${folio-spring-support.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>testcontainers-elasticsearch</artifactId>
+      <version>2.0.3</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.opensearch</groupId>
+      <artifactId>opensearch-testcontainers</artifactId>
+      <version>4.1.0</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

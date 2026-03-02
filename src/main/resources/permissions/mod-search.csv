@@ -1,11 +1,2 @@
-inventory-storage.inventory-view.instances.collection.get
-inventory-storage.identifier-types.collection.get
-inventory-storage.alternative-title-types.collection.get
-inventory-storage.call-number-types.collection.get
-inventory-storage.classification-types.collection.get
 users.collection.get
 user-tenants.collection.get
-inventory-storage.reindex-records.publish.post
-inventory-storage.instances.collection.get
-inventory-storage.items.collection.get
-inventory-storage.holdings.collection.get

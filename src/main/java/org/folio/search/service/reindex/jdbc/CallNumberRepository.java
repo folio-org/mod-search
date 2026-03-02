@@ -79,6 +79,19 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
     WHERE id IN (SELECT * FROM deleted_ids);
     """;
 
+  private static final String UPDATE_TENANT_FOR_CENTRAL_QUERY = """
+    WITH updated_call_numbers AS (
+        UPDATE %1$s.instance_call_number
+        SET tenant_id = ?
+        WHERE instance_id IN (%2$s)
+          AND tenant_id != ?
+        RETURNING call_number_id
+    )
+    UPDATE %1$s.call_number
+    SET last_updated_date = CURRENT_TIMESTAMP
+    WHERE id IN (SELECT call_number_id FROM updated_call_numbers);
+    """;
+
   private static final String SELECT_BY_UPDATED_QUERY = """
     WITH cte AS (
         SELECT
@@ -192,12 +205,32 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
   }
 
   @Override
+  @SuppressWarnings("java:S2077")
   public void deleteByInstanceIds(List<String> itemIds, String tenantId) {
     var sql = DELETE_QUERY.formatted(JdbcUtils.getSchemaName(context), getParamPlaceholderForUuid(itemIds.size()),
       tenantId == null ? "" : "AND tenant_id = ?");
     var params = tenantId == null
       ? itemIds.toArray()
       : Stream.of(itemIds, List.of(tenantId)).flatMap(List::stream).toArray();
+    jdbcTemplate.update(sql, params);
+  }
+
+  /**
+   * Updates tenant_id in instance_call_number records for the given instances to the central tenant.
+   * Used when an instance is shared to the central tenant - the background job processes the newly created
+   * central instance and this method updates any existing call number relations that still point to the member tenant.
+   * For the updated relations - also updates last_updated_date in call_number table
+   * to trigger reindexing of those call numbers.
+   *
+   * @param instanceIds     list of instance IDs whose call number relations should be updated
+   * @param centralTenantId the central tenant ID to set
+   */
+  public void updateTenantIdForCentralInstances(List<String> instanceIds, String centralTenantId) {
+    var sql = UPDATE_TENANT_FOR_CENTRAL_QUERY.formatted(JdbcUtils.getSchemaName(context),
+      getParamPlaceholderForUuid(instanceIds.size()));
+    var params = Stream.of(List.of(centralTenantId), instanceIds, List.of(centralTenantId))
+      .flatMap(List::stream)
+      .toArray();
     jdbcTemplate.update(sql, params);
   }
 

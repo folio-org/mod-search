@@ -25,9 +25,6 @@ spring:
     password: password
   liquibase:
     change-log: classpath:changelog/changelog-master.xml
-  kafka:
-    producer:
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
   cache:
     cache-names:
       - es-indices
@@ -186,7 +183,11 @@ folio:
 
 logging:
   level:
-    org.apache.kafka.clients.consumer.*: warn
+    org.apache.kafka.clients.consumer: warn
+    org.apache.kafka.common.config.AbstractConfig: warn
+    org.apache.kafka.common.metrics: warn
+    org.apache.kafka.common.utils.AppInfoParser: warn
+    org.apache.kafka.common.telemetry: warn
     org.folio.spring.config.*: debug
     org.folio.spring.filter.IncomingRequestLoggingFilter: debug
     org.folio.spring.client.ExchangeLoggingInterceptor: debug

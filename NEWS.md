@@ -2,6 +2,7 @@
 ### Breaking changes
 * Migrate to Spring Boot 4 ([MSEARCH-1104](https://folio-org.atlassian.net/browse/MSEARCH-1104))
 * Delete deprecated stream resource ids endpoints ([MSEARCH-1053](https://folio-org.atlassian.net/browse/MSEARCH-1053))
+* Remove runReindex parameter support for enabling module for tenant ([MSEARCH-1180](https://folio-org.atlassian.net/browse/MSEARCH-1180))
 * Remove unused fields from the response body and enhance fields handling in OpenSearch responses ([MSEARCH-1060](https://folio-org.atlassian.net/browse/MSEARCH-1060))
 * Linked Data: Change 'Ean' Identifier to 'IAN' Identifier to be consistent with the terminology used in mod-linked-data ([MSEARCH-1061](https://folio-org.atlassian.net/browse/MSEARCH-1061))
 
@@ -73,6 +74,7 @@
   * Add error handling on upload range processing ([MSEARCH-1151](https://folio-org.atlassian.net/browse/MSEARCH-1151))
   * Ignore shadow locations and location units while indexing domain events ([MSEARCH-1154](https://folio-org.atlassian.net/browse/MSEARCH-1154))
   * Add support for exact match on isbn, honor '*' in IsbnSearchTermProcessor ([MSEARCH-1011](https://folio-org.atlassian.net/browse/MSEARCH-1011))
+  * Update instance_call_number tenantId on Instance becoming shared ([MSEARCH-1168](https://folio-org.atlassian.net/browse/MSEARCH-1168))
 
 ### Tech Dept
 * Migrate to Opensearch 3.0.0 ([MSEARCH-1033](https://folio-org.atlassian.net/browse/MSEARCH-1033))

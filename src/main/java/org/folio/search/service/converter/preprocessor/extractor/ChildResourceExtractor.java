@@ -2,9 +2,6 @@ package org.folio.search.service.converter.preprocessor.extractor;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.mapping;
-import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.MapUtils.getObject;
 import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
 
@@ -49,18 +46,6 @@ public abstract class ChildResourceExtractor {
       entities.addAll(entitiesFromEvent);
     });
     repository.saveAll(new ChildResourceEntityBatch(new ArrayList<>(entities), relations));
-  }
-
-  public void persistChildrenForResourceSharing(boolean shared, List<ResourceEvent> events) {
-    var eventsForSharingByTenant = events.stream()
-      .collect(groupingBy(ResourceEvent::getTenant, mapping(ResourceEvent::getId, toList())));
-    eventsForSharingByTenant.forEach((tenant, instanceIds) -> {
-      if (shared) {
-        log.warn("Update event for instance sharing is supposed to be for member tenant,"
-                 + " but received for central tenant: {}, eventId: {}", tenant, String.join(",", instanceIds));
-      }
-      repository.deleteByInstanceIds(instanceIds, tenant);
-    });
   }
 
   protected abstract List<Map<String, Object>> constructRelations(boolean shared, ResourceEvent event,

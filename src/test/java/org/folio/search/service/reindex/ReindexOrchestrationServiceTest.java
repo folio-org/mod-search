@@ -1,6 +1,8 @@
 package org.folio.search.service.reindex;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.emptyList;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -9,12 +11,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.folio.s3.client.FolioS3Client;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.exception.ReindexException;
+import org.folio.search.model.event.ReindexFileReadyEvent;
 import org.folio.search.model.event.ReindexRangeIndexEvent;
 import org.folio.search.model.event.ReindexRecordType;
 import org.folio.search.model.event.ReindexRecordsEvent;
@@ -25,9 +30,11 @@ import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexRangeStatus;
 import org.folio.search.repository.PrimaryResourceRepository;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
+import org.folio.search.utils.JsonConverter;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -47,6 +54,10 @@ class ReindexOrchestrationServiceTest {
   private PrimaryResourceRepository elasticRepository;
   @Mock
   private MultiTenantSearchDocumentConverter documentConverter;
+  @Mock
+  private JsonConverter jsonConverter;
+  @Mock
+  private FolioS3Client folioS3Client;
 
   @InjectMocks
   private ReindexOrchestrationService service;
@@ -196,6 +207,26 @@ class ReindexOrchestrationServiceTest {
 
     verifyNoMoreInteractions(mergeRangeIndexService);
     verifyNoMoreInteractions(reindexStatusService);
+  }
+
+  @Test
+  void process_positive_reindexFileReadyEvent() {
+    var rangeId = UUID.randomUUID().toString();
+    var event = new ReindexFileReadyEvent("diku", ReindexRecordType.INSTANCE, rangeId, UUID.randomUUID().toString(),
+      "bucket", "object-key", "2026-03-02T00:00:00.000Z");
+    var line = "{\"id\":\"ddc29cbf-f2f5-4f6a-9411-359d6274478e\"}";
+    var record = Map.<String, Object>of("id", "ddc29cbf-f2f5-4f6a-9411-359d6274478e");
+    service.setFolioS3Client(folioS3Client);
+    when(folioS3Client.read(event.getObjectKey())).thenReturn(new ByteArrayInputStream((line + "\n").getBytes(UTF_8)));
+    when(jsonConverter.fromJsonToMap(line)).thenReturn(record);
+
+    service.process(event);
+
+    var eventCaptor = ArgumentCaptor.forClass(ReindexRecordsEvent.class);
+    verify(mergeRangeIndexService).saveEntities(eventCaptor.capture());
+    assertEquals(List.of(record), eventCaptor.getValue().getRecords());
+    verify(reindexStatusService).addProcessedMergeRanges(ReindexEntityType.INSTANCE, 1);
+    verify(mergeRangeIndexService).updateStatus(ReindexEntityType.INSTANCE, rangeId, ReindexRangeStatus.SUCCESS, null);
   }
 
   private ReindexRangeIndexEvent reindexEvent() {

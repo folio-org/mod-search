@@ -103,7 +103,7 @@ public class ReindexOrchestrationService {
       String line;
       while ((line = reader.readLine()) != null) {
         if (!line.isBlank()) {
-          batch.add(jsonConverter.convertToMap(line));
+          batch.add(jsonConverter.fromJsonToMap(line));
         }
         if (batch.size() >= BATCH_SIZE) {
           var reindexRecordsEvent = new ReindexRecordsEvent();

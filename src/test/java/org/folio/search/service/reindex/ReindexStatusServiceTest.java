@@ -179,4 +179,46 @@ class ReindexStatusServiceTest {
     // assert
     verify(statusRepository).setMergeInProgress(entityTypes);
   }
+
+  @Test
+  void isReindexInProgress_trueWhenMerge() {
+    // given
+    when(statusRepository.getReindexStatuses()).thenReturn(List.of(
+      new ReindexStatusEntity(ReindexEntityType.INSTANCE, ReindexStatus.MERGE_IN_PROGRESS),
+      new ReindexStatusEntity(ReindexEntityType.HOLDINGS, ReindexStatus.MERGE_COMPLETED)));
+
+    // act
+    var actual = service.isReindexInProgress();
+
+    // assert
+    assertThat(actual).isTrue();
+  }
+
+  @Test
+  void isReindexInProgress_trueWhenUpload() {
+    // given
+    when(statusRepository.getReindexStatuses()).thenReturn(List.of(
+      new ReindexStatusEntity(ReindexEntityType.INSTANCE, ReindexStatus.UPLOAD_IN_PROGRESS),
+      new ReindexStatusEntity(ReindexEntityType.HOLDINGS, ReindexStatus.MERGE_COMPLETED)));
+
+    // act
+    var actual = service.isReindexInProgress();
+
+    // assert
+    assertThat(actual).isTrue();
+  }
+
+  @Test
+  void isReindexInProgress_false() {
+    // given
+    when(statusRepository.getReindexStatuses()).thenReturn(List.of(
+      new ReindexStatusEntity(ReindexEntityType.INSTANCE, ReindexStatus.UPLOAD_COMPLETED),
+      new ReindexStatusEntity(ReindexEntityType.HOLDINGS, ReindexStatus.MERGE_COMPLETED)));
+
+    // act
+    var actual = service.isReindexInProgress();
+
+    // assert
+    assertThat(actual).isFalse();
+  }
 }

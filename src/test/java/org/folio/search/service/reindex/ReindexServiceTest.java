@@ -268,12 +268,12 @@ class ReindexServiceTest {
 
   private MergeRangeEntity buildMergeRangeEntity(UUID id, String tenant) {
     var bound = UUID.randomUUID().toString();
-    return new MergeRangeEntity(id, INSTANCE, tenant, bound, bound, Timestamp.from(Instant.now()), null, null);
+    return new MergeRangeEntity(id, null, INSTANCE, tenant, bound, bound, Timestamp.from(Instant.now()), null, null);
   }
 
   private MergeRangeEntity createMergeRangeEntity(ReindexEntityType entityType) {
     var id = UUID.randomUUID();
-    return new MergeRangeEntity(id, entityType, TENANT_ID, id.toString(), id.toString(),
+    return new MergeRangeEntity(id, null, entityType, TENANT_ID, id.toString(), id.toString(),
       Timestamp.from(Instant.now()), null, null);
   }
 

@@ -7,6 +7,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.logging.log4j.message.FormattedMessage;
 import org.folio.search.client.InventoryInstanceClient;
 import org.folio.search.client.InventoryReindexRecordsClient;
+import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.exception.FolioIntegrationException;
 import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.InventoryRecordType;
@@ -21,13 +22,16 @@ public class InventoryService {
 
   private final InventoryInstanceClient inventoryInstanceClient;
   private final InventoryReindexRecordsClient reindexRecordsClient;
+  private final ReindexConfigurationProperties reindexConfig;
   private final RetryTemplate retryTemplate;
 
   public InventoryService(InventoryInstanceClient inventoryInstanceClient,
                           InventoryReindexRecordsClient reindexRecordsClient,
+                          ReindexConfigurationProperties reindexConfig,
                           @Qualifier(value = REINDEX_PUBLISH_RANGE_RETRY_TEMPLATE_NAME) RetryTemplate retryTemplate) {
     this.inventoryInstanceClient = inventoryInstanceClient;
     this.reindexRecordsClient = reindexRecordsClient;
+    this.reindexConfig = reindexConfig;
     this.retryTemplate = retryTemplate;
   }
 
@@ -61,13 +65,23 @@ public class InventoryService {
       log.warn("Invalid Range Entity: [rangeEntity: {}]", rangeEntity);
       return;
     }
-
-    var recordsRange = InventoryReindexRecordsClient.constructRequest(
-      rangeEntity.getId().toString(),
-      rangeEntity.getEntityType().getType(),
-      rangeEntity.getLowerId(),
-      rangeEntity.getUpperId());
-
-    retryTemplate.invoke(() -> reindexRecordsClient.publishReindexRecords(recordsRange));
+    retryTemplate.invoke(() -> {
+      if (reindexConfig.getReindexType() == ReindexConfigurationProperties.ReindexType.PUBLISH) {
+        var recordsRange = InventoryReindexRecordsClient.constructRequest(
+          rangeEntity.getId().toString(),
+          rangeEntity.getEntityType().getType(),
+          rangeEntity.getLowerId(),
+          rangeEntity.getUpperId());
+        reindexRecordsClient.publishReindexRecords(recordsRange);
+      } else {
+        var recordsRange = InventoryReindexRecordsClient.constructRequest(
+          rangeEntity.getId().toString(),
+          rangeEntity.getTraceId() == null ? null : rangeEntity.getTraceId().toString(),
+          rangeEntity.getEntityType().getType(),
+          rangeEntity.getLowerId(),
+          rangeEntity.getUpperId());
+        reindexRecordsClient.exportReindexRecords(recordsRange);
+      }
+    });
   }
 }

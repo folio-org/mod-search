@@ -127,10 +127,11 @@ class MergeRangeRepositoriesIT {
     var id2 = UUID.randomUUID();
     var bound1 = id1.toString().replace("-", "");
     var bound2 = id2.toString().replace("-", "");
+    var traceId = UUID.randomUUID();
     var instanceRanges = List.of(
-      new MergeRangeEntity(id1, ReindexEntityType.INSTANCE, "member", bound1, bound1,
+      new MergeRangeEntity(id1, traceId, ReindexEntityType.INSTANCE, "member", bound1, bound1,
         Timestamp.from(Instant.now()), ReindexRangeStatus.SUCCESS, null),
-      new MergeRangeEntity(id2, ReindexEntityType.INSTANCE, "member", bound2, bound2,
+      new MergeRangeEntity(id2, traceId, ReindexEntityType.INSTANCE, "member", bound2, bound2,
         Timestamp.from(Instant.now()), ReindexRangeStatus.FAIL, "fail cause")
     );
 

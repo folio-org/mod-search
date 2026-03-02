@@ -7,6 +7,7 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.message.ParameterizedMessage;
+import org.folio.search.model.event.ReindexFileReadyEvent;
 import org.folio.search.model.event.ReindexRangeIndexEvent;
 import org.folio.search.model.event.ReindexRecordsEvent;
 import org.folio.spring.tools.kafka.FolioKafkaProperties;
@@ -44,6 +45,17 @@ public class ReindexKafkaConfiguration extends KafkaConfiguration {
     CommonErrorHandler commonErrorHandler) {
     var factory = new ConcurrentKafkaListenerContainerFactory<String, ReindexRecordsEvent>();
     var deserializer = new JacksonJsonDeserializer<>(ReindexRecordsEvent.class, false);
+    Map<String, Object> overrideProperties = Map.of(MAX_POLL_RECORDS_CONFIG, 10);
+    factory.setConsumerFactory(getConsumerFactory(deserializer, kafkaProperties, overrideProperties));
+    factory.setCommonErrorHandler(commonErrorHandler);
+    return factory;
+  }
+
+  @Bean
+  public ConcurrentKafkaListenerContainerFactory<String, ReindexFileReadyEvent>
+    reindexFileReadyListenerContainerFactory(CommonErrorHandler commonErrorHandler) {
+    var factory = new ConcurrentKafkaListenerContainerFactory<String, ReindexFileReadyEvent>();
+    var deserializer = new JacksonJsonDeserializer<>(ReindexFileReadyEvent.class, false);
     Map<String, Object> overrideProperties = Map.of(MAX_POLL_RECORDS_CONFIG, 10);
     factory.setConsumerFactory(getConsumerFactory(deserializer, kafkaProperties, overrideProperties));
     factory.setCommonErrorHandler(commonErrorHandler);

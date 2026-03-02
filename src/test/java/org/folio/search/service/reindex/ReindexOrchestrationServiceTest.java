@@ -16,6 +16,7 @@ import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.exception.ReindexException;
 import org.folio.search.model.event.ReindexRangeIndexEvent;
+import org.folio.search.model.event.ReindexRecordType;
 import org.folio.search.model.event.ReindexRecordsEvent;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.types.IndexActionType;
@@ -155,7 +156,7 @@ class ReindexOrchestrationServiceTest {
   void process_positive_reindexRecordsEvent() {
     var event = new ReindexRecordsEvent();
     event.setRangeId(UUID.randomUUID().toString());
-    event.setRecordType(ReindexRecordsEvent.ReindexRecordType.INSTANCE);
+    event.setRecordType(ReindexRecordType.INSTANCE);
     event.setRecords(emptyList());
 
     service.process(event);
@@ -170,7 +171,7 @@ class ReindexOrchestrationServiceTest {
   void process_negative_reindexRecordsEvent_shouldFailMergeOnException() {
     var event = new ReindexRecordsEvent();
     event.setRangeId(UUID.randomUUID().toString());
-    event.setRecordType(ReindexRecordsEvent.ReindexRecordType.INSTANCE);
+    event.setRecordType(ReindexRecordType.INSTANCE);
     event.setRecords(emptyList());
     var failCause = "exception occurred";
     doThrow(new RuntimeException(failCause)).when(mergeRangeIndexService).saveEntities(event);
@@ -187,7 +188,7 @@ class ReindexOrchestrationServiceTest {
   void process_negative_reindexRecordsEvent_shouldNotFailMergeOnPessimisticLockingFailureException() {
     var event = new ReindexRecordsEvent();
     event.setRangeId(UUID.randomUUID().toString());
-    event.setRecordType(ReindexRecordsEvent.ReindexRecordType.INSTANCE);
+    event.setRecordType(ReindexRecordType.INSTANCE);
     event.setRecords(emptyList());
     doThrow(new PessimisticLockingFailureException("Deadlock")).when(mergeRangeIndexService).saveEntities(event);
 

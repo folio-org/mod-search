@@ -19,4 +19,5 @@
   <include file="changes/v5.1/cleanup_temp_resource_ids_tables.xml" relativeToChangelogFile="true"/>
   <include file="changes/v6.0/add-instance-item-columns.xml" relativeToChangelogFile="true"/>
   <include file="changes/v6.0/add-instance-item-sub-resources.xml" relativeToChangelogFile="true"/>
+  <include file="changes/v6.0/add-trace-id-range-column.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 import org.assertj.core.api.Condition;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.integration.folio.InventoryService;
+import org.folio.search.model.event.ReindexRecordType;
 import org.folio.search.model.event.ReindexRecordsEvent;
 import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.InventoryRecordType;
@@ -115,9 +116,9 @@ class ReindexMergeRangeIndexServiceTest {
     assertThat(timestamp).isAfterOrEqualTo(testStartTime);
   }
 
-  @EnumSource(value = ReindexRecordsEvent.ReindexRecordType.class)
+  @EnumSource(value = ReindexRecordType.class)
   @ParameterizedTest
-  void saveEntities(ReindexRecordsEvent.ReindexRecordType recordType) {
+  void saveEntities(ReindexRecordType recordType) {
     var entities = Map.<String, Object>of("id", UUID.randomUUID());
     var event = new ReindexRecordsEvent();
     event.setTenant(TENANT_ID);

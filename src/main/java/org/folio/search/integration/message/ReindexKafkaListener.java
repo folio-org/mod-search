@@ -3,6 +3,7 @@ package org.folio.search.integration.message;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.folio.search.model.event.ReindexFileReadyEvent;
 import org.folio.search.model.event.ReindexRangeIndexEvent;
 import org.folio.search.model.event.ReindexRecordsEvent;
 import org.folio.search.service.consortium.ConsortiumTenantExecutor;
@@ -44,6 +45,19 @@ public class ReindexKafkaListener {
     var event = consumerRecord.value();
     event.setRangeId(consumerRecord.key());
     systemUserScopedExecutionService.executeSystemUserScoped(event.getTenant(),
+      () -> executionService.execute(() -> reindexService.process(event)));
+  }
+
+  @KafkaListener(
+    id = KafkaConstants.REINDEX_RECORDS_FILE_READY_ID,
+    containerFactory = "reindexFileReadyListenerContainerFactory",
+    topicPattern = "#{folioKafkaProperties.listener['reindex-file-ready'].topicPattern}",
+    groupId = "#{folioKafkaProperties.listener['reindex-file-ready'].groupId}",
+    concurrency = "#{folioKafkaProperties.listener['reindex-file-ready'].concurrency}")
+  public void handleReindexFileReadyEvent(ConsumerRecord<String, ReindexFileReadyEvent> consumerRecord) {
+    log.debug("handleReindexRecordsEvent::received reindex event [id={}]", consumerRecord.key());
+    var event = consumerRecord.value();
+    systemUserScopedExecutionService.executeSystemUserScoped(event.getTenantId(),
       () -> executionService.execute(() -> reindexService.process(event)));
   }
 }

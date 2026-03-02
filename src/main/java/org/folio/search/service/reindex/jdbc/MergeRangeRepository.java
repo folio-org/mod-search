@@ -37,8 +37,8 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
     UPDATE %s SET is_deleted = true, last_updated_date = CURRENT_TIMESTAMP WHERE id = ANY (?) AND tenant_id = ?;
     """;
   private static final String INSERT_MERGE_RANGE_SQL = """
-      INSERT INTO %s (id, entity_type, tenant_id, lower, upper, created_at, finished_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?);
+      INSERT INTO %s (id, trace_id, entity_type, tenant_id, lower, upper, created_at, finished_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?);
     """;
 
   private static final String SELECT_MERGE_RANGES_BY_ENTITY_TYPE = "SELECT * FROM %s WHERE entity_type = ?;";
@@ -63,12 +63,13 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
     jdbcTemplate.batchUpdate(INSERT_MERGE_RANGE_SQL.formatted(fullTableName), mergeRanges, BATCH_OPERATION_SIZE,
       (statement, entity) -> {
         statement.setObject(1, entity.getId());
-        statement.setString(2, entity.getEntityType().getType());
-        statement.setString(3, entity.getTenantId());
-        statement.setString(4, entity.getLowerId());
-        statement.setString(5, entity.getUpperId());
-        statement.setTimestamp(6, entity.getCreatedAt());
-        statement.setTimestamp(7, entity.getFinishedAt());
+        statement.setObject(2, entity.getTraceId());
+        statement.setString(3, entity.getEntityType().getType());
+        statement.setString(4, entity.getTenantId());
+        statement.setString(5, entity.getLowerId());
+        statement.setString(6, entity.getUpperId());
+        statement.setTimestamp(7, entity.getCreatedAt());
+        statement.setTimestamp(8, entity.getFinishedAt());
       });
   }
 
@@ -132,6 +133,7 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
     return (rs, rowNum) -> {
       var mergeRange = new MergeRangeEntity(
         rs.getObject(MergeRangeEntity.ID_COLUMN, UUID.class),
+        rs.getObject(MergeRangeEntity.TRACE_ID_COLUMN, UUID.class),
         ReindexEntityType.fromValue(rs.getString(MergeRangeEntity.ENTITY_TYPE_COLUMN)),
         rs.getString(MergeRangeEntity.TENANT_ID_COLUMN),
         rs.getString(MergeRangeEntity.RANGE_LOWER_COLUMN),

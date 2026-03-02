@@ -33,4 +33,16 @@ public class ReindexConfigurationProperties {
   private long mergeRangePublisherRetryIntervalMs = 1000;
 
   private int mergeRangePublisherRetryAttempts = 5;
+
+  /**
+   * Defines a type of reindex process. Default is EXPORT.
+   * EXPORT - will use exported S3 files.
+   * PUBLISH - will use published Kafka messages.
+   */
+  private ReindexType reindexType = ReindexType.EXPORT;
+
+  public enum ReindexType {
+    PUBLISH,
+    EXPORT
+  }
 }

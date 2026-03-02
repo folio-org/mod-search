@@ -31,6 +31,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.folio.search.configuration.kafka.ReindexKafkaConfiguration;
 import org.folio.search.integration.message.ReindexKafkaListener;
 import org.folio.search.model.event.ReindexRangeIndexEvent;
+import org.folio.search.model.event.ReindexRecordType;
 import org.folio.search.model.event.ReindexRecordsEvent;
 import org.folio.search.service.consortium.ConsortiumTenantExecutor;
 import org.folio.search.service.reindex.ReindexOrchestrationService;
@@ -130,7 +131,7 @@ class ReindexKafkaListenerIT {
   void handleReindexRecordsEvent_positive() {
     var indexEvent = new ReindexRecordsEvent();
     indexEvent.setTenant(TENANT_ID);
-    indexEvent.setRecordType(ReindexRecordsEvent.ReindexRecordType.INSTANCE);
+    indexEvent.setRecordType(ReindexRecordType.INSTANCE);
     indexEvent.setRecords(List.of(reindexRecord()));
     var mergeRangeId = UUID.randomUUID().toString();
 

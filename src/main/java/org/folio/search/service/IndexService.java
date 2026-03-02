@@ -101,7 +101,7 @@ public class IndexService {
     var index = indexNameProvider.getIndexName(resourceType, tenantId);
     var settings = prepareIndexDynamicSettings(indexSettings);
 
-    log.info("Attempts to update settings by [indexName: {}, settings: {}]", index, settings);
+    log.info("updateIndexSettings:: Attempting to update settings by [indexName: {}, settings: {}]", index, settings);
     return indexRepository.updateIndexSettings(index, settings.toString());
   }
 
@@ -117,7 +117,7 @@ public class IndexService {
     var index = indexNameProvider.getIndexName(resourceType, tenantId);
     var mappings = mappingHelper.getMappings(resourceType);
 
-    log.info("Attempts to update mappings by [indexName: {}, mappings: {}]", index, mappings);
+    log.info("updateMappings:: Attempting to update mappings by [indexName: {}, mappings: {}]", index, mappings);
     return indexRepository.updateMappings(index, mappings);
   }
 
@@ -131,6 +131,20 @@ public class IndexService {
     var index = indexNameProvider.getIndexName(resourceType, tenantId);
     if (!indexRepository.indexExists(index)) {
       createIndex(resourceType, tenantId);
+    }
+  }
+
+  /**
+   * Creates Elasticsearch index if it is not exist with provided settings.
+   *
+   * @param resourceType - resource name as {@link ResourceType} object.
+   * @param tenantId     - tenant id as {@link String} object
+   * @param indexSettings - index settings as {@link IndexSettings} object
+   */
+  public void createIndexIfNotExist(ResourceType resourceType, String tenantId, IndexSettings indexSettings) {
+    var index = indexNameProvider.getIndexName(resourceType, tenantId);
+    if (!indexRepository.indexExists(index)) {
+      createIndex(resourceType, tenantId, indexSettings);
     }
   }
 
@@ -167,7 +181,7 @@ public class IndexService {
    */
   public ReindexJob reindexInventoryAsync(String resource) {
     var reindexUri = fromUriString(RESOURCE_STORAGE_REINDEX_URI).buildAndExpand(resource).toUri();
-    log.info("reindexInventory:: Starting reindex for uri {}", reindexUri);
+    log.info("reindexInventoryAsync:: Starting reindex for uri {}", reindexUri);
     return resourceReindexClient.submitReindex(reindexUri);
   }
 
@@ -175,13 +189,13 @@ public class IndexService {
    * Runs synchronous locations and location-units reindex in mod-search.
    */
   public ReindexJob reindexInventoryLocations(String tenantId, List<ResourceType> resources) {
-    log.info("reindexLocations:: Starting reindex");
+    log.info("reindexInventoryLocations:: Starting reindex");
     var response = new ReindexJob().id(UUID.randomUUID().toString())
       .jobStatus("Completed")
       .submittedDate(new Date().toString());
 
     resources.forEach(resourceType -> locationService.reindex(tenantId, resourceType));
-    log.info("reindexLocations:: Reindex completed");
+    log.info("reindexInventoryLocations:: Reindex completed");
 
     return response;
   }
@@ -207,7 +221,7 @@ public class IndexService {
     var index = indexNameProvider.getIndexName(resourceName, tenantId);
     var mappings = mappingHelper.getMappings(resourceName);
 
-    log.info("Attempts to create index by [indexName: {}, mappings: {}, settings: {}]",
+    log.info("doCreateIndex:: Attempting to create index by [indexName: {}, mappings: {}, settings: {}]",
       index, mappings, indexSettings);
     return indexRepository.createIndex(index, indexSettings, mappings);
   }

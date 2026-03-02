@@ -18,6 +18,7 @@ import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.entity.ChildResourceEntityBatch;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.reindex.ReindexConstants;
+import org.folio.search.service.reindex.ReindexContext;
 import org.folio.search.utils.JdbcUtils;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
@@ -129,10 +130,20 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
       VALUES (?, ?, ?, ?)
       ON CONFLICT (id) DO UPDATE SET last_updated_date = CURRENT_TIMESTAMP;
     """;
+  private static final String INSERT_STAGING_ENTITIES_SQL = """
+      INSERT INTO %s.staging_contributor (id, name, name_type_id, authority_id, inserted_at)
+      VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+      ON CONFLICT (id) DO NOTHING;
+    """;
   private static final String INSERT_RELATIONS_SQL = """
       INSERT INTO %s.instance_contributor (instance_id, contributor_id, type_id, tenant_id, shared)
       VALUES (?::uuid, ?, ?, ?, ?)
       ON CONFLICT DO NOTHING;
+    """;
+
+  private static final String INSERT_STAGING_RELATIONS_SQL = """
+      INSERT INTO %s.staging_instance_contributor (instance_id, contributor_id, type_id, tenant_id, shared, inserted_at)
+      VALUES (?::uuid, ?, ?, ?, ?, CURRENT_TIMESTAMP);
     """;
 
   private static final String ID_RANGE_INS_WHERE_CLAUSE = "ins.contributor_id >= ? AND ins.contributor_id <= ?";
@@ -142,6 +153,37 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
                                   FolioExecutionContext context,
                                   ReindexConfigurationProperties reindexConfig) {
     super(jdbcTemplate, jsonConverter, context, reindexConfig);
+  }
+
+  @Override
+  public ReindexEntityType entityType() {
+    return ReindexEntityType.CONTRIBUTOR;
+  }
+
+  @Override
+  protected String entityTable() {
+    return ReindexConstants.CONTRIBUTOR_TABLE;
+  }
+
+  @Override
+  protected Optional<String> subEntityTable() {
+    return Optional.of(ReindexConstants.INSTANCE_CONTRIBUTOR_TABLE);
+  }
+
+  @Override
+  protected Optional<String> stagingEntityTable() {
+    return Optional.of(ReindexConstants.STAGING_CONTRIBUTOR_TABLE);
+  }
+
+  @Override
+  protected Optional<String> subEntityStagingTable() {
+    return Optional.of(ReindexConstants.STAGING_INSTANCE_CONTRIBUTOR_TABLE);
+  }
+
+  @Override
+  protected boolean supportsTenantSpecificDeletion() {
+    // Contributor table doesn't have tenant_id column - it's shared across tenants
+    return false;
   }
 
   @Override
@@ -185,31 +227,26 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
   }
 
   @Override
-  public ReindexEntityType entityType() {
-    return ReindexEntityType.CONTRIBUTOR;
-  }
-
-  @Override
-  protected String entityTable() {
-    return ReindexConstants.CONTRIBUTOR_TABLE;
-  }
-
-  @Override
-  protected Optional<String> subEntityTable() {
-    return Optional.of(ReindexConstants.INSTANCE_CONTRIBUTOR_TABLE);
-  }
-
-  @Override
   public void deleteByInstanceIds(List<String> instanceIds, String tenantId) {
     deleteByInstanceIds(DELETE_QUERY, instanceIds, tenantId);
   }
 
   @Override
-  @SuppressWarnings("checkstyle:MethodLength")
   public void saveAll(ChildResourceEntityBatch entityBatch) {
+    // Use staging tables only for member tenant specific full reindex
+    if (ReindexContext.isReindexMode() && ReindexContext.isMemberTenantReindex()) {
+      saveEntitiesToStaging(entityBatch.resourceEntities().stream().toList());
+      saveRelationshipsToStaging(entityBatch.relationshipEntities().stream().toList());
+    } else {
+      saveEntitiesToMain(entityBatch.resourceEntities().stream().toList());
+      saveRelationshipsToMain(entityBatch.relationshipEntities().stream().toList());
+    }
+  }
+
+  private void saveEntitiesToMain(List<Map<String, Object>> entities) {
     var entitiesSql = INSERT_ENTITIES_SQL.formatted(JdbcUtils.getSchemaName(context));
     try {
-      jdbcTemplate.batchUpdate(entitiesSql, entityBatch.resourceEntities(), BATCH_OPERATION_SIZE,
+      jdbcTemplate.batchUpdate(entitiesSql, entities, BATCH_OPERATION_SIZE,
         (statement, entity) -> {
           statement.setString(1, (String) entity.get("id"));
           statement.setString(2, (String) entity.get("name"));
@@ -218,15 +255,45 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
         });
     } catch (DataAccessException e) {
       logWarnDebugError(SAVE_ENTITIES_BATCH_ERROR_MESSAGE, e);
-      for (var entity : entityBatch.resourceEntities()) {
-        jdbcTemplate.update(entitiesSql,
-          entity.get("id"), entity.get("name"), entity.get("nameTypeId"), entity.get(AUTHORITY_ID_FIELD));
+      for (var entity : entities) {
+        try {
+          jdbcTemplate.update(entitiesSql,
+            entity.get("id"), entity.get("name"), entity.get("nameTypeId"), entity.get(AUTHORITY_ID_FIELD));
+        } catch (DataAccessException ex) {
+          log.debug("Failed to save contributor entity {}: {}", entity.get("id"), ex.getMessage());
+        }
       }
     }
+  }
 
+  private void saveEntitiesToStaging(List<Map<String, Object>> entities) {
+    var stagingEntitiesSql = INSERT_STAGING_ENTITIES_SQL.formatted(JdbcUtils.getSchemaName(context));
+    try {
+      jdbcTemplate.batchUpdate(stagingEntitiesSql, entities, BATCH_OPERATION_SIZE,
+        (statement, entity) -> {
+          statement.setString(1, (String) entity.get("id"));
+          statement.setString(2, (String) entity.get("name"));
+          statement.setString(3, (String) entity.get("nameTypeId"));
+          statement.setString(4, (String) entity.get(AUTHORITY_ID_FIELD));
+        });
+    } catch (DataAccessException e) {
+      log.warn("saveEntitiesToStaging::Failed to save entities batch. Processing one-by-one", e);
+      for (var entity : entities) {
+        try {
+          jdbcTemplate.update(stagingEntitiesSql, entity.get("id"), entity.get("name"),
+            entity.get("nameTypeId"), entity.get(AUTHORITY_ID_FIELD));
+        } catch (DataAccessException ex) {
+          log.debug("Failed to save staging contributor entity {}: {}", entity.get("id"), ex.getMessage());
+        }
+      }
+    }
+    log.debug("Saved {} contributor entities to staging table", entities.size());
+  }
+
+  private void saveRelationshipsToMain(List<Map<String, Object>> relationships) {
     var relationsSql = INSERT_RELATIONS_SQL.formatted(JdbcUtils.getSchemaName(context));
     try {
-      jdbcTemplate.batchUpdate(relationsSql, entityBatch.relationshipEntities(), BATCH_OPERATION_SIZE,
+      jdbcTemplate.batchUpdate(relationsSql, relationships, BATCH_OPERATION_SIZE,
         (statement, entityRelation) -> {
           statement.setObject(1, entityRelation.get("instanceId"));
           statement.setString(2, (String) entityRelation.get("contributorId"));
@@ -236,11 +303,55 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
         });
     } catch (DataAccessException e) {
       logWarnDebugError(SAVE_RELATIONS_BATCH_ERROR_MESSAGE, e);
-      for (var entityRelation : entityBatch.relationshipEntities()) {
-        jdbcTemplate.update(relationsSql, entityRelation.get("instanceId"), entityRelation.get("contributorId"),
-          entityRelation.get(CONTRIBUTOR_TYPE_FIELD), entityRelation.get("tenantId"), entityRelation.get("shared"));
+      for (var entityRelation : relationships) {
+        try {
+          jdbcTemplate.update(relationsSql, entityRelation.get("instanceId"), entityRelation.get("contributorId"),
+            entityRelation.get(CONTRIBUTOR_TYPE_FIELD), entityRelation.get("tenantId"), entityRelation.get("shared"));
+        } catch (DataAccessException ex) {
+          log.debug("Failed to save contributor relationship for {}: {}",
+            entityRelation.get("contributorId"), ex.getMessage());
+        }
       }
     }
+  }
+
+  private void saveRelationshipsToStaging(List<Map<String, Object>> relationships) {
+    var stagingRelationsSql = INSERT_STAGING_RELATIONS_SQL.formatted(JdbcUtils.getSchemaName(context));
+    try {
+      jdbcTemplate.batchUpdate(stagingRelationsSql, relationships, BATCH_OPERATION_SIZE,
+        (statement, entityRelation) -> {
+          statement.setObject(1, entityRelation.get("instanceId"));
+          statement.setString(2, (String) entityRelation.get("contributorId"));
+          statement.setString(3, (String) entityRelation.get(CONTRIBUTOR_TYPE_FIELD));
+          statement.setString(4, (String) entityRelation.get("tenantId"));
+          statement.setObject(5, entityRelation.get("shared"));
+        });
+    } catch (DataAccessException e) {
+      log.warn("saveRelationshipsToStaging::Failed to save relationships batch. Processing one-by-one", e);
+      retrySaveRelationshipsToStagingOneByOne(stagingRelationsSql, relationships);
+    }
+    log.debug("Saved {} contributor relationships to staging table", relationships.size());
+  }
+
+  private void retrySaveRelationshipsToStagingOneByOne(String sql, List<Map<String, Object>> relationships) {
+    for (var entityRelation : relationships) {
+      try {
+        jdbcTemplate.update(sql, entityRelation.get("instanceId"),
+          entityRelation.get("contributorId"), entityRelation.get(CONTRIBUTOR_TYPE_FIELD),
+          entityRelation.get("tenantId"), entityRelation.get("shared"));
+      } catch (DataAccessException ex) {
+        log.debug("Failed to save staging contributor relationship for {}: {}",
+          entityRelation.get("contributorId"), ex.getMessage());
+      }
+    }
+  }
+
+  @Override
+  public List<Map<String, Object>> fetchByIdRangeWithTimestamp(String lower, String upper, Timestamp timestamp) {
+    var sql = SELECT_QUERY.formatted(JdbcUtils.getSchemaName(context),
+      ID_RANGE_INS_WHERE_CLAUSE,
+      ID_RANGE_CONTR_WHERE_CLAUSE + " AND c.last_updated_date = ?");
+    return jdbcTemplate.query(sql, rowToMapMapper(), lower, upper, lower, upper, timestamp);
   }
 
   protected RowMapper<Map<String, Object>> rowToMapMapper2() {

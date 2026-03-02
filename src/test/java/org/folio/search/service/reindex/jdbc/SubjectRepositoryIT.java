@@ -6,6 +6,7 @@ import static org.folio.search.utils.SearchUtils.AUTHORITY_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.SUBJECT_SOURCE_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.SUBJECT_TYPE_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.SUBJECT_VALUE_FIELD;
+import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
@@ -138,7 +139,7 @@ class SubjectRepositoryIT {
       .contains(
         tuple("Sci-Fi", List.of(
           Map.of("count", 1, "shared", true, "tenantId", "consortium"),
-          Map.of("count", 1, "shared", false, "tenantId", "member_tenant"))));
+          Map.of("count", 1, "shared", false, "tenantId", MEMBER_TENANT_ID))));
   }
 
   @Test

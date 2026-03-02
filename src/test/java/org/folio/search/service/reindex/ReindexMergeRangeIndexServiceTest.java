@@ -55,6 +55,7 @@ class ReindexMergeRangeIndexServiceTest {
   private @Mock InventoryService inventoryService;
   private @Mock ReindexConfigurationProperties config;
   private @Mock InstanceChildrenResourceService instanceChildrenResourceService;
+  private @Mock StagingMigrationService stagingMigrationService;
 
   private ReindexMergeRangeIndexService service;
   private Map<ReindexEntityType, MergeRangeRepository> repositoryMap;
@@ -63,7 +64,8 @@ class ReindexMergeRangeIndexServiceTest {
   void setUp() {
     var repositories = List.of(instanceRepository, itemRepository, holdingRepository);
     repositories.forEach(repository -> when(repository.entityType()).thenCallRealMethod());
-    service = new ReindexMergeRangeIndexService(repositories, inventoryService, config);
+    // Create service with unified repositories
+    service = new ReindexMergeRangeIndexService(repositories, inventoryService, config, stagingMigrationService);
     service.setInstanceChildrenResourceService(instanceChildrenResourceService);
     repositoryMap = repositories.stream()
       .collect(Collectors.toMap(ReindexJdbcRepository::entityType, Function.identity()));

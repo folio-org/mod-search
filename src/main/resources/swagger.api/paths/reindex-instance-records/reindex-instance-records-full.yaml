@@ -8,10 +8,10 @@ post:
     content:
       application/json:
         examples:
-          indexSettings:
-            $ref: '../../examples/request/indexSettings.yaml'
+          reindexFullRequest:
+            $ref: '../../examples/request/reindexFullRequest.yaml'
         schema:
-          $ref: '../../schemas/entity/indexSettings.yaml'
+          $ref: '../../schemas/request/reindexFullRequest.yaml'
   parameters:
     - $ref: '../../parameters/x-okapi-tenant-header.yaml'
   responses:

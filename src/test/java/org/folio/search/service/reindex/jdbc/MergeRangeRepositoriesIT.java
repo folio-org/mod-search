@@ -19,6 +19,7 @@ import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexRangeStatus;
 import org.folio.search.service.consortium.ConsortiumTenantProvider;
+import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
@@ -49,6 +50,7 @@ class MergeRangeRepositoriesIT {
   private @Autowired JdbcTemplate jdbcTemplate;
   private @MockitoBean FolioExecutionContext context;
   private @MockitoBean ConsortiumTenantProvider tenantProvider;
+  private @MockitoBean ConsortiumTenantService consortiumTenantService;
   private @MockitoBean ReindexConfigurationProperties reindexConfig;
   private HoldingRepository holdingRepository;
   private ItemRepository itemRepository;
@@ -64,7 +66,8 @@ class MergeRangeRepositoriesIT {
     itemRepository = new ItemRepository(jdbcTemplate, jsonConverter, context, searchConfig);
     instanceRepository =
       new MergeInstanceRepository(jdbcTemplate, jsonConverter, context, tenantProvider, searchConfig);
-    uploadInstanceRepository = new UploadInstanceRepository(jdbcTemplate, jsonConverter, context, reindexConfig);
+    uploadInstanceRepository = new UploadInstanceRepository(jdbcTemplate, jsonConverter, context,
+      reindexConfig, consortiumTenantService);
     when(context.getFolioModuleMetadata()).thenReturn(new FolioModuleMetadata() {
       @Override
       public String getModuleName() {
@@ -105,13 +108,13 @@ class MergeRangeRepositoriesIT {
       .are(new Condition<>(range -> range.getEntityType() == ReindexEntityType.HOLDINGS, "holding range"))
       .extracting(MergeRangeEntity::getId, MergeRangeEntity::getTenantId)
       .containsExactly(tuple(UUID.fromString("b7df83a1-8b15-46c1-9a4c-9d2dbb3cf4d6"), "consortium"),
-        tuple(UUID.fromString("dfb20d52-7f1f-4b5b-a492-2e47d2c0ac59"), "member_tenant"));
+        tuple(UUID.fromString("dfb20d52-7f1f-4b5b-a492-2e47d2c0ac59"), MEMBER_TENANT_ID));
 
     assertThat(rangesItem)
       .hasSize(1)
       .are(new Condition<>(range -> range.getEntityType() == ReindexEntityType.ITEM, "item range"))
       .extracting(MergeRangeEntity::getId, MergeRangeEntity::getTenantId)
-      .containsExactly(tuple(UUID.fromString("2f23b9fa-9e1a-44ff-a30f-61ec5f3adcc8"), "member_tenant"));
+      .containsExactly(tuple(UUID.fromString("2f23b9fa-9e1a-44ff-a30f-61ec5f3adcc8"), MEMBER_TENANT_ID));
 
     assertThat(rangesInstance)
       .hasSize(1)

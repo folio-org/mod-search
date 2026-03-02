@@ -1,0 +1,9 @@
+description: Full reindex request with optional tenant filtering
+type: object
+properties:
+  tenantId:
+    type: string
+    description: Optional specific tenant ID to reindex. If not provided, reindexes all consortium members.
+    pattern: '^[a-zA-Z0-9_.-]+$'
+  indexSettings:
+    $ref: '../entity/indexSettings.yaml'

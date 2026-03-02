@@ -93,6 +93,12 @@ folio:
     merge-range-publisher-max-pool-size: ${REINDEX_MERGE_RANGE_PUBLISHER_MAX_POOL_SIZE:6}
     merge-range-publisher-retry-interval-ms: ${REINDEX_MERGE_RANGE_PUBLISHER_RETRY_INTERVAL_MS:1000}
     merge-range-publisher-retry-attempts: ${REINDEX_MERGE_RANGE_PUBLISHER_RETRY_ATTEMPTS:5}
+    migration-work-mem: ${REINDEX_MIGRATION_WORK_MEM:64MB}
+  index-management:
+    delete-query-batch-size: ${DELETE_QUERY_BATCH_SIZE:1000}
+    delete-query-scroll-timeout-minutes: ${DELETE_QUERY_SCROLL_TIMEOUT_MINUTES:5}
+    delete-query-request-timeout-minutes: ${DELETE_QUERY_REQUEST_TIMEOUT_MINUTES:30}
+    delete-query-refresh: ${DELETE_QUERY_REFRESH:false}
   query:
     properties:
       request-timeout: ${SEARCH_QUERY_TIMEOUT:25s}

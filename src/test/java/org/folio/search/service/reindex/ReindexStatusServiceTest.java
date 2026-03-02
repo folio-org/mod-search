@@ -2,10 +2,12 @@ package org.folio.search.service.reindex;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.exception.RequestValidationException.REQUEST_NOT_ALLOWED_MSG;
+import static org.folio.search.exception.RequestValidationException.REQUEST_NOT_ALLOWED_FOR_CONSORTIUM_MEMBER_MSG;
 import static org.folio.search.model.types.ReindexEntityType.HOLDINGS;
 import static org.folio.search.model.types.ReindexEntityType.INSTANCE;
+import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.support.TestConstants.TENANT_ID;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -82,7 +84,7 @@ class ReindexStatusServiceTest {
 
     var ex = Assertions.assertThrows(RequestValidationException.class, () -> service.getReindexStatuses(TENANT_ID));
 
-    assertThat(ex.getMessage()).isEqualTo(REQUEST_NOT_ALLOWED_MSG);
+    assertThat(ex.getMessage()).isEqualTo(REQUEST_NOT_ALLOWED_FOR_CONSORTIUM_MEMBER_MSG);
     assertThat(ex.getKey()).isEqualTo(XOkapiHeaders.TENANT);
     assertThat(ex.getValue()).isEqualTo(TENANT_ID);
     verifyNoInteractions(statusRepository);
@@ -154,10 +156,11 @@ class ReindexStatusServiceTest {
   @Test
   void shouldRecreateMergeReindexStatusEntities() {
     // act
-    service.recreateMergeStatusRecords();
+    service.recreateMergeStatusRecords(null);
 
     // assert
     verify(statusRepository).truncate();
+    verify(statusRepository).recreateReindexStatusTrigger(false);
     verify(statusRepository).saveReindexStatusRecords(reindexStatusEntitiesCaptor.capture());
     var savedEntities = reindexStatusEntitiesCaptor.getValue();
     assertThat(savedEntities)
@@ -178,5 +181,182 @@ class ReindexStatusServiceTest {
 
     // assert
     verify(statusRepository).setMergeInProgress(entityTypes);
+  }
+
+  @Test
+  void recreateMergeStatusRecords_withTargetTenantId() {
+    // given
+    var targetTenantId = MEMBER_TENANT_ID;
+
+    // act
+    service.recreateMergeStatusRecords(targetTenantId);
+
+    // assert
+    verify(statusRepository).truncate();
+    verify(statusRepository).recreateReindexStatusTrigger(true);
+    verify(statusRepository).saveReindexStatusRecords(reindexStatusEntitiesCaptor.capture());
+
+    var savedEntities = reindexStatusEntitiesCaptor.getValue();
+    assertThat(savedEntities)
+      .hasSize(ReindexEntityType.supportMergeTypes().size())
+      .allMatch(entity -> targetTenantId.equals(entity.getTargetTenantId()),
+        "All entities should have targetTenantId set");
+  }
+
+  @Test
+  void recreateUploadStatusRecord_shouldPreserveTargetTenantId() {
+    // given
+    var targetTenantId = MEMBER_TENANT_ID;
+
+    // act
+    service.recreateUploadStatusRecord(INSTANCE, targetTenantId);
+
+    // assert
+    verify(statusRepository).delete(INSTANCE);
+    verify(statusRepository).saveReindexStatusRecords(reindexStatusEntitiesCaptor.capture());
+
+    var savedEntities = reindexStatusEntitiesCaptor.getValue();
+    assertThat(savedEntities)
+      .hasSize(1)
+      .first()
+      .satisfies(entity -> assertThat(entity.getEntityType()).isEqualTo(INSTANCE))
+      .satisfies(entity -> assertThat(entity.getStatus()).isEqualTo(ReindexStatus.UPLOAD_IN_PROGRESS))
+      .satisfies(entity -> assertThat(entity.getTargetTenantId()).isEqualTo(targetTenantId));
+  }
+
+  @Test
+  void recreateUploadStatusRecord_whenNoExistingTargetTenantId_shouldSetNull() {
+    // act
+    service.recreateUploadStatusRecord(INSTANCE, null);
+
+    // assert
+    verify(statusRepository).delete(INSTANCE);
+    verify(statusRepository).saveReindexStatusRecords(reindexStatusEntitiesCaptor.capture());
+
+    var savedEntities = reindexStatusEntitiesCaptor.getValue();
+    assertThat(savedEntities)
+      .hasSize(1)
+      .first()
+      .satisfies(entity -> assertThat(entity.getTargetTenantId()).isNull());
+  }
+
+  @Test
+  void updateStagingStarted_shouldSetStagingStartTimeForAllMergeTypes() {
+    // act
+    service.updateStagingStarted();
+
+    // assert
+    verify(statusRepository).setStagingStarted(ReindexEntityType.supportMergeTypes());
+  }
+
+  @Test
+  void updateStagingCompleted_shouldSetStagingEndTimeForAllMergeTypes() {
+    // act
+    service.updateStagingCompleted();
+
+    // assert
+    verify(statusRepository).setStagingCompleted(ReindexEntityType.supportMergeTypes());
+  }
+
+  @Test
+  void updateStagingFailed_shouldSetStatusAndEndTimeForAllMergeTypes() {
+    // act
+    service.updateStagingFailed();
+
+    // assert
+    verify(statusRepository).setStagingFailed(ReindexEntityType.supportMergeTypes());
+  }
+
+  @Test
+  void isMergeCompleted_shouldReturnRepositoryResult() {
+    // given
+    when(statusRepository.isMergeCompleted()).thenReturn(true);
+
+    // act
+    var result = service.isMergeCompleted();
+
+    // assert
+    assertThat(result).isTrue();
+    verify(statusRepository).isMergeCompleted();
+  }
+
+  @Test
+  void isMergeCompleted_shouldReturnFalseWhenNotCompleted() {
+    // given
+    when(statusRepository.isMergeCompleted()).thenReturn(false);
+
+    // act
+    var result = service.isMergeCompleted();
+
+    // assert
+    assertThat(result).isFalse();
+    verify(statusRepository).isMergeCompleted();
+  }
+
+  @Test
+  void getStatusesByType_shouldReturnMapOfStatusesByEntityType() {
+    // given
+    var statusEntities = List.of(
+      new ReindexStatusEntity(INSTANCE, ReindexStatus.MERGE_COMPLETED),
+      new ReindexStatusEntity(HOLDINGS, ReindexStatus.UPLOAD_IN_PROGRESS)
+    );
+    when(statusRepository.getReindexStatuses()).thenReturn(statusEntities);
+
+    // act
+    var result = service.getStatusesByType();
+
+    // assert
+    assertThat(result)
+      .hasSize(2)
+      .containsEntry(INSTANCE, ReindexStatus.MERGE_COMPLETED)
+      .containsEntry(HOLDINGS, ReindexStatus.UPLOAD_IN_PROGRESS);
+  }
+
+  @Test
+  void getTargetTenantId_shouldReturnValueFromRepository() {
+    // given
+    var expectedTenantId = MEMBER_TENANT_ID;
+    when(statusRepository.getTargetTenantId()).thenReturn(expectedTenantId);
+
+    // act
+    var result = service.getTargetTenantId();
+
+    // assert
+    assertThat(result).isEqualTo(expectedTenantId);
+    verify(statusRepository).getTargetTenantId();
+  }
+
+  @Test
+  void getTargetTenantId_shouldReturnNullWhenNoTargetTenant() {
+    // given
+    when(statusRepository.getTargetTenantId()).thenReturn(null);
+
+    // act
+    var result = service.getTargetTenantId();
+
+    // assert
+    assertThat(result).isNull();
+    verify(statusRepository).getTargetTenantId();
+  }
+
+  @Test
+  void recreateMergeStatusRecords_shouldClearCache() {
+    // given
+    when(statusRepository.getTargetTenantId()).thenReturn("tenant1");
+
+    // Cache a value
+    service.getTargetTenantId();
+    verify(statusRepository, times(1)).getTargetTenantId();
+
+    // act - recreate status records should clear cache
+    service.recreateMergeStatusRecords("new_tenant");
+
+    // Cache should be cleared, so next call should hit repository again
+    when(statusRepository.getTargetTenantId()).thenReturn("new_tenant");
+    var result = service.getTargetTenantId();
+
+    // assert
+    assertThat(result).isEqualTo("new_tenant");
+    verify(statusRepository, times(2)).getTargetTenantId();
   }
 }

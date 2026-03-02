@@ -7,8 +7,10 @@ import org.folio.spring.integration.XOkapiHeaders;
 @Getter
 public class RequestValidationException extends BaseSearchException {
 
-  public static final String REQUEST_NOT_ALLOWED_MSG =
+  public static final String REQUEST_NOT_ALLOWED_FOR_CONSORTIUM_MEMBER_MSG =
     "The request not allowed for member tenant of consortium environment";
+  public static final String REQUEST_NOT_ALLOWED_WITH_TARGET_TENANT_MSG =
+    "Target tenant ID is allowed only from consortium central tenant with a value of consortium member tenant";
 
   private final String key;
   private final String value;
@@ -28,6 +30,11 @@ public class RequestValidationException extends BaseSearchException {
   }
 
   public static RequestValidationException memberTenantNotAllowedException(String tenantId) {
-    return new RequestValidationException(REQUEST_NOT_ALLOWED_MSG, XOkapiHeaders.TENANT, tenantId);
+    return new RequestValidationException(REQUEST_NOT_ALLOWED_FOR_CONSORTIUM_MEMBER_MSG,
+      XOkapiHeaders.TENANT, tenantId);
+  }
+
+  public static RequestValidationException targetTenantNotAllowedException(String targetTenantId) {
+    return new RequestValidationException(REQUEST_NOT_ALLOWED_WITH_TARGET_TENANT_MSG, "targetTenantId", targetTenantId);
   }
 }

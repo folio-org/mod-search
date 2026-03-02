@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_TYPE_FIELD;
+import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
@@ -90,7 +91,7 @@ class ContributorRepositoryIT {
         tuple("Sci-Fi", List.of(
           Map.of("count", 1, "shared", true, "tenantId", "consortium",
             "typeId", List.of("aab8fff4-49c6-4578-979e-439b6ba3600b")),
-            Map.of("count", 1, "shared", false, "tenantId", "member_tenant",
+            Map.of("count", 1, "shared", false, "tenantId", MEMBER_TENANT_ID,
               "typeId", List.of("9ec55e4f-6a76-427c-b47b-197046f44a53")))));
   }
 

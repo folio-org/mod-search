@@ -1,0 +1,6 @@
+value:
+  tenantId: "college"
+  indexSettings:
+    numberOfShards: 1
+    numberOfReplicas: 1
+    refreshInterval: 1

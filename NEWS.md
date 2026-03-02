@@ -37,6 +37,7 @@
   * Omit sub-resource if main value is blank ([MSEARCH-1084](https://folio-org.atlassian.net/browse/MSEARCH-1084))
   * Remove excessive escaping of backslash character in sub-resources ([MSEARCH-1094](https://folio-org.atlassian.net/browse/MSEARCH-1094))
   * Implement two-stage Kafka processing with event aggregation for instance indexing ([MSEARCH-1157](https://folio-org.atlassian.net/browse/MSEARCH-1157))
+  * Add EXPORT-based merge ingestion for reindex using file-ready Kafka events and S3-backed record files ([MSEARCH-1175](https://folio-org.atlassian.net/browse/MSEARCH-1175))
 * **Instance Search**
   * Add support for searching by instance/holdings/item electronic access relationship ID ([MSEARCH-816](https://folio-org.atlassian.net/browse/MSEARCH-816))
   * Normalize ISSN search ([MSEARCH-658](https://folio-org.atlassian.net/browse/MSEARCH-658))
@@ -90,6 +91,7 @@
 * Use GitHub Workflows for builds ([MSEARCH-1158](https://folio-org.atlassian.net/browse/MSEARCH-1158))
 
 ### Dependencies
+* Add `folio-s3-client 3.0.0-SNAPSHOT`
 * Bump `LIB_NAME` from `OLD_VERSION` to `NEW_VERSION`
 * Add `LIB_NAME VERSION`
 * Remove `LIB_NAME`

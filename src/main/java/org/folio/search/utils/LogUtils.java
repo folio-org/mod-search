@@ -4,6 +4,7 @@ import java.util.Collection;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 
 @Log4j2
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -50,5 +51,15 @@ public final class LogUtils {
   public static void logWarnDebugError(String message, Exception e) {
     log.debug(message, e);
     log.warn("{} {}", message, e.getMessage());
+  }
+
+  /**
+   * Hides the value if it is set, otherwise returns `not set`.
+   *
+   * @param value the value to hide
+   * @return the hidden value or "<not set>"
+   */
+  public static String hideIfSet(String value) {
+    return StringUtils.isBlank(value) ? "<not set>" : "***";
   }
 }

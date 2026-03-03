@@ -30,6 +30,7 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.folio.search.configuration.kafka.ReindexKafkaConfiguration;
 import org.folio.search.integration.message.ReindexKafkaListener;
+import org.folio.search.model.event.ReindexFileReadyEvent;
 import org.folio.search.model.event.ReindexRangeIndexEvent;
 import org.folio.search.model.event.ReindexRecordType;
 import org.folio.search.model.event.ReindexRecordsEvent;
@@ -58,6 +59,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @EmbeddedKafka(topics = {
   "reindex-listener-it.test_tenant.inventory.reindex-records",
+  "reindex-listener-it.test_tenant.inventory.reindex.file-ready",
   "reindex-listener-it.test_tenant.search.reindex.range-index"
 })
 @IntegrationTest
@@ -67,6 +69,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
   properties = {FOLIO_ENV, "folio.kafka.retry-interval-ms=100", "spring.kafka.consumer.auto-offset-reset=earliest"},
   webEnvironment = SpringBootTest.WebEnvironment.NONE)
 class ReindexKafkaListenerIT {
+  private static final String REINDEX_FILE_READY_TOPIC =
+    "reindex-listener-it.test_tenant.inventory.reindex.file-ready";
 
   @MockitoBean
   private ConsortiumTenantExecutor executionService;
@@ -141,6 +145,32 @@ class ReindexKafkaListenerIT {
     indexEvent.setRangeId(mergeRangeId);
     await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
       verify(reindexService).process(indexEvent));
+  }
+
+  @Test
+  void handleReindexFileReadyEvent_positive() {
+    var indexEvent = new ReindexFileReadyEvent(
+      TENANT_ID, ReindexRecordType.INSTANCE, UUID.randomUUID().toString(), UUID.randomUUID().toString(),
+      "s3-bucket", "s3/path/object", "2026-01-01T00:00:00Z");
+
+    sendMessage(UUID.randomUUID().toString(), indexEvent, REINDEX_FILE_READY_TOPIC, kafkaProducer);
+
+    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
+      verify(reindexService).process(indexEvent));
+  }
+
+  @Test
+  void handleReindexFileReadyEvent_negative_shouldRetryProcessing() {
+    var indexEvent = new ReindexFileReadyEvent(
+      TENANT_ID, ReindexRecordType.INSTANCE, UUID.randomUUID().toString(), UUID.randomUUID().toString(),
+      "s3-bucket", "s3/path/object", "2026-01-01T00:00:00Z");
+
+    when(reindexService.process(indexEvent)).thenThrow(new RuntimeException("Failed to process"));
+
+    sendMessage(UUID.randomUUID().toString(), indexEvent, REINDEX_FILE_READY_TOPIC, kafkaProducer);
+
+    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
+      verify(reindexService, times(3)).process(indexEvent));
   }
 
   private Map<String, Object> reindexRecord() {

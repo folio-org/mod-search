@@ -1,7 +1,8 @@
 package org.folio.search.configuration;
 
+import static org.folio.search.utils.LogUtils.hideIfSet;
+
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang3.StringUtils;
 import org.folio.s3.client.FolioS3Client;
 import org.folio.s3.client.S3ClientFactory;
 import org.folio.s3.client.S3ClientProperties;
@@ -18,24 +19,25 @@ public class RemoteStorageConfig {
 
   @Bean
   public FolioS3Client remoteFolioS3Client(RemoteStorageProperties properties) {
-    log.info("Configure remote storage [endpoint {}, region {}, bucket {}, accessKey {}, secretKey {}, awsSdk {}]",
+    log.info("Configure remote storage [endpoint={}, region={}, bucket={}, accessKey={}, secretKey={}, awsSdk={}]",
       properties.getEndpoint(), properties.getRegion(), properties.getBucket(),
-      StringUtils.isBlank(properties.getAccessKey()) ? "<not set>" : "***",
-      StringUtils.isBlank(properties.getSecretKey()) ? "<not set>" : "***",
+      hideIfSet(properties.getAccessKey()),
+      hideIfSet(properties.getSecretKey()),
       properties.isAwsSdk());
-    var client = S3ClientFactory.getS3Client(S3ClientProperties.builder()
-      .endpoint(properties.getEndpoint())
-      .secretKey(properties.getSecretKey())
-      .accessKey(properties.getAccessKey())
-      .bucket(properties.getBucket())
-      .region(properties.getRegion())
-      .awsSdk(properties.isAwsSdk())
-      .build());
     try {
+      var client = S3ClientFactory.getS3Client(S3ClientProperties.builder()
+        .endpoint(properties.getEndpoint())
+        .secretKey(properties.getSecretKey())
+        .accessKey(properties.getAccessKey())
+        .bucket(properties.getBucket())
+        .region(properties.getRegion())
+        .awsSdk(properties.isAwsSdk())
+        .build());
       client.createBucketIfNotExists();
+      return client;
     } catch (S3ClientException e) {
       log.error("Error creating bucket: {} during RemoteStorageClient initialization", properties.getBucket(), e);
+      throw e;
     }
-    return client;
   }
 }

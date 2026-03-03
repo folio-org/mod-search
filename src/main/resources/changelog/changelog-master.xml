@@ -19,4 +19,9 @@
   <include file="changes/v5.1/cleanup_temp_resource_ids_tables.xml" relativeToChangelogFile="true"/>
   <include file="changes/v6.0/add-instance-item-columns.xml" relativeToChangelogFile="true"/>
   <include file="changes/v6.0/add-instance-item-sub-resources.xml" relativeToChangelogFile="true"/>
+  <include file="changes/v6.0/01_create_staging_tables.xml" relativeToChangelogFile="true"/>
+  <include file="changes/v6.0/02_add_tenant_id_indexes.xml" relativeToChangelogFile="true"/>
+  <include file="changes/v6.0/03_add_target_tenant_id_to_reindex_status.xml" relativeToChangelogFile="true"/>
+  <include file="changes/v6.0/04_add_staging_time_columns_to_reindex_status.xml" relativeToChangelogFile="true"/>
+  <include file="changes/v6.0/05_create_consortium_member_reindex_status_function.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

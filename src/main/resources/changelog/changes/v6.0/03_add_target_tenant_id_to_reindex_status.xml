@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="MSEARCH-1057@@add-target-tenant-id-to-reindex-status" author="claude">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="reindex_status"/>
+            <not>
+                <columnExists tableName="reindex_status" columnName="target_tenant_id"/>
+            </not>
+        </preConditions>
+
+        <comment>Add target_tenant_id column to reindex_status table for tenant-specific reindex operations</comment>
+
+        <addColumn tableName="reindex_status">
+            <column name="target_tenant_id" type="VARCHAR(100)">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+
+        <createIndex tableName="reindex_status" indexName="idx_reindex_status_target_tenant">
+            <column name="target_tenant_id"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>

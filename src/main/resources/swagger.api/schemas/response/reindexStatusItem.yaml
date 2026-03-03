@@ -7,6 +7,9 @@ properties:
   status:
     type: string
     description: Reindex status
+  targetTenantId:
+    type: string
+    description: tenantId of consortium member being re-indexed
   totalMergeRanges:
     type: integer
     description: Total merge ranges to process for entity
@@ -31,3 +34,9 @@ properties:
   endTimeUpload:
     type: string
     description: End time of reindex upload phase for entity
+  startTimeStaging:
+    type: string
+    description: Start time of reindex staging phase for entity
+  endTimeStaging:
+    type: string
+    description: End time of reindex staging phase for entity

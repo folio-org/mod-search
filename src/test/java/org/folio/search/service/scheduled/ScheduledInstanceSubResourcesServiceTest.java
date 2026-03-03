@@ -24,6 +24,7 @@ import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.InstanceChildrenResourceService;
 import org.folio.search.service.ResourceService;
 import org.folio.search.service.ScheduledInstanceSubResourcesService;
+import org.folio.search.service.reindex.ReindexStatusService;
 import org.folio.search.service.reindex.jdbc.ItemRepository;
 import org.folio.search.service.reindex.jdbc.MergeInstanceRepository;
 import org.folio.search.service.reindex.jdbc.SubResourceResult;
@@ -46,6 +47,7 @@ class ScheduledInstanceSubResourcesServiceTest {
   private @Mock ResourceService resourceService;
   private @Mock TenantRepository tenantRepository;
   private @Mock SubResourcesLockRepository subResourcesLockRepository;
+  private @Mock ReindexStatusService reindexStatusService;
   private @Mock SystemUserScopedExecutionService executionService;
   private @Mock InstanceChildrenResourceService instanceChildrenResourceService;
   private @Mock SubjectRepository subjectRepository;
@@ -66,6 +68,7 @@ class ScheduledInstanceSubResourcesServiceTest {
       tenantRepository,
       List.of(subjectRepository),
       subResourcesLockRepository,
+      reindexStatusService,
       executionService,
       instanceRepository,
       itemRepository,
@@ -180,6 +183,7 @@ class ScheduledInstanceSubResourcesServiceTest {
       .when(executionService).executeSystemUserScoped(anyString(), any());
     when(tenantRepository.fetchDataTenantIds()).thenReturn(List.of(TENANT_ID));
     when(subResourcesLockRepository.lockSubResource(any(), eq(TENANT_ID))).thenReturn(Optional.empty());
+    when(reindexStatusService.isReindexInProgress()).thenReturn(false);
     when(subResourcesLockRepository.checkAndReleaseStaleLock(any(), eq(TENANT_ID), anyLong())).thenReturn(true);
 
     // Act
@@ -187,6 +191,7 @@ class ScheduledInstanceSubResourcesServiceTest {
 
     // Assert
     verify(subResourcesLockRepository, times(3)).lockSubResource(any(), eq(TENANT_ID));
+    verify(reindexStatusService, times(3)).isReindexInProgress();
     verify(subResourcesLockRepository, times(3)).checkAndReleaseStaleLock(any(), eq(TENANT_ID), anyLong());
     verify(subResourcesLockRepository, never()).unlockSubResource(any(), any(), any());
     verify(subjectRepository, never()).fetchByTimestamp(anyString(), any(), anyInt());
@@ -200,6 +205,7 @@ class ScheduledInstanceSubResourcesServiceTest {
       .when(executionService).executeSystemUserScoped(anyString(), any());
     when(tenantRepository.fetchDataTenantIds()).thenReturn(List.of(TENANT_ID));
     when(subResourcesLockRepository.lockSubResource(any(), eq(TENANT_ID))).thenReturn(Optional.empty());
+    when(reindexStatusService.isReindexInProgress()).thenReturn(false);
     when(subResourcesLockRepository.checkAndReleaseStaleLock(any(), eq(TENANT_ID), anyLong())).thenReturn(false);
 
     // Act
@@ -207,7 +213,29 @@ class ScheduledInstanceSubResourcesServiceTest {
 
     // Assert
     verify(subResourcesLockRepository, times(3)).lockSubResource(any(), eq(TENANT_ID));
+    verify(reindexStatusService, times(3)).isReindexInProgress();
     verify(subResourcesLockRepository, times(3)).checkAndReleaseStaleLock(any(), eq(TENANT_ID), anyLong());
+    verify(subResourcesLockRepository, never()).unlockSubResource(any(), any(), any());
+    verify(subjectRepository, never()).fetchByTimestamp(anyString(), any(), anyInt());
+    verifyNoInteractions(instanceRepository, itemRepository, resourceService);
+  }
+
+  @Test
+  void persistChildren_ShouldSkipStaleLockCheckWhenReindexInProgress() {
+    // Arrange
+    doAnswer(invocation -> invocation.<Callable<?>>getArgument(1).call())
+      .when(executionService).executeSystemUserScoped(anyString(), any());
+    when(tenantRepository.fetchDataTenantIds()).thenReturn(List.of(TENANT_ID));
+    when(subResourcesLockRepository.lockSubResource(any(), eq(TENANT_ID))).thenReturn(Optional.empty());
+    when(reindexStatusService.isReindexInProgress()).thenReturn(true);
+
+    // Act
+    service.persistChildren();
+
+    // Assert
+    verify(subResourcesLockRepository, times(3)).lockSubResource(any(), eq(TENANT_ID));
+    verify(reindexStatusService, times(3)).isReindexInProgress();
+    verify(subResourcesLockRepository, never()).checkAndReleaseStaleLock(any(), any(), anyLong());
     verify(subResourcesLockRepository, never()).unlockSubResource(any(), any(), any());
     verify(subjectRepository, never()).fetchByTimestamp(anyString(), any(), anyInt());
     verifyNoInteractions(instanceRepository, itemRepository, resourceService);

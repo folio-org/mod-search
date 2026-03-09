@@ -1,6 +1,6 @@
 @startuml
 !theme plain
-title Reindex/Upload Phase
+title Upload Reindex Phase
 
 actor "Client" as client
 box "FOLIO Backend" #LightBlue
@@ -14,6 +14,10 @@ autonumber
 
 ' Initial API request reception
 client -> modSearch: POST /search/index/instance-records/reindex/upload\n(ReindexUploadDto with entity types)
+note right of modSearch
+Same upload flow is also triggered internally
+after full reindex merge completion.
+end note
 
 ' Status update in database for requested types
 modSearch -> postgres: Update reindex_status (UPLOAD_IN_PROGRESS)

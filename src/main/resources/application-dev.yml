@@ -87,6 +87,7 @@ folio:
       sub-resource-batch-size: ${SUB_RESOURCE_BATCH_SIZE:100}
       stale-lock-threshold-ms: ${STALE_LOCK_THRESHOLD_MS:600000}
   reindex:
+    reindex-type: ${REINDEX_TYPE:EXPORT}
     location-batch-size: ${REINDEX_LOCATION_BATCH_SIZE:1000}
     upload-range-size: ${REINDEX_UPLOAD_RANGE_SIZE:1000}
     upload-range-level: ${REINDEX_UPLOAD_RANGE_LEVEL:3}
@@ -158,6 +159,10 @@ folio:
         concurrency: ${KAFKA_REINDEX_RECORDS_CONCURRENCY:2}
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.reindex-records
         group-id: ${folio.environment}-mod-search-reindex-records-group
+      reindex-file-ready:
+        concurrency: ${KAFKA_REINDEX_FILE_READY_CONCURRENCY:2}
+        topic-pattern: (${folio.environment}\.)(.*\.)inventory\.reindex.file-ready
+        group-id: ${folio.environment}-mod-search-reindex-file-ready-group
       index-instance:
         concurrency: ${KAFKA_INDEX_INSTANCE_CONCURRENCY:2}
         topic-pattern: (${folio.environment}\.)(.*\.)search\.index.instance
@@ -172,6 +177,13 @@ folio:
     exchange:
       enabled: true
       level: full
+  remote-storage:
+    endpoint: ${S3_REINDEX_URL:https://s3.amazonaws.com}
+    region: ${S3_REINDEX_REGION:us-west-2}
+    bucket: ${S3_REINDEX_BUCKET:}
+    access-key: ${S3_REINDEX_ACCESS_KEY_ID:}
+    secret-key: ${S3_REINDEX_SECRET_ACCESS_KEY:}
+    aws-sdk: ${S3_REINDEX_IS_AWS:true}
 
 server.port: 8081
 

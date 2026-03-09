@@ -10,6 +10,7 @@ import org.folio.search.model.types.ReindexRangeStatus;
 public class MergeRangeEntity {
 
   public static final String ID_COLUMN = "id";
+  public static final String TRACE_ID_COLUMN = "trace_id";
   public static final String ENTITY_TYPE_COLUMN = "entity_type";
   public static final String TENANT_ID_COLUMN = "tenant_id";
   public static final String RANGE_LOWER_COLUMN = "lower";
@@ -20,6 +21,7 @@ public class MergeRangeEntity {
   public static final String FAIL_CAUSE_COLUMN = "fail_cause";
 
   private final UUID id;
+  private final UUID traceId;
   private final ReindexEntityType entityType;
   private final String tenantId;
   private final String lowerId;

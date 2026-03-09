@@ -57,6 +57,29 @@ public class MultiTenantSearchDocumentConverter {
       .collect(groupingBy(SearchDocumentBody::getResource));
   }
 
+  /**
+   * Converts {@link ResourceEvent} objects to a flat list of {@link SearchDocumentBody} objects.
+   * All events are expected to carry the same tenant ID that matches the current execution context —
+   * per-tenant grouping and context switching are therefore skipped entirely.
+   *
+   * @param resourceEvents list with {@link ResourceEvent} objects, all belonging to the current tenant
+   * @return flat {@link List} of {@link SearchDocumentBody} objects
+   */
+  public List<SearchDocumentBody> convertForReindex(Collection<ResourceEvent> resourceEvents) {
+    log.debug("convertForReindex:: by [resourceEvents.size: {}]", collectionToLogMsg(resourceEvents, true));
+
+    if (CollectionUtils.isEmpty(resourceEvents)) {
+      return List.of();
+    }
+
+    return resourceEvents.stream()
+      .flatMap(this::populateResourceEvents)
+      .map(event -> event.getId() != null ? event : event.id(getResourceEventId(event)))
+      .map(searchDocumentConverter::convert)
+      .flatMap(Optional::stream)
+      .toList();
+  }
+
   private List<SearchDocumentBody> convertForTenant(Entry<String, List<ResourceEvent>> entry) {
     var convert = (Supplier<List<SearchDocumentBody>>) () ->
       entry.getValue().stream()

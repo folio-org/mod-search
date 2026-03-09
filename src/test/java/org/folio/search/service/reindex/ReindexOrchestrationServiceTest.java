@@ -10,7 +10,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ResourceEvent;
@@ -59,8 +58,8 @@ class ReindexOrchestrationServiceTest {
       .status(FolioIndexOperationResponse.StatusEnum.SUCCESS);
 
     when(uploadRangeIndexService.fetchRecordRange(event)).thenReturn(List.of(resourceEvent));
-    when(documentConverter.convert(List.of(resourceEvent))).thenReturn(Map.of("key", List.of(SearchDocumentBody.of(null,
-      IndexingDataFormat.JSON, resourceEvent, IndexActionType.INDEX))));
+    when(documentConverter.convertForReindex(List.of(resourceEvent))).thenReturn(List.of(SearchDocumentBody.of(null,
+      IndexingDataFormat.JSON, resourceEvent, IndexActionType.INDEX)));
     when(elasticRepository.indexResources(any())).thenReturn(folioIndexOperationResponse);
 
     // Act
@@ -69,7 +68,7 @@ class ReindexOrchestrationServiceTest {
     // Assert
     assertTrue(result);
     verify(uploadRangeIndexService).fetchRecordRange(event);
-    verify(documentConverter).convert(List.of(resourceEvent));
+    verify(documentConverter).convertForReindex(List.of(resourceEvent));
     verify(elasticRepository).indexResources(any());
     verify(reindexStatusService).addProcessedUploadRanges(event.getEntityType(), 1);
   }
@@ -84,15 +83,15 @@ class ReindexOrchestrationServiceTest {
       .errorMessage("Error occurred during indexing.");
 
     when(uploadRangeIndexService.fetchRecordRange(event)).thenReturn(List.of(resourceEvent));
-    when(documentConverter.convert(List.of(resourceEvent))).thenReturn(Map.of("key", List.of(SearchDocumentBody.of(null,
-      IndexingDataFormat.JSON, resourceEvent, IndexActionType.INDEX))));
+    when(documentConverter.convertForReindex(List.of(resourceEvent))).thenReturn(List.of(SearchDocumentBody.of(null,
+      IndexingDataFormat.JSON, resourceEvent, IndexActionType.INDEX)));
     when(elasticRepository.indexResources(any())).thenReturn(folioIndexOperationResponse);
 
     // Act & Assert
     assertThrows(ReindexException.class, () -> service.process(event));
 
     verify(uploadRangeIndexService).fetchRecordRange(event);
-    verify(documentConverter).convert(List.of(resourceEvent));
+    verify(documentConverter).convertForReindex(List.of(resourceEvent));
     verify(elasticRepository).indexResources(any());
     verify(reindexStatusService).updateReindexUploadFailed(event.getEntityType());
   }
@@ -120,13 +119,13 @@ class ReindexOrchestrationServiceTest {
     var exceptionMessage = "Failed to convert documents";
 
     when(uploadRangeIndexService.fetchRecordRange(event)).thenReturn(List.of(resourceEvent));
-    when(documentConverter.convert(List.of(resourceEvent))).thenThrow(new RuntimeException(exceptionMessage));
+    when(documentConverter.convertForReindex(List.of(resourceEvent))).thenThrow(new RuntimeException(exceptionMessage));
 
     // Act & Assert
     assertThrows(ReindexException.class, () -> service.process(event));
 
     verify(uploadRangeIndexService).fetchRecordRange(event);
-    verify(documentConverter).convert(List.of(resourceEvent));
+    verify(documentConverter).convertForReindex(List.of(resourceEvent));
     verify(reindexStatusService).updateReindexUploadFailed(event.getEntityType());
   }
 
@@ -138,15 +137,15 @@ class ReindexOrchestrationServiceTest {
     var exceptionMessage = "Failed to index documents in Elasticsearch";
 
     when(uploadRangeIndexService.fetchRecordRange(event)).thenReturn(List.of(resourceEvent));
-    when(documentConverter.convert(List.of(resourceEvent))).thenReturn(Map.of("key", List.of(SearchDocumentBody.of(null,
-      IndexingDataFormat.JSON, resourceEvent, IndexActionType.INDEX))));
+    when(documentConverter.convertForReindex(List.of(resourceEvent))).thenReturn(List.of(SearchDocumentBody.of(null,
+      IndexingDataFormat.JSON, resourceEvent, IndexActionType.INDEX)));
     when(elasticRepository.indexResources(any())).thenThrow(new RuntimeException(exceptionMessage));
 
     // Act & Assert
     assertThrows(ReindexException.class, () -> service.process(event));
 
     verify(uploadRangeIndexService).fetchRecordRange(event);
-    verify(documentConverter).convert(List.of(resourceEvent));
+    verify(documentConverter).convertForReindex(List.of(resourceEvent));
     verify(elasticRepository).indexResources(any());
     verify(reindexStatusService).updateReindexUploadFailed(event.getEntityType());
   }

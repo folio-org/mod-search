@@ -186,21 +186,7 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
 
   @Override
   protected RowMapper<Map<String, Object>> rowToMapMapper() {
-    return (rs, rowNum) -> {
-      Map<String, Object> subject = new HashMap<>();
-      subject.put("id", getId(rs));
-      subject.put(SUBJECT_VALUE_FIELD, getValue(rs));
-      subject.put(AUTHORITY_ID_FIELD, getAuthorityId(rs));
-      subject.put("sourceId", getSourceId(rs));
-      subject.put("typeId", getTypeId(rs));
-
-      var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
-      if (!maps.isEmpty()) {
-        subject.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
-      }
-
-      return subject;
-    };
+    return (rs, rowNum) -> buildSubjectMap(rs);
   }
 
   @Override
@@ -249,21 +235,26 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
 
   protected RowMapper<Map<String, Object>> rowToMapMapper2() {
     return (rs, rowNum) -> {
-      Map<String, Object> subject = new HashMap<>();
-      subject.put("id", getId(rs));
-      subject.put(SUBJECT_VALUE_FIELD, getValue(rs));
-      subject.put(AUTHORITY_ID_FIELD, getAuthorityId(rs));
-      subject.put("sourceId", getSourceId(rs));
-      subject.put("typeId", getTypeId(rs));
+      var subject = buildSubjectMap(rs);
       subject.put(LAST_UPDATED_DATE_FIELD, rs.getTimestamp("last_updated_date"));
-
-      var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
-      if (!maps.isEmpty()) {
-        subject.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
-      }
-
       return subject;
     };
+  }
+
+  private Map<String, Object> buildSubjectMap(ResultSet rs) throws SQLException {
+    Map<String, Object> subject = new HashMap<>();
+    subject.put("id", getId(rs));
+    subject.put(SUBJECT_VALUE_FIELD, getValue(rs));
+    subject.put(AUTHORITY_ID_FIELD, getAuthorityId(rs));
+    subject.put("sourceId", getSourceId(rs));
+    subject.put("typeId", getTypeId(rs));
+
+    var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
+    if (!maps.isEmpty()) {
+      subject.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
+    }
+
+    return subject;
   }
 
   private String getId(ResultSet rs) throws SQLException {

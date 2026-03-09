@@ -258,10 +258,6 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
   protected RowMapper<Map<String, Object>> rowToMapMapper2() {
     return (rs, rowNum) -> {
       var callNumberMap = getCallNumberMap(rs);
-      var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
-      if (!maps.isEmpty()) {
-        callNumberMap.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
-      }
       callNumberMap.put(LAST_UPDATED_DATE_FIELD, rs.getTimestamp("last_updated_date"));
       return callNumberMap;
     };
@@ -278,8 +274,7 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
     callNumberMap.put(CALL_NUMBER_PREFIX_FIELD, getCallNumberPrefix(rs));
     callNumberMap.put(CALL_NUMBER_SUFFIX_FIELD, callNumberSuffix);
     callNumberMap.put(CALL_NUMBER_TYPE_ID_FIELD, getCallNumberTypeId(rs));
-    var subResources = jsonConverter.toJson(parseInstanceSubResources(getInstances(rs)));
-    var maps = jsonConverter.fromJsonToListOfMaps(subResources).stream().filter(Objects::nonNull).toList();
+    var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
     if (!maps.isEmpty()) {
       callNumberMap.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
     }

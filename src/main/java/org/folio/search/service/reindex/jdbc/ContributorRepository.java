@@ -158,20 +158,7 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
 
   @Override
   protected RowMapper<Map<String, Object>> rowToMapMapper() {
-    return (rs, rowNum) -> {
-      Map<String, Object> contributor = new HashMap<>();
-      contributor.put("id", getId(rs));
-      contributor.put("name", getName(rs));
-      contributor.put("contributorNameTypeId", getNameTypeId(rs));
-      contributor.put(AUTHORITY_ID_FIELD, getAuthorityId(rs));
-
-      var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
-      if (!maps.isEmpty()) {
-        contributor.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
-      }
-
-      return contributor;
-    };
+    return (rs, rowNum) -> buildContributorMap(rs);
   }
 
   @Override
@@ -245,20 +232,25 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
 
   protected RowMapper<Map<String, Object>> rowToMapMapper2() {
     return (rs, rowNum) -> {
-      Map<String, Object> contributor = new HashMap<>();
-      contributor.put("id", getId(rs));
-      contributor.put("name", getName(rs));
-      contributor.put("contributorNameTypeId", getNameTypeId(rs));
+      var contributor = buildContributorMap(rs);
       contributor.put(LAST_UPDATED_DATE_FIELD, rs.getTimestamp("last_updated_date"));
-      contributor.put(AUTHORITY_ID_FIELD, getAuthorityId(rs));
-
-      var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
-      if (!maps.isEmpty()) {
-        contributor.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
-      }
-
       return contributor;
     };
+  }
+
+  private Map<String, Object> buildContributorMap(ResultSet rs) throws SQLException {
+    Map<String, Object> contributor = new HashMap<>();
+    contributor.put("id", getId(rs));
+    contributor.put("name", getName(rs));
+    contributor.put("contributorNameTypeId", getNameTypeId(rs));
+    contributor.put(AUTHORITY_ID_FIELD, getAuthorityId(rs));
+
+    var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
+    if (!maps.isEmpty()) {
+      contributor.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
+    }
+
+    return contributor;
   }
 
   private String getId(ResultSet rs) throws SQLException {

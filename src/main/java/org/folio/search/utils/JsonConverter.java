@@ -220,7 +220,12 @@ public class JsonConverter {
     if (value == null) {
       return null;
     }
-    return new BytesArray(toJson(value));
+    try {
+      return new BytesArray(objectMapper.writeValueAsBytes(value));
+    } catch (JacksonException e) {
+      throw new SerializationException(String.format(
+        SERIALIZATION_ERROR_MSG_TEMPLATE, e.getMessage()), e);
+    }
   }
 
   /**

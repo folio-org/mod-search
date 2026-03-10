@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Component;
 /**
  * Maps instance resource events to index instance events with producer records.
  */
+@Log4j2
 @Component
 @RequiredArgsConstructor
 public class InstanceEventMapper {
@@ -42,6 +44,8 @@ public class InstanceEventMapper {
     var resourceEvent = event.value();
     var eventTenant = resourceEvent.getTenant();
     var targetTenant = consortiumTenantService.getCentralTenant(eventTenant).orElse(eventTenant);
+    log.info("mapToProducerRecords:: eventTenant={}, targetTenant={}, resourceEvent={}",
+      eventTenant, targetTenant, resourceEvent);
     if (isInstanceResource(resourceEvent)) {
       var instanceId = MapUtils.getString(getEventPayload(resourceEvent), ID_FIELD);
       return toProducerRecord(instanceId, targetTenant, event.headers()).map(List::of).orElseGet(List::of);

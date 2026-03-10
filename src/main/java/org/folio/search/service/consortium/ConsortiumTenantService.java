@@ -34,7 +34,7 @@ public class ConsortiumTenantService {
     }
 
     var userTenants = userTenantsClient.getUserTenants(tenantId);
-    log.debug("getCentralTenant: contextTenantId: {}, tenantId: {}, response: {}",
+    log.info("getCentralTenant: contextTenantId: {}, tenantId: {}, response: {}",
       context.getTenantId(), tenantId, userTenants);
 
     return Optional.ofNullable(userTenants)

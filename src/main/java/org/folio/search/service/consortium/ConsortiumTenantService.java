@@ -34,6 +34,7 @@ public class ConsortiumTenantService {
     }
 
     var userTenants = userTenantsClient.getUserTenants(tenantId);
+    //todo: revert log level
     log.info("getCentralTenant: contextTenantId: {}, tenantId: {}, response: {}",
       context.getTenantId(), tenantId, userTenants);
 

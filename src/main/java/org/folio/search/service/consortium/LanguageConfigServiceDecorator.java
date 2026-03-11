@@ -33,8 +33,4 @@ public class LanguageConfigServiceDecorator {
   public Set<String> getAllLanguageCodes() {
     return consortiumTenantExecutor.execute(languageConfigService::getAllLanguageCodes);
   }
-
-  public Set<String> getAllLanguagesForTenant(String tenant) {
-    return languageConfigService.getAllLanguagesForTenant(tenant);
-  }
 }

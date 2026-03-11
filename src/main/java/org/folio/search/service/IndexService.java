@@ -30,6 +30,7 @@ import org.folio.search.service.consortium.TenantProvider;
 import org.folio.search.service.es.SearchMappingsHelper;
 import org.folio.search.service.es.SearchSettingsHelper;
 import org.folio.search.service.metadata.ResourceDescriptionService;
+import org.folio.search.utils.SearchUtils;
 import org.opensearch.action.support.clustermanager.AcknowledgedResponse;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.JsonNode;
@@ -65,7 +66,8 @@ public class IndexService {
       "Index cannot be created for the resource because resource description is not found.");
 
     var settings = settingsHelper.getSettings(resourceType);
-    return doCreateIndex(resourceType, tenantId, settings);
+    var index = indexNameProvider.getIndexName(resourceType, tenantId);
+    return doCreateIndex(resourceType, index, settings);
   }
 
   /**
@@ -81,7 +83,24 @@ public class IndexService {
       "Index cannot be created for the resource because resource description is not found.");
 
     var settings = prepareIndexSettings(resourceName, indexSettings);
-    return doCreateIndex(resourceName, tenantId, settings.toString());
+    var index = indexNameProvider.getIndexName(resourceName, tenantId);
+    return doCreateIndex(resourceName, index, settings.toString());
+  }
+
+  /**
+   * Creates index for resource with passed index name, pre-defined settings and mappings.
+   *
+   * @param resourceType name of resource as {@link ResourceType} value.
+   * @param index        full index name as {@link String} value.
+   * @return {@link FolioCreateIndexResponse} if index was created successfully
+   * @throws SearchServiceException if {@link IOException} has been occurred during index request execution
+   */
+  public FolioCreateIndexResponse createIndexByName(ResourceType resourceType, String index) {
+    validateResourceName(resourceType,
+      "Index cannot be created for the resource because resource description is not found.");
+
+    var settings = settingsHelper.getSettings(resourceType);
+    return doCreateIndex(resourceType, index, settings);
   }
 
   /**
@@ -123,14 +142,15 @@ public class IndexService {
 
   /**
    * Creates Elasticsearch index if it is not exist.
+   * Doesn't account for consortia configuration and always uses provided tenant id to calculate index name.
    *
    * @param resourceType - resource name as {@link String} object.
    * @param tenantId     - tenant id as {@link String} object
    */
   public void createIndexIfNotExist(ResourceType resourceType, String tenantId) {
-    var index = indexNameProvider.getIndexName(resourceType, tenantId);
+    var index = SearchUtils.getIndexName(resourceType, tenantId);
     if (!indexRepository.indexExists(index)) {
-      createIndex(resourceType, tenantId);
+      createIndexByName(resourceType, index);
     }
   }
 
@@ -201,15 +221,14 @@ public class IndexService {
     }
   }
 
-  private FolioCreateIndexResponse doCreateIndex(ResourceType resourceName, String tenantId, String indexSettings) {
-    log.debug("createIndex:: by [resourceName: {}, tenantId: {}]", resourceName, tenantId);
+  private FolioCreateIndexResponse doCreateIndex(ResourceType resourceName, String indexName, String indexSettings) {
+    log.debug("createIndex:: by [resourceName: {}, indexName: {}]", resourceName, indexName);
 
-    var index = indexNameProvider.getIndexName(resourceName, tenantId);
     var mappings = mappingHelper.getMappings(resourceName);
 
     log.info("Attempts to create index by [indexName: {}, mappings: {}, settings: {}]",
-      index, mappings, indexSettings);
-    return indexRepository.createIndex(index, indexSettings, mappings);
+      indexName, mappings, indexSettings);
+    return indexRepository.createIndex(indexName, indexSettings, mappings);
   }
 
   private List<ResourceType> getResourceNamesToReindex(ReindexRequest reindexRequest) {

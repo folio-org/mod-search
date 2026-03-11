@@ -6,7 +6,7 @@ import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.model.entity.TenantEntity;
 import org.folio.search.service.IndexService;
-import org.folio.search.service.consortium.LanguageConfigServiceDecorator;
+import org.folio.search.service.LanguageConfigService;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.service.reindex.jdbc.TenantRepository;
 import org.folio.spring.FolioExecutionContext;
@@ -29,7 +29,7 @@ public class SearchTenantService extends TenantService {
   private final IndexService indexService;
   private final KafkaAdminService kafkaAdminService;
   private final OkapiSystemUserService okapiSystemUserService;
-  private final LanguageConfigServiceDecorator languageConfigService;
+  private final LanguageConfigService languageConfigService;
   private final ResourceDescriptionService resourceDescriptionService;
   private final SearchConfigurationProperties searchConfigurationProperties;
   private final TenantRepository tenantRepository;
@@ -38,7 +38,7 @@ public class SearchTenantService extends TenantService {
                              FolioSpringLiquibase folioSpringLiquibase, KafkaAdminService kafkaAdminService,
                              IndexService indexService,
                              OkapiSystemUserService okapiSystemUserService,
-                             LanguageConfigServiceDecorator languageConfigService,
+                             LanguageConfigService languageConfigService,
                              ResourceDescriptionService resourceDescriptionService,
                              SearchConfigurationProperties searchConfigurationProperties,
                              TenantRepository tenantRepository) {
@@ -127,7 +127,10 @@ public class SearchTenantService extends TenantService {
   protected void afterTenantUpdate(TenantAttributes tenantAttributes) {
     baseAfterTenantUpdate();
     createLanguages();
-    createIndexes();
+
+    var tenantId = context.getTenantId();
+    var centralTenant = centralTenant(tenantId, tenantAttributes);
+    createIndexes(centralTenant);
     log.info("Tenant init has been completed");
   }
 
@@ -159,9 +162,9 @@ public class SearchTenantService extends TenantService {
     kafkaAdminService.deleteTopics(tenantId);
   }
 
-  private void createIndexes() {
+  private void createIndexes(String centralTenant) {
     var resourceNames = resourceDescriptionService.getResourceTypes();
-    resourceNames.forEach(resourceName -> indexService.createIndexIfNotExist(resourceName, context.getTenantId()));
+    resourceNames.forEach(resourceName -> indexService.createIndexIfNotExist(resourceName, centralTenant));
   }
 
   private void createLanguages() {

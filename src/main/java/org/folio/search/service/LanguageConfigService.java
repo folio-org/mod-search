@@ -25,7 +25,7 @@ import org.springframework.stereotype.Service;
 @Log4j2
 @Service
 @AllArgsConstructor
-public class LanguageConfigService {
+public class LanguageConfigService implements LanguageConfigServiceI {
 
   private final LanguageConfigRepository configRepository;
   private final LocalSearchFieldProvider searchFieldProvider;

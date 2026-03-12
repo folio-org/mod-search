@@ -5,8 +5,8 @@ import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.model.entity.TenantEntity;
-import org.folio.search.service.IndexService;
 import org.folio.search.service.LanguageConfigService;
+import org.folio.search.service.TenantInitIndexService;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.service.reindex.jdbc.TenantRepository;
 import org.folio.spring.FolioExecutionContext;
@@ -26,7 +26,7 @@ public class SearchTenantService extends TenantService {
 
   private static final String CENTRAL_TENANT_ID_PARAM_NAME = "centralTenantId";
 
-  private final IndexService indexService;
+  private final TenantInitIndexService indexService;
   private final KafkaAdminService kafkaAdminService;
   private final OkapiSystemUserService okapiSystemUserService;
   private final LanguageConfigService languageConfigService;
@@ -36,7 +36,7 @@ public class SearchTenantService extends TenantService {
 
   public SearchTenantService(JdbcTemplate jdbcTemplate, FolioExecutionContext context,
                              FolioSpringLiquibase folioSpringLiquibase, KafkaAdminService kafkaAdminService,
-                             IndexService indexService,
+                             TenantInitIndexService indexService,
                              OkapiSystemUserService okapiSystemUserService,
                              LanguageConfigService languageConfigService,
                              ResourceDescriptionService resourceDescriptionService,

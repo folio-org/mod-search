@@ -5,11 +5,14 @@ import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.domain.dto.LanguageConfigs;
 import org.folio.search.service.LanguageConfigService;
+import org.folio.search.service.LanguageConfigServiceI;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
+@Primary
 @Component
 @RequiredArgsConstructor
-public class LanguageConfigServiceDecorator {
+public class LanguageConfigServiceDecorator implements LanguageConfigServiceI {
 
   private final ConsortiumTenantExecutor consortiumTenantExecutor;
   private final LanguageConfigService languageConfigService;

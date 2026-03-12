@@ -127,10 +127,7 @@ public class SearchTenantService extends TenantService {
   protected void afterTenantUpdate(TenantAttributes tenantAttributes) {
     baseAfterTenantUpdate();
     createLanguages();
-
-    var tenantId = context.getTenantId();
-    var centralTenant = centralTenant(tenantId, tenantAttributes);
-    createIndexes(centralTenant);
+    createIndexes();
     log.info("Tenant init has been completed");
   }
 
@@ -162,9 +159,10 @@ public class SearchTenantService extends TenantService {
     kafkaAdminService.deleteTopics(tenantId);
   }
 
-  private void createIndexes(String centralTenant) {
+  private void createIndexes() {
     var resourceNames = resourceDescriptionService.getResourceTypes();
-    resourceNames.forEach(resourceName -> indexService.createIndexIfNotExist(resourceName, centralTenant));
+    resourceNames.forEach(resourceName ->
+      indexService.createIndexIfNotExist(resourceName, context.getTenantId()));
   }
 
   private void createLanguages() {

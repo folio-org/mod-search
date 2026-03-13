@@ -13,6 +13,7 @@ import static org.folio.search.model.types.ResourceType.LINKED_DATA_INSTANCE;
 import static org.folio.search.model.types.ResourceType.LINKED_DATA_WORK;
 import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
+import static org.folio.support.TestConstants.MEMBER2_TENANT_ID;
 import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.TestConstants.inventoryAuthorityTopic;
@@ -487,7 +488,7 @@ public abstract class BaseIntegrationTest {
   @SneakyThrows
   protected static void enableTenant(String tenant) {
     var tenantAttributes = new TenantAttributes().moduleTo("mod-search");
-    if (CENTRAL_TENANT_ID.equals(tenant) || MEMBER_TENANT_ID.equals(tenant)) {
+    if (CENTRAL_TENANT_ID.equals(tenant) || MEMBER_TENANT_ID.equals(tenant) || MEMBER2_TENANT_ID.equals(tenant)) {
       tenantAttributes.addParametersItem(new Parameter("centralTenantId").value(CENTRAL_TENANT_ID));
     }
     mockMvc.perform(post("/_/tenant", randomId())

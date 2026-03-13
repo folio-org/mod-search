@@ -17,8 +17,8 @@ import java.util.Set;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.model.entity.TenantEntity;
-import org.folio.search.service.IndexService;
-import org.folio.search.service.consortium.LanguageConfigServiceDecorator;
+import org.folio.search.service.LanguageConfigService;
+import org.folio.search.service.TenantInitIndexService;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.service.reindex.jdbc.TenantRepository;
 import org.folio.spring.FolioExecutionContext;
@@ -56,13 +56,13 @@ class SearchTenantServiceTest {
   @InjectMocks
   private SearchTenantService searchTenantService;
   @Mock
-  private IndexService indexService;
+  private TenantInitIndexService indexService;
   @Mock
   private FolioExecutionContext context;
   @Mock
   private OkapiSystemUserService okapiSystemUserService;
   @Mock
-  private LanguageConfigServiceDecorator languageConfigService;
+  private LanguageConfigService languageConfigService;
   @Mock
   private ResourceDescriptionService resourceDescriptionService;
   @Mock

@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -128,6 +129,7 @@ class InstanceChildrenResourceServiceTest {
 
     instanceResourceExtractors.forEach(resourceExtractor ->
       verify(resourceExtractor).persistChildren(TENANT_ID, shared, expectedEvents));
+    verifyNoInteractions(callNumberRepository);
   }
 
   private ResourceEvent getResourceEvent(UUID id1, Map<String, Object> payload) {

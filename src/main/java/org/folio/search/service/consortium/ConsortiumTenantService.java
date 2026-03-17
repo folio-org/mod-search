@@ -34,8 +34,7 @@ public class ConsortiumTenantService {
     }
 
     var userTenants = userTenantsClient.getUserTenants(tenantId);
-    //todo: revert log level
-    log.info("getCentralTenant: contextTenantId: {}, tenantId: {}, response: {}",
+    log.debug("getCentralTenant: contextTenantId: {}, tenantId: {}, response: {}",
       context.getTenantId(), tenantId, userTenants);
 
     return Optional.ofNullable(userTenants)
@@ -78,7 +77,7 @@ public class ConsortiumTenantService {
         .map(this::getTenantsList)
         .orElse(Collections.emptyList());
     } catch (Exception e) {
-      log.debug("Unexpected exception occurred while trying to get consortium tenants", e);
+      log.warn("Unexpected exception occurred while trying to get consortium tenants", e);
       throw new FolioIntegrationException("Failed to retrieve consortium tenants", e);
     }
   }

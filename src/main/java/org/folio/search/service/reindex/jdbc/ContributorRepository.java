@@ -5,6 +5,7 @@ import static org.folio.search.utils.SearchUtils.AUTHORITY_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_TYPE_FIELD;
 import static org.folio.search.utils.SearchUtils.SUB_RESOURCE_INSTANCES_FIELD;
 
+import java.io.Reader;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -245,7 +246,7 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
     contributor.put("contributorNameTypeId", getNameTypeId(rs));
     contributor.put(AUTHORITY_ID_FIELD, getAuthorityId(rs));
 
-    var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
+    var maps = jsonConverter.fromJsonToListOfMaps(getInstancesReader(rs)).stream().filter(Objects::nonNull).toList();
     if (!maps.isEmpty()) {
       contributor.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
     }
@@ -269,7 +270,7 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
     return rs.getString("authority_id");
   }
 
-  private String getInstances(ResultSet rs) throws SQLException {
-    return rs.getString(SUB_RESOURCE_INSTANCES_FIELD);
+  private Reader getInstancesReader(ResultSet rs) throws SQLException {
+    return rs.getCharacterStream(SUB_RESOURCE_INSTANCES_FIELD);
   }
 }

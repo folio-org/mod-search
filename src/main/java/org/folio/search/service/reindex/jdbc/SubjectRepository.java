@@ -7,6 +7,7 @@ import static org.folio.search.utils.SearchUtils.SUBJECT_TYPE_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.SUBJECT_VALUE_FIELD;
 import static org.folio.search.utils.SearchUtils.SUB_RESOURCE_INSTANCES_FIELD;
 
+import java.io.Reader;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -249,7 +250,7 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
     subject.put("sourceId", getSourceId(rs));
     subject.put("typeId", getTypeId(rs));
 
-    var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
+    var maps = jsonConverter.fromJsonToListOfMaps(getInstancesReader(rs)).stream().filter(Objects::nonNull).toList();
     if (!maps.isEmpty()) {
       subject.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
     }
@@ -277,7 +278,7 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
     return rs.getString("type_id");
   }
 
-  private String getInstances(ResultSet rs) throws SQLException {
-    return rs.getString(SUB_RESOURCE_INSTANCES_FIELD);
+  private Reader getInstancesReader(ResultSet rs) throws SQLException {
+    return rs.getCharacterStream(SUB_RESOURCE_INSTANCES_FIELD);
   }
 }

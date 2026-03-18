@@ -1,6 +1,7 @@
 package org.folio.search.utils;
 
 import java.io.InputStream;
+import java.io.Reader;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -80,13 +81,21 @@ public class JsonConverter {
   }
 
   /**
-   * Converts {@link String} value to the {@link Map} .
+   * Converts {@link Reader} value to the list of maps using streaming deserialization.
+   * This avoids materializing the full JSON string in memory, which is important for large payloads.
    *
-   * @param value object value to convert
-   * @return converted value
+   * @param reader reader providing JSON content
+   * @return converted list of maps
    */
-  public List<Map<String, Object>> fromJsonToListOfMaps(String value) {
-    return fromJson(value, LIST_OF_MAP_TYPE_REF);
+  public List<Map<String, Object>> fromJsonToListOfMaps(Reader reader) {
+    if (reader == null) {
+      return List.of();
+    }
+    try {
+      return objectMapper.readValue(reader, LIST_OF_MAP_TYPE_REF);
+    } catch (JacksonException e) {
+      throw new SerializationException("Failed to deserialize value from reader", e);
+    }
   }
 
   /**

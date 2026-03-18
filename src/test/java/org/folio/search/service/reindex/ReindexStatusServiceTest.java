@@ -181,42 +181,70 @@ class ReindexStatusServiceTest {
   }
 
   @Test
-  void isReindexInProgress_trueWhenMerge() {
+  void isReindexInProgressOrFailed_trueWhenMergeInProgress() {
     // given
     when(statusRepository.getReindexStatuses()).thenReturn(List.of(
       new ReindexStatusEntity(ReindexEntityType.INSTANCE, ReindexStatus.MERGE_IN_PROGRESS),
       new ReindexStatusEntity(ReindexEntityType.HOLDINGS, ReindexStatus.MERGE_COMPLETED)));
 
     // act
-    var actual = service.isReindexInProgress();
+    var actual = service.isReindexInProgressOrFailed(ReindexEntityType.INSTANCE);
 
     // assert
     assertThat(actual).isTrue();
   }
 
   @Test
-  void isReindexInProgress_trueWhenUpload() {
+  void isReindexInProgressOrFailed_trueWhenUploadInProgress() {
     // given
     when(statusRepository.getReindexStatuses()).thenReturn(List.of(
       new ReindexStatusEntity(ReindexEntityType.INSTANCE, ReindexStatus.UPLOAD_IN_PROGRESS),
       new ReindexStatusEntity(ReindexEntityType.HOLDINGS, ReindexStatus.MERGE_COMPLETED)));
 
     // act
-    var actual = service.isReindexInProgress();
+    var actual = service.isReindexInProgressOrFailed(ReindexEntityType.INSTANCE);
 
     // assert
     assertThat(actual).isTrue();
   }
 
   @Test
-  void isReindexInProgress_false() {
+  void isReindexInProgressOrFailed_trueWhenMergeFailed() {
+    // given
+    when(statusRepository.getReindexStatuses()).thenReturn(List.of(
+      new ReindexStatusEntity(ReindexEntityType.INSTANCE, ReindexStatus.MERGE_FAILED),
+      new ReindexStatusEntity(ReindexEntityType.HOLDINGS, ReindexStatus.MERGE_COMPLETED)));
+
+    // act
+    var actual = service.isReindexInProgressOrFailed(ReindexEntityType.INSTANCE);
+
+    // assert
+    assertThat(actual).isTrue();
+  }
+
+  @Test
+  void isReindexInProgressOrFailed_trueWhenUploadFailed() {
+    // given
+    when(statusRepository.getReindexStatuses()).thenReturn(List.of(
+      new ReindexStatusEntity(ReindexEntityType.INSTANCE, ReindexStatus.UPLOAD_FAILED),
+      new ReindexStatusEntity(ReindexEntityType.HOLDINGS, ReindexStatus.MERGE_COMPLETED)));
+
+    // act
+    var actual = service.isReindexInProgressOrFailed(ReindexEntityType.INSTANCE);
+
+    // assert
+    assertThat(actual).isTrue();
+  }
+
+  @Test
+  void isReindexInProgressOrFailed_falseWhenCompleted() {
     // given
     when(statusRepository.getReindexStatuses()).thenReturn(List.of(
       new ReindexStatusEntity(ReindexEntityType.INSTANCE, ReindexStatus.UPLOAD_COMPLETED),
       new ReindexStatusEntity(ReindexEntityType.HOLDINGS, ReindexStatus.MERGE_COMPLETED)));
 
     // act
-    var actual = service.isReindexInProgress();
+    var actual = service.isReindexInProgressOrFailed(ReindexEntityType.INSTANCE);
 
     // assert
     assertThat(actual).isFalse();

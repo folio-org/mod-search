@@ -71,6 +71,9 @@ public abstract class AbstractResourceRepository implements ResourceRepository {
 
   protected BulkResponse executeBulkRequest(BulkRequest bulkRequest) {
     var indicesString = bulkRequest.requests().stream().map(DocWriteRequest::index).collect(joining(","));
+    //todo: remove
+    log.info("executeBulkRequest:: Sending bulk request [actions: {}, estimatedSize: {} bytes]",
+      bulkRequest.numberOfActions(), bulkRequest.estimatedSizeInBytes());
     return performExceptionalOperation(() -> elasticsearchClient.bulk(bulkRequest, DEFAULT), indicesString, "bulkApi");
   }
 

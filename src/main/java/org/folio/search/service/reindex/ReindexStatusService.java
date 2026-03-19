@@ -132,15 +132,21 @@ public class ReindexStatusService {
   }
 
   /**
-   * Checks if any reindex operation is currently in progress (merge, upload or staging).
+   * Checks if a reindex operation for the given entity type is currently in progress or has failed.
    *
-   * @return true if any entity type has a status of MERGE_IN_PROGRESS, UPLOAD_IN_PROGRESS or STAGING_IN_PROGRESS
+   * @param entityType the entity type to check
+   * @return true if the entity type has a status of MERGE_IN_PROGRESS, UPLOAD_IN_PROGRESS, STAGING_IN_PROGRESS,
+   *     MERGE_FAILED, STAGING_FAILED or UPLOAD_FAILED
    */
-  public boolean isReindexInProgress() {
+  public boolean isReindexInProgressOrFailed(ReindexEntityType entityType) {
     return statusRepository.getReindexStatuses().stream()
+      .filter(status -> status.getEntityType() == entityType)
       .anyMatch(status -> status.getStatus() == ReindexStatus.MERGE_IN_PROGRESS
                           || status.getStatus() == ReindexStatus.UPLOAD_IN_PROGRESS
-                          || status.getStatus() == ReindexStatus.STAGING_IN_PROGRESS);
+                          || status.getStatus() == ReindexStatus.STAGING_IN_PROGRESS
+                          || status.getStatus() == ReindexStatus.MERGE_FAILED
+                          || status.getStatus() == ReindexStatus.STAGING_FAILED
+                          || status.getStatus() == ReindexStatus.UPLOAD_FAILED);
   }
 
   private List<ReindexStatusEntity> constructNewStatusRecords(List<ReindexEntityType> entityTypes,

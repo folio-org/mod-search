@@ -363,29 +363,45 @@ class ReindexStatusServiceTest {
   }
 
   @ParameterizedTest
-  @EnumSource(value = ReindexStatus.class, names = {"MERGE_IN_PROGRESS", "UPLOAD_IN_PROGRESS", "STAGING_IN_PROGRESS"})
-  void isReindexInProgress_true(ReindexStatus inProgressStatus) {
+  @EnumSource(value = ReindexStatus.class,
+    names = {"MERGE_IN_PROGRESS", "UPLOAD_IN_PROGRESS", "STAGING_IN_PROGRESS",
+             "MERGE_FAILED", "STAGING_FAILED", "UPLOAD_FAILED"})
+  void isReindexInProgressOrFailed_true(ReindexStatus status) {
     // given
     when(statusRepository.getReindexStatuses()).thenReturn(List.of(
-      new ReindexStatusEntity(ReindexEntityType.INSTANCE, inProgressStatus),
+      new ReindexStatusEntity(ReindexEntityType.INSTANCE, status),
       new ReindexStatusEntity(ReindexEntityType.HOLDINGS, ReindexStatus.MERGE_COMPLETED)));
 
     // act
-    var actual = service.isReindexInProgress();
+    var actual = service.isReindexInProgressOrFailed(ReindexEntityType.INSTANCE);
 
     // assert
     assertThat(actual).isTrue();
   }
 
   @Test
-  void isReindexInProgress_false() {
+  void isReindexInProgressOrFailed_false_whenEntityTypeHasCompletedStatus() {
     // given
     when(statusRepository.getReindexStatuses()).thenReturn(List.of(
       new ReindexStatusEntity(ReindexEntityType.INSTANCE, ReindexStatus.UPLOAD_COMPLETED),
       new ReindexStatusEntity(ReindexEntityType.HOLDINGS, ReindexStatus.MERGE_COMPLETED)));
 
     // act
-    var actual = service.isReindexInProgress();
+    var actual = service.isReindexInProgressOrFailed(ReindexEntityType.INSTANCE);
+
+    // assert
+    assertThat(actual).isFalse();
+  }
+
+  @Test
+  void isReindexInProgressOrFailed_false_whenDifferentEntityTypeIsInProgress() {
+    // given
+    when(statusRepository.getReindexStatuses()).thenReturn(List.of(
+      new ReindexStatusEntity(ReindexEntityType.INSTANCE, ReindexStatus.MERGE_IN_PROGRESS),
+      new ReindexStatusEntity(ReindexEntityType.HOLDINGS, ReindexStatus.MERGE_COMPLETED)));
+
+    // act
+    var actual = service.isReindexInProgressOrFailed(ReindexEntityType.HOLDINGS);
 
     // assert
     assertThat(actual).isFalse();

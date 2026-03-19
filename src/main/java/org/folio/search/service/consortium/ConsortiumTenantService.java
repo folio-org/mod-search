@@ -77,7 +77,7 @@ public class ConsortiumTenantService {
         .map(this::getTenantsList)
         .orElse(Collections.emptyList());
     } catch (Exception e) {
-      log.debug("Unexpected exception occurred while trying to get consortium tenants", e);
+      log.warn("Unexpected exception occurred while trying to get consortium tenants", e);
       throw new FolioIntegrationException("Failed to retrieve consortium tenants", e);
     }
   }

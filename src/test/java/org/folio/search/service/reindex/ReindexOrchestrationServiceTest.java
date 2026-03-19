@@ -1,6 +1,11 @@
 package org.folio.search.service.reindex;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.emptyList;
+import static org.folio.search.model.event.ReindexRecordType.INSTANCE;
+import static org.folio.search.model.types.ReindexRangeStatus.FAIL;
+import static org.folio.search.model.types.ReindexRangeStatus.SUCCESS;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -9,24 +14,28 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.folio.s3.client.FolioS3Client;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.exception.ReindexException;
+import org.folio.search.model.event.ReindexFileReadyEvent;
 import org.folio.search.model.event.ReindexRangeIndexEvent;
 import org.folio.search.model.event.ReindexRecordsEvent;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.types.IndexActionType;
 import org.folio.search.model.types.IndexingDataFormat;
 import org.folio.search.model.types.ReindexEntityType;
-import org.folio.search.model.types.ReindexRangeStatus;
 import org.folio.search.repository.PrimaryResourceRepository;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
+import org.folio.search.utils.JsonConverter;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -46,6 +55,10 @@ class ReindexOrchestrationServiceTest {
   private PrimaryResourceRepository elasticRepository;
   @Mock
   private MultiTenantSearchDocumentConverter documentConverter;
+  @Mock
+  private JsonConverter jsonConverter;
+  @Mock
+  private FolioS3Client folioS3Client;
 
   @InjectMocks
   private ReindexOrchestrationService service;
@@ -155,7 +168,7 @@ class ReindexOrchestrationServiceTest {
   void process_positive_reindexRecordsEvent() {
     var event = new ReindexRecordsEvent();
     event.setRangeId(UUID.randomUUID().toString());
-    event.setRecordType(ReindexRecordsEvent.ReindexRecordType.INSTANCE);
+    event.setRecordType(INSTANCE);
     event.setRecords(emptyList());
 
     service.process(event);
@@ -163,14 +176,14 @@ class ReindexOrchestrationServiceTest {
     verify(mergeRangeIndexService).saveEntities(event);
     verify(reindexStatusService).addProcessedMergeRanges(ReindexEntityType.INSTANCE, 1);
     verify(mergeRangeIndexService)
-      .updateStatus(ReindexEntityType.INSTANCE, event.getRangeId(), ReindexRangeStatus.SUCCESS, null);
+      .updateStatus(ReindexEntityType.INSTANCE, event.getRangeId(), SUCCESS, null);
   }
 
   @Test
   void process_negative_reindexRecordsEvent_shouldFailMergeOnException() {
     var event = new ReindexRecordsEvent();
     event.setRangeId(UUID.randomUUID().toString());
-    event.setRecordType(ReindexRecordsEvent.ReindexRecordType.INSTANCE);
+    event.setRecordType(INSTANCE);
     event.setRecords(emptyList());
     var failCause = "exception occurred";
     doThrow(new RuntimeException(failCause)).when(mergeRangeIndexService).saveEntities(event);
@@ -179,7 +192,7 @@ class ReindexOrchestrationServiceTest {
 
     verify(reindexStatusService).updateReindexMergeFailed(ReindexEntityType.INSTANCE);
     verify(mergeRangeIndexService)
-      .updateStatus(ReindexEntityType.INSTANCE, event.getRangeId(), ReindexRangeStatus.FAIL, failCause);
+      .updateStatus(ReindexEntityType.INSTANCE, event.getRangeId(), FAIL, failCause);
     verifyNoMoreInteractions(reindexStatusService);
   }
 
@@ -187,7 +200,7 @@ class ReindexOrchestrationServiceTest {
   void process_negative_reindexRecordsEvent_shouldNotFailMergeOnPessimisticLockingFailureException() {
     var event = new ReindexRecordsEvent();
     event.setRangeId(UUID.randomUUID().toString());
-    event.setRecordType(ReindexRecordsEvent.ReindexRecordType.INSTANCE);
+    event.setRecordType(INSTANCE);
     event.setRecords(emptyList());
     doThrow(new PessimisticLockingFailureException("Deadlock")).when(mergeRangeIndexService).saveEntities(event);
 
@@ -195,6 +208,90 @@ class ReindexOrchestrationServiceTest {
 
     verifyNoMoreInteractions(mergeRangeIndexService);
     verifyNoMoreInteractions(reindexStatusService);
+  }
+
+  @Test
+  void process_positive_reindexFileReadyEvent() {
+    service.setFolioS3Client(folioS3Client);
+    var rangeId = UUID.randomUUID().toString();
+    var event = getReindexFileReadyEvent(rangeId);
+    var line = "{\"id\":\"ddc29cbf-f2f5-4f6a-9411-359d6274478e\"}";
+    var inventoryRecord = Map.<String, Object>of("id", "ddc29cbf-f2f5-4f6a-9411-359d6274478e");
+    when(folioS3Client.read(event.getObjectKey())).thenReturn(new ByteArrayInputStream((line + "\n").getBytes(UTF_8)));
+    when(jsonConverter.fromJsonToMap(line)).thenReturn(inventoryRecord);
+
+    service.process(event);
+
+    var eventCaptor = ArgumentCaptor.forClass(ReindexRecordsEvent.class);
+    verify(mergeRangeIndexService).saveEntities(eventCaptor.capture());
+    assertEquals(List.of(inventoryRecord), eventCaptor.getValue().getRecords());
+    verify(reindexStatusService).addProcessedMergeRanges(ReindexEntityType.INSTANCE, 1);
+    verify(mergeRangeIndexService).updateStatus(ReindexEntityType.INSTANCE, rangeId, SUCCESS, null);
+  }
+
+  @Test
+  void process_positive_reindexFileReadyEvent_shouldSkipBlankLines() {
+    service.setFolioS3Client(folioS3Client);
+    var rangeId = UUID.randomUUID().toString();
+    var event = getReindexFileReadyEvent(rangeId);
+    var line1 = "{\"id\":\"ddc29cbf-f2f5-4f6a-9411-359d6274478e\"}";
+    var line2 = "{\"id\":\"23be9716-2935-4e8c-9931-f904eb10d6ce\"}";
+    var record1 = Map.<String, Object>of("id", "ddc29cbf-f2f5-4f6a-9411-359d6274478e");
+    var record2 = Map.<String, Object>of("id", "23be9716-2935-4e8c-9931-f904eb10d6ce");
+    when(folioS3Client.read(event.getObjectKey()))
+      .thenReturn(new ByteArrayInputStream((line1 + "\n\n" + line2 + "\n").getBytes(UTF_8)));
+    when(jsonConverter.fromJsonToMap(line1)).thenReturn(record1);
+    when(jsonConverter.fromJsonToMap(line2)).thenReturn(record2);
+
+    service.process(event);
+
+    var eventCaptor = ArgumentCaptor.forClass(ReindexRecordsEvent.class);
+    verify(mergeRangeIndexService).saveEntities(eventCaptor.capture());
+    assertEquals(List.of(record1, record2), eventCaptor.getValue().getRecords());
+    verify(reindexStatusService).addProcessedMergeRanges(ReindexEntityType.INSTANCE, 1);
+    verify(mergeRangeIndexService).updateStatus(ReindexEntityType.INSTANCE, rangeId, SUCCESS, null);
+  }
+
+  @Test
+  void process_negative_reindexFileReadyEvent_shouldFailMergeOnException() {
+    service.setFolioS3Client(folioS3Client);
+    var rangeId = UUID.randomUUID().toString();
+    var event = getReindexFileReadyEvent(rangeId);
+    var line = "{\"id\":\"ddc29cbf-f2f5-4f6a-9411-359d6274478e\"}";
+    var inventoryRecord = Map.<String, Object>of("id", "ddc29cbf-f2f5-4f6a-9411-359d6274478e");
+    var failCause = "exception occurred";
+    when(folioS3Client.read(event.getObjectKey())).thenReturn(new ByteArrayInputStream((line + "\n").getBytes(UTF_8)));
+    when(jsonConverter.fromJsonToMap(line)).thenReturn(inventoryRecord);
+    doThrow(new RuntimeException(failCause)).when(mergeRangeIndexService).saveEntities(any(ReindexRecordsEvent.class));
+
+    var result = service.process(event);
+
+    assertTrue(result);
+    verify(reindexStatusService).updateReindexMergeFailed(ReindexEntityType.INSTANCE);
+    verify(mergeRangeIndexService).updateStatus(ReindexEntityType.INSTANCE, rangeId, FAIL, failCause);
+    verifyNoMoreInteractions(reindexStatusService);
+  }
+
+  @Test
+  void process_negative_reindexFileReadyEvent_shouldThrowReindexExceptionOnPessimisticLockingFailureException() {
+    service.setFolioS3Client(folioS3Client);
+    var rangeId = UUID.randomUUID().toString();
+    var event = getReindexFileReadyEvent(rangeId);
+    var line = "{\"id\":\"ddc29cbf-f2f5-4f6a-9411-359d6274478e\"}";
+    var inventoryRecord = Map.<String, Object>of("id", "ddc29cbf-f2f5-4f6a-9411-359d6274478e");
+    when(folioS3Client.read(event.getObjectKey())).thenReturn(new ByteArrayInputStream((line + "\n").getBytes(UTF_8)));
+    when(jsonConverter.fromJsonToMap(line)).thenReturn(inventoryRecord);
+    doThrow(new PessimisticLockingFailureException("Deadlock"))
+      .when(mergeRangeIndexService).saveEntities(any(ReindexRecordsEvent.class));
+
+    assertThrows(ReindexException.class, () -> service.process(event));
+
+    verifyNoMoreInteractions(reindexStatusService);
+  }
+
+  private ReindexFileReadyEvent getReindexFileReadyEvent(String rangeId) {
+    return new ReindexFileReadyEvent("diku", INSTANCE, rangeId, UUID.randomUUID().toString(),
+      "bucket", "object-key", "2026-03-02T00:00:00.000Z");
   }
 
   private ReindexRangeIndexEvent reindexEvent() {

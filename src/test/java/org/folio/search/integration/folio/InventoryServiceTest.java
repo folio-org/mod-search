@@ -79,25 +79,25 @@ class InventoryServiceTest {
   @Test
   void publishReindexRecordsRange_ValidExecutionPath() {
     var id = UUID.randomUUID();
-    var validRange = new MergeRangeEntity(id, INSTANCE, TENANT_ID, "low", "high", Timestamp.from(
+    var validRange = new MergeRangeEntity(id, id, INSTANCE, TENANT_ID, "low", "high", Timestamp.from(
       Instant.now()), null, null);
-    var request = constructRequest(id.toString(), INSTANCE.getType(), "low", "high");
-    doNothing().when(reindexRecordsClient).publishReindexRecords(request);
+    var request = constructRequest(id.toString(), id.toString(), INSTANCE.getType(), "low", "high");
+    doNothing().when(reindexRecordsClient).exportReindexRecords(request);
 
     inventoryService.publishReindexRecordsRange(validRange);
-    verify(reindexRecordsClient).publishReindexRecords(request);
+    verify(reindexRecordsClient).exportReindexRecords(request);
   }
 
   @Test
   void publishReindexRecordsRange_ShouldRetryOnFailure() {
     var id = UUID.randomUUID();
-    var validRange = new MergeRangeEntity(id, INSTANCE, TENANT_ID, "low", "high", Timestamp.from(
+    var validRange = new MergeRangeEntity(id, id, INSTANCE, TENANT_ID, "low", "high", Timestamp.from(
       Instant.now()), null, null);
-    var request = constructRequest(id.toString(), INSTANCE.getType(), "low", "high");
-    doThrow(new RuntimeException("API failure")).when(reindexRecordsClient).publishReindexRecords(request);
+    var request = constructRequest(id.toString(), id.toString(), INSTANCE.getType(), "low", "high");
+    doThrow(new RuntimeException("API failure")).when(reindexRecordsClient).exportReindexRecords(request);
 
     assertThrows(FolioIntegrationException.class, () -> inventoryService.publishReindexRecordsRange(validRange));
 
-    verify(reindexRecordsClient, times(6)).publishReindexRecords(request);
+    verify(reindexRecordsClient, times(6)).exportReindexRecords(request);
   }
 }

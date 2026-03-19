@@ -102,29 +102,33 @@ public class ReindexMergeRangeIndexService {
                                                             int rangeSize,
                                                             InventoryRecordType recordType,
                                                             String tenantId) {
-    log.info("constructMergeRangeRecords:: [tenantId: {}, recordType: {}, recordsCount: {}, rangeSize: {}]",
-      tenantId, recordType, recordsCount, rangeSize);
+    var traceId = UUID.randomUUID();
+    log.info("constructMergeRangeRecords:: [tenantId: {}, traceId: {}, "
+             + "recordType: {}, recordsCount: {}, rangeSize: {}]",
+      tenantId, traceId, recordType, recordsCount, rangeSize);
     if (recordsCount == 0) {
-      log.info("constructMergeRangeRecords:: constructed empty range [tenantId: {}, entityType: {}]",
-        tenantId, recordType);
+      log.info("constructMergeRangeRecords:: constructed empty range [tenantId: {}, traceId: {}, entityType: {}]",
+        tenantId, traceId, recordType);
       var range = RangeGenerator.emptyUuidRange();
-      var mergeRangeEntity = mergeEntity(recordType, tenantId, range.lowerBound(), range.upperBound());
+      var mergeRangeEntity = mergeEntity(recordType, tenantId, traceId, range.lowerBound(), range.upperBound());
       return List.of(mergeRangeEntity);
     }
     var rangesCount = (int) Math.ceil((double) recordsCount / rangeSize);
     return RangeGenerator.createUuidRanges(rangesCount).stream()
-      .map(range -> mergeEntity(recordType, tenantId, range.lowerBound(), range.upperBound()))
+      .map(range -> mergeEntity(recordType, tenantId, traceId, range.lowerBound(), range.upperBound()))
       .toList();
   }
 
-  private MergeRangeEntity mergeEntity(InventoryRecordType recordType, String tenantId, String lowerId,
+  private MergeRangeEntity mergeEntity(InventoryRecordType recordType, String tenantId, UUID traceId, String lowerId,
                                        String upperId) {
-    return mergeEntity(UUID.randomUUID(), recordType, tenantId, lowerId, upperId, Timestamp.from(Instant.now()));
+    return mergeEntity(UUID.randomUUID(), recordType, tenantId, traceId, lowerId, upperId,
+      Timestamp.from(Instant.now()));
   }
 
-  private MergeRangeEntity mergeEntity(UUID id, InventoryRecordType recordType, String tenantId, String lowerId,
-                                       String upperId, Timestamp createdAt) {
-    return new MergeRangeEntity(id, asEntityType(recordType), tenantId, lowerId, upperId, createdAt, null, null);
+  private MergeRangeEntity mergeEntity(UUID id, InventoryRecordType recordType, String tenantId, UUID traceId,
+                                       String lowerId, String upperId, Timestamp createdAt) {
+    return new MergeRangeEntity(id, traceId, asEntityType(recordType), tenantId, lowerId, upperId,
+      createdAt, null, null);
   }
 
   private ReindexEntityType asEntityType(InventoryRecordType recordType) {

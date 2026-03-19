@@ -10,7 +10,6 @@ import static org.opensearch.client.RequestOptions.DEFAULT;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
 
 import java.util.List;
-import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.model.index.SearchDocumentBody;
@@ -26,7 +25,6 @@ import org.opensearch.index.reindex.BulkByScrollResponse;
 import org.opensearch.index.reindex.DeleteByQueryRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@Log4j2
 public abstract class AbstractResourceRepository implements ResourceRepository {
 
   protected RestHighLevelClient elasticsearchClient;
@@ -71,9 +69,6 @@ public abstract class AbstractResourceRepository implements ResourceRepository {
 
   protected BulkResponse executeBulkRequest(BulkRequest bulkRequest) {
     var indicesString = bulkRequest.requests().stream().map(DocWriteRequest::index).collect(joining(","));
-    //todo: remove
-    log.info("executeBulkRequest:: Sending bulk request [actions: {}, estimatedSize: {} bytes]",
-      bulkRequest.numberOfActions(), bulkRequest.estimatedSizeInBytes());
     return performExceptionalOperation(() -> elasticsearchClient.bulk(bulkRequest, DEFAULT), indicesString, "bulkApi");
   }
 

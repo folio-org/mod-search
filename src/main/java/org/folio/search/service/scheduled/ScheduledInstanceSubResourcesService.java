@@ -119,8 +119,9 @@ public class ScheduledInstanceSubResourcesService {
   }
 
   private void handleLockAcquisitionFailure(ReindexEntityType entityType, String tenant) {
-    if (isReindexInProgress()) {
-      log.info("persistChildren::Skipping stale lock check for entity type {} in tenant {} - reindex is in progress",
+    if (isReindexInProgressOrFailed()) {
+      log.info(
+        "persistChildren::Skipping stale lock check for entity type {} in tenant {} - reindex is in progress or failed",
         entityType, tenant);
       return;
     }
@@ -132,11 +133,11 @@ public class ScheduledInstanceSubResourcesService {
     }
   }
 
-  private boolean isReindexInProgress() {
+  private boolean isReindexInProgressOrFailed() {
     try {
-      return reindexStatusService.isReindexInProgress();
+      return reindexStatusService.isReindexInProgressOrFailed();
     } catch (Exception e) {
-      log.warn("persistChildren::Failed to check reindex status, assuming no reindex in progress", e);
+      log.warn("persistChildren::Failed to check reindex status, assuming no reindex in progress or failed", e);
       return false;
     }
   }

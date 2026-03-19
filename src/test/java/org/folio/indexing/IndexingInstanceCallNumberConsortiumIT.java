@@ -36,6 +36,7 @@ import org.springframework.test.context.TestPropertySource;
 class IndexingInstanceCallNumberConsortiumIT extends BaseIntegrationTest {
 
   private static final String INSTANCE_ID = randomId();
+  private static final String LOCATION_ID = randomId();
   private static final String INSTANCE_TITLE = "title";
   private static final String CALL_NUMBER = "test";
 
@@ -94,6 +95,7 @@ class IndexingInstanceCallNumberConsortiumIT extends BaseIntegrationTest {
   private static void setUpTestData() {
     var holdings = new Holding().id(randomId());
     var item = new Item().id(randomId()).holdingsRecordId(holdings.getId())
+      .effectiveLocationId(LOCATION_ID)
       .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents().callNumber(CALL_NUMBER));
     var instance = new Instance().id(INSTANCE_ID).title(INSTANCE_TITLE).source("FOLIO")
       .holdings(List.of(holdings))

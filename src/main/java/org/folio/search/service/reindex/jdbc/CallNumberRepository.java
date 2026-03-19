@@ -14,6 +14,7 @@ import static org.folio.search.utils.SearchUtils.CALL_NUMBER_TYPE_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
 import static org.folio.search.utils.SearchUtils.SUB_RESOURCE_INSTANCES_FIELD;
 
+import java.io.Reader;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -258,10 +259,6 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
   protected RowMapper<Map<String, Object>> rowToMapMapper2() {
     return (rs, rowNum) -> {
       var callNumberMap = getCallNumberMap(rs);
-      var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
-      if (!maps.isEmpty()) {
-        callNumberMap.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
-      }
       callNumberMap.put(LAST_UPDATED_DATE_FIELD, rs.getTimestamp("last_updated_date"));
       return callNumberMap;
     };
@@ -278,8 +275,8 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
     callNumberMap.put(CALL_NUMBER_PREFIX_FIELD, getCallNumberPrefix(rs));
     callNumberMap.put(CALL_NUMBER_SUFFIX_FIELD, callNumberSuffix);
     callNumberMap.put(CALL_NUMBER_TYPE_ID_FIELD, getCallNumberTypeId(rs));
-    var subResources = jsonConverter.toJson(parseInstanceSubResources(getInstances(rs)));
-    var maps = jsonConverter.fromJsonToListOfMaps(subResources).stream().filter(Objects::nonNull).toList();
+    var instancesReader = getInstancesReader(rs);
+    var maps = jsonConverter.fromJsonToListOfMaps(instancesReader).stream().filter(Objects::nonNull).toList();
     if (!maps.isEmpty()) {
       callNumberMap.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
     }
@@ -342,8 +339,8 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
     return rs.getString("call_number_type_id");
   }
 
-  private String getInstances(ResultSet rs) throws SQLException {
-    return rs.getString("instances");
+  private Reader getInstancesReader(ResultSet rs) throws SQLException {
+    return rs.getCharacterStream("instances");
   }
 
   private String getCallNumber(Map<String, Object> callNumberComponents) {

@@ -82,8 +82,11 @@ public class SearchDocumentConverter {
     var baseFields = convertMapUsingResourceFields(getNewAsMap(resourceEvent), resourceDescriptionFields, context);
     var searchFields = searchFieldsProcessor.getSearchFields(context);
     var resultDocument = mergeSafely(baseFields, searchFields);
-    return SearchDocumentBody.of(searchDocumentBodyConverter.apply(resultDocument),
-      indexingDataFormat, resourceEvent, INDEX);
+    // Release the large _new Map before serialization — resultDocument is already a fully independent copy.
+    // ResourceEvent is still referenced by SearchDocumentBody for id/tenant/resource metadata only.
+    resourceEvent.setNew(null);
+    var documentBody = searchDocumentBodyConverter.apply(resultDocument);
+    return SearchDocumentBody.of(documentBody, indexingDataFormat, resourceEvent, INDEX);
   }
 
   private List<String> getResourceLanguages(List<String> languageSource, Map<String, Object> resourceData) {

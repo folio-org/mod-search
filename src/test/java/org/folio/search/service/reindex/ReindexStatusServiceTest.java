@@ -188,7 +188,7 @@ class ReindexStatusServiceTest {
       new ReindexStatusEntity(ReindexEntityType.HOLDINGS, ReindexStatus.MERGE_COMPLETED)));
 
     // act
-    var actual = service.isReindexInProgressOrFailed(ReindexEntityType.INSTANCE);
+    var actual = service.isReindexInProgressOrFailed();
 
     // assert
     assertThat(actual).isTrue();
@@ -202,7 +202,7 @@ class ReindexStatusServiceTest {
       new ReindexStatusEntity(ReindexEntityType.HOLDINGS, ReindexStatus.MERGE_COMPLETED)));
 
     // act
-    var actual = service.isReindexInProgressOrFailed(ReindexEntityType.INSTANCE);
+    var actual = service.isReindexInProgressOrFailed();
 
     // assert
     assertThat(actual).isTrue();
@@ -216,7 +216,7 @@ class ReindexStatusServiceTest {
       new ReindexStatusEntity(ReindexEntityType.HOLDINGS, ReindexStatus.MERGE_COMPLETED)));
 
     // act
-    var actual = service.isReindexInProgressOrFailed(ReindexEntityType.INSTANCE);
+    var actual = service.isReindexInProgressOrFailed();
 
     // assert
     assertThat(actual).isTrue();
@@ -230,7 +230,7 @@ class ReindexStatusServiceTest {
       new ReindexStatusEntity(ReindexEntityType.HOLDINGS, ReindexStatus.MERGE_COMPLETED)));
 
     // act
-    var actual = service.isReindexInProgressOrFailed(ReindexEntityType.INSTANCE);
+    var actual = service.isReindexInProgressOrFailed();
 
     // assert
     assertThat(actual).isTrue();
@@ -244,7 +244,7 @@ class ReindexStatusServiceTest {
       new ReindexStatusEntity(ReindexEntityType.HOLDINGS, ReindexStatus.MERGE_COMPLETED)));
 
     // act
-    var actual = service.isReindexInProgressOrFailed(ReindexEntityType.INSTANCE);
+    var actual = service.isReindexInProgressOrFailed();
 
     // assert
     assertThat(actual).isFalse();

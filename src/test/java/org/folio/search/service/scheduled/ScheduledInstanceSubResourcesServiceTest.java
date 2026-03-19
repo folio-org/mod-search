@@ -182,7 +182,7 @@ class ScheduledInstanceSubResourcesServiceTest {
       .when(executionService).executeSystemUserScoped(anyString(), any());
     when(tenantRepository.fetchDataTenantIds()).thenReturn(List.of(TENANT_ID));
     when(subResourcesLockRepository.lockSubResource(any(), eq(TENANT_ID))).thenReturn(Optional.empty());
-    when(reindexStatusService.isReindexInProgressOrFailed(any())).thenReturn(false);
+    when(reindexStatusService.isReindexInProgressOrFailed()).thenReturn(false);
     when(subResourcesLockRepository.checkAndReleaseStaleLock(any(), eq(TENANT_ID), anyLong())).thenReturn(true);
 
     // Act
@@ -190,7 +190,7 @@ class ScheduledInstanceSubResourcesServiceTest {
 
     // Assert
     verify(subResourcesLockRepository, times(3)).lockSubResource(any(), eq(TENANT_ID));
-    verify(reindexStatusService, times(3)).isReindexInProgressOrFailed(any());
+    verify(reindexStatusService, times(3)).isReindexInProgressOrFailed();
     verify(subResourcesLockRepository, times(3)).checkAndReleaseStaleLock(any(), eq(TENANT_ID), anyLong());
     verify(subResourcesLockRepository, never()).unlockSubResource(any(), any(), any());
     verify(subjectRepository, never()).fetchByTimestamp(anyString(), any(), anyInt());
@@ -204,7 +204,7 @@ class ScheduledInstanceSubResourcesServiceTest {
       .when(executionService).executeSystemUserScoped(anyString(), any());
     when(tenantRepository.fetchDataTenantIds()).thenReturn(List.of(TENANT_ID));
     when(subResourcesLockRepository.lockSubResource(any(), eq(TENANT_ID))).thenReturn(Optional.empty());
-    when(reindexStatusService.isReindexInProgressOrFailed(any())).thenReturn(false);
+    when(reindexStatusService.isReindexInProgressOrFailed()).thenReturn(false);
     when(subResourcesLockRepository.checkAndReleaseStaleLock(any(), eq(TENANT_ID), anyLong())).thenReturn(false);
 
     // Act
@@ -212,7 +212,7 @@ class ScheduledInstanceSubResourcesServiceTest {
 
     // Assert
     verify(subResourcesLockRepository, times(3)).lockSubResource(any(), eq(TENANT_ID));
-    verify(reindexStatusService, times(3)).isReindexInProgressOrFailed(any());
+    verify(reindexStatusService, times(3)).isReindexInProgressOrFailed();
     verify(subResourcesLockRepository, times(3)).checkAndReleaseStaleLock(any(), eq(TENANT_ID), anyLong());
     verify(subResourcesLockRepository, never()).unlockSubResource(any(), any(), any());
     verify(subjectRepository, never()).fetchByTimestamp(anyString(), any(), anyInt());
@@ -226,14 +226,14 @@ class ScheduledInstanceSubResourcesServiceTest {
       .when(executionService).executeSystemUserScoped(anyString(), any());
     when(tenantRepository.fetchDataTenantIds()).thenReturn(List.of(TENANT_ID));
     when(subResourcesLockRepository.lockSubResource(any(), eq(TENANT_ID))).thenReturn(Optional.empty());
-    when(reindexStatusService.isReindexInProgressOrFailed(any())).thenReturn(true);
+    when(reindexStatusService.isReindexInProgressOrFailed()).thenReturn(true);
 
     // Act
     service.persistChildren();
 
     // Assert
     verify(subResourcesLockRepository, times(3)).lockSubResource(any(), eq(TENANT_ID));
-    verify(reindexStatusService, times(3)).isReindexInProgressOrFailed(any());
+    verify(reindexStatusService, times(3)).isReindexInProgressOrFailed();
     verify(subResourcesLockRepository, never()).checkAndReleaseStaleLock(any(), any(), anyLong());
     verify(subResourcesLockRepository, never()).unlockSubResource(any(), any(), any());
     verify(subjectRepository, never()).fetchByTimestamp(anyString(), any(), anyInt());

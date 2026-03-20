@@ -78,16 +78,15 @@ class IndexingInstanceCallNumberIT extends BaseIntegrationTest {
       // assert that the document contains the expected fields
       assertCallNumberDocFields(sourceAsMap);
 
-      // assert that the document contains the expected instances object with count 1
+      // assert that the document contains the expected instances object with count 2
       @SuppressWarnings("unchecked")
       var instances = (List<Map<String, Object>>) sourceAsMap.get("instances");
       assertThat(instances)
         .hasSize(1)
         .allSatisfy(map -> assertThat(map).containsEntry("shared", false))
-        .allSatisfy(map -> assertThat(map).containsEntry("tenantId", TENANT_ID));
-      @SuppressWarnings("unchecked")
-      var ids = (List<String>) instances.getFirst().get("instanceId");
-      assertThat(ids).containsExactlyInAnyOrder(INSTANCE_ID_1, INSTANCE_ID_2);
+        .allSatisfy(map -> assertThat(map).containsEntry("tenantId", TENANT_ID))
+        .allSatisfy(map -> assertThat(map).containsEntry("count", 2))
+        .allSatisfy(map -> assertThat(map).doesNotContainKey("instanceId"));
     });
   }
 

@@ -124,8 +124,10 @@ class CallNumberBrowseServiceTest {
     var count1 = callNumber.length() - 1;
     var count2 = callNumber.length() - 2;
     return Set.of(
-      InstanceSubResource.builder().tenantId(TENANT_ID).count(count1).instanceTitle("title").build(),
-      InstanceSubResource.builder().tenantId(TENANT_ID).count(count2).instanceTitle("title").build()
+      InstanceSubResource.builder().tenantId(TENANT_ID).count(count1).locationId("loc1")
+        .instanceTitle("title").build(),
+      InstanceSubResource.builder().tenantId(TENANT_ID).count(count2).locationId("loc2")
+        .instanceTitle("title").build()
     );
   }
 

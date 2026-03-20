@@ -1,7 +1,10 @@
 package org.folio.search.service.browse;
 
+import static java.util.stream.Collectors.toSet;
 import static org.folio.search.utils.SearchUtils.CALL_NUMBER_TYPE_ID_FIELD;
 
+import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import lombok.extern.log4j.Log4j2;
@@ -76,9 +79,28 @@ public class CallNumberBrowseService
 
   private Integer getTotalRecords(BrowseContext ctx, CallNumberResource resource,
                                   Function<CallNumberResource, Set<InstanceSubResource>> func) {
-    return consortiumSearchHelper.filterSubResourcesForConsortium(ctx, resource, func)
-      .stream()
-      .map(InstanceSubResource::getCount)
-      .reduce(0, Integer::sum);
+    var subResources = consortiumSearchHelper.filterSubResourcesForConsortium(ctx, resource, func);
+
+    var largeGroupKeys = subResources.stream()
+      .filter(sub -> sub.getCount() != null && sub.getCount() > 1)
+      .map(sub -> sub.getShared() + ":" + sub.getLocationId())
+      .collect(toSet());
+
+    var knownInstanceIds = new HashSet<String>();
+    var countWithoutIds = 0;
+
+    for (var sub : subResources) {
+      var ids = sub.getInstanceId();
+      if (ids != null && !ids.isEmpty()) {
+        var key = sub.getShared() + ":" + sub.getLocationId();
+        if (!largeGroupKeys.contains(key)) {
+          knownInstanceIds.addAll(ids);
+        }
+      } else {
+        countWithoutIds += Objects.requireNonNullElse(sub.getCount(), 0);
+      }
+    }
+
+    return knownInstanceIds.size() + countWithoutIds;
   }
 }

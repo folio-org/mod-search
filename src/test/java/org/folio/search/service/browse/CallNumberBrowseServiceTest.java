@@ -19,7 +19,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.IntStream;
 import org.folio.search.domain.dto.BrowseConfig;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.ShelvingOrderAlgorithmType;
@@ -100,10 +99,10 @@ class CallNumberBrowseServiceTest {
 
     assertThat(browseSearchResult).isEqualTo(BrowseResult.of(6, "s1", "s12345", List.of(
       callNumberBrowseItem(1, "s1", "title"),
-      callNumberBrowseItem(2, "s12"),
-      callNumberBrowseItem(3, "s123"),
-      callNumberBrowseItem(4, "s1234"),
-      callNumberBrowseItem(5, "s12345")
+      callNumberBrowseItem(3, "s12"),
+      callNumberBrowseItem(5, "s123"),
+      callNumberBrowseItem(7, "s1234"),
+      callNumberBrowseItem(9, "s12345")
     )));
   }
 
@@ -115,22 +114,18 @@ class CallNumberBrowseServiceTest {
     return callNumberBrowseItem(totalRecords, cn, null);
   }
 
-  private CallNumberResource[] browseItems(String... subject) {
-    return Arrays.stream(subject)
-      .map(sub -> new CallNumberResource("id", sub, sub, null, null, null, buildSubResources(sub)))
+  private CallNumberResource[] browseItems(String... callNumbers) {
+    return Arrays.stream(callNumbers)
+      .map(cn -> new CallNumberResource("id", cn, cn, null, null, null, buildSubResources(cn)))
       .toArray(CallNumberResource[]::new);
   }
 
-  private Set<InstanceSubResource> buildSubResources(String sub) {
-    var instanceIds1 = IntStream.range(1, sub.length())
-      .mapToObj(String::valueOf)
-      .toList();
-    var instanceIds2 = IntStream.range(1, sub.length() - 1)
-      .mapToObj(String::valueOf)
-      .toList();
+  private Set<InstanceSubResource> buildSubResources(String callNumber) {
+    var count1 = callNumber.length() - 1;
+    var count2 = callNumber.length() - 2;
     return Set.of(
-      InstanceSubResource.builder().tenantId(TENANT_ID).instanceId(instanceIds1).instanceTitle("title").build(),
-      InstanceSubResource.builder().tenantId(TENANT_ID).instanceId(instanceIds2).instanceTitle("title").build()
+      InstanceSubResource.builder().tenantId(TENANT_ID).count(count1).instanceTitle("title").build(),
+      InstanceSubResource.builder().tenantId(TENANT_ID).count(count2).instanceTitle("title").build()
     );
   }
 

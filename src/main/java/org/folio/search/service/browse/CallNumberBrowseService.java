@@ -2,7 +2,6 @@ package org.folio.search.service.browse;
 
 import static org.folio.search.utils.SearchUtils.CALL_NUMBER_TYPE_ID_FIELD;
 
-import java.util.Collection;
 import java.util.Set;
 import java.util.function.Function;
 import lombok.extern.log4j.Log4j2;
@@ -79,10 +78,7 @@ public class CallNumberBrowseService
                                   Function<CallNumberResource, Set<InstanceSubResource>> func) {
     return consortiumSearchHelper.filterSubResourcesForConsortium(ctx, resource, func)
       .stream()
-      .map(InstanceSubResource::getInstanceId)
-      .flatMap(Collection::stream)
-      .distinct()
-      .mapToInt(id -> 1)
-      .sum();
+      .map(InstanceSubResource::getCount)
+      .reduce(0, Integer::sum);
   }
 }

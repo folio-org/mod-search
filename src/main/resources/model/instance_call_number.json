@@ -40,6 +40,9 @@
         "instanceId": {
           "index": "source"
         },
+        "count": {
+          "index": "source"
+        },
         "locationId": {
           "index": "keyword",
           "searchTypes": [ "facet", "filter" ]

@@ -5,6 +5,7 @@ import static org.opensearch.index.query.QueryBuilders.idsQuery;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.MapUtils;
@@ -51,8 +52,9 @@ public final class CallNumberSearchResponsePostProcessor implements SearchRespon
 
   private void countAndSetNumberOfLinkedInstances(List<InstanceSubResource> callNumbers) {
     var ids = callNumbers.stream()
+      .filter(sub -> sub.getCount() != null && sub.getCount() == 1)
       .map(InstanceSubResource::getInstanceId)
-      .filter(instanceIds -> instanceIds.size() == 1)
+      .filter(Objects::nonNull)
       .flatMap(Collection::stream)
       .distinct()
       .toList();
@@ -66,7 +68,8 @@ public final class CallNumberSearchResponsePostProcessor implements SearchRespon
       var instanceId = searchHit.getId();
       var instanceTitle = MapUtils.getString(searchHit.getSourceAsMap(), INSTANCE_TITLE_FIELD);
       for (var callNumber : callNumbers) {
-        if (callNumber.getInstanceId().size() == 1 && callNumber.getInstanceId().getFirst().equals(instanceId)) {
+        if (callNumber.getCount() != null && callNumber.getCount() == 1
+            && callNumber.getInstanceId() != null && callNumber.getInstanceId().contains(instanceId)) {
           callNumber.setInstanceTitle(instanceTitle);
         }
       }

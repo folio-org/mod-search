@@ -46,6 +46,8 @@
 * **Linked Data Instance, Work and Hub**
   * Search by classification type/number/additionalNumber ([MSEARCH-989](https://folio-org.atlassian.net/browse/MSEARCH-989))
   * Rename "AAP" to "label" to be consistent with the terminology used in mod-linked-data ([MSEARCH-1099](https://folio-org.atlassian.net/browse/MSEARCH-1099))
+* **Call Number Browse**
+  * Don't index instance ids for call numbers ([MSEARCH-1187](https://folio-org.atlassian.net/browse/MSEARCH-1187))
 
 ### Bug fixes
 * **General**

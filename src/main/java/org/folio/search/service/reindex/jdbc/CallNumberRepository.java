@@ -44,7 +44,10 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
     SELECT c.*,
            json_agg(
                    json_build_object(
-                           'instanceId', sub.instance_ids,
+                           'instanceId', CASE WHEN sub.instance_count = 1
+                                              THEN json_build_array(sub.single_instance_id)
+                                              ELSE NULL END,
+                           'count', sub.instance_count,
                            'tenantId', sub.tenant_id,
                            'shared', sub.shared,
                            'locationId', sub.location_id
@@ -54,7 +57,8 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
                  ins.tenant_id,
                  i.shared,
                  ins.location_id,
-                 array_agg(DISTINCT i.id) AS instance_ids
+                 COUNT(DISTINCT i.id) AS instance_count,
+                 MIN(i.id::text) AS single_instance_id
           FROM %1$s.instance_call_number ins
           INNER JOIN %1$s.instance i ON i.id = ins.instance_id
           WHERE %2$s
@@ -112,9 +116,12 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
         c.last_updated_date,
         json_agg(
             CASE
-                WHEN sub.instance_ids IS NULL THEN NULL
+                WHEN sub.instance_count IS NULL THEN NULL
                 ELSE json_build_object(
-                     'instanceId', sub.instance_ids,
+                     'instanceId', CASE WHEN sub.instance_count = 1
+                                        THEN json_build_array(sub.single_instance_id)
+                                        ELSE NULL END,
+                     'count', sub.instance_count,
                      'tenantId', sub.tenant_id,
                      'shared', sub.shared,
                      'locationId', sub.location_id
@@ -128,7 +135,8 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
             ins.tenant_id,
             i.shared,
             ins.location_id,
-            array_agg(DISTINCT i.id) AS instance_ids
+            COUNT(DISTINCT i.id) AS instance_count,
+            MIN(i.id::text) AS single_instance_id
         FROM %1$s.instance_call_number ins
         INNER JOIN cte ON ins.call_number_id = cte.id
         INNER JOIN %1$s.instance i ON i.id = ins.instance_id

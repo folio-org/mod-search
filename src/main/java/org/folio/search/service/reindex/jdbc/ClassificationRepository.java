@@ -215,7 +215,6 @@ public class ClassificationRepository extends UploadRangeRepository implements I
     deleteByInstanceIds(DELETE_QUERY, instanceIds, tenantId);
   }
 
-  @SuppressWarnings("checkstyle:MethodLength")
   @Override
   public void saveAll(ChildResourceEntityBatch entityBatch) {
     // Use staging tables only for member tenant specific full reindex

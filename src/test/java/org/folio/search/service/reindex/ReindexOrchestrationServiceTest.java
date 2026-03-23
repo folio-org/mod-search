@@ -258,9 +258,8 @@ class ReindexOrchestrationServiceTest {
       .status(FolioIndexOperationResponse.StatusEnum.SUCCESS);
 
     when(uploadRangeService.fetchRecordRange(event)).thenReturn(List.of(resourceEvent));
-    when(documentConverter.convert(List.of(resourceEvent)))
-      .thenReturn(Map.of("key", List.of(SearchDocumentBody.of(null,
-      IndexingDataFormat.JSON, resourceEvent, IndexActionType.INDEX))));
+    when(documentConverter.convertForReindex(List.of(resourceEvent))).thenReturn(List.of(SearchDocumentBody.of(null,
+      IndexingDataFormat.JSON, resourceEvent, IndexActionType.INDEX)));
     when(elasticRepository.indexResources(any())).thenReturn(folioIndexOperationResponse);
 
     // act
@@ -268,7 +267,7 @@ class ReindexOrchestrationServiceTest {
 
     // assert
     verify(uploadRangeService).fetchRecordRange(event);
-    verify(documentConverter).convert(List.of(resourceEvent));
+    verify(documentConverter).convertForReindex(List.of(resourceEvent));
     verify(elasticRepository).indexResources(any());
     verify(reindexStatusService).addProcessedUploadRanges(event.getEntityType(), 1);
   }

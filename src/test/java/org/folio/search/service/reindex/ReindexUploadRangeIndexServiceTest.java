@@ -1,6 +1,7 @@
 package org.folio.search.service.reindex;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
@@ -39,8 +40,7 @@ class ReindexUploadRangeIndexServiceTest {
   @BeforeEach
   void setUp() {
     when(repository.entityType()).thenReturn(ReindexEntityType.INSTANCE);
-    service = new ReindexUploadRangeIndexService(List.of(repository),
-      indexRangeEventProducer, statusService);
+    service = new ReindexUploadRangeIndexService(List.of(repository), indexRangeEventProducer, statusService);
   }
 
   @Test
@@ -53,15 +53,41 @@ class ReindexUploadRangeIndexServiceTest {
 
     // assert
     verify(statusService).updateReindexUploadStarted(ReindexEntityType.INSTANCE, 1);
-    ArgumentCaptor<List<ReindexRangeIndexEvent>> captor = ArgumentCaptor.captor();
+    var captor = ArgumentCaptor.<List<ReindexRangeIndexEvent>>captor();
     verify(indexRangeEventProducer).sendMessages(captor.capture());
-    List<ReindexRangeIndexEvent> events = captor.getValue();
+    var events = captor.getValue();
     assertThat(events)
       .hasSize(1)
       .extracting(ReindexRangeIndexEvent::getEntityType,
         ReindexRangeIndexEvent::getLower,
-        ReindexRangeIndexEvent::getUpper)
-      .containsExactly(Tuple.tuple(uploadRange.getEntityType(), uploadRange.getLower(), uploadRange.getUpper()));
+        ReindexRangeIndexEvent::getUpper,
+        ReindexRangeIndexEvent::getMemberTenantId)
+      .containsExactly(Tuple.tuple(uploadRange.getEntityType(), uploadRange.getLower(), uploadRange.getUpper(), null));
+  }
+
+  @Test
+  void prepareAndSendIndexRanges_positive_consortiumMember(@Random UploadRangeEntity uploadRange) {
+    // arrange
+    when(repository.createUploadRanges()).thenReturn(List.of(uploadRange));
+
+    // act
+    ReindexContext.setMemberTenantId(MEMBER_TENANT_ID);
+    service.prepareAndSendIndexRanges(ReindexEntityType.INSTANCE);
+    ReindexContext.clearMemberTenantId();
+
+    // assert
+    verify(statusService).updateReindexUploadStarted(ReindexEntityType.INSTANCE, 1);
+    var captor = ArgumentCaptor.<List<ReindexRangeIndexEvent>>captor();
+    verify(indexRangeEventProducer).sendMessages(captor.capture());
+    var events = captor.getValue();
+    assertThat(events)
+      .hasSize(1)
+      .extracting(ReindexRangeIndexEvent::getEntityType,
+        ReindexRangeIndexEvent::getLower,
+        ReindexRangeIndexEvent::getUpper,
+        ReindexRangeIndexEvent::getMemberTenantId)
+      .containsExactly(Tuple.tuple(uploadRange.getEntityType(), uploadRange.getLower(), uploadRange.getUpper(),
+        MEMBER_TENANT_ID));
   }
 
   @Test

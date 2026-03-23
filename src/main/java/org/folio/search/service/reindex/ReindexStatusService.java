@@ -132,19 +132,21 @@ public class ReindexStatusService {
   }
 
   /**
-   * Checks if any reindex operation is currently in progress or has failed.
+   * Checks if any reindex operation is currently in progress or has failed, excluding operations
+   * scoped to a specific consortium member tenant (i.e. where targetTenantId is not null).
    *
    * @return true if any entity type has a status of MERGE_IN_PROGRESS, UPLOAD_IN_PROGRESS, STAGING_IN_PROGRESS,
-   *     MERGE_FAILED, STAGING_FAILED or UPLOAD_FAILED
+   *     MERGE_FAILED, STAGING_FAILED or UPLOAD_FAILED and the operation is not scoped to a consortium member tenant
    */
-  public boolean isReindexInProgressOrFailed() {
+  public boolean isReindexInProgressOrFailedNotForConsortiumMember() {
     return statusRepository.getReindexStatuses().stream()
-      .anyMatch(status -> status.getStatus() == ReindexStatus.MERGE_IN_PROGRESS
-                          || status.getStatus() == ReindexStatus.UPLOAD_IN_PROGRESS
-                          || status.getStatus() == ReindexStatus.STAGING_IN_PROGRESS
-                          || status.getStatus() == ReindexStatus.MERGE_FAILED
-                          || status.getStatus() == ReindexStatus.STAGING_FAILED
-                          || status.getStatus() == ReindexStatus.UPLOAD_FAILED);
+      .anyMatch(status -> status.getTargetTenantId() == null
+                          && (status.getStatus() == ReindexStatus.MERGE_IN_PROGRESS
+                              || status.getStatus() == ReindexStatus.UPLOAD_IN_PROGRESS
+                              || status.getStatus() == ReindexStatus.STAGING_IN_PROGRESS
+                              || status.getStatus() == ReindexStatus.MERGE_FAILED
+                              || status.getStatus() == ReindexStatus.STAGING_FAILED
+                              || status.getStatus() == ReindexStatus.UPLOAD_FAILED));
   }
 
   private List<ReindexStatusEntity> constructNewStatusRecords(List<ReindexEntityType> entityTypes,

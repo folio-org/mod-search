@@ -366,44 +366,64 @@ class ReindexStatusServiceTest {
   @EnumSource(value = ReindexStatus.class,
     names = {"MERGE_IN_PROGRESS", "UPLOAD_IN_PROGRESS", "STAGING_IN_PROGRESS",
              "MERGE_FAILED", "STAGING_FAILED", "UPLOAD_FAILED"})
-  void isReindexInProgressOrFailed_true(ReindexStatus status) {
+  void isReindexInProgressOrFailedNotForConsortiumMember_true(ReindexStatus status) {
     // given
     when(statusRepository.getReindexStatuses()).thenReturn(List.of(
       new ReindexStatusEntity(ReindexEntityType.INSTANCE, status),
       new ReindexStatusEntity(ReindexEntityType.HOLDINGS, ReindexStatus.MERGE_COMPLETED)));
 
     // act
-    var actual = service.isReindexInProgressOrFailed();
+    var actual = service.isReindexInProgressOrFailedNotForConsortiumMember();
 
     // assert
     assertThat(actual).isTrue();
   }
 
   @Test
-  void isReindexInProgressOrFailed_false_whenAllEntityTypesHaveCompletedStatus() {
+  void isReindexInProgressOrFailedNotForConsortiumMember_false_whenAllEntityTypesHaveCompletedStatus() {
     // given
     when(statusRepository.getReindexStatuses()).thenReturn(List.of(
       new ReindexStatusEntity(ReindexEntityType.INSTANCE, ReindexStatus.UPLOAD_COMPLETED),
       new ReindexStatusEntity(ReindexEntityType.HOLDINGS, ReindexStatus.MERGE_COMPLETED)));
 
     // act
-    var actual = service.isReindexInProgressOrFailed();
+    var actual = service.isReindexInProgressOrFailedNotForConsortiumMember();
 
     // assert
     assertThat(actual).isFalse();
   }
 
   @Test
-  void isReindexInProgressOrFailed_true_whenAnyEntityTypeIsInProgress() {
+  void isReindexInProgressOrFailedNotForConsortiumMember_true_whenAnyEntityTypeIsInProgress() {
     // given
     when(statusRepository.getReindexStatuses()).thenReturn(List.of(
       new ReindexStatusEntity(ReindexEntityType.INSTANCE, ReindexStatus.MERGE_IN_PROGRESS),
       new ReindexStatusEntity(ReindexEntityType.HOLDINGS, ReindexStatus.MERGE_COMPLETED)));
 
     // act
-    var actual = service.isReindexInProgressOrFailed();
+    var actual = service.isReindexInProgressOrFailedNotForConsortiumMember();
 
     // assert
     assertThat(actual).isTrue();
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = ReindexStatus.class,
+    names = {"MERGE_IN_PROGRESS", "UPLOAD_IN_PROGRESS", "STAGING_IN_PROGRESS",
+             "MERGE_FAILED", "STAGING_FAILED", "UPLOAD_FAILED"})
+  void isReindexInProgressOrFailedNotForConsortiumMember_false_whenReindexIsScopedToConsortiumMemberTenant(
+    ReindexStatus status) {
+    // given
+    var instanceEntity = new ReindexStatusEntity(ReindexEntityType.INSTANCE, status);
+    instanceEntity.setTargetTenantId("member-tenant");
+    when(statusRepository.getReindexStatuses()).thenReturn(List.of(
+      instanceEntity,
+      new ReindexStatusEntity(ReindexEntityType.HOLDINGS, ReindexStatus.MERGE_COMPLETED)));
+
+    // act
+    var actual = service.isReindexInProgressOrFailedNotForConsortiumMember();
+
+    // assert
+    assertThat(actual).isFalse();
   }
 }

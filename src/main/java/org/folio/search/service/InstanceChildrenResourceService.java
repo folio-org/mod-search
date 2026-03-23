@@ -93,6 +93,16 @@ public class InstanceChildrenResourceService {
         .tenant(tenantId)
         ._new(instance))
       .toList();
-    persistChildren(tenantId, resourceType, events);
+
+    var extractors = resourceExtractors.get(resourceType);
+    if (extractors == null) {
+      return;
+    }
+
+    var shared = consortiumTenantProvider.isCentralTenant(tenantId);
+
+    // Process child resources normally
+    extractors.forEach(resourceExtractor ->
+      resourceExtractor.persistChildren(tenantId, shared, events));
   }
 }

@@ -6,6 +6,7 @@ import static org.folio.search.utils.SearchUtils.CLASSIFICATION_NUMBER_FIELD;
 import static org.folio.search.utils.SearchUtils.CLASSIFICATION_TYPE_FIELD;
 import static org.folio.search.utils.SearchUtils.SUB_RESOURCE_INSTANCES_FIELD;
 
+import java.io.Reader;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -206,19 +207,7 @@ public class ClassificationRepository extends UploadRangeRepository implements I
 
   @Override
   protected RowMapper<Map<String, Object>> rowToMapMapper() {
-    return (rs, rowNum) -> {
-      Map<String, Object> classification = new HashMap<>();
-      classification.put("id", getId(rs));
-      classification.put(CLASSIFICATION_NUMBER_ENTITY_FIELD, getNumber(rs));
-      classification.put("typeId", getTypeId(rs));
-
-      var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
-      if (!maps.isEmpty()) {
-        classification.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
-      }
-
-      return classification;
-    };
+    return (rs, rowNum) -> buildClassificationMap(rs);
   }
 
   @Override
@@ -226,6 +215,7 @@ public class ClassificationRepository extends UploadRangeRepository implements I
     deleteByInstanceIds(DELETE_QUERY, instanceIds, tenantId);
   }
 
+  @SuppressWarnings("checkstyle:MethodLength")
   @Override
   public void saveAll(ChildResourceEntityBatch entityBatch) {
     // Use staging tables only for member tenant specific full reindex
@@ -334,19 +324,24 @@ public class ClassificationRepository extends UploadRangeRepository implements I
 
   protected RowMapper<Map<String, Object>> rowToMapMapper2() {
     return (rs, rowNum) -> {
-      Map<String, Object> classification = new HashMap<>();
-      classification.put("id", getId(rs));
-      classification.put(CLASSIFICATION_NUMBER_ENTITY_FIELD, getNumber(rs));
-      classification.put("typeId", getTypeId(rs));
+      var classification = buildClassificationMap(rs);
       classification.put(LAST_UPDATED_DATE_FIELD, rs.getTimestamp("last_updated_date"));
-
-      var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
-      if (!maps.isEmpty()) {
-        classification.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
-      }
-
       return classification;
     };
+  }
+
+  private Map<String, Object> buildClassificationMap(ResultSet rs) throws SQLException {
+    Map<String, Object> classification = new HashMap<>();
+    classification.put("id", getId(rs));
+    classification.put(CLASSIFICATION_NUMBER_ENTITY_FIELD, getNumber(rs));
+    classification.put("typeId", getTypeId(rs));
+
+    var maps = jsonConverter.fromJsonToListOfMaps(getInstancesReader(rs)).stream().filter(Objects::nonNull).toList();
+    if (!maps.isEmpty()) {
+      classification.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
+    }
+
+    return classification;
   }
 
   @Override
@@ -369,7 +364,7 @@ public class ClassificationRepository extends UploadRangeRepository implements I
     return rs.getString(CLASSIFICATION_NUMBER_ENTITY_FIELD);
   }
 
-  private String getInstances(ResultSet rs) throws SQLException {
-    return rs.getString(SUB_RESOURCE_INSTANCES_FIELD);
+  private Reader getInstancesReader(ResultSet rs) throws SQLException {
+    return rs.getCharacterStream(SUB_RESOURCE_INSTANCES_FIELD);
   }
 }

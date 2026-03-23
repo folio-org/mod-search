@@ -20,15 +20,17 @@ import org.folio.search.model.metadata.NestedFieldDescription;
 import org.folio.search.model.metadata.ObjectFieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.types.ResourceType;
-import org.folio.search.service.consortium.LanguageConfigServiceDecorator;
+import org.folio.search.service.LanguageConfigServiceI;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.folio.search.utils.JsonConverter;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ObjectNode;
 
 @Log4j2
+@Primary
 @Service
 @RequiredArgsConstructor
 public class SearchMappingsHelper {
@@ -37,7 +39,7 @@ public class SearchMappingsHelper {
 
   private final JsonConverter jsonConverter;
   private final SearchFieldProvider searchFieldProvider;
-  private final LanguageConfigServiceDecorator languageConfigService;
+  private final LanguageConfigServiceI languageConfigService;
   private final ResourceDescriptionService resourceDescriptionService;
 
   /**

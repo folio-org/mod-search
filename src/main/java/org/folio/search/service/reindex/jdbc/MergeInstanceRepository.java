@@ -3,7 +3,6 @@ package org.folio.search.service.reindex.jdbc;
 import static org.folio.search.utils.JdbcUtils.getFullTableName;
 
 import java.sql.Timestamp;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -155,16 +154,13 @@ public class MergeInstanceRepository extends MergeRangeRepository {
 
   private RowMapper<Map<String, Object>> instanceRowMapper() {
     return (rs, rowNum) -> {
-      Map<String, Object> instance = new HashMap<>();
+      var instance = jsonConverter.fromJsonToMap(rs.getString("json"));
       instance.put("id", rs.getString("id"));
       instance.put("tenantId", rs.getString("tenant_id"));
       instance.put("shared", rs.getBoolean("shared"));
       instance.put("isBoundWith", rs.getBoolean("is_bound_with"));
       instance.put("isDeleted", rs.getBoolean("is_deleted"));
       instance.put(LAST_UPDATED_DATE_FIELD, rs.getTimestamp("last_updated_date"));
-
-      var jsonContent = jsonConverter.fromJsonToMap(rs.getString("json"));
-      instance.putAll(jsonContent);
 
       return instance;
     };

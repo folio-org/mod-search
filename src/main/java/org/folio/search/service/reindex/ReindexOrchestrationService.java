@@ -1,6 +1,5 @@
 package org.folio.search.service.reindex;
 
-import java.util.Collection;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -173,7 +172,7 @@ public class ReindexOrchestrationService {
   private FolioIndexOperationResponse fetchRecordsAndIndexForUploadRange(ReindexRangeIndexEvent event) {
     try {
       var resourceEvents = uploadRangeService.fetchRecordRange(event);
-      var documents = documentConverter.convert(resourceEvents).values().stream().flatMap(Collection::stream).toList();
+      var documents = documentConverter.convertForReindex(resourceEvents);
       return elasticRepository.indexResources(documents);
     } catch (Exception ex) {
       throw handleReindexUploadFailure(event, ex.getMessage());

@@ -90,6 +90,7 @@
 * Change spring-kafka-test scope from compile to test ([MSEARCH-1148](https://folio-org.atlassian.net/browse/MSEARCH-1148))
 * Fix race condition in shouldIndexInstanceCallNumber\_createNewDocument\_onItemCreate ([MSEARCH-1149](https://folio-org.atlassian.net/browse/MSEARCH-1149))
 * Use GitHub Workflows for builds ([MSEARCH-1158](https://folio-org.atlassian.net/browse/MSEARCH-1158))
+* Eliminate use of user-tenants on tenant enablement to avoid invalid caches
 
 ### Dependencies
 * Bump `LIB_NAME` from `OLD_VERSION` to `NEW_VERSION`

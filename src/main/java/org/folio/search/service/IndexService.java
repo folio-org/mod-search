@@ -31,11 +31,13 @@ import org.folio.search.service.es.SearchMappingsHelper;
 import org.folio.search.service.es.SearchSettingsHelper;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.opensearch.action.support.clustermanager.AcknowledgedResponse;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ObjectNode;
 
 @Log4j2
+@Primary
 @Service
 @RequiredArgsConstructor
 public class IndexService {

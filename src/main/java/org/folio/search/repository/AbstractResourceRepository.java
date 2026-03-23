@@ -12,7 +12,6 @@ import static org.opensearch.index.query.QueryBuilders.boolQuery;
 import static org.opensearch.index.query.QueryBuilders.termQuery;
 
 import java.util.List;
-import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.configuration.properties.IndexManagementConfigurationProperties;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
@@ -30,7 +29,6 @@ import org.opensearch.index.reindex.BulkByScrollResponse;
 import org.opensearch.index.reindex.DeleteByQueryRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@Log4j2
 public abstract class AbstractResourceRepository implements ResourceRepository {
 
   protected RestHighLevelClient elasticsearchClient;

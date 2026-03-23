@@ -65,8 +65,8 @@ public class ReindexStatusService {
     uploadStatusEntity.setTargetTenantId(targetTenantId);
     statusRepository.delete(entityType);
     statusRepository.saveReindexStatusRecords(List.of(uploadStatusEntity));
-    
-    log.debug("recreateUploadStatusRecord:: created upload record [entityType: {}, targetTenant: {}]", 
+
+    log.debug("recreateUploadStatusRecord:: created upload record [entityType: {}, targetTenant: {}]",
       entityType, targetTenantId);
   }
 

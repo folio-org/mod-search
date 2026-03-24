@@ -39,7 +39,6 @@ public class StagingMigrationService {
   @Transactional
   @SuppressWarnings("checkstyle:MethodLength")
   public MigrationResult migrateAllStagingTables(String targetTenantId) {
-    var isMemberTenantRefresh = targetTenantId != null;
     var result = new MigrationResult();
     var startTime = System.currentTimeMillis();
 
@@ -51,10 +50,8 @@ public class StagingMigrationService {
       // Analyze staging tables for better query performance
       analyzeStagingTables();
 
-      // Handle member tenant specific operations before main migration
-      if (isMemberTenantRefresh) {
-        handleMemberTenantPreMigration(targetTenantId);
-      }
+      // Clear existing data for the target tenant before migration
+      handleMemberTenantPreMigration(targetTenantId);
 
       // Execute the main data migration phases
       executeMainMigrationPhases(result);

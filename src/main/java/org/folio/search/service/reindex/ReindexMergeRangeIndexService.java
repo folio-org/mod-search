@@ -28,13 +28,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class ReindexMergeRangeIndexService {
 
-  private static final int STATS_LOG_INTERVAL = 100; // Log stats every 100 merge ranges
-
   private final Map<ReindexEntityType, MergeRangeRepository> repositories;
   private final InventoryService inventoryService;
   private final ReindexConfigurationProperties reindexConfig;
   private final StagingMigrationService migrationService;
-  private int mergeRangeCounter;
 
   private InstanceChildrenResourceService instanceChildrenResourceService;
 
@@ -48,7 +45,6 @@ public class ReindexMergeRangeIndexService {
     this.reindexConfig = reindexConfig;
     this.migrationService = migrationService;
     this.instanceChildrenResourceService = null;
-    this.mergeRangeCounter = 0;
   }
 
   @Autowired(required = false)
@@ -114,12 +110,6 @@ public class ReindexMergeRangeIndexService {
       // Only clear reindex mode, preserve member tenant context for outer scope
       ReindexContext.setReindexMode(false);
     }
-
-    // Periodically log merge range counter
-    mergeRangeCounter++;
-    if (mergeRangeCounter % STATS_LOG_INTERVAL == 0) {
-      log.info("saveEntities:: Processed {} merge ranges", mergeRangeCounter);
-    }
   }
 
   private List<MergeRangeEntity> constructMergeRangeRecords(int recordsCount,
@@ -160,16 +150,12 @@ public class ReindexMergeRangeIndexService {
   }
 
   public void performStagingMigration(String targetTenantId) {
-    if (targetTenantId != null) {
-      log.info("performStagingMigration:: Starting tenant-specific migration of staging tables for tenant: {}",
-        targetTenantId);
-      var result = migrationService.migrateAllStagingTables(targetTenantId);
-      log.info("performStagingMigration:: Tenant-specific migration completed for {}: instances={}, holdings={}, "
-          + "items={}, relationships={}",
-        targetTenantId, result.getTotalInstances(), result.getTotalHoldings(),
-        result.getTotalItems(), result.getTotalRelationships());
-    } else {
-      log.info("performStagingMigration:: Not member tenant refresh - staging tables not used, skipping migration");
-    }
+    log.info("performStagingMigration:: Starting tenant-specific migration of staging tables for tenant: {}",
+      targetTenantId);
+    var result = migrationService.migrateAllStagingTables(targetTenantId);
+    log.info("performStagingMigration:: Tenant-specific migration completed for {}: instances={}, holdings={}, "
+        + "items={}, relationships={}",
+      targetTenantId, result.getTotalInstances(), result.getTotalHoldings(),
+      result.getTotalItems(), result.getTotalRelationships());
   }
 }

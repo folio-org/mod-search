@@ -13,7 +13,6 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.sql.Timestamp;
@@ -64,8 +63,9 @@ class StagingMigrationServiceTest {
 
   @Test
   @SuppressWarnings("checkstyle:MethodLength")
-  void migrateAllStagingTables_fullReindex() {
+  void migrateAllStagingTables_shouldMigrateAllPhasesInOrder() {
     // Arrange
+    var targetTenantId = MEMBER_TENANT_ID;
     when(jdbcTemplate.update(contains("staging_instance"), any(Timestamp.class))).thenReturn(10);
     when(jdbcTemplate.update(contains("staging_holding"))).thenReturn(15);
     when(jdbcTemplate.update(contains("staging_item"), any(Timestamp.class))).thenReturn(20);
@@ -78,9 +78,10 @@ class StagingMigrationServiceTest {
     when(jdbcTemplate.update(contains("staging_instance_classification"))).thenReturn(6);
     when(jdbcTemplate.update(contains("staging_instance_call_number"))).thenReturn(4);
     doNothing().when(jdbcTemplate).execute(anyString());
+    doNothing().when(reindexCommonService).deleteRecordsByTenantId(targetTenantId);
 
     // Act
-    var result = stagingMigrationService.migrateAllStagingTables(null);
+    var result = stagingMigrationService.migrateAllStagingTables(targetTenantId);
 
     // Assert - verify result metrics
     assertThat(result).isNotNull();
@@ -97,8 +98,8 @@ class StagingMigrationServiceTest {
     // Verify all analyze statements were called
     verify(jdbcTemplate, times(11)).execute(contains("ANALYZE"));
 
-    // Verify no deleteRecordsByTenantId was called for full reindex
-    verifyNoInteractions(reindexCommonService);
+    // Verify deleteRecordsByTenantId was called for member tenant pre-migration
+    verify(reindexCommonService).deleteRecordsByTenantId(targetTenantId);
 
     // Verify correct timestamp is used
     var expectedTimestamp = Timestamp.valueOf("2000-01-01 00:00:00");

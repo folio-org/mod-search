@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -209,7 +210,7 @@ class ReindexOrchestrationServiceTest {
   }
 
   @Test
-  void process_reindexRecordsEvent_shouldTriggerStagingMigrationAndUploadWhenMergeCompleted() {
+  void process_reindexRecordsEvent_shouldSkipStagingAndSubmitUploadWhenMergeCompletedForFullReindex() {
     // given
     var event = new ReindexRecordsEvent();
     event.setRangeId(UUID.randomUUID().toString());
@@ -226,7 +227,9 @@ class ReindexOrchestrationServiceTest {
     // assert
     verify(mergeRangeService).saveEntities(event);
     verify(reindexStatusService).isMergeCompleted();
-    verify(mergeRangeService).performStagingMigration(null);
+    // For full reindex (null targetTenantId): no staging migration
+    verify(mergeRangeService, never()).performStagingMigration(any());
+    verify(reindexService).submitUploadReindex("test-tenant", ReindexEntityType.supportUploadTypes());
   }
 
   @Test
@@ -245,7 +248,7 @@ class ReindexOrchestrationServiceTest {
     // assert
     verify(mergeRangeService).saveEntities(event);
     verify(reindexStatusService).isMergeCompleted();
-    verify(mergeRangeService, org.mockito.Mockito.never()).performStagingMigration(any());
+    verify(mergeRangeService, never()).performStagingMigration(any());
   }
 
   @Test

@@ -132,30 +132,30 @@ public class ReindexOrchestrationService {
       // Get targetTenantId before migration
       var targetTenantId = reindexStatusService.getTargetTenantId();
 
-      // Perform migration of staging tables
-      log.info("process:: Merge completed. Starting migration of staging tables");
-      performStagingMigration(targetTenantId);
-
-      // Check if this is a tenant-specific reindex that requires OpenSearch document cleanup
+      // Check if this is a tenant-specific reindex that requires staging migration and OpenSearch cleanup
       if (targetTenantId != null) {
+        log.info("process:: Merge completed for member tenant reindex. Starting staging migration [targetTenant: {}]",
+          targetTenantId);
+        performStagingMigration(targetTenantId);
+
         log.info("process:: Starting tenant-specific upload phase with document cleanup [targetTenant: {}]",
           targetTenantId);
         reindexService.submitUploadReindexWithTenantCleanup(context.getTenantId(),
           ReindexEntityType.supportUploadTypes(),
           targetTenantId);
       } else {
-        log.info("process:: Starting standard upload phase without tenant-specific cleanup");
+        log.info("process:: Merge completed. Starting standard upload phase without tenant-specific cleanup");
         reindexService.submitUploadReindex(context.getTenantId(), ReindexEntityType.supportUploadTypes());
       }
 
-      log.info("process:: Migration and upload phase completed for {}",
+      log.info("process:: Upload phase submitted for {}",
         targetTenantId != null ? "tenant: " + targetTenantId : "consortium");
     }
   }
 
   private void performStagingMigration(String targetTenantId) {
     try {
-      log.info("performStagingMigration:: Starting staging migration");
+      log.info("performStagingMigration:: Starting staging migration for [targetTenant: {}]", targetTenantId);
       reindexStatusService.updateStagingStarted();
 
       mergeRangeService.performStagingMigration(targetTenantId);

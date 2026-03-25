@@ -9,6 +9,7 @@ import java.io.Reader;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -223,15 +224,15 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
   public void saveAll(ChildResourceEntityBatch entityBatch) {
     // Use staging tables only for member tenant specific full reindex
     if (ReindexContext.isReindexMode() && ReindexContext.isMemberTenantReindex()) {
-      saveEntitiesToStaging(entityBatch.resourceEntities().stream().toList());
-      saveRelationshipsToStaging(entityBatch.relationshipEntities().stream().toList());
+      saveEntitiesToStaging(entityBatch.resourceEntities());
+      saveRelationshipsToStaging(entityBatch.relationshipEntities());
     } else {
-      saveEntitiesToMain(entityBatch.resourceEntities().stream().toList());
-      saveRelationshipsToMain(entityBatch.relationshipEntities().stream().toList());
+      saveEntitiesToMain(entityBatch.resourceEntities());
+      saveRelationshipsToMain(entityBatch.relationshipEntities());
     }
   }
 
-  private void saveEntitiesToMain(List<Map<String, Object>> entities) {
+  private void saveEntitiesToMain(Collection<Map<String, Object>> entities) {
     var entitiesSql = INSERT_ENTITIES_SQL.formatted(JdbcUtils.getSchemaName(context));
     try {
       jdbcTemplate.batchUpdate(entitiesSql, entities, BATCH_OPERATION_SIZE,
@@ -254,7 +255,7 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
     }
   }
 
-  private void saveEntitiesToStaging(List<Map<String, Object>> entities) {
+  private void saveEntitiesToStaging(Collection<Map<String, Object>> entities) {
     var stagingEntitiesSql = INSERT_STAGING_ENTITIES_SQL.formatted(JdbcUtils.getSchemaName(context));
     try {
       jdbcTemplate.batchUpdate(stagingEntitiesSql, entities, BATCH_OPERATION_SIZE,
@@ -278,7 +279,7 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
     log.debug("Saved {} contributor entities to staging table", entities.size());
   }
 
-  private void saveRelationshipsToMain(List<Map<String, Object>> relationships) {
+  private void saveRelationshipsToMain(Collection<Map<String, Object>> relationships) {
     var relationsSql = INSERT_RELATIONS_SQL.formatted(JdbcUtils.getSchemaName(context));
     try {
       jdbcTemplate.batchUpdate(relationsSql, relationships, BATCH_OPERATION_SIZE,
@@ -303,7 +304,7 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
     }
   }
 
-  private void saveRelationshipsToStaging(List<Map<String, Object>> relationships) {
+  private void saveRelationshipsToStaging(Collection<Map<String, Object>> relationships) {
     var stagingRelationsSql = INSERT_STAGING_RELATIONS_SQL.formatted(JdbcUtils.getSchemaName(context));
     try {
       jdbcTemplate.batchUpdate(stagingRelationsSql, relationships, BATCH_OPERATION_SIZE,
@@ -321,7 +322,7 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
     log.debug("Saved {} contributor relationships to staging table", relationships.size());
   }
 
-  private void retrySaveRelationshipsToStagingOneByOne(String sql, List<Map<String, Object>> relationships) {
+  private void retrySaveRelationshipsToStagingOneByOne(String sql, Collection<Map<String, Object>> relationships) {
     for (var entityRelation : relationships) {
       try {
         jdbcTemplate.update(sql, entityRelation.get("instanceId"),

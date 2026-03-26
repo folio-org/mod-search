@@ -653,6 +653,10 @@
       "version": "11.0"
     },
     {
+      "id": "authority-identifier-types",
+      "version": "1.0"
+    },
+    {
       "id": "authority-reindex",
       "version": "0.1"
     },
@@ -932,6 +936,7 @@
         "perms.users.item.post",
         "perms.users.assign.immutable",
         "perms.users.assign.mutable",
+        "authority-identifier-types.collection.get",
         "inventory-storage.instance.reindex.post",
         "authority-storage.authority.reindex.post",
         "inventory-storage.inventory-view.instances.collection.get",

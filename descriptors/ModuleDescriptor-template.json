@@ -1040,6 +1040,11 @@
         "description": "Custom number of kafka concurrent threads for authority message consuming."
       },
       {
+        "name": "KAFKA_INSTANCE_SHARING_COMPLETE_CONCURRENCY",
+        "value": "1",
+        "description": "Custom number of kafka concurrent threads for instance sharing complete message consuming."
+      },
+      {
         "name": "KAFKA_REINDEX_RANGE_INDEX_CONCURRENCY",
         "value": "1",
         "description": "Custom number of kafka concurrent threads for `search.reindex.range-index` message consuming."
@@ -1245,6 +1250,16 @@
         "name": "STREAM_ID_QUEUE_CAPACITY",
         "value": "500",
         "description": "The capacity of the queue."
+      },
+      {
+        "name": "TASK_SCHEDULER_POOL_SIZE",
+        "value": "2",
+        "description": "The number of threads to keep in the task scheduler pool."
+      },
+      {
+        "name": "TASK_SCHEDULER_DELAY_MS",
+        "value": "70000",
+        "description": "The delay in ms for scheduled tasks."
       },
       {
         "name": "SEARCH_QUERY_TIMEOUT",

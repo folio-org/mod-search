@@ -69,12 +69,12 @@ class IndexingCampusesConsortiumIT extends BaseConsortiumIntegrationTest {
   void shouldIndexAndRemoveCampus() {
     var campus = campus();
     var createEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, toMap(campus), null);
-    kafkaTemplate.send(inventoryCampusTopic(CENTRAL_TENANT_ID), createEvent);
+    kafkaTemplate.send(inventoryCampusTopic(CENTRAL_TENANT_ID), objectMapper.writeValueAsString(createEvent));
 
     awaitAssertCampusCount(1);
 
     var deleteEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, DELETE, null, toMap(campus));
-    kafkaTemplate.send(inventoryCampusTopic(CENTRAL_TENANT_ID), deleteEvent);
+    kafkaTemplate.send(inventoryCampusTopic(CENTRAL_TENANT_ID), objectMapper.writeValueAsString(deleteEvent));
 
     awaitAssertCampusCount(0);
   }
@@ -83,13 +83,13 @@ class IndexingCampusesConsortiumIT extends BaseConsortiumIntegrationTest {
   void shouldIndexAndUpdateCampus() {
     var campus = campus();
     var createEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, toMap(campus), null);
-    kafkaTemplate.send(inventoryCampusTopic(CENTRAL_TENANT_ID), createEvent);
+    kafkaTemplate.send(inventoryCampusTopic(CENTRAL_TENANT_ID), objectMapper.writeValueAsString(createEvent));
 
     awaitAssertCampusCount(1);
 
     var campusUpdated = campus.withName("nameUpdated");
     var updateEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, UPDATE, toMap(campusUpdated), toMap(campus));
-    kafkaTemplate.send(inventoryCampusTopic(CENTRAL_TENANT_ID), updateEvent);
+    kafkaTemplate.send(inventoryCampusTopic(CENTRAL_TENANT_ID), objectMapper.writeValueAsString(updateEvent));
 
     awaitAssertCampusCountAfterUpdate(1, campusUpdated);
   }
@@ -99,8 +99,8 @@ class IndexingCampusesConsortiumIT extends BaseConsortiumIntegrationTest {
     var campus = campus();
     var createCentralEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, toMap(campus), null);
     var createMemberEvent = kafkaResourceEvent(MEMBER_TENANT_ID, CREATE, toMap(campus), null);
-    kafkaTemplate.send(inventoryCampusTopic(CENTRAL_TENANT_ID), createCentralEvent);
-    kafkaTemplate.send(inventoryCampusTopic(CENTRAL_TENANT_ID), createMemberEvent);
+    kafkaTemplate.send(inventoryCampusTopic(CENTRAL_TENANT_ID), objectMapper.writeValueAsString(createCentralEvent));
+    kafkaTemplate.send(inventoryCampusTopic(CENTRAL_TENANT_ID), objectMapper.writeValueAsString(createMemberEvent));
 
     awaitAssertCampusCount(2);
   }
@@ -110,13 +110,13 @@ class IndexingCampusesConsortiumIT extends BaseConsortiumIntegrationTest {
     var campus = campus();
     var createCentralEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, toMap(campus), null);
     var createMemberEvent = kafkaResourceEvent(MEMBER_TENANT_ID, CREATE, toMap(campus), null);
-    kafkaTemplate.send(inventoryCampusTopic(CENTRAL_TENANT_ID), createCentralEvent);
-    kafkaTemplate.send(inventoryCampusTopic(CENTRAL_TENANT_ID), createMemberEvent);
+    kafkaTemplate.send(inventoryCampusTopic(CENTRAL_TENANT_ID), objectMapper.writeValueAsString(createCentralEvent));
+    kafkaTemplate.send(inventoryCampusTopic(CENTRAL_TENANT_ID), objectMapper.writeValueAsString(createMemberEvent));
 
     awaitAssertCampusCount(2);
 
     var deleteAllMemberEvent = new ResourceEvent().type(DELETE_ALL).tenant(MEMBER_TENANT_ID);
-    kafkaTemplate.send(inventoryCampusTopic(MEMBER_TENANT_ID), deleteAllMemberEvent);
+    kafkaTemplate.send(inventoryCampusTopic(MEMBER_TENANT_ID), objectMapper.writeValueAsString(deleteAllMemberEvent));
 
     awaitAssertCampusCount(1);
   }
@@ -133,7 +133,7 @@ class IndexingCampusesConsortiumIT extends BaseConsortiumIntegrationTest {
     }).when(kafkaMessageListener).handleLocationEvents(anyList());
 
     var libraryEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, libraryMap, null);
-    kafkaTemplate.send(inventoryCampusTopic(MEMBER_TENANT_ID), libraryEvent);
+    kafkaTemplate.send(inventoryCampusTopic(MEMBER_TENANT_ID), objectMapper.writeValueAsString(libraryEvent));
 
     await().atMost(ONE_MINUTE)
       .pollInterval(ONE_HUNDRED_MILLISECONDS)

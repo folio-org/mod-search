@@ -367,19 +367,21 @@ class ConfigIT extends BaseIntegrationTest {
     referenceDataCache.put(cacheKey, UUID.randomUUID());
     assertThat(referenceDataCache.get(cacheKey)).isNotNull();
 
-    kafkaTemplate.send(getTopicName(topic), randomId(), new ResourceEvent().resourceName(resource));
+    kafkaTemplate.send(getTopicName(topic), randomId(),
+      objectMapper.writeValueAsString(new ResourceEvent().resourceName(resource)));
 
     await().atMost(ONE_MINUTE).pollInterval(TWO_SECONDS)
       .untilAsserted(() -> assertThat(referenceDataCache.get(cacheKey)).isNull());
   }
 
   private void sendDeleteEvent(UUID typeId, String topic, ResourceType resourceType) {
-    kafkaTemplate.send(topic, typeId.toString(), new ResourceEvent()
-      .type(ResourceEventType.DELETE)
-      .tenant(TENANT_ID)
-      .resourceName(resourceType.getName())
-      .old(mapOf(ID_FIELD, typeId.toString()))
-    );
+    kafkaTemplate.send(topic, typeId.toString(),
+      objectMapper.writeValueAsString(new ResourceEvent()
+        .type(ResourceEventType.DELETE)
+        .tenant(TENANT_ID)
+        .resourceName(resourceType.getName())
+        .old(mapOf(ID_FIELD, typeId.toString()))
+      ));
   }
 
   @SneakyThrows

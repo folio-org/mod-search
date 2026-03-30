@@ -13,7 +13,6 @@ import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.consortium.ConsortiumTenantProvider;
 import org.folio.search.service.converter.preprocessor.extractor.ChildResourceExtractor;
-import org.folio.search.service.reindex.jdbc.CallNumberRepository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
@@ -28,15 +27,12 @@ public class InstanceChildrenResourceService {
 
   private final Map<ResourceType, List<ChildResourceExtractor>> resourceExtractors;
   private final ConsortiumTenantProvider consortiumTenantProvider;
-  private final CallNumberRepository callNumberRepository;
 
   public InstanceChildrenResourceService(List<ChildResourceExtractor> resourceExtractors,
-                                         ConsortiumTenantProvider consortiumTenantProvider,
-                                         CallNumberRepository callNumberRepository) {
+                                         ConsortiumTenantProvider consortiumTenantProvider) {
     this.resourceExtractors = resourceExtractors.stream()
       .collect(Collectors.groupingBy(ChildResourceExtractor::resourceType));
     this.consortiumTenantProvider = consortiumTenantProvider;
-    this.callNumberRepository = callNumberRepository;
   }
 
   public void persistChildren(String tenantId, ResourceType resourceType, List<ResourceEvent> events) {
@@ -50,18 +46,6 @@ public class InstanceChildrenResourceService {
     // Process child resources normally
     extractors.forEach(resourceExtractor ->
       resourceExtractor.persistChildren(tenantId, shared, events));
-
-    // When background job processes new instances in central tenant, update call numbers
-    // that may still be pointing to member tenant. Covers sharing instance case.
-    if (shared && resourceType == ResourceType.INSTANCE && !events.isEmpty()) {
-      var instanceIds = events.stream()
-        .filter(this::isNewInstance)
-        .map(ResourceEvent::getId)
-        .toList();
-      log.info("persistChildren: Updating call number tenant_id for {} instances in central tenant {}",
-        instanceIds.size(), tenantId);
-      callNumberRepository.updateTenantIdForCentralInstances(instanceIds, tenantId);
-    }
   }
 
   /**

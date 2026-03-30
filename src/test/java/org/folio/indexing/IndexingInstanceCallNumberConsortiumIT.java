@@ -74,7 +74,12 @@ class IndexingInstanceCallNumberConsortiumIT extends BaseIntegrationTest {
     var memberInstance = new Instance().id(INSTANCE_ID).title(INSTANCE_TITLE).source("CONSORTIUM-FOLIO");
     inventoryApi.updateInstance(MEMBER_TENANT_ID, memberInstance);
 
-    // then - fetch call number documents for the instance and check if tenant field changed to central
+    // then - fetch call number documents for the instance and check if tenant field changed to member tenant id
+    awaitAssertion(() -> assertInstanceCallNumberTenantId(MEMBER_TENANT_ID, false));
+
+    inventoryApi.shareInstance(CENTRAL_TENANT_ID, INSTANCE_ID);
+
+    // then - fetch call number documents and check if tenant field changed to central and shared is true
     awaitAssertion(() -> assertInstanceCallNumberTenantId(CENTRAL_TENANT_ID, true));
   }
 

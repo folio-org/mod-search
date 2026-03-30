@@ -77,6 +77,10 @@ folio:
     core-pool-size: 2
     max-pool-size: 2
     queue-capacity: 500
+  task-scheduler:
+    pool-size: 2
+    thread-name-prefix: ${folio.environment}-task-scheduler-
+    delay-ms: 2000
   kafka:
     retry-interval-ms: 100
     retry-delivery-attempts: 2
@@ -132,6 +136,9 @@ folio:
       - name: search.index.instance
         numPartitions: 1
         replicationFactor: 1
+      - name: CONSORTIUM_INSTANCE_SHARING_COMPLETE
+        numPartitions: 1
+        replicationFactor: 1
     listener:
       events:
         concurrency: 1
@@ -160,6 +167,10 @@ folio:
         concurrency: 1
         topic-pattern: (${folio.environment}\.)(.*\.)linked-data\.(instance|work|hub)
         group-id: ${folio.environment}-mod-search-linked-data-group
+      instance-sharing-complete:
+        concurrency: 1
+        topic-pattern: (${folio.environment}\.)(.*\.)CONSORTIUM_INSTANCE_SHARING_COMPLETE
+        group-id: ${folio.environment}-mod-search-instance-sharing-complete-group
       reindex-range-index:
         concurrency: 1
         topic-pattern: (${folio.environment}\.)(.*\.)search\.reindex\.range-index

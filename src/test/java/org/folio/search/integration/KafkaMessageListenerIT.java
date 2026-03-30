@@ -31,8 +31,11 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.folio.search.configuration.RetryTemplateConfiguration;
+import org.folio.search.configuration.TaskSchedulerConfiguration;
 import org.folio.search.configuration.kafka.InstanceResourceEventKafkaConfiguration;
+import org.folio.search.configuration.kafka.InstanceSharingCompleteEventKafkaConfiguration;
 import org.folio.search.configuration.kafka.ResourceEventKafkaConfiguration;
+import org.folio.search.configuration.properties.TaskSchedulerProperties;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.integration.KafkaMessageListenerIT.KafkaListenerTestConfiguration;
 import org.folio.search.integration.message.FolioMessageBatchProcessor;
@@ -43,7 +46,9 @@ import org.folio.search.model.event.IndexInstanceEvent;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.ResourceService;
 import org.folio.search.service.config.ConfigSynchronizationService;
+import org.folio.search.service.consortium.ConsortiumTenantProvider;
 import org.folio.search.service.consortium.ConsortiumTenantService;
+import org.folio.search.service.reindex.jdbc.CallNumberRepository;
 import org.folio.spring.DefaultFolioExecutionContext;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.service.SystemUserScopedExecutionService;
@@ -69,6 +74,7 @@ import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
 import org.springframework.resilience.annotation.EnableResilientMethods;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @Log4j2
@@ -106,6 +112,12 @@ class KafkaMessageListenerIT {
   private KafkaTemplate<String, IndexInstanceEvent> instanceEventProducer;
   @MockitoBean
   private ConsortiumTenantService consortiumTenantService;
+  @MockitoBean
+  private CallNumberRepository callNumberRepository;
+  @MockitoBean
+  private ConsortiumTenantProvider consortiumTenantProvider;
+  @MockitoBean
+  private TaskScheduler instanceSharingCompleteTaskScheduler;
   @Captor
   private ArgumentCaptor<ProducerRecord<String, IndexInstanceEvent>> producerRecordCaptor;
 
@@ -201,7 +213,9 @@ class KafkaMessageListenerIT {
   @Import({
     InstanceResourceEventKafkaConfiguration.class, ResourceEventKafkaConfiguration.class,
     KafkaAutoConfiguration.class, FolioMessageBatchProcessor.class,
-    RetryTemplateConfiguration.class, ResourceEventBatchInterceptor.class
+    RetryTemplateConfiguration.class, ResourceEventBatchInterceptor.class,
+    InstanceSharingCompleteEventKafkaConfiguration.class, TaskSchedulerConfiguration.class,
+    TaskSchedulerProperties.class
   })
   static class KafkaListenerTestConfiguration {
 

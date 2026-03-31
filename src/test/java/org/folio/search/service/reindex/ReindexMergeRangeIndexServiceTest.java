@@ -9,6 +9,7 @@ import static org.folio.search.service.reindex.ReindexConstants.RESOURCE_NAME_MA
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -25,6 +26,7 @@ import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.integration.folio.InventoryService;
 import org.folio.search.model.event.ReindexRecordsEvent;
 import org.folio.search.model.reindex.MergeRangeEntity;
+import org.folio.search.model.reindex.MigrationResult;
 import org.folio.search.model.types.InventoryRecordType;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexRangeStatus;
@@ -102,6 +104,53 @@ class ReindexMergeRangeIndexServiceTest {
   }
 
   @Test
+  void createMergeRanges_positive_zeroRecordsCountCreatesEmptyRange() {
+    // given – inventory returns 0 for every record type
+    when(config.getMergeRangeSize()).thenReturn(100);
+    when(inventoryService.fetchInventoryRecordsCount(any(InventoryRecordType.class))).thenReturn(0);
+
+    // act
+    var ranges = service.createMergeRanges(TENANT_ID);
+
+    // assert – one empty range per InventoryRecordType, bounds span the full UUID space
+    assertThat(ranges)
+      .hasSize(InventoryRecordType.values().length)
+      .are(new Condition<>(range -> range.getLowerId() != null, "lower id"))
+      .are(new Condition<>(range -> range.getUpperId() != null, "upper id"))
+      .extracting(MergeRangeEntity::getEntityType, MergeRangeEntity::getTenantId)
+      .containsExactlyInAnyOrder(tuple(INSTANCE, TENANT_ID), tuple(HOLDINGS, TENANT_ID), tuple(ITEM, TENANT_ID));
+  }
+
+  @Test
+  void createMergeRanges_positive_multipleRangesPerType() {
+    // given – 9 records with range size 3 → 3 ranges per type
+    when(config.getMergeRangeSize()).thenReturn(3);
+    when(inventoryService.fetchInventoryRecordsCount(any(InventoryRecordType.class))).thenReturn(9);
+
+    // act
+    var ranges = service.createMergeRanges(TENANT_ID);
+
+    // assert – 3 types × 3 ranges = 9 total
+    assertThat(ranges).hasSize(9);
+    assertThat(ranges.stream().filter(r -> r.getEntityType() == INSTANCE)).hasSize(3);
+    assertThat(ranges.stream().filter(r -> r.getEntityType() == HOLDINGS)).hasSize(3);
+    assertThat(ranges.stream().filter(r -> r.getEntityType() == ITEM)).hasSize(3);
+  }
+
+  @Test
+  void fetchMergeRanges_positive() {
+    var expected = List.of(
+      new MergeRangeEntity(UUID.randomUUID(), INSTANCE, TENANT_ID, "00", "ff",
+        Timestamp.from(Instant.now()), null, null));
+    when(instanceRepository.getMergeRanges()).thenReturn(expected);
+
+    var result = service.fetchMergeRanges(INSTANCE);
+
+    assertThat(result).isEqualTo(expected);
+    verify(instanceRepository).getMergeRanges();
+  }
+
+  @Test
   void updateStatus() {
     var testStartTime = Timestamp.from(Instant.now());
     var rangeId = UUID.randomUUID();
@@ -134,6 +183,25 @@ class ReindexMergeRangeIndexServiceTest {
       List.of(entities));
   }
 
+  @EnumSource(value = ReindexRecordsEvent.ReindexRecordType.class)
+  @ParameterizedTest
+  void saveEntities_positive_withoutInstanceChildrenResourceService(ReindexRecordsEvent.ReindexRecordType recordType) {
+    var entities = Map.<String, Object>of("id", UUID.randomUUID());
+    var event = new ReindexRecordsEvent();
+    event.setTenant(TENANT_ID);
+    event.setRecordType(recordType);
+    event.setRecords(List.of(entities));
+    // service with no InstanceChildrenResourceService wired
+    var serviceWithoutChildren = new ReindexMergeRangeIndexService(
+      List.of(instanceRepository, itemRepository, holdingRepository),
+      inventoryService, config, stagingMigrationService);
+
+    serviceWithoutChildren.saveEntities(event);
+
+    verify(repositoryMap.get(recordType.getEntityType())).saveEntities(TENANT_ID, List.of(entities));
+    verify(instanceChildrenResourceService, never()).persistChildrenOnReindex(any(), any(), any());
+  }
+
   @Test
   void fetchFailedMergeRanges() {
     // act
@@ -142,5 +210,18 @@ class ReindexMergeRangeIndexServiceTest {
     // assert
     verify(repositoryMap.values().iterator().next()).getFailedMergeRanges();
   }
-}
 
+  @Test
+  void performStagingMigration_positive() {
+    var result = new MigrationResult();
+    result.setTotalInstances(10);
+    result.setTotalHoldings(5);
+    result.setTotalItems(3);
+    result.setTotalRelationships(2);
+    when(stagingMigrationService.migrateAllStagingTables(TENANT_ID)).thenReturn(result);
+
+    service.performStagingMigration(TENANT_ID);
+
+    verify(stagingMigrationService).migrateAllStagingTables(TENANT_ID);
+  }
+}

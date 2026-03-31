@@ -8,8 +8,6 @@ import static org.folio.search.domain.dto.ResourceEventType.DELETE;
 import static org.folio.search.domain.dto.ResourceEventType.UPDATE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_HOLDING_FIELD_NAME;
 import static org.folio.search.utils.SearchUtils.INSTANCE_ITEM_FIELD_NAME;
-import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
-import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.support.TestConstants.consortiumInstanceSharingCompleteTopic;
 import static org.folio.support.TestConstants.inventoryBoundWithTopic;
 import static org.folio.support.TestConstants.inventoryHoldingTopic;
@@ -92,9 +90,9 @@ public class InventoryApi {
       .whenComplete(onCompleteConsumer());
   }
 
-  public void shareInstance(String tenantId, String instanceId) {
-    var instanceEvent = instanceSharingCompleteEvent(instanceId, MEMBER_TENANT_ID, CENTRAL_TENANT_ID,
-      InstanceSharingCompleteEvent.Status.COMPLETE, "");
+  public void shareInstance(String tenantId, String instanceId, InstanceSharingCompleteEvent.Status status,
+                            String errorMessage, String sourceTenantId, String targetTenantId) {
+    var instanceEvent = instanceSharingCompleteEvent(instanceId, sourceTenantId, targetTenantId, status, errorMessage);
 
     kafkaTemplate.send(consortiumInstanceSharingCompleteTopic(tenantId), instanceId,
         objectMapper.writeValueAsString(instanceEvent))

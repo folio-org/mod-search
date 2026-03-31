@@ -27,6 +27,7 @@ public interface InventoryReferenceDataClient {
   @Getter
   enum ReferenceDataType {
 
+    AUTHORITY_IDENTIFIER_TYPES("authority-identifier-types"),
     IDENTIFIER_TYPES("identifier-types"),
     ALTERNATIVE_TITLE_TYPES("alternative-title-types"),
     CALL_NUMBER_TYPES("call-number-types"),

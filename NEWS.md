@@ -26,6 +26,7 @@
 * **Authority Search**
   * Implement two-stage Kafka processing with event aggregation for instance indexing ([MSEARCH-1157](https://folio-org.atlassian.net/browse/MSEARCH-1157))
   * Separate LCCN and Canceled LCCN identifiers search to lccn and canceledLccn options ([MSEARCH-1066](https://folio-org.atlassian.net/browse/MSEARCH-1066))
+  * Use Authority-Specific Identifier Types for LCCN Lookups ([MSEARCH-1193](https://folio-org.atlassian.net/browse/MSEARCH-1193))
 * **Classification Browse**
   * Add title and contributors to classification browse response ([MSEARCH-1045](https://folio-org.atlassian.net/browse/MSEARCH-1045))
   * Add id to classification browse response ([MSEARCH-1093](https://folio-org.atlassian.net/browse/MSEARCH-1093))

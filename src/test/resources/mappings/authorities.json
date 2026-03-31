@@ -1,0 +1,46 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "GET",
+        "url": "/authority-identifier-types?query=code%3D%3D(%22lccn%22)&limit=100"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "identifierTypes": [
+            {
+              "id": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+              "code": "lccn",
+              "name": "LCCN"
+            }
+          ]
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "url": "/authority-identifier-types?query=code%3D%3D(%22canceled-lccn%22)&limit=100"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "identifierTypes": [
+            {
+              "id": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9",
+              "code": "canceled-lccn",
+              "name": "Canceled LCCN"
+            }
+          ]
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    }
+  ]
+}

@@ -2,7 +2,7 @@ package org.folio.search.service.setter.authority;
 
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.client.InventoryReferenceDataClient.ReferenceDataType.IDENTIFIER_TYPES;
+import static org.folio.search.client.InventoryReferenceDataClient.ReferenceDataType.AUTHORITY_IDENTIFIER_TYPES;
 import static org.folio.support.TestConstants.LCCN_IDENTIFIER_TYPE_ID;
 import static org.folio.support.utils.TestUtils.authorityWithIdentifiers;
 import static org.folio.support.utils.TestUtils.identifier;
@@ -82,7 +82,7 @@ class LccnAuthorityProcessorTest {
   }
 
   private void mockFetchReferenceData(Set<String> referenceData) {
-    when(referenceDataService.fetchReferenceData(IDENTIFIER_TYPES, CqlQueryParam.NAME,
+    when(referenceDataService.fetchReferenceData(AUTHORITY_IDENTIFIER_TYPES, CqlQueryParam.CODE,
       lccnProcessor.getIdentifierNames()))
       .thenReturn(referenceData);
   }

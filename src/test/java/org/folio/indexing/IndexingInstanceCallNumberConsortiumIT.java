@@ -158,7 +158,7 @@ class IndexingInstanceCallNumberConsortiumIT extends BaseIntegrationTest {
 
   private static void assertDocumentsEmpty(ResourceType resourceType) {
     var hits = fetchAllDocuments(resourceType, CENTRAL_TENANT_ID);
-    assertThat(hits).hasSize(0);
+    assertThat(hits).isEmpty();
   }
 
   private static void createInstanceInMemberTenant(String instanceId, String instanceTitle,

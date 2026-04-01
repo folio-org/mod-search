@@ -190,6 +190,7 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
    *
    * @param instanceIds list of instance IDs whose call number relations should be updated
    */
+  @SuppressWarnings("java:S2077")
   public void updateLastUpdatedDate(List<String> instanceIds) {
     var sql = UPDATE_LAST_UPDATED_DATE_QUERY.formatted(JdbcUtils.getSchemaName(context),
       getParamPlaceholderForUuid(instanceIds.size()));

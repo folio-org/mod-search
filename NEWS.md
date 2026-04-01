@@ -1,3 +1,9 @@
+## v5.0.13 2026-03-01
+### Bug fixes
+* Fix lock treated as stale on reindexing ([MSEARCH-1188](https://folio-org.atlassian.net/browse/MSEARCH-1188))
+
+---
+
 ## v5.0.12 2026-02-16
 ### Features
 * Implement two-stage Kafka processing with event aggregation for instance indexing ([MSEARCH-1157](https://folio-org.atlassian.net/browse/MSEARCH-1157))

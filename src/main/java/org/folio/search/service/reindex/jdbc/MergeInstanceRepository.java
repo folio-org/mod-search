@@ -132,14 +132,9 @@ public class MergeInstanceRepository extends MergeRangeRepository {
   @Override
   @SuppressWarnings("java:S2077")
   public void updateBoundWith(String tenantId, String id, boolean bound) {
-    if (ReindexContext.isReindexMode()) {
-      // Staging tables don't need update operations, they only accumulate data
-      log.debug("Update operation not supported for staging table {}", ReindexConstants.STAGING_INSTANCE_TABLE);
-    } else {
-      var fullTableName = getFullTableName(context, entityTable());
-      var sql = UPDATE_BOUND_WITH_SQL.formatted(fullTableName);
-      jdbcTemplate.update(sql, bound, id);
-    }
+    var fullTableName = getFullTableName(context, entityTable());
+    var sql = UPDATE_BOUND_WITH_SQL.formatted(fullTableName);
+    jdbcTemplate.update(sql, bound, id);
   }
 
   @Override

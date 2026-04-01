@@ -2,7 +2,6 @@ package org.folio.search.service.reindex.jdbc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.utils.TestUtils.mapOf;
@@ -117,7 +116,7 @@ class CallNumberRepositoryIT {
 
   @Test
   @Sql("/sql/populate-instances.sql")
-  void updateTenantIdForCentralInstances_updatesCallNumberRelationsAndCallNumber() {
+  void updateLastUpdatedDate_updatesCallNumberLastUpdatedDate() {
     var callNumberId = "cn-test";
 
     //manually set last_updated_date to past to verify it's updated after tenantId update
@@ -134,28 +133,13 @@ class CallNumberRepositoryIT {
     );
     repository.saveAll(new ChildResourceEntityBatch(Set.of(), List.of(relation)));
 
-    // verify member tenant is set before update
-    var before = repository.fetchByIdRange(callNumberId, callNumberId);
-    assertCallNumberInstanceTenantId(before, MEMBER_TENANT_ID);
-
     // act
-    repository.updateTenantIdForCentralInstances(List.of(INSTANCE_ID), CENTRAL_TENANT_ID);
-
-    // assert tenant is updated to central
-    var after = repository.fetchByIdRange(callNumberId, callNumberId);
-    assertCallNumberInstanceTenantId(after, CENTRAL_TENANT_ID);
+    repository.updateLastUpdatedDate(List.of(INSTANCE_ID));
 
     // assert last_updated_date is updated
     var lastUpdatedAfter = jdbcTemplate.queryForObject(
       "SELECT last_updated_date FROM call_number WHERE id = ?", Timestamp.class, callNumberId);
     assertThat(lastUpdatedAfter).isNotNull().isAfter(pastTimestamp);
-  }
-
-  private void assertCallNumberInstanceTenantId(List<Map<String, Object>> callNumbers, String expectedTenantId) {
-    assertThat(callNumbers).hasSize(1)
-      .flatExtracting(m -> (List<?>) m.get("instances"))
-      .extracting(i -> (String) ((Map<?, ?>) i).get("tenantId"))
-      .containsExactly(expectedTenantId);
   }
 
   private static List<UUID> getList(int size) {

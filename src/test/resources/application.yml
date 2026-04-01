@@ -77,10 +77,6 @@ folio:
     core-pool-size: 2
     max-pool-size: 2
     queue-capacity: 500
-  task-scheduler:
-    pool-size: 2
-    thread-name-prefix: ${folio.environment}-task-scheduler-
-    delay-ms: 2000
   kafka:
     retry-interval-ms: 100
     retry-delivery-attempts: 2

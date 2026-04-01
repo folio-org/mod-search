@@ -7,7 +7,6 @@ import static org.folio.search.utils.SearchConverterUtils.getResourceEventId;
 import static org.folio.search.utils.SearchConverterUtils.getResourceSource;
 import static org.folio.search.utils.SearchUtils.SOURCE_CONSORTIUM_PREFIX;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -19,7 +18,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.logging.log4j.message.FormattedMessage;
-import org.folio.search.configuration.properties.TaskSchedulerProperties;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.event.IndexInstanceEvent;
 import org.folio.search.model.event.InstanceSharingCompleteEvent;
@@ -34,7 +32,6 @@ import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
 /**
@@ -53,8 +50,6 @@ public class KafkaMessageListener {
   private final InstanceEventMapper instanceEventMapper;
   private final CallNumberRepository callNumberRepository;
   private final ConsortiumTenantProvider consortiumTenantProvider;
-  private final TaskSchedulerProperties taskSchedulerProperties;
-  private final TaskScheduler instanceSharingCompleteTaskScheduler;
 
   /**
    * Handles instance events and indexes them by id.
@@ -192,33 +187,30 @@ public class KafkaMessageListener {
     topicPattern = "#{folioKafkaProperties.listener['instance-sharing-complete'].topicPattern}")
   public void handleInstanceSharingCompleteEvents(List<InstanceSharingCompleteEvent> instanceSharingCompleteEvents) {
     log.info("Processing instance sharing complete events from Kafka [number of events: {}]",
-      instanceSharingCompleteEvents.size());
-    // wait until instance children processing is completed and the call number records are available for update
-    instanceSharingCompleteTaskScheduler.schedule(() -> {
-      var batch = instanceSharingCompleteEvents.stream()
+        instanceSharingCompleteEvents.size());
+
+    var batch = instanceSharingCompleteEvents.stream()
         .filter(event -> InstanceSharingCompleteEvent.Status.COMPLETE.equals(event.getStatus())
-          && StringUtils.isEmpty(event.getError()))
+            && StringUtils.isEmpty(event.getError()))
         .toList();
 
-      var batchByTenant = batch.stream()
+    var batchByTenant = batch.stream()
         .collect(Collectors.groupingBy(
-          InstanceSharingCompleteEvent::getTargetTenantId,
-          Collectors.mapping(InstanceSharingCompleteEvent::getInstanceIdentifier, Collectors.toList())
+            InstanceSharingCompleteEvent::getTargetTenantId,
+            Collectors.mapping(InstanceSharingCompleteEvent::getInstanceIdentifier, Collectors.toList())
         ));
-
-      updateTenantIdForCentralInstances(batch, batchByTenant);
-    }, Instant.now().plusMillis(taskSchedulerProperties.getDelayMs()));
+    updateCalNumbersLastUpdatedDate(batch, batchByTenant);
   }
 
-  private void updateTenantIdForCentralInstances(List<InstanceSharingCompleteEvent> batch,
-                                                 Map<String, List<String>> batchByTenant) {
+  private void updateCalNumbersLastUpdatedDate(List<InstanceSharingCompleteEvent> batch,
+                                               Map<String, List<String>> batchByTenant) {
     batchByTenant.forEach((tenant, instanceIdentifiers) -> executionService.executeSystemUserScoped(tenant, () -> {
       folioMessageBatchProcessor.consumeBatchWithFallback(batch, KAFKA_RETRY_TEMPLATE_NAME,
         event -> {
           if (consortiumTenantProvider.isCentralTenant(tenant)) {
-            log.info("updateTenantIdForCentralInstances: Updating call number tenant_id for {} instances in "
-              + "central tenant {}", instanceIdentifiers.size(), tenant);
-            callNumberRepository.updateTenantIdForCentralInstances(instanceIdentifiers, tenant);
+            log.info("updateCalNumbersLastUpdatedDate: Updating lastUpdatedDate for call numbers of {} instances "
+              + "in central tenant {}", instanceIdentifiers.size(), tenant);
+            callNumberRepository.updateLastUpdatedDate(instanceIdentifiers);
           }
         }, KafkaMessageListener::logFailedEvent);
       return null;

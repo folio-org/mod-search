@@ -112,10 +112,6 @@ folio:
     max-pool-size: ${STREAM_ID_MAX_POOL_SIZE:2}
     queue-capacity: ${STREAM_ID_QUEUE_CAPACITY:500}
     job-expiration-days: ${STREAM_ID_JOB_EXPIRATION_DAYS:7}
-  task-scheduler:
-    pool-size: ${TASK_SCHEDULER_POOL_SIZE:2}
-    thread-name-prefix: ${folio.environment}-task-scheduler-
-    delay-ms: ${TASK_SCHEDULER_DELAY_MS:70000}
   kafka:
     retry-interval-ms: ${KAFKA_RETRY_INTERVAL_MS:2000}
     retry-delivery-attempts: ${KAFKA_RETRY_DELIVERY_ATTEMPTS:6}

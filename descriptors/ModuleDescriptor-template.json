@@ -1257,16 +1257,6 @@
         "description": "The capacity of the queue."
       },
       {
-        "name": "TASK_SCHEDULER_POOL_SIZE",
-        "value": "2",
-        "description": "The number of threads to keep in the task scheduler pool."
-      },
-      {
-        "name": "TASK_SCHEDULER_DELAY_MS",
-        "value": "70000",
-        "description": "The delay in ms for scheduled tasks."
-      },
-      {
         "name": "SEARCH_QUERY_TIMEOUT",
         "value": "25s",
         "description": "The maximum time to wait for search query response"

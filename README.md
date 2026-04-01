@@ -336,8 +336,6 @@ and [Cross-cluster replication](https://docs.aws.amazon.com/opensearch-service/l
 | INSTANCE_CHILDREN_INDEX_DELAY_MS                   | 60000                                                | Defines the delay for scheduler that indexes subjects/contributors/classifications/call-numbers in a background                                                                       |
 | SUB_RESOURCE_BATCH_SIZE                            | 100                                                  | Defines number of sub-resources to process at a time during background indexing                                                                                                       |
 | STALE_LOCK_THRESHOLD_MS                            | 600000                                               | Threshold to consider a sub-resource lock as stale and eligible for release                                                                                                           |
-| TASK_SCHEDULER_POOL_SIZE                           | 2                                                    | The number of threads to keep in the task scheduler pool.                                                                                                                             |
-| TASK_SCHEDULER_DELAY_MS                            | 70000                                                | The delay in ms for scheduled tasks.                                                                                                                                                  |
 
 The module uses system user to communicate with other modules from Kafka consumers.
 For production deployments you MUST specify the password for this system user via env variable:

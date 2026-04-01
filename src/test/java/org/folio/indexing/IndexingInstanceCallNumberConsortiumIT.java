@@ -77,7 +77,7 @@ class IndexingInstanceCallNumberConsortiumIT extends BaseIntegrationTest {
   void shouldUpdateInstanceCallNumber_onInstanceSharing() {
     // given
     createInstanceInMemberTenant(INSTANCE_ID, INSTANCE_TITLE, LOCATION_ID, CALL_NUMBER);
-    awaitAssertion(() -> assertInstanceCallNumberTenantId(MEMBER_TENANT_ID, false));
+    awaitAssertion(() -> assertInstanceCallNumberSharedState(false));
     // when - create instance in central tenant with the same instance id/title
     var centralInstance = new Instance().id(INSTANCE_ID).title(INSTANCE_TITLE).source("FOLIO");
     inventoryApi.createInstance(CENTRAL_TENANT_ID, centralInstance);
@@ -87,13 +87,13 @@ class IndexingInstanceCallNumberConsortiumIT extends BaseIntegrationTest {
     inventoryApi.updateInstance(MEMBER_TENANT_ID, memberInstance);
 
     // then - fetch call number documents for the instance and check if tenant field changed to member tenant id
-    awaitAssertion(() -> assertInstanceCallNumberTenantId(MEMBER_TENANT_ID, false));
+    awaitAssertion(() -> assertInstanceCallNumberSharedState(false));
 
     inventoryApi.shareInstance(CENTRAL_TENANT_ID, INSTANCE_ID, InstanceSharingCompleteEvent.Status.COMPLETE, "",
       MEMBER_TENANT_ID, CENTRAL_TENANT_ID);
 
-    // then - fetch call number documents and check if tenant field changed to central and shared is true
-    awaitAssertion(() -> assertInstanceCallNumberTenantId(CENTRAL_TENANT_ID, true));
+    // then - check that shared field is set to true
+    awaitAssertion(() -> assertInstanceCallNumberSharedState(true));
   }
 
   @ParameterizedTest(name = "{index} => status={0}, errorMessage={1}, targetTenant={2}")
@@ -107,7 +107,7 @@ class IndexingInstanceCallNumberConsortiumIT extends BaseIntegrationTest {
     // given
     createInstanceInMemberTenant(instanceId, title, locationId, callNumber);
 
-    awaitAssertion(() -> assertInstanceCallNumberTenantId(MEMBER_TENANT_ID, false));
+    awaitAssertion(() -> assertInstanceCallNumberSharedState(false));
 
     var centralInstance = new Instance().id(instanceId).title(title).source("FOLIO");
     inventoryApi.createInstance(CENTRAL_TENANT_ID, centralInstance);
@@ -115,17 +115,17 @@ class IndexingInstanceCallNumberConsortiumIT extends BaseIntegrationTest {
     var memberInstance = new Instance().id(instanceId).title(title).source("CONSORTIUM-FOLIO");
     inventoryApi.updateInstance(MEMBER_TENANT_ID, memberInstance);
 
-    awaitAssertion(() -> assertInstanceCallNumberTenantId(MEMBER_TENANT_ID, false));
+    awaitAssertion(() -> assertInstanceCallNumberSharedState(false));
 
     // when
     inventoryApi.shareInstance(MEMBER_TENANT_ID, instanceId, status, errorMessage, MEMBER_TENANT_ID, targetTenantId);
 
-    // then check that call number document is not updated with central tenant id and shared is false
+    // then check that the shared field is not updated and remains false
     await()
       .pollDelay(Duration.ofSeconds(30))
       .atMost(ONE_MINUTE)
       .untilAsserted(() ->
-        assertInstanceCallNumberTenantId(MEMBER_TENANT_ID, false)
+        assertInstanceCallNumberSharedState(false)
       );
   }
 
@@ -142,7 +142,7 @@ class IndexingInstanceCallNumberConsortiumIT extends BaseIntegrationTest {
         UUID.randomUUID().toString(), "title3", UUID.randomUUID().toString(), "call number3"));
   }
 
-  private static void assertInstanceCallNumberTenantId(String expectedTenantId, boolean shared) {
+  private static void assertInstanceCallNumberSharedState(boolean shared) {
     var hits = fetchAllDocuments(INSTANCE_CALL_NUMBER, CENTRAL_TENANT_ID);
     assertThat(hits).hasSize(1);
 
@@ -152,7 +152,7 @@ class IndexingInstanceCallNumberConsortiumIT extends BaseIntegrationTest {
     assertThat(instances)
       .hasSize(1)
       .allSatisfy(map -> assertThat(map)
-        .containsEntry("tenantId", expectedTenantId)
+        .containsEntry("tenantId", MEMBER_TENANT_ID)
         .containsEntry("shared", shared));
   }
 

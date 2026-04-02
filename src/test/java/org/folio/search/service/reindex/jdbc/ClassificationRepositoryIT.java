@@ -21,8 +21,10 @@ import java.sql.BatchUpdateException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.entity.ChildResourceEntityBatch;
+import org.folio.search.service.reindex.ReindexContext;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
@@ -146,6 +148,35 @@ class ClassificationRepositoryIT {
       .when(jdbcTemplate).batchUpdate(anyString(), anyCollection(), anyInt(), any());
 
     saveAll();
+  }
+
+  @Test
+  void saveAll_savesToStagingTables_whenInReindexModeWithMemberTenant() {
+    var classificationId = UUID.randomUUID().toString();
+    var entities = Set.of(classificationEntity(classificationId));
+    var relations = List.of(classificationRelation("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", classificationId));
+
+    ReindexContext.setReindexMode(true);
+    ReindexContext.setMemberTenantId(MEMBER_TENANT_ID);
+    try {
+      repository.saveAll(new ChildResourceEntityBatch(entities, relations));
+    } finally {
+      ReindexContext.setReindexMode(false);
+      ReindexContext.clearMemberTenantId();
+    }
+
+    assertThat(jdbcTemplate.queryForObject(
+      "SELECT count(*) FROM staging_classification WHERE id = ?", Integer.class, classificationId))
+      .isEqualTo(1);
+    assertThat(jdbcTemplate.queryForObject(
+      "SELECT count(*) FROM classification WHERE id = ?", Integer.class, classificationId))
+      .isZero();
+    assertThat(jdbcTemplate.queryForObject(
+      "SELECT count(*) FROM staging_instance_classification", Integer.class))
+      .isEqualTo(1);
+    assertThat(jdbcTemplate.queryForObject(
+      "SELECT count(*) FROM instance_classification", Integer.class))
+      .isZero();
   }
 
   @Test

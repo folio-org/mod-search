@@ -20,8 +20,10 @@ import java.sql.BatchUpdateException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.entity.ChildResourceEntityBatch;
+import org.folio.search.service.reindex.ReindexContext;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
@@ -142,6 +144,35 @@ class ContributorRepositoryIT {
       .when(jdbcTemplate).batchUpdate(anyString(), anyCollection(), anyInt(), any());
 
     saveAll();
+  }
+
+  @Test
+  void saveAll_savesToStagingTables_whenInReindexModeWithMemberTenant() {
+    var contributorId = UUID.randomUUID().toString();
+    var entities = Set.of(contributorEntity(contributorId));
+    var relations = List.of(contributorRelation("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", contributorId));
+
+    ReindexContext.setReindexMode(true);
+    ReindexContext.setMemberTenantId(MEMBER_TENANT_ID);
+    try {
+      repository.saveAll(new ChildResourceEntityBatch(entities, relations));
+    } finally {
+      ReindexContext.setReindexMode(false);
+      ReindexContext.clearMemberTenantId();
+    }
+
+    assertThat(jdbcTemplate.queryForObject(
+      "SELECT count(*) FROM staging_contributor WHERE id = ?", Integer.class, contributorId))
+      .isEqualTo(1);
+    assertThat(jdbcTemplate.queryForObject(
+      "SELECT count(*) FROM contributor WHERE id = ?", Integer.class, contributorId))
+      .isZero();
+    assertThat(jdbcTemplate.queryForObject(
+      "SELECT count(*) FROM staging_instance_contributor", Integer.class))
+      .isEqualTo(1);
+    assertThat(jdbcTemplate.queryForObject(
+      "SELECT count(*) FROM instance_contributor", Integer.class))
+      .isZero();
   }
 
   private Map<String, Object> contributorEntity(String id) {

@@ -22,11 +22,13 @@ import java.sql.BatchUpdateException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import org.assertj.core.api.Condition;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.entity.ChildResourceEntityBatch;
 import org.folio.search.model.reindex.UploadRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.service.reindex.ReindexContext;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
@@ -187,6 +189,35 @@ class SubjectRepositoryIT {
       .when(jdbcTemplate).batchUpdate(anyString(), anyCollection(), anyInt(), any());
 
     saveAll();
+  }
+
+  @Test
+  void saveAll_savesToStagingTables_whenInReindexModeWithMemberTenant() {
+    var subjectId = UUID.randomUUID().toString();
+    var entities = Set.of(subjectEntity(subjectId));
+    var relations = List.of(subjectRelation("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", subjectId));
+
+    ReindexContext.setReindexMode(true);
+    ReindexContext.setMemberTenantId(MEMBER_TENANT_ID);
+    try {
+      repository.saveAll(new ChildResourceEntityBatch(entities, relations));
+    } finally {
+      ReindexContext.setReindexMode(false);
+      ReindexContext.clearMemberTenantId();
+    }
+
+    assertThat(jdbcTemplate.queryForObject(
+      "SELECT count(*) FROM staging_subject WHERE id = ?", Integer.class, subjectId))
+      .isEqualTo(1);
+    assertThat(jdbcTemplate.queryForObject(
+      "SELECT count(*) FROM subject WHERE id = ?", Integer.class, subjectId))
+      .isZero();
+    assertThat(jdbcTemplate.queryForObject(
+      "SELECT count(*) FROM staging_instance_subject", Integer.class))
+      .isEqualTo(1);
+    assertThat(jdbcTemplate.queryForObject(
+      "SELECT count(*) FROM instance_subject", Integer.class))
+      .isZero();
   }
 
   private Map<String, Object> subjectEntity(String id) {

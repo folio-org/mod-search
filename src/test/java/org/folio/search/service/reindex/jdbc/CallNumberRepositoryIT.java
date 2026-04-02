@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.UUID;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.entity.ChildResourceEntityBatch;
+import org.folio.search.service.reindex.ReindexContext;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
@@ -48,7 +49,7 @@ class CallNumberRepositoryIT {
 
   private static final String INSTANCE_ID = "9f8febd1-e96c-46c4-a5f4-84a45cc499a2";
   private static final Map<String, List<UUID>> ITEM_IDS =
-    Map.of("1", getList(1), "2", getList(2));
+    Map.of("1", getList(1), "2", getList(2), "3", getList(1));
   private @MockitoSpyBean JdbcTemplate jdbcTemplate;
   private @MockitoBean FolioExecutionContext context;
   private CallNumberRepository repository;
@@ -156,6 +157,36 @@ class CallNumberRepositoryIT {
       .flatExtracting(m -> (List<?>) m.get("instances"))
       .extracting(i -> (String) ((Map<?, ?>) i).get("tenantId"))
       .containsExactly(expectedTenantId);
+  }
+
+  @Test
+  @Sql("/sql/populate-instances.sql")
+  void saveAll_savesToStagingTables_whenInReindexModeWithMemberTenant() {
+    var callNumberId = "3";
+    var entities = Set.of(callNumberEntity(callNumberId));
+    var relations = List.of(callNumberRelation(callNumberId));
+
+    ReindexContext.setReindexMode(true);
+    ReindexContext.setMemberTenantId(MEMBER_TENANT_ID);
+    try {
+      repository.saveAll(new ChildResourceEntityBatch(entities, relations));
+    } finally {
+      ReindexContext.setReindexMode(false);
+      ReindexContext.clearMemberTenantId();
+    }
+
+    assertThat(jdbcTemplate.queryForObject(
+      "SELECT count(*) FROM staging_call_number WHERE id = ?", Integer.class, callNumberId))
+      .isEqualTo(1);
+    assertThat(jdbcTemplate.queryForObject(
+      "SELECT count(*) FROM call_number WHERE id = ?", Integer.class, callNumberId))
+      .isZero();
+    assertThat(jdbcTemplate.queryForObject(
+      "SELECT count(*) FROM staging_instance_call_number", Integer.class))
+      .isEqualTo(1);
+    assertThat(jdbcTemplate.queryForObject(
+      "SELECT count(*) FROM instance_call_number", Integer.class))
+      .isZero();
   }
 
   private static List<UUID> getList(int size) {

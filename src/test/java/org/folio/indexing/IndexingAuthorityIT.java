@@ -36,11 +36,11 @@ class IndexingAuthorityIT extends BaseIntegrationTest {
     var authority = new Authority().id(authorityId).personalName("personal name")
       .corporateName("corporate name").uniformTitle("uniform title");
     var resourceEvent = resourceEvent(authorityId, AUTHORITY, toMap(authority));
-    kafkaTemplate.send(inventoryAuthorityTopic(TENANT_ID), objectMapper.writeValueAsString(resourceEvent));
+    kafkaTemplate.send(inventoryAuthorityTopic(TENANT_ID), resourceEvent);
     assertCountByIds(authoritySearchPath(), List.of(authorityId), 3);
 
     var deleteEvent = resourceEvent(authorityId, AUTHORITY, null).type(DELETE).old(toMap(authority));
-    kafkaTemplate.send(inventoryAuthorityTopic(TENANT_ID), objectMapper.writeValueAsString(deleteEvent));
+    kafkaTemplate.send(inventoryAuthorityTopic(TENANT_ID), deleteEvent);
     assertCountByIds(authoritySearchPath(), List.of(authorityId), 0);
   }
 }

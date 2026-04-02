@@ -125,8 +125,7 @@ class ConsortiumSearchLibrariesIT extends BaseConsortiumIntegrationTest {
       .flatMap(library -> Stream.of(
         kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, library, null),
         kafkaResourceEvent(MEMBER_TENANT_ID, CREATE, library, null)))
-      .forEach(event -> kafkaTemplate.send(inventoryLibraryTopic(event.getTenant()),
-        objectMapper.writeValueAsString(event)));
+      .forEach(event -> kafkaTemplate.send(inventoryLibraryTopic(event.getTenant()), event));
 
     await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
       var totalHits = countIndexDocument(ResourceType.LIBRARY, CENTRAL_TENANT_ID);

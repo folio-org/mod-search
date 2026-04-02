@@ -69,12 +69,12 @@ class IndexingLibrariesConsortiumIT extends BaseConsortiumIntegrationTest {
   void shouldIndexAndRemoveLibrary() {
     var library = library();
     var createEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, toMap(library), null);
-    kafkaTemplate.send(inventoryLibraryTopic(CENTRAL_TENANT_ID), objectMapper.writeValueAsString(createEvent));
+    kafkaTemplate.send(inventoryLibraryTopic(CENTRAL_TENANT_ID), createEvent);
 
     awaitAssertLibraryCount(1);
 
     var deleteEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, DELETE, null, toMap(library));
-    kafkaTemplate.send(inventoryLibraryTopic(CENTRAL_TENANT_ID), objectMapper.writeValueAsString(deleteEvent));
+    kafkaTemplate.send(inventoryLibraryTopic(CENTRAL_TENANT_ID), deleteEvent);
 
     awaitAssertLibraryCount(0);
   }
@@ -83,13 +83,13 @@ class IndexingLibrariesConsortiumIT extends BaseConsortiumIntegrationTest {
   void shouldIndexAndUpdateLibrary() {
     var library = library();
     var createEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, toMap(library), null);
-    kafkaTemplate.send(inventoryLibraryTopic(CENTRAL_TENANT_ID), objectMapper.writeValueAsString(createEvent));
+    kafkaTemplate.send(inventoryLibraryTopic(CENTRAL_TENANT_ID), createEvent);
 
     awaitAssertLibraryCount(1);
 
     var libraryUpdated = library.withName("nameUpdated");
     var updateEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, UPDATE, toMap(libraryUpdated), toMap(library));
-    kafkaTemplate.send(inventoryLibraryTopic(CENTRAL_TENANT_ID), objectMapper.writeValueAsString(updateEvent));
+    kafkaTemplate.send(inventoryLibraryTopic(CENTRAL_TENANT_ID), updateEvent);
 
     awaitAssertLibraryCountAfterUpdate(1, libraryUpdated);
   }
@@ -99,8 +99,8 @@ class IndexingLibrariesConsortiumIT extends BaseConsortiumIntegrationTest {
     var library = library();
     var createCentralEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, toMap(library), null);
     var createMemberEvent = kafkaResourceEvent(MEMBER_TENANT_ID, CREATE, toMap(library), null);
-    kafkaTemplate.send(inventoryLibraryTopic(CENTRAL_TENANT_ID), objectMapper.writeValueAsString(createCentralEvent));
-    kafkaTemplate.send(inventoryLibraryTopic(CENTRAL_TENANT_ID), objectMapper.writeValueAsString(createMemberEvent));
+    kafkaTemplate.send(inventoryLibraryTopic(CENTRAL_TENANT_ID), createCentralEvent);
+    kafkaTemplate.send(inventoryLibraryTopic(CENTRAL_TENANT_ID), createMemberEvent);
 
     awaitAssertLibraryCount(2);
   }
@@ -110,13 +110,13 @@ class IndexingLibrariesConsortiumIT extends BaseConsortiumIntegrationTest {
     var library = library();
     var createCentralEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, toMap(library), null);
     var createMemberEvent = kafkaResourceEvent(MEMBER_TENANT_ID, CREATE, toMap(library), null);
-    kafkaTemplate.send(inventoryLibraryTopic(CENTRAL_TENANT_ID), objectMapper.writeValueAsString(createCentralEvent));
-    kafkaTemplate.send(inventoryLibraryTopic(CENTRAL_TENANT_ID), objectMapper.writeValueAsString(createMemberEvent));
+    kafkaTemplate.send(inventoryLibraryTopic(CENTRAL_TENANT_ID), createCentralEvent);
+    kafkaTemplate.send(inventoryLibraryTopic(CENTRAL_TENANT_ID), createMemberEvent);
 
     awaitAssertLibraryCount(2);
 
     var deleteAllMemberEvent = new ResourceEvent().type(DELETE_ALL).tenant(MEMBER_TENANT_ID);
-    kafkaTemplate.send(inventoryLibraryTopic(MEMBER_TENANT_ID), objectMapper.writeValueAsString(deleteAllMemberEvent));
+    kafkaTemplate.send(inventoryLibraryTopic(MEMBER_TENANT_ID), deleteAllMemberEvent);
 
     awaitAssertLibraryCount(1);
   }
@@ -133,7 +133,7 @@ class IndexingLibrariesConsortiumIT extends BaseConsortiumIntegrationTest {
     }).when(kafkaMessageListener).handleLocationEvents(anyList());
 
     var libraryEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, libraryMap, null);
-    kafkaTemplate.send(inventoryLibraryTopic(MEMBER_TENANT_ID), objectMapper.writeValueAsString(libraryEvent));
+    kafkaTemplate.send(inventoryLibraryTopic(MEMBER_TENANT_ID), libraryEvent);
 
     await().atMost(ONE_MINUTE)
       .pollInterval(ONE_HUNDRED_MILLISECONDS)

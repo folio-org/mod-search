@@ -14,7 +14,6 @@ public class InstanceSharingCompleteEvent {
   private String targetTenantId;
   private Status status;
   private String error;
-  private Object metadata;
 
   @Getter
   @RequiredArgsConstructor

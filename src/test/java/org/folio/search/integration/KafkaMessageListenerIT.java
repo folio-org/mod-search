@@ -68,6 +68,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
@@ -81,7 +82,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
   "kafka-listener-it.test_tenant.authorities.authority"
 })
 @IntegrationTest
-@Import(KafkaListenerTestConfiguration.class)
+@Import({KafkaListenerTestConfiguration.class, DefaultErrorHandler.class})
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest(
   classes = {KafkaMessageListener.class, FolioKafkaProperties.class, InstanceEventMapper.class},

@@ -134,7 +134,7 @@ class CallNumberRepositoryIT {
     repository.saveAll(new ChildResourceEntityBatch(Set.of(), List.of(relation)));
 
     // act
-    repository.updateLastUpdatedDate(List.of(INSTANCE_ID));
+    repository.updateLastUpdatedDate(INSTANCE_ID);
 
     // assert last_updated_date is updated
     var lastUpdatedAfter = jdbcTemplate.queryForObject(

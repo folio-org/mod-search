@@ -80,7 +80,7 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
     UPDATE %1$s.call_number cn
     SET last_updated_date = CURRENT_TIMESTAMP
     FROM %1$s.instance_call_number icn
-    WHERE icn.instance_id IN (%2$s)
+    WHERE icn.instance_id = ?::uuid
       AND cn.id = icn.call_number_id;
     """;
 
@@ -185,16 +185,14 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
   }
 
   /**
-   * Updates last_updated_date in call_number records for the given instances to trigger reindexing
+   * Updates last_updated_date in call_number records for the given instance to trigger reindexing
    * of those call numbers when an instance is shared to the central tenant .
    *
-   * @param instanceIds list of instance IDs whose call number relations should be updated
+   * @param instanceId instance ID whose call number relations should be updated
    */
-  @SuppressWarnings("java:S2077")
-  public void updateLastUpdatedDate(List<String> instanceIds) {
-    var sql = UPDATE_LAST_UPDATED_DATE_QUERY.formatted(JdbcUtils.getSchemaName(context),
-      getParamPlaceholderForUuid(instanceIds.size()));
-    jdbcTemplate.update(sql, instanceIds.toArray());
+  public void updateLastUpdatedDate(String instanceId) {
+    var sql = UPDATE_LAST_UPDATED_DATE_QUERY.formatted(JdbcUtils.getSchemaName(context));
+    jdbcTemplate.update(sql, instanceId);
   }
 
   @Override

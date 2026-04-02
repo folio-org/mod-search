@@ -49,7 +49,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 import lombok.SneakyThrows;
-import org.apache.commons.lang3.tuple.Pair;
 import org.awaitility.Awaitility;
 import org.awaitility.core.ThrowingRunnable;
 import org.folio.search.SearchApplication;
@@ -105,7 +104,11 @@ import tools.jackson.databind.ObjectMapper;
 @EnableElasticSearch
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = AFTER_CLASS)
-@SpringBootTest(classes = SearchApplication.class)
+@SpringBootTest(classes = SearchApplication.class,
+  properties = {
+    "spring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.StringSerializer",
+    "spring.kafka.producer.value-serializer=org.springframework.kafka.support.serializer.JacksonJsonSerializer"
+  })
 @Import({
   BaseIntegrationTest.KafkaTemplateTestConfiguration.class})
 public abstract class BaseIntegrationTest {
@@ -115,7 +118,7 @@ public abstract class BaseIntegrationTest {
 
   protected static MockMvc mockMvc;
   protected static InventoryApi inventoryApi;
-  protected static KafkaTemplate<String, String> kafkaTemplate;
+  protected static KafkaTemplate<String, Object> kafkaTemplate;
   protected static ObjectMapper objectMapper;
   protected static OkapiConfiguration okapi;
   protected static RestHighLevelClient elasticClient;
@@ -368,8 +371,7 @@ public abstract class BaseIntegrationTest {
   @SneakyThrows
   protected static void setUpTenant(int expectedCount, Authority... authorities) {
     setUpTenant(TENANT_ID, authoritySearchPath(), () -> { }, asList(authorities), expectedCount, emptyList(),
-      rec -> kafkaTemplate.send(inventoryAuthorityTopic(), rec.getId(),
-        objectMapper.writeValueAsString(resourceEvent(null, AUTHORITY, rec))));
+      rec -> kafkaTemplate.send(inventoryAuthorityTopic(), rec.getId(), resourceEvent(null, AUTHORITY, rec)));
   }
 
   @SafeVarargs
@@ -399,8 +401,7 @@ public abstract class BaseIntegrationTest {
 
       if (type.equals(Authority.class)) {
         saveRecords(tenant, authoritySearchPath(), testRecords, expectedCount,
-          rec -> kafkaTemplate.send(inventoryAuthorityTopic(tenant),
-            objectMapper.writeValueAsString(resourceEvent(null, AUTHORITY, rec))));
+          rec -> kafkaTemplate.send(inventoryAuthorityTopic(tenant), resourceEvent(null, AUTHORITY, rec)));
       }
     }
   }
@@ -435,10 +436,28 @@ public abstract class BaseIntegrationTest {
   @SneakyThrows
   protected static void setUpTenant(Class<?> type, String tenant, Runnable postInitAction, Integer expectedCount,
                                     List<ResultMatcher> matchers, Map<String, Object>... records) {
+    String searchPath;
+    Consumer<Object> consumer;
 
-    var eventConsumer = getEventConsumer(type, tenant);
-    var searchPath = eventConsumer.getLeft();
-    var consumer = eventConsumer.getRight();
+    if (type.equals(Instance.class)) {
+      searchPath = instanceSearchPath();
+      consumer = instance -> inventoryApi.createInstance(tenant, (Map<String, Object>) instance);
+    } else if (type.equals(Authority.class)) {
+      searchPath = authoritySearchPath();
+      consumer = authority -> kafkaTemplate.send(inventoryAuthorityTopic(tenant), event(authority, AUTHORITY, tenant));
+    } else if (type.equals(LinkedDataInstance.class)) {
+      searchPath = linkedDataInstanceSearchPath();
+      consumer = ldInstance -> kafkaTemplate.send(linkedDataInstanceTopic(tenant),
+        event(ldInstance, LINKED_DATA_INSTANCE, tenant));
+    } else if (type.equals(LinkedDataWork.class)) {
+      searchPath = linkedDataWorkSearchPath();
+      consumer = ldWork -> kafkaTemplate.send(linkedDataWorkTopic(tenant), event(ldWork, LINKED_DATA_WORK, tenant));
+    } else if (type.equals(LinkedDataHub.class)) {
+      searchPath = linkedDataHubSearchPath();
+      consumer = ldHub -> kafkaTemplate.send(linkedDataHubTopic(tenant), event(ldHub, LINKED_DATA_HUB, tenant));
+    } else {
+      throw new IllegalArgumentException("Unsupported type: " + type.getName());
+    }
 
     setUpTenant(tenant, searchPath, postInitAction, asList(records), expectedCount, matchers, consumer);
   }
@@ -521,31 +540,10 @@ public abstract class BaseIntegrationTest {
     return resourceEvent(tenant, resourceType, CREATE, object);
   }
 
-  private static Pair<String, Consumer<Object>> getEventConsumer(Class<?> type, String tenant) {
-    if (type.equals(Instance.class)) {
-      return Pair.of(instanceSearchPath(), instance ->
-        inventoryApi.createInstance(tenant, (Map<String, Object>) instance));
-    } else if (type.equals(Authority.class)) {
-      return Pair.of(authoritySearchPath(), authority -> kafkaTemplate.send(inventoryAuthorityTopic(tenant),
-        objectMapper.writeValueAsString(event(authority, AUTHORITY, tenant))));
-    } else if (type.equals(LinkedDataInstance.class)) {
-      return Pair.of(linkedDataInstanceSearchPath(), ldInstance -> kafkaTemplate.send(linkedDataInstanceTopic(tenant),
-        objectMapper.writeValueAsString(event(ldInstance, LINKED_DATA_INSTANCE, tenant))));
-    } else if (type.equals(LinkedDataWork.class)) {
-      return Pair.of(linkedDataWorkSearchPath(), ldWork -> kafkaTemplate.send(linkedDataWorkTopic(tenant),
-        objectMapper.writeValueAsString(event(ldWork, LINKED_DATA_WORK, tenant))));
-    } else if (type.equals(LinkedDataHub.class)) {
-      return Pair.of(linkedDataHubSearchPath(), ldHub -> kafkaTemplate.send(linkedDataHubTopic(tenant),
-        objectMapper.writeValueAsString(event(ldHub, LINKED_DATA_HUB, tenant))));
-    } else {
-      throw new IllegalArgumentException("Unsupported type: " + type.getName());
-    }
-  }
-
   @BeforeAll
   static void setUpDefaultTenant(
     @Autowired MockMvc mockMvc,
-    @Autowired KafkaTemplate<String, String> kafkaTemplate,
+    @Autowired KafkaTemplate<String, Object> kafkaTemplate,
     @Autowired ObjectMapper objectMapper,
     @Autowired RestHighLevelClient restHighLevelClient,
     @Autowired CacheManager cacheManager) {
@@ -553,7 +551,7 @@ public abstract class BaseIntegrationTest {
     BaseIntegrationTest.mockMvc = mockMvc;
     BaseIntegrationTest.kafkaTemplate = kafkaTemplate;
     BaseIntegrationTest.objectMapper = objectMapper;
-    BaseIntegrationTest.inventoryApi = new InventoryApi(kafkaTemplate, objectMapper);
+    BaseIntegrationTest.inventoryApi = new InventoryApi(kafkaTemplate);
     BaseIntegrationTest.elasticClient = restHighLevelClient;
     BaseIntegrationTest.cacheManager = cacheManager;
   }
@@ -576,7 +574,7 @@ public abstract class BaseIntegrationTest {
 
     @Bean
     @Primary
-    public KafkaTemplate<String, String> kafkaStringTemplate(ProducerFactory<String, String> producerFactory) {
+    public KafkaTemplate<String, Object> kafkaObjectTemplate(ProducerFactory<String, Object> producerFactory) {
       return new KafkaTemplate<>(producerFactory);
     }
   }

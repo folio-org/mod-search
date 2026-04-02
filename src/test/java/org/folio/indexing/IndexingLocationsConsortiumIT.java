@@ -62,11 +62,11 @@ class IndexingLocationsConsortiumIT extends BaseConsortiumIntegrationTest {
   void shouldIndexAndRemoveLocation() {
     var location = location();
     var createEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, toMap(location), null);
-    kafkaTemplate.send(inventoryLocationTopic(CENTRAL_TENANT_ID), objectMapper.writeValueAsString(createEvent));
+    kafkaTemplate.send(inventoryLocationTopic(CENTRAL_TENANT_ID), createEvent);
     awaitAssertLocationCount(1);
 
     var deleteEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, DELETE, null, toMap(location));
-    kafkaTemplate.send(inventoryLocationTopic(CENTRAL_TENANT_ID), objectMapper.writeValueAsString(deleteEvent));
+    kafkaTemplate.send(inventoryLocationTopic(CENTRAL_TENANT_ID), deleteEvent);
     awaitAssertLocationCount(0);
   }
 
@@ -75,8 +75,8 @@ class IndexingLocationsConsortiumIT extends BaseConsortiumIntegrationTest {
     var location = location();
     var createCentralEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, toMap(location), null);
     var createMemberEvent = kafkaResourceEvent(MEMBER_TENANT_ID, CREATE, toMap(location), null);
-    kafkaTemplate.send(inventoryLocationTopic(CENTRAL_TENANT_ID), objectMapper.writeValueAsString(createCentralEvent));
-    kafkaTemplate.send(inventoryLocationTopic(CENTRAL_TENANT_ID), objectMapper.writeValueAsString(createMemberEvent));
+    kafkaTemplate.send(inventoryLocationTopic(CENTRAL_TENANT_ID), createCentralEvent);
+    kafkaTemplate.send(inventoryLocationTopic(CENTRAL_TENANT_ID), createMemberEvent);
     awaitAssertLocationCount(2);
   }
 
@@ -85,12 +85,12 @@ class IndexingLocationsConsortiumIT extends BaseConsortiumIntegrationTest {
     var location = location();
     var createCentralEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, toMap(location), null);
     var createMemberEvent = kafkaResourceEvent(MEMBER_TENANT_ID, CREATE, toMap(location), null);
-    kafkaTemplate.send(inventoryLocationTopic(CENTRAL_TENANT_ID), objectMapper.writeValueAsString(createCentralEvent));
-    kafkaTemplate.send(inventoryLocationTopic(CENTRAL_TENANT_ID), objectMapper.writeValueAsString(createMemberEvent));
+    kafkaTemplate.send(inventoryLocationTopic(CENTRAL_TENANT_ID), createCentralEvent);
+    kafkaTemplate.send(inventoryLocationTopic(CENTRAL_TENANT_ID), createMemberEvent);
     awaitAssertLocationCount(2);
 
     var deleteAllMemberEvent = new ResourceEvent().type(DELETE_ALL).tenant(MEMBER_TENANT_ID);
-    kafkaTemplate.send(inventoryLocationTopic(MEMBER_TENANT_ID), objectMapper.writeValueAsString(deleteAllMemberEvent));
+    kafkaTemplate.send(inventoryLocationTopic(MEMBER_TENANT_ID), deleteAllMemberEvent);
     awaitAssertLocationCount(1);
   }
 
@@ -106,7 +106,7 @@ class IndexingLocationsConsortiumIT extends BaseConsortiumIntegrationTest {
     }).when(kafkaMessageListener).handleLocationEvents(anyList());
 
     var libraryEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, libraryMap, null);
-    kafkaTemplate.send(inventoryLocationTopic(MEMBER_TENANT_ID), objectMapper.writeValueAsString(libraryEvent));
+    kafkaTemplate.send(inventoryLocationTopic(MEMBER_TENANT_ID), libraryEvent);
 
     await().atMost(ONE_MINUTE)
       .pollInterval(ONE_HUNDRED_MILLISECONDS)

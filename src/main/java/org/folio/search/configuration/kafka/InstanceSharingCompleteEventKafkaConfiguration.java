@@ -1,14 +1,13 @@
 package org.folio.search.configuration.kafka;
 
-import static org.apache.kafka.clients.consumer.ConsumerConfig.MAX_POLL_RECORDS_CONFIG;
-
-import java.util.Map;
+import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.model.event.InstanceSharingCompleteEvent;
 import org.springframework.boot.kafka.autoconfigure.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
+import org.springframework.kafka.listener.CommonErrorHandler;
 import org.springframework.kafka.support.serializer.JacksonJsonDeserializer;
 
 @Configuration
@@ -19,12 +18,12 @@ public class InstanceSharingCompleteEventKafkaConfiguration extends KafkaConfigu
 
   @Bean
   public ConcurrentKafkaListenerContainerFactory<String, InstanceSharingCompleteEvent>
-    instanceSharingCompletedListenerContainerFactory() {
+    instanceSharingCompleteListenerContainerFactory(CommonErrorHandler commonErrorHandler) {
 
     var factory = new ConcurrentKafkaListenerContainerFactory<String, InstanceSharingCompleteEvent>();
     var deserializer = new JacksonJsonDeserializer<>(InstanceSharingCompleteEvent.class, false);
-    var overrideProperties = Map.<String, Object>of(MAX_POLL_RECORDS_CONFIG, 10);
-    factory.setConsumerFactory(getConsumerFactory(deserializer, kafkaProperties, overrideProperties));
+    factory.setConsumerFactory(getConsumerFactory(deserializer, kafkaProperties, Collections.emptyMap()));
+    factory.setCommonErrorHandler(commonErrorHandler);
     return factory;
   }
 }

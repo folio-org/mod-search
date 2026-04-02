@@ -129,8 +129,7 @@ class ConsortiumSearchLocationsIT extends BaseConsortiumIntegrationTest {
       .flatMap(location -> Stream.of(
         kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, location, null),
         kafkaResourceEvent(MEMBER_TENANT_ID, CREATE, location, null)))
-      .forEach(event -> kafkaTemplate.send(inventoryLocationTopic(event.getTenant()),
-        objectMapper.writeValueAsString(event)));
+      .forEach(event -> kafkaTemplate.send(inventoryLocationTopic(event.getTenant()), event));
 
     await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
       var totalHits = countIndexDocument(LOCATION, CENTRAL_TENANT_ID);

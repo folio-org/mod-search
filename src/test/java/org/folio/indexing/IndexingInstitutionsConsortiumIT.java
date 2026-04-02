@@ -69,12 +69,12 @@ class IndexingInstitutionsConsortiumIT extends BaseConsortiumIntegrationTest {
   void shouldIndexAndRemoveInstitution() {
     var institution = institution();
     var createEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, toMap(institution), null);
-    kafkaTemplate.send(inventoryInstitutionTopic(CENTRAL_TENANT_ID), objectMapper.writeValueAsString(createEvent));
+    kafkaTemplate.send(inventoryInstitutionTopic(CENTRAL_TENANT_ID), createEvent);
 
     awaitAssertInstitutionCount(1);
 
     var deleteEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, DELETE, null, toMap(institution));
-    kafkaTemplate.send(inventoryInstitutionTopic(CENTRAL_TENANT_ID), objectMapper.writeValueAsString(deleteEvent));
+    kafkaTemplate.send(inventoryInstitutionTopic(CENTRAL_TENANT_ID), deleteEvent);
 
     awaitAssertInstitutionCount(0);
   }
@@ -83,13 +83,13 @@ class IndexingInstitutionsConsortiumIT extends BaseConsortiumIntegrationTest {
   void shouldIndexAndUpdateInstitution() {
     var institution = institution();
     var createEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, toMap(institution), null);
-    kafkaTemplate.send(inventoryInstitutionTopic(CENTRAL_TENANT_ID), objectMapper.writeValueAsString(createEvent));
+    kafkaTemplate.send(inventoryInstitutionTopic(CENTRAL_TENANT_ID), createEvent);
 
     awaitAssertInstitutionCount(1);
 
     var institutionUpdated = institution.withName("nameUpdated");
     var updateEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, UPDATE, toMap(institutionUpdated), toMap(institution));
-    kafkaTemplate.send(inventoryInstitutionTopic(CENTRAL_TENANT_ID), objectMapper.writeValueAsString(updateEvent));
+    kafkaTemplate.send(inventoryInstitutionTopic(CENTRAL_TENANT_ID), updateEvent);
 
     awaitAssertInstitutionCountAfterUpdate(1, institutionUpdated);
   }
@@ -99,10 +99,8 @@ class IndexingInstitutionsConsortiumIT extends BaseConsortiumIntegrationTest {
     var institution = institution();
     var createCentralEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, toMap(institution), null);
     var createMemberEvent = kafkaResourceEvent(MEMBER_TENANT_ID, CREATE, toMap(institution), null);
-    kafkaTemplate.send(inventoryInstitutionTopic(CENTRAL_TENANT_ID),
-      objectMapper.writeValueAsString(createCentralEvent));
-    kafkaTemplate.send(inventoryInstitutionTopic(CENTRAL_TENANT_ID),
-      objectMapper.writeValueAsString(createMemberEvent));
+    kafkaTemplate.send(inventoryInstitutionTopic(CENTRAL_TENANT_ID), createCentralEvent);
+    kafkaTemplate.send(inventoryInstitutionTopic(CENTRAL_TENANT_ID), createMemberEvent);
 
     awaitAssertInstitutionCount(2);
   }
@@ -112,16 +110,13 @@ class IndexingInstitutionsConsortiumIT extends BaseConsortiumIntegrationTest {
     var institution = institution();
     var createCentralEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, toMap(institution), null);
     var createMemberEvent = kafkaResourceEvent(MEMBER_TENANT_ID, CREATE, toMap(institution), null);
-    kafkaTemplate.send(inventoryInstitutionTopic(CENTRAL_TENANT_ID),
-      objectMapper.writeValueAsString(createCentralEvent));
-    kafkaTemplate.send(inventoryInstitutionTopic(CENTRAL_TENANT_ID),
-      objectMapper.writeValueAsString(createMemberEvent));
+    kafkaTemplate.send(inventoryInstitutionTopic(CENTRAL_TENANT_ID), createCentralEvent);
+    kafkaTemplate.send(inventoryInstitutionTopic(CENTRAL_TENANT_ID), createMemberEvent);
 
     awaitAssertInstitutionCount(2);
 
     var deleteAllMemberEvent = new ResourceEvent().type(DELETE_ALL).tenant(MEMBER_TENANT_ID);
-    kafkaTemplate.send(inventoryInstitutionTopic(MEMBER_TENANT_ID),
-      objectMapper.writeValueAsString(deleteAllMemberEvent));
+    kafkaTemplate.send(inventoryInstitutionTopic(MEMBER_TENANT_ID), deleteAllMemberEvent);
 
     awaitAssertInstitutionCount(1);
   }
@@ -138,7 +133,7 @@ class IndexingInstitutionsConsortiumIT extends BaseConsortiumIntegrationTest {
     }).when(kafkaMessageListener).handleLocationEvents(anyList());
 
     var libraryEvent = kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, libraryMap, null);
-    kafkaTemplate.send(inventoryInstitutionTopic(MEMBER_TENANT_ID), objectMapper.writeValueAsString(libraryEvent));
+    kafkaTemplate.send(inventoryInstitutionTopic(MEMBER_TENANT_ID), libraryEvent);
 
     await().atMost(ONE_MINUTE)
       .pollInterval(ONE_HUNDRED_MILLISECONDS)

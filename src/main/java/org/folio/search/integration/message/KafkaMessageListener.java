@@ -8,7 +8,6 @@ import static org.folio.search.utils.SearchConverterUtils.getResourceSource;
 import static org.folio.search.utils.SearchUtils.SOURCE_CONSORTIUM_PREFIX;
 
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -181,40 +180,26 @@ public class KafkaMessageListener {
 
   @KafkaListener(
     id = KafkaConstants.INSTANCE_SHARING_COMPLETE_LISTENER_ID,
-    containerFactory = "instanceSharingCompletedListenerContainerFactory",
+    containerFactory = "instanceSharingCompleteListenerContainerFactory",
     groupId = "#{folioKafkaProperties.listener['instance-sharing-complete'].groupId}",
     concurrency = "#{folioKafkaProperties.listener['instance-sharing-complete'].concurrency}",
     topicPattern = "#{folioKafkaProperties.listener['instance-sharing-complete'].topicPattern}")
-  public void handleInstanceSharingCompleteEvents(List<InstanceSharingCompleteEvent> instanceSharingCompleteEvents) {
-    log.info("Processing instance sharing complete events from Kafka [number of events: {}]",
-        instanceSharingCompleteEvents.size());
+  public void handleInstanceSharingCompleteEvent(InstanceSharingCompleteEvent instanceSharingCompleteEvent) {
+    log.info("Processing consortium instance sharing complete event from Kafka ");
 
-    var batch = instanceSharingCompleteEvents.stream()
-        .filter(event -> InstanceSharingCompleteEvent.Status.COMPLETE.equals(event.getStatus())
-            && StringUtils.isEmpty(event.getError()))
-        .toList();
+    if (InstanceSharingCompleteEvent.Status.COMPLETE.equals(instanceSharingCompleteEvent.getStatus())
+      && StringUtils.isEmpty(instanceSharingCompleteEvent.getError())) {
 
-    var batchByTenant = batch.stream()
-        .collect(Collectors.groupingBy(
-            InstanceSharingCompleteEvent::getTargetTenantId,
-            Collectors.mapping(InstanceSharingCompleteEvent::getInstanceIdentifier, Collectors.toList())
-        ));
-    updateCalNumbersLastUpdatedDate(batch, batchByTenant);
-  }
-
-  private void updateCalNumbersLastUpdatedDate(List<InstanceSharingCompleteEvent> batch,
-                                               Map<String, List<String>> batchByTenant) {
-    batchByTenant.forEach((tenant, instanceIdentifiers) -> executionService.executeSystemUserScoped(tenant, () -> {
-      folioMessageBatchProcessor.consumeBatchWithFallback(batch, KAFKA_RETRY_TEMPLATE_NAME,
-        event -> {
-          if (consortiumTenantProvider.isCentralTenant(tenant)) {
-            log.info("updateCalNumbersLastUpdatedDate: Updating lastUpdatedDate for call numbers of {} instances "
-              + "in central tenant {}", instanceIdentifiers.size(), tenant);
-            callNumberRepository.updateLastUpdatedDate(instanceIdentifiers);
-          }
-        }, KafkaMessageListener::logFailedEvent);
-      return null;
-    }));
+      var tenant = instanceSharingCompleteEvent.getTargetTenantId();
+      executionService.executeSystemUserScoped(tenant, () -> {
+        if (consortiumTenantProvider.isCentralTenant(tenant)) {
+          log.info("handleInstanceSharingCompleteEvent: Updating lastUpdatedDate for call numbers of instance "
+            + "in central tenant {}", tenant);
+          callNumberRepository.updateLastUpdatedDate(instanceSharingCompleteEvent.getInstanceIdentifier());
+        }
+        return null;
+      });
+    }
   }
 
   private void indexResources(List<ResourceEvent> batch, Consumer<List<ResourceEvent>> indexConsumer) {
@@ -250,17 +235,6 @@ public class KafkaMessageListener {
     log.warn(new FormattedMessage(
       "Failed to index instance event [tenantId: {}, id: {}]",
       event.tenant(), event.instanceId()
-    ), e);
-  }
-
-  private static void logFailedEvent(InstanceSharingCompleteEvent event, Exception e) {
-    if (event == null) {
-      log.warn("Failed to update tenantId for instance sharing complete event [event: null]", e);
-      return;
-    }
-    log.warn(new FormattedMessage(
-      "Failed to update tenantId for instance sharing complete event [targetTenantId: {}, instanceId: {}]",
-      event.getTargetTenantId(), event.getInstanceIdentifier()
     ), e);
   }
 }

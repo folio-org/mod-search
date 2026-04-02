@@ -166,7 +166,7 @@ folio:
       instance-sharing-complete:
         concurrency: 1
         topic-pattern: (${folio.environment}\.)(.*\.)CONSORTIUM_INSTANCE_SHARING_COMPLETE
-        group-id: ${folio.environment}-mod-search-instance-sharing-complete-group
+        group-id: ${folio.environment}-mod-search-consortium-instance-sharing-complete-group
       reindex-range-index:
         concurrency: 1
         topic-pattern: (${folio.environment}\.)(.*\.)search\.reindex\.range-index

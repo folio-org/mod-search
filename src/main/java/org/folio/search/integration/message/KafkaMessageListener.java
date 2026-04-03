@@ -13,14 +13,18 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.logging.log4j.message.FormattedMessage;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.event.IndexInstanceEvent;
+import org.folio.search.model.event.InstanceSharingCompleteEvent;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.ResourceService;
 import org.folio.search.service.config.ConfigSynchronizationService;
+import org.folio.search.service.consortium.ConsortiumTenantProvider;
+import org.folio.search.service.reindex.jdbc.CallNumberRepository;
 import org.folio.search.utils.KafkaConstants;
 import org.folio.search.utils.SearchConverterUtils;
 import org.folio.spring.service.SystemUserScopedExecutionService;
@@ -43,6 +47,8 @@ public class KafkaMessageListener {
   private final ConfigSynchronizationService configSynchronizationService;
   private final KafkaTemplate<String, IndexInstanceEvent> instanceEventProducer;
   private final InstanceEventMapper instanceEventMapper;
+  private final CallNumberRepository callNumberRepository;
+  private final ConsortiumTenantProvider consortiumTenantProvider;
 
   /**
    * Handles instance events and indexes them by id.
@@ -170,6 +176,30 @@ public class KafkaMessageListener {
       .toList();
 
     indexResources(batch, resourceService::indexResources);
+  }
+
+  @KafkaListener(
+    id = KafkaConstants.INSTANCE_SHARING_COMPLETE_LISTENER_ID,
+    containerFactory = "instanceSharingCompleteListenerContainerFactory",
+    groupId = "#{folioKafkaProperties.listener['instance-sharing-complete'].groupId}",
+    concurrency = "#{folioKafkaProperties.listener['instance-sharing-complete'].concurrency}",
+    topicPattern = "#{folioKafkaProperties.listener['instance-sharing-complete'].topicPattern}")
+  public void handleInstanceSharingCompleteEvent(InstanceSharingCompleteEvent instanceSharingCompleteEvent) {
+    log.info("Processing consortium instance sharing complete event from Kafka ");
+
+    if (InstanceSharingCompleteEvent.Status.COMPLETE.equals(instanceSharingCompleteEvent.getStatus())
+      && StringUtils.isEmpty(instanceSharingCompleteEvent.getError())) {
+
+      var tenant = instanceSharingCompleteEvent.getTargetTenantId();
+      executionService.executeSystemUserScoped(tenant, () -> {
+        if (consortiumTenantProvider.isCentralTenant(tenant)) {
+          log.info("handleInstanceSharingCompleteEvent: Updating lastUpdatedDate for call numbers of instance "
+            + "in central tenant {}", tenant);
+          callNumberRepository.updateLastUpdatedDate(instanceSharingCompleteEvent.getInstanceIdentifier());
+        }
+        return null;
+      });
+    }
   }
 
   private void indexResources(List<ResourceEvent> batch, Consumer<List<ResourceEvent>> indexConsumer) {

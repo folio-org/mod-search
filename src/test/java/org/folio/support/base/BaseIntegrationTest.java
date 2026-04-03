@@ -82,15 +82,21 @@ import org.opensearch.index.reindex.DeleteByQueryRequest;
 import org.opensearch.search.SearchHit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.cache.CacheManager;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpHeaders;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import tools.jackson.databind.ObjectMapper;
 
 @EnableOkapi
 @EnableKafka
@@ -98,7 +104,13 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 @EnableElasticSearch
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = AFTER_CLASS)
-@SpringBootTest(classes = SearchApplication.class)
+@SpringBootTest(classes = SearchApplication.class,
+  properties = {
+    "spring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.StringSerializer",
+    "spring.kafka.producer.value-serializer=org.springframework.kafka.support.serializer.JacksonJsonSerializer"
+  })
+@Import({
+  BaseIntegrationTest.KafkaTemplateTestConfiguration.class})
 public abstract class BaseIntegrationTest {
 
   protected static final String[] COLLECTION_IGNORING_FIELDS = {"items.id"};
@@ -106,7 +118,8 @@ public abstract class BaseIntegrationTest {
 
   protected static MockMvc mockMvc;
   protected static InventoryApi inventoryApi;
-  protected static KafkaTemplate<String, ResourceEvent> kafkaTemplate;
+  protected static KafkaTemplate<String, Object> kafkaTemplate;
+  protected static ObjectMapper objectMapper;
   protected static OkapiConfiguration okapi;
   protected static RestHighLevelClient elasticClient;
   protected static CacheManager cacheManager;
@@ -530,12 +543,14 @@ public abstract class BaseIntegrationTest {
   @BeforeAll
   static void setUpDefaultTenant(
     @Autowired MockMvc mockMvc,
-    @Autowired KafkaTemplate<String, ResourceEvent> kafkaTemplate,
+    @Autowired KafkaTemplate<String, Object> kafkaTemplate,
+    @Autowired ObjectMapper objectMapper,
     @Autowired RestHighLevelClient restHighLevelClient,
     @Autowired CacheManager cacheManager) {
     setEnvProperty("folio-test");
     BaseIntegrationTest.mockMvc = mockMvc;
     BaseIntegrationTest.kafkaTemplate = kafkaTemplate;
+    BaseIntegrationTest.objectMapper = objectMapper;
     BaseIntegrationTest.inventoryApi = new InventoryApi(kafkaTemplate);
     BaseIntegrationTest.elasticClient = restHighLevelClient;
     BaseIntegrationTest.cacheManager = cacheManager;
@@ -551,5 +566,16 @@ public abstract class BaseIntegrationTest {
     removeEnvProperty();
   }
 
-  public record TestData(Class<?> type, List<Map<String, Object>> testRecords, int expectedCount) { }
+  public record TestData(Class<?> type, List<Map<String, Object>> testRecords, int expectedCount) {
+  }
+
+  @TestConfiguration
+  public static class KafkaTemplateTestConfiguration {
+
+    @Bean
+    @Primary
+    public KafkaTemplate<String, Object> kafkaObjectTemplate(ProducerFactory<String, Object> producerFactory) {
+      return new KafkaTemplate<>(producerFactory);
+    }
+  }
 }

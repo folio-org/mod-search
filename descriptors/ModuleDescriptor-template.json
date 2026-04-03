@@ -1045,6 +1045,11 @@
         "description": "Custom number of kafka concurrent threads for authority message consuming."
       },
       {
+        "name": "KAFKA_CONSORTIUM_INSTANCE_SHARING_COMPLETE_CONCURRENCY",
+        "value": "1",
+        "description": "Custom number of kafka concurrent threads for consortium instance sharing complete message consuming."
+      },
+      {
         "name": "KAFKA_REINDEX_RANGE_INDEX_CONCURRENCY",
         "value": "1",
         "description": "Custom number of kafka concurrent threads for `search.reindex.range-index` message consuming."

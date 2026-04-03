@@ -124,6 +124,11 @@ public class ClassificationRepository extends UploadRangeRepository implements I
       VALUES (?, ?, ?)
       ON CONFLICT (id) DO UPDATE SET last_updated_date = CURRENT_TIMESTAMP;
     """;
+  private static final String INSERT_ENTITIES_FOR_REINDEX_SQL = """
+      INSERT INTO %s.classification (id, number, type_id)
+      VALUES (?, ?, ?)
+      ON CONFLICT DO NOTHING;
+    """;
   private static final String INSERT_RELATIONS_SQL = """
       INSERT INTO %s.instance_classification (instance_id, classification_id, tenant_id, shared)
       VALUES (?::uuid, ?, ?, ?)
@@ -188,10 +193,20 @@ public class ClassificationRepository extends UploadRangeRepository implements I
     deleteByInstanceIds(DELETE_QUERY, instanceIds, tenantId);
   }
 
-  @SuppressWarnings("checkstyle:MethodLength")
   @Override
   public void saveAll(ChildResourceEntityBatch entityBatch) {
-    var entitiesSql = INSERT_ENTITIES_SQL.formatted(JdbcUtils.getSchemaName(context));
+    saveEntities(INSERT_ENTITIES_SQL, entityBatch);
+    saveRelations(entityBatch);
+  }
+
+  @Override
+  public void saveAllOnReindex(ChildResourceEntityBatch entityBatch) {
+    saveEntities(INSERT_ENTITIES_FOR_REINDEX_SQL, entityBatch);
+    saveRelations(entityBatch);
+  }
+
+  private void saveEntities(String insertSqlTemplate, ChildResourceEntityBatch entityBatch) {
+    var entitiesSql = insertSqlTemplate.formatted(JdbcUtils.getSchemaName(context));
     try {
       jdbcTemplate.batchUpdate(entitiesSql, entityBatch.resourceEntities(), BATCH_OPERATION_SIZE,
         (statement, entity) -> {
@@ -206,7 +221,9 @@ public class ClassificationRepository extends UploadRangeRepository implements I
           entity.get("id"), entity.get(CLASSIFICATION_NUMBER_FIELD), entity.get(CLASSIFICATION_TYPE_FIELD));
       }
     }
+  }
 
+  private void saveRelations(ChildResourceEntityBatch entityBatch) {
     var relationsSql = INSERT_RELATIONS_SQL.formatted(JdbcUtils.getSchemaName(context));
     try {
       jdbcTemplate.batchUpdate(relationsSql, entityBatch.relationshipEntities(), BATCH_OPERATION_SIZE,

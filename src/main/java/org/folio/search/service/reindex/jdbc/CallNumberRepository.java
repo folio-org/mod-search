@@ -154,6 +154,17 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
     ON CONFLICT (id) DO UPDATE SET last_updated_date = CURRENT_TIMESTAMP;
     """;
 
+  private static final String INSERT_ENTITIES_FOR_REINDEX_SQL = """
+    INSERT INTO %s (
+        id,
+        call_number,
+        call_number_prefix,
+        call_number_suffix,
+        call_number_type_id
+    ) VALUES (?, ?, ?, ?, ?)
+    ON CONFLICT DO NOTHING;
+    """;
+
   private static final String INSERT_RELATIONS_SQL = """
     INSERT INTO %s (
         call_number_id,
@@ -198,7 +209,13 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
 
   @Override
   public void saveAll(ChildResourceEntityBatch entityBatch) {
-    saveResourceEntities(entityBatch);
+    saveResourceEntities(INSERT_ENTITIES_SQL, entityBatch);
+    saveRelationshipEntities(entityBatch);
+  }
+
+  @Override
+  public void saveAllOnReindex(ChildResourceEntityBatch entityBatch) {
+    saveResourceEntities(INSERT_ENTITIES_FOR_REINDEX_SQL, entityBatch);
     saveRelationshipEntities(entityBatch);
   }
 
@@ -271,9 +288,9 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
     return callNumberMap;
   }
 
-  private void saveResourceEntities(ChildResourceEntityBatch entityBatch) {
+  private void saveResourceEntities(String insertSqlTemplate, ChildResourceEntityBatch entityBatch) {
     var callNumberTable = getFullTableName(context, entityTable());
-    var callNumberSql = INSERT_ENTITIES_SQL.formatted(callNumberTable);
+    var callNumberSql = insertSqlTemplate.formatted(callNumberTable);
 
     try {
       jdbcTemplate.batchUpdate(callNumberSql, entityBatch.resourceEntities(), BATCH_OPERATION_SIZE,

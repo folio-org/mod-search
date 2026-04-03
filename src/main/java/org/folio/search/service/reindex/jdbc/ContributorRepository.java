@@ -130,6 +130,11 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
       VALUES (?, ?, ?, ?)
       ON CONFLICT (id) DO UPDATE SET last_updated_date = CURRENT_TIMESTAMP;
     """;
+  private static final String INSERT_ENTITIES_FOR_REINDEX_SQL = """
+      INSERT INTO %s.contributor (id, name, name_type_id, authority_id)
+      VALUES (?, ?, ?, ?)
+      ON CONFLICT DO NOTHING;
+    """;
   private static final String INSERT_RELATIONS_SQL = """
       INSERT INTO %s.instance_contributor (instance_id, contributor_id, type_id, tenant_id, shared)
       VALUES (?::uuid, ?, ?, ?, ?)
@@ -193,9 +198,19 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
   }
 
   @Override
-  @SuppressWarnings("checkstyle:MethodLength")
   public void saveAll(ChildResourceEntityBatch entityBatch) {
-    var entitiesSql = INSERT_ENTITIES_SQL.formatted(JdbcUtils.getSchemaName(context));
+    saveEntities(INSERT_ENTITIES_SQL, entityBatch);
+    saveRelations(entityBatch);
+  }
+
+  @Override
+  public void saveAllOnReindex(ChildResourceEntityBatch entityBatch) {
+    saveEntities(INSERT_ENTITIES_FOR_REINDEX_SQL, entityBatch);
+    saveRelations(entityBatch);
+  }
+
+  private void saveEntities(String insertSqlTemplate, ChildResourceEntityBatch entityBatch) {
+    var entitiesSql = insertSqlTemplate.formatted(JdbcUtils.getSchemaName(context));
     try {
       jdbcTemplate.batchUpdate(entitiesSql, entityBatch.resourceEntities(), BATCH_OPERATION_SIZE,
         (statement, entity) -> {
@@ -211,7 +226,9 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
           entity.get("id"), entity.get("name"), entity.get("nameTypeId"), entity.get(AUTHORITY_ID_FIELD));
       }
     }
+  }
 
+  private void saveRelations(ChildResourceEntityBatch entityBatch) {
     var relationsSql = INSERT_RELATIONS_SQL.formatted(JdbcUtils.getSchemaName(context));
     try {
       jdbcTemplate.batchUpdate(relationsSql, entityBatch.relationshipEntities(), BATCH_OPERATION_SIZE,

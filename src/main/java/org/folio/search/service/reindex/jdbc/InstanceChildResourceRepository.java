@@ -10,5 +10,7 @@ public interface InstanceChildResourceRepository {
 
   void saveAll(ChildResourceEntityBatch childResourceEntityBatch);
 
+  void saveAllOnReindex(ChildResourceEntityBatch childResourceEntityBatch);
+
   ReindexEntityType entityType();
 }

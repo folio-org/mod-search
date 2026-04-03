@@ -226,6 +226,7 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
    * @param instanceIds     list of instance IDs whose call number relations should be updated
    * @param centralTenantId the central tenant ID to set
    */
+  @SuppressWarnings("java:S2077")
   public void updateTenantIdForCentralInstances(List<String> instanceIds, String centralTenantId) {
     var sql = UPDATE_TENANT_FOR_CENTRAL_QUERY.formatted(JdbcUtils.getSchemaName(context),
       getParamPlaceholderForUuid(instanceIds.size()));
@@ -332,6 +333,7 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
     return callNumberMap;
   }
 
+  @SuppressWarnings("java:S2077")
   private void saveResourceEntities(ChildResourceEntityBatch entityBatch) {
     var callNumberTable = getFullTableName(context, entityTable());
     var callNumberSql = INSERT_ENTITIES_SQL.formatted(callNumberTable);
@@ -354,6 +356,7 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
     }
   }
 
+  @SuppressWarnings("java:S2077")
   private void saveResourceEntitiesToStaging(ChildResourceEntityBatch entityBatch) {
     var stagingCallNumberTable = getFullTableName(context, STAGING_CALL_NUMBER_TABLE);
     var stagingCallNumberSql = INSERT_STAGING_ENTITIES_SQL.formatted(stagingCallNumberTable);
@@ -381,6 +384,7 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
     log.debug("Saved {} call number entities to staging table", entityBatch.resourceEntities().size());
   }
 
+  @SuppressWarnings("java:S2077")
   private void saveRelationshipEntities(ChildResourceEntityBatch entityBatch) {
     var instanceCallNumberTable = getFullTableName(context, INSTANCE_CALL_NUMBER_TABLE);
     var instanceCallNumberSql = INSERT_RELATIONS_SQL.formatted(instanceCallNumberTable);
@@ -408,6 +412,7 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
     }
   }
 
+  @SuppressWarnings("java:S2077")
   private void saveRelationshipEntitiesToStaging(ChildResourceEntityBatch entityBatch) {
     var stagingInstanceCallNumberTable = getFullTableName(context, STAGING_INSTANCE_CALL_NUMBER_TABLE);
     var stagingInstanceCallNumberSql = INSERT_STAGING_RELATIONS_SQL.formatted(stagingInstanceCallNumberTable);
@@ -485,6 +490,7 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
   }
 
   @Override
+  @SuppressWarnings("java:S2077")
   public List<Map<String, Object>> fetchByIdRangeWithTimestamp(String lower, String upper, Timestamp timestamp) {
     var sql = SELECT_QUERY.formatted(JdbcUtils.getSchemaName(context),
       ID_RANGE_INS_WHERE_CLAUSE,

@@ -235,6 +235,7 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
     }
   }
 
+  @SuppressWarnings("java:S2077")
   private void saveEntitiesToMain(Collection<Map<String, Object>> entities) {
     var entitiesSql = INSERT_ENTITIES_SQL.formatted(JdbcUtils.getSchemaName(context));
     try {
@@ -259,6 +260,7 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
     }
   }
 
+  @SuppressWarnings("java:S2077")
   private void saveEntitiesToStaging(Collection<Map<String, Object>> entities) {
     var stagingEntitiesSql = INSERT_STAGING_ENTITIES_SQL.formatted(JdbcUtils.getSchemaName(context));
     try {
@@ -284,6 +286,7 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
     log.debug("Saved {} subject entities to staging table", entities.size());
   }
 
+  @SuppressWarnings("java:S2077")
   private void saveRelationshipsToMain(Collection<Map<String, Object>> relationships) {
     var relationsSql = INSERT_RELATIONS_SQL.formatted(JdbcUtils.getSchemaName(context));
     try {
@@ -307,6 +310,7 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
     }
   }
 
+  @SuppressWarnings("java:S2077")
   private void saveRelationshipsToStaging(Collection<Map<String, Object>> relationships) {
     var stagingRelationsSql = INSERT_STAGING_RELATIONS_SQL.formatted(JdbcUtils.getSchemaName(context));
     try {

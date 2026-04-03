@@ -228,6 +228,7 @@ public class ClassificationRepository extends UploadRangeRepository implements I
     }
   }
 
+  @SuppressWarnings("java:S2077")
   private void saveEntitiesToMain(Collection<Map<String, Object>> entities) {
     var entitiesSql = INSERT_ENTITIES_SQL.formatted(JdbcUtils.getSchemaName(context));
     try {
@@ -250,6 +251,7 @@ public class ClassificationRepository extends UploadRangeRepository implements I
     }
   }
 
+  @SuppressWarnings("java:S2077")
   private void saveEntitiesToStaging(Collection<Map<String, Object>> entities) {
     var stagingEntitiesSql = INSERT_STAGING_ENTITIES_SQL.formatted(JdbcUtils.getSchemaName(context));
     try {
@@ -273,6 +275,7 @@ public class ClassificationRepository extends UploadRangeRepository implements I
     log.debug("Saved {} classification entities to staging table", entities.size());
   }
 
+  @SuppressWarnings("java:S2077")
   private void saveRelationshipsToMain(Collection<Map<String, Object>> relationships) {
     var relationsSql = INSERT_RELATIONS_SQL.formatted(JdbcUtils.getSchemaName(context));
     try {
@@ -297,6 +300,7 @@ public class ClassificationRepository extends UploadRangeRepository implements I
     }
   }
 
+  @SuppressWarnings("java:S2077")
   private void saveRelationshipsToStaging(Collection<Map<String, Object>> relationships) {
     var stagingRelationsSql = INSERT_STAGING_RELATIONS_SQL.formatted(JdbcUtils.getSchemaName(context));
     try {
@@ -345,6 +349,7 @@ public class ClassificationRepository extends UploadRangeRepository implements I
   }
 
   @Override
+  @SuppressWarnings("java:S2077")
   public List<Map<String, Object>> fetchByIdRangeWithTimestamp(String lower, String upper, Timestamp timestamp) {
     var sql = SELECT_QUERY.formatted(JdbcUtils.getSchemaName(context),
       ID_RANGE_INS_WHERE_CLAUSE,

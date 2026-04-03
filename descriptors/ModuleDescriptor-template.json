@@ -653,6 +653,10 @@
       "version": "11.0"
     },
     {
+      "id": "authority-identifier-types",
+      "version": "1.0"
+    },
+    {
       "id": "authority-reindex",
       "version": "0.1"
     },
@@ -932,6 +936,7 @@
         "perms.users.item.post",
         "perms.users.assign.immutable",
         "perms.users.assign.mutable",
+        "authority-identifier-types.collection.get",
         "inventory-storage.instance.reindex.post",
         "authority-storage.authority.reindex.post",
         "inventory-storage.inventory-view.instances.collection.get",
@@ -1038,6 +1043,11 @@
         "name": "KAFKA_AUTHORITIES_CONCURRENCY",
         "value": "1",
         "description": "Custom number of kafka concurrent threads for authority message consuming."
+      },
+      {
+        "name": "KAFKA_CONSORTIUM_INSTANCE_SHARING_COMPLETE_CONCURRENCY",
+        "value": "1",
+        "description": "Custom number of kafka concurrent threads for consortium instance sharing complete message consuming."
       },
       {
         "name": "KAFKA_REINDEX_RANGE_INDEX_CONCURRENCY",

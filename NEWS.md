@@ -23,9 +23,11 @@
   * Use unique consumer group per instance for inventory classification-type and call-number-type topics ([MSEARCH-1092](https://folio-org.atlassian.net/browse/MSEARCH-1092))
   * Remove identifiers from keyword alias for instance and authority mappings ([MSEARCH-1118](https://folio-org.atlassian.net/browse/MSEARCH-1118))
   * Change `all` query builder to use full term for multimatch search ([MSEARCH-1112](https://folio-org.atlassian.net/browse/MSEARCH-1112))
+  * Create a new listener for the CONSORTIUM_INSTANCE_SHARING_COMPLETE event to update the call number’s last_updated_date when an instance is shared to the central tenant ([MSEARCH-1168](https://folio-org.atlassian.net/browse/MSEARCH-1168))
 * **Authority Search**
   * Implement two-stage Kafka processing with event aggregation for instance indexing ([MSEARCH-1157](https://folio-org.atlassian.net/browse/MSEARCH-1157))
   * Separate LCCN and Canceled LCCN identifiers search to lccn and canceledLccn options ([MSEARCH-1066](https://folio-org.atlassian.net/browse/MSEARCH-1066))
+  * Use Authority-Specific Identifier Types for LCCN Lookups ([MSEARCH-1193](https://folio-org.atlassian.net/browse/MSEARCH-1193))
 * **Classification Browse**
   * Add title and contributors to classification browse response ([MSEARCH-1045](https://folio-org.atlassian.net/browse/MSEARCH-1045))
   * Add id to classification browse response ([MSEARCH-1093](https://folio-org.atlassian.net/browse/MSEARCH-1093))

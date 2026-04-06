@@ -41,6 +41,12 @@ class ContributorResourceExtractorTest extends ChildResourceExtractorTestBase {
   }
 
   @Test
+  void persistChildrenOnReindex() {
+    when(configService.isEnabled(TenantConfiguredFeature.BROWSE_CONTRIBUTORS)).thenReturn(true);
+    persistChildrenOnReindexTest(extractor, repository, contributorsBodySupplier());
+  }
+
+  @Test
   void shouldNotPersistEmptyContributor() {
     when(configService.isEnabled(TenantConfiguredFeature.BROWSE_CONTRIBUTORS)).thenReturn(true);
     shouldNotPersistEmptyChildrenTest(extractor, repository, emptyContributorsBodySupplier());

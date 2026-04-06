@@ -47,7 +47,7 @@ class CallNumberRepositoryIT {
 
   private static final String INSTANCE_ID = "9f8febd1-e96c-46c4-a5f4-84a45cc499a2";
   private static final Map<String, List<UUID>> ITEM_IDS =
-    Map.of("1", getList(1), "2", getList(2));
+    Map.of("1", getList(1), "2", getList(2), "3", getList(2), "4", getList(2));
   private @MockitoSpyBean JdbcTemplate jdbcTemplate;
   private @MockitoBean FolioExecutionContext context;
   private CallNumberRepository repository;
@@ -112,6 +112,43 @@ class CallNumberRepositoryIT {
         tuple("number2",
           List.of(mapOf("instanceId", List.of("9f8febd1-e96c-46c4-a5f4-84a45cc499a2"),
             "locationId", null, "shared", false, "tenantId", TENANT_ID))));
+  }
+
+  @Test
+  @Sql("/sql/populate-instances.sql")
+  @SuppressWarnings("checkstyle:MethodLength")
+  void saveAllOnReindex() {
+    // save entity "3" via saveAll first, capturing its last_updated_date
+    repository.saveAll(new ChildResourceEntityBatch(Set.of(callNumberEntity("3")),
+      List.of(callNumberRelation("3"))));
+    var lastUpdatedAfterSaveAll = jdbcTemplate.queryForObject(
+      "SELECT last_updated_date FROM call_number WHERE id = ?", Timestamp.class, "3");
+
+    // call saveAllOnReindex with existing entity "3" and new entity "4"
+    repository.saveAllOnReindex(new ChildResourceEntityBatch(
+      Set.of(callNumberEntity("3"), callNumberEntity("4")),
+      List.of(
+        callNumberRelation("3"),
+        callNumberRelation("4"),
+        callNumberRelation("4"))));
+
+    // assert: new entity "4" and its relations were saved
+    var ranges = repository.fetchByIdRange("0", "z");
+    assertThat(ranges)
+      .hasSize(2)
+      .extracting("callNumber", "instances")
+      .contains(
+        tuple("number3",
+          List.of(mapOf(
+            "instanceId", List.of(INSTANCE_ID), "locationId", null, "shared", false, "tenantId", TENANT_ID))),
+        tuple("number4",
+          List.of(mapOf(
+            "instanceId", List.of(INSTANCE_ID), "locationId", null, "shared", false, "tenantId", TENANT_ID))));
+
+    // assert: existing entity "3" was not updated (last_updated_date unchanged)
+    var lastUpdatedAfterReindex = jdbcTemplate.queryForObject(
+      "SELECT last_updated_date FROM call_number WHERE id = ?", Timestamp.class, "3");
+    assertThat(lastUpdatedAfterReindex).isEqualTo(lastUpdatedAfterSaveAll);
   }
 
   @Test

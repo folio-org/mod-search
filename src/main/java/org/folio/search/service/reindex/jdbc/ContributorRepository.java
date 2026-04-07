@@ -227,27 +227,27 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
 
   @Override
   public void saveAll(ChildResourceEntityBatch entityBatch) {
-    // Use staging tables only for member tenant specific full reindex
-    if (ReindexContext.isReindexMode() && ReindexContext.isMemberTenantReindex()) {
-      saveEntitiesToStaging(entityBatch.resourceEntities());
-      saveRelationshipsToStaging(entityBatch.relationshipEntities());
-    } else {
-      saveEntitiesToMain(entityBatch.resourceEntities());
-      saveRelationshipsToMain(entityBatch.relationshipEntities());
-    }
+    saveEntities(INSERT_ENTITIES_SQL, entityBatch.resourceEntities());
+    saveRelations(INSERT_RELATIONS_SQL, entityBatch.relationshipEntities());
   }
 
   @Override
   public void saveAllOnReindex(ChildResourceEntityBatch entityBatch) {
-    saveEntities(INSERT_ENTITIES_FOR_REINDEX_SQL, entityBatch);
-    saveRelations(entityBatch);
+    // Use staging tables only for member tenant specific full reindex
+    if (ReindexContext.isMemberTenantReindex()) {
+      saveEntities(INSERT_STAGING_ENTITIES_SQL, entityBatch.resourceEntities());
+      saveRelations(INSERT_STAGING_RELATIONS_SQL, entityBatch.relationshipEntities());
+    } else {
+      saveEntities(INSERT_ENTITIES_FOR_REINDEX_SQL, entityBatch.resourceEntities());
+      saveRelations(INSERT_RELATIONS_SQL, entityBatch.relationshipEntities());
+    }
   }
 
   @SuppressWarnings("java:S2077")
-  private void saveEntitiesToMain(Collection<Map<String, Object>> entities) {
-    var entitiesSql = INSERT_ENTITIES_SQL.formatted(JdbcUtils.getSchemaName(context));
+  private void saveEntities(String sqlTemplate, Collection<Map<String, Object>> entities) {
+    var sql = sqlTemplate.formatted(JdbcUtils.getSchemaName(context));
     try {
-      jdbcTemplate.batchUpdate(entitiesSql, entities, BATCH_OPERATION_SIZE,
+      jdbcTemplate.batchUpdate(sql, entities, BATCH_OPERATION_SIZE,
         (statement, entity) -> {
           statement.setString(1, (String) entity.get("id"));
           statement.setString(2, (String) entity.get("name"));
@@ -257,46 +257,17 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
     } catch (DataAccessException e) {
       logWarnDebugError(SAVE_ENTITIES_BATCH_ERROR_MESSAGE, e);
       for (var entity : entities) {
-        try {//todo: try/catch
-          jdbcTemplate.update(entitiesSql,
-            entity.get("id"), entity.get("name"), entity.get("nameTypeId"), entity.get(AUTHORITY_ID_FIELD));
-        } catch (DataAccessException ex) {
-          log.debug("Failed to save contributor entity {}: {}", entity.get("id"), ex.getMessage());
-        }
+        jdbcTemplate.update(sql,
+          entity.get("id"), entity.get("name"), entity.get("nameTypeId"), entity.get(AUTHORITY_ID_FIELD));
       }
     }
   }
 
   @SuppressWarnings("java:S2077")
-  private void saveEntitiesToStaging(Collection<Map<String, Object>> entities) {
-    var stagingEntitiesSql = INSERT_STAGING_ENTITIES_SQL.formatted(JdbcUtils.getSchemaName(context));
+  private void saveRelations(String sqlTemplate, Collection<Map<String, Object>> relationships) {
+    var sql = sqlTemplate.formatted(JdbcUtils.getSchemaName(context));
     try {
-      jdbcTemplate.batchUpdate(stagingEntitiesSql, entities, BATCH_OPERATION_SIZE,
-        (statement, entity) -> {
-          statement.setString(1, (String) entity.get("id"));
-          statement.setString(2, (String) entity.get("name"));
-          statement.setString(3, (String) entity.get("nameTypeId"));
-          statement.setString(4, (String) entity.get(AUTHORITY_ID_FIELD));
-        });
-    } catch (DataAccessException e) {
-      log.warn("saveEntitiesToStaging::Failed to save entities batch. Processing one-by-one", e);
-      for (var entity : entities) {
-        try {
-          jdbcTemplate.update(stagingEntitiesSql, entity.get("id"), entity.get("name"),
-            entity.get("nameTypeId"), entity.get(AUTHORITY_ID_FIELD));
-        } catch (DataAccessException ex) {
-          log.debug("Failed to save staging contributor entity {}: {}", entity.get("id"), ex.getMessage());
-        }
-      }
-    }
-    log.debug("Saved {} contributor entities to staging table", entities.size());
-  }
-
-  @SuppressWarnings("java:S2077")
-  private void saveRelationshipsToMain(Collection<Map<String, Object>> relationships) {
-    var relationsSql = INSERT_RELATIONS_SQL.formatted(JdbcUtils.getSchemaName(context));
-    try {
-      jdbcTemplate.batchUpdate(relationsSql, relationships, BATCH_OPERATION_SIZE,
+      jdbcTemplate.batchUpdate(sql, relationships, BATCH_OPERATION_SIZE,
         (statement, entityRelation) -> {
           statement.setObject(1, entityRelation.get("instanceId"));
           statement.setString(2, (String) entityRelation.get("contributorId"));
@@ -307,45 +278,8 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
     } catch (DataAccessException e) {
       logWarnDebugError(SAVE_RELATIONS_BATCH_ERROR_MESSAGE, e);
       for (var entityRelation : relationships) {
-        try {
-          jdbcTemplate.update(relationsSql, entityRelation.get("instanceId"), entityRelation.get("contributorId"),
-            entityRelation.get(CONTRIBUTOR_TYPE_FIELD), entityRelation.get("tenantId"), entityRelation.get("shared"));
-        } catch (DataAccessException ex) {
-          log.debug("Failed to save contributor relationship for {}: {}",
-            entityRelation.get("contributorId"), ex.getMessage());
-        }
-      }
-    }
-  }
-
-  @SuppressWarnings("java:S2077")
-  private void saveRelationshipsToStaging(Collection<Map<String, Object>> relationships) {
-    var stagingRelationsSql = INSERT_STAGING_RELATIONS_SQL.formatted(JdbcUtils.getSchemaName(context));
-    try {
-      jdbcTemplate.batchUpdate(stagingRelationsSql, relationships, BATCH_OPERATION_SIZE,
-        (statement, entityRelation) -> {
-          statement.setObject(1, entityRelation.get("instanceId"));
-          statement.setString(2, (String) entityRelation.get("contributorId"));
-          statement.setString(3, (String) entityRelation.get(CONTRIBUTOR_TYPE_FIELD));
-          statement.setString(4, (String) entityRelation.get("tenantId"));
-          statement.setObject(5, entityRelation.get("shared"));
-        });
-    } catch (DataAccessException e) {
-      log.warn("saveRelationshipsToStaging::Failed to save relationships batch. Processing one-by-one", e);
-      retrySaveRelationshipsToStagingOneByOne(stagingRelationsSql, relationships);
-    }
-    log.debug("Saved {} contributor relationships to staging table", relationships.size());
-  }
-
-  private void retrySaveRelationshipsToStagingOneByOne(String sql, Collection<Map<String, Object>> relationships) {
-    for (var entityRelation : relationships) {
-      try {
-        jdbcTemplate.update(sql, entityRelation.get("instanceId"),
-          entityRelation.get("contributorId"), entityRelation.get(CONTRIBUTOR_TYPE_FIELD),
-          entityRelation.get("tenantId"), entityRelation.get("shared"));
-      } catch (DataAccessException ex) {
-        log.debug("Failed to save staging contributor relationship for {}: {}",
-          entityRelation.get("contributorId"), ex.getMessage());
+        jdbcTemplate.update(sql, entityRelation.get("instanceId"), entityRelation.get("contributorId"),
+          entityRelation.get(CONTRIBUTOR_TYPE_FIELD), entityRelation.get("tenantId"), entityRelation.get("shared"));
       }
     }
   }

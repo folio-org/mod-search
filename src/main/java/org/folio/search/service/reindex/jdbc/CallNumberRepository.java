@@ -20,7 +20,6 @@ import java.io.Reader;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -236,21 +235,20 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
 
   @Override
   public void saveAll(ChildResourceEntityBatch entityBatch) {
-    // Use staging tables only for member tenant specific full reindex
-    if (ReindexContext.isReindexMode() && ReindexContext.isMemberTenantReindex()) {
-      saveResourceEntitiesToStaging(entityBatch);
-      saveRelationshipEntitiesToStaging(entityBatch);
-    } else {
-      saveResourceEntities(INSERT_ENTITIES_SQL, entityBatch);
-    saveRelationshipEntities(entityBatch);
-    }
+    saveResourceEntities(INSERT_ENTITIES_SQL, CALL_NUMBER_TABLE, entityBatch);
+    saveRelationshipEntities(INSERT_RELATIONS_SQL, INSTANCE_CALL_NUMBER_TABLE, entityBatch);
   }
 
-  //todo: check if staging logic should be here
   @Override
   public void saveAllOnReindex(ChildResourceEntityBatch entityBatch) {
-    saveResourceEntities(INSERT_ENTITIES_FOR_REINDEX_SQL, entityBatch);
-      saveRelationshipEntities(entityBatch);
+    // Use staging tables only for member tenant specific full reindex
+    if (ReindexContext.isMemberTenantReindex()) {
+      saveResourceEntities(INSERT_STAGING_ENTITIES_SQL, STAGING_CALL_NUMBER_TABLE, entityBatch);
+      saveRelationshipEntities(INSERT_STAGING_RELATIONS_SQL, STAGING_INSTANCE_CALL_NUMBER_TABLE, entityBatch);
+    } else {
+      saveResourceEntities(INSERT_ENTITIES_FOR_REINDEX_SQL, CALL_NUMBER_TABLE, entityBatch);
+      saveRelationshipEntities(INSERT_RELATIONS_SQL, INSTANCE_CALL_NUMBER_TABLE, entityBatch);
+    }
   }
 
   @Override
@@ -339,12 +337,11 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
   }
 
   @SuppressWarnings("java:S2077")
-  private void saveResourceEntities(String insertSqlTemplate, ChildResourceEntityBatch entityBatch) {
-    var callNumberTable = getFullTableName(context, entityTable());
-    var callNumberSql = insertSqlTemplate.formatted(callNumberTable);
+  private void saveResourceEntities(String insertSqlTemplate, String table, ChildResourceEntityBatch entityBatch) {
+    var sql = insertSqlTemplate.formatted(getFullTableName(context, table));
 
     try {
-      jdbcTemplate.batchUpdate(callNumberSql, entityBatch.resourceEntities(), BATCH_OPERATION_SIZE,
+      jdbcTemplate.batchUpdate(sql, entityBatch.resourceEntities(), BATCH_OPERATION_SIZE,
         (statement, entity) -> {
           statement.setString(1, getId(entity));
           statement.setString(2, getCallNumber(entity));
@@ -353,49 +350,20 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
           statement.setString(5, getTypeId(entity));
         });
     } catch (DataAccessException e) {
-      log.warn("saveAll::Failed to save entities batch. Starting processing one-by-one", e);
+      log.warn("saveResourceEntities::Failed to save entities batch. Starting processing one-by-one", e);
       for (var entity : entityBatch.resourceEntities()) {
-        jdbcTemplate.update(callNumberSql, getId(entity), getCallNumber(entity), getPrefix(entity), getSuffix(entity),
+        jdbcTemplate.update(sql, getId(entity), getCallNumber(entity), getPrefix(entity), getSuffix(entity),
           getTypeId(entity));
       }
     }
   }
 
   @SuppressWarnings("java:S2077")
-  private void saveResourceEntitiesToStaging(ChildResourceEntityBatch entityBatch) {
-    var stagingCallNumberTable = getFullTableName(context, STAGING_CALL_NUMBER_TABLE);
-    var stagingCallNumberSql = INSERT_STAGING_ENTITIES_SQL.formatted(stagingCallNumberTable);
+  private void saveRelationshipEntities(String insertSqlTemplate, String table, ChildResourceEntityBatch entityBatch) {
+    var sql = insertSqlTemplate.formatted(getFullTableName(context, table));
 
     try {
-      jdbcTemplate.batchUpdate(stagingCallNumberSql, entityBatch.resourceEntities(), BATCH_OPERATION_SIZE,
-        (statement, entity) -> {
-          statement.setString(1, getId(entity));
-          statement.setString(2, getCallNumber(entity));
-          statement.setString(3, getPrefix(entity));
-          statement.setString(4, getSuffix(entity));
-          statement.setString(5, getTypeId(entity));
-        });
-    } catch (DataAccessException e) {
-      log.warn("saveResourceEntitiesToStaging::Failed to save entities batch. Processing one-by-one", e);
-      for (var entity : entityBatch.resourceEntities()) {
-        try {
-          jdbcTemplate.update(stagingCallNumberSql, getId(entity), getCallNumber(entity), getPrefix(entity),
-            getSuffix(entity), getTypeId(entity));
-        } catch (DataAccessException ex) {
-          log.debug("Failed to save staging call number entity {}: {}", getId(entity), ex.getMessage());
-        }
-      }
-    }
-    log.debug("Saved {} call number entities to staging table", entityBatch.resourceEntities().size());
-  }
-
-  @SuppressWarnings("java:S2077")
-  private void saveRelationshipEntities(ChildResourceEntityBatch entityBatch) {
-    var instanceCallNumberTable = getFullTableName(context, INSTANCE_CALL_NUMBER_TABLE);
-    var instanceCallNumberSql = INSERT_RELATIONS_SQL.formatted(instanceCallNumberTable);
-
-    try {
-      jdbcTemplate.batchUpdate(instanceCallNumberSql, entityBatch.relationshipEntities(), BATCH_OPERATION_SIZE,
+      jdbcTemplate.batchUpdate(sql, entityBatch.relationshipEntities(), BATCH_OPERATION_SIZE,
         (statement, entity) -> {
           statement.setString(1, getCallNumberId(entity));
           statement.setString(2, getItemId(entity));
@@ -406,48 +374,8 @@ public class CallNumberRepository extends UploadRangeRepository implements Insta
     } catch (DataAccessException e) {
       log.warn("saveRelationshipEntities::Failed to save relations batch. Processing one-by-one", e);
       for (var entityRelation : entityBatch.relationshipEntities()) {
-        //todo: looks wrong to suppress exception. maybe just log and rethrow? or remove handling
-        try {
-          jdbcTemplate.update(instanceCallNumberSql, getCallNumberId(entityRelation), getItemId(entityRelation),
-            getInstanceId(entityRelation), getTenantId(entityRelation), getLocationId(entityRelation));
-        } catch (DataAccessException ex) {
-          log.debug("Failed to save call number relationship for {}: {}",
-            getCallNumberId(entityRelation), ex.getMessage());
-        }
-      }
-    }
-  }
-
-  @SuppressWarnings("java:S2077")
-  private void saveRelationshipEntitiesToStaging(ChildResourceEntityBatch entityBatch) {
-    var stagingInstanceCallNumberTable = getFullTableName(context, STAGING_INSTANCE_CALL_NUMBER_TABLE);
-    var stagingInstanceCallNumberSql = INSERT_STAGING_RELATIONS_SQL.formatted(stagingInstanceCallNumberTable);
-
-    try {
-      jdbcTemplate.batchUpdate(stagingInstanceCallNumberSql, entityBatch.relationshipEntities(), BATCH_OPERATION_SIZE,
-        (statement, entity) -> {
-          statement.setString(1, getCallNumberId(entity));
-          statement.setString(2, getItemId(entity));
-          statement.setString(3, getInstanceId(entity));
-          statement.setString(4, getTenantId(entity));
-          statement.setString(5, getLocationId(entity));
-        });
-    } catch (DataAccessException e) {
-      log.warn("saveRelationshipEntitiesToStaging::Failed to save staging relations batch. Processing one-by-one", e);
-      retrySaveRelationshipsToStagingOneByOne(stagingInstanceCallNumberSql, entityBatch.relationshipEntities());
-    }
-    log.debug("Saved {} call number relationships to staging table", entityBatch.relationshipEntities().size());
-  }
-
-  private void retrySaveRelationshipsToStagingOneByOne(String sql, Collection<Map<String, Object>> relationships) {
-    for (var entityRelation : relationships) {
-      //todo: looks wrong to suppress exception. maybe just log and rethrow? or remove handling
-      try {
         jdbcTemplate.update(sql, getCallNumberId(entityRelation), getItemId(entityRelation),
           getInstanceId(entityRelation), getTenantId(entityRelation), getLocationId(entityRelation));
-      } catch (DataAccessException ex) {
-        log.debug("Failed to save staging call number relationship for {}: {}",
-          getCallNumberId(entityRelation), ex.getMessage());
       }
     }
   }

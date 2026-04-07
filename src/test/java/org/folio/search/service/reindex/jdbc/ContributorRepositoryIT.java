@@ -182,17 +182,15 @@ class ContributorRepositoryIT {
   }
 
   @Test
-  void saveAll_savesToStagingTables_whenInReindexModeWithMemberTenant() {
+  void saveAllOnReindex_savesToStagingTables_whenMemberTenantReindex() {
     var contributorId = UUID.randomUUID().toString();
     var entities = Set.of(contributorEntity(contributorId));
     var relations = List.of(contributorRelation("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", contributorId));
 
-    ReindexContext.setReindexMode(true);
     ReindexContext.setMemberTenantId(MEMBER_TENANT_ID);
     try {
-      repository.saveAll(new ChildResourceEntityBatch(entities, relations));
+      repository.saveAllOnReindex(new ChildResourceEntityBatch(entities, relations));
     } finally {
-      ReindexContext.setReindexMode(false);
       ReindexContext.clearMemberTenantId();
     }
 

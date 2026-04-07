@@ -182,17 +182,15 @@ class CallNumberRepositoryIT {
 
   @Test
   @Sql("/sql/populate-instances.sql")
-  void saveAll_savesToStagingTables_whenInReindexModeWithMemberTenant() {
+  void saveAllOnReindex_savesToStagingTables_whenMemberTenantReindex() {
     var callNumberId = "5";
     var entities = Set.of(callNumberEntity(callNumberId));
     var relations = List.of(callNumberRelation(callNumberId));
 
-    ReindexContext.setReindexMode(true);
     ReindexContext.setMemberTenantId(MEMBER_TENANT_ID);
     try {
-      repository.saveAll(new ChildResourceEntityBatch(entities, relations));
+      repository.saveAllOnReindex(new ChildResourceEntityBatch(entities, relations));
     } finally {
-      ReindexContext.setReindexMode(false);
       ReindexContext.clearMemberTenantId();
     }
 

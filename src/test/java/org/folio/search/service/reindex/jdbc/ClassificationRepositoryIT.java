@@ -184,17 +184,15 @@ class ClassificationRepositoryIT {
   }
 
   @Test
-  void saveAll_savesToStagingTables_whenInReindexModeWithMemberTenant() {
+  void saveAllOnReindex_savesToStagingTables_whenMemberTenantReindex() {
     var classificationId = UUID.randomUUID().toString();
     var entities = Set.of(classificationEntity(classificationId));
     var relations = List.of(classificationRelation("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", classificationId));
 
-    ReindexContext.setReindexMode(true);
     ReindexContext.setMemberTenantId(MEMBER_TENANT_ID);
     try {
-      repository.saveAll(new ChildResourceEntityBatch(entities, relations));
+      repository.saveAllOnReindex(new ChildResourceEntityBatch(entities, relations));
     } finally {
-      ReindexContext.setReindexMode(false);
       ReindexContext.clearMemberTenantId();
     }
 

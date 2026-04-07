@@ -131,6 +131,11 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
       VALUES (?, ?, ?, ?, ?)
       ON CONFLICT (id) DO UPDATE SET last_updated_date = CURRENT_TIMESTAMP;
     """;
+  private static final String INSERT_ENTITIES_FOR_REINDEX_SQL = """
+      INSERT INTO %s.subject (id, value, authority_id, source_id, type_id)
+      VALUES (?, ?, ?, ?, ?)
+      ON CONFLICT DO NOTHING;
+    """;
   private static final String INSERT_RELATIONS_SQL = """
       INSERT INTO %s.instance_subject (instance_id, subject_id, tenant_id, shared)
       VALUES (?::uuid, ?, ?, ?)
@@ -196,9 +201,19 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
   }
 
   @Override
-  @SuppressWarnings("checkstyle:MethodLength")
   public void saveAll(ChildResourceEntityBatch entityBatch) {
-    var entitiesSql = INSERT_ENTITIES_SQL.formatted(JdbcUtils.getSchemaName(context));
+    saveEntities(INSERT_ENTITIES_SQL, entityBatch);
+    saveRelations(entityBatch);
+  }
+
+  @Override
+  public void saveAllOnReindex(ChildResourceEntityBatch entityBatch) {
+    saveEntities(INSERT_ENTITIES_FOR_REINDEX_SQL, entityBatch);
+    saveRelations(entityBatch);
+  }
+
+  private void saveEntities(String insertSqlTemplate, ChildResourceEntityBatch entityBatch) {
+    var entitiesSql = insertSqlTemplate.formatted(JdbcUtils.getSchemaName(context));
     try {
       jdbcTemplate.batchUpdate(entitiesSql, entityBatch.resourceEntities(), BATCH_OPERATION_SIZE,
         (statement, entity) -> {
@@ -215,7 +230,9 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
           entity.get(AUTHORITY_ID_FIELD), entity.get(SUBJECT_SOURCE_ID_FIELD), entity.get(SUBJECT_TYPE_ID_FIELD));
       }
     }
+  }
 
+  private void saveRelations(ChildResourceEntityBatch entityBatch) {
     var relationsSql = INSERT_RELATIONS_SQL.formatted(JdbcUtils.getSchemaName(context));
     try {
       jdbcTemplate.batchUpdate(relationsSql, entityBatch.relationshipEntities(), BATCH_OPERATION_SIZE,

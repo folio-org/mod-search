@@ -62,8 +62,8 @@ public class InstanceChildrenResourceService {
 
     var shared = consortiumTenantProvider.isCentralTenant(tenantId);
 
-    // Process child resources normally
+    // Process child resources for reindex (ON CONFLICT DO NOTHING for entities)
     extractors.forEach(resourceExtractor ->
-      resourceExtractor.persistChildren(tenantId, shared, events));
+      resourceExtractor.persistChildrenOnReindex(shared, events));
   }
 }

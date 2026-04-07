@@ -80,7 +80,7 @@ class InstanceChildrenResourceServiceTest {
     service.persistChildrenOnReindex(TENANT_ID, ResourceType.INSTANCE, instances);
 
     instanceResourceExtractors.forEach(resourceExtractor ->
-      verify(resourceExtractor).persistChildren(TENANT_ID, shared, expectedEvents));
+      verify(resourceExtractor).persistChildrenOnReindex(shared, expectedEvents));
   }
 
   private ResourceEvent getResourceEvent(UUID id1, Map<String, Object> payload) {

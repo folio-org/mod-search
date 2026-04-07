@@ -197,6 +197,7 @@ class ReindexServiceTest {
 
     verify(statusService).getTargetTenantId();
     verify(statusService).recreateUploadStatusRecord(eq(INSTANCE), any());
+    verify(mergeRangeService).analyzeEntityTables();
     verify(uploadRangeService).prepareAndSendIndexRanges(INSTANCE);
     verify(reindexCommonService, never()).recreateIndex(any(), any(), any());
   }
@@ -213,6 +214,7 @@ class ReindexServiceTest {
     verify(statusService).getTargetTenantId();
     verify(statusService).recreateUploadStatusRecord(eq(INSTANCE), any());
     verify(reindexCommonService).recreateIndex(eq(INSTANCE), eq(TENANT_ID), any());
+    verify(mergeRangeService).analyzeEntityTables();
     verify(uploadRangeService).prepareAndSendIndexRanges(INSTANCE);
   }
 
@@ -395,6 +397,7 @@ class ReindexServiceTest {
     verify(reindexCommonService).deleteInstanceDocumentsByTenantId("member");
     verify(statusService).recreateUploadStatusRecord(eq(INSTANCE), any());
     verify(uploadRangeService).prepareAndSendIndexRanges(INSTANCE);
+    verifyNoInteractions(mergeRangeService);
   }
 
   @Test
@@ -407,6 +410,7 @@ class ReindexServiceTest {
     verify(reindexCommonService, never()).deleteInstanceDocumentsByTenantId(any());
     verify(statusService).recreateUploadStatusRecord(eq(INSTANCE), any());
     verify(uploadRangeService).prepareAndSendIndexRanges(INSTANCE);
+    verify(mergeRangeService).analyzeEntityTables();
   }
 
   @Test
@@ -419,6 +423,7 @@ class ReindexServiceTest {
     assertThrows(ReindexException.class,
       () -> reindexService.submitUploadReindexWithTenantCleanup(TENANT_ID, entityTypes, "member"),
       "Failed to cleanup tenant documents before upload");
+    verifyNoInteractions(mergeRangeService);
   }
 
   private MergeRangeEntity buildMergeRangeEntity(UUID id, String tenant) {

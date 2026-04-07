@@ -131,6 +131,11 @@ public class ClassificationRepository extends UploadRangeRepository implements I
       VALUES (?, ?, ?, CURRENT_TIMESTAMP)
       ON CONFLICT (id) DO NOTHING;
     """;
+  private static final String INSERT_ENTITIES_FOR_REINDEX_SQL = """
+      INSERT INTO %s.classification (id, number, type_id)
+      VALUES (?, ?, ?)
+      ON CONFLICT DO NOTHING;
+    """;
   private static final String INSERT_RELATIONS_SQL = """
       INSERT INTO %s.instance_classification (instance_id, classification_id, tenant_id, shared)
       VALUES (?::uuid, ?, ?, ?)
@@ -228,6 +233,12 @@ public class ClassificationRepository extends UploadRangeRepository implements I
     }
   }
 
+  @Override
+  public void saveAllOnReindex(ChildResourceEntityBatch entityBatch) {
+    saveEntities(INSERT_ENTITIES_FOR_REINDEX_SQL, entityBatch);
+    saveRelations(entityBatch);
+  }
+
   @SuppressWarnings("java:S2077")
   private void saveEntitiesToMain(Collection<Map<String, Object>> entities) {
     var entitiesSql = INSERT_ENTITIES_SQL.formatted(JdbcUtils.getSchemaName(context));
@@ -241,6 +252,7 @@ public class ClassificationRepository extends UploadRangeRepository implements I
     } catch (DataAccessException e) {
       logWarnDebugError(SAVE_ENTITIES_BATCH_ERROR_MESSAGE, e);
       for (var entity : entities) {
+        //todo: try catch decision
         try {
           jdbcTemplate.update(entitiesSql,
             entity.get("id"), entity.get(CLASSIFICATION_NUMBER_FIELD), entity.get(CLASSIFICATION_TYPE_FIELD));

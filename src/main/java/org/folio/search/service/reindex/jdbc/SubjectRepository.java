@@ -138,6 +138,11 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
       VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
       ON CONFLICT (id) DO NOTHING;
     """;
+  private static final String INSERT_ENTITIES_FOR_REINDEX_SQL = """
+      INSERT INTO %s.subject (id, value, authority_id, source_id, type_id)
+      VALUES (?, ?, ?, ?, ?)
+      ON CONFLICT DO NOTHING;
+    """;
   private static final String INSERT_RELATIONS_SQL = """
       INSERT INTO %s.instance_subject (instance_id, subject_id, tenant_id, shared)
       VALUES (?::uuid, ?, ?, ?)
@@ -235,6 +240,12 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
     }
   }
 
+  @Override
+  public void saveAllOnReindex(ChildResourceEntityBatch entityBatch) {
+    saveEntities(INSERT_ENTITIES_FOR_REINDEX_SQL, entityBatch);
+    saveRelations(entityBatch);
+  }
+
   @SuppressWarnings("java:S2077")
   private void saveEntitiesToMain(Collection<Map<String, Object>> entities) {
     var entitiesSql = INSERT_ENTITIES_SQL.formatted(JdbcUtils.getSchemaName(context));
@@ -250,7 +261,7 @@ public class SubjectRepository extends UploadRangeRepository implements Instance
     } catch (DataAccessException e) {
       logWarnDebugError(SAVE_ENTITIES_BATCH_ERROR_MESSAGE, e);
       for (var entity : entities) {
-        try {
+        try {//todo:try/catch
           jdbcTemplate.update(entitiesSql, entity.get("id"), entity.get(SUBJECT_VALUE_FIELD),
             entity.get(AUTHORITY_ID_FIELD), entity.get(SUBJECT_SOURCE_ID_FIELD), entity.get(SUBJECT_TYPE_ID_FIELD));
         } catch (DataAccessException ex) {

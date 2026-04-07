@@ -18,6 +18,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.sql.BatchUpdateException;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -140,6 +141,38 @@ class ClassificationRepositoryIT {
       .contains(
         tuple("number1", List.of(Map.of("count", 1, "shared", false, "tenantId", TENANT_ID))),
         tuple("number2", List.of(Map.of("count", 2, "shared", false, "tenantId", TENANT_ID))));
+  }
+
+  @Test
+  void saveAllOnReindex() {
+    // save entity "1" via saveAll first, capturing its last_updated_date
+    repository.saveAll(new ChildResourceEntityBatch(
+      Set.of(classificationEntity("1")),
+      List.of(classificationRelation("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", "1"))));
+    var lastUpdatedAfterSaveAll = jdbcTemplate.queryForObject(
+      "SELECT last_updated_date FROM classification WHERE id = ?", Timestamp.class, "1");
+
+    // call saveAllOnReindex with existing entity "1" and new entity "2"
+    repository.saveAllOnReindex(new ChildResourceEntityBatch(
+      Set.of(classificationEntity("1"), classificationEntity("2")),
+      List.of(
+        classificationRelation("b3bae8a9-cfb1-4afe-83d5-2cdae4580e07", "1"),
+        classificationRelation("b3bae8a9-cfb1-4afe-83d5-2cdae4580e07", "2"),
+        classificationRelation("9ec55e4f-6a76-427c-b47b-197046f44a54", "2"))));
+
+    // assert: new entity "2" and its relations were saved
+    var ranges = repository.fetchByIdRange("0", "50");
+    assertThat(ranges)
+      .hasSize(2)
+      .extracting("number", "instances")
+      .contains(
+        tuple("number1", List.of(Map.of("count", 2, "shared", false, "tenantId", TENANT_ID))),
+        tuple("number2", List.of(Map.of("count", 2, "shared", false, "tenantId", TENANT_ID))));
+
+    // assert: existing entity "1" was not updated (last_updated_date unchanged)
+    var lastUpdatedAfterReindex = jdbcTemplate.queryForObject(
+      "SELECT last_updated_date FROM classification WHERE id = ?", Timestamp.class, "1");
+    assertThat(lastUpdatedAfterReindex).isEqualTo(lastUpdatedAfterSaveAll);
   }
 
   @Test

@@ -137,6 +137,11 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
       VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
       ON CONFLICT (id) DO NOTHING;
     """;
+  private static final String INSERT_ENTITIES_FOR_REINDEX_SQL = """
+      INSERT INTO %s.contributor (id, name, name_type_id, authority_id)
+      VALUES (?, ?, ?, ?)
+      ON CONFLICT DO NOTHING;
+    """;
   private static final String INSERT_RELATIONS_SQL = """
       INSERT INTO %s.instance_contributor (instance_id, contributor_id, type_id, tenant_id, shared)
       VALUES (?::uuid, ?, ?, ?, ?)
@@ -232,6 +237,12 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
     }
   }
 
+  @Override
+  public void saveAllOnReindex(ChildResourceEntityBatch entityBatch) {
+    saveEntities(INSERT_ENTITIES_FOR_REINDEX_SQL, entityBatch);
+    saveRelations(entityBatch);
+  }
+
   @SuppressWarnings("java:S2077")
   private void saveEntitiesToMain(Collection<Map<String, Object>> entities) {
     var entitiesSql = INSERT_ENTITIES_SQL.formatted(JdbcUtils.getSchemaName(context));
@@ -246,7 +257,7 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
     } catch (DataAccessException e) {
       logWarnDebugError(SAVE_ENTITIES_BATCH_ERROR_MESSAGE, e);
       for (var entity : entities) {
-        try {
+        try {//todo: try/catch
           jdbcTemplate.update(entitiesSql,
             entity.get("id"), entity.get("name"), entity.get("nameTypeId"), entity.get(AUTHORITY_ID_FIELD));
         } catch (DataAccessException ex) {

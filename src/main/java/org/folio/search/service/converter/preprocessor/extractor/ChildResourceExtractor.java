@@ -38,14 +38,17 @@ public abstract class ChildResourceExtractor {
       return;
     }
 
-    var entities = new HashSet<Map<String, Object>>();
-    var relations = new LinkedList<Map<String, Object>>();
-    eventsForSaving.forEach(event -> {
-      var entitiesFromEvent = extractEntities(event);
-      relations.addAll(constructRelations(shared, event, entitiesFromEvent));
-      entities.addAll(entitiesFromEvent);
-    });
-    repository.saveAll(new ChildResourceEntityBatch(new ArrayList<>(entities), relations));
+    var batch = buildBatch(shared, eventsForSaving);
+    repository.saveAll(batch);
+  }
+
+  public void persistChildrenOnReindex(boolean shared, List<ResourceEvent> events) {
+    if (events.isEmpty()) {
+      return;
+    }
+
+    var batch = buildBatch(shared, events);
+    repository.saveAllOnReindex(batch);
   }
 
   protected abstract List<Map<String, Object>> constructRelations(boolean shared, ResourceEvent event,
@@ -62,6 +65,17 @@ public abstract class ChildResourceExtractor {
       return emptySet();
     }
     return new HashSet<>((List<Map<String, Object>>) object);
+  }
+
+  private ChildResourceEntityBatch buildBatch(boolean shared, List<ResourceEvent> events) {
+    var entities = new HashSet<Map<String, Object>>();
+    var relations = new LinkedList<Map<String, Object>>();
+    events.forEach(event -> {
+      var entitiesFromEvent = extractEntities(event);
+      relations.addAll(constructRelations(shared, event, entitiesFromEvent));
+      entities.addAll(entitiesFromEvent);
+    });
+    return new ChildResourceEntityBatch(new ArrayList<>(entities), relations);
   }
 
   private void deleteParentsIfNeeded(String tenantId, List<ResourceEvent> events) {

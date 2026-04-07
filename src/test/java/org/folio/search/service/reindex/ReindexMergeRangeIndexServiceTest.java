@@ -140,5 +140,16 @@ class ReindexMergeRangeIndexServiceTest {
     // assert
     verify(repositoryMap.values().iterator().next()).getFailedMergeRanges();
   }
+
+  @Test
+  void analyzeEntityTables_positive() {
+    // act
+    service.analyzeEntityTables();
+
+    // assert
+    verify(instanceRepository).analyzeEntityTable();
+    verify(itemRepository).analyzeEntityTable();
+    verify(holdingRepository).analyzeEntityTable();
+  }
 }
 

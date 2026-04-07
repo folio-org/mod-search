@@ -157,13 +157,7 @@ public class ReindexService {
     log.info("submitUploadReindex:: for [tenantId: {}, entities: {}]", tenantId, entityTypes);
 
     validateUploadReindex(tenantId, entityTypes);
-
-    for (var reindexEntityType : entityTypes) {
-      statusService.recreateUploadStatusRecord(reindexEntityType);
-      if (recreateIndex) {
-        reindexCommonService.recreateIndex(reindexEntityType, tenantId, indexSettings);
-      }
-    }
+    prepareForUploadReindex(tenantId, entityTypes, recreateIndex, indexSettings);
 
     var futures = new ArrayList<>();
     for (var entityType : entityTypes) {
@@ -181,6 +175,18 @@ public class ReindexService {
 
     log.info("submitUploadReindex:: submitted [tenantId: {}]", tenantId);
     return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+  }
+
+  private void prepareForUploadReindex(String tenantId, List<ReindexEntityType> entityTypes, boolean recreateIndex,
+                                       IndexSettings indexSettings) {
+    for (var reindexEntityType : entityTypes) {
+      statusService.recreateUploadStatusRecord(reindexEntityType);
+      if (recreateIndex) {
+        reindexCommonService.recreateIndex(reindexEntityType, tenantId, indexSettings);
+      }
+    }
+
+    mergeRangeService.analyzeEntityTables();
   }
 
   private void recreateIndices(String tenantId, List<ReindexEntityType> entityTypes, IndexSettings indexSettings) {

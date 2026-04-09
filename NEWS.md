@@ -79,6 +79,7 @@
   * Update instance_call_number tenantId on Instance becoming shared ([MSEARCH-1168](https://folio-org.atlassian.net/browse/MSEARCH-1168))
   * Fix deadlocks for sub-resources on reindex ([MSEARCH-1196](https://folio-org.atlassian.net/browse/MSEARCH-1196))
   * Manually analyze instance/holding/item tables before upload phase of reindexing ([MSEARCH-1197](https://folio-org.atlassian.net/browse/MSEARCH-1197))
+  * Set reindex status to completed when range is successfully processed on retry ([MSEARCH-1199](https://folio-org.atlassian.net/browse/MSEARCH-1199))
 
 ### Tech Dept
 * Migrate to Opensearch 3.0.0 ([MSEARCH-1033](https://folio-org.atlassian.net/browse/MSEARCH-1033))

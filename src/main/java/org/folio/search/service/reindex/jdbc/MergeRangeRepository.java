@@ -36,6 +36,9 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
   private static final String SOFT_DELETE_SQL_FOR_TENANT = """
     UPDATE %s SET is_deleted = true, last_updated_date = CURRENT_TIMESTAMP WHERE id = ANY (?) AND tenant_id = ?;
     """;
+
+  private static final String ANALYZE_SQL = "ANALYZE %s;";
+
   private static final String INSERT_MERGE_RANGE_SQL = """
       INSERT INTO %s (id, entity_type, tenant_id, lower, upper, created_at, finished_at)
       VALUES (?, ?, ?, ?, ?, ?, ?);
@@ -86,6 +89,13 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
 
   public void truncateMergeRanges() {
     JdbcUtils.truncateTable(MERGE_RANGE_TABLE, jdbcTemplate, context);
+  }
+
+  @SuppressWarnings("java:S2077")
+  public void analyzeEntityTable() {
+    var fullTableName = getFullTableName(context, entityTable());
+    var sql = ANALYZE_SQL.formatted(fullTableName);
+    jdbcTemplate.execute(sql);
   }
 
   @Override

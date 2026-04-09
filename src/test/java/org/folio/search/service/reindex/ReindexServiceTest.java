@@ -193,6 +193,7 @@ class ReindexServiceTest {
     reindexService.submitUploadReindex(TENANT_ID, List.of(ReindexEntityType.INSTANCE));
 
     verify(statusService).recreateUploadStatusRecord(INSTANCE);
+    verify(mergeRangeService).analyzeEntityTables();
     verify(uploadRangeService).prepareAndSendIndexRanges(INSTANCE);
   }
 
@@ -206,6 +207,7 @@ class ReindexServiceTest {
     reindexService.submitUploadReindex(TENANT_ID, uploadDto);
 
     verify(statusService).recreateUploadStatusRecord(INSTANCE);
+    verify(mergeRangeService).analyzeEntityTables();
     verify(uploadRangeService).prepareAndSendIndexRanges(INSTANCE);
   }
 

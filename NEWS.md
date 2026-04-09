@@ -75,7 +75,8 @@
   * Ignore shadow locations and location units while indexing domain events ([MSEARCH-1154](https://folio-org.atlassian.net/browse/MSEARCH-1154))
   * Add support for exact match on isbn, honor '*' in IsbnSearchTermProcessor ([MSEARCH-1011](https://folio-org.atlassian.net/browse/MSEARCH-1011))
   * Update instance_call_number tenantId on Instance becoming shared ([MSEARCH-1168](https://folio-org.atlassian.net/browse/MSEARCH-1168))
-  * Fix deadlocks for sub-resources on reindex ([MSEARCH-1178](https://folio-org.atlassian.net/browse/MSEARCH-1178))
+  * Fix deadlocks for sub-resources on reindex ([MSEARCH-1196](https://folio-org.atlassian.net/browse/MSEARCH-1196))
+  * Manually analyze instance/holding/item tables before upload phase of reindexing ([MSEARCH-1197](https://folio-org.atlassian.net/browse/MSEARCH-1197))
 
 ### Tech Dept
 * Migrate to Opensearch 3.0.0 ([MSEARCH-1033](https://folio-org.atlassian.net/browse/MSEARCH-1033))

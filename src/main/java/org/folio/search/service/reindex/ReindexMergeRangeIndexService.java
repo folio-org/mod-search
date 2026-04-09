@@ -57,6 +57,12 @@ public class ReindexMergeRangeIndexService {
     repositories.values().iterator().next().truncateMergeRanges();
   }
 
+  public void analyzeEntityTables() {
+    log.info("analyzeEntityTables:: analyzing merge entity tables to update statistics");
+    repositories.values().forEach(MergeRangeRepository::analyzeEntityTable);
+    log.info("analyzeEntityTables:: analyzed merge entity tables");
+  }
+
   public List<MergeRangeEntity> createMergeRanges(String tenantId) {
     List<MergeRangeEntity> mergeRangeEntities = new ArrayList<>();
     var rangeSize = reindexConfig.getMergeRangeSize();

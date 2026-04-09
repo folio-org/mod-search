@@ -20,6 +20,8 @@ public class ReindexConfigurationProperties {
 
   private static final java.util.regex.Pattern WORK_MEM_VALIDATION_PATTERN =
     java.util.regex.Pattern.compile("^\\d+\\s*(KB|MB|GB)$");
+  private static final java.util.regex.Pattern STATEMENT_TIMEOUT_VALIDATION_PATTERN =
+    java.util.regex.Pattern.compile("^\\d+\\s*(ms|s|min|h)?$");
 
   /**
    * Defines number of locations to retrieve per inventory http request on locations reindex process.
@@ -52,6 +54,17 @@ public class ReindexConfigurationProperties {
   private String migrationWorkMem = "64MB";
 
   /**
+   * Defines the PostgreSQL statement_timeout value to set for migration operations.
+   * This prevents long-running migration queries from being killed by the server's default statement_timeout.
+   * Default is '0' (disabled — no timeout). Format must be a number optionally followed by ms, s, min, or h
+   * (e.g., "0", "600000", "30min", "1h"). A plain number is interpreted as milliseconds by PostgreSQL.
+   */
+  @Pattern(regexp = "^\\d+\\s*(ms|s|min|h)?$",
+           message = "statement_timeout must be a number optionally followed by ms, s, min, or h "
+                     + "(e.g., '0', '600000', '30min', '1h')")
+  private String migrationStatementTimeout = "0";
+
+  /**
    * Validates the configuration properties at startup.
    * This ensures that any invalid configuration fails fast during application startup.
    */
@@ -67,6 +80,15 @@ public class ReindexConfigurationProperties {
       throw new IllegalArgumentException(errorMsg);
     }
 
-    log.info("Reindex configuration validated successfully. Migration work_mem: {}", migrationWorkMem);
+    // Validate statement_timeout format
+    if (!STATEMENT_TIMEOUT_VALIDATION_PATTERN.matcher(migrationStatementTimeout).matches()) {
+      var errorMsg = "Invalid statement_timeout configuration: " + migrationStatementTimeout
+        + ". Must be a number optionally followed by ms, s, min, or h (e.g., '0', '600000', '30min', '1h')";
+      log.error(errorMsg);
+      throw new IllegalArgumentException(errorMsg);
+    }
+
+    log.info("Reindex configuration validated successfully. Migration work_mem: {}, statement_timeout: {}",
+      migrationWorkMem, migrationStatementTimeout);
   }
 }

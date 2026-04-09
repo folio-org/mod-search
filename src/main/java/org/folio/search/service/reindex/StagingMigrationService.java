@@ -20,6 +20,7 @@ public class StagingMigrationService {
 
   protected static final Timestamp RESOURCE_REINDEX_TIMESTAMP = Timestamp.valueOf("2000-01-01 00:00:00");
   private static final Pattern WORK_MEM_PATTERN = Pattern.compile("^\\d+\\s*(KB|MB|GB)$");
+  private static final Pattern STATEMENT_TIMEOUT_PATTERN = Pattern.compile("^\\d+\\s*(ms|s|min|h)?$");
 
   private final JdbcTemplate jdbcTemplate;
   private final FolioExecutionContext context;
@@ -43,8 +44,8 @@ public class StagingMigrationService {
     var startTime = System.currentTimeMillis();
 
     try {
-      // Set work_mem for this transaction to optimize query performance
-      setWorkMem();
+      // Configure PostgreSQL session settings for this transaction to optimize migration performance
+      configureTransactionSettings();
       log.info("migrateAllStagingTables:: Starting migration for: [targetTenantId: {}]", targetTenantId);
 
       // Analyze staging tables for better query performance
@@ -333,13 +334,15 @@ public class StagingMigrationService {
   }
 
   /**
-   * Sets the PostgreSQL work_mem parameter for the current transaction using SET LOCAL.
-   * This optimizes query performance for memory-intensive operations during migration.
+   * Configures PostgreSQL session parameters for the current transaction using SET LOCAL.
+   * Sets work_mem and statement_timeout to optimize performance for memory-intensive migration operations
+   * and prevent long-running queries from being killed by the server's default statement_timeout.
    *
-   * @throws ReindexException if the work_mem value is invalid or the SET LOCAL command fails
+   * @throws ReindexException if any parameter value is invalid or the SET LOCAL command fails
    */
-  private void setWorkMem() {
+  private void configureTransactionSettings() {
     var workMemValue = reindexConfigurationProperties.getMigrationWorkMem();
+    var statementTimeoutValue = reindexConfigurationProperties.getMigrationStatementTimeout();
 
     // Validate the work_mem format for security
     if (!WORK_MEM_PATTERN.matcher(workMemValue).matches()) {
@@ -347,15 +350,23 @@ public class StagingMigrationService {
         + ". Must be a number followed by KB, MB, or GB (e.g., '64MB', '512KB', '1GB')");
     }
 
-    log.info("setWorkMem:: Setting work_mem to {} for migration transaction", workMemValue);
+    // Validate the statement_timeout format for security
+    if (!STATEMENT_TIMEOUT_PATTERN.matcher(statementTimeoutValue).matches()) {
+      throw new ReindexException("Invalid statement_timeout format: " + statementTimeoutValue
+        + ". Must be a number optionally followed by ms, s, min, or h (e.g., '0', '600000', '30min', '1h')");
+    }
+
+    log.info("configureTransactionSettings:: Setting work_mem to {}, statement_timeout to {} for migration transaction",
+      workMemValue, statementTimeoutValue);
 
     try {
-      var sql = String.format("SET LOCAL work_mem = '%s'", workMemValue);
-      jdbcTemplate.execute(sql);
-      log.debug("setWorkMem:: Successfully set work_mem to {}", workMemValue);
+      jdbcTemplate.execute(String.format("SET LOCAL work_mem = '%s'", workMemValue));
+      jdbcTemplate.execute(String.format("SET LOCAL statement_timeout = '%s'", statementTimeoutValue));
+      log.debug("configureTransactionSettings:: Successfully configured transaction settings");
     } catch (Exception e) {
-      var errorMsg = "Failed to set work_mem to " + workMemValue + " for migration transaction";
-      log.error("setWorkMem:: " + errorMsg, e);
+      var errorMsg = "Failed to configure transaction settings for migration (work_mem=" + workMemValue
+        + ", statement_timeout=" + statementTimeoutValue + ")";
+      log.error("configureTransactionSettings:: " + errorMsg, e);
       throw new ReindexException(errorMsg, e);
     }
   }

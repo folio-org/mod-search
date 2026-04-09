@@ -59,6 +59,7 @@ class StagingMigrationServiceTest {
     lenient().when(context.getFolioModuleMetadata()).thenReturn(folioModuleMetadata);
     lenient().when(folioModuleMetadata.getDBSchemaName(TENANT_ID)).thenReturn("test_tenant_mod_search");
     lenient().when(reindexConfigurationProperties.getMigrationWorkMem()).thenReturn("64MB");
+    lenient().when(reindexConfigurationProperties.getMigrationStatementTimeout()).thenReturn("0");
   }
 
   @Test
@@ -92,8 +93,9 @@ class StagingMigrationServiceTest {
     // Total relationships: 5 + 8 + 3 + 2 + 12 + 14 + 6 + 4 = 54
     assertThat(result.getTotalRelationships()).isEqualTo(54);
 
-    // Verify work_mem was set
+    // Verify transaction settings were configured
     verify(jdbcTemplate).execute(contains("SET LOCAL work_mem"));
+    verify(jdbcTemplate).execute(contains("SET LOCAL statement_timeout"));
 
     // Verify all analyze statements were called
     verify(jdbcTemplate, times(11)).execute(contains("ANALYZE"));
@@ -110,6 +112,7 @@ class StagingMigrationServiceTest {
 
     // Phase 1: Setup
     inOrder.verify(jdbcTemplate).execute(contains("SET LOCAL work_mem"));
+    inOrder.verify(jdbcTemplate).execute(contains("SET LOCAL statement_timeout"));
     inOrder.verify(jdbcTemplate, times(11)).execute(contains("ANALYZE"));
 
     // Phase 2: Instances (first main table)
@@ -156,6 +159,7 @@ class StagingMigrationServiceTest {
     // Verify order of operations
     var inOrder = inOrder(jdbcTemplate, reindexCommonService);
     inOrder.verify(jdbcTemplate).execute(contains("SET LOCAL work_mem"));
+    inOrder.verify(jdbcTemplate).execute(contains("SET LOCAL statement_timeout"));
     inOrder.verify(jdbcTemplate, times(11)).execute(contains("ANALYZE"));
     inOrder.verify(reindexCommonService).deleteRecordsByTenantId(targetTenantId);
     inOrder.verify(jdbcTemplate).update(contains("staging_instance"), any(Timestamp.class));
@@ -187,7 +191,7 @@ class StagingMigrationServiceTest {
   }
 
   @Test
-  void setWorkMem_withInvalidFormat_shouldThrowReindexException() {
+  void configureTransactionSettings_withInvalidWorkMemFormat_shouldThrowReindexException() {
     // Arrange
     when(reindexConfigurationProperties.getMigrationWorkMem()).thenReturn("invalid_value");
 
@@ -198,12 +202,25 @@ class StagingMigrationServiceTest {
   }
 
   @Test
-  void setWorkMem_withValidFormats_shouldSucceed() {
+  void configureTransactionSettings_withInvalidStatementTimeoutFormat_shouldThrowReindexException() {
+    // Arrange
+    when(reindexConfigurationProperties.getMigrationWorkMem()).thenReturn("64MB");
+    when(reindexConfigurationProperties.getMigrationStatementTimeout()).thenReturn("invalid_value");
+
+    // Act & Assert
+    assertThatThrownBy(() -> stagingMigrationService.migrateAllStagingTables(null))
+      .isInstanceOf(ReindexException.class)
+      .hasMessageContaining("Invalid statement_timeout format");
+  }
+
+  @Test
+  void configureTransactionSettings_withValidFormats_shouldSucceed() {
     // Test various valid formats
     var validFormats = List.of("64MB", "512KB", "1GB", "2048MB", "100KB");
 
     for (var format : validFormats) {
       when(reindexConfigurationProperties.getMigrationWorkMem()).thenReturn(format);
+      when(reindexConfigurationProperties.getMigrationStatementTimeout()).thenReturn("0");
       when(jdbcTemplate.update(anyString())).thenReturn(0);
       when(jdbcTemplate.update(anyString(), any(Timestamp.class))).thenReturn(0);
       doNothing().when(jdbcTemplate).execute(anyString());
@@ -213,19 +230,22 @@ class StagingMigrationServiceTest {
 
       verify(jdbcTemplate).execute("SET LOCAL work_mem = '" + format + "'");
     }
+
+    verify(jdbcTemplate, times(validFormats.size())).execute("SET LOCAL statement_timeout = '0'");
   }
 
   @Test
-  void setWorkMem_whenSetFails_shouldThrowReindexException() {
+  void configureTransactionSettings_whenSetFails_shouldThrowReindexException() {
     // Arrange
     when(reindexConfigurationProperties.getMigrationWorkMem()).thenReturn("64MB");
+    when(reindexConfigurationProperties.getMigrationStatementTimeout()).thenReturn("0");
     doThrow(new DataAccessException("Cannot set work_mem") {})
       .when(jdbcTemplate).execute(contains("SET LOCAL work_mem"));
 
     // Act & Assert
     assertThatThrownBy(() -> stagingMigrationService.migrateAllStagingTables(null))
       .isInstanceOf(ReindexException.class)
-      .hasMessageContaining("Failed to set work_mem");
+      .hasMessageContaining("Failed to configure transaction settings");
   }
 }
 

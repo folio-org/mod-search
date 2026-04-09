@@ -94,6 +94,7 @@ folio:
     merge-range-publisher-retry-interval-ms: ${REINDEX_MERGE_RANGE_PUBLISHER_RETRY_INTERVAL_MS:1000}
     merge-range-publisher-retry-attempts: ${REINDEX_MERGE_RANGE_PUBLISHER_RETRY_ATTEMPTS:5}
     migration-work-mem: ${REINDEX_MIGRATION_WORK_MEM:64MB}
+    migration-statement-timeout: ${REINDEX_MIGRATION_STATEMENT_TIMEOUT:0}
   index-management:
     delete-query-batch-size: ${DELETE_QUERY_BATCH_SIZE:1000}
     delete-query-scroll-timeout-minutes: ${DELETE_QUERY_SCROLL_TIMEOUT_MINUTES:5}

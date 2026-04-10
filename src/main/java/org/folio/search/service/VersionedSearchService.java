@@ -11,7 +11,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.SearchQueryConfigurationProperties;
@@ -103,25 +102,17 @@ public class VersionedSearchService {
 
     var instanceIds = Arrays.stream(hits.getHits())
       .map(hit -> (String) hit.getSourceAsMap().get("id"))
-      .filter(id -> id != null)
-      .collect(Collectors.toList());
+      .filter(Objects::nonNull)
+      .toList();
 
     Map<String, List<Map<String, Object>>> holdingsByInstanceId = new LinkedHashMap<>();
     Map<String, List<Map<String, Object>>> itemsByInstanceId = new LinkedHashMap<>();
 
-    if (!instanceIds.isEmpty()) {
-      if (isFalse(request.getExpandAll())) {
-        // expandAll=false: skip holdings, only fetch item call number fields
-        fetchChildDocuments(resolution.indexName(), instanceIds, "item",
-          new String[]{"id", "instanceId", "item.holdingsRecordId", "item.effectiveCallNumberComponents"},
-          itemsByInstanceId, request.getTenantId(), request.getConsortiumConsolidated());
-      } else {
-        // expandAll=true: fetch all holdings and items
-        fetchChildDocuments(resolution.indexName(), instanceIds, "holding", null, holdingsByInstanceId,
-          request.getTenantId(), request.getConsortiumConsolidated());
-        fetchChildDocuments(resolution.indexName(), instanceIds, "item", null, itemsByInstanceId,
-          request.getTenantId(), request.getConsortiumConsolidated());
-      }
+    if (!instanceIds.isEmpty() && !isFalse(request.getExpandAll())) {
+      fetchChildDocuments(resolution.indexName(), instanceIds, "holding", null, holdingsByInstanceId,
+        request.getTenantId(), request.getConsortiumConsolidated());
+      fetchChildDocuments(resolution.indexName(), instanceIds, "item", null, itemsByInstanceId,
+        request.getTenantId(), request.getConsortiumConsolidated());
     }
 
     var records = new ArrayList<T>();

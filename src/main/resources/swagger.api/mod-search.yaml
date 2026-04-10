@@ -145,9 +145,6 @@ paths:
   /search/index/query-versions/{version}:
     $ref: 'paths/query-versions/query-versions-unbind.yaml'
 
-  /search/index/query-versions/default:
-    $ref: 'paths/query-versions/query-versions-default.yaml'
-
   /search/config/languages:
     $ref: 'paths/search-config/search-config-languages.yaml'
 

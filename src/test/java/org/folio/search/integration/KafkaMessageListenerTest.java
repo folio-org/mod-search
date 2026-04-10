@@ -218,7 +218,7 @@ class KafkaMessageListenerTest {
     when(consortiumTenantProvider.getTenant(memberTenant)).thenReturn(centralTenant);
     when(indexFamilyService.findActiveFamily(centralTenant, QueryVersion.V2))
       .thenReturn(Optional.of(new IndexFamilyEntity(
-        UUID.randomUUID(), centralTenant, 1, "idx", IndexFamilyStatus.ACTIVE, null, null, null, QueryVersion.V2)));
+        UUID.randomUUID(), 1, "idx", IndexFamilyStatus.ACTIVE, null, null, null, QueryVersion.V2)));
     when(indexFamilyService.getAliasName(centralTenant, QueryVersion.V2)).thenReturn(aliasName);
 
     java.util.Map<String, Object> payload = new java.util.HashMap<>(mapOf("id", RESOURCE_ID));
@@ -236,9 +236,9 @@ class KafkaMessageListenerTest {
   void handleInstanceEvents_dualWritesFlatEventsToCuttingOverFamily() {
     var aliasName = "folio_instance_search_tenant";
     var activeFamily = new IndexFamilyEntity(
-      UUID.randomUUID(), TENANT_ID, 1, "active-index", IndexFamilyStatus.ACTIVE, null, null, null, QueryVersion.V2);
+      UUID.randomUUID(), 1, "active-index", IndexFamilyStatus.ACTIVE, null, null, null, QueryVersion.V2);
     var cuttingOverFamily = new IndexFamilyEntity(
-      UUID.randomUUID(), TENANT_ID, 2, "building-index", IndexFamilyStatus.CUTTING_OVER, null, null, null,
+      UUID.randomUUID(), 2, "building-index", IndexFamilyStatus.CUTTING_OVER, null, null, null,
       QueryVersion.V2);
     final java.util.Map<String, Object> payload = new java.util.HashMap<>(mapOf("id", RESOURCE_ID));
 
@@ -263,7 +263,7 @@ class KafkaMessageListenerTest {
   @Test
   void handleInstanceEvents_writesLegacyEventsToCuttingOverFamily() {
     var cuttingOverFamily = new IndexFamilyEntity(
-      UUID.randomUUID(), TENANT_ID, 2, "tenant_2", IndexFamilyStatus.CUTTING_OVER, null, null, null,
+      UUID.randomUUID(), 2, "tenant_2", IndexFamilyStatus.CUTTING_OVER, null, null, null,
       QueryVersion.V1);
 
     when(indexFamilyService.findCuttingOverFamily(TENANT_ID, QueryVersion.V1))

@@ -21,6 +21,7 @@ import org.folio.search.model.types.QueryVersion;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.repository.IndexRepository;
 import org.folio.search.service.IndexFamilyService;
+import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,6 +54,8 @@ class V2BrowseFullRebuildServiceTest {
   private IndexRepository indexRepository;
   @Mock
   private Executor browseRebuildExecutor;
+  @Mock
+  private FolioExecutionContext context;
 
   @InjectMocks
   private V2BrowseFullRebuildService service;
@@ -61,7 +64,6 @@ class V2BrowseFullRebuildServiceTest {
   void setUp() throws Exception {
     var family = new IndexFamilyEntity(
       FAMILY_ID,
-      "diku",
       3,
       "main-index",
       IndexFamilyStatus.ACTIVE,
@@ -70,6 +72,7 @@ class V2BrowseFullRebuildServiceTest {
       null,
       QueryVersion.V2
     );
+    when(context.getTenantId()).thenReturn("diku");
     when(indexFamilyService.findById(FAMILY_ID)).thenReturn(Optional.of(family));
     when(indexFamilyService.getV2BrowsePhysicalIndexMap("diku", 3)).thenReturn(BROWSE_INDICES);
     when(elasticsearchClient.deleteByQuery(any(), eq(DEFAULT))).thenReturn(mock(BulkByScrollResponse.class));

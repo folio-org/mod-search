@@ -45,7 +45,7 @@ public class FacetsController implements FacetsApi {
 
     if (recordResource == ResourceType.INSTANCE) {
       return ResponseEntity.ok(
-        versionedFacetService.getFacets(facetRequest, queryVersionRequestHelper.resolve(tenantId)));
+        versionedFacetService.getFacets(facetRequest, queryVersionRequestHelper.resolve()));
     }
     return ResponseEntity.ok(facetService.getFacets(facetRequest));
   }

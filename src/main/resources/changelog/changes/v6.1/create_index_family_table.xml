@@ -18,9 +18,6 @@
       <column name="id" type="UUID">
         <constraints nullable="false" primaryKey="true" primaryKeyName="pk_index_family"/>
       </column>
-      <column name="tenant_id" type="VARCHAR(50)">
-        <constraints nullable="false"/>
-      </column>
       <column name="generation" type="INT">
         <constraints nullable="false"/>
       </column>
@@ -40,18 +37,17 @@
       </column>
     </createTable>
 
-    <createIndex indexName="idx_if_tenant_version_status" tableName="index_family">
-      <column name="tenant_id"/>
+    <createIndex indexName="idx_if_version_status" tableName="index_family">
       <column name="query_version"/>
       <column name="status"/>
     </createIndex>
   </changeSet>
 
   <changeSet id="MSEARCH-STREAM@@add-unique-active-constraint" author="streaming_reindex">
-    <comment>Ensure at most one ACTIVE family per tenant_id + query_version</comment>
+    <comment>Ensure at most one ACTIVE family per query_version</comment>
     <sql>
-      CREATE UNIQUE INDEX IF NOT EXISTS idx_if_unique_active_per_tenant_version
-        ON index_family (tenant_id, query_version) WHERE status = 'ACTIVE';
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_if_unique_active_per_version
+        ON index_family (query_version) WHERE status = 'ACTIVE';
     </sql>
   </changeSet>
 

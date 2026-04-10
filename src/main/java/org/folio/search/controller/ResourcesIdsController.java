@@ -36,7 +36,7 @@ public class ResourcesIdsController implements SearchResourcesIdsApi {
   @Override
   public ResponseEntity<Void> getHoldingIds(String query, String tenantId, String contentType) {
     var bulkRequest = CqlResourceIdsRequest.of(ResourceType.INSTANCE, tenantId, query, HOLDINGS_ID_PATH);
-    return streamVersionedResourceIds(bulkRequest, contentType, queryVersionRequestHelper.resolve(tenantId));
+    return streamVersionedResourceIds(bulkRequest, contentType, queryVersionRequestHelper.resolve());
   }
 
   @Override
@@ -47,7 +47,7 @@ public class ResourcesIdsController implements SearchResourcesIdsApi {
   @Override
   public ResponseEntity<Void> getInstanceIds(String query, String tenantId, String contentType) {
     var request = CqlResourceIdsRequest.of(ResourceType.INSTANCE, tenantId, query, INSTANCE_ID_PATH);
-    return streamVersionedResourceIds(request, contentType, queryVersionRequestHelper.resolve(tenantId));
+    return streamVersionedResourceIds(request, contentType, queryVersionRequestHelper.resolve());
   }
 
   @Override

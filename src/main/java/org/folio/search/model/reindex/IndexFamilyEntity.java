@@ -12,7 +12,6 @@ import org.folio.search.model.types.QueryVersion;
 public class IndexFamilyEntity {
 
   public static final String ID_COLUMN = "id";
-  public static final String TENANT_ID_COLUMN = "tenant_id";
   public static final String GENERATION_COLUMN = "generation";
   public static final String INDEX_NAME_COLUMN = "index_name";
   public static final String STATUS_COLUMN = "status";
@@ -22,7 +21,6 @@ public class IndexFamilyEntity {
   public static final String QUERY_VERSION_COLUMN = "query_version";
 
   private final UUID id;
-  private final String tenantId;
   private final int generation;
   private final String indexName;
   private IndexFamilyStatus status;

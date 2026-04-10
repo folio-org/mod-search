@@ -55,7 +55,7 @@ class FacetsControllerTest {
   void setUp() {
     lenient().when(tenantProvider.getTenant(TENANT_ID))
       .thenReturn(TENANT_ID);
-    lenient().when(queryVersionRequestHelper.resolve(TENANT_ID)).thenReturn(null);
+    lenient().when(queryVersionRequestHelper.resolve()).thenReturn(null);
   }
 
   @MethodSource("facetsTestSource")

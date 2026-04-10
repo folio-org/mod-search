@@ -6,10 +6,10 @@
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
 
   <changeSet id="MSEARCH-STREAM@@add-unique-cutting-over-constraint" author="streaming_reindex">
-    <comment>Ensure at most one CUTTING_OVER family per tenant_id + query_version</comment>
+    <comment>Ensure at most one CUTTING_OVER family per query_version</comment>
     <sql>
-      CREATE UNIQUE INDEX IF NOT EXISTS idx_if_unique_cutting_over_per_tenant_version
-        ON index_family (tenant_id, query_version) WHERE status = 'CUTTING_OVER';
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_if_unique_cutting_over_per_version
+        ON index_family (query_version) WHERE status = 'CUTTING_OVER';
     </sql>
   </changeSet>
 

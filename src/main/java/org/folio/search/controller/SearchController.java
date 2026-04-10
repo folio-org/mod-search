@@ -53,7 +53,7 @@ public class SearchController implements SearchApi {
                                                               Integer offset, Boolean expandAll) {
     tenantId = tenantProvider.getTenant(tenantId);
     var searchRequest = CqlSearchRequest.of(Instance.class, tenantId, query, limit, offset, expandAll);
-    var resolvedVersion = queryVersionRequestHelper.resolve(tenantId);
+    var resolvedVersion = queryVersionRequestHelper.resolve();
     var result = versionedSearchService.search(searchRequest, resolvedVersion);
     return ResponseEntity.ok(new InstanceSearchResult()
       .instances(result.getRecords())

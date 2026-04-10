@@ -92,7 +92,7 @@ class ReindexServiceTest {
     var tenant = "central";
     var familyId = UUID.randomUUID();
     var family = new org.folio.search.model.reindex.IndexFamilyEntity(
-      familyId, tenant, 0, "folio_instance_central_0",
+      familyId, 0, "folio_instance_central_0",
       org.folio.search.model.types.IndexFamilyStatus.ACTIVE,
       Timestamp.from(Instant.now()), Timestamp.from(Instant.now()), null, QueryVersion.V1);
 

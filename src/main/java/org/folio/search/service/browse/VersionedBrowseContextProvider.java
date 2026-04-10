@@ -33,7 +33,7 @@ public class VersionedBrowseContextProvider {
    * swapped to its V2 equivalent so downstream queries hit the V2 browse alias.
    */
   public BrowseRequest resolveBrowseRequest(BrowseRequest request) {
-    var version = queryVersionResolver.resolveVersion(request.getQueryVersion(), request.getTenantId());
+    var version = queryVersionResolver.resolveVersion(request.getQueryVersion());
     var qv = QueryVersion.fromString(version);
 
     if (qv != QueryVersion.V2 || !V2BrowseIndexNameResolver.isV1BrowseType(request.getResource())) {

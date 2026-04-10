@@ -1,7 +1,5 @@
 package org.folio.search.service.reindex;
 
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,8 +87,8 @@ public class StreamingReindexService {
                                                    IndexSettings indexSettings) {
     log.info("startStreamingReindex:: initiating streaming reindex [tenant: {}, version: {}]", tenantId, version);
 
-    var existingBuildingFamilies = indexFamilyService.findByTenantIdAndStatusAndVersion(
-      tenantId, IndexFamilyStatus.BUILDING, version);
+    var existingBuildingFamilies = indexFamilyService.findByStatusAndVersion(
+      IndexFamilyStatus.BUILDING, version);
     if (!existingBuildingFamilies.isEmpty()) {
       var existingFamily = existingBuildingFamilies.getFirst();
       throw new RequestValidationException(
@@ -152,7 +150,7 @@ public class StreamingReindexService {
       log.info("executeV2StreamingReindex:: browse rebuilt [jobId: {}, elapsed: {}ms]",
         jobId, ms(System.nanoTime() - t0));
 
-      updateJobStatus(jobId, StreamingReindexStatus.STREAMED, null);
+      updateJobStatus(jobId, StreamingReindexStatus.STREAMED);
     } catch (Exception e) {
       log.error("executeV2StreamingReindex:: streaming reindex failed [jobId: {}, familyId: {}]",
         jobId, family.getId(), e);
@@ -183,7 +181,7 @@ public class StreamingReindexService {
 
       // Phase 3: Capture target offsets (where topics are NOW, after streaming)
       consumerManager.captureTargetOffsets(family.getId(), tenantIds);
-      updateJobStatus(jobId, StreamingReindexStatus.STREAMED, null);
+      updateJobStatus(jobId, StreamingReindexStatus.STREAMED);
 
       // Phase 4: Start temp consumer using pre-captured start offsets from Phase 1
       consumerManager.startReindexConsumer(family.getId(), targetIndex,
@@ -208,7 +206,7 @@ public class StreamingReindexService {
       .orElse(null);
 
     if (statusId != null) {
-      updateResourceStatus(statusId, StreamingReindexStatus.IN_PROGRESS, null);
+      updateResourceStatus(statusId, StreamingReindexStatus.IN_PROGRESS);
     }
 
     var recordCounter = new long[]{0};
@@ -277,14 +275,8 @@ public class StreamingReindexService {
         }
 
         recordCounter[0] += instanceBatch.size();
-        if (statusId != null) {
-          statusRepository.updateRecordsProcessed(statusId, recordCounter[0]);
-        }
       } catch (Exception e) {
         failedBatchCounter[0]++;
-        if (statusId != null) {
-          statusRepository.updateFailedBatches(statusId, failedBatchCounter[0]);
-        }
         log.error("streamAndAssembleV1:: batch failed [tenant: {}, batchSize: {}]",
           tenantId, instanceBatch.size(), e);
         throw e instanceof RuntimeException
@@ -294,7 +286,7 @@ public class StreamingReindexService {
     });
 
     if (statusId != null) {
-      updateResourceStatus(statusId, StreamingReindexStatus.COMPLETED, null);
+      updateResourceStatus(statusId, StreamingReindexStatus.COMPLETED);
     }
 
     log.info("streamAndAssembleV1:: completed [tenant: {}, records: {}, failedBatches: {}]",
@@ -318,7 +310,7 @@ public class StreamingReindexService {
       .orElse(null);
 
     if (statusId != null) {
-      updateResourceStatus(statusId, StreamingReindexStatus.IN_PROGRESS, null);
+      updateResourceStatus(statusId, StreamingReindexStatus.IN_PROGRESS);
     }
 
     final var resourceStart = System.nanoTime();
@@ -337,13 +329,13 @@ public class StreamingReindexService {
       }
     } catch (Exception e) {
       if (statusId != null) {
-        updateResourceStatus(statusId, StreamingReindexStatus.FAILED, e.getMessage());
+        updateResourceStatus(statusId, StreamingReindexStatus.FAILED);
       }
       throw e;
     }
 
     if (statusId != null) {
-      updateResourceStatus(statusId, StreamingReindexStatus.COMPLETED, null);
+      updateResourceStatus(statusId, StreamingReindexStatus.COMPLETED);
     }
 
     log.info("streamFlatResource:: completed [resource: {}, records: {}, failedBatches: {}, elapsed: {}ms]",
@@ -366,14 +358,8 @@ public class StreamingReindexService {
         recordCounter[0] += page.size();
         log.info("streamFlatResource:: batch indexed [resource: {}, batchSize: {}, totalRecords: {}, elapsed: {}ms]",
           resourceType.value, page.size(), recordCounter[0], batchMs);
-        if (statusId != null) {
-          statusRepository.updateRecordsProcessed(statusId, recordCounter[0]);
-        }
       } catch (Exception e) {
         failedBatchCounter[0]++;
-        if (statusId != null) {
-          statusRepository.updateFailedBatches(statusId, failedBatchCounter[0]);
-        }
         log.error("streamFlatResource:: batch indexing failed [resource: {}, tenant: {}, batchSize: {}, "
             + "failedBatches: {}]",
           resourceType.value, tenantId, page.size(), failedBatchCounter[0], e);
@@ -398,16 +384,15 @@ public class StreamingReindexService {
   private void createStatusRecords(UUID jobId, IndexFamilyEntity family, QueryVersion version) {
     for (var resourceType : trackedResources(version)) {
       var status = new StreamingReindexStatusEntity(
-        UUID.randomUUID(), family.getTenantId(), family.getId(),
-        resourceType.value, StreamingReindexStatus.PENDING.name(), 0, Timestamp.from(Instant.now()), null, null
-      );
-      status.setJobId(jobId);
+        UUID.randomUUID(), family.getId(), jobId, resourceType.value, StreamingReindexStatus.PENDING.name());
       statusRepository.create(status);
     }
   }
 
   private void handleReindexFailure(UUID jobId, UUID familyId, Exception error) {
-    updateJobStatus(jobId, StreamingReindexStatus.FAILED, error.getMessage());
+    log.error("handleReindexFailure:: marking job failed [jobId: {}, familyId: {}, error: {}]",
+      jobId, familyId, error.getMessage());
+    updateJobStatus(jobId, StreamingReindexStatus.FAILED);
     consumerManager.stopReindexConsumer(familyId);
     indexFamilyService.markFailed(familyId);
   }
@@ -425,7 +410,7 @@ public class StreamingReindexService {
       indexFamilyService.updateStatus(family.getId(), IndexFamilyStatus.BUILDING);
     }
 
-    var reindexTenants = resolveReindexTenants(family.getTenantId());
+    var reindexTenants = resolveReindexTenants(context.getTenantId());
     var statuses = statusRepository.findByFamilyId(familyId);
     var committedOffsets = loadCommittedOffsetsIfEligible(family, statuses);
 
@@ -512,7 +497,7 @@ public class StreamingReindexService {
 
     log.info("resumeStreamingReindex:: resumed temporary Kafka consumer from committed offsets "
         + "[familyId: {}, version: {}, tenant: {}]",
-      familyId, family.getQueryVersion(), family.getTenantId());
+      familyId, family.getQueryVersion(), context.getTenantId());
 
     return new StreamingReindexJob(existingJobId, familyId);
   }
@@ -525,7 +510,7 @@ public class StreamingReindexService {
 
     log.warn("resumeStreamingReindex:: reindex is not resumable from persisted state, restarting from scratch "
         + "[familyId: {}, version: {}, tenant: {}]",
-      familyId, family.getQueryVersion(), family.getTenantId());
+      familyId, family.getQueryVersion(), context.getTenantId());
 
     statusRepository.deleteByFamilyId(familyId);
     createStatusRecords(jobId, family, family.getQueryVersion());
@@ -547,12 +532,12 @@ public class StreamingReindexService {
     return List.of(StreamingResource.INSTANCE, StreamingResource.HOLDING, StreamingResource.ITEM);
   }
 
-  private void updateJobStatus(UUID jobId, StreamingReindexStatus status, String errorMessage) {
-    statusRepository.updateStatus(jobId, status.name(), errorMessage);
+  private void updateJobStatus(UUID jobId, StreamingReindexStatus status) {
+    statusRepository.updateStatus(jobId, status.name());
   }
 
-  private void updateResourceStatus(UUID statusId, StreamingReindexStatus status, String errorMessage) {
-    statusRepository.updateResourceStatus(statusId, status.name(), errorMessage);
+  private void updateResourceStatus(UUID statusId, StreamingReindexStatus status) {
+    statusRepository.updateResourceStatus(statusId, status.name());
   }
 
   private void disableRefreshInterval(String index) {

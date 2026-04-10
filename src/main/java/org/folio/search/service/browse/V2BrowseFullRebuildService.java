@@ -9,6 +9,7 @@ import org.folio.search.exception.RequestValidationException;
 import org.folio.search.model.types.IndexFamilyStatus;
 import org.folio.search.repository.IndexRepository;
 import org.folio.search.service.IndexFamilyService;
+import org.folio.spring.FolioExecutionContext;
 import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestHighLevelClient;
 import org.opensearch.index.query.QueryBuilders;
@@ -25,17 +26,20 @@ public class V2BrowseFullRebuildService {
   private final RestHighLevelClient elasticsearchClient;
   private final IndexRepository indexRepository;
   private final Executor browseRebuildExecutor;
+  private final FolioExecutionContext context;
 
   public V2BrowseFullRebuildService(IndexFamilyService indexFamilyService,
                                     V2BrowseProjectionService browseProjectionService,
                                     RestHighLevelClient elasticsearchClient,
                                     IndexRepository indexRepository,
-                                    @Qualifier("v2BrowseRebuildExecutor") Executor browseRebuildExecutor) {
+                                    @Qualifier("v2BrowseRebuildExecutor") Executor browseRebuildExecutor,
+                                    FolioExecutionContext context) {
     this.indexFamilyService = indexFamilyService;
     this.browseProjectionService = browseProjectionService;
     this.elasticsearchClient = elasticsearchClient;
     this.indexRepository = indexRepository;
     this.browseRebuildExecutor = browseRebuildExecutor;
+    this.context = context;
   }
 
   public void rebuildBrowseAsync(UUID familyId) {
@@ -53,7 +57,7 @@ public class V2BrowseFullRebuildService {
     }
 
     var mainIndex = family.getIndexName();
-    var browseIndices = indexFamilyService.getV2BrowsePhysicalIndexMap(family.getTenantId(), family.getGeneration());
+    var browseIndices = indexFamilyService.getV2BrowsePhysicalIndexMap(context.getTenantId(), family.getGeneration());
 
     log.info("rebuildBrowse:: starting full browse rebuild [familyId: {}, mainIndex: {}]", familyId, mainIndex);
     var browseIndexNames = browseIndices.values().toArray(String[]::new);

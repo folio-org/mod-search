@@ -34,10 +34,6 @@ public class V2BrowseDirtyIdRepository {
     SELECT browse_type, browse_id FROM deleted
     """;
 
-  private static final String COUNT_PENDING_SQL = """
-    SELECT count(*) FROM %s.v2_browse_dirty_id
-    """;
-
   private final JdbcTemplate jdbcTemplate;
   private final FolioModuleMetadata moduleMetadata;
 
@@ -57,12 +53,6 @@ public class V2BrowseDirtyIdRepository {
     return jdbcTemplate.query(sql,
       (rs, rowNum) -> new DirtyBrowseIdRow(rs.getString("browse_type"), rs.getString("browse_id")),
       batchSize);
-  }
-
-  public int countPending(String tenantId) {
-    var sql = formatSql(COUNT_PENDING_SQL, tenantId);
-    var result = jdbcTemplate.queryForObject(sql, Integer.class);
-    return result != null ? result : 0;
   }
 
   private String formatSql(String sqlTemplate, String tenantId) {

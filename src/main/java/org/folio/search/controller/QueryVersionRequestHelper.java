@@ -18,8 +18,8 @@ public class QueryVersionRequestHelper {
   private final HttpServletResponse response;
   private final QueryVersionResolver queryVersionResolver;
 
-  public String resolve(String tenantId) {
-    var resolvedVersion = queryVersionResolver.resolveVersion(getQueryVersion(), tenantId);
+  public String resolve() {
+    var resolvedVersion = queryVersionResolver.resolveVersion(getQueryVersion());
     response.setHeader(PRIMARY_HEADER, resolvedVersion);
     return resolvedVersion;
   }

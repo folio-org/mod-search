@@ -35,6 +35,7 @@ import org.folio.search.service.reindex.ReindexKafkaConsumerManager;
 import org.folio.search.service.reindex.jdbc.IndexFamilyRepository;
 import org.folio.search.service.reindex.jdbc.StreamingReindexStatusRepository;
 import org.folio.search.utils.JsonConverter;
+import org.folio.spring.FolioExecutionContext;
 import org.opensearch.action.admin.indices.alias.IndicesAliasesRequest;
 import org.opensearch.action.admin.indices.alias.get.GetAliasesRequest;
 import org.opensearch.client.RequestOptions;
@@ -65,9 +66,10 @@ public class IndexFamilyService {
   private final JsonConverter jsonConverter;
   private final ReindexKafkaConsumerManager reindexKafkaConsumerManager;
   private final StreamingReindexStatusRepository streamingReindexStatusRepository;
+  private final FolioExecutionContext context;
 
   public IndexFamilyEntity allocateNewFamily(String tenantId, QueryVersion version, IndexSettings indexSettings) {
-    var generation = indexFamilyRepository.getNextGeneration(tenantId, version);
+    var generation = indexFamilyRepository.getNextGeneration(version);
     var physicalIndexName = buildPhysicalIndexName(tenantId, version, generation);
 
     log.info("allocateNewFamily:: allocating new family [tenant: {}, version: {}, generation: {}, index: {},"
@@ -85,7 +87,6 @@ public class IndexFamilyService {
 
     var entity = new IndexFamilyEntity(
       UUID.randomUUID(),
-      tenantId,
       generation,
       physicalIndexName,
       BUILDING,
@@ -131,14 +132,12 @@ public class IndexFamilyService {
   @CacheEvict(cacheNames = {ACTIVE_INDEX_FAMILY_CACHE, CUTTING_OVER_INDEX_FAMILY_CACHE, PHYSICAL_INDEX_EXISTS_CACHE},
     allEntries = true, beforeInvocation = true)
   public void switchOver(UUID familyId) {
-    // Read before lock to get tenant/version for the advisory lock query.
-    // These fields are immutable, so the pre-lock read is safe for this purpose.
+    var tenantId = context.getTenantId();
     var requestedFamily = indexFamilyRepository.findById(familyId)
       .orElseThrow(() -> new RequestValidationException("Index family not found", "familyId", familyId.toString()));
 
-    var tenantId = requestedFamily.getTenantId();
     var version = requestedFamily.getQueryVersion();
-    indexFamilyRepository.lockByTenantIdAndVersion(tenantId, version);
+    indexFamilyRepository.lockByVersion(version);
 
     var newFamily = indexFamilyRepository.findById(familyId)
       .orElseThrow(() -> new RequestValidationException("Index family not found", "familyId", familyId.toString()));
@@ -149,7 +148,7 @@ public class IndexFamilyService {
     }
 
     var aliasName = getAliasName(tenantId, version);
-    var oldFamily = indexFamilyRepository.findActiveByTenantIdAndVersion(tenantId, version);
+    var oldFamily = indexFamilyRepository.findActiveByVersion(version);
 
     if (newFamily.getStatus() == BUILDING) {
       var lagToTarget = reindexKafkaConsumerManager.getConsumerLagToTarget(familyId);
@@ -203,12 +202,13 @@ public class IndexFamilyService {
         "Only RETIRING families can be retired", "status", family.getStatus().getValue());
     }
 
-    var aliasName = getAliasName(family.getTenantId(), family.getQueryVersion());
+    var tenantId = context.getTenantId();
+    var aliasName = getAliasName(tenantId, family.getQueryVersion());
     verifyAliasDoesNotPointTo(aliasName, family.getIndexName());
     dropPhysicalIndex(family.getIndexName());
 
     if (family.getQueryVersion() == QueryVersion.V2) {
-      dropV2BrowseIndices(family.getTenantId(), family.getGeneration());
+      dropV2BrowseIndices(tenantId, family.getGeneration());
     }
 
     indexFamilyRepository.updateStatus(familyId, RETIRED);
@@ -218,25 +218,24 @@ public class IndexFamilyService {
 
   @Cacheable(cacheNames = ACTIVE_INDEX_FAMILY_CACHE, key = "#tenantId + ':' + #version.name()")
   public Optional<IndexFamilyEntity> findActiveFamily(String tenantId, QueryVersion version) {
-    return indexFamilyRepository.findActiveByTenantIdAndVersion(tenantId, version);
+    return indexFamilyRepository.findActiveByVersion(version);
   }
 
   public List<IndexFamilyEntity> findAllFamilies(String tenantId) {
-    return indexFamilyRepository.findAllByTenantId(tenantId);
+    return indexFamilyRepository.findAll();
   }
 
   public Optional<IndexFamilyEntity> findById(UUID id) {
     return indexFamilyRepository.findById(id);
   }
 
-  public List<IndexFamilyEntity> findByTenantIdAndStatusAndVersion(
-    String tenantId, IndexFamilyStatus status, QueryVersion version) {
-    return indexFamilyRepository.findByTenantIdAndStatusAndVersion(tenantId, status, version);
+  public List<IndexFamilyEntity> findByStatusAndVersion(IndexFamilyStatus status, QueryVersion version) {
+    return indexFamilyRepository.findByStatusAndVersion(status, version);
   }
 
   @Cacheable(cacheNames = CUTTING_OVER_INDEX_FAMILY_CACHE, key = "#tenantId + ':' + #version.name()")
   public Optional<IndexFamilyEntity> findCuttingOverFamily(String tenantId, QueryVersion version) {
-    return indexFamilyRepository.findByTenantIdAndStatusAndVersion(tenantId, CUTTING_OVER, version)
+    return indexFamilyRepository.findByStatusAndVersion(CUTTING_OVER, version)
       .stream()
       .findFirst();
   }
@@ -254,7 +253,7 @@ public class IndexFamilyService {
     dropPhysicalIndex(family.getIndexName());
 
     if (family.getQueryVersion() == QueryVersion.V2) {
-      dropV2BrowseIndices(family.getTenantId(), family.getGeneration());
+      dropV2BrowseIndices(context.getTenantId(), family.getGeneration());
     }
 
     streamingReindexStatusRepository.deleteByFamilyId(familyId);

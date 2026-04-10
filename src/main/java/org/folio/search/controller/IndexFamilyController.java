@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -94,7 +93,7 @@ public class IndexFamilyController {
   @GetMapping("/search/index/query-versions")
   public ResponseEntity<QueryVersionListResponse> listQueryVersions() {
     var tenantId = context.getTenantId();
-    var defaultVersion = queryVersionResolver.getDefaultVersion(tenantId);
+    var defaultVersion = queryVersionResolver.getDefaultVersion();
 
     var versions = Arrays.stream(QueryVersion.values())
       .map(v -> {
@@ -111,17 +110,9 @@ public class IndexFamilyController {
     return ResponseEntity.ok(new QueryVersionListResponse(versions, defaultVersion));
   }
 
-  @PutMapping("/search/index/query-versions/default")
-  public ResponseEntity<DefaultVersionResponse> setDefaultVersion(@RequestParam String version) {
-    var tenantId = context.getTenantId();
-    queryVersionResolver.setDefaultVersion(version, tenantId);
-    return ResponseEntity.ok(new DefaultVersionResponse(version, tenantId));
-  }
-
   private static FamilyDto toDto(IndexFamilyEntity entity) {
     return new FamilyDto(
       entity.getId().toString(),
-      entity.getTenantId(),
       entity.getGeneration(),
       entity.getIndexName(),
       entity.getStatus().getValue(),
@@ -131,7 +122,7 @@ public class IndexFamilyController {
       entity.getRetiredAt() != null ? entity.getRetiredAt().toString() : null);
   }
 
-  record FamilyDto(String id, String tenantId, int generation, String indexName,
+  record FamilyDto(String id, int generation, String indexName,
                    String status, String queryVersion,
                    String createdAt, String activatedAt, String retiredAt) { }
 
@@ -145,6 +136,4 @@ public class IndexFamilyController {
                          String aliasName, boolean isDefault) { }
 
   record QueryVersionListResponse(List<QueryVersionDto> versions, String defaultVersion) { }
-
-  record DefaultVersionResponse(String defaultVersion, String tenantId) { }
 }

@@ -136,7 +136,6 @@ class ScheduledV2BrowseReconcilerServiceTest {
   private static IndexFamilyEntity activeFamily(String tenantId) {
     return new IndexFamilyEntity(
       java.util.UUID.randomUUID(),
-      tenantId,
       1,
       tenantId + "-main-index",
       IndexFamilyStatus.ACTIVE,

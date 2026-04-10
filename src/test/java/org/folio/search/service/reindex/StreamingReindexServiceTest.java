@@ -7,7 +7,6 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
@@ -84,12 +83,12 @@ class StreamingReindexServiceTest {
 
   @Test
   void startStreamingReindex_v2_streamsCentralAndMemberTenants() {
-    when(indexFamilyService.findByTenantIdAndStatusAndVersion(
-      anyString(), eq(IndexFamilyStatus.BUILDING), any(QueryVersion.class))).thenReturn(List.of());
+    when(indexFamilyService.findByStatusAndVersion(
+      eq(IndexFamilyStatus.BUILDING), any(QueryVersion.class))).thenReturn(List.of());
     var tenantId = "central";
     var memberTenantId = "member";
     var familyId = UUID.randomUUID();
-    var family = new IndexFamilyEntity(familyId, tenantId, 3, "target-index", IndexFamilyStatus.BUILDING,
+    var family = new IndexFamilyEntity(familyId, 3, "target-index", IndexFamilyStatus.BUILDING,
       Timestamp.from(Instant.now()), null, null, QueryVersion.V2);
 
     when(consortiumTenantService.getConsortiumTenants(tenantId)).thenReturn(List.of(memberTenantId));
@@ -120,7 +119,7 @@ class StreamingReindexServiceTest {
     verify(streamingClient).streamHoldings(eq("http://okapi"), eq(tenantId), eq("scoped-token"), eq(familyId), any());
     verify(streamingClient).streamItems(eq("http://okapi"), eq(tenantId), eq("scoped-token"), eq(familyId), any());
     verify(consumerManager).captureTargetOffsets(eq(familyId), anyList());
-    verify(statusRepository).updateStatus(any(), eq("STREAMED"), isNull());
+    verify(statusRepository).updateStatus(any(), eq("STREAMED"));
     verify(browseFullRebuildService).rebuildBrowse(familyId);
   }
 
@@ -128,11 +127,11 @@ class StreamingReindexServiceTest {
   void startStreamingReindex_rejectsExistingBuildingFamily() {
     var tenantId = "central";
     var familyId = UUID.randomUUID();
-    var family = new IndexFamilyEntity(familyId, tenantId, 0, "target-index", IndexFamilyStatus.BUILDING,
+    var family = new IndexFamilyEntity(familyId, 0, "target-index", IndexFamilyStatus.BUILDING,
       Timestamp.from(Instant.now()), null, null, QueryVersion.V2);
 
-    when(indexFamilyService.findByTenantIdAndStatusAndVersion(
-      tenantId, IndexFamilyStatus.BUILDING, QueryVersion.V2)).thenReturn(List.of(family));
+    when(indexFamilyService.findByStatusAndVersion(
+      IndexFamilyStatus.BUILDING, QueryVersion.V2)).thenReturn(List.of(family));
 
     var error = org.junit.jupiter.api.Assertions.assertThrows(RequestValidationException.class,
       () -> service.startStreamingReindex(tenantId, QueryVersion.V2, null));
@@ -147,11 +146,11 @@ class StreamingReindexServiceTest {
   void startStreamingReindex_v2_marksFamilyFailedWhenConsumerStartFails() {
     var tenantId = "central";
     var familyId = UUID.randomUUID();
-    var family = new IndexFamilyEntity(familyId, tenantId, 2, "target-index", IndexFamilyStatus.BUILDING,
+    var family = new IndexFamilyEntity(familyId, 2, "target-index", IndexFamilyStatus.BUILDING,
       Timestamp.from(Instant.now()), null, null, QueryVersion.V2);
 
-    when(indexFamilyService.findByTenantIdAndStatusAndVersion(
-      anyString(), eq(IndexFamilyStatus.BUILDING), any(QueryVersion.class))).thenReturn(List.of());
+    when(indexFamilyService.findByStatusAndVersion(
+      eq(IndexFamilyStatus.BUILDING), any(QueryVersion.class))).thenReturn(List.of());
     when(consortiumTenantService.getConsortiumTenants(tenantId)).thenReturn(List.of());
     when(indexFamilyService.allocateNewFamily(tenantId, QueryVersion.V2, null)).thenReturn(family);
     doThrow(new RuntimeException("consumer boom")).when(consumerManager)
@@ -160,7 +159,7 @@ class StreamingReindexServiceTest {
     org.junit.jupiter.api.Assertions.assertThrows(RuntimeException.class,
       () -> service.startStreamingReindex(tenantId, QueryVersion.V2, null));
 
-    verify(statusRepository).updateStatus(any(), eq("FAILED"), eq("consumer boom"));
+    verify(statusRepository).updateStatus(any(), eq("FAILED"));
     verify(consumerManager).stopReindexConsumer(familyId);
     verify(indexFamilyService).markFailed(familyId);
   }
@@ -170,18 +169,18 @@ class StreamingReindexServiceTest {
     var tenantId = "central";
     var familyId = UUID.randomUUID();
     var jobId = UUID.randomUUID();
-    var family = new IndexFamilyEntity(familyId, tenantId, 4, "target-index", IndexFamilyStatus.BUILDING,
+    var family = new IndexFamilyEntity(familyId, 4, "target-index", IndexFamilyStatus.BUILDING,
       Timestamp.from(Instant.now()), null, null, QueryVersion.V1);
 
-    when(indexFamilyService.findByTenantIdAndStatusAndVersion(
-      anyString(), eq(IndexFamilyStatus.BUILDING), any(QueryVersion.class))).thenReturn(List.of());
+    when(indexFamilyService.findByStatusAndVersion(
+      eq(IndexFamilyStatus.BUILDING), any(QueryVersion.class))).thenReturn(List.of());
     when(consortiumTenantService.getConsortiumTenants(tenantId)).thenReturn(List.of());
     when(indexFamilyService.allocateNewFamily(tenantId, QueryVersion.V1, null)).thenReturn(family);
     when(context.getOkapiUrl()).thenReturn("http://okapi");
     when(context.getToken()).thenReturn("scoped-token");
     when(statusRepository.findByJobIdAndResourceType(any(), eq("instance")))
-      .thenReturn(Optional.of(new StreamingReindexStatusEntity(jobId, tenantId, familyId, "instance",
-        "PENDING", 0, Timestamp.from(Instant.now()), null, null)));
+      .thenReturn(Optional.of(new StreamingReindexStatusEntity(
+        UUID.randomUUID(), familyId, jobId, "instance", "PENDING")));
     when(consumerManager.captureCurrentOffsets(anyList())).thenReturn(Map.of());
     when(searchDocumentConverter.convert(any())).thenReturn(Map.of());
 
@@ -225,15 +224,16 @@ class StreamingReindexServiceTest {
     var tenantId = "central";
     var familyId = UUID.randomUUID();
     var jobId = UUID.randomUUID();
-    var family = new IndexFamilyEntity(familyId, tenantId, 3, "target-index", IndexFamilyStatus.BUILDING,
+    var family = new IndexFamilyEntity(familyId, 3, "target-index", IndexFamilyStatus.BUILDING,
       Timestamp.from(Instant.now()), null, null, QueryVersion.V2);
     var statuses = List.of(
-      completedStatus(jobId, familyId, tenantId, "instance"),
-      completedStatus(jobId, familyId, tenantId, "holding"),
-      completedStatus(jobId, familyId, tenantId, "item")
+      completedStatus(jobId, familyId, "instance"),
+      completedStatus(jobId, familyId, "holding"),
+      completedStatus(jobId, familyId, "item")
     );
 
     var committedOffsets = Map.of(new TopicPartition("topic", 0), 100L);
+    when(context.getTenantId()).thenReturn(tenantId);
     when(indexFamilyService.findById(familyId)).thenReturn(Optional.of(family));
     when(consortiumTenantService.getConsortiumTenants(tenantId)).thenReturn(List.of());
     when(statusRepository.findByFamilyId(familyId)).thenReturn(statuses);
@@ -254,15 +254,16 @@ class StreamingReindexServiceTest {
   void resumeStreamingReindex_restartsFromScratchWhenBackfillNotCompleted() {
     var tenantId = "central";
     var familyId = UUID.randomUUID();
-    var family = new IndexFamilyEntity(familyId, tenantId, 3, "target-index", IndexFamilyStatus.BUILDING,
+    var family = new IndexFamilyEntity(familyId, 3, "target-index", IndexFamilyStatus.BUILDING,
       Timestamp.from(Instant.now()), null, null, QueryVersion.V2);
 
+    when(context.getTenantId()).thenReturn(tenantId);
     when(indexFamilyService.findById(familyId)).thenReturn(Optional.of(family));
     when(consortiumTenantService.getConsortiumTenants(tenantId)).thenReturn(List.of());
     when(statusRepository.findByFamilyId(familyId)).thenReturn(List.of(
-      statusWithState(UUID.randomUUID(), familyId, tenantId, "instance", "COMPLETED"),
-      statusWithState(UUID.randomUUID(), familyId, tenantId, "holding", "IN_PROGRESS"),
-      statusWithState(UUID.randomUUID(), familyId, tenantId, "item", "PENDING")
+      statusWithState(UUID.randomUUID(), familyId, "instance", "COMPLETED"),
+      statusWithState(UUID.randomUUID(), familyId, "holding", "IN_PROGRESS"),
+      statusWithState(UUID.randomUUID(), familyId, "item", "PENDING")
     ));
     when(context.getOkapiUrl()).thenReturn("http://okapi");
     when(context.getToken()).thenReturn("scoped-token");
@@ -294,14 +295,15 @@ class StreamingReindexServiceTest {
     var tenantId = "central";
     var familyId = UUID.randomUUID();
     var jobId = UUID.randomUUID();
-    var family = new IndexFamilyEntity(familyId, tenantId, 4, "target-index", IndexFamilyStatus.FAILED,
+    var family = new IndexFamilyEntity(familyId, 4, "target-index", IndexFamilyStatus.FAILED,
       Timestamp.from(Instant.now()), null, null, QueryVersion.V1);
 
     var committedOffsets = Map.of(new TopicPartition("topic", 0), 50L);
+    when(context.getTenantId()).thenReturn(tenantId);
     when(indexFamilyService.findById(familyId)).thenReturn(Optional.of(family));
     when(consortiumTenantService.getConsortiumTenants(tenantId)).thenReturn(List.of());
     when(statusRepository.findByFamilyId(familyId))
-      .thenReturn(List.of(completedStatus(jobId, familyId, tenantId, "instance")));
+      .thenReturn(List.of(completedStatus(jobId, familyId, "instance")));
     when(consumerManager.getCommittedOffsets(familyId, 4)).thenReturn(committedOffsets);
 
     var actual = service.resumeStreamingReindex(familyId);
@@ -315,20 +317,16 @@ class StreamingReindexServiceTest {
   }
 
   private static StreamingReindexStatusEntity streamingStatus(String resourceType) {
-    return new StreamingReindexStatusEntity(UUID.randomUUID(), "central", UUID.randomUUID(), resourceType,
-      "PENDING", 0, Timestamp.from(Instant.now()), null, null);
+    return new StreamingReindexStatusEntity(
+      UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), resourceType, "PENDING");
   }
 
-  private static StreamingReindexStatusEntity completedStatus(UUID jobId, UUID familyId, String tenantId,
-                                                              String resourceType) {
-    return statusWithState(jobId, familyId, tenantId, resourceType, "COMPLETED");
+  private static StreamingReindexStatusEntity completedStatus(UUID jobId, UUID familyId, String resourceType) {
+    return statusWithState(jobId, familyId, resourceType, "COMPLETED");
   }
 
-  private static StreamingReindexStatusEntity statusWithState(UUID jobId, UUID familyId, String tenantId,
+  private static StreamingReindexStatusEntity statusWithState(UUID jobId, UUID familyId,
                                                               String resourceType, String status) {
-    var entity = new StreamingReindexStatusEntity(UUID.randomUUID(), tenantId, familyId, resourceType,
-      status, 0, Timestamp.from(Instant.now()), null, null);
-    entity.setJobId(jobId);
-    return entity;
+    return new StreamingReindexStatusEntity(UUID.randomUUID(), familyId, jobId, resourceType, status);
   }
 }

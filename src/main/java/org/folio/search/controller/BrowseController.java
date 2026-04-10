@@ -153,6 +153,6 @@ public class BrowseController implements BrowseApi {
       .expandAll(expandAll)
       .highlightMatch(highlightMatch)
       .precedingRecordsCount(defaultIfNull(precedingRecordsCount, limit / 2))
-      .queryVersion(queryVersionRequestHelper.resolve(tenantId));
+      .queryVersion(queryVersionRequestHelper.resolve());
   }
 }

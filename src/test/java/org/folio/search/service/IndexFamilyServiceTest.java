@@ -20,6 +20,7 @@ import org.folio.search.service.reindex.ReindexKafkaConsumerManager;
 import org.folio.search.service.reindex.jdbc.IndexFamilyRepository;
 import org.folio.search.service.reindex.jdbc.StreamingReindexStatusRepository;
 import org.folio.search.utils.JsonConverter;
+import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,6 +47,8 @@ class IndexFamilyServiceTest {
   private ReindexKafkaConsumerManager reindexKafkaConsumerManager;
   @Mock
   private StreamingReindexStatusRepository streamingReindexStatusRepository;
+  @Mock
+  private FolioExecutionContext context;
 
   @InjectMocks
   private IndexFamilyService service;
@@ -53,11 +56,12 @@ class IndexFamilyServiceTest {
   @Test
   void switchOver_usesLagToCapturedTarget() {
     var familyId = UUID.randomUUID();
-    var family = new IndexFamilyEntity(familyId, "tenant", 2, "tenant_2", IndexFamilyStatus.BUILDING,
+    var family = new IndexFamilyEntity(familyId, 2, "tenant_2", IndexFamilyStatus.BUILDING,
       Timestamp.from(Instant.now()), null, null, QueryVersion.V2);
 
+    when(context.getTenantId()).thenReturn("tenant");
     when(indexFamilyRepository.findById(familyId)).thenReturn(Optional.of(family));
-    when(indexFamilyRepository.findActiveByTenantIdAndVersion("tenant", QueryVersion.V2))
+    when(indexFamilyRepository.findActiveByVersion(QueryVersion.V2))
       .thenReturn(Optional.empty());
     when(reindexKafkaConsumerManager.getConsumerLagToTarget(familyId)).thenReturn(5L);
 
@@ -66,18 +70,19 @@ class IndexFamilyServiceTest {
     assertThat(error.getKey()).isEqualTo("consumerLag");
     assertThat(error.getValue()).isEqualTo("5");
     verify(reindexKafkaConsumerManager).getConsumerLagToTarget(familyId);
-    verify(indexFamilyRepository).lockByTenantIdAndVersion("tenant", QueryVersion.V2);
+    verify(indexFamilyRepository).lockByVersion(QueryVersion.V2);
     verify(reindexKafkaConsumerManager, never()).captureTargetOffsets(familyId);
   }
 
   @Test
   void switchOver_startsCutoverAndRejectsWhenTempConsumerBehindCutoverTarget() {
     var familyId = UUID.randomUUID();
-    var family = new IndexFamilyEntity(familyId, "tenant", 2, "tenant_2", IndexFamilyStatus.BUILDING,
+    var family = new IndexFamilyEntity(familyId, 2, "tenant_2", IndexFamilyStatus.BUILDING,
       Timestamp.from(Instant.now()), null, null, QueryVersion.V2);
 
+    when(context.getTenantId()).thenReturn("tenant");
     when(indexFamilyRepository.findById(familyId)).thenReturn(Optional.of(family));
-    when(indexFamilyRepository.findActiveByTenantIdAndVersion("tenant", QueryVersion.V2))
+    when(indexFamilyRepository.findActiveByVersion(QueryVersion.V2))
       .thenReturn(Optional.empty());
     when(reindexKafkaConsumerManager.getConsumerLagToTarget(familyId)).thenReturn(0L, 3L);
 
@@ -93,19 +98,18 @@ class IndexFamilyServiceTest {
   @Test
   void switchOver_completesFromCuttingOverWhenLagIsZero() {
     var familyId = UUID.randomUUID();
-    var family = new IndexFamilyEntity(familyId, "tenant", 2, "tenant_2", IndexFamilyStatus.CUTTING_OVER,
+    var family = new IndexFamilyEntity(familyId, 2, "tenant_2", IndexFamilyStatus.CUTTING_OVER,
       Timestamp.from(Instant.now()), null, null, QueryVersion.V2);
 
+    when(context.getTenantId()).thenReturn("tenant");
     when(indexFamilyRepository.findById(familyId)).thenReturn(Optional.of(family));
-    when(indexFamilyRepository.findActiveByTenantIdAndVersion("tenant", QueryVersion.V2))
+    when(indexFamilyRepository.findActiveByVersion(QueryVersion.V2))
       .thenReturn(Optional.empty());
     when(reindexKafkaConsumerManager.getConsumerLagToTarget(familyId)).thenReturn(0L);
 
-    // switchOver will throw from the alias swap (unmocked OpenSearch client) —
-    // verify state transitions up to that point
     assertThrows(Exception.class, () -> service.switchOver(familyId));
 
-    verify(indexFamilyRepository).lockByTenantIdAndVersion("tenant", QueryVersion.V2);
+    verify(indexFamilyRepository).lockByVersion(QueryVersion.V2);
     verify(reindexKafkaConsumerManager).getConsumerLagToTarget(familyId);
     verify(reindexKafkaConsumerManager, never()).captureTargetOffsets(familyId);
   }

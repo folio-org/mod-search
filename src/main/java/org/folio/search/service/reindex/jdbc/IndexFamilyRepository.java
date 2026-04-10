@@ -21,23 +21,23 @@ public class IndexFamilyRepository {
   public static final String INDEX_FAMILY_TABLE = "index_family";
 
   private static final String INSERT_SQL = """
-    INSERT INTO %s (id, tenant_id, generation, index_name, status, created_at, query_version)
-    VALUES (?, ?, ?, ?, ?, ?, ?);
+    INSERT INTO %s (id, generation, index_name, status, created_at, query_version)
+    VALUES (?, ?, ?, ?, ?, ?);
     """;
 
   private static final String SELECT_BY_ID_SQL = "SELECT * FROM %s WHERE id = ?;";
 
-  private static final String SELECT_BY_TENANT_AND_STATUS_AND_VERSION_SQL =
-    "SELECT * FROM %s WHERE tenant_id = ? AND status = ? AND query_version = ?;";
+  private static final String SELECT_BY_STATUS_AND_VERSION_SQL =
+    "SELECT * FROM %s WHERE status = ? AND query_version = ?;";
 
-  private static final String SELECT_ACTIVE_BY_TENANT_AND_VERSION_SQL =
-    "SELECT * FROM %s WHERE tenant_id = ? AND status = 'ACTIVE' AND query_version = ?;";
+  private static final String SELECT_ACTIVE_BY_VERSION_SQL =
+    "SELECT * FROM %s WHERE status = 'ACTIVE' AND query_version = ?;";
 
-  private static final String SELECT_ALL_BY_TENANT_SQL =
-    "SELECT * FROM %s WHERE tenant_id = ? ORDER BY generation;";
+  private static final String SELECT_ALL_SQL =
+    "SELECT * FROM %s ORDER BY generation;";
 
-  private static final String LOCK_BY_TENANT_AND_VERSION_SQL =
-    "SELECT id FROM %s WHERE tenant_id = ? AND query_version = ? FOR UPDATE;";
+  private static final String LOCK_BY_VERSION_SQL =
+    "SELECT id FROM %s WHERE query_version = ? FOR UPDATE;";
 
   private static final String UPDATE_STATUS_SQL = """
     UPDATE %s
@@ -56,7 +56,7 @@ public class IndexFamilyRepository {
   private static final String DELETE_BY_ID_SQL = "DELETE FROM %s WHERE id = ?;";
 
   private static final String SELECT_MAX_GENERATION_SQL =
-    "SELECT COALESCE(MAX(generation), -1) FROM %s WHERE tenant_id = ? AND query_version = ?;";
+    "SELECT COALESCE(MAX(generation), -1) FROM %s WHERE query_version = ?;";
 
   private final JdbcTemplate jdbcTemplate;
   private final FolioExecutionContext context;
@@ -70,7 +70,6 @@ public class IndexFamilyRepository {
     var sql = INSERT_SQL.formatted(getFullTableName(context, INDEX_FAMILY_TABLE));
     jdbcTemplate.update(sql,
       entity.getId(),
-      entity.getTenantId(),
       entity.getGeneration(),
       entity.getIndexName(),
       entity.getStatus().name(),
@@ -84,28 +83,27 @@ public class IndexFamilyRepository {
     return results.isEmpty() ? Optional.empty() : Optional.of(results.getFirst());
   }
 
-  public List<IndexFamilyEntity> findByTenantIdAndStatusAndVersion(
-    String tenantId, IndexFamilyStatus status, QueryVersion version) {
-    var sql = SELECT_BY_TENANT_AND_STATUS_AND_VERSION_SQL.formatted(
+  public List<IndexFamilyEntity> findByStatusAndVersion(IndexFamilyStatus status, QueryVersion version) {
+    var sql = SELECT_BY_STATUS_AND_VERSION_SQL.formatted(
       getFullTableName(context, INDEX_FAMILY_TABLE));
-    return jdbcTemplate.query(sql, entityRowMapper(), tenantId, status.name(), version.getValue());
+    return jdbcTemplate.query(sql, entityRowMapper(), status.name(), version.getValue());
   }
 
-  public Optional<IndexFamilyEntity> findActiveByTenantIdAndVersion(String tenantId, QueryVersion version) {
-    var sql = SELECT_ACTIVE_BY_TENANT_AND_VERSION_SQL.formatted(
+  public Optional<IndexFamilyEntity> findActiveByVersion(QueryVersion version) {
+    var sql = SELECT_ACTIVE_BY_VERSION_SQL.formatted(
       getFullTableName(context, INDEX_FAMILY_TABLE));
-    var results = jdbcTemplate.query(sql, entityRowMapper(), tenantId, version.getValue());
+    var results = jdbcTemplate.query(sql, entityRowMapper(), version.getValue());
     return results.isEmpty() ? Optional.empty() : Optional.of(results.getFirst());
   }
 
-  public List<IndexFamilyEntity> findAllByTenantId(String tenantId) {
-    var sql = SELECT_ALL_BY_TENANT_SQL.formatted(getFullTableName(context, INDEX_FAMILY_TABLE));
-    return jdbcTemplate.query(sql, entityRowMapper(), tenantId);
+  public List<IndexFamilyEntity> findAll() {
+    var sql = SELECT_ALL_SQL.formatted(getFullTableName(context, INDEX_FAMILY_TABLE));
+    return jdbcTemplate.query(sql, entityRowMapper());
   }
 
-  public void lockByTenantIdAndVersion(String tenantId, QueryVersion version) {
-    var sql = LOCK_BY_TENANT_AND_VERSION_SQL.formatted(getFullTableName(context, INDEX_FAMILY_TABLE));
-    jdbcTemplate.queryForList(sql, UUID.class, tenantId, version.getValue());
+  public void lockByVersion(QueryVersion version) {
+    var sql = LOCK_BY_VERSION_SQL.formatted(getFullTableName(context, INDEX_FAMILY_TABLE));
+    jdbcTemplate.queryForList(sql, UUID.class, version.getValue());
   }
 
   public void updateStatus(UUID id, IndexFamilyStatus status) {
@@ -118,16 +116,15 @@ public class IndexFamilyRepository {
     jdbcTemplate.update(sql, id);
   }
 
-  public int getNextGeneration(String tenantId, QueryVersion version) {
+  public int getNextGeneration(QueryVersion version) {
     var sql = SELECT_MAX_GENERATION_SQL.formatted(getFullTableName(context, INDEX_FAMILY_TABLE));
-    var maxGeneration = jdbcTemplate.queryForObject(sql, Integer.class, tenantId, version.getValue());
+    var maxGeneration = jdbcTemplate.queryForObject(sql, Integer.class, version.getValue());
     return (maxGeneration != null ? maxGeneration : -1) + 1;
   }
 
   private RowMapper<IndexFamilyEntity> entityRowMapper() {
     return (rs, rowNum) -> new IndexFamilyEntity(
       rs.getObject(IndexFamilyEntity.ID_COLUMN, UUID.class),
-      rs.getString(IndexFamilyEntity.TENANT_ID_COLUMN),
       rs.getInt(IndexFamilyEntity.GENERATION_COLUMN),
       rs.getString(IndexFamilyEntity.INDEX_NAME_COLUMN),
       IndexFamilyStatus.fromValue(rs.getString(IndexFamilyEntity.STATUS_COLUMN)),

@@ -14,6 +14,7 @@ import java.util.UUID;
 import org.folio.search.model.types.QueryVersion;
 import org.folio.search.service.IndexFamilyService;
 import org.folio.search.service.QueryVersionResolver;
+import org.folio.search.service.browse.V2BrowseFullRebuildService;
 import org.folio.search.service.reindex.StreamingReindexService;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.integration.XOkapiHeaders;
@@ -41,6 +42,8 @@ class IndexFamilyControllerTest {
   @MockitoBean
   private QueryVersionResolver queryVersionResolver;
   @MockitoBean
+  private V2BrowseFullRebuildService browseFullRebuildService;
+  @MockitoBean
   private FolioExecutionContext context;
 
   @Test
@@ -63,7 +66,7 @@ class IndexFamilyControllerTest {
   @Test
   void listQueryVersions_returnsComputedVersionState() throws Exception {
     when(context.getTenantId()).thenReturn(TENANT_ID);
-    when(queryVersionResolver.getDefaultVersion(TENANT_ID)).thenReturn("1");
+    when(queryVersionResolver.getDefaultVersion()).thenReturn("1");
     when(indexFamilyService.findActiveFamily(TENANT_ID, QueryVersion.V1)).thenReturn(Optional.empty());
     when(indexFamilyService.findActiveFamily(TENANT_ID, QueryVersion.V2)).thenReturn(Optional.empty());
 

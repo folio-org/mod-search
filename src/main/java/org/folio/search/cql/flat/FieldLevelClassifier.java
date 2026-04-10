@@ -14,6 +14,12 @@ import org.springframework.stereotype.Component;
 /**
  * Classifies CQL field paths by resource level (INSTANCE, HOLDING, or ITEM).
  * Loaded from instance_search_flat_field_map.json.
+ *
+ * <p>Bare field names that physically exist on multiple levels (notably {@code id} and
+ * {@code hrid}) are listed ONLY under instanceFields so unprefixed CQL terms resolve to the
+ * parent doc. Child-level lookups must use the explicit {@code holdings.}/{@code items.}
+ * prefix, which the {@link #classify} method routes via prefix checks before consulting the
+ * field map.
  */
 @Log4j2
 @Component

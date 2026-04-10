@@ -1,5 +1,6 @@
 {
   "instanceFields": [
+    "id",
     "title",
     "hrid",
     "source",
@@ -36,8 +37,6 @@
     "shared"
   ],
   "holdingFields": [
-    "id",
-    "hrid",
     "sourceId",
     "formerIds",
     "tags.tagList",
@@ -71,8 +70,6 @@
     "holdingsDiscoverySuppress"
   ],
   "itemFields": [
-    "id",
-    "hrid",
     "formerIds",
     "itemIdentifier",
     "tags.tagList",

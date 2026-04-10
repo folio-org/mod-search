@@ -41,6 +41,7 @@
   * Remove excessive escaping of backslash character in sub-resources ([MSEARCH-1094](https://folio-org.atlassian.net/browse/MSEARCH-1094))
   * Implement two-stage Kafka processing with event aggregation for instance indexing ([MSEARCH-1157](https://folio-org.atlassian.net/browse/MSEARCH-1157))
   * Implement member tenant reindex ([MSEARCH-1100](https://folio-org.atlassian.net/browse/MSEARCH-1100))
+  * Don't recreate reindex status on upload phase start ([MSEARCH-1198](https://folio-org.atlassian.net/browse/MSEARCH-1198))
 * **Instance Search**
   * Add support for searching by instance/holdings/item electronic access relationship ID ([MSEARCH-816](https://folio-org.atlassian.net/browse/MSEARCH-816))
   * Normalize ISSN search ([MSEARCH-658](https://folio-org.atlassian.net/browse/MSEARCH-658))

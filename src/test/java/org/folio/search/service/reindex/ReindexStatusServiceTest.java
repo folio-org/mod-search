@@ -206,40 +206,24 @@ class ReindexStatusServiceTest {
   }
 
   @Test
-  void recreateUploadStatusRecord_shouldPreserveTargetTenantId() {
+  void upsertUploadStatusRecord_shouldPreserveTargetTenantId() {
     // given
     var targetTenantId = MEMBER_TENANT_ID;
 
     // act
-    service.recreateUploadStatusRecord(INSTANCE, targetTenantId);
+    service.upsertUploadStatusRecord(INSTANCE, targetTenantId);
 
     // assert
-    verify(statusRepository).delete(INSTANCE);
-    verify(statusRepository).saveReindexStatusRecords(reindexStatusEntitiesCaptor.capture());
-
-    var savedEntities = reindexStatusEntitiesCaptor.getValue();
-    assertThat(savedEntities)
-      .hasSize(1)
-      .first()
-      .satisfies(entity -> assertThat(entity.getEntityType()).isEqualTo(INSTANCE))
-      .satisfies(entity -> assertThat(entity.getStatus()).isEqualTo(ReindexStatus.UPLOAD_IN_PROGRESS))
-      .satisfies(entity -> assertThat(entity.getTargetTenantId()).isEqualTo(targetTenantId));
+    verify(statusRepository).upsertUploadStatusRecord(INSTANCE, targetTenantId);
   }
 
   @Test
-  void recreateUploadStatusRecord_whenNoExistingTargetTenantId_shouldSetNull() {
+  void upsertUploadStatusRecord_whenNoExistingTargetTenantId_shouldSetNull() {
     // act
-    service.recreateUploadStatusRecord(INSTANCE, null);
+    service.upsertUploadStatusRecord(INSTANCE, null);
 
     // assert
-    verify(statusRepository).delete(INSTANCE);
-    verify(statusRepository).saveReindexStatusRecords(reindexStatusEntitiesCaptor.capture());
-
-    var savedEntities = reindexStatusEntitiesCaptor.getValue();
-    assertThat(savedEntities)
-      .hasSize(1)
-      .first()
-      .satisfies(entity -> assertThat(entity.getTargetTenantId()).isNull());
+    verify(statusRepository).upsertUploadStatusRecord(INSTANCE, null);
   }
 
   @Test

@@ -60,13 +60,10 @@ public class ReindexStatusService {
   }
 
   @Transactional
-  public void recreateUploadStatusRecord(ReindexEntityType entityType, String targetTenantId) {
-    var uploadStatusEntity = new ReindexStatusEntity(entityType, ReindexStatus.UPLOAD_IN_PROGRESS);
-    uploadStatusEntity.setTargetTenantId(targetTenantId);
-    statusRepository.delete(entityType);
-    statusRepository.saveReindexStatusRecords(List.of(uploadStatusEntity));
+  public void upsertUploadStatusRecord(ReindexEntityType entityType, String targetTenantId) {
+    statusRepository.upsertUploadStatusRecord(entityType, targetTenantId);
 
-    log.debug("recreateUploadStatusRecord:: created upload record [entityType: {}, targetTenant: {}]",
+    log.debug("recreateUploadStatusRecord:: upserted upload record [entityType: {}, targetTenant: {}]",
       entityType, targetTenantId);
   }
 

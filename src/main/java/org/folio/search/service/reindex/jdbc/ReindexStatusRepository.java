@@ -41,6 +41,20 @@ public class ReindexStatusRepository {
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
     """;
 
+  private static final String UPSERT_UPLOAD_STATUS_SQL = """
+      INSERT INTO %s (entity_type, status, total_merge_ranges, processed_merge_ranges, total_upload_ranges,
+      processed_upload_ranges, start_time_merge, end_time_merge, start_time_upload, end_time_upload,
+      start_time_staging, end_time_staging, target_tenant_id)
+      VALUES (?, ?, 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, ?)
+      ON CONFLICT (entity_type) DO UPDATE SET
+        status = EXCLUDED.status,
+        total_upload_ranges = EXCLUDED.total_upload_ranges,
+        processed_upload_ranges = EXCLUDED.processed_upload_ranges,
+        start_time_upload = EXCLUDED.start_time_upload,
+        end_time_upload = EXCLUDED.end_time_upload,
+        target_tenant_id = EXCLUDED.target_tenant_id;
+    """;
+
   private static final String UPDATE_SQL = """
     UPDATE %s
     SET %s
@@ -116,6 +130,22 @@ public class ReindexStatusRepository {
     var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
     String sql = "DELETE FROM %s WHERE entity_type = ?;".formatted(fullTableName);
     jdbcTemplate.update(sql, entityType.name());
+  }
+
+  /**
+   * Upserts the upload status for the given entity type.
+   * If a record already exists, only upload-related columns are reset
+   * (status, upload counters and timestamps), preserving merge and staging metrics.
+   * If no record exists, a fresh row is inserted.
+   *
+   * @param entityType     the entity type whose upload status to reset
+   * @param targetTenantId the target tenant ID for this reindex operation
+   */
+  @SuppressWarnings("java:S2077")
+  public void upsertUploadStatusRecord(ReindexEntityType entityType, String targetTenantId) {
+    var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
+    var sql = UPSERT_UPLOAD_STATUS_SQL.formatted(fullTableName);
+    jdbcTemplate.update(sql, entityType.name(), ReindexStatus.UPLOAD_IN_PROGRESS.name(), targetTenantId);
   }
 
   public void setMergeReindexStarted(ReindexEntityType entityType, int totalMergeRanges) {

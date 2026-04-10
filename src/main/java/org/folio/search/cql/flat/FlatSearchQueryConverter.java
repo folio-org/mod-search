@@ -28,6 +28,10 @@ import org.z3950.zing.cql.CQLTermNode;
 @RequiredArgsConstructor
 public class FlatSearchQueryConverter {
 
+  private static final String INSTANCE_PREFIX = "instance.";
+  private static final String HOLDING_PREFIX = "holding.";
+  private static final String ITEM_PREFIX = "item.";
+
   private final FlatCqlTermQueryConverter flatTermQueryConverter;
   private final CqlSortProvider cqlSortProvider;
 
@@ -37,7 +41,8 @@ public class FlatSearchQueryConverter {
       var node = parser.parse(query);
       var searchSourceBuilder = new SearchSourceBuilder();
       if (node instanceof CQLSortNode sortNode) {
-        cqlSortProvider.getSort(sortNode, resource).forEach(searchSourceBuilder::sort);
+        cqlSortProvider.getSort(sortNode, resource, FlatSearchQueryConverter::namespaceSortField)
+          .forEach(searchSourceBuilder::sort);
       }
       var queryBuilder = convertNode(node, resource);
       return searchSourceBuilder.query(queryBuilder);
@@ -90,5 +95,21 @@ public class FlatSearchQueryConverter {
     }
 
     return boolQuery;
+  }
+
+  private static String namespaceSortField(String field) {
+    if (field.startsWith("_")
+      || field.startsWith(INSTANCE_PREFIX)
+      || field.startsWith(HOLDING_PREFIX)
+      || field.startsWith(ITEM_PREFIX)) {
+      return field;
+    }
+    if (field.startsWith("holdings.")) {
+      return HOLDING_PREFIX + field.substring("holdings.".length());
+    }
+    if (field.startsWith("items.")) {
+      return ITEM_PREFIX + field.substring("items.".length());
+    }
+    return INSTANCE_PREFIX + field;
   }
 }

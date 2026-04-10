@@ -103,13 +103,26 @@ class VersionedSearchServiceTest {
       @SuppressWarnings("unchecked")
       var consumer = (java.util.function.Consumer<SearchHit[]>) invocation.getArgument(2);
       if (childQuery.contains("\"item\"")) {
-        consumer.accept(new SearchHit[]{hit(Map.of(
+        var itemHit = hit(Map.of(
           "id", "item-1",
           "instanceId", "instance-1",
           "resourceType", "item",
+          "tenantId", "member-tenant",
           "item", Map.of(
             "holdingsRecordId", "holding-1",
-            "effectiveCallNumberComponents", Map.of("callNumber", "QA1"))))});
+            "itemDiscoverySuppress", true,
+            "effectiveCallNumberComponents", Map.of("callNumber", "QA1"))));
+        consumer.accept(new SearchHit[]{itemHit});
+      } else if (childQuery.contains("\"holding\"")) {
+        var holdingHit = hit(Map.of(
+          "id", "holding-1",
+          "instanceId", "instance-1",
+          "resourceType", "holding",
+          "tenantId", "member-tenant",
+          "holding", Map.of(
+            "holdingsDiscoverySuppress", false,
+            "permanentLocationId", "loc-1")));
+        consumer.accept(new SearchHit[]{holdingHit});
       } else {
         consumer.accept(new SearchHit[0]);
       }
@@ -123,6 +136,14 @@ class VersionedSearchServiceTest {
     assertThat(result.getRecords().getFirst().getItems())
       .extracting(org.folio.search.domain.dto.Item::getId)
       .containsExactly("item-1");
+    assertThat(result.getRecords().getFirst().getItems())
+      .extracting(org.folio.search.domain.dto.Item::getTenantId,
+        org.folio.search.domain.dto.Item::getDiscoverySuppress)
+      .containsExactly(org.assertj.core.groups.Tuple.tuple("member-tenant", true));
+    assertThat(result.getRecords().getFirst().getHoldings())
+      .extracting(org.folio.search.domain.dto.Holding::getTenantId,
+        org.folio.search.domain.dto.Holding::getDiscoverySuppress)
+      .containsExactly(org.assertj.core.groups.Tuple.tuple("member-tenant", false));
     verify(searchRepository, times(2))
       .streamDocuments(eq("member-alias"), any(SearchSourceBuilder.class), any());
   }
@@ -157,6 +178,69 @@ class VersionedSearchServiceTest {
     assertThat(result.getRecords().getFirst().getItems()).isNullOrEmpty();
     assertThat(result.getRecords().getFirst().getHoldings()).isNullOrEmpty();
     verify(searchRepository, never()).streamDocuments(any(), any(SearchSourceBuilder.class), any());
+  }
+
+  @Test
+  void search_flatPathDefaultsMissingChildDiscoverySuppressToFalse() {
+    var request = TestUtils.searchServiceRequest(Instance.class, "member-tenant", "title all test", true, 10);
+    var primarySource = new SearchSourceBuilder().query(QueryBuilders.matchAllQuery());
+    var primaryResponse = mock(SearchResponse.class);
+    var primaryHits = mock(SearchHits.class);
+    var instanceHit = hit(Map.of(
+      "id", "instance-1",
+      "resourceType", "instance",
+      "instance", Map.of("title", "Instance title")));
+
+    when(queryVersionResolver.resolve(null, "member-tenant"))
+      .thenReturn(new QueryResolution("member-alias", QueryResolution.PathType.FLAT));
+    when(flatSearchQueryConverter.convert("title all test", request.getResource())).thenReturn(primarySource);
+    when(consortiumTenantProvider.isConsortiumTenant("member-tenant")).thenReturn(true);
+    when(consortiumTenantProvider.isMemberTenant("member-tenant")).thenReturn(true);
+    when(searchPreferenceService.getPreferenceForString(any())).thenReturn("preference");
+    when(searchRepository.search(eq("member-alias"), any(SearchSourceBuilder.class), eq("preference")))
+      .thenReturn(primaryResponse);
+    when(primaryResponse.getHits()).thenReturn(primaryHits);
+    when(primaryHits.getHits()).thenReturn(new SearchHit[]{instanceHit});
+    when(primaryHits.getTotalHits()).thenReturn(new TotalHits(1, Relation.EQUAL_TO));
+
+    doAnswer(invocation -> {
+      var childQuery = ((SearchSourceBuilder) invocation.getArgument(1)).query().toString();
+      @SuppressWarnings("unchecked")
+      var consumer = (java.util.function.Consumer<SearchHit[]>) invocation.getArgument(2);
+      if (childQuery.contains("\"item\"")) {
+        var itemHit = hit(Map.of(
+          "id", "item-1",
+          "instanceId", "instance-1",
+          "resourceType", "item",
+          "tenantId", "member-tenant",
+          "item", Map.of(
+            "holdingsRecordId", "holding-1",
+            "effectiveCallNumberComponents", Map.of("callNumber", "QA1"))));
+        consumer.accept(new SearchHit[]{itemHit});
+      } else if (childQuery.contains("\"holding\"")) {
+        var holdingHit = hit(Map.of(
+          "id", "holding-1",
+          "instanceId", "instance-1",
+          "resourceType", "holding",
+          "tenantId", "member-tenant",
+          "holding", Map.of(
+            "permanentLocationId", "loc-1")));
+        consumer.accept(new SearchHit[]{holdingHit});
+      } else {
+        consumer.accept(new SearchHit[0]);
+      }
+      return null;
+    }).when(searchRepository).streamDocuments(eq("member-alias"), any(SearchSourceBuilder.class), any());
+
+    SearchResult<Instance> result = service.search(request, null);
+
+    assertThat(result.getRecords()).hasSize(1);
+    assertThat(result.getRecords().getFirst().getItems())
+      .extracting(org.folio.search.domain.dto.Item::getDiscoverySuppress)
+      .containsExactly(false);
+    assertThat(result.getRecords().getFirst().getHoldings())
+      .extracting(org.folio.search.domain.dto.Holding::getDiscoverySuppress)
+      .containsExactly(false);
   }
 
   private static SearchHit hit(Map<String, Object> source) {

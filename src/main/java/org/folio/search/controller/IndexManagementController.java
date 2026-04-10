@@ -12,14 +12,17 @@ import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.domain.dto.ReindexStatusItem;
 import org.folio.search.domain.dto.ReindexUploadDto;
 import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.domain.dto.StreamingReindexInstanceRecords202Response;
 import org.folio.search.domain.dto.UpdateIndexDynamicSettingsRequest;
 import org.folio.search.domain.dto.UpdateMappingsRequest;
+import org.folio.search.model.types.QueryVersion;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.rest.resource.IndexManagementApi;
 import org.folio.search.service.IndexService;
 import org.folio.search.service.ResourceService;
 import org.folio.search.service.reindex.ReindexService;
 import org.folio.search.service.reindex.ReindexStatusService;
+import org.folio.search.service.reindex.StreamingReindexService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,6 +42,7 @@ public class IndexManagementController implements IndexManagementApi {
   private final ResourceService resourceService;
   private final ReindexService reindexService;
   private final ReindexStatusService reindexStatusService;
+  private final StreamingReindexService streamingReindexService;
 
   @Override
   public ResponseEntity<FolioCreateIndexResponse> createIndices(String tenantId, CreateIndexRequest request) {
@@ -73,6 +77,17 @@ public class IndexManagementController implements IndexManagementApi {
   public ResponseEntity<ReindexJob> reindexInventoryRecords(String tenantId, ReindexRequest request) {
     log.info("Attempting to start reindex for inventory [tenant: {}]", tenantId);
     return ResponseEntity.ok(indexService.reindexInventory(tenantId, request));
+  }
+
+  @Override
+  public ResponseEntity<StreamingReindexInstanceRecords202Response> streamingReindexInstanceRecords(
+    String tenantId, IndexSettings indexSettings) {
+    log.info("Attempting to start streaming reindex for instance records [tenant: {}]", tenantId);
+    var job = streamingReindexService.startStreamingReindex(tenantId, QueryVersion.V2, indexSettings);
+    return ResponseEntity.accepted().body(new StreamingReindexInstanceRecords202Response()
+      .jobId(job.jobId())
+      .familyId(job.familyId())
+      .status("ACCEPTED"));
   }
 
   @Override

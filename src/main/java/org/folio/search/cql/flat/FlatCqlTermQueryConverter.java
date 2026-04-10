@@ -2,16 +2,19 @@ package org.folio.search.cql.flat;
 
 import static java.util.Collections.unmodifiableMap;
 import static org.apache.commons.lang3.StringUtils.lowerCase;
+import static org.folio.search.utils.CallNumberUtils.normalizeCallNumberComponents;
 import static org.folio.search.utils.SearchUtils.ASTERISKS_SIGN;
 import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import lombok.extern.log4j.Log4j2;
 import org.apache.lucene.search.join.ScoreMode;
 import org.folio.search.cql.builders.TermQueryBuilder;
 import org.folio.search.cql.flat.FieldLevelClassifier.ResourceLevel;
+import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.metadata.SearchFieldProvider;
 import org.opensearch.index.query.BoolQueryBuilder;
@@ -57,15 +60,17 @@ public class FlatCqlTermQueryConverter {
     }
 
     var fieldName = termNode.getIndex();
-    var level = fieldLevelClassifier.classify(fieldName);
+    var modifiedField = searchFieldProvider.getModifiedField(fieldName, resource);
+    var resolvedField = resolveFieldPath(resource, modifiedField);
+    var level = fieldLevelClassifier.classify(modifiedField);
 
     if (level == ResourceLevel.INSTANCE) {
       return buildInstanceFieldQuery(termNode, resource);
     }
 
     // Holding/Item fields — simple keyword query wrapped in has_child
-    var normalizedField = fieldLevelClassifier.normalizeField(fieldName);
-    var innerQuery = buildSimpleFieldQuery(normalizedField, termNode);
+    var normalizedField = resolveChildField(modifiedField, resolvedField);
+    var innerQuery = buildChildFieldQuery(resource, resolvedField, normalizedField, termNode);
     var childType = level.getJoinType();
 
     log.debug("getQuery:: wrapping in has_child [field: {} → {}, childType: {}]",
@@ -107,6 +112,15 @@ public class FlatCqlTermQueryConverter {
     return buildSimpleFieldQuery(namespacedField, termNode);
   }
 
+  private QueryBuilder buildChildFieldQuery(ResourceType resource, String resolvedField, String normalizedField,
+                                            CQLTermNode termNode) {
+    var fieldDescription = searchFieldProvider.getPlainFieldByPath(resource, resolvedField);
+    if (usesCallNumberSearchTermProcessor(fieldDescription)) {
+      return buildNormalizedCallNumberQuery(normalizedField, termNode);
+    }
+    return buildSimpleFieldQuery(normalizedField, termNode);
+  }
+
   private QueryBuilder buildSimpleFieldQuery(String field, CQLTermNode termNode) {
     var term = termNode.getTerm();
     var comparator = termNode.getRelation().getBase().toLowerCase();
@@ -128,6 +142,27 @@ public class FlatCqlTermQueryConverter {
       case "any" -> QueryBuilders.matchQuery(field, term);
       default -> QueryBuilders.matchQuery(field, term);
     };
+  }
+
+  private QueryBuilder buildNormalizedCallNumberQuery(String field, CQLTermNode termNode) {
+    var normalizedPattern = normalizeCallNumberComponents(termNode.getTerm()) + ASTERISKS_SIGN;
+    return QueryBuilders.wildcardQuery(field, normalizedPattern);
+  }
+
+  private String resolveFieldPath(ResourceType resource, String field) {
+    var resolvedFields = searchFieldProvider.getFields(resource, field);
+    return resolvedFields.size() == 1 ? resolvedFields.getFirst() : field;
+  }
+
+  private String resolveChildField(String modifiedField, String resolvedField) {
+    return fieldLevelClassifier.normalizeField(resolvedField);
+  }
+
+  private static boolean usesCallNumberSearchTermProcessor(Optional<PlainFieldDescription> fieldDescription) {
+    return fieldDescription
+      .map(PlainFieldDescription::getSearchTermProcessor)
+      .filter("callNumberSearchTermProcessor"::equals)
+      .isPresent();
   }
 
   private static boolean isWildcardQuery(String term) {

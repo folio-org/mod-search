@@ -28,7 +28,9 @@ class FieldLevelClassifierTest {
     "source, INSTANCE",
     "permanentLocationId, HOLDING",
     "callNumber, HOLDING",
+    "holdingsIdentifiers, HOLDING",
     "barcode, ITEM",
+    "itemNormalizedCallNumbers, ITEM",
     "effectiveLocationId, ITEM",
     "holdings.id, HOLDING",
     "holdings.hrid, HOLDING",
@@ -54,6 +56,7 @@ class FieldLevelClassifierTest {
     "items.id, item.id",
     "item.barcode, item.barcode",
     "barcode, item.barcode",
+    "itemNormalizedCallNumbers, item.itemNormalizedCallNumbers",
     "permanentLocationId, holding.permanentLocationId"
   })
   void normalizeFieldAddsCorrectNamespace(String field, String expected) {

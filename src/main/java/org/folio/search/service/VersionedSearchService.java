@@ -178,13 +178,7 @@ public class VersionedSearchService {
         var source = hit.getSourceAsMap();
         var instanceId = (String) source.get("instanceId");
         if (instanceId != null) {
-          // Unwrap namespaced fields from holding.* or item.* into a flat map
-          var namespacedFields = source.get(resourceType);
-          var cleanSource = namespacedFields instanceof Map<?, ?>
-            ? new LinkedHashMap<>((Map<String, Object>) namespacedFields)
-            : new LinkedHashMap<String, Object>();
-          // Preserve top-level id
-          cleanSource.put("id", source.get("id"));
+          var cleanSource = normalizeFlatChildSourceMap(source, resourceType);
 
           resultByInstanceId.computeIfAbsent(instanceId, k -> new ArrayList<>()).add(cleanSource);
         }
@@ -249,5 +243,35 @@ public class VersionedSearchService {
         }
       }
     }
+  }
+
+  @SuppressWarnings("unchecked")
+  private static Map<String, Object> normalizeFlatChildSourceMap(Map<String, Object> sourceMap, String resourceType) {
+    // Unwrap namespaced fields from holding/item docs into API-compatible child payloads.
+    var namespacedFields = sourceMap.get(resourceType);
+    var cleanSource = namespacedFields instanceof Map<?, ?>
+      ? new LinkedHashMap<>((Map<String, Object>) namespacedFields)
+      : new LinkedHashMap<String, Object>();
+
+    cleanSource.put("id", sourceMap.get("id"));
+
+    var tenantId = sourceMap.get("tenantId");
+    if (tenantId != null) {
+      cleanSource.put("tenantId", tenantId);
+    }
+
+    var discoverySuppressKey = switch (resourceType) {
+      case "holding" -> "holdingsDiscoverySuppress";
+      case "item" -> "itemDiscoverySuppress";
+      default -> null;
+    };
+    if (discoverySuppressKey != null && cleanSource.containsKey(discoverySuppressKey)) {
+      cleanSource.put("discoverySuppress", Boolean.TRUE.equals(cleanSource.get(discoverySuppressKey)));
+      cleanSource.remove(discoverySuppressKey);
+    } else if (!cleanSource.containsKey("discoverySuppress")) {
+      cleanSource.put("discoverySuppress", false);
+    }
+
+    return cleanSource;
   }
 }

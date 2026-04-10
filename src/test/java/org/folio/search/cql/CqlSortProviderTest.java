@@ -18,6 +18,7 @@ import static org.opensearch.search.sort.SortOrder.ASC;
 import static org.opensearch.search.sort.SortOrder.DESC;
 
 import java.util.List;
+import java.util.function.UnaryOperator;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.metadata.SortDescription;
@@ -110,6 +111,25 @@ class CqlSortProviderTest {
     assertThat(sort).isEqualTo(List.of(
       fieldSort(FIELD_NAME).order(ASC).sortMode(MIN),
       fieldSort("_score").order(ASC).sortMode(MIN)));
+  }
+
+  @Test
+  void getSort_positive_appliesFieldMapperToPrimaryAndSecondarySorts() throws Exception {
+    var cqlSortNode = sortNode("(keyword all value) sortby field");
+    when(searchFieldProvider.getPlainFieldByPath(UNKNOWN, FIELD_NAME)).thenReturn(
+      of(sortField(sortDescription("items.status.name", COLLECTION, "sort_title"))));
+
+    UnaryOperator<String> fieldMapper = field -> switch (field) {
+      case "items.status.name" -> "item.status.name";
+      case "sort_title" -> "instance.sort_title";
+      default -> field;
+    };
+
+    var sort = cqlSortProvider.getSort(cqlSortNode, UNKNOWN, fieldMapper);
+
+    assertThat(sort).isEqualTo(List.of(
+      fieldSort("item.status.name").order(ASC).sortMode(MIN),
+      fieldSort("instance.sort_title").order(ASC).sortMode(MIN)));
   }
 
   @Test

@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.UnaryOperator;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.folio.cql2pgjson.exception.CQLFeatureUnsupportedException;
@@ -45,26 +46,45 @@ public class CqlSortProvider {
    * @return {@link List} of {@link SortBuilder} objects
    */
   public List<SortBuilder<FieldSortBuilder>> getSort(CQLSortNode sortNode, ResourceType resource) {
+    return getSort(sortNode, resource, UnaryOperator.identity());
+  }
+
+  /**
+   * Provides {@link List} of {@link SortBuilder} objects for passed {@link CQLSortNode} object and resource name,
+   * applying a field mapper to each resolved OpenSearch sort field.
+   *
+   * @param sortNode sort node as {@link CQLSortNode} object
+   * @param resource resource name as {@link String} object
+   * @param fieldMapper function that rewrites resolved sort fields before building sort builders
+   * @return {@link List} of {@link SortBuilder} objects
+   */
+  public List<SortBuilder<FieldSortBuilder>> getSort(CQLSortNode sortNode, ResourceType resource,
+                                                     UnaryOperator<String> fieldMapper) {
     return sortNode.getSortIndexes().stream()
-      .map(sortIndex -> buildSortForField(sortIndex, resource))
+      .map(sortIndex -> buildSortForField(sortIndex, resource, fieldMapper))
       .flatMap(Collection::stream)
       .toList();
   }
 
-  private List<SortBuilder<FieldSortBuilder>> buildSortForField(ModifierSet sortIndex, ResourceType resource) {
+  private List<SortBuilder<FieldSortBuilder>> buildSortForField(ModifierSet sortIndex, ResourceType resource,
+                                                               UnaryOperator<String> fieldMapper) {
     var sortField = searchFieldProvider.getModifiedField(sortIndex.getBase(), resource);
     var sortFieldDesc = getValidSortField(resource, sortField);
     var esSortOrder = getSortOrder(getCqlModifiers(sortIndex).getCqlSort());
 
     var sortDescription = sortFieldDesc.getSortDescription();
     if (sortDescription == null) {
-      return singletonList(fieldSort(DEFAULT_SORT_FIELD_PREFIX + sortField).order(esSortOrder));
+      return singletonList(fieldSort(fieldMapper.apply(DEFAULT_SORT_FIELD_PREFIX + sortField)).order(esSortOrder));
     }
 
     var sortType = sortDescription.getSortType();
-    var fieldName = Objects.toString(sortDescription.getFieldName(), DEFAULT_SORT_FIELD_PREFIX + sortField);
+    var fieldName = fieldMapper.apply(Objects.toString(
+      sortDescription.getFieldName(), DEFAULT_SORT_FIELD_PREFIX + sortField));
+    var secondarySortFields = sortDescription.getSecondarySort().stream()
+      .map(fieldMapper)
+      .toList();
     return sortType == SortFieldType.COLLECTION
-           ? buildSortForCollection(esSortOrder, fieldName, sortDescription.getSecondarySort())
+           ? buildSortForCollection(esSortOrder, fieldName, secondarySortFields)
            : singletonList(fieldSort(fieldName).order(esSortOrder));
   }
 

@@ -124,7 +124,7 @@ paths:
   /search/index/instance-records/reindex/merge/failed:
     $ref: 'paths/reindex-instance-records/reindex-instance-records-merge-failed.yaml'
 
-  /search/index/instance-search/reindex/stream:
+  /search/index/reindex/stream:
     $ref: 'paths/reindex-instance-records/reindex-instance-records-stream.yaml'
 
   /search/index/families:

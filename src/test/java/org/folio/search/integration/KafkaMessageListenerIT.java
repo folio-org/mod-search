@@ -46,6 +46,7 @@ import org.folio.search.integration.message.interceptor.ResourceEventBatchInterc
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.ResourceService;
 import org.folio.search.service.config.ConfigSynchronizationService;
+import org.folio.search.service.ingest.InstanceSearchIndexingPipeline;
 import org.folio.search.service.metadata.LocalFileProvider;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.DefaultFolioExecutionContext;
@@ -105,6 +106,8 @@ class KafkaMessageListenerIT {
   private SystemUserScopedExecutionService executionService;
   @MockitoBean
   private ConfigSynchronizationService configSynchronizationService;
+  @MockitoBean
+  private InstanceSearchIndexingPipeline instanceSearchIndexingPipeline;
 
   @Autowired
   @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")

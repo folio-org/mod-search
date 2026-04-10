@@ -9,6 +9,7 @@ import org.folio.search.model.service.CqlFacetRequest;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.rest.resource.FacetsApi;
 import org.folio.search.service.FacetService;
+import org.folio.search.service.VersionedFacetService;
 import org.folio.search.service.consortium.TenantProvider;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -31,7 +32,9 @@ public class FacetsController implements FacetsApi {
   );
 
   private final FacetService facetService;
+  private final VersionedFacetService versionedFacetService;
   private final TenantProvider tenantProvider;
+  private final QueryVersionRequestHelper queryVersionRequestHelper;
 
   @Override
   public ResponseEntity<FacetResult> getFacets(RecordType recordType, String query,
@@ -39,6 +42,11 @@ public class FacetsController implements FacetsApi {
     var recordResource = RECORD_TYPE_TO_RESOURCE_MAP.getOrDefault(recordType, ResourceType.UNKNOWN);
     tenantId = tenantProvider.getTenant(tenantId);
     var facetRequest = CqlFacetRequest.of(recordResource, tenantId, query, facet);
+
+    if (recordResource == ResourceType.INSTANCE) {
+      return ResponseEntity.ok(
+        versionedFacetService.getFacets(facetRequest, queryVersionRequestHelper.resolve(tenantId)));
+    }
     return ResponseEntity.ok(facetService.getFacets(facetRequest));
   }
 }

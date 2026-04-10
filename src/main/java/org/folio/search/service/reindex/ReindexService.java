@@ -18,8 +18,10 @@ import org.folio.search.domain.dto.ReindexUploadDto;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.integration.folio.InventoryService;
 import org.folio.search.model.reindex.MergeRangeEntity;
+import org.folio.search.model.types.QueryVersion;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexStatus;
+import org.folio.search.service.IndexFamilyService;
 import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -41,6 +43,7 @@ public class ReindexService {
   private final ExecutorService reindexPublisherExecutor;
   private final ReindexEntityTypeMapper entityTypeMapper;
   private final ReindexCommonService reindexCommonService;
+  private final IndexFamilyService indexFamilyService;
 
   public ReindexService(ConsortiumTenantService consortiumService,
                         SystemUserScopedExecutionService executionService,
@@ -52,7 +55,8 @@ public class ReindexService {
                         @Qualifier("reindexUploadExecutor") ExecutorService reindexUploadExecutor,
                         @Qualifier("reindexPublisherExecutor") ExecutorService reindexPublisherExecutor,
                         ReindexEntityTypeMapper entityTypeMapper,
-                        ReindexCommonService reindexCommonService) {
+                        ReindexCommonService reindexCommonService,
+                        IndexFamilyService indexFamilyService) {
     this.consortiumService = consortiumService;
     this.executionService = executionService;
     this.mergeRangeService = mergeRangeService;
@@ -64,6 +68,7 @@ public class ReindexService {
     this.reindexPublisherExecutor = reindexPublisherExecutor;
     this.entityTypeMapper = entityTypeMapper;
     this.reindexCommonService = reindexCommonService;
+    this.indexFamilyService = indexFamilyService;
   }
 
   @CacheEvict(cacheNames = USER_TENANTS_CACHE, allEntries = true, beforeInvocation = true)
@@ -72,11 +77,24 @@ public class ReindexService {
 
     validateTenant("submitFullReindex", tenantId);
 
+    // Guard: if V1 has an ACTIVE family, reject old-style drop+recreate reindex
+    if (indexFamilyService.findActiveFamily(tenantId, QueryVersion.V1).isPresent()) {
+      throw new RequestValidationException(
+        "Use streaming reindex (POST /search/index/reindex/stream?queryVersion=1) "
+          + "for tenants with V1 index families", "tenantId", tenantId);
+    }
+
+    var deleteStart = System.nanoTime();
     reindexCommonService.deleteAllRecords();
+    var deleteMs = ms(System.nanoTime() - deleteStart);
     statusService.recreateMergeStatusRecords();
+    var recreateStart = System.nanoTime();
     recreateIndices(tenantId, ReindexEntityType.supportUploadTypes(), indexSettings);
+    log.info("submitFullReindex:: setup [deleteAll: {}ms, recreateIndices: {}ms]",
+      deleteMs, ms(System.nanoTime() - recreateStart));
 
     var future = CompletableFuture.runAsync(() -> {
+      var mt0 = System.nanoTime();
       mergeRangeService.truncateMergeRanges();
       var rangesForAllTenants = Stream.of(
           mergeRangeService.createMergeRanges(tenantId),
@@ -85,8 +103,15 @@ public class ReindexService {
         .flatMap(List::stream)
         .toList();
       mergeRangeService.saveMergeRanges(rangesForAllTenants);
+      log.info("submitFullReindex:: merge ranges created [elapsed: {}ms, ranges: {}]",
+        ms(System.nanoTime() - mt0), rangesForAllTenants.size());
     }, reindexFullExecutor)
-      .thenRun(() -> publishRecordsRange(tenantId))
+      .thenRun(() -> {
+        var pt0 = System.nanoTime();
+        publishRecordsRange(tenantId);
+        log.info("submitFullReindex:: publish fan-out complete [elapsed: {}ms]",
+          ms(System.nanoTime() - pt0));
+      })
       .handle((unused, throwable) -> {
         if (throwable != null) {
           log.error("initFullReindex:: process failed [tenantId: {}, error: {}]", tenantId, throwable);
@@ -239,6 +264,10 @@ public class ReindexService {
         "Reindex Upload in Progress", "entityType", uploadInProgress.get().getType()
       );
     }
+  }
+
+  private static long ms(long nanos) {
+    return nanos / 1_000_000;
   }
 
   private void validateTenant(String operation, String tenantId) {

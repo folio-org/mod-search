@@ -1,0 +1,21 @@
+post:
+  operationId: bindQueryVersion
+  summary: Bind query version to FLAT path
+  description: Switches a query version from LEGACY to FLAT code path for the current tenant
+  tags:
+    - index-management
+  parameters:
+    - name: version
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Query version to bind (e.g. "1")
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+  responses:
+    '200':
+      description: Version bound to FLAT path
+    '409':
+      description: No ACTIVE flat family exists for the tenant
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

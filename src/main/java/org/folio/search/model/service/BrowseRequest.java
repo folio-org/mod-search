@@ -8,7 +8,7 @@ import org.folio.search.model.ResourceRequest;
 import org.folio.search.model.types.ResourceType;
 
 @Data
-@Builder
+@Builder(toBuilder = true)
 @RequiredArgsConstructor(staticName = "of")
 public class BrowseRequest implements ResourceRequest {
 
@@ -56,4 +56,9 @@ public class BrowseRequest implements ResourceRequest {
    * Number of preceding records for virtual shelf browsing. Works only when browsing around.
    */
   private final Integer precedingRecordsCount;
+
+  /**
+   * Query version from X-Search-Query-Version header.
+   */
+  private final String queryVersion;
 }

@@ -13,4 +13,7 @@ public class SearchCacheNames {
   public static final String SEARCH_PREFERENCE_CACHE = "search-preference";
   public static final String USER_TENANTS_CACHE = "user-tenants";
   public static final String CONSORTIUM_TENANTS_CACHE = "consortium-tenants-cache";
+  public static final String ACTIVE_INDEX_FAMILY_CACHE = "active-index-family";
+  public static final String CUTTING_OVER_INDEX_FAMILY_CACHE = "cutting-over-index-family";
+  public static final String PHYSICAL_INDEX_EXISTS_CACHE = "physical-index-exists";
 }

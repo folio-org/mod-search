@@ -20,6 +20,7 @@ import java.util.stream.Stream;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.FacetService;
+import org.folio.search.service.VersionedFacetService;
 import org.folio.search.service.consortium.TenantProvider;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.testing.type.UnitTest;
@@ -42,7 +43,11 @@ class FacetsControllerTest {
   @MockitoBean
   private FacetService facetService;
   @MockitoBean
+  private VersionedFacetService versionedFacetService;
+  @MockitoBean
   private TenantProvider tenantProvider;
+  @MockitoBean
+  private QueryVersionRequestHelper queryVersionRequestHelper;
   @Autowired
   private MockMvc mockMvc;
 
@@ -50,6 +55,7 @@ class FacetsControllerTest {
   void setUp() {
     lenient().when(tenantProvider.getTenant(TENANT_ID))
       .thenReturn(TENANT_ID);
+    lenient().when(queryVersionRequestHelper.resolve(TENANT_ID)).thenReturn(null);
   }
 
   @MethodSource("facetsTestSource")
@@ -57,8 +63,9 @@ class FacetsControllerTest {
   void getFacets_positive(String recordType, ResourceType resource) throws Exception {
     var cqlQuery = "source all \"test-query\"";
     var expectedFacetRequest = defaultFacetServiceRequest(resource, cqlQuery, "source:5");
-    when(facetService.getFacets(expectedFacetRequest)).thenReturn(
-      facetResult(mapOf("source", facet(List.of(facetItem("MARC", 20), facetItem("FOLIO", 10))))));
+    var result = facetResult(mapOf("source", facet(List.of(facetItem("MARC", 20), facetItem("FOLIO", 10)))));
+    lenient().when(facetService.getFacets(expectedFacetRequest)).thenReturn(result);
+    lenient().when(versionedFacetService.getFacets(expectedFacetRequest, null)).thenReturn(result);
 
     var requestBuilder = get("/search/" + recordType + "/facets")
       .queryParam("query", cqlQuery)
@@ -80,7 +87,7 @@ class FacetsControllerTest {
   void getFacets_negative_unknownFacet() throws Exception {
     var cqlQuery = "title all \"test-query\"";
     var expectedFacetRequest = defaultFacetServiceRequest(ResourceType.INSTANCE, cqlQuery, "source:5");
-    when(facetService.getFacets(expectedFacetRequest)).thenThrow(
+    when(versionedFacetService.getFacets(expectedFacetRequest, null)).thenThrow(
       new RequestValidationException("Invalid facet value", "facet", "source"));
 
     var requestBuilder = get("/search/instances/facets")

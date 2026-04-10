@@ -68,6 +68,7 @@ public class InventoryService {
       rangeEntity.getLowerId(),
       rangeEntity.getUpperId());
 
+    var t0 = System.nanoTime();
     retryTemplate.execute(context -> {
       reindexRecordsClient.publishReindexRecords(recordsRange);
       return null;
@@ -76,5 +77,7 @@ public class InventoryService {
       log.error(new FormattedMessage("Failed to publish reindex records range {}", recordsRange), lastThrowable);
       throw new FolioIntegrationException("Failed to publish reindex records range after all retries", lastThrowable);
     });
+    log.info("publishReindexRecordsRange:: [rangeId: {}, elapsed: {}ms]",
+      rangeEntity.getId(), (System.nanoTime() - t0) / 1_000_000);
   }
 }

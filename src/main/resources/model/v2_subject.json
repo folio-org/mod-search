@@ -1,0 +1,42 @@
+{
+  "name": "v2_subject",
+  "eventBodyJavaClass": "org.folio.search.model.index.SubjectResource",
+  "parent": "instance",
+  "fields": {
+    "value": {
+      "index": "keyword_icu",
+      "showInResponse": [ "browse" ]
+    },
+    "authorityId": {
+      "index": "keyword",
+      "showInResponse": [ "browse" ]
+    },
+    "sourceId": {
+      "index": "keyword",
+      "searchTypes": [ "facet", "filter" ],
+      "showInResponse": [ "browse" ]
+    },
+    "typeId": {
+      "index": "keyword",
+      "searchTypes": [ "facet", "filter" ],
+      "showInResponse": [ "browse" ]
+    },
+    "instances": {
+      "type": "object",
+      "properties": {
+        "tenantId": {
+          "index": "keyword",
+          "searchTypes": [ "facet", "filter" ]
+        },
+        "shared": {
+          "index": "bool",
+          "searchTypes": [ "facet", "filter" ],
+          "default": false
+        },
+        "count": {
+          "index": "source"
+        }
+      }
+    }
+  }
+}

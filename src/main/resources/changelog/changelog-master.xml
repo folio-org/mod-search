@@ -18,4 +18,10 @@
   <include file="changes/v5.1/create_instance_resource_indexes.xml" relativeToChangelogFile="true"/>
   <include file="changes/v6.0/add-instance-item-columns.xml" relativeToChangelogFile="true"/>
   <include file="changes/v6.0/add-instance-item-sub-resources.xml" relativeToChangelogFile="true"/>
+  <include file="changes/v7.0/create_index_family_table.xml" relativeToChangelogFile="true"/>
+  <include file="changes/v7.0/create_streaming_reindex_status.xml" relativeToChangelogFile="true"/>
+  <include file="changes/v7.0/create_query_version_tables.xml" relativeToChangelogFile="true"/>
+  <include file="changes/v7.0/add_streaming_reindex_failed_batches.xml" relativeToChangelogFile="true"/>
+  <include file="changes/v8.0/create_v2_browse_dirty_id.xml" relativeToChangelogFile="true"/>
+  <include file="changes/v8.0/add_unique_cutting_over_constraint.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

@@ -43,6 +43,8 @@ import static org.mockito.Mockito.when;
 import static org.springframework.retry.support.RetryTemplate.defaultInstance;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -54,9 +56,17 @@ import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.integration.message.FolioMessageBatchProcessor;
 import org.folio.search.integration.message.KafkaMessageListener;
+import org.folio.search.model.reindex.IndexFamilyEntity;
+import org.folio.search.model.types.IndexFamilyStatus;
+import org.folio.search.model.types.QueryVersion;
 import org.folio.search.model.types.ResourceType;
+import org.folio.search.service.IndexFamilyService;
 import org.folio.search.service.ResourceService;
+import org.folio.search.service.browse.V2BrowseProjectionService;
 import org.folio.search.service.config.ConfigSynchronizationService;
+import org.folio.search.service.consortium.ConsortiumTenantProvider;
+import org.folio.search.service.ingest.InstanceSearchIndexingPipeline;
+import org.folio.search.service.reindex.ReindexKafkaConsumerManager;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.folio.spring.testing.type.UnitTest;
@@ -90,11 +100,24 @@ class KafkaMessageListenerTest {
   private ConfigSynchronizationService configSynchronizationService;
   @Mock
   private SystemUserScopedExecutionService executionService;
+  @Mock
+  private IndexFamilyService indexFamilyService;
+  @Mock
+  private InstanceSearchIndexingPipeline instanceSearchIndexingPipeline;
+  @Mock
+  private ConsortiumTenantProvider consortiumTenantProvider;
+  @Mock
+  private V2BrowseProjectionService browseProjectionService;
+  @Mock
+  private ReindexKafkaConsumerManager reindexKafkaConsumerManager;
 
   @BeforeEach
   void setUp() {
     lenient().doAnswer(invocation -> invocation.<Callable<?>>getArgument(1).call())
       .when(executionService).executeSystemUserScoped(any(), any());
+    lenient().when(indexFamilyService.findActiveFamily(any(), any())).thenReturn(Optional.empty());
+    lenient().when(indexFamilyService.findCuttingOverFamily(any(), any())).thenReturn(Optional.empty());
+    lenient().when(consortiumTenantProvider.getTenant(any())).thenAnswer(invocation -> invocation.getArgument(0));
   }
 
   @Test
@@ -184,6 +207,73 @@ class KafkaMessageListenerTest {
       resourceEvent(RESOURCE_ID, INSTANCE, CREATE, null, holdingPayload));
     verify(resourceService).indexInstancesById(expectedEvents);
     verify(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
+  }
+
+  @Test
+  void handleInstanceEvents_routesConsortiumMemberEventsToCentralFlatFamily() {
+    var memberTenant = "member";
+    var centralTenant = "central";
+    var aliasName = "folio_instance_search_central";
+
+    when(consortiumTenantProvider.getTenant(memberTenant)).thenReturn(centralTenant);
+    when(indexFamilyService.findActiveFamily(centralTenant, QueryVersion.V2))
+      .thenReturn(Optional.of(new IndexFamilyEntity(
+        UUID.randomUUID(), centralTenant, 1, "idx", IndexFamilyStatus.ACTIVE, null, null, null, QueryVersion.V2)));
+    when(indexFamilyService.getAliasName(centralTenant, QueryVersion.V2)).thenReturn(aliasName);
+
+    java.util.Map<String, Object> payload = new java.util.HashMap<>(mapOf("id", RESOURCE_ID));
+    messageListener.handleInstanceEvents(List.of(
+      new ConsumerRecord<>(inventoryInstanceTopic(memberTenant), 0, 0, RESOURCE_ID,
+        resourceEvent(null, INSTANCE, CREATE, payload, null).tenant(memberTenant))));
+
+    verify(executionService).executeSystemUserScoped(eq(centralTenant), any());
+    verify(instanceSearchIndexingPipeline)
+      .indexFromEvent(eq("instance"), org.mockito.ArgumentMatchers.<java.util.Map<String, Object>>eq(payload),
+        eq(CREATE), eq(memberTenant), eq(aliasName));
+  }
+
+  @Test
+  void handleInstanceEvents_dualWritesFlatEventsToCuttingOverFamily() {
+    var aliasName = "folio_instance_search_tenant";
+    var activeFamily = new IndexFamilyEntity(
+      UUID.randomUUID(), TENANT_ID, 1, "active-index", IndexFamilyStatus.ACTIVE, null, null, null, QueryVersion.V2);
+    var cuttingOverFamily = new IndexFamilyEntity(
+      UUID.randomUUID(), TENANT_ID, 2, "building-index", IndexFamilyStatus.CUTTING_OVER, null, null, null,
+      QueryVersion.V2);
+    final java.util.Map<String, Object> payload = new java.util.HashMap<>(mapOf("id", RESOURCE_ID));
+
+    when(indexFamilyService.findActiveFamily(TENANT_ID, QueryVersion.V2)).thenReturn(Optional.of(activeFamily));
+    when(indexFamilyService.findCuttingOverFamily(TENANT_ID, QueryVersion.V2))
+      .thenReturn(Optional.of(cuttingOverFamily));
+    when(indexFamilyService.getAliasName(TENANT_ID, QueryVersion.V2)).thenReturn(aliasName);
+
+    messageListener.handleInstanceEvents(List.of(
+      new ConsumerRecord<>(inventoryInstanceTopic(TENANT_ID), 0, 0, RESOURCE_ID,
+        resourceEvent(null, INSTANCE, CREATE, payload, null).tenant(TENANT_ID))));
+
+    verify(instanceSearchIndexingPipeline)
+      .indexFromEvent(eq("instance"), org.mockito.ArgumentMatchers.<java.util.Map<String, Object>>eq(payload),
+        eq(CREATE), eq(TENANT_ID), eq(aliasName));
+    verify(instanceSearchIndexingPipeline)
+      .indexFromEvent(eq("instance"), org.mockito.ArgumentMatchers.<java.util.Map<String, Object>>eq(payload),
+        eq(CREATE), eq(TENANT_ID), eq("building-index"));
+    verify(browseProjectionService, never()).rebuildAll(any(), any(), any());
+  }
+
+  @Test
+  void handleInstanceEvents_writesLegacyEventsToCuttingOverFamily() {
+    var cuttingOverFamily = new IndexFamilyEntity(
+      UUID.randomUUID(), TENANT_ID, 2, "tenant_2", IndexFamilyStatus.CUTTING_OVER, null, null, null,
+      QueryVersion.V1);
+
+    when(indexFamilyService.findCuttingOverFamily(TENANT_ID, QueryVersion.V1))
+      .thenReturn(Optional.of(cuttingOverFamily));
+
+    messageListener.handleInstanceEvents(List.of(
+      new ConsumerRecord<>(inventoryInstanceTopic(TENANT_ID), 0, 0, RESOURCE_ID,
+        resourceEvent(null, INSTANCE, CREATE, mapOf("id", RESOURCE_ID), null).tenant(TENANT_ID))));
+
+    verify(reindexKafkaConsumerManager).applyV1EventsToFamily(anyList(), eq("tenant_2"));
   }
 
   @Test

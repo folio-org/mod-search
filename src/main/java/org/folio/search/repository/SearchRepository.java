@@ -90,6 +90,24 @@ public class SearchRepository {
   }
 
   /**
+   * Executes search against an explicit index name (used by flat-family versioned search).
+   */
+  public SearchResponse search(String explicitIndexName, SearchSourceBuilder searchSource) {
+    var searchRequest = buildSearchRequest(explicitIndexName, searchSource);
+    return performExceptionalOperation(
+      () -> client.search(searchRequest, DEFAULT), explicitIndexName, SEARCH_OPERATION_TYPE);
+  }
+
+  /**
+   * Executes search against an explicit index name with preference.
+   */
+  public SearchResponse search(String explicitIndexName, SearchSourceBuilder searchSource, String preference) {
+    var searchRequest = buildSearchRequest(explicitIndexName, searchSource, preference);
+    return performExceptionalOperation(
+      () -> client.search(searchRequest, DEFAULT), explicitIndexName, SEARCH_OPERATION_TYPE);
+  }
+
+  /**
    * Executes multi-search request to elasticsearch and returns search result with related documents.
    *
    * @param resourceRequest resource request as {@link ResourceRequest} object.
@@ -116,6 +134,27 @@ public class SearchRepository {
   }
 
   /**
+   * Executes multi-search against an explicit index name (used for flat-family hydration).
+   */
+  public MultiSearchResponse msearch(String explicitIndexName, Collection<SearchSourceBuilder> searchSources) {
+    var request = new MultiSearchRequest();
+    searchSources.forEach(source -> request.add(buildSearchRequest(explicitIndexName, source)));
+    var response = performExceptionalOperation(
+      () -> client.msearch(request, DEFAULT), explicitIndexName, "multiSearchApi");
+
+    if (isFailedMultiSearchRequest(response.getResponses(), searchSources.size())) {
+      var failureMessages = stream(response.getResponses())
+        .map(Item::getFailureMessage)
+        .filter(Objects::nonNull)
+        .toList();
+      throw new SearchServiceException(String.format(
+        "Failed to perform multi-search operation [errors: %s]", failureMessages));
+    }
+
+    return response;
+  }
+
+  /**
    * Executes scroll request to elasticsearch and transforms it to the list of instance ids.
    *
    * @param req - request as {@link CqlResourceIdsRequest} object.
@@ -123,26 +162,57 @@ public class SearchRepository {
    */
   public void streamResourceIds(CqlResourceIdsRequest req, SearchSourceBuilder src, Consumer<List<String>> consumer) {
     var index = indexNameProvider.getIndexName(req);
+    streamResourceIds(index, src, req.getSourceFieldPath(), consumer);
+  }
+
+  /**
+   * Executes scroll request against an explicit index and transforms it to a list of resource ids.
+   *
+   * @param explicitIndexName explicit OpenSearch index or alias name
+   * @param src elasticsearch search query source
+   * @param sourceFieldPath field path to extract ids from
+   * @param consumer callback that consumes id batches
+   */
+  public void streamResourceIds(String explicitIndexName, SearchSourceBuilder src,
+                                String sourceFieldPath, Consumer<List<String>> consumer) {
+    scrollLoop(explicitIndexName, src, hits -> consumer.accept(getResourceIds(hits, sourceFieldPath)));
+  }
+
+  /**
+   * Executes scroll request against an explicit index and streams full document hits.
+   *
+   * @param explicitIndexName explicit OpenSearch index or alias name
+   * @param src elasticsearch search query source
+   * @param consumer callback that consumes batches of search hits
+   */
+  public void streamDocuments(String explicitIndexName, SearchSourceBuilder src, Consumer<SearchHit[]> consumer) {
+    scrollLoop(explicitIndexName, src, consumer);
+  }
+
+  private void scrollLoop(String indexName, SearchSourceBuilder src, Consumer<SearchHit[]> consumer) {
     var searchRequest = new SearchRequest()
       .scroll(new Scroll(KEEP_ALIVE_INTERVAL))
       .source(src)
-      .indices(index);
+      .indices(indexName);
 
-    var searchResponse = performExceptionalOperation(
-      () -> client.search(searchRequest, DEFAULT), index, SEARCH_OPERATION_TYPE);
-    var scrollId = searchResponse.getScrollId();
-    var searchHits = searchResponse.getHits().getHits();
+    String scrollId = null;
+    try {
+      var searchResponse = performExceptionalOperation(
+        () -> client.search(searchRequest, DEFAULT), indexName, SEARCH_OPERATION_TYPE);
+      scrollId = searchResponse.getScrollId();
+      var searchHits = searchResponse.getHits().getHits();
 
-    while (isNotEmpty(searchHits)) {
-      consumer.accept(getResourceIds(searchHits, req.getSourceFieldPath()));
-      var scrollRequest = new SearchScrollRequest(scrollId).scroll(KEEP_ALIVE_INTERVAL);
-      var scrollResponse = retryTemplate.execute(v -> performExceptionalOperation(
-        () -> client.scroll(scrollRequest, DEFAULT), index, "scrollApi"));
-      scrollId = scrollResponse.getScrollId();
-      searchHits = scrollResponse.getHits().getHits();
+      while (isNotEmpty(searchHits)) {
+        consumer.accept(searchHits);
+        var scrollRequest = new SearchScrollRequest(scrollId).scroll(KEEP_ALIVE_INTERVAL);
+        var scrollResponse = retryTemplate.execute(v -> performExceptionalOperation(
+          () -> client.scroll(scrollRequest, DEFAULT), indexName, "scrollApi"));
+        scrollId = scrollResponse.getScrollId();
+        searchHits = scrollResponse.getHits().getHits();
+      }
+    } finally {
+      clearScrollAfterStreaming(indexName, scrollId);
     }
-
-    clearScrollAfterStreaming(index, scrollId);
   }
 
   private static SearchRequest buildSearchRequest(String index, SearchSourceBuilder source) {
@@ -154,6 +224,9 @@ public class SearchRepository {
   }
 
   private void clearScrollAfterStreaming(String index, String scrollId) {
+    if (scrollId == null) {
+      return;
+    }
     var clearScrollRequest = new ClearScrollRequest();
     clearScrollRequest.addScrollId(scrollId);
     performExceptionalOperation(() ->

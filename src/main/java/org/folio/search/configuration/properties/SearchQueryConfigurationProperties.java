@@ -28,4 +28,9 @@ public class SearchQueryConfigurationProperties {
    * Defines if call-number browse optimization is enabled or not.
    */
   private boolean callNumberBrowseOptimizationEnabled = true;
+
+  /**
+   * Maximum number of child documents (holdings + items) to fetch per parent-join hydration query in V2 flat search.
+   */
+  private int maxChildrenFetch = 10_000;
 }

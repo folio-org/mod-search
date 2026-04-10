@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
+
+  <changeSet id="MSEARCH-STREAM@@add-failed-batches-column" author="streaming_reindex">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <columnExists tableName="streaming_reindex_status" columnName="failed_batches"/>
+      </not>
+    </preConditions>
+
+    <comment>Add failed_batches counter to streaming_reindex_status for batch-level retry tracking</comment>
+
+    <addColumn tableName="streaming_reindex_status">
+      <column name="failed_batches" type="BIGINT" defaultValueNumeric="0"/>
+    </addColumn>
+  </changeSet>
+
+</databaseChangeLog>

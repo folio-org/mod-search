@@ -10,7 +10,10 @@ import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.model.entity.TenantEntity;
+import org.folio.search.model.types.QueryVersion;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.model.types.ResourceType;
+import org.folio.search.service.IndexFamilyService;
 import org.folio.search.service.IndexService;
 import org.folio.search.service.consortium.LanguageConfigServiceDecorator;
 import org.folio.search.service.metadata.ResourceDescriptionService;
@@ -43,6 +46,7 @@ public class SearchTenantService extends TenantService {
   private final ResourceDescriptionService resourceDescriptionService;
   private final SearchConfigurationProperties searchConfigurationProperties;
   private final TenantRepository tenantRepository;
+  private final IndexFamilyService indexFamilyService;
 
   public SearchTenantService(JdbcTemplate jdbcTemplate, FolioExecutionContext context,
                              FolioSpringLiquibase folioSpringLiquibase, KafkaAdminService kafkaAdminService,
@@ -51,7 +55,8 @@ public class SearchTenantService extends TenantService {
                              LanguageConfigServiceDecorator languageConfigService,
                              ResourceDescriptionService resourceDescriptionService,
                              SearchConfigurationProperties searchConfigurationProperties,
-                             TenantRepository tenantRepository) {
+                             TenantRepository tenantRepository,
+                             IndexFamilyService indexFamilyService) {
     super(jdbcTemplate, context, folioSpringLiquibase);
     this.kafkaAdminService = kafkaAdminService;
     this.indexService = indexService;
@@ -61,6 +66,7 @@ public class SearchTenantService extends TenantService {
     this.resourceDescriptionService = resourceDescriptionService;
     this.searchConfigurationProperties = searchConfigurationProperties;
     this.tenantRepository = tenantRepository;
+    this.indexFamilyService = indexFamilyService;
   }
 
   /**
@@ -171,23 +177,64 @@ public class SearchTenantService extends TenantService {
   }
 
   private void createIndexesAndReindex(TenantAttributes tenantAttributes) {
+    var tenantId = context.getTenantId();
     var resourceNames = resourceDescriptionService.getResourceTypes();
-    resourceNames.forEach(resourceName -> indexService.createIndexIfNotExist(resourceName, context.getTenantId()));
-    Stream.ofNullable(tenantAttributes.getParameters())
+
+    var runReindex = Stream.ofNullable(tenantAttributes.getParameters())
       .flatMap(Collection::stream)
-      .filter(parameter -> parameter.getKey().equals(REINDEX_PARAM_NAME) && parseBoolean(parameter.getValue()))
-      .findFirst()
-      .ifPresent(parameter -> resourceNames.forEach(resource -> {
+      .anyMatch(parameter -> parameter.getKey().equals(REINDEX_PARAM_NAME) && parseBoolean(parameter.getValue()));
+
+    // Create indexes for non-INSTANCE resources (INSTANCE is handled via V1 family bootstrap or full reindex)
+    resourceNames.forEach(resourceName -> {
+      if (!resourceName.equals(ResourceType.INSTANCE)) {
+        indexService.createIndexIfNotExist(resourceName, tenantId);
+      }
+    });
+
+    // Bootstrap V1 family only when NOT doing a full reindex.
+    // Full reindex creates the physical instance index directly (pre-migration state)
+    // and the V1 ACTIVE family guard in submitFullReindex would reject the reindex.
+    if (!runReindex) {
+      bootstrapV1Family(tenantId);
+    }
+
+    if (runReindex) {
+      resourceNames.forEach(resource -> {
         if (!resourceDescriptionService.get(resource).isReindexSupported()) {
           return;
         }
         if (resource.getName().equals(ReindexEntityType.INSTANCE.getType())) {
-          reindexService.submitFullReindex(context.getTenantId(), null);
+          reindexService.submitFullReindex(tenantId, null);
         } else {
-          indexService.reindexInventory(context.getTenantId(),
+          indexService.reindexInventory(tenantId,
             new ReindexRequest().resourceName(ReindexRequest.ResourceNameEnum.fromValue(resource.getName())));
         }
-      }));
+      });
+    }
+  }
+
+  private void bootstrapV1Family(String tenantId) {
+    // Check if a V1 ACTIVE family already exists
+    if (indexFamilyService.findActiveFamily(tenantId, QueryVersion.V1).isPresent()) {
+      log.info("bootstrapV1Family:: V1 family already active [tenant: {}]", tenantId);
+      return;
+    }
+
+    // Check if physical index already exists (existing/pre-migration tenant)
+    var aliasName = indexFamilyService.getAliasName(tenantId, QueryVersion.V1);
+    if (indexFamilyService.physicalIndexExists(aliasName)) {
+      // Existing tenant — defer migration to explicit streaming reindex
+      log.info("bootstrapV1Family:: physical index exists, deferring migration [tenant: {}, index: {}]",
+        tenantId, aliasName);
+      // Create the legacy index via IndexService (it already exists, so this is a no-op)
+      indexService.createIndexIfNotExist(ResourceType.INSTANCE, tenantId);
+      return;
+    }
+
+    // New tenant — allocate V1 family, create alias, mark ACTIVE
+    log.info("bootstrapV1Family:: creating V1 family for new tenant [tenant: {}]", tenantId);
+    var family = indexFamilyService.allocateNewFamily(tenantId, QueryVersion.V1, null);
+    indexFamilyService.createAliasDirectly(aliasName, family.getIndexName(), family.getId());
   }
 
   private void createLanguages() {

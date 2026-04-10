@@ -57,6 +57,9 @@ spring:
       - search-preference
       - user-tenants
       - consortium-tenants-cache
+      - active-index-family
+      - cutting-over-index-family
+      - physical-index-exists
     caffeine:
       spec: maximumSize=500,expireAfterWrite=3600s
   main:
@@ -82,6 +85,8 @@ folio:
       instance-children-index-enabled: ${INSTANCE_CHILDREN_INDEX_ENABLED:true}
       instance-children-index-delay-ms: ${INSTANCE_CHILDREN_INDEX_DELAY_MS:60000}
       sub-resource-batch-size: ${SUB_RESOURCE_BATCH_SIZE:100}
+      v2-browse-reconciler-delay-ms: ${V2_BROWSE_RECONCILER_DELAY_MS:60000}
+      v2-browse-reconciler-batch-size: ${V2_BROWSE_RECONCILER_BATCH_SIZE:500}
   reindex:
     location-batch-size: ${REINDEX_LOCATION_BATCH_SIZE:1000}
     upload-range-size: ${REINDEX_UPLOAD_RANGE_SIZE:1000}
@@ -150,6 +155,19 @@ folio:
         concurrency: ${KAFKA_REINDEX_RECORDS_CONCURRENCY:2}
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.reindex-records
         group-id: ${folio.environment}-mod-search-reindex-records-group
+  streaming-client:
+    page-size: ${STREAMING_CLIENT_PAGE_SIZE:500}
+    connect-timeout-ms: ${STREAMING_CLIENT_CONNECT_TIMEOUT_MS:10000}
+    read-timeout-ms: ${STREAMING_CLIENT_READ_TIMEOUT_MS:300000}
+  streaming-reindex:
+    executor-core-pool-size: ${STREAMING_REINDEX_CORE_POOL_SIZE:2}
+    executor-max-pool-size: ${STREAMING_REINDEX_MAX_POOL_SIZE:4}
+  v2-browse-rebuild:
+    executor-core-pool-size: ${V2_BROWSE_REBUILD_EXECUTOR_CORE_POOL_SIZE:1}
+    executor-max-pool-size: ${V2_BROWSE_REBUILD_EXECUTOR_MAX_POOL_SIZE:1}
+    executor-queue-capacity: ${V2_BROWSE_REBUILD_EXECUTOR_QUEUE_CAPACITY:10}
+  search:
+    default-query-version: ${DEFAULT_QUERY_VERSION:1}
   okapiUrl: ${okapi.url:http://localhost:9130}
   logging:
     request:

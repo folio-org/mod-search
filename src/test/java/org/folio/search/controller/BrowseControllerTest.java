@@ -34,6 +34,7 @@ import org.folio.search.service.browse.CallNumberBrowseService;
 import org.folio.search.service.browse.ClassificationBrowseService;
 import org.folio.search.service.browse.ContributorBrowseService;
 import org.folio.search.service.browse.SubjectBrowseService;
+import org.folio.search.service.browse.VersionedBrowseContextProvider;
 import org.folio.search.service.consortium.TenantProvider;
 import org.folio.search.service.setter.SearchResponsePostProcessor;
 import org.folio.spring.integration.XOkapiHeaders;
@@ -66,6 +67,10 @@ class BrowseControllerTest {
   private CallNumberBrowseService callNumberBrowseService;
   @MockitoBean
   private TenantProvider tenantProvider;
+  @MockitoBean
+  private VersionedBrowseContextProvider versionedBrowseContextProvider;
+  @MockitoBean
+  private QueryVersionRequestHelper queryVersionRequestHelper;
   @Mock
   private Map<Class<?>, SearchResponsePostProcessor<?>> searchResponsePostProcessors = Collections.emptyMap();
 
@@ -73,12 +78,13 @@ class BrowseControllerTest {
   void setUp() {
     lenient().when(tenantProvider.getTenant(TENANT_ID))
       .thenReturn(TENANT_ID);
+    lenient().when(queryVersionRequestHelper.resolve(TENANT_ID)).thenReturn(null);
   }
 
   @Test
   void browseInstancesBySubject_positive() throws Exception {
     var query = "value > water";
-    var request = BrowseRequest.of(INSTANCE_SUBJECT, TENANT_ID, null, query, 25, "value", false, true, 12);
+    var request = BrowseRequest.of(INSTANCE_SUBJECT, TENANT_ID, null, query, 25, "value", false, true, 12, null);
     var browseResult = BrowseResult.of(1, List.of(subjectBrowseItem(10, "water treatment")));
     when(subjectBrowseService.browse(request)).thenReturn(browseResult);
     var requestBuilder = get(instanceSubjectBrowsePath())
@@ -97,7 +103,7 @@ class BrowseControllerTest {
   @Test
   void browseAuthoritiesByHeadingRef_positive() throws Exception {
     var query = "headingRef > mark";
-    var request = BrowseRequest.of(AUTHORITY, TENANT_ID, null, query, 25, "headingRef", false, true, 12);
+    var request = BrowseRequest.of(AUTHORITY, TENANT_ID, null, query, 25, "headingRef", false, true, 12, null);
     var authority = new Authority().id(RESOURCE_ID).headingRef("mark twain");
     var browseResult = BrowseResult.of(1, List.of(authorityBrowseItem("mark twain", authority)));
     when(authorityBrowseService.browse(request)).thenReturn(browseResult);
@@ -119,7 +125,7 @@ class BrowseControllerTest {
   void browseInstancesByCallNumber_positive() throws Exception {
     var query = "fullCallNumber > PR4034 .P7 2019";
     var browseRequest = BrowseRequest.of(INSTANCE_CALL_NUMBER, TENANT_ID, BrowseOptionType.ALL, query, 5,
-      CALL_NUMBER_BROWSING_FIELD, false, true, 2);
+      CALL_NUMBER_BROWSING_FIELD, false, true, 2, null);
     when(callNumberBrowseService.browse(browseRequest)).thenReturn(BrowseResult.of(1, "PR3", "PR5",
       List.of(new CallNumberBrowseItem().callNumber("PR4034 .P7 2019"))));
     var requestBuilder = get(instanceCallNumberBrowsePath(BrowseOptionType.ALL))

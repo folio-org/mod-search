@@ -1,0 +1,19 @@
+delete:
+  operationId: unbindQueryVersion
+  summary: Unbind query version
+  description: Reverts a query version to LEGACY fallback for the current tenant
+  tags:
+    - index-management
+  parameters:
+    - name: version
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Query version to unbind
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+  responses:
+    '204':
+      description: Version unbound (reverted to LEGACY)
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

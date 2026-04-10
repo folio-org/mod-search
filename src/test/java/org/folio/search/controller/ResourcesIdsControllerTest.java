@@ -9,6 +9,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doAnswer;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -29,6 +30,7 @@ import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.ResourceIdService;
 import org.folio.search.service.ResourceIdsJobService;
 import org.folio.search.service.ResourceIdsStreamHelper;
+import org.folio.search.service.VersionedResourceIdService;
 import org.folio.search.service.consortium.ConsortiumTenantExecutor;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.testing.type.UnitTest;
@@ -52,7 +54,11 @@ class ResourcesIdsControllerTest {
   @MockitoBean
   private ResourceIdsJobService resourceIdsJobService;
   @MockitoBean
+  private VersionedResourceIdService versionedResourceIdService;
+  @MockitoBean
   private ConsortiumTenantExecutor consortiumTenantExecutor;
+  @MockitoBean
+  private QueryVersionRequestHelper queryVersionRequestHelper;
 
   @Test
   void getHoldingsIds_positive() throws Exception {
@@ -65,7 +71,7 @@ class ResourcesIdsControllerTest {
       var resourceIds = new ResourceIds().totalRecords(1).ids(List.of(new ResourceId().id(holdingId)));
       out.write(OBJECT_MAPPER.writeValueAsBytes(resourceIds));
       return null;
-    }).when(resourceIdService).streamResourceIdsAsJson(eq(request), any(OutputStream.class));
+    }).when(versionedResourceIdService).streamResourceIdsAsJson(eq(request), any(OutputStream.class), isNull());
 
     var requestBuilder = get("/search/holdings/ids")
       .queryParam("query", cqlQuery)
@@ -89,7 +95,7 @@ class ResourcesIdsControllerTest {
       var out = inv.<OutputStream>getArgument(1);
       out.write(OBJECT_MAPPER.writeValueAsBytes(holdingId));
       return null;
-    }).when(resourceIdService).streamResourceIdsAsText(eq(request), any(OutputStream.class));
+    }).when(versionedResourceIdService).streamResourceIdsAsText(eq(request), any(OutputStream.class), isNull());
 
     var requestBuilder = get("/search/holdings/ids")
       .queryParam("query", cqlQuery)
@@ -113,7 +119,7 @@ class ResourcesIdsControllerTest {
       var resourceIds = new ResourceIds().totalRecords(1).ids(List.of(new ResourceId().id(instanceId)));
       out.write(OBJECT_MAPPER.writeValueAsBytes(resourceIds));
       return null;
-    }).when(resourceIdService).streamResourceIdsAsJson(eq(request), any(OutputStream.class));
+    }).when(versionedResourceIdService).streamResourceIdsAsJson(eq(request), any(OutputStream.class), isNull());
 
     var requestBuilder = get("/search/instances/ids")
       .queryParam("query", cqlQuery)
@@ -137,7 +143,7 @@ class ResourcesIdsControllerTest {
       var out = inv.<OutputStream>getArgument(1);
       out.write(instanceId.getBytes(StandardCharsets.UTF_8));
       return null;
-    }).when(resourceIdService).streamResourceIdsAsText(eq(request), any(OutputStream.class));
+    }).when(versionedResourceIdService).streamResourceIdsAsText(eq(request), any(OutputStream.class), isNull());
 
     var requestBuilder = get("/search/instances/ids")
       .queryParam("query", cqlQuery)

@@ -22,6 +22,7 @@ import org.folio.search.domain.dto.LinkedDataWork;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.service.SearchService;
+import org.folio.search.service.VersionedSearchService;
 import org.folio.search.service.consortium.TenantProvider;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.testing.type.UnitTest;
@@ -47,7 +48,11 @@ class SearchControllerTest {
   @MockitoBean
   private SearchService searchService;
   @MockitoBean
+  private VersionedSearchService versionedSearchService;
+  @MockitoBean
   private TenantProvider tenantProvider;
+  @MockitoBean
+  private QueryVersionRequestHelper queryVersionRequestHelper;
   @Autowired
   private MockMvc mockMvc;
 
@@ -55,6 +60,7 @@ class SearchControllerTest {
   void setUp() {
     lenient().when(tenantProvider.getTenant(TENANT_ID))
       .thenReturn(TENANT_ID);
+    lenient().when(queryVersionRequestHelper.resolve(TENANT_ID)).thenReturn(null);
   }
 
   @ParameterizedTest
@@ -67,7 +73,9 @@ class SearchControllerTest {
 
     var cqlQuery = "title all \"test-query\"";
     var expectedSearchRequest = searchServiceRequest(requestClass, TENANT_ID, cqlQuery, expandAll, limit);
-    when(searchService.search(expectedSearchRequest))
+    lenient().when(searchService.search(expectedSearchRequest))
+      .thenReturn(searchResult());
+    lenient().when(versionedSearchService.search(expectedSearchRequest, null))
       .thenReturn(searchResult());
 
     var requestBuilder = get(searchPass)
@@ -119,7 +127,9 @@ class SearchControllerTest {
       + "reason=no such index [instance_test-tenant]]");
     openSearchException.setIndex(new Index(INDEX_NAME, randomId()));
     var expectedSearchRequest = searchServiceRequest(requestClass, TENANT_ID, cqlQuery, expandAll, limit);
-    when(searchService.search(expectedSearchRequest)).thenThrow(
+    lenient().when(searchService.search(expectedSearchRequest)).thenThrow(
+      new SearchOperationException("error", openSearchException));
+    lenient().when(versionedSearchService.search(expectedSearchRequest, null)).thenThrow(
       new SearchOperationException("error", openSearchException));
 
     var requestBuilder = get(searchPass)
@@ -167,7 +177,10 @@ class SearchControllerTest {
     var cqlQuery = "title all \"test-query\" and";
     var expectedSearchRequest = searchServiceRequest(requestClass, TENANT_ID, cqlQuery, expandAll, limit);
     var exceptionMessage = String.format("Failed to parse CQL query [query: '%s']", cqlQuery);
-    when(searchService.search(expectedSearchRequest)).thenThrow(new SearchServiceException(exceptionMessage));
+    lenient().when(searchService.search(expectedSearchRequest))
+      .thenThrow(new SearchServiceException(exceptionMessage));
+    lenient().when(versionedSearchService.search(expectedSearchRequest, null))
+      .thenThrow(new SearchServiceException(exceptionMessage));
 
     var requestBuilder = get(searchPass)
       .queryParam("query", cqlQuery)
@@ -191,7 +204,9 @@ class SearchControllerTest {
     var cqlQuery = "title all \"test-query\" and";
     var expectedSearchRequest = searchServiceRequest(requestClass, TENANT_ID, cqlQuery, expandAll, limit);
     var exceptionMessage = "Failed to parse CQL query. Comparator 'within' is not supported.";
-    when(searchService.search(expectedSearchRequest)).thenThrow(
+    lenient().when(searchService.search(expectedSearchRequest)).thenThrow(
+      new UnsupportedOperationException(exceptionMessage));
+    lenient().when(versionedSearchService.search(expectedSearchRequest, null)).thenThrow(
       new UnsupportedOperationException(exceptionMessage));
 
     var requestBuilder = get(searchPass)

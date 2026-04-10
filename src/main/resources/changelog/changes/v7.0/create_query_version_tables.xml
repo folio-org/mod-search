@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
+
+  <changeSet id="MSEARCH-STREAM@@create-query-version-config-table" author="streaming_reindex">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="query_version_config"/>
+      </not>
+    </preConditions>
+
+    <comment>Create query_version_config table for per-tenant default version</comment>
+
+    <createTable tableName="query_version_config">
+      <column name="tenant_id" type="VARCHAR(50)">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_query_version_config"/>
+      </column>
+      <column name="default_version" type="VARCHAR(10)" defaultValue="1">
+        <constraints nullable="false"/>
+      </column>
+      <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+    </createTable>
+  </changeSet>
+
+</databaseChangeLog>

@@ -86,6 +86,16 @@ public class SearchConfigurationProperties {
      * Default is 100 records per batch.
      */
     private int subResourceBatchSize = 100;
+
+    /**
+     * Scheduler delay for V2 browse reconciler (dirty ID queue drain).
+     */
+    private long v2BrowseReconcilerDelayMs = 60_000L;
+
+    /**
+     * Batch size for V2 browse reconciler per drain cycle.
+     */
+    private int v2BrowseReconcilerBatchSize = 500;
   }
 
 }

@@ -1,37 +1,27 @@
 package org.folio.search.service.converter;
 
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonMap;
 import static org.folio.search.model.types.IndexActionType.DELETE;
 import static org.folio.search.model.types.IndexActionType.INDEX;
 import static org.folio.search.utils.CollectionUtils.mergeSafely;
-import static org.folio.search.utils.CollectionUtils.nullIfEmpty;
 import static org.folio.search.utils.SearchConverterUtils.getMapValueByPath;
 import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections4.MapUtils;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.converter.ConversionContext;
 import org.folio.search.model.index.SearchDocumentBody;
-import org.folio.search.model.metadata.FieldDescription;
-import org.folio.search.model.metadata.ObjectFieldDescription;
-import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.types.IndexingDataFormat;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.consortium.LanguageConfigServiceDecorator;
 import org.folio.search.service.metadata.ResourceDescriptionService;
+import org.folio.search.utils.ResourceFieldMapper;
 import org.folio.search.utils.SearchConverterUtils;
-import org.folio.search.utils.SearchUtils;
 import org.opensearch.core.common.bytes.BytesReference;
 import org.springframework.stereotype.Component;
 
@@ -45,6 +35,12 @@ public class SearchDocumentConverter {
   private final IndexingDataFormat indexingDataFormat;
   private final Function<Map<String, Object>, BytesReference> searchDocumentBodyConverter;
 
+  // Profiling accumulators
+  private long convertFieldMapNs;
+  private long convertSearchFieldsNs;
+  private long convertSerializeNs;
+  private long convertCount;
+
   public SearchDocumentConverter(SearchFieldsProcessor searchFieldsProcessor,
                                  LanguageConfigServiceDecorator languageConfigService,
                                  ResourceDescriptionService descriptionService,
@@ -55,6 +51,26 @@ public class SearchDocumentConverter {
     this.descriptionService = descriptionService;
     this.indexingDataFormat = searchConfigurationProperties.getIndexing().getDataFormat();
     this.searchDocumentBodyConverter = searchDocumentBodyConverter;
+  }
+
+  public void resetProfilingCounters() {
+    convertFieldMapNs = 0;
+    convertSearchFieldsNs = 0;
+    convertSerializeNs = 0;
+    convertCount = 0;
+  }
+
+  public void logProfilingSummary() {
+    if (convertCount > 0) {
+      log.info("convert:: SUMMARY [records: {}, fieldMap: {}ms (avg: {}us), "
+          + "searchFields: {}ms (avg: {}us), serialize: {}ms (avg: {}us)]",
+        convertCount,
+        convertFieldMapNs / 1_000_000, convertFieldMapNs / convertCount / 1_000,
+        convertSearchFieldsNs / 1_000_000, convertSearchFieldsNs / convertCount / 1_000,
+        convertSerializeNs / 1_000_000, convertSerializeNs / convertCount / 1_000);
+    }
+    resetProfilingCounters();
+    searchFieldsProcessor.logProfilingSummary();
   }
 
   /**
@@ -79,11 +95,30 @@ public class SearchDocumentConverter {
   private SearchDocumentBody convert(ConversionContext context) {
     var resourceEvent = context.getResourceEvent();
     var resourceDescriptionFields = context.getResourceDescription().getFields();
-    var baseFields = convertMapUsingResourceFields(getNewAsMap(resourceEvent), resourceDescriptionFields, context);
+
+    var t0 = System.nanoTime();
+    var baseFields = ResourceFieldMapper.convertMapUsingResourceFields(
+      getNewAsMap(resourceEvent), resourceDescriptionFields, context.getLanguages(), context.getTenantId());
+    var t1 = System.nanoTime();
     var searchFields = searchFieldsProcessor.getSearchFields(context);
+    var t2 = System.nanoTime();
     var resultDocument = mergeSafely(baseFields, searchFields);
-    return SearchDocumentBody.of(searchDocumentBodyConverter.apply(resultDocument),
-      indexingDataFormat, resourceEvent, INDEX);
+    final var resultBody = searchDocumentBodyConverter.apply(resultDocument);
+    var t3 = System.nanoTime();
+
+    convertFieldMapNs += t1 - t0;
+    convertSearchFieldsNs += t2 - t1;
+    convertSerializeNs += t3 - t2;
+    convertCount++;
+    if (convertCount % 5000 == 0) {
+      log.info("convert:: profile [records: {}, fieldMap: {}ms, searchFields: {}ms, serialize: {}ms]",
+        convertCount,
+        convertFieldMapNs / 1_000_000,
+        convertSearchFieldsNs / 1_000_000,
+        convertSerializeNs / 1_000_000);
+    }
+
+    return SearchDocumentBody.of(resultBody, indexingDataFormat, resourceEvent, INDEX);
   }
 
   private List<String> getResourceLanguages(List<String> languageSource, Map<String, Object> resourceData) {
@@ -107,62 +142,4 @@ public class SearchDocumentConverter {
     return ConversionContext.of(event, resourceDescription, resourceLanguages, event.getTenant());
   }
 
-  private static Map<String, Object> convertMapUsingResourceFields(
-    Map<String, Object> data, Map<String, FieldDescription> fields, ConversionContext ctx) {
-    var resultMap = new LinkedHashMap<String, Object>();
-    fields.entrySet().forEach(entry -> resultMap.putAll(getFieldValue(data, entry, ctx)));
-    return nullIfEmpty(resultMap);
-  }
-
-  private static Map<String, Object> getFieldValue(
-    Map<String, Object> data, Entry<String, FieldDescription> descEntry, ConversionContext ctx) {
-    var fieldDescription = descEntry.getValue();
-    if (fieldDescription instanceof PlainFieldDescription) {
-      return getPlainFieldValue(data, descEntry, ctx);
-    }
-
-    var objectFieldDescription = (ObjectFieldDescription) fieldDescription;
-    var fieldName = descEntry.getKey();
-    var objectMapValue = data.get(fieldName);
-    var value = getObjectFieldValue(objectMapValue, objectFieldDescription.getProperties(), ctx);
-    return value != null ? Map.of(fieldName, value) : emptyMap();
-  }
-
-  private static Map<String, Object> getPlainFieldValue(Map<String, Object> fieldData,
-                                                        Entry<String, FieldDescription> fieldEntry,
-                                                        ConversionContext ctx) {
-    var fieldName = fieldEntry.getKey();
-    var desc = (PlainFieldDescription) fieldEntry.getValue();
-    if (desc.isNotIndexed()) {
-      return emptyMap();
-    }
-
-    if (desc.isTenantField()) {
-      return singletonMap(fieldName, ctx.getTenantId());
-    }
-
-    var plainFieldValue = MapUtils.getObject(fieldData, fieldName, desc.getDefaultValue());
-    if (plainFieldValue == null) {
-      return emptyMap();
-    }
-
-    return SearchUtils.getPlainFieldValue(desc, fieldName, plainFieldValue, ctx.getLanguages());
-  }
-
-  @SuppressWarnings("unchecked")
-  private static Object getObjectFieldValue(
-    Object value, Map<String, FieldDescription> subfields, ConversionContext ctx) {
-    if (value instanceof Map) {
-      return convertMapUsingResourceFields((Map<String, Object>) value, subfields, ctx);
-    }
-
-    if (value instanceof List) {
-      return ((List<Object>) value).stream()
-        .map(listValue -> getObjectFieldValue(listValue, subfields, ctx))
-        .filter(Objects::nonNull)
-        .toList();
-    }
-
-    return null;
-  }
 }

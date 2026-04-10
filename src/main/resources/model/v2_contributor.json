@@ -1,0 +1,41 @@
+{
+  "name": "v2_contributor",
+  "parent": "instance",
+  "eventBodyJavaClass": "org.folio.search.model.index.ContributorResource",
+  "fields": {
+    "name": {
+      "index": "keyword_icu",
+      "showInResponse": [ "browse" ]
+    },
+    "contributorNameTypeId": {
+      "index": "keyword",
+      "searchTypes": [ "facet", "filter" ],
+      "showInResponse": [ "browse" ]
+    },
+    "authorityId": {
+      "index": "keyword",
+      "showInResponse": [ "browse" ]
+    },
+    "instances": {
+      "type": "object",
+      "properties": {
+        "typeId": {
+          "index": "keyword",
+          "showInResponse": [ "browse" ]
+        },
+        "tenantId": {
+          "index": "keyword",
+          "searchTypes": [ "facet", "filter" ]
+        },
+        "shared": {
+          "index": "bool",
+          "searchTypes": [ "facet", "filter" ],
+          "default": false
+        },
+        "count": {
+          "index": "source"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,38 @@
+description: Represents an index family (a generation-tagged physical OpenSearch index)
+type: object
+properties:
+  id:
+    type: string
+    format: uuid
+    description: Unique identifier for the index family
+  tenantId:
+    type: string
+    description: Tenant this family belongs to
+  generation:
+    type: integer
+    description: Generation number (monotonically increasing)
+  indexName:
+    type: string
+    description: Physical OpenSearch index name
+  status:
+    type: string
+    enum:
+      - BUILDING
+      - CUTTING_OVER
+      - FAILED
+      - ACTIVE
+      - RETIRING
+      - RETIRED
+    description: Current status of the index family
+  createdAt:
+    type: string
+    format: date-time
+    description: When the family was created
+  activatedAt:
+    type: string
+    format: date-time
+    description: When the family was activated (alias pointed to it)
+  retiredAt:
+    type: string
+    format: date-time
+    description: When the family was retired

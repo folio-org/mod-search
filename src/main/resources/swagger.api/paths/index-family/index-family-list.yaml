@@ -1,0 +1,24 @@
+get:
+  operationId: getIndexFamilies
+  summary: List index families
+  description: Returns all index families for the current tenant
+  tags:
+    - index-management
+  parameters:
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+  responses:
+    '200':
+      description: List of index families
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              families:
+                type: array
+                items:
+                  $ref: '../../schemas/entity/indexFamily.yaml'
+              totalRecords:
+                type: integer
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

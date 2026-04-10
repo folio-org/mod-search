@@ -124,6 +124,30 @@ paths:
   /search/index/instance-records/reindex/merge/failed:
     $ref: 'paths/reindex-instance-records/reindex-instance-records-merge-failed.yaml'
 
+  /search/index/instance-search/reindex/stream:
+    $ref: 'paths/reindex-instance-records/reindex-instance-records-stream.yaml'
+
+  /search/index/families:
+    $ref: 'paths/index-family/index-family-list.yaml'
+
+  /search/index/families/{id}/switch-over:
+    $ref: 'paths/index-family/index-family-switch-over.yaml'
+
+  /search/index/families/{id}/retire:
+    $ref: 'paths/index-family/index-family-retire.yaml'
+
+  /search/index/query-versions:
+    $ref: 'paths/query-versions/query-versions-list.yaml'
+
+  /search/index/query-versions/{version}/bind:
+    $ref: 'paths/query-versions/query-versions-bind.yaml'
+
+  /search/index/query-versions/{version}:
+    $ref: 'paths/query-versions/query-versions-unbind.yaml'
+
+  /search/index/query-versions/default:
+    $ref: 'paths/query-versions/query-versions-default.yaml'
+
   /search/config/languages:
     $ref: 'paths/search-config/search-config-languages.yaml'
 
@@ -165,5 +189,3 @@ paths:
 
   /browse/config/{browseType}/{browseOptionId}:
     $ref: 'paths/browse-config/browse-type-browse-option-id.yaml'
-
-

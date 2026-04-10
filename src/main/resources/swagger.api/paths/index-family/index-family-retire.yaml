@@ -1,0 +1,26 @@
+post:
+  operationId: retireIndexFamily
+  summary: Retire an index family
+  description: Drops the physical index and marks the family as RETIRED
+  tags:
+    - index-management
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Index family ID to retire
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+  responses:
+    '200':
+      description: Index family retired successfully
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '404':
+      description: Index family not found
+    '409':
+      description: Index family is not in RETIRING status or alias still points to it
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

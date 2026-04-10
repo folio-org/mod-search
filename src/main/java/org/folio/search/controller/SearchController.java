@@ -16,6 +16,7 @@ import org.folio.search.domain.dto.LinkedDataWorkSearchResult;
 import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.rest.resource.SearchApi;
 import org.folio.search.service.SearchService;
+import org.folio.search.service.VersionedSearchService;
 import org.folio.search.service.consortium.TenantProvider;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -29,6 +30,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class SearchController implements SearchApi {
 
   private final SearchService searchService;
+  private final VersionedSearchService versionedSearchService;
+  private final QueryVersionRequestHelper queryVersionRequestHelper;
   private final TenantProvider tenantProvider;
 
   @Override
@@ -50,7 +53,8 @@ public class SearchController implements SearchApi {
                                                               Integer offset, Boolean expandAll) {
     tenantId = tenantProvider.getTenant(tenantId);
     var searchRequest = CqlSearchRequest.of(Instance.class, tenantId, query, limit, offset, expandAll);
-    var result = searchService.search(searchRequest);
+    var resolvedVersion = queryVersionRequestHelper.resolve(tenantId);
+    var result = versionedSearchService.search(searchRequest, resolvedVersion);
     return ResponseEntity.ok(new InstanceSearchResult()
       .instances(result.getRecords())
       .totalRecords(result.getTotalRecords()));

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
+
+  <changeSet id="MSEARCH-STREAM@@create-streaming-reindex-status" author="streaming_reindex">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="streaming_reindex_status"/>
+      </not>
+    </preConditions>
+
+    <comment>Create streaming_reindex_status table for tracking streaming reindex progress</comment>
+
+    <createTable tableName="streaming_reindex_status">
+      <column name="id" type="UUID">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_streaming_reindex_status"/>
+      </column>
+      <column name="tenant_id" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="family_id" type="UUID">
+        <constraints nullable="true"
+                     foreignKeyName="fk_srs_family"
+                     references="index_family(id)"/>
+      </column>
+      <column name="job_id" type="UUID"/>
+      <column name="resource_type" type="VARCHAR(20)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="status" type="VARCHAR(20)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="records_processed" type="BIGINT" defaultValueNumeric="0"/>
+      <column name="started_at" type="TIMESTAMP"/>
+      <column name="completed_at" type="TIMESTAMP"/>
+      <column name="error_message" type="TEXT"/>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="MSEARCH-STREAM@@idx-streaming-reindex-status-family-id" author="streaming_reindex">
+    <createIndex indexName="idx_srs_family_id" tableName="streaming_reindex_status">
+      <column name="family_id"/>
+    </createIndex>
+  </changeSet>
+
+</databaseChangeLog>

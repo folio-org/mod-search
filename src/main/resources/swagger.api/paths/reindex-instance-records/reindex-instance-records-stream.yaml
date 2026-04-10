@@ -1,0 +1,37 @@
+post:
+  operationId: streamingReindexInstanceRecords
+  summary: Streaming Re-Index
+  description: Initiates streaming reindex by pulling records from mod-inventory-storage via HTTP
+  tags:
+    - index-management
+  requestBody:
+    required: false
+    content:
+      application/json:
+        schema:
+          $ref: '../../schemas/entity/indexSettings.yaml'
+  parameters:
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+  responses:
+    '202':
+      description: Streaming reindex has been initiated
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              jobId:
+                type: string
+                format: uuid
+                description: Unique identifier for the streaming reindex job
+              familyId:
+                type: string
+                format: uuid
+                description: Index family being built
+              status:
+                type: string
+                description: Current status of the reindex operation
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

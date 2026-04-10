@@ -4,9 +4,12 @@ import static java.util.Collections.emptyMap;
 import static org.folio.search.utils.LogUtils.collectionToLogMsg;
 import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
 
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.MapUtils;
@@ -28,6 +31,10 @@ public class SearchFieldsProcessor {
   private final FeatureConfigServiceDecorator featureConfigService;
   private final Map<String, FieldProcessor<?, ?>> fieldProcessors;
 
+  private final Map<String, AtomicLong> processorTimingNs = new ConcurrentHashMap<>();
+  private final AtomicLong deserializeNs = new AtomicLong();
+  private final AtomicLong profilingCount = new AtomicLong();
+
   /**
    * Provides search fields as {@link Map} for given resource in the {@link ConversionContext} object.
    *
@@ -45,17 +52,25 @@ public class SearchFieldsProcessor {
     }
     var data = getNewAsMap(ctx.getResourceEvent());
     var resourceClass = resourceDescription.getEventBodyJavaClass();
+    long ds0 = System.nanoTime();
     var resourceObject = resourceClass != null ? jsonConverter.convert(data, resourceClass) : data;
+    deserializeNs.addAndGet(System.nanoTime() - ds0);
 
     var resultMap = new LinkedHashMap<String, Object>();
     searchFields.forEach((name, fieldDescriptor) -> {
       var resource = fieldDescriptor.isRawProcessing() ? data : resourceObject;
       if (isSearchProcessorEnabled(fieldDescriptor)) {
+        long t0 = System.nanoTime();
         resultMap.putAll(getSearchFieldValue(resource, ctx.getLanguages(), name, fieldDescriptor));
-      } else {
-        log.debug("Search processor has been ignored [processor: {}]", fieldDescriptor.getProcessor());
+        long elapsed = System.nanoTime() - t0;
+        processorTimingNs.computeIfAbsent(fieldDescriptor.getProcessor(), k -> new AtomicLong()).addAndGet(elapsed);
       }
     });
+
+    long count = profilingCount.incrementAndGet();
+    if (count % 5000 == 0) {
+      logProcessorProfile(count);
+    }
     return resultMap;
   }
 
@@ -74,6 +89,38 @@ public class SearchFieldsProcessor {
     }
 
     return emptyMap();
+  }
+
+  public void logProfilingSummary() {
+    long count = profilingCount.get();
+    if (count > 0) {
+      logProcessorProfile(count);
+    }
+    resetProfilingCounters();
+  }
+
+  private void logProcessorProfile(long count) {
+    var sb = new StringBuilder();
+    sb.append("getSearchFields:: profile [records: ").append(count);
+    sb.append(", deserialize: ").append(deserializeNs.get() / 1_000_000).append("ms");
+    processorTimingNs.entrySet().stream()
+      .sorted(Comparator.<Map.Entry<String, AtomicLong>, Long>comparing(e -> e.getValue().get()).reversed())
+      .forEach(e -> {
+        String shortName = e.getKey();
+        int dot = shortName.lastIndexOf('.');
+        if (dot >= 0) {
+          shortName = shortName.substring(dot + 1);
+        }
+        sb.append(", ").append(shortName).append(": ").append(e.getValue().get() / 1_000_000).append("ms");
+      });
+    sb.append("]");
+    log.info(sb.toString());
+  }
+
+  private void resetProfilingCounters() {
+    processorTimingNs.clear();
+    deserializeNs.set(0);
+    profilingCount.set(0);
   }
 
   private boolean isSearchProcessorEnabled(SearchFieldDescriptor desc) {

@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -17,10 +18,13 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.LanguageConfig;
 import org.folio.search.model.entity.TenantEntity;
+import org.folio.search.model.types.QueryVersion;
+import org.folio.search.service.IndexFamilyService;
 import org.folio.search.service.IndexService;
 import org.folio.search.service.consortium.LanguageConfigServiceDecorator;
 import org.folio.search.service.metadata.ResourceDescriptionService;
@@ -33,6 +37,7 @@ import org.folio.spring.testing.type.UnitTest;
 import org.folio.spring.tools.kafka.KafkaAdminService;
 import org.folio.tenant.domain.dto.Parameter;
 import org.folio.tenant.domain.dto.TenantAttributes;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
@@ -79,6 +84,17 @@ class SearchTenantServiceTest {
   private JdbcTemplate jdbcTemplate;
   @Mock
   private TenantRepository tenantRepository;
+  @Mock
+  private IndexFamilyService indexFamilyService;
+
+  @BeforeEach
+  void setUp() {
+    lenient().when(indexFamilyService.findActiveFamily(any(), any(QueryVersion.class)))
+      .thenReturn(Optional.empty());
+    lenient().when(indexFamilyService.getAliasName(any(), any(QueryVersion.class)))
+      .thenReturn("folio_instance_test");
+    lenient().when(indexFamilyService.physicalIndexExists(any())).thenReturn(true);
+  }
 
   @Test
   void createOrUpdateTenant_positive() {

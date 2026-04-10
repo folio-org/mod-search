@@ -1,0 +1,10 @@
+description: Collection of index families
+type: object
+properties:
+  families:
+    type: array
+    items:
+      $ref: 'indexFamily.yaml'
+  totalRecords:
+    type: integer
+    description: Total number of index families

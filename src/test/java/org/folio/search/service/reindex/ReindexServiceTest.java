@@ -38,8 +38,10 @@ import org.folio.search.exception.FolioIntegrationException;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.integration.folio.InventoryService;
 import org.folio.search.model.reindex.MergeRangeEntity;
+import org.folio.search.model.types.QueryVersion;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexStatus;
+import org.folio.search.service.IndexFamilyService;
 import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.folio.spring.testing.type.UnitTest;
@@ -72,6 +74,8 @@ class ReindexServiceTest {
   private ReindexEntityTypeMapper entityTypeMapper;
   @Mock
   private ReindexCommonService reindexCommonService;
+  @Mock
+  private IndexFamilyService indexFamilyService;
   @InjectMocks
   private ReindexService reindexService;
 
@@ -84,6 +88,27 @@ class ReindexServiceTest {
   }
 
   @Test
+  void submitFullReindex_negative_shouldRejectWhenV1FamilyExists() {
+    var tenant = "central";
+    var familyId = UUID.randomUUID();
+    var family = new org.folio.search.model.reindex.IndexFamilyEntity(
+      familyId, tenant, 0, "folio_instance_central_0",
+      org.folio.search.model.types.IndexFamilyStatus.ACTIVE,
+      Timestamp.from(Instant.now()), Timestamp.from(Instant.now()), null, QueryVersion.V1);
+
+    when(consortiumService.getCentralTenant(tenant)).thenReturn(Optional.of(tenant));
+    when(indexFamilyService.findActiveFamily(tenant, QueryVersion.V1)).thenReturn(Optional.of(family));
+
+    var error = assertThrows(RequestValidationException.class,
+      () -> reindexService.submitFullReindex(tenant, null));
+
+    org.assertj.core.api.Assertions.assertThat(error.getMessage())
+      .contains("Use streaming reindex");
+    org.assertj.core.api.Assertions.assertThat(error.getKey()).isEqualTo("tenantId");
+    org.assertj.core.api.Assertions.assertThat(error.getValue()).isEqualTo(tenant);
+  }
+
+  @Test
   void submitFullReindex_positive() throws InterruptedException {
     var tenant = "central";
     var member = "member";
@@ -93,6 +118,7 @@ class ReindexServiceTest {
       new MergeRangeEntity(id, INSTANCE, tenant, bound, bound, Timestamp.from(Instant.now()), null, null);
 
     when(consortiumService.getCentralTenant(tenant)).thenReturn(Optional.of(tenant));
+    when(indexFamilyService.findActiveFamily(tenant, QueryVersion.V1)).thenReturn(Optional.empty());
     when(mergeRangeService.createMergeRanges(tenant)).thenReturn(List.of(rangeEntity));
     when(executionService.executeSystemUserScoped(anyString(), any())).thenReturn(List.of());
     when(consortiumService.getConsortiumTenants(tenant)).thenReturn(List.of(member));
@@ -129,6 +155,7 @@ class ReindexServiceTest {
       new MergeRangeEntity(id, INSTANCE, tenant, bound, bound, Timestamp.from(Instant.now()), null, null);
 
     when(consortiumService.getCentralTenant(tenant)).thenReturn(Optional.of(tenant));
+    when(indexFamilyService.findActiveFamily(tenant, QueryVersion.V1)).thenReturn(Optional.empty());
     when(consortiumService.getConsortiumTenants(tenant)).thenReturn(List.of(member));
     when(mergeRangeService.createMergeRanges(tenant)).thenReturn(List.of(rangeEntity));
     when(executionService.executeSystemUserScoped(anyString(), any()))

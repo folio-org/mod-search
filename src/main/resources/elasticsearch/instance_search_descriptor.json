@@ -1,0 +1,90 @@
+{
+  "name": "instance_search",
+  "reindexSupported": true,
+  "fields": {
+    "id": {
+      "index": "keyword_lowercase",
+      "showInResponse": [ "search" ]
+    },
+    "resourceType": {
+      "index": "keyword",
+      "searchTypes": [ "filter" ]
+    },
+    "instanceId": {
+      "index": "keyword_lowercase",
+      "searchTypes": [ "filter" ]
+    },
+    "tenantId": {
+      "index": "keyword",
+      "searchTypes": [ "facet", "filter" ],
+      "showInResponse": [ "search" ]
+    },
+    "shared": {
+      "index": "bool",
+      "searchTypes": [ "facet", "filter" ],
+      "showInResponse": [ "search" ]
+    },
+    "join_field": {
+      "index": "join",
+      "relations": {
+        "instance": [ "holding", "item" ]
+      }
+    },
+    "title": {
+      "searchTypes": "sort",
+      "searchAliases": [ "title", "keyword" ],
+      "index": "multilang",
+      "showInResponse": [ "search" ]
+    },
+    "hrid": {
+      "index": "keyword_lowercase"
+    },
+    "source": {
+      "searchTypes": [ "facet", "filter" ],
+      "index": "keyword"
+    },
+    "staffSuppress": {
+      "searchTypes": [ "facet", "filter" ],
+      "index": "bool",
+      "default": false
+    },
+    "discoverySuppress": {
+      "searchTypes": [ "facet", "filter" ],
+      "index": "bool",
+      "default": false
+    },
+    "isBoundWith": {
+      "searchTypes": [ "facet", "filter" ],
+      "index": "bool",
+      "default": false
+    },
+    "holdingsRecordId": {
+      "index": "keyword_lowercase",
+      "searchTypes": [ "filter" ]
+    },
+    "permanentLocationId": {
+      "index": "keyword_lowercase",
+      "searchTypes": [ "facet", "filter" ]
+    },
+    "barcode": {
+      "index": "keyword_lowercase"
+    },
+    "effectiveLocationId": {
+      "index": "keyword_lowercase",
+      "searchTypes": [ "facet", "filter" ]
+    },
+    "status": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "index": "keyword",
+          "searchTypes": [ "facet", "filter" ]
+        }
+      }
+    },
+    "materialTypeId": {
+      "index": "keyword_lowercase",
+      "searchTypes": [ "facet", "filter" ]
+    }
+  }
+}

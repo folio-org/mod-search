@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
+
+  <changeSet id="MSEARCH-V2BROWSE@@create-v2-browse-dirty-id-table" author="v2_browse_reconciler">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="v2_browse_dirty_id"/>
+      </not>
+    </preConditions>
+
+    <comment>Create v2_browse_dirty_id table for deferred V2 browse projection</comment>
+
+    <createTable tableName="v2_browse_dirty_id">
+      <column name="browse_type" type="VARCHAR(20)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="browse_id" type="VARCHAR(64)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <addPrimaryKey tableName="v2_browse_dirty_id"
+                   columnNames="browse_type, browse_id"
+                   constraintName="pk_v2_browse_dirty_id"/>
+
+    <createIndex tableName="v2_browse_dirty_id"
+                 indexName="idx_v2_browse_dirty_id_created_at">
+      <column name="created_at"/>
+      <column name="browse_type"/>
+      <column name="browse_id"/>
+    </createIndex>
+  </changeSet>
+
+</databaseChangeLog>

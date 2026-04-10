@@ -55,7 +55,7 @@ class CallNumberBrowseServiceTest {
   @Mock
   private SearchRepository searchRepository;
   @Mock
-  private BrowseContextProvider browseContextProvider;
+  private VersionedBrowseContextProvider versionedBrowseContextProvider;
   @Mock
   private ElasticsearchDocumentConverter documentConverter;
   @Mock
@@ -69,7 +69,9 @@ class CallNumberBrowseServiceTest {
 
   @BeforeEach
   void setUpMocks() {
-    callNumberBrowseService.setBrowseContextProvider(browseContextProvider);
+    lenient().when(versionedBrowseContextProvider.resolveBrowseRequest(any()))
+      .thenAnswer(invocation -> invocation.getArgument(0));
+    callNumberBrowseService.setVersionedBrowseContextProvider(versionedBrowseContextProvider);
     callNumberBrowseService.setDocumentConverter(documentConverter);
     callNumberBrowseService.setSearchRepository(searchRepository);
     callNumberBrowseService.setSearchResponsePostProcessors(searchResponsePostProcessors);
@@ -86,12 +88,12 @@ class CallNumberBrowseServiceTest {
   @Test
   void browse_positive_forward() {
     var query = "value > s0";
-    var request = BrowseRequest.of(INSTANCE_CALL_NUMBER, TENANT_ID, ALL, query, 5, TARGET_FIELD, null, false, 5);
+    var request = BrowseRequest.of(INSTANCE_CALL_NUMBER, TENANT_ID, ALL, query, 5, TARGET_FIELD, null, false, 5, null);
     var esQuery = rangeQuery(TARGET_FIELD).gt("s0");
     var context = BrowseContext.builder().succeedingQuery(esQuery).succeedingLimit(5).anchor("s0").build();
     var expectedSearchSource = searchSource("s0", 6, ASC);
 
-    when(browseContextProvider.get(request)).thenReturn(context);
+    when(versionedBrowseContextProvider.get(request, null)).thenReturn(context);
     when(searchRepository.search(request, expectedSearchSource)).thenReturn(searchResponse);
     when(documentConverter.convertToSearchResult(searchResponse, CallNumberResource.class)).thenReturn(
       searchResult(browseItems("s1", "s12", "s123", "s1234", "s12345", "s123456")));

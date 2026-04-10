@@ -32,9 +32,18 @@ public class ReindexOrchestrationService {
   public boolean process(ReindexRangeIndexEvent event) {
     log.info("process:: ReindexRangeIndexEvent [id: {}, tenantId: {}, entityType: {}, lower: {}, upper: {}, ts: {}]",
       event.getId(), event.getTenant(), event.getEntityType(), event.getLower(), event.getUpper(), event.getTs());
+
+    var t0 = System.nanoTime();
     var resourceEvents = uploadRangeService.fetchRecordRange(event);
+    var t1 = System.nanoTime();
     var documents = documentConverter.convert(resourceEvents).values().stream().flatMap(Collection::stream).toList();
+    var t2 = System.nanoTime();
     var folioIndexOperationResponse = elasticRepository.indexResources(documents);
+    var t3 = System.nanoTime();
+
+    log.info("process:: upload timings [id: {}, fetchDb: {}ms, convert: {}ms, indexOs: {}ms, docs: {}]",
+      event.getId(), ms(t1 - t0), ms(t2 - t1), ms(t3 - t2), documents.size());
+
     if (folioIndexOperationResponse.getStatus() == FolioIndexOperationResponse.StatusEnum.ERROR) {
       log.warn("process:: ReindexRangeIndexEvent indexing error [id: {}, error: {}]",
         event.getId(), folioIndexOperationResponse.getErrorMessage());
@@ -55,7 +64,10 @@ public class ReindexOrchestrationService {
     var entityType = event.getRecordType().getEntityType();
 
     try {
+      var t0 = System.nanoTime();
       mergeRangeService.saveEntities(event);
+      log.info("process:: merge timing [rangeId: {}, saveEntities: {}ms, records: {}]",
+        event.getRangeId(), ms(System.nanoTime() - t0), event.getRecords().size());
       reindexStatusService.addProcessedMergeRanges(entityType, 1);
       mergeRangeService.updateStatus(entityType, event.getRangeId(), ReindexRangeStatus.SUCCESS, null);
       log.info("process:: ReindexRecordsEvent processed [rangeId: {}, recordType: {}]",
@@ -75,5 +87,9 @@ public class ReindexOrchestrationService {
     }
 
     return true;
+  }
+
+  private static long ms(long nanos) {
+    return nanos / 1_000_000;
   }
 }

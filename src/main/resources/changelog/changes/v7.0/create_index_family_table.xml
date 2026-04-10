@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
+
+  <changeSet id="MSEARCH-STREAM@@create-index-family-table" author="streaming_reindex">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="index_family"/>
+      </not>
+    </preConditions>
+
+    <comment>Create index_family table for generation-based index families</comment>
+
+    <createTable tableName="index_family">
+      <column name="id" type="UUID">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_index_family"/>
+      </column>
+      <column name="tenant_id" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="generation" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="index_name" type="VARCHAR(200)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="status" type="VARCHAR(20)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="created_at" type="TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="activated_at" type="TIMESTAMP"/>
+      <column name="retired_at" type="TIMESTAMP"/>
+      <column name="query_version" type="VARCHAR(10)" defaultValue="2">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <createIndex indexName="idx_if_tenant_version_status" tableName="index_family">
+      <column name="tenant_id"/>
+      <column name="query_version"/>
+      <column name="status"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="MSEARCH-STREAM@@add-unique-active-constraint" author="streaming_reindex">
+    <comment>Ensure at most one ACTIVE family per tenant_id + query_version</comment>
+    <sql>
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_if_unique_active_per_tenant_version
+        ON index_family (tenant_id, query_version) WHERE status = 'ACTIVE';
+    </sql>
+  </changeSet>
+
+</databaseChangeLog>

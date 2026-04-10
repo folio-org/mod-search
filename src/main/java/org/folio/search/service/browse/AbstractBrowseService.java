@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Log4j2
 public abstract class AbstractBrowseService<T> {
 
-  private BrowseContextProvider browseContextProvider;
+  private VersionedBrowseContextProvider versionedBrowseContextProvider;
   private Map<Class<?>, SearchResponsePostProcessor<?>> searchResponsePostProcessors;
 
   /**
@@ -32,11 +32,13 @@ public abstract class AbstractBrowseService<T> {
   public BrowseResult<T> browse(BrowseRequest request) {
     log.debug("browse:: by [request: {}]", request);
 
-    var context = browseContextProvider.get(request);
+    var resolvedRequest = versionedBrowseContextProvider.resolveBrowseRequest(request);
+    var context = versionedBrowseContextProvider.get(resolvedRequest, resolvedRequest.getQueryVersion());
     if (isEmpty(context.getAnchor())) {
       return BrowseResult.empty();
     }
-    return context.isBrowsingAround() ? browseAround(request, context) : browseInOneDirection(request, context);
+    return context.isBrowsingAround()
+      ? browseAround(resolvedRequest, context) : browseInOneDirection(resolvedRequest, context);
   }
 
   /**
@@ -58,13 +60,13 @@ public abstract class AbstractBrowseService<T> {
   protected abstract BrowseResult<T> browseAround(BrowseRequest request, BrowseContext context);
 
   /**
-   * Injects {@link BrowseContextProvider} bean from spring context.
+   * Injects {@link VersionedBrowseContextProvider} bean from spring context.
    *
-   * @param browseContextProvider - {@link BrowseContextProvider} bean
+   * @param versionedBrowseContextProvider - {@link VersionedBrowseContextProvider} bean
    */
   @Autowired
-  public void setBrowseContextProvider(BrowseContextProvider browseContextProvider) {
-    this.browseContextProvider = browseContextProvider;
+  public void setVersionedBrowseContextProvider(VersionedBrowseContextProvider versionedBrowseContextProvider) {
+    this.versionedBrowseContextProvider = versionedBrowseContextProvider;
   }
 
   /**

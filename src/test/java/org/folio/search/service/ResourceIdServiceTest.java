@@ -18,6 +18,7 @@ import static org.opensearch.index.query.QueryBuilders.termQuery;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.function.Consumer;
 import org.folio.search.configuration.properties.StreamIdsProperties;
@@ -130,19 +131,20 @@ class ResourceIdServiceTest {
     var request = request();
     assertThatThrownBy(() -> resourceIdService.streamResourceIdsAsJson(request, outputStream))
       .isInstanceOf(SearchServiceException.class)
-      .hasMessage("Failed to write to id value into json stream [reason: Failed to write string field]");
+      .hasMessage("Failed to write id value into json stream [reason: Failed to write string field]");
   }
 
   @Test
-  void streamResourceIdsAsText_negative_throwExceptionOnWritingIdField() throws IOException {
-    var outputStream = new ByteArrayOutputStream();
-    var writer = spy(resourceIdService.createOutputStreamWriter(outputStream));
-
+  void streamResourceIdsAsText_negative_throwExceptionOnWritingIdField() {
     mockSearchRepositoryCall(List.of(RANDOM_ID));
     when(properties.getScrollQuerySize()).thenReturn(QUERY_SIZE);
-    when(resourceIdService.createOutputStreamWriter(outputStream)).thenReturn(writer);
     when(queryConverter.convertForConsortia(TEST_QUERY, ResourceType.UNKNOWN, TENANT_ID)).thenReturn(searchSource());
-    doThrow(new IOException("Failed to write string field")).when(writer).write(RANDOM_ID + '\n');
+    var outputStream = new OutputStream() {
+      @Override
+      public void write(int b) throws IOException {
+        throw new IOException("Failed to write string field");
+      }
+    };
 
     var request = request();
     assertThatThrownBy(() -> resourceIdService.streamResourceIdsAsText(request, outputStream))

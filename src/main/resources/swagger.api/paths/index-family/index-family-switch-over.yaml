@@ -1,0 +1,30 @@
+post:
+  operationId: switchOverIndexFamily
+  summary: Switch over to index family
+  description: Atomically switches the tenant alias to point to the specified index family
+  tags:
+    - index-management
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Index family ID to switch over to
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+  responses:
+    '200':
+      description: Switch-over completed successfully
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/entity/indexFamily.yaml'
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '404':
+      description: Index family not found
+    '409':
+      description: Index family is not in BUILDING status
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

@@ -196,7 +196,7 @@ class ReindexServiceTest {
     reindexService.submitUploadReindex(TENANT_ID, List.of(ReindexEntityType.INSTANCE));
 
     verify(statusService).getTargetTenantId();
-    verify(statusService).recreateUploadStatusRecord(eq(INSTANCE), any());
+    verify(statusService).upsertUploadStatusRecord(eq(INSTANCE), any());
     verify(mergeRangeService).analyzeEntityTables();
     verify(uploadRangeService).prepareAndSendIndexRanges(INSTANCE);
     verify(reindexCommonService, never()).recreateIndex(any(), any(), any());
@@ -212,7 +212,7 @@ class ReindexServiceTest {
     reindexService.submitUploadReindex(TENANT_ID, uploadDto);
 
     verify(statusService).getTargetTenantId();
-    verify(statusService).recreateUploadStatusRecord(eq(INSTANCE), any());
+    verify(statusService).upsertUploadStatusRecord(eq(INSTANCE), any());
     verify(reindexCommonService).recreateIndex(eq(INSTANCE), eq(TENANT_ID), any());
     verify(mergeRangeService).analyzeEntityTables();
     verify(uploadRangeService).prepareAndSendIndexRanges(INSTANCE);
@@ -395,7 +395,7 @@ class ReindexServiceTest {
     reindexService.submitUploadReindexWithTenantCleanup(TENANT_ID, List.of(INSTANCE), "member");
 
     verify(reindexCommonService).deleteInstanceDocumentsByTenantId("member");
-    verify(statusService).recreateUploadStatusRecord(eq(INSTANCE), any());
+    verify(statusService).upsertUploadStatusRecord(eq(INSTANCE), any());
     verify(uploadRangeService).prepareAndSendIndexRanges(INSTANCE);
     verifyNoInteractions(mergeRangeService);
   }
@@ -408,7 +408,7 @@ class ReindexServiceTest {
     reindexService.submitUploadReindexWithTenantCleanup(TENANT_ID, List.of(INSTANCE), null);
 
     verify(reindexCommonService, never()).deleteInstanceDocumentsByTenantId(any());
-    verify(statusService).recreateUploadStatusRecord(eq(INSTANCE), any());
+    verify(statusService).upsertUploadStatusRecord(eq(INSTANCE), any());
     verify(uploadRangeService).prepareAndSendIndexRanges(INSTANCE);
     verify(mergeRangeService).analyzeEntityTables();
   }

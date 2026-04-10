@@ -172,7 +172,7 @@ public class ReindexService {
                                       boolean recreateIndex, IndexSettings indexSettings) {
     var targetTenantId = statusService.getTargetTenantId();
     for (var reindexEntityType : entityTypes) {
-      statusService.recreateUploadStatusRecord(reindexEntityType, targetTenantId);
+      statusService.upsertUploadStatusRecord(reindexEntityType, targetTenantId);
       if (recreateIndex) {
         reindexCommonService.recreateIndex(reindexEntityType, tenantId, indexSettings);
       }

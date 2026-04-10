@@ -13,6 +13,7 @@ import static org.folio.search.model.types.ReindexStatus.MERGE_IN_PROGRESS;
 import static org.folio.search.model.types.ReindexStatus.UPLOAD_COMPLETED;
 import static org.folio.search.model.types.ReindexStatus.UPLOAD_FAILED;
 import static org.folio.search.model.types.ReindexStatus.UPLOAD_IN_PROGRESS;
+import static org.folio.support.TestConstants.MEMBER2_TENANT_ID;
 import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.mockito.Mockito.when;
@@ -398,5 +399,64 @@ class ReindexStatusRepositoryIT {
     entity.setTargetTenantId("consortium_member");
     repository.saveReindexStatusRecords(java.util.List.of(entity));
     assertThat(repository.getReindexStatuses()).hasSize(1);
+  }
+
+  @Test
+  @Sql("/sql/populate-reindex-status.sql")
+  void upsertUploadStatusRecord_shouldPreserveMergeMetricsWhenRecordExists() {
+    // act - upsert upload status for INSTANCE which already has merge metrics and target_tenant_id=MEMBER_TENANT_ID
+    repository.upsertUploadStatusRecord(INSTANCE, MEMBER2_TENANT_ID);
+
+    // assert - merge and staging metrics preserved; upload columns and target_tenant_id overwritten
+    var statuses = repository.getReindexStatuses();
+    assertThat(statuses)
+      .filteredOn(s -> s.getEntityType() == INSTANCE)
+      .hasSize(1)
+      .first()
+      .satisfies(s -> {
+        assertThat(s.getStatus()).isEqualTo(UPLOAD_IN_PROGRESS);
+        // merge metrics preserved
+        assertThat(s.getTotalMergeRanges()).isEqualTo(3);
+        assertThat(s.getProcessedMergeRanges()).isEqualTo(3);
+        assertThat(s.getStartTimeMerge()).isNotNull();
+        assertThat(s.getEndTimeMerge()).isNotNull();
+        // staging metrics preserved
+        assertThat(s.getStartTimeStaging()).isNotNull();
+        assertThat(s.getEndTimeStaging()).isNotNull();
+        // target_tenant_id overwritten by the value passed to upsert
+        assertThat(s.getTargetTenantId()).isEqualTo(MEMBER2_TENANT_ID);
+        // upload columns reset
+        assertThat(s.getTotalUploadRanges()).isZero();
+        assertThat(s.getProcessedUploadRanges()).isZero();
+        assertThat(s.getStartTimeUpload()).isNull();
+        assertThat(s.getEndTimeUpload()).isNull();
+      });
+  }
+
+  @Test
+  void upsertUploadStatusRecord_shouldInsertNewRecordWhenNoneExists() {
+    // act - no pre-existing record for CONTRIBUTOR
+    repository.upsertUploadStatusRecord(CONTRIBUTOR, MEMBER_TENANT_ID);
+
+    // assert - fresh row inserted with UPLOAD_IN_PROGRESS, zeroed metrics and target_tenant_id set
+    var statuses = repository.getReindexStatuses();
+    assertThat(statuses)
+      .hasSize(1)
+      .first()
+      .satisfies(s -> {
+        assertThat(s.getEntityType()).isEqualTo(CONTRIBUTOR);
+        assertThat(s.getStatus()).isEqualTo(UPLOAD_IN_PROGRESS);
+        assertThat(s.getTotalMergeRanges()).isZero();
+        assertThat(s.getProcessedMergeRanges()).isZero();
+        assertThat(s.getTotalUploadRanges()).isZero();
+        assertThat(s.getProcessedUploadRanges()).isZero();
+        assertThat(s.getStartTimeMerge()).isNull();
+        assertThat(s.getEndTimeMerge()).isNull();
+        assertThat(s.getStartTimeStaging()).isNull();
+        assertThat(s.getEndTimeStaging()).isNull();
+        assertThat(s.getStartTimeUpload()).isNull();
+        assertThat(s.getEndTimeUpload()).isNull();
+        assertThat(s.getTargetTenantId()).isEqualTo(MEMBER_TENANT_ID);
+      });
   }
 }

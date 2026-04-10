@@ -30,6 +30,9 @@ public class IndexFamilyRepository {
   private static final String SELECT_BY_STATUS_AND_VERSION_SQL =
     "SELECT * FROM %s WHERE status = ? AND query_version = ?;";
 
+  private static final String SELECT_BY_VERSION_SQL =
+    "SELECT * FROM %s WHERE query_version = ?;";
+
   private static final String SELECT_ACTIVE_BY_VERSION_SQL =
     "SELECT * FROM %s WHERE status = 'ACTIVE' AND query_version = ?;";
 
@@ -87,6 +90,11 @@ public class IndexFamilyRepository {
     var sql = SELECT_BY_STATUS_AND_VERSION_SQL.formatted(
       getFullTableName(context, INDEX_FAMILY_TABLE));
     return jdbcTemplate.query(sql, entityRowMapper(), status.name(), version.getValue());
+  }
+
+  public List<IndexFamilyEntity> findByVersion(QueryVersion version) {
+    var sql = SELECT_BY_VERSION_SQL.formatted(getFullTableName(context, INDEX_FAMILY_TABLE));
+    return jdbcTemplate.query(sql, entityRowMapper(), version.getValue());
   }
 
   public Optional<IndexFamilyEntity> findActiveByVersion(QueryVersion version) {

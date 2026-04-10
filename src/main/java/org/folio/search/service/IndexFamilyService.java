@@ -243,6 +243,23 @@ public class IndexFamilyService {
         "Only FAILED families can be deleted", "status", family.getStatus().getValue());
     }
 
+    deleteFamilyCompletely(family);
+  }
+
+  // V1 full reindex writes the legacy unsuffixed index and bypasses the family lifecycle,
+  // so any stale V1 family rows must be cleared before the merge+upload pipeline takes over.
+  @CacheEvict(cacheNames = {ACTIVE_INDEX_FAMILY_CACHE, CUTTING_OVER_INDEX_FAMILY_CACHE, PHYSICAL_INDEX_EXISTS_CACHE},
+    allEntries = true, beforeInvocation = true)
+  public void removeAllV1Families() {
+    var v1Families = indexFamilyRepository.findByVersion(QueryVersion.V1);
+    if (v1Families.isEmpty()) {
+      return;
+    }
+    v1Families.forEach(this::deleteFamilyCompletely);
+  }
+
+  private void deleteFamilyCompletely(IndexFamilyEntity family) {
+    var familyId = family.getId();
     reindexKafkaConsumerManager.stopReindexConsumer(familyId);
     dropPhysicalIndex(family.getIndexName());
 
@@ -253,7 +270,8 @@ public class IndexFamilyService {
     streamingReindexStatusRepository.deleteByFamilyId(familyId);
     indexFamilyRepository.deleteById(familyId);
 
-    log.info("cleanupFailedFamily:: deleted [familyId: {}, index: {}]", familyId, family.getIndexName());
+    log.info("deleteFamilyCompletely:: deleted [familyId: {}, index: {}, status: {}]",
+      familyId, family.getIndexName(), family.getStatus().getValue());
   }
 
   public void markFailed(UUID familyId) {

@@ -87,6 +87,12 @@ public class StreamingReindexService {
                                                    IndexSettings indexSettings) {
     log.info("startStreamingReindex:: initiating streaming reindex [tenant: {}, version: {}]", tenantId, version);
 
+    if (version == QueryVersion.V1) {
+      throw new RequestValidationException(
+        "Streaming reindex is not supported for V1. Use POST /search/index/instance-records/reindex/full instead.",
+        "queryVersion", version.getValue());
+    }
+
     var existingBuildingFamilies = indexFamilyService.findByStatusAndVersion(
       IndexFamilyStatus.BUILDING, version);
     if (!existingBuildingFamilies.isEmpty()) {

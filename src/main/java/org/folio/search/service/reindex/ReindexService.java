@@ -18,7 +18,6 @@ import org.folio.search.domain.dto.ReindexUploadDto;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.integration.folio.InventoryService;
 import org.folio.search.model.reindex.MergeRangeEntity;
-import org.folio.search.model.types.QueryVersion;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexStatus;
 import org.folio.search.service.IndexFamilyService;
@@ -77,12 +76,7 @@ public class ReindexService {
 
     validateTenant("submitFullReindex", tenantId);
 
-    // Guard: if V1 has an ACTIVE family, reject old-style drop+recreate reindex
-    if (indexFamilyService.findActiveFamily(tenantId, QueryVersion.V1).isPresent()) {
-      throw new RequestValidationException(
-        "Use streaming reindex (POST /search/index/reindex/stream?queryVersion=1) "
-          + "for tenants with V1 index families", "tenantId", tenantId);
-    }
+    indexFamilyService.removeAllV1Families();
 
     var deleteStart = System.nanoTime();
     reindexCommonService.deleteAllRecords();

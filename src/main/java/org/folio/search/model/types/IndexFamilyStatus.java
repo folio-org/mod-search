@@ -7,6 +7,7 @@ import lombok.Getter;
 public enum IndexFamilyStatus {
 
   BUILDING("building"),
+  STAGED("staged"),
   CUTTING_OVER("cutting_over"),
   FAILED("failed"),
   ACTIVE("active"),

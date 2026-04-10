@@ -118,7 +118,6 @@ class StreamingReindexServiceTest {
     verify(streamingClient).streamInstances(eq("http://okapi"), eq(tenantId), eq("scoped-token"), eq(familyId), any());
     verify(streamingClient).streamHoldings(eq("http://okapi"), eq(tenantId), eq("scoped-token"), eq(familyId), any());
     verify(streamingClient).streamItems(eq("http://okapi"), eq(tenantId), eq("scoped-token"), eq(familyId), any());
-    verify(consumerManager).captureTargetOffsets(eq(familyId), anyList());
     verify(statusRepository).updateStatus(any(), eq("STREAMED"));
     verify(browseFullRebuildService).rebuildBrowse(familyId);
   }
@@ -246,6 +245,7 @@ class StreamingReindexServiceTest {
     verify(consumerManager).resumeReindexConsumer(
       eq(familyId), eq("target-index"), eq(List.of(tenantId)), eq(3),
       eq(QueryVersion.V2), eq(committedOffsets));
+    verify(indexFamilyService).updateStatus(familyId, IndexFamilyStatus.STAGED);
     verify(statusRepository, never()).deleteByFamilyId(familyId);
     verify(streamingClient, never()).streamInstances(anyString(), anyString(), anyString(), any(UUID.class), any());
   }
@@ -310,6 +310,7 @@ class StreamingReindexServiceTest {
 
     assertThat(actual.jobId()).isEqualTo(jobId);
     verify(indexFamilyService).updateStatus(familyId, IndexFamilyStatus.BUILDING);
+    verify(indexFamilyService).updateStatus(familyId, IndexFamilyStatus.STAGED);
     verify(consumerManager).resumeReindexConsumer(
       eq(familyId), eq("target-index"), eq(List.of(tenantId)), eq(4),
       eq(QueryVersion.V1), eq(committedOffsets));

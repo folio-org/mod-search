@@ -51,9 +51,12 @@ public class V2BrowseFullRebuildService {
       .orElseThrow(() -> new RequestValidationException(
         "Index family not found", "familyId", familyId.toString()));
 
-    if (family.getStatus() != IndexFamilyStatus.ACTIVE && family.getStatus() != IndexFamilyStatus.BUILDING) {
+    var status = family.getStatus();
+    if (status != IndexFamilyStatus.ACTIVE
+        && status != IndexFamilyStatus.BUILDING
+        && status != IndexFamilyStatus.STAGED) {
       throw new RequestValidationException(
-        "Only ACTIVE or BUILDING families can have browse rebuilt", "status", family.getStatus().getValue());
+        "Only ACTIVE, BUILDING or STAGED families can have browse rebuilt", "status", status.getValue());
     }
 
     var mainIndex = family.getIndexName();

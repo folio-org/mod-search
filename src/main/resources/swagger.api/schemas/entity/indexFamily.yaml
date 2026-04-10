@@ -18,6 +18,7 @@ properties:
     type: string
     enum:
       - BUILDING
+      - STAGED
       - CUTTING_OVER
       - FAILED
       - ACTIVE

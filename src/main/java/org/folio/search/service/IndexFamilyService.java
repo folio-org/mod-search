@@ -9,6 +9,7 @@ import static org.folio.search.model.types.IndexFamilyStatus.BUILDING;
 import static org.folio.search.model.types.IndexFamilyStatus.CUTTING_OVER;
 import static org.folio.search.model.types.IndexFamilyStatus.RETIRED;
 import static org.folio.search.model.types.IndexFamilyStatus.RETIRING;
+import static org.folio.search.model.types.IndexFamilyStatus.STAGED;
 import static org.folio.spring.config.properties.FolioEnvironment.getFolioEnvName;
 import static org.opensearch.common.xcontent.XContentType.JSON;
 
@@ -132,7 +133,6 @@ public class IndexFamilyService {
   @CacheEvict(cacheNames = {ACTIVE_INDEX_FAMILY_CACHE, CUTTING_OVER_INDEX_FAMILY_CACHE, PHYSICAL_INDEX_EXISTS_CACHE},
     allEntries = true, beforeInvocation = true)
   public void switchOver(UUID familyId) {
-    var tenantId = context.getTenantId();
     var requestedFamily = indexFamilyRepository.findById(familyId)
       .orElseThrow(() -> new RequestValidationException("Index family not found", "familyId", familyId.toString()));
 
@@ -142,27 +142,12 @@ public class IndexFamilyService {
     var newFamily = indexFamilyRepository.findById(familyId)
       .orElseThrow(() -> new RequestValidationException("Index family not found", "familyId", familyId.toString()));
 
-    if (newFamily.getStatus() != BUILDING && newFamily.getStatus() != CUTTING_OVER) {
+    if (newFamily.getStatus() != STAGED && newFamily.getStatus() != CUTTING_OVER) {
       throw new RequestValidationException(
-        "Only BUILDING or CUTTING_OVER families can be switched over", "status", newFamily.getStatus().getValue());
+        "Only STAGED or CUTTING_OVER families can be switched over", "status", newFamily.getStatus().getValue());
     }
 
-    var aliasName = getAliasName(tenantId, version);
-    var oldFamily = indexFamilyRepository.findActiveByVersion(version);
-
-    if (newFamily.getStatus() == BUILDING) {
-      var lagToTarget = reindexKafkaConsumerManager.getConsumerLagToTarget(familyId);
-      if (lagToTarget > 0) {
-        throw new RequestValidationException(
-          "Temporary reindex consumer has not reached target offset", "consumerLag", String.valueOf(lagToTarget));
-      }
-
-      indexFamilyRepository.updateStatus(familyId, CUTTING_OVER);
-      reindexKafkaConsumerManager.captureTargetOffsets(familyId);
-      log.info("switchOver:: cutover started [familyId: {}, tenant: {}, version: {}, index: {}]",
-        familyId, tenantId, version, newFamily.getIndexName());
-    }
-
+    reindexKafkaConsumerManager.captureTargetOffsets(familyId);
     var lagToTarget = reindexKafkaConsumerManager.getConsumerLagToTarget(familyId);
     if (lagToTarget > 0) {
       throw new RequestValidationException(
@@ -170,6 +155,15 @@ public class IndexFamilyService {
         "consumerLag", String.valueOf(lagToTarget));
     }
 
+    var tenantId = context.getTenantId();
+    if (newFamily.getStatus() == STAGED) {
+      indexFamilyRepository.updateStatus(familyId, CUTTING_OVER);
+      log.info("switchOver:: cutover started [familyId: {}, tenant: {}, version: {}, index: {}]",
+        familyId, tenantId, version, newFamily.getIndexName());
+    }
+
+    var aliasName = getAliasName(tenantId, version);
+    var oldFamily = indexFamilyRepository.findActiveByVersion(version);
     log.info("switchOver:: switching alias [alias: {}, newIndex: {}, oldIndex: {}, version: {}]",
       aliasName, newFamily.getIndexName(), oldFamily.map(IndexFamilyEntity::getIndexName).orElse("none"), version);
 

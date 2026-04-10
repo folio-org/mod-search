@@ -136,11 +136,6 @@ public class StreamingReindexService {
         }
         log.info("executeV2StreamingReindex:: streaming done [jobId: {}, elapsed: {}ms]",
           jobId, ms(System.nanoTime() - t0));
-
-        t0 = System.nanoTime();
-        consumerManager.captureTargetOffsets(family.getId(), tenantIds);
-        log.info("executeV2StreamingReindex:: offsets captured [jobId: {}, elapsed: {}ms]",
-          jobId, ms(System.nanoTime() - t0));
       } finally {
         enableRefreshInterval(targetIndex);
       }
@@ -149,6 +144,10 @@ public class StreamingReindexService {
       browseFullRebuildService.rebuildBrowse(family.getId());
       log.info("executeV2StreamingReindex:: browse rebuilt [jobId: {}, elapsed: {}ms]",
         jobId, ms(System.nanoTime() - t0));
+
+      indexFamilyService.updateStatus(family.getId(), IndexFamilyStatus.STAGED);
+      log.info("executeV2StreamingReindex:: family promoted to STAGED [jobId: {}, familyId: {}]",
+        jobId, family.getId());
 
       updateJobStatus(jobId, StreamingReindexStatus.STREAMED);
     } catch (Exception e) {
@@ -401,12 +400,15 @@ public class StreamingReindexService {
     var family = indexFamilyService.findById(familyId)
       .orElseThrow(() -> new RequestValidationException("Index family not found", "familyId", familyId.toString()));
 
-    if (family.getStatus() != IndexFamilyStatus.BUILDING && family.getStatus() != IndexFamilyStatus.FAILED) {
+    var status = family.getStatus();
+    if (status != IndexFamilyStatus.BUILDING
+        && status != IndexFamilyStatus.STAGED
+        && status != IndexFamilyStatus.FAILED) {
       throw new RequestValidationException(
-        "Only BUILDING or FAILED families can be resumed", "status", family.getStatus().getValue());
+        "Only BUILDING, STAGED or FAILED families can be resumed", "status", status.getValue());
     }
 
-    if (family.getStatus() == IndexFamilyStatus.FAILED) {
+    if (status == IndexFamilyStatus.FAILED) {
       indexFamilyService.updateStatus(family.getId(), IndexFamilyStatus.BUILDING);
     }
 
@@ -416,6 +418,14 @@ public class StreamingReindexService {
 
     if (committedOffsets.isPresent()) {
       return resumeKafkaConsumer(family, reindexTenants, statuses, committedOffsets.get());
+    }
+
+    if (status == IndexFamilyStatus.STAGED) {
+      log.warn("resumeStreamingReindex:: STAGED family has no committed offsets to resume from; "
+          + "refusing to restart from scratch to avoid destroying indexed data [familyId: {}]", familyId);
+      throw new RequestValidationException(
+        "STAGED family cannot be resumed: no committed Kafka offsets available",
+        "status", status.getValue());
     }
 
     return restartStreamingReindexFromScratch(family, reindexTenants, false);
@@ -485,11 +495,7 @@ public class StreamingReindexService {
                                                   List<StreamingReindexStatusEntity> statuses,
                                                   Map<TopicPartition, Long> committedOffsets) {
     var familyId = family.getId();
-    var existingJobId = statuses.stream()
-      .map(StreamingReindexStatusEntity::getJobId)
-      .filter(Objects::nonNull)
-      .findFirst()
-      .orElseThrow(() -> new SearchServiceException("Streaming reindex status is missing job id"));
+    final var existingJobId = findExistingJobId(statuses);
 
     consumerManager.resumeReindexConsumer(
       familyId, family.getIndexName(), reindexTenants, family.getGeneration(),
@@ -499,7 +505,20 @@ public class StreamingReindexService {
         + "[familyId: {}, version: {}, tenant: {}]",
       familyId, family.getQueryVersion(), context.getTenantId());
 
+    if (family.getStatus() != IndexFamilyStatus.STAGED) {
+      indexFamilyService.updateStatus(familyId, IndexFamilyStatus.STAGED);
+      log.info("resumeStreamingReindex:: family promoted to STAGED [familyId: {}]", familyId);
+    }
+
     return new StreamingReindexJob(existingJobId, familyId);
+  }
+
+  private UUID findExistingJobId(List<StreamingReindexStatusEntity> statuses) {
+    return statuses.stream()
+      .map(StreamingReindexStatusEntity::getJobId)
+      .filter(Objects::nonNull)
+      .findFirst()
+      .orElseThrow(() -> new SearchServiceException("Streaming reindex status is missing job id"));
   }
 
   private StreamingReindexJob restartStreamingReindexFromScratch(IndexFamilyEntity family,

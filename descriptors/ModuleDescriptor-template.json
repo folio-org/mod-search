@@ -813,7 +813,7 @@
     {
       "permissionName": "search.index.families.item.switch-over.post",
       "displayName": "Search - switches over an index family",
-      "description": "Promotes a BUILDING index family to ACTIVE"
+      "description": "Promotes a STAGED index family to ACTIVE"
     },
     {
       "permissionName": "search.index.families.item.retire.post",

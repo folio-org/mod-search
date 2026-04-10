@@ -25,6 +25,6 @@ post:
     '404':
       description: Index family not found
     '409':
-      description: Index family is not in BUILDING status
+      description: Index family is not in STAGED or CUTTING_OVER status
     '500':
       $ref: '../../responses/internalServerErrorResponse.yaml'

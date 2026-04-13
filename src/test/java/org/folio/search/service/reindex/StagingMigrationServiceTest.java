@@ -67,6 +67,7 @@ class StagingMigrationServiceTest {
   void migrateAllStagingTables_shouldMigrateAllPhasesInOrder() {
     // Arrange
     var targetTenantId = MEMBER_TENANT_ID;
+    var expectedTimestamp = Timestamp.valueOf("2000-01-01 00:00:00");
     when(jdbcTemplate.update(contains("staging_instance"), any(Timestamp.class))).thenReturn(10);
     when(jdbcTemplate.update(contains("staging_holding"))).thenReturn(15);
     when(jdbcTemplate.update(contains("staging_item"), any(Timestamp.class))).thenReturn(20);
@@ -93,76 +94,38 @@ class StagingMigrationServiceTest {
     // Total relationships: 5 + 8 + 3 + 2 + 12 + 14 + 6 + 4 = 54
     assertThat(result.getTotalRelationships()).isEqualTo(54);
 
-    // Verify transaction settings were configured
-    verify(jdbcTemplate).execute(contains("SET LOCAL work_mem"));
-    verify(jdbcTemplate).execute(contains("SET LOCAL statement_timeout"));
+    // Verify the order of all operations
+    var inOrder = inOrder(jdbcTemplate, reindexCommonService);
 
-    // Verify all analyze statements were called
-    verify(jdbcTemplate, times(11)).execute(contains("ANALYZE"));
-
-    // Verify deleteRecordsByTenantId was called for member tenant pre-migration
-    verify(reindexCommonService).deleteRecordsByTenantId(targetTenantId);
-
-    // Verify correct timestamp is used
-    var expectedTimestamp = Timestamp.valueOf("2000-01-01 00:00:00");
-    verify(jdbcTemplate, times(6)).update(anyString(), eq(expectedTimestamp));
-
-    // Verify the order of operations
-    var inOrder = inOrder(jdbcTemplate);
-
-    // Phase 1: Setup
+    // Phase 1: Transaction setup
     inOrder.verify(jdbcTemplate).execute(contains("SET LOCAL work_mem"));
     inOrder.verify(jdbcTemplate).execute(contains("SET LOCAL statement_timeout"));
+
+    // Phase 2: Analyze staging tables
     inOrder.verify(jdbcTemplate, times(11)).execute(contains("ANALYZE"));
 
-    // Phase 2: Instances (first main table)
-    inOrder.verify(jdbcTemplate).update(contains("staging_instance"), any(Timestamp.class));
+    // Phase 3: Pre-migration - clear existing tenant data from main tables
+    inOrder.verify(reindexCommonService).deleteRecordsByTenantId(targetTenantId);
 
-    // Phase 3: Holdings and Items
+    // Phase 4: Migrate main entities
+    inOrder.verify(jdbcTemplate).update(contains("staging_instance"), eq(expectedTimestamp));
     inOrder.verify(jdbcTemplate).update(contains("staging_holding"));
-    inOrder.verify(jdbcTemplate).update(contains("staging_item"), any(Timestamp.class));
+    inOrder.verify(jdbcTemplate).update(contains("staging_item"), eq(expectedTimestamp));
 
-    // Phase 4: Child resources
-    inOrder.verify(jdbcTemplate).update(contains("staging_subject"), any(Timestamp.class));
-    inOrder.verify(jdbcTemplate).update(contains("staging_contributor"), any(Timestamp.class));
-    inOrder.verify(jdbcTemplate).update(contains("staging_classification"), any(Timestamp.class));
-    inOrder.verify(jdbcTemplate).update(contains("staging_call_number"), any(Timestamp.class));
+    // Phase 5: Migrate child resources (all use timestamp parameter)
+    inOrder.verify(jdbcTemplate).update(contains("staging_subject"), eq(expectedTimestamp));
+    inOrder.verify(jdbcTemplate).update(contains("staging_contributor"), eq(expectedTimestamp));
+    inOrder.verify(jdbcTemplate).update(contains("staging_classification"), eq(expectedTimestamp));
+    inOrder.verify(jdbcTemplate).update(contains("staging_call_number"), eq(expectedTimestamp));
 
-    // Phase 5: Relationships
+    // Phase 6: Migrate relationships
     inOrder.verify(jdbcTemplate).update(contains("staging_instance_subject"));
     inOrder.verify(jdbcTemplate).update(contains("staging_instance_contributor"));
     inOrder.verify(jdbcTemplate).update(contains("staging_instance_classification"));
     inOrder.verify(jdbcTemplate).update(contains("staging_instance_call_number"));
-  }
 
-  @Test
-  void migrateAllStagingTables_memberTenantReindex_shouldDeleteExistingTenantData() {
-    // Arrange
-    var targetTenantId = MEMBER_TENANT_ID;
-    when(jdbcTemplate.update(anyString())).thenReturn(5);
-    when(jdbcTemplate.update(anyString(), any(Timestamp.class))).thenReturn(5);
-    doNothing().when(jdbcTemplate).execute(anyString());
-    doNothing().when(reindexCommonService).deleteRecordsByTenantId(targetTenantId);
-
-    // Act
-    var result = stagingMigrationService.migrateAllStagingTables(targetTenantId);
-
-    // Assert
-    assertThat(result).isNotNull();
-    assertThat(result.getTotalInstances()).isEqualTo(5);
-    assertThat(result.getTotalHoldings()).isEqualTo(5);
-    assertThat(result.getTotalItems()).isEqualTo(5);
-
-    // Verify pre-migration cleanup was called
-    verify(reindexCommonService).deleteRecordsByTenantId(targetTenantId);
-
-    // Verify order of operations
-    var inOrder = inOrder(jdbcTemplate, reindexCommonService);
-    inOrder.verify(jdbcTemplate).execute(contains("SET LOCAL work_mem"));
-    inOrder.verify(jdbcTemplate).execute(contains("SET LOCAL statement_timeout"));
-    inOrder.verify(jdbcTemplate, times(11)).execute(contains("ANALYZE"));
-    inOrder.verify(reindexCommonService).deleteRecordsByTenantId(targetTenantId);
-    inOrder.verify(jdbcTemplate).update(contains("staging_instance"), any(Timestamp.class));
+    // Phase 7: Post-migration - truncate staging tables
+    inOrder.verify(reindexCommonService).deleteAllRecords(targetTenantId);
   }
 
   @Test
@@ -175,6 +138,9 @@ class StagingMigrationServiceTest {
       .isInstanceOf(ReindexException.class)
       .hasMessageContaining("Failed to migrate staging tables")
       .hasCauseInstanceOf(DataAccessException.class);
+
+    // Staging tables should NOT be truncated when migration fails
+    verify(reindexCommonService, times(0)).deleteAllRecords(any());
   }
 
   @Test
@@ -188,6 +154,9 @@ class StagingMigrationServiceTest {
     assertThatThrownBy(() -> stagingMigrationService.migrateAllStagingTables(null))
       .isInstanceOf(ReindexException.class)
       .hasMessageContaining("Failed to migrate staging tables");
+
+    // Staging tables should NOT be truncated when migration fails
+    verify(reindexCommonService, times(0)).deleteAllRecords(any());
   }
 
   @Test

@@ -57,6 +57,11 @@ public class StagingMigrationService {
       // Execute the main data migration phases
       executeMainMigrationPhases(result);
 
+      // Clean up staging tables after successful migration to avoid storing unnecessary data
+      log.info("migrateAllStagingTables:: Truncating staging tables after successful migration");
+      reindexCommonService.deleteAllRecords(targetTenantId);
+      log.info("migrateAllStagingTables:: Staging tables truncated");
+
       var duration = System.currentTimeMillis() - startTime;
       result.setDuration(duration);
 

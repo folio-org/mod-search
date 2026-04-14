@@ -3,6 +3,7 @@ package org.folio.search.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.LINKED_DATA_HUB;
+import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.LINKED_DATA_INSTANCE;
 import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.LINKED_DATA_WORK;
 import static org.folio.search.model.types.ResourceType.AUTHORITY;
 import static org.folio.search.model.types.ResourceType.CAMPUS;
@@ -22,12 +23,14 @@ import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.utils.TestUtils.randomId;
 import static org.folio.support.utils.TestUtils.resourceDescription;
+import static org.folio.support.utils.TestUtils.secondaryResourceDescription;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atMostOnce;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -236,6 +239,7 @@ class IndexServiceTest {
 
     indexService.createIndexIfNotExist(INSTANCE, TENANT_ID);
 
+    verify(indexRepository).indexExists(indexName);
     verify(indexRepository).createIndex(eq(indexName), any(), any());
   }
 
@@ -394,6 +398,110 @@ class IndexServiceTest {
     when(indexRepository.indexExists(INDEX_NAME)).thenReturn(false);
     indexService.dropIndex(INSTANCE, TENANT_ID);
     verify(indexRepository, times(0)).dropIndex(INDEX_NAME);
+  }
+
+  @Test
+  @SneakyThrows
+  void createIndexIfNotExist_withIndexSettings_shouldCreateIndex_whenNotExist() {
+    var indexName = getIndexName(INSTANCE, TENANT_ID);
+    var indexSettingsMock = MAPPER.readTree(getIndexSettingsJsonString(4, 2, "1s"));
+    var expectedSettings = getIndexSettingsJsonString(2, 1, "1s");
+
+    when(resourceDescriptionService.find(INSTANCE)).thenReturn(
+      Optional.of(resourceDescription(INSTANCE)));
+    when(mappingsHelper.getMappings(INSTANCE)).thenReturn(EMPTY_OBJECT);
+    when(settingsHelper.getSettingsJson(INSTANCE)).thenReturn(indexSettingsMock);
+    when(indexRepository.createIndex(indexName, expectedSettings, EMPTY_OBJECT))
+      .thenReturn(getSuccessFolioCreateIndexResponse(List.of(indexName)));
+    var indexSettings = new IndexSettings().numberOfShards(2).numberOfReplicas(1);
+
+    indexService.createIndexIfNotExist(INSTANCE, TENANT_ID, indexSettings);
+
+    verify(indexRepository).indexExists(indexName);
+    verify(indexRepository).createIndex(indexName, expectedSettings, EMPTY_OBJECT);
+  }
+
+  @Test
+  void createIndexIfNotExist_withIndexSettings_shouldNotCreateIndex_whenAlreadyExist() {
+    var indexName = getIndexName(INSTANCE, TENANT_ID);
+    when(indexRepository.indexExists(indexName)).thenReturn(true);
+
+    indexService.createIndexIfNotExist(INSTANCE, TENANT_ID, new IndexSettings());
+
+    verify(indexRepository).indexExists(indexName);
+    verify(indexRepository, never()).createIndex(any(), any(), any());
+  }
+
+  @Test
+  void reindexInventory_negative_resourceDescriptionNotFound() {
+    when(resourceDescriptionService.find(AUTHORITY)).thenReturn(Optional.empty());
+    var request = new ReindexRequest().resourceName(ResourceNameEnum.AUTHORITY);
+
+    assertThatThrownBy(() -> indexService.reindexInventory(TENANT_ID, request))
+      .isInstanceOf(RequestValidationException.class)
+      .hasMessage("Reindex request contains invalid resource name");
+  }
+
+  @Test
+  void reindexInventory_negative_secondaryResourceNotAllowed() {
+    when(resourceDescriptionService.find(AUTHORITY)).thenReturn(
+      Optional.of(secondaryResourceDescription(AUTHORITY, INSTANCE)));
+    var request = new ReindexRequest().resourceName(ResourceNameEnum.AUTHORITY);
+
+    assertThatThrownBy(() -> indexService.reindexInventory(TENANT_ID, request))
+      .isInstanceOf(RequestValidationException.class)
+      .hasMessage("Reindex request contains invalid resource name");
+  }
+
+  @Test
+  void reindexInventory_negative_reindexNotSupported() {
+    var desc = resourceDescription(AUTHORITY);
+    desc.setReindexSupported(false);
+    when(resourceDescriptionService.find(AUTHORITY)).thenReturn(Optional.of(desc));
+    var request = new ReindexRequest().resourceName(ResourceNameEnum.AUTHORITY);
+
+    assertThatThrownBy(() -> indexService.reindexInventory(TENANT_ID, request))
+      .isInstanceOf(RequestValidationException.class)
+      .hasMessage("Reindex request contains invalid resource name");
+  }
+
+  @Test
+  void reindexInventory_shouldRecreate_linkedDataInstanceIndex() {
+    var linkedDataInstanceIndex = getIndexName(ResourceType.LINKED_DATA_INSTANCE, TENANT_ID);
+    when(resourceDescriptionService.find(ResourceType.LINKED_DATA_INSTANCE)).thenReturn(
+      Optional.of(resourceDescription(ResourceType.LINKED_DATA_INSTANCE)));
+    when(resourceDescriptionService.getSecondaryResourceTypes(ResourceType.LINKED_DATA_INSTANCE))
+      .thenReturn(List.of());
+    when(indexRepository.indexExists(linkedDataInstanceIndex)).thenReturn(true);
+    when(mappingsHelper.getMappings(ResourceType.LINKED_DATA_INSTANCE)).thenReturn(EMPTY_OBJECT);
+    when(settingsHelper.getSettingsJson(ResourceType.LINKED_DATA_INSTANCE)).thenReturn(EMPTY_JSON_OBJECT);
+
+    var reindexRequest = new ReindexRequest()
+      .resourceName(LINKED_DATA_INSTANCE)
+      .recreateIndex(true);
+    var actual = indexService.reindexInventory(TENANT_ID, reindexRequest);
+
+    assertNotNull(actual);
+    verify(indexRepository).dropIndex(linkedDataInstanceIndex);
+    verify(indexRepository).createIndex(linkedDataInstanceIndex, EMPTY_JSON_OBJECT.toString(), EMPTY_OBJECT);
+    verifyNoInteractions(locationService);
+    verifyNoInteractions(resourceReindexClient);
+  }
+
+  @Test
+  void reindexInventory_shouldNotTriggerReindex_linkedDataInstanceWithoutRecreate() {
+    when(resourceDescriptionService.find(ResourceType.LINKED_DATA_INSTANCE)).thenReturn(
+      Optional.of(resourceDescription(ResourceType.LINKED_DATA_INSTANCE)));
+    when(resourceDescriptionService.getSecondaryResourceTypes(ResourceType.LINKED_DATA_INSTANCE))
+      .thenReturn(List.of());
+
+    var actual = indexService.reindexInventory(TENANT_ID,
+      new ReindexRequest().resourceName(LINKED_DATA_INSTANCE));
+
+    assertNotNull(actual);
+    verifyNoInteractions(indexRepository);
+    verifyNoInteractions(locationService);
+    verifyNoInteractions(resourceReindexClient);
   }
 
   private void mockLocationIndexes() {

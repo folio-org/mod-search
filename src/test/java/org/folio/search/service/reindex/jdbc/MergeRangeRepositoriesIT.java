@@ -19,6 +19,8 @@ import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexRangeStatus;
 import org.folio.search.service.consortium.ConsortiumTenantProvider;
+import org.folio.search.service.consortium.ConsortiumTenantService;
+import org.folio.search.service.reindex.ReindexContext;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
@@ -49,6 +51,7 @@ class MergeRangeRepositoriesIT {
   private @Autowired JdbcTemplate jdbcTemplate;
   private @MockitoBean FolioExecutionContext context;
   private @MockitoBean ConsortiumTenantProvider tenantProvider;
+  private @MockitoBean ConsortiumTenantService consortiumTenantService;
   private @MockitoBean ReindexConfigurationProperties reindexConfig;
   private HoldingRepository holdingRepository;
   private ItemRepository itemRepository;
@@ -64,7 +67,8 @@ class MergeRangeRepositoriesIT {
     itemRepository = new ItemRepository(jdbcTemplate, jsonConverter, context, searchConfig);
     instanceRepository =
       new MergeInstanceRepository(jdbcTemplate, jsonConverter, context, tenantProvider, searchConfig);
-    uploadInstanceRepository = new UploadInstanceRepository(jdbcTemplate, jsonConverter, context, reindexConfig);
+    uploadInstanceRepository = new UploadInstanceRepository(jdbcTemplate, jsonConverter, context,
+      reindexConfig, consortiumTenantService);
     when(context.getFolioModuleMetadata()).thenReturn(new FolioModuleMetadata() {
       @Override
       public String getModuleName() {
@@ -105,13 +109,13 @@ class MergeRangeRepositoriesIT {
       .are(new Condition<>(range -> range.getEntityType() == ReindexEntityType.HOLDINGS, "holding range"))
       .extracting(MergeRangeEntity::getId, MergeRangeEntity::getTenantId)
       .containsExactly(tuple(UUID.fromString("b7df83a1-8b15-46c1-9a4c-9d2dbb3cf4d6"), "consortium"),
-        tuple(UUID.fromString("dfb20d52-7f1f-4b5b-a492-2e47d2c0ac59"), "member_tenant"));
+        tuple(UUID.fromString("dfb20d52-7f1f-4b5b-a492-2e47d2c0ac59"), MEMBER_TENANT_ID));
 
     assertThat(rangesItem)
       .hasSize(1)
       .are(new Condition<>(range -> range.getEntityType() == ReindexEntityType.ITEM, "item range"))
       .extracting(MergeRangeEntity::getId, MergeRangeEntity::getTenantId)
-      .containsExactly(tuple(UUID.fromString("2f23b9fa-9e1a-44ff-a30f-61ec5f3adcc8"), "member_tenant"));
+      .containsExactly(tuple(UUID.fromString("2f23b9fa-9e1a-44ff-a30f-61ec5f3adcc8"), MEMBER_TENANT_ID));
 
     assertThat(rangesInstance)
       .hasSize(1)
@@ -250,6 +254,84 @@ class MergeRangeRepositoriesIT {
     assertThat(instanceRepository.countEntities()).isEqualTo(1);
     assertThat(holdingRepository.countEntities()).isEqualTo(3);
     assertThat(itemRepository.countEntities()).isEqualTo(4);
+  }
+
+  @Test
+  @Sql("/sql/populate-instances.sql")
+  @SuppressWarnings("checkstyle:MethodLength")
+  void saveEntities_savesToStagingTables_whenInReindexModeWithMemberTenant() {
+    var instanceId = UUID.randomUUID();
+    var holdingId = UUID.randomUUID();
+    var itemId = UUID.randomUUID();
+    var instanceEntities = List.of(Map.<String, Object>of("id", instanceId, "isBoundWith", false));
+    var holdingEntities = List.of(Map.<String, Object>of("id", holdingId, "instanceId", instanceId));
+    var itemEntities = List.of(Map.<String, Object>of("id", itemId, "instanceId", instanceId,
+      "holdingsRecordId", holdingId));
+
+    ReindexContext.setReindexMode(true);
+    ReindexContext.setMemberTenantId(MEMBER_TENANT_ID);
+    try {
+      instanceRepository.saveEntities(TENANT_ID, instanceEntities);
+      holdingRepository.saveEntities(TENANT_ID, holdingEntities);
+      itemRepository.saveEntities(TENANT_ID, itemEntities);
+    } finally {
+      ReindexContext.setReindexMode(false);
+      ReindexContext.clearMemberTenantId();
+    }
+
+    assertThat(countById("staging_instance", instanceId)).isEqualTo(1);
+    assertThat(countById("instance", instanceId)).isZero();
+
+    assertThat(countById("staging_holding", holdingId)).isEqualTo(1);
+    assertThat(countById("holding", holdingId)).isZero();
+
+    assertThat(countById("staging_item", itemId)).isEqualTo(1);
+    assertThat(countById("item", itemId)).isZero();
+  }
+
+  @Test
+  @Sql("/sql/populate-instances.sql")
+  void updateBoundWith_updatesInstance() {
+    var instanceId = "9f8febd1-e96c-46c4-a5f4-84a45cc499a2";
+    var before = Timestamp.from(Instant.now().minusSeconds(10));
+
+    instanceRepository.updateBoundWith(TENANT_ID, instanceId, true);
+
+    var records = instanceRepository.fetchByTimestamp(TENANT_ID, before, 10).records();
+    assertThat(records)
+      .filteredOn(r -> instanceId.equals(r.get("id")))
+      .singleElement()
+      .satisfies(r -> assertThat(r).containsEntry("isBoundWith", true));
+  }
+
+  @Test
+  @Sql("/sql/populate-instances.sql")
+  void fetchByTimestamp_returnsInstances_andRowMapperPopulatesAllFields() {
+    var before = Timestamp.from(Instant.now().minusSeconds(10));
+
+    // first page with no cursor
+    var result = instanceRepository.fetchByTimestamp(TENANT_ID, before, 10);
+
+    assertThat(result.records()).hasSize(1);
+    var instance = result.records().getFirst();
+    assertThat(instance)
+      .containsEntry("id", "9f8febd1-e96c-46c4-a5f4-84a45cc499a2")
+      .containsEntry("tenantId", "tenant_123")
+      .containsKey("shared")
+      .containsKey("isBoundWith")
+      .containsKey("isDeleted");
+    assertThat(instance.get(MergeRangeRepository.LAST_UPDATED_DATE_FIELD)).isNotNull();
+
+    // second overload: paginate with cursor — no more records after the only one
+    var fromId = (String) instance.get("id");
+    var lastUpdated = (Timestamp) instance.get(MergeRangeRepository.LAST_UPDATED_DATE_FIELD);
+    var nextPage = instanceRepository.fetchByTimestamp(TENANT_ID, lastUpdated, fromId, 10);
+    assertThat(nextPage.records()).isEmpty();
+  }
+
+  private Integer countById(String table, UUID id) {
+    return jdbcTemplate.queryForObject(
+      "SELECT count(*) FROM " + table + " WHERE id = ?::uuid", Integer.class, id.toString());
   }
 
   private List<String> extractMapValues(List<Map<String, Object>> maps) {

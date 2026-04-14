@@ -2,10 +2,12 @@ package org.folio.search.service.reindex;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.search.exception.RequestValidationException.REQUEST_NOT_ALLOWED_MSG;
+import static org.folio.search.exception.RequestValidationException.REQUEST_NOT_ALLOWED_FOR_CONSORTIUM_MEMBER_MSG;
 import static org.folio.search.model.types.ReindexEntityType.HOLDINGS;
 import static org.folio.search.model.types.ReindexEntityType.INSTANCE;
+import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.support.TestConstants.TENANT_ID;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -26,6 +28,8 @@ import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
@@ -82,7 +86,7 @@ class ReindexStatusServiceTest {
 
     var ex = Assertions.assertThrows(RequestValidationException.class, () -> service.getReindexStatuses(TENANT_ID));
 
-    assertThat(ex.getMessage()).isEqualTo(REQUEST_NOT_ALLOWED_MSG);
+    assertThat(ex.getMessage()).isEqualTo(REQUEST_NOT_ALLOWED_FOR_CONSORTIUM_MEMBER_MSG);
     assertThat(ex.getKey()).isEqualTo(XOkapiHeaders.TENANT);
     assertThat(ex.getValue()).isEqualTo(TENANT_ID);
     verifyNoInteractions(statusRepository);
@@ -154,10 +158,11 @@ class ReindexStatusServiceTest {
   @Test
   void shouldRecreateMergeReindexStatusEntities() {
     // act
-    service.recreateMergeStatusRecords();
+    service.recreateMergeStatusRecords(null);
 
     // assert
     verify(statusRepository).truncate();
+    verify(statusRepository).recreateReindexStatusTrigger(false);
     verify(statusRepository).saveReindexStatusRecords(reindexStatusEntitiesCaptor.capture());
     var savedEntities = reindexStatusEntitiesCaptor.getValue();
     assertThat(savedEntities)
@@ -181,70 +186,226 @@ class ReindexStatusServiceTest {
   }
 
   @Test
-  void isReindexInProgressOrFailed_trueWhenMergeInProgress() {
+  void recreateMergeStatusRecords_withTargetTenantId() {
+    // given
+    var targetTenantId = MEMBER_TENANT_ID;
+
+    // act
+    service.recreateMergeStatusRecords(targetTenantId);
+
+    // assert
+    verify(statusRepository).truncate();
+    verify(statusRepository).recreateReindexStatusTrigger(true);
+    verify(statusRepository).saveReindexStatusRecords(reindexStatusEntitiesCaptor.capture());
+
+    var savedEntities = reindexStatusEntitiesCaptor.getValue();
+    assertThat(savedEntities)
+      .hasSize(ReindexEntityType.supportMergeTypes().size())
+      .allMatch(entity -> targetTenantId.equals(entity.getTargetTenantId()),
+        "All entities should have targetTenantId set");
+  }
+
+  @Test
+  void upsertUploadStatusRecord_shouldPreserveTargetTenantId() {
+    // given
+    var targetTenantId = MEMBER_TENANT_ID;
+
+    // act
+    service.upsertUploadStatusRecord(INSTANCE, targetTenantId);
+
+    // assert
+    verify(statusRepository).upsertUploadStatusRecord(INSTANCE, targetTenantId);
+  }
+
+  @Test
+  void upsertUploadStatusRecord_whenNoExistingTargetTenantId_shouldSetNull() {
+    // act
+    service.upsertUploadStatusRecord(INSTANCE, null);
+
+    // assert
+    verify(statusRepository).upsertUploadStatusRecord(INSTANCE, null);
+  }
+
+  @Test
+  void updateStagingStarted_shouldSetStagingStartTimeForAllMergeTypes() {
+    // act
+    service.updateStagingStarted();
+
+    // assert
+    verify(statusRepository).setStagingStarted(ReindexEntityType.supportMergeTypes());
+  }
+
+  @Test
+  void updateStagingCompleted_shouldSetStagingEndTimeForAllMergeTypes() {
+    // act
+    service.updateStagingCompleted();
+
+    // assert
+    verify(statusRepository).setStagingCompleted(ReindexEntityType.supportMergeTypes());
+  }
+
+  @Test
+  void updateStagingFailed_shouldSetStatusAndEndTimeForAllMergeTypes() {
+    // act
+    service.updateStagingFailed();
+
+    // assert
+    verify(statusRepository).setStagingFailed(ReindexEntityType.supportMergeTypes());
+  }
+
+  @Test
+  void isMergeCompleted_shouldReturnRepositoryResult() {
+    // given
+    when(statusRepository.isMergeCompleted()).thenReturn(true);
+
+    // act
+    var result = service.isMergeCompleted();
+
+    // assert
+    assertThat(result).isTrue();
+    verify(statusRepository).isMergeCompleted();
+  }
+
+  @Test
+  void isMergeCompleted_shouldReturnFalseWhenNotCompleted() {
+    // given
+    when(statusRepository.isMergeCompleted()).thenReturn(false);
+
+    // act
+    var result = service.isMergeCompleted();
+
+    // assert
+    assertThat(result).isFalse();
+    verify(statusRepository).isMergeCompleted();
+  }
+
+  @Test
+  void getStatusesByType_shouldReturnMapOfStatusesByEntityType() {
+    // given
+    var statusEntities = List.of(
+      new ReindexStatusEntity(INSTANCE, ReindexStatus.MERGE_COMPLETED),
+      new ReindexStatusEntity(HOLDINGS, ReindexStatus.UPLOAD_IN_PROGRESS)
+    );
+    when(statusRepository.getReindexStatuses()).thenReturn(statusEntities);
+
+    // act
+    var result = service.getStatusesByType();
+
+    // assert
+    assertThat(result)
+      .hasSize(2)
+      .containsEntry(INSTANCE, ReindexStatus.MERGE_COMPLETED)
+      .containsEntry(HOLDINGS, ReindexStatus.UPLOAD_IN_PROGRESS);
+  }
+
+  @Test
+  void getTargetTenantId_shouldReturnValueFromRepository() {
+    // given
+    var expectedTenantId = MEMBER_TENANT_ID;
+    when(statusRepository.getTargetTenantId()).thenReturn(expectedTenantId);
+
+    // act
+    var result = service.getTargetTenantId();
+
+    // assert
+    assertThat(result).isEqualTo(expectedTenantId);
+    verify(statusRepository).getTargetTenantId();
+  }
+
+  @Test
+  void getTargetTenantId_shouldReturnNullWhenNoTargetTenant() {
+    // given
+    when(statusRepository.getTargetTenantId()).thenReturn(null);
+
+    // act
+    var result = service.getTargetTenantId();
+
+    // assert
+    assertThat(result).isNull();
+    verify(statusRepository).getTargetTenantId();
+  }
+
+  @Test
+  void recreateMergeStatusRecords_shouldClearCache() {
+    // given
+    when(statusRepository.getTargetTenantId()).thenReturn("tenant1");
+
+    // Cache a value
+    service.getTargetTenantId();
+    verify(statusRepository, times(1)).getTargetTenantId();
+
+    // act - recreate status records should clear cache
+    service.recreateMergeStatusRecords("new_tenant");
+
+    // Cache should be cleared, so next call should hit repository again
+    when(statusRepository.getTargetTenantId()).thenReturn("new_tenant");
+    var result = service.getTargetTenantId();
+
+    // assert
+    assertThat(result).isEqualTo("new_tenant");
+    verify(statusRepository, times(2)).getTargetTenantId();
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = ReindexStatus.class,
+    names = {"MERGE_IN_PROGRESS", "UPLOAD_IN_PROGRESS", "STAGING_IN_PROGRESS",
+             "MERGE_FAILED", "STAGING_FAILED", "UPLOAD_FAILED"})
+  void isReindexInProgressOrFailedNotForConsortiumMember_true(ReindexStatus status) {
     // given
     when(statusRepository.getReindexStatuses()).thenReturn(List.of(
-      new ReindexStatusEntity(ReindexEntityType.INSTANCE, ReindexStatus.MERGE_IN_PROGRESS),
+      new ReindexStatusEntity(ReindexEntityType.INSTANCE, status),
       new ReindexStatusEntity(ReindexEntityType.HOLDINGS, ReindexStatus.MERGE_COMPLETED)));
 
     // act
-    var actual = service.isReindexInProgressOrFailed();
+    var actual = service.isReindexInProgressOrFailedNotForConsortiumMember();
 
     // assert
     assertThat(actual).isTrue();
   }
 
   @Test
-  void isReindexInProgressOrFailed_trueWhenUploadInProgress() {
-    // given
-    when(statusRepository.getReindexStatuses()).thenReturn(List.of(
-      new ReindexStatusEntity(ReindexEntityType.INSTANCE, ReindexStatus.UPLOAD_IN_PROGRESS),
-      new ReindexStatusEntity(ReindexEntityType.HOLDINGS, ReindexStatus.MERGE_COMPLETED)));
-
-    // act
-    var actual = service.isReindexInProgressOrFailed();
-
-    // assert
-    assertThat(actual).isTrue();
-  }
-
-  @Test
-  void isReindexInProgressOrFailed_trueWhenMergeFailed() {
-    // given
-    when(statusRepository.getReindexStatuses()).thenReturn(List.of(
-      new ReindexStatusEntity(ReindexEntityType.INSTANCE, ReindexStatus.MERGE_FAILED),
-      new ReindexStatusEntity(ReindexEntityType.HOLDINGS, ReindexStatus.MERGE_COMPLETED)));
-
-    // act
-    var actual = service.isReindexInProgressOrFailed();
-
-    // assert
-    assertThat(actual).isTrue();
-  }
-
-  @Test
-  void isReindexInProgressOrFailed_trueWhenUploadFailed() {
-    // given
-    when(statusRepository.getReindexStatuses()).thenReturn(List.of(
-      new ReindexStatusEntity(ReindexEntityType.INSTANCE, ReindexStatus.UPLOAD_FAILED),
-      new ReindexStatusEntity(ReindexEntityType.HOLDINGS, ReindexStatus.MERGE_COMPLETED)));
-
-    // act
-    var actual = service.isReindexInProgressOrFailed();
-
-    // assert
-    assertThat(actual).isTrue();
-  }
-
-  @Test
-  void isReindexInProgressOrFailed_falseWhenCompleted() {
+  void isReindexInProgressOrFailedNotForConsortiumMember_false_whenAllEntityTypesHaveCompletedStatus() {
     // given
     when(statusRepository.getReindexStatuses()).thenReturn(List.of(
       new ReindexStatusEntity(ReindexEntityType.INSTANCE, ReindexStatus.UPLOAD_COMPLETED),
       new ReindexStatusEntity(ReindexEntityType.HOLDINGS, ReindexStatus.MERGE_COMPLETED)));
 
     // act
-    var actual = service.isReindexInProgressOrFailed();
+    var actual = service.isReindexInProgressOrFailedNotForConsortiumMember();
+
+    // assert
+    assertThat(actual).isFalse();
+  }
+
+  @Test
+  void isReindexInProgressOrFailedNotForConsortiumMember_true_whenAnyEntityTypeIsInProgress() {
+    // given
+    when(statusRepository.getReindexStatuses()).thenReturn(List.of(
+      new ReindexStatusEntity(ReindexEntityType.INSTANCE, ReindexStatus.MERGE_IN_PROGRESS),
+      new ReindexStatusEntity(ReindexEntityType.HOLDINGS, ReindexStatus.MERGE_COMPLETED)));
+
+    // act
+    var actual = service.isReindexInProgressOrFailedNotForConsortiumMember();
+
+    // assert
+    assertThat(actual).isTrue();
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = ReindexStatus.class,
+    names = {"MERGE_IN_PROGRESS", "UPLOAD_IN_PROGRESS", "STAGING_IN_PROGRESS",
+             "MERGE_FAILED", "STAGING_FAILED", "UPLOAD_FAILED"})
+  void isReindexInProgressOrFailedNotForConsortiumMember_false_whenReindexIsScopedToConsortiumMemberTenant(
+    ReindexStatus status) {
+    // given
+    var instanceEntity = new ReindexStatusEntity(ReindexEntityType.INSTANCE, status);
+    instanceEntity.setTargetTenantId("member-tenant");
+    when(statusRepository.getReindexStatuses()).thenReturn(List.of(
+      instanceEntity,
+      new ReindexStatusEntity(ReindexEntityType.HOLDINGS, ReindexStatus.MERGE_COMPLETED)));
+
+    // act
+    var actual = service.isReindexInProgressOrFailedNotForConsortiumMember();
 
     // assert
     assertThat(actual).isFalse();

@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.folio.search.utils.SearchUtils.CLASSIFICATION_NUMBER_FIELD;
 import static org.folio.search.utils.SearchUtils.CLASSIFICATION_TYPE_FIELD;
+import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
+import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
@@ -20,8 +22,10 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.entity.ChildResourceEntityBatch;
+import org.folio.search.service.reindex.ReindexContext;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
@@ -89,8 +93,8 @@ class ClassificationRepositoryIT {
       .extracting("number", "instances")
       .contains(
         tuple("Sci-Fi", List.of(
-          Map.of("count", 1, "shared", true, "tenantId", "consortium"),
-          Map.of("count", 1, "shared", false, "tenantId", "member_tenant"))
+          Map.of("count", 1, "shared", true, "tenantId", CENTRAL_TENANT_ID),
+          Map.of("count", 1, "shared", false, "tenantId", MEMBER_TENANT_ID))
         )
       );
   }
@@ -101,7 +105,7 @@ class ClassificationRepositoryIT {
     var instanceIds = List.of("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11");
 
     // act
-    repository.deleteByInstanceIds(instanceIds, "member_tenant");
+    repository.deleteByInstanceIds(instanceIds, MEMBER_TENANT_ID);
 
     // assert
     var ranges = repository.fetchByIdRange("0", "50");
@@ -110,8 +114,8 @@ class ClassificationRepositoryIT {
       .extracting("number", "instances")
       .contains(
         tuple("Sci-Fi", List.of(
-          Map.of("count", 2, "shared", true, "tenantId", "consortium"),
-          Map.of("count", 1, "shared", false, "tenantId", "member_tenant"))
+          Map.of("count", 2, "shared", true, "tenantId", CENTRAL_TENANT_ID),
+          Map.of("count", 1, "shared", false, "tenantId", MEMBER_TENANT_ID))
         ),
         tuple("Genre", List.of(
           Map.of("count", 1, "shared", true, "tenantId", "consortium"))
@@ -177,6 +181,33 @@ class ClassificationRepositoryIT {
       .when(jdbcTemplate).batchUpdate(anyString(), anyCollection(), anyInt(), any());
 
     saveAll();
+  }
+
+  @Test
+  void saveAllOnReindex_savesToStagingTables_whenMemberTenantReindex() {
+    var classificationId = UUID.randomUUID().toString();
+    var entities = Set.of(classificationEntity(classificationId));
+    var relations = List.of(classificationRelation("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", classificationId));
+
+    ReindexContext.setMemberTenantId(MEMBER_TENANT_ID);
+    try {
+      repository.saveAllOnReindex(new ChildResourceEntityBatch(entities, relations));
+    } finally {
+      ReindexContext.clearMemberTenantId();
+    }
+
+    assertThat(jdbcTemplate.queryForObject(
+      "SELECT count(*) FROM staging_classification WHERE id = ?", Integer.class, classificationId))
+      .isEqualTo(1);
+    assertThat(jdbcTemplate.queryForObject(
+      "SELECT count(*) FROM classification WHERE id = ?", Integer.class, classificationId))
+      .isZero();
+    assertThat(jdbcTemplate.queryForObject(
+      "SELECT count(*) FROM staging_instance_classification", Integer.class))
+      .isEqualTo(1);
+    assertThat(jdbcTemplate.queryForObject(
+      "SELECT count(*) FROM instance_classification", Integer.class))
+      .isZero();
   }
 
   @Test

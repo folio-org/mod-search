@@ -14,6 +14,7 @@
 * Provides `resource-ids-streaming v1.0`
 * Provides `browse-inventory v1.0`
 * Provides `browse-authorities v1.0`
+* Provides `indices v1.2`
 * Removed `search`
 * Removed `browse`
 
@@ -39,6 +40,8 @@
   * Omit sub-resource if main value is blank ([MSEARCH-1084](https://folio-org.atlassian.net/browse/MSEARCH-1084))
   * Remove excessive escaping of backslash character in sub-resources ([MSEARCH-1094](https://folio-org.atlassian.net/browse/MSEARCH-1094))
   * Implement two-stage Kafka processing with event aggregation for instance indexing ([MSEARCH-1157](https://folio-org.atlassian.net/browse/MSEARCH-1157))
+  * Implement member tenant reindex ([MSEARCH-1100](https://folio-org.atlassian.net/browse/MSEARCH-1100))
+  * Don't recreate reindex status on upload phase start ([MSEARCH-1198](https://folio-org.atlassian.net/browse/MSEARCH-1198))
 * **Instance Search**
   * Add support for searching by instance/holdings/item electronic access relationship ID ([MSEARCH-816](https://folio-org.atlassian.net/browse/MSEARCH-816))
   * Normalize ISSN search ([MSEARCH-658](https://folio-org.atlassian.net/browse/MSEARCH-658))
@@ -77,6 +80,7 @@
   * Update instance_call_number tenantId on Instance becoming shared ([MSEARCH-1168](https://folio-org.atlassian.net/browse/MSEARCH-1168))
   * Fix deadlocks for sub-resources on reindex ([MSEARCH-1196](https://folio-org.atlassian.net/browse/MSEARCH-1196))
   * Manually analyze instance/holding/item tables before upload phase of reindexing ([MSEARCH-1197](https://folio-org.atlassian.net/browse/MSEARCH-1197))
+  * Set reindex status to completed when range is successfully processed on retry ([MSEARCH-1199](https://folio-org.atlassian.net/browse/MSEARCH-1199))
 
 ### Tech Dept
 * Migrate to Opensearch 3.0.0 ([MSEARCH-1033](https://folio-org.atlassian.net/browse/MSEARCH-1033))

@@ -9,6 +9,7 @@ import java.io.Reader;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,7 @@ import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.entity.ChildResourceEntityBatch;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.reindex.ReindexConstants;
+import org.folio.search.service.reindex.ReindexContext;
 import org.folio.search.utils.JdbcUtils;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
@@ -130,6 +132,11 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
       VALUES (?, ?, ?, ?)
       ON CONFLICT (id) DO UPDATE SET last_updated_date = CURRENT_TIMESTAMP;
     """;
+  private static final String INSERT_STAGING_ENTITIES_SQL = """
+      INSERT INTO %s.staging_contributor (id, name, name_type_id, authority_id, inserted_at)
+      VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+      ON CONFLICT (id) DO NOTHING;
+    """;
   private static final String INSERT_ENTITIES_FOR_REINDEX_SQL = """
       INSERT INTO %s.contributor (id, name, name_type_id, authority_id)
       VALUES (?, ?, ?, ?)
@@ -141,6 +148,11 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
       ON CONFLICT DO NOTHING;
     """;
 
+  private static final String INSERT_STAGING_RELATIONS_SQL = """
+      INSERT INTO %s.staging_instance_contributor (instance_id, contributor_id, type_id, tenant_id, shared, inserted_at)
+      VALUES (?::uuid, ?, ?, ?, ?, CURRENT_TIMESTAMP);
+    """;
+
   private static final String ID_RANGE_INS_WHERE_CLAUSE = "ins.contributor_id >= ? AND ins.contributor_id <= ?";
   private static final String ID_RANGE_CONTR_WHERE_CLAUSE = "c.id >= ? AND c.id <= ?";
 
@@ -148,6 +160,37 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
                                   FolioExecutionContext context,
                                   ReindexConfigurationProperties reindexConfig) {
     super(jdbcTemplate, jsonConverter, context, reindexConfig);
+  }
+
+  @Override
+  public ReindexEntityType entityType() {
+    return ReindexEntityType.CONTRIBUTOR;
+  }
+
+  @Override
+  protected String entityTable() {
+    return ReindexConstants.CONTRIBUTOR_TABLE;
+  }
+
+  @Override
+  protected Optional<String> subEntityTable() {
+    return Optional.of(ReindexConstants.INSTANCE_CONTRIBUTOR_TABLE);
+  }
+
+  @Override
+  protected Optional<String> stagingEntityTable() {
+    return Optional.of(ReindexConstants.STAGING_CONTRIBUTOR_TABLE);
+  }
+
+  @Override
+  protected Optional<String> subEntityStagingTable() {
+    return Optional.of(ReindexConstants.STAGING_INSTANCE_CONTRIBUTOR_TABLE);
+  }
+
+  @Override
+  protected boolean supportsTenantSpecificDeletion() {
+    // Contributor table doesn't have tenant_id column - it's shared across tenants
+    return false;
   }
 
   @Override
@@ -178,41 +221,33 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
   }
 
   @Override
-  public ReindexEntityType entityType() {
-    return ReindexEntityType.CONTRIBUTOR;
-  }
-
-  @Override
-  protected String entityTable() {
-    return ReindexConstants.CONTRIBUTOR_TABLE;
-  }
-
-  @Override
-  protected Optional<String> subEntityTable() {
-    return Optional.of(ReindexConstants.INSTANCE_CONTRIBUTOR_TABLE);
-  }
-
-  @Override
   public void deleteByInstanceIds(List<String> instanceIds, String tenantId) {
     deleteByInstanceIds(DELETE_QUERY, instanceIds, tenantId);
   }
 
   @Override
   public void saveAll(ChildResourceEntityBatch entityBatch) {
-    saveEntities(INSERT_ENTITIES_SQL, entityBatch);
-    saveRelations(entityBatch);
+    saveEntities(INSERT_ENTITIES_SQL, entityBatch.resourceEntities());
+    saveRelations(INSERT_RELATIONS_SQL, entityBatch.relationshipEntities());
   }
 
   @Override
   public void saveAllOnReindex(ChildResourceEntityBatch entityBatch) {
-    saveEntities(INSERT_ENTITIES_FOR_REINDEX_SQL, entityBatch);
-    saveRelations(entityBatch);
+    // Use staging tables only for member tenant specific full reindex
+    if (ReindexContext.isMemberTenantReindex()) {
+      saveEntities(INSERT_STAGING_ENTITIES_SQL, entityBatch.resourceEntities());
+      saveRelations(INSERT_STAGING_RELATIONS_SQL, entityBatch.relationshipEntities());
+    } else {
+      saveEntities(INSERT_ENTITIES_FOR_REINDEX_SQL, entityBatch.resourceEntities());
+      saveRelations(INSERT_RELATIONS_SQL, entityBatch.relationshipEntities());
+    }
   }
 
-  private void saveEntities(String insertSqlTemplate, ChildResourceEntityBatch entityBatch) {
-    var entitiesSql = insertSqlTemplate.formatted(JdbcUtils.getSchemaName(context));
+  @SuppressWarnings("java:S2077")
+  private void saveEntities(String sqlTemplate, Collection<Map<String, Object>> entities) {
+    var sql = sqlTemplate.formatted(JdbcUtils.getSchemaName(context));
     try {
-      jdbcTemplate.batchUpdate(entitiesSql, entityBatch.resourceEntities(), BATCH_OPERATION_SIZE,
+      jdbcTemplate.batchUpdate(sql, entities, BATCH_OPERATION_SIZE,
         (statement, entity) -> {
           statement.setString(1, (String) entity.get("id"));
           statement.setString(2, (String) entity.get("name"));
@@ -221,17 +256,18 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
         });
     } catch (DataAccessException e) {
       logWarnDebugError(SAVE_ENTITIES_BATCH_ERROR_MESSAGE, e);
-      for (var entity : entityBatch.resourceEntities()) {
-        jdbcTemplate.update(entitiesSql,
+      for (var entity : entities) {
+        jdbcTemplate.update(sql,
           entity.get("id"), entity.get("name"), entity.get("nameTypeId"), entity.get(AUTHORITY_ID_FIELD));
       }
     }
   }
 
-  private void saveRelations(ChildResourceEntityBatch entityBatch) {
-    var relationsSql = INSERT_RELATIONS_SQL.formatted(JdbcUtils.getSchemaName(context));
+  @SuppressWarnings("java:S2077")
+  private void saveRelations(String sqlTemplate, Collection<Map<String, Object>> relationships) {
+    var sql = sqlTemplate.formatted(JdbcUtils.getSchemaName(context));
     try {
-      jdbcTemplate.batchUpdate(relationsSql, entityBatch.relationshipEntities(), BATCH_OPERATION_SIZE,
+      jdbcTemplate.batchUpdate(sql, relationships, BATCH_OPERATION_SIZE,
         (statement, entityRelation) -> {
           statement.setObject(1, entityRelation.get("instanceId"));
           statement.setString(2, (String) entityRelation.get("contributorId"));
@@ -241,11 +277,20 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
         });
     } catch (DataAccessException e) {
       logWarnDebugError(SAVE_RELATIONS_BATCH_ERROR_MESSAGE, e);
-      for (var entityRelation : entityBatch.relationshipEntities()) {
-        jdbcTemplate.update(relationsSql, entityRelation.get("instanceId"), entityRelation.get("contributorId"),
+      for (var entityRelation : relationships) {
+        jdbcTemplate.update(sql, entityRelation.get("instanceId"), entityRelation.get("contributorId"),
           entityRelation.get(CONTRIBUTOR_TYPE_FIELD), entityRelation.get("tenantId"), entityRelation.get("shared"));
       }
     }
+  }
+
+  @Override
+  @SuppressWarnings("java:S2077")
+  public List<Map<String, Object>> fetchByIdRangeWithTimestamp(String lower, String upper, Timestamp timestamp) {
+    var sql = SELECT_QUERY.formatted(JdbcUtils.getSchemaName(context),
+      ID_RANGE_INS_WHERE_CLAUSE,
+      ID_RANGE_CONTR_WHERE_CLAUSE + " AND c.last_updated_date = ?");
+    return jdbcTemplate.query(sql, rowToMapMapper(), lower, upper, lower, upper, timestamp);
   }
 
   protected RowMapper<Map<String, Object>> rowToMapMapper2() {

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_TYPE_FIELD;
+import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
@@ -20,8 +21,10 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.entity.ChildResourceEntityBatch;
+import org.folio.search.service.reindex.ReindexContext;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
@@ -91,7 +94,7 @@ class ContributorRepositoryIT {
         tuple("Sci-Fi", List.of(
           Map.of("count", 1, "shared", true, "tenantId", "consortium",
             "typeId", List.of("aab8fff4-49c6-4578-979e-439b6ba3600b")),
-            Map.of("count", 1, "shared", false, "tenantId", "member_tenant",
+            Map.of("count", 1, "shared", false, "tenantId", MEMBER_TENANT_ID,
               "typeId", List.of("9ec55e4f-6a76-427c-b47b-197046f44a53")))));
   }
 
@@ -176,6 +179,33 @@ class ContributorRepositoryIT {
       .when(jdbcTemplate).batchUpdate(anyString(), anyCollection(), anyInt(), any());
 
     saveAll();
+  }
+
+  @Test
+  void saveAllOnReindex_savesToStagingTables_whenMemberTenantReindex() {
+    var contributorId = UUID.randomUUID().toString();
+    var entities = Set.of(contributorEntity(contributorId));
+    var relations = List.of(contributorRelation("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", contributorId));
+
+    ReindexContext.setMemberTenantId(MEMBER_TENANT_ID);
+    try {
+      repository.saveAllOnReindex(new ChildResourceEntityBatch(entities, relations));
+    } finally {
+      ReindexContext.clearMemberTenantId();
+    }
+
+    assertThat(jdbcTemplate.queryForObject(
+      "SELECT count(*) FROM staging_contributor WHERE id = ?", Integer.class, contributorId))
+      .isEqualTo(1);
+    assertThat(jdbcTemplate.queryForObject(
+      "SELECT count(*) FROM contributor WHERE id = ?", Integer.class, contributorId))
+      .isZero();
+    assertThat(jdbcTemplate.queryForObject(
+      "SELECT count(*) FROM staging_instance_contributor", Integer.class))
+      .isEqualTo(1);
+    assertThat(jdbcTemplate.queryForObject(
+      "SELECT count(*) FROM instance_contributor", Integer.class))
+      .isZero();
   }
 
   private Map<String, Object> contributorEntity(String id) {

@@ -1,7 +1,8 @@
 package org.folio.search.service.reindex;
 
 import static java.util.Collections.emptyList;
-import static org.folio.search.exception.RequestValidationException.REQUEST_NOT_ALLOWED_MSG;
+import static org.folio.search.exception.RequestValidationException.REQUEST_NOT_ALLOWED_FOR_CONSORTIUM_MEMBER_MSG;
+import static org.folio.search.exception.RequestValidationException.REQUEST_NOT_ALLOWED_WITH_TARGET_TENANT_MSG;
 import static org.folio.search.model.types.ReindexEntityType.HOLDINGS;
 import static org.folio.search.model.types.ReindexEntityType.INSTANCE;
 import static org.folio.search.model.types.ReindexEntityType.ITEM;
@@ -13,6 +14,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -35,6 +37,7 @@ import org.folio.search.converter.ReindexEntityTypeMapper;
 import org.folio.search.domain.dto.IndexSettings;
 import org.folio.search.domain.dto.ReindexUploadDto;
 import org.folio.search.exception.FolioIntegrationException;
+import org.folio.search.exception.ReindexException;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.integration.folio.InventoryService;
 import org.folio.search.model.reindex.MergeRangeEntity;
@@ -80,7 +83,7 @@ class ReindexServiceTest {
     when(consortiumService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of("central"));
 
     assertThrows(RequestValidationException.class, () -> reindexService.submitFullReindex(TENANT_ID, null),
-      REQUEST_NOT_ALLOWED_MSG);
+      REQUEST_NOT_ALLOWED_FOR_CONSORTIUM_MEMBER_MSG);
   }
 
   @Test
@@ -101,8 +104,8 @@ class ReindexServiceTest {
     reindexService.submitFullReindex(tenant, indexSettings);
     ThreadUtils.sleep(Duration.ofSeconds(1));
 
-    verify(reindexCommonService).deleteAllRecords();
-    verify(statusService).recreateMergeStatusRecords();
+    verify(reindexCommonService).deleteAllRecords(null);
+    verify(statusService).recreateMergeStatusRecords(null);
     verify(reindexCommonService, times(ReindexEntityType.supportUploadTypes().size()))
       .recreateIndex(any(), eq(tenant), eq(indexSettings));
     verify(mergeRangeService).saveMergeRanges(anyList());
@@ -151,7 +154,7 @@ class ReindexServiceTest {
 
     // act & assert
     assertThrows(RequestValidationException.class,
-      () -> reindexService.submitUploadReindex(member, entityTypes), REQUEST_NOT_ALLOWED_MSG);
+      () -> reindexService.submitUploadReindex(member, entityTypes), REQUEST_NOT_ALLOWED_FOR_CONSORTIUM_MEMBER_MSG);
   }
 
   @Test
@@ -192,9 +195,11 @@ class ReindexServiceTest {
 
     reindexService.submitUploadReindex(TENANT_ID, List.of(ReindexEntityType.INSTANCE));
 
-    verify(statusService).recreateUploadStatusRecord(INSTANCE);
+    verify(statusService).getTargetTenantId();
+    verify(statusService).upsertUploadStatusRecord(eq(INSTANCE), any());
     verify(mergeRangeService).analyzeEntityTables();
     verify(uploadRangeService).prepareAndSendIndexRanges(INSTANCE);
+    verify(reindexCommonService, never()).recreateIndex(any(), any(), any());
   }
 
   @Test
@@ -206,9 +211,26 @@ class ReindexServiceTest {
 
     reindexService.submitUploadReindex(TENANT_ID, uploadDto);
 
-    verify(statusService).recreateUploadStatusRecord(INSTANCE);
+    verify(statusService).getTargetTenantId();
+    verify(statusService).upsertUploadStatusRecord(eq(INSTANCE), any());
+    verify(reindexCommonService).recreateIndex(eq(INSTANCE), eq(TENANT_ID), any());
     verify(mergeRangeService).analyzeEntityTables();
     verify(uploadRangeService).prepareAndSendIndexRanges(INSTANCE);
+  }
+
+  @Test
+  void submitUploadReindex_positive_filtersOutNonUploadEntityTypes() {
+    // mapper returns HOLDINGS which has supportsUpload=false, so it should be filtered out
+    var uploadDto = new ReindexUploadDto()
+      .entityTypes(List.of(ReindexUploadDto.EntityTypesEnum.INSTANCE, ReindexUploadDto.EntityTypesEnum.SUBJECT));
+    when(consortiumService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(TENANT_ID));
+    when(entityTypeMapper.convert(uploadDto.getEntityTypes())).thenReturn(List.of(INSTANCE, HOLDINGS));
+    doAnswer(executeRunnable()).when(reindexExecutor).execute(any());
+
+    reindexService.submitUploadReindex(TENANT_ID, uploadDto);
+
+    verify(uploadRangeService).prepareAndSendIndexRanges(INSTANCE);
+    verify(uploadRangeService, never()).prepareAndSendIndexRanges(HOLDINGS);
   }
 
   @Test
@@ -228,7 +250,7 @@ class ReindexServiceTest {
     when(consortiumService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of("central"));
 
     assertThrows(RequestValidationException.class, () -> reindexService.submitFailedMergeRangesReindex(TENANT_ID),
-      REQUEST_NOT_ALLOWED_MSG);
+      REQUEST_NOT_ALLOWED_FOR_CONSORTIUM_MEMBER_MSG);
   }
 
   @Test
@@ -266,6 +288,142 @@ class ReindexServiceTest {
       Set.of(ReindexEntityType.ITEM, ReindexEntityType.HOLDINGS, ReindexEntityType.INSTANCE));
     failedRanges.forEach(range ->
       verify(inventoryService).publishReindexRecordsRange(range));
+  }
+
+  @Test
+  void submitFullReindex_negative_shouldThrowWhenReindexAlreadyInProgressWithUploadStatus() {
+    var tenant = "central";
+    when(consortiumService.getCentralTenant(tenant)).thenReturn(Optional.of(tenant));
+    when(statusService.getStatusesByType()).thenReturn(Map.of(INSTANCE, ReindexStatus.UPLOAD_IN_PROGRESS));
+
+    assertThrows(RequestValidationException.class,
+      () -> reindexService.submitFullReindex(tenant, null),
+      "Reindex is already in progress for: instance");
+  }
+
+  @Test
+  void submitFullReindex_negative_shouldThrowWhenReindexAlreadyInProgressWithMergeStatus() {
+    var tenant = "central";
+    when(consortiumService.getCentralTenant(tenant)).thenReturn(Optional.of(tenant));
+    when(statusService.getStatusesByType()).thenReturn(Map.of(HOLDINGS, ReindexStatus.MERGE_IN_PROGRESS));
+
+    assertThrows(RequestValidationException.class,
+      () -> reindexService.submitFullReindex(tenant, null),
+      "Reindex is already in progress for: holdings");
+  }
+
+  @Test
+  void submitFullReindex_negative_shouldThrowForNonConsortiumTenantWithTargetTenantId() {
+    var tenant = "standalone";
+    var targetTenant = "other";
+    when(consortiumService.getCentralTenant(tenant)).thenReturn(Optional.empty());
+
+    assertThrows(RequestValidationException.class,
+      () -> reindexService.submitFullReindex(tenant, null, targetTenant),
+      REQUEST_NOT_ALLOWED_WITH_TARGET_TENANT_MSG);
+  }
+
+  @Test
+  void submitFullReindex_negative_shouldThrowWhenTargetTenantIsNotConsortiumMember() {
+    var tenant = "central";
+    var targetTenant = "nonMember";
+    when(consortiumService.getCentralTenant(tenant)).thenReturn(Optional.of(tenant));
+    when(consortiumService.getConsortiumTenants(tenant)).thenReturn(List.of("member1", "member2"));
+
+    assertThrows(RequestValidationException.class,
+      () -> reindexService.submitFullReindex(tenant, null, targetTenant),
+      REQUEST_NOT_ALLOWED_WITH_TARGET_TENANT_MSG);
+  }
+
+  @Test
+  void submitFullReindex_positive_withTargetTenantId() throws InterruptedException {
+    var tenant = "central";
+    var targetTenant = "member";
+    var rangeEntity = buildMergeRangeEntity(UUID.randomUUID(), targetTenant);
+
+    when(consortiumService.getCentralTenant(tenant)).thenReturn(Optional.of(tenant));
+    when(consortiumService.getConsortiumTenants(tenant)).thenReturn(List.of(targetTenant));
+    when(statusService.getStatusesByType()).thenReturn(Map.of());
+    when(executionService.executeSystemUserScoped(eq(targetTenant), any())).thenReturn(List.of(rangeEntity));
+    when(mergeRangeService.fetchMergeRanges(any(ReindexEntityType.class))).thenReturn(List.of(rangeEntity));
+    doAnswer(executeRunnable()).when(reindexExecutor).execute(any());
+    final var expectedCallsCount = ReindexEntityType.supportMergeTypes().size();
+
+    reindexService.submitFullReindex(tenant, null, targetTenant);
+    ThreadUtils.sleep(Duration.ofSeconds(1));
+
+    verify(reindexCommonService).deleteAllRecords(targetTenant);
+    verify(statusService).recreateMergeStatusRecords(targetTenant);
+    verify(reindexCommonService, times(ReindexEntityType.supportUploadTypes().size()))
+      .ensureIndexExists(any(), eq(tenant), any());
+    verify(reindexCommonService, never()).recreateIndex(any(), any(), any());
+    verify(mergeRangeService).truncateMergeRanges();
+    verify(mergeRangeService).saveMergeRanges(anyList());
+    verify(statusService, times(expectedCallsCount))
+      .updateReindexMergeStarted(any(ReindexEntityType.class), eq(1));
+  }
+
+  @Test
+  void submitUploadReindex_negative_notAllowedToRunUploadWhenMergePhaseIsFailed() {
+    when(consortiumService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(TENANT_ID));
+    when(statusService.getStatusesByType())
+      .thenReturn(Map.of(INSTANCE, ReindexStatus.MERGE_FAILED));
+    var entityTypes = List.of(ReindexEntityType.INSTANCE);
+
+    assertThrows(RequestValidationException.class,
+      () -> reindexService.submitUploadReindex(TENANT_ID, entityTypes),
+      "Merge phase is in progress or failed for: instance");
+  }
+
+  @Test
+  void submitUploadReindex_negative_notAllowedToRunUploadWhenUploadAlreadyInProgress() {
+    when(consortiumService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(TENANT_ID));
+    when(statusService.getStatusesByType())
+      .thenReturn(Map.of(INSTANCE, ReindexStatus.UPLOAD_IN_PROGRESS));
+    var entityTypes = List.of(ReindexEntityType.INSTANCE);
+
+    assertThrows(RequestValidationException.class,
+      () -> reindexService.submitUploadReindex(TENANT_ID, entityTypes),
+      "Reindex Upload in Progress");
+  }
+
+  @Test
+  void submitUploadReindexWithTenantCleanup_positive_withTargetTenantId() {
+    when(consortiumService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(TENANT_ID));
+    doAnswer(executeRunnable()).when(reindexExecutor).execute(any());
+
+    reindexService.submitUploadReindexWithTenantCleanup(TENANT_ID, List.of(INSTANCE), "member");
+
+    verify(reindexCommonService).deleteInstanceDocumentsByTenantId("member");
+    verify(statusService).upsertUploadStatusRecord(eq(INSTANCE), any());
+    verify(uploadRangeService).prepareAndSendIndexRanges(INSTANCE);
+    verifyNoInteractions(mergeRangeService);
+  }
+
+  @Test
+  void submitUploadReindexWithTenantCleanup_positive_withNullTargetTenantId() {
+    when(consortiumService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(TENANT_ID));
+    doAnswer(executeRunnable()).when(reindexExecutor).execute(any());
+
+    reindexService.submitUploadReindexWithTenantCleanup(TENANT_ID, List.of(INSTANCE), null);
+
+    verify(reindexCommonService, never()).deleteInstanceDocumentsByTenantId(any());
+    verify(statusService).upsertUploadStatusRecord(eq(INSTANCE), any());
+    verify(uploadRangeService).prepareAndSendIndexRanges(INSTANCE);
+    verify(mergeRangeService).analyzeEntityTables();
+  }
+
+  @Test
+  void submitUploadReindexWithTenantCleanup_negative_shouldThrowReindexExceptionWhenCleanupFails() {
+    doThrow(new RuntimeException("ES error")).when(reindexCommonService)
+      .deleteInstanceDocumentsByTenantId("member");
+
+    var entityTypes = List.of(INSTANCE);
+
+    assertThrows(ReindexException.class,
+      () -> reindexService.submitUploadReindexWithTenantCleanup(TENANT_ID, entityTypes, "member"),
+      "Failed to cleanup tenant documents before upload");
+    verifyNoInteractions(mergeRangeService);
   }
 
   private MergeRangeEntity buildMergeRangeEntity(UUID id, String tenant) {

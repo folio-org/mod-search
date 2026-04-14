@@ -5,8 +5,8 @@ import static java.util.Collections.emptyList;
 import static org.folio.search.model.event.ReindexRecordType.INSTANCE;
 import static org.folio.search.model.types.ReindexRangeStatus.FAIL;
 import static org.folio.search.model.types.ReindexRangeStatus.SUCCESS;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -18,6 +18,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.folio.s3.client.FolioS3Client;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
@@ -25,11 +26,13 @@ import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.exception.ReindexException;
 import org.folio.search.model.event.ReindexFileReadyEvent;
 import org.folio.search.model.event.ReindexRangeIndexEvent;
+import org.folio.search.model.event.ReindexRecordType;
 import org.folio.search.model.event.ReindexRecordsEvent;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.types.IndexActionType;
 import org.folio.search.model.types.IndexingDataFormat;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.model.types.ReindexRangeStatus;
 import org.folio.search.repository.PrimaryResourceRepository;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.search.utils.JsonConverter;
@@ -242,10 +245,10 @@ class ReindexOrchestrationServiceTest {
     service.process(event);
 
     var eventCaptor = ArgumentCaptor.forClass(ReindexRecordsEvent.class);
-    verify(mergeRangeIndexService).saveEntities(eventCaptor.capture());
+    verify(mergeRangeService).saveEntities(eventCaptor.capture());
     assertEquals(List.of(inventoryRecord), eventCaptor.getValue().getRecords());
     verify(reindexStatusService).addProcessedMergeRanges(ReindexEntityType.INSTANCE, 1);
-    verify(mergeRangeIndexService).updateStatus(ReindexEntityType.INSTANCE, rangeId, SUCCESS, null);
+    verify(mergeRangeService).updateStatus(ReindexEntityType.INSTANCE, rangeId, SUCCESS, null);
   }
 
   @Test
@@ -265,10 +268,10 @@ class ReindexOrchestrationServiceTest {
     service.process(event);
 
     var eventCaptor = ArgumentCaptor.forClass(ReindexRecordsEvent.class);
-    verify(mergeRangeIndexService).saveEntities(eventCaptor.capture());
+    verify(mergeRangeService).saveEntities(eventCaptor.capture());
     assertEquals(List.of(record1, record2), eventCaptor.getValue().getRecords());
     verify(reindexStatusService).addProcessedMergeRanges(ReindexEntityType.INSTANCE, 1);
-    verify(mergeRangeIndexService).updateStatus(ReindexEntityType.INSTANCE, rangeId, SUCCESS, null);
+    verify(mergeRangeService).updateStatus(ReindexEntityType.INSTANCE, rangeId, SUCCESS, null);
   }
 
   @Test
@@ -281,13 +284,13 @@ class ReindexOrchestrationServiceTest {
     var failCause = "exception occurred";
     when(folioS3Client.read(event.getObjectKey())).thenReturn(new ByteArrayInputStream((line + "\n").getBytes(UTF_8)));
     when(jsonConverter.fromJsonToMap(line)).thenReturn(inventoryRecord);
-    doThrow(new RuntimeException(failCause)).when(mergeRangeIndexService).saveEntities(any(ReindexRecordsEvent.class));
+    doThrow(new RuntimeException(failCause)).when(mergeRangeService).saveEntities(any(ReindexRecordsEvent.class));
 
     var result = service.process(event);
 
     assertTrue(result);
     verify(reindexStatusService).updateReindexMergeFailed(ReindexEntityType.INSTANCE);
-    verify(mergeRangeIndexService).updateStatus(ReindexEntityType.INSTANCE, rangeId, FAIL, failCause);
+    verify(mergeRangeService).updateStatus(ReindexEntityType.INSTANCE, rangeId, FAIL, failCause);
     verifyNoMoreInteractions(reindexStatusService);
   }
 
@@ -301,16 +304,11 @@ class ReindexOrchestrationServiceTest {
     when(folioS3Client.read(event.getObjectKey())).thenReturn(new ByteArrayInputStream((line + "\n").getBytes(UTF_8)));
     when(jsonConverter.fromJsonToMap(line)).thenReturn(inventoryRecord);
     doThrow(new PessimisticLockingFailureException("Deadlock"))
-      .when(mergeRangeIndexService).saveEntities(any(ReindexRecordsEvent.class));
+      .when(mergeRangeService).saveEntities(any(ReindexRecordsEvent.class));
 
     assertThrows(ReindexException.class, () -> service.process(event));
 
     verifyNoMoreInteractions(reindexStatusService);
-  }
-
-  private ReindexFileReadyEvent getReindexFileReadyEvent(String rangeId) {
-    return new ReindexFileReadyEvent("diku", INSTANCE, rangeId, UUID.randomUUID().toString(),
-      "bucket", "object-key", "2026-03-02T00:00:00.000Z");
   }
 
   @Test
@@ -318,7 +316,7 @@ class ReindexOrchestrationServiceTest {
     // given
     var event = new ReindexRecordsEvent();
     event.setRangeId(UUID.randomUUID().toString());
-    event.setRecordType(ReindexRecordsEvent.ReindexRecordType.INSTANCE);
+    event.setRecordType(ReindexRecordType.INSTANCE);
     event.setRecords(emptyList());
 
     when(reindexStatusService.isMergeCompleted()).thenReturn(true);
@@ -341,7 +339,7 @@ class ReindexOrchestrationServiceTest {
     // given
     var event = new ReindexRecordsEvent();
     event.setRangeId(UUID.randomUUID().toString());
-    event.setRecordType(ReindexRecordsEvent.ReindexRecordType.INSTANCE);
+    event.setRecordType(ReindexRecordType.INSTANCE);
     event.setRecords(emptyList());
 
     when(reindexStatusService.isMergeCompleted()).thenReturn(false);
@@ -384,7 +382,7 @@ class ReindexOrchestrationServiceTest {
   void process_reindexRecordsEvent_shouldRunStagingMigrationAndSubmitUploadWhenMergeCompletedForMemberTenant() {
     var event = new ReindexRecordsEvent();
     event.setRangeId(UUID.randomUUID().toString());
-    event.setRecordType(ReindexRecordsEvent.ReindexRecordType.INSTANCE);
+    event.setRecordType(ReindexRecordType.INSTANCE);
     event.setRecords(emptyList());
 
     when(reindexStatusService.isMergeCompleted()).thenReturn(true);
@@ -406,7 +404,7 @@ class ReindexOrchestrationServiceTest {
   void process_reindexRecordsEvent_shouldFailAndThrowWhenStagingMigrationFails() {
     var event = new ReindexRecordsEvent();
     event.setRangeId(UUID.randomUUID().toString());
-    event.setRecordType(ReindexRecordsEvent.ReindexRecordType.INSTANCE);
+    event.setRecordType(ReindexRecordType.INSTANCE);
     event.setRecords(emptyList());
     var migrationError = "DB connection lost";
 
@@ -421,6 +419,11 @@ class ReindexOrchestrationServiceTest {
     verify(reindexStatusService).updateStagingFailed();
     verify(reindexStatusService, never()).updateStagingCompleted();
     verify(reindexService, never()).submitUploadReindexWithTenantCleanup(any(), any(), any());
+  }
+
+  private ReindexFileReadyEvent getReindexFileReadyEvent(String rangeId) {
+    return new ReindexFileReadyEvent("diku", INSTANCE, rangeId, UUID.randomUUID().toString(),
+      "bucket", "object-key", "2026-03-02T00:00:00.000Z");
   }
 
   private ReindexRangeIndexEvent reindexEvent() {

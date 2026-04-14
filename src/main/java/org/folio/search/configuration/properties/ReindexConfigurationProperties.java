@@ -89,8 +89,9 @@ public class ReindexConfigurationProperties {
 
     // Validate statement_timeout format
     if (!STATEMENT_TIMEOUT_VALIDATION_PATTERN.matcher(migrationStatementTimeout).matches()) {
-      var errorMsg = "Invalid statement_timeout configuration: " + migrationStatementTimeout
-                     + ". Must be a number optionally followed by ms, s, min, or h (e.g., '0', '600000', '30min', '1h')";
+      var errorMsg = ("Invalid statement_timeout configuration: %s. "
+                      + "Must be a number optionally followed by ms, s, min, or h (e.g., '0', '600000', '30min', '1h')")
+        .formatted(migrationStatementTimeout);
       log.error(errorMsg);
       throw new IllegalArgumentException(errorMsg);
     }

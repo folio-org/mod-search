@@ -141,7 +141,7 @@ class ReindexMergeRangeIndexServiceTest {
   @Test
   void fetchMergeRanges_positive() {
     var expected = List.of(
-      new MergeRangeEntity(UUID.randomUUID(), INSTANCE, TENANT_ID, "00", "ff",
+      new MergeRangeEntity(UUID.randomUUID(), UUID.randomUUID(), INSTANCE, TENANT_ID, "00", "ff",
         Timestamp.from(Instant.now()), null, null));
     when(instanceRepository.getMergeRanges()).thenReturn(expected);
 
@@ -184,9 +184,9 @@ class ReindexMergeRangeIndexServiceTest {
       List.of(entities));
   }
 
-  @EnumSource(value = ReindexRecordsEvent.ReindexRecordType.class)
+  @EnumSource(value = ReindexRecordType.class)
   @ParameterizedTest
-  void saveEntities_positive_withoutInstanceChildrenResourceService(ReindexRecordsEvent.ReindexRecordType recordType) {
+  void saveEntities_positive_withoutInstanceChildrenResourceService(ReindexRecordType recordType) {
     var entities = Map.<String, Object>of("id", UUID.randomUUID());
     var event = new ReindexRecordsEvent();
     event.setTenant(TENANT_ID);

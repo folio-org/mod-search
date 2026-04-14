@@ -26,6 +26,7 @@ TOPICS=(
 "${ENV}.Default.linked-data.hub"
 "${ENV}.Default.search.reindex.range-index"
 "${ENV}.Default.inventory.reindex-records"
+"${ENV}.Default.ALL.CONSORTIUM_INSTANCE_SHARING_COMPLETE"
 )
 
 # Updated to use the full path to kafka-topics.sh

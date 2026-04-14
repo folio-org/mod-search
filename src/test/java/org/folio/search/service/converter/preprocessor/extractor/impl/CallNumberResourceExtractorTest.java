@@ -17,17 +17,14 @@ import java.util.Map;
 import java.util.function.Supplier;
 import org.folio.search.domain.dto.TenantConfiguredFeature;
 import org.folio.search.service.FeatureConfigService;
-import org.folio.search.service.consortium.ConsortiumTenantProvider;
 import org.folio.search.service.reindex.jdbc.CallNumberRepository;
-import org.folio.search.utils.JsonConverter;
 import org.folio.spring.testing.type.UnitTest;
 import org.folio.support.base.ChildResourceExtractorTestBase;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import tools.jackson.databind.json.JsonMapper;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -37,9 +34,8 @@ class CallNumberResourceExtractorTest extends ChildResourceExtractorTestBase {
   private CallNumberRepository repository;
   @Mock
   private FeatureConfigService configService;
-  @Mock
-  private ConsortiumTenantProvider tenantProvider;
 
+  @InjectMocks
   private CallNumberResourceExtractor extractor;
 
   @Override
@@ -47,16 +43,17 @@ class CallNumberResourceExtractorTest extends ChildResourceExtractorTestBase {
     return 1;
   }
 
-  @BeforeEach
-  void setUp() {
-    extractor = new CallNumberResourceExtractor(repository, new JsonConverter(new JsonMapper()), configService);
-  }
-
   @Test
   void persistChildren() {
     when(configService.isEnabled(TenantConfiguredFeature.BROWSE_CALL_NUMBERS)).thenReturn(true);
     persistChildrenTest(extractor, repository, callNumberBodySupplier());
     verify(repository, times(1)).deleteByInstanceIds(anyList(), eq(TENANT_ID));
+  }
+
+  @Test
+  void persistChildrenOnReindex() {
+    when(configService.isEnabled(TenantConfiguredFeature.BROWSE_CALL_NUMBERS)).thenReturn(true);
+    persistChildrenOnReindexTest(extractor, repository, callNumberBodySupplier());
   }
 
   @Test
@@ -72,7 +69,10 @@ class CallNumberResourceExtractorTest extends ChildResourceExtractorTestBase {
         SUFFIX_FIELD, "suffix",
         PREFIX_FIELD, "prefix",
         TYPE_ID_FIELD, "type-id"
-      )
+        ),
+        "id", "id",
+        "instanceId", "instance-id",
+        "effectiveLocationId", "location-id"
     ));
   }
 

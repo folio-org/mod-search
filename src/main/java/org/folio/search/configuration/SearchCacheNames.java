@@ -13,4 +13,6 @@ public class SearchCacheNames {
   public static final String SEARCH_PREFERENCE_CACHE = "search-preference";
   public static final String USER_TENANTS_CACHE = "user-tenants";
   public static final String CONSORTIUM_TENANTS_CACHE = "consortium-tenants-cache";
+  //custom cache names
+  public static final String REINDEX_TARGET_TENANT_CACHE = "reindex-target-tenant";
 }

@@ -19,6 +19,7 @@ import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.InstanceChildrenResourceService;
 import org.folio.search.service.ResourceService;
 import org.folio.search.service.reindex.ReindexConstants;
+import org.folio.search.service.reindex.ReindexStatusService;
 import org.folio.search.service.reindex.jdbc.InstanceChildResourceRepository;
 import org.folio.search.service.reindex.jdbc.ItemRepository;
 import org.folio.search.service.reindex.jdbc.MergeInstanceRepository;
@@ -42,6 +43,7 @@ public class ScheduledInstanceSubResourcesService {
   private final TenantRepository tenantRepository;
   private final Map<ReindexEntityType, ReindexJdbcRepository> repositories;
   private final SubResourcesLockRepository subResourcesLockRepository;
+  private final ReindexStatusService reindexStatusService;
   private final SystemUserScopedExecutionService executionService;
   private final int subResourceBatchSize;
   private final long staleLockThresholdMs;
@@ -51,6 +53,7 @@ public class ScheduledInstanceSubResourcesService {
                                               TenantRepository tenantRepository,
                                               List<ReindexJdbcRepository> repositories,
                                               SubResourcesLockRepository subResourcesLockRepository,
+                                              ReindexStatusService reindexStatusService,
                                               SystemUserScopedExecutionService executionService,
                                               MergeInstanceRepository instanceRepository,
                                               ItemRepository itemRepository,
@@ -59,6 +62,7 @@ public class ScheduledInstanceSubResourcesService {
     this.tenantRepository = tenantRepository;
     this.repositories = buildRepositoriesMap(repositories, instanceRepository, itemRepository);
     this.subResourcesLockRepository = subResourcesLockRepository;
+    this.reindexStatusService = reindexStatusService;
     this.executionService = executionService;
     this.subResourceBatchSize = searchConfigurationProperties.getIndexing().getSubResourceBatchSize();
     this.staleLockThresholdMs = searchConfigurationProperties.getIndexing().getStaleLockThresholdMs();
@@ -115,10 +119,26 @@ public class ScheduledInstanceSubResourcesService {
   }
 
   private void handleLockAcquisitionFailure(ReindexEntityType entityType, String tenant) {
+    if (isReindexInProgressOrFailedNotForConsortiumMember()) {
+      log.info(
+        "persistChildren::Skipping stale lock check for entity type {} in tenant {} - reindex is in progress or failed",
+        entityType, tenant);
+      return;
+    }
+
     if (subResourcesLockRepository.checkAndReleaseStaleLock(entityType, tenant, staleLockThresholdMs)) {
       log.warn("persistChildren::Released stale lock for entity type {} in tenant {}. "
                + "Lock was older than threshold of {} ms",
         entityType, tenant, staleLockThresholdMs);
+    }
+  }
+
+  private boolean isReindexInProgressOrFailedNotForConsortiumMember() {
+    try {
+      return reindexStatusService.isReindexInProgressOrFailedNotForConsortiumMember();
+    } catch (Exception e) {
+      log.warn("persistChildren::Failed to check reindex status, assuming no reindex in progress or failed", e);
+      return false;
     }
   }
 

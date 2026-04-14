@@ -6,6 +6,7 @@ import static org.folio.search.utils.SearchUtils.AUTHORITY_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.SUBJECT_SOURCE_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.SUBJECT_TYPE_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.SUBJECT_VALUE_FIELD;
+import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
@@ -18,14 +19,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.sql.BatchUpdateException;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import org.assertj.core.api.Condition;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.entity.ChildResourceEntityBatch;
 import org.folio.search.model.reindex.UploadRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.service.reindex.ReindexContext;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
@@ -138,7 +142,7 @@ class SubjectRepositoryIT {
       .contains(
         tuple("Sci-Fi", List.of(
           Map.of("count", 1, "shared", true, "tenantId", "consortium"),
-          Map.of("count", 1, "shared", false, "tenantId", "member_tenant"))));
+          Map.of("count", 1, "shared", false, "tenantId", MEMBER_TENANT_ID))));
   }
 
   @Test
@@ -159,6 +163,38 @@ class SubjectRepositoryIT {
       .contains(
         tuple("value1", List.of(Map.of("count", 1, "shared", false, "tenantId", TENANT_ID))),
         tuple("value2", List.of(Map.of("count", 2, "shared", false, "tenantId", TENANT_ID))));
+  }
+
+  @Test
+  void saveAllOnReindex() {
+    // save entity "1" via saveAll first, capturing its last_updated_date
+    repository.saveAll(new ChildResourceEntityBatch(
+      Set.of(subjectEntity("1")),
+      List.of(subjectRelation("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", "1"))));
+    var lastUpdatedAfterSaveAll = jdbcTemplate.queryForObject(
+      "SELECT last_updated_date FROM subject WHERE id = ?", Timestamp.class, "1");
+
+    // call saveAllOnReindex with existing entity "1" and new entity "2"
+    repository.saveAllOnReindex(new ChildResourceEntityBatch(
+      Set.of(subjectEntity("1"), subjectEntity("2")),
+      List.of(
+        subjectRelation("b3bae8a9-cfb1-4afe-83d5-2cdae4580e07", "1"),
+        subjectRelation("b3bae8a9-cfb1-4afe-83d5-2cdae4580e07", "2"),
+        subjectRelation("9ec55e4f-6a76-427c-b47b-197046f44a54", "2"))));
+
+    // assert: new entity "2" and its relations were saved
+    var ranges = repository.fetchByIdRange("0", "50");
+    assertThat(ranges)
+      .hasSize(2)
+      .extracting("value", "instances")
+      .contains(
+        tuple("value1", List.of(Map.of("count", 2, "shared", false, "tenantId", TENANT_ID))),
+        tuple("value2", List.of(Map.of("count", 2, "shared", false, "tenantId", TENANT_ID))));
+
+    // assert: existing entity "1" was not updated (last_updated_date unchanged)
+    var lastUpdatedAfterReindex = jdbcTemplate.queryForObject(
+      "SELECT last_updated_date FROM subject WHERE id = ?", Timestamp.class, "1");
+    assertThat(lastUpdatedAfterReindex).isEqualTo(lastUpdatedAfterSaveAll);
   }
 
   @Test
@@ -186,6 +222,33 @@ class SubjectRepositoryIT {
       .when(jdbcTemplate).batchUpdate(anyString(), anyCollection(), anyInt(), any());
 
     saveAll();
+  }
+
+  @Test
+  void saveAllOnReindex_savesToStagingTables_whenMemberTenantReindex() {
+    var subjectId = UUID.randomUUID().toString();
+    var entities = Set.of(subjectEntity(subjectId));
+    var relations = List.of(subjectRelation("a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", subjectId));
+
+    ReindexContext.setMemberTenantId(MEMBER_TENANT_ID);
+    try {
+      repository.saveAllOnReindex(new ChildResourceEntityBatch(entities, relations));
+    } finally {
+      ReindexContext.clearMemberTenantId();
+    }
+
+    assertThat(jdbcTemplate.queryForObject(
+      "SELECT count(*) FROM staging_subject WHERE id = ?", Integer.class, subjectId))
+      .isEqualTo(1);
+    assertThat(jdbcTemplate.queryForObject(
+      "SELECT count(*) FROM subject WHERE id = ?", Integer.class, subjectId))
+      .isZero();
+    assertThat(jdbcTemplate.queryForObject(
+      "SELECT count(*) FROM staging_instance_subject", Integer.class))
+      .isEqualTo(1);
+    assertThat(jdbcTemplate.queryForObject(
+      "SELECT count(*) FROM instance_subject", Integer.class))
+      .isZero();
   }
 
   private Map<String, Object> subjectEntity(String id) {

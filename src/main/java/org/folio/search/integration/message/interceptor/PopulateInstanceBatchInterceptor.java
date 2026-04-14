@@ -25,6 +25,7 @@ import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.consortium.ConsortiumTenantExecutor;
+import org.folio.search.service.reindex.ReindexContext;
 import org.folio.search.service.reindex.jdbc.MergeRangeRepository;
 import org.folio.search.service.reindex.jdbc.ReindexJdbcRepository;
 import org.folio.search.utils.SearchConverterUtils;
@@ -134,23 +135,31 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
 
   private void process(String tenant, List<ResourceEvent> batch) {
     var recordByResource = batch.stream().collect(Collectors.groupingBy(ResourceEvent::getResourceName));
-    for (Map.Entry<String, List<ResourceEvent>> recordCollection : recordByResource.entrySet()) {
-      var resourceType = recordCollection.getKey();
-      if (ResourceType.BOUND_WITH.getName().equals(resourceType)) {
-        processBoundWithEvents(tenant, recordCollection);
-        continue;
-      }
 
-      var repository = repositories.get(ReindexEntityType.fromValue(resourceType));
-      if (repository != null) {
-        var recordByOperation = getRecordByOperation(recordCollection);
-        saveEntities(tenant, recordByOperation.getOrDefault(true, emptyList()), repository);
-        deleteEntities(tenant, resourceType, recordByOperation.getOrDefault(false, emptyList()), repository);
+    try {
+      // Set reindex context for real-time event processing (not reindex mode)
+      ReindexContext.setReindexMode(false);
+      for (Map.Entry<String, List<ResourceEvent>> recordCollection : recordByResource.entrySet()) {
+        var resourceType = recordCollection.getKey();
+        if (ResourceType.BOUND_WITH.getName().equals(resourceType)) {
+          processBoundWithEvents(tenant, recordCollection);
+          continue;
+        }
 
-        log.debug("process::Saved {} entities for resource type {} in tenant {}, "
-                  + "sub-resource processing will be handled by background job",
-          recordCollection.getValue().size(), resourceType, tenant);
+        var repository = repositories.get(ReindexEntityType.fromValue(resourceType));
+        if (repository != null) {
+          var recordByOperation = getRecordByOperation(recordCollection);
+          saveEntities(tenant, recordByOperation.getOrDefault(true, emptyList()), repository);
+          deleteEntities(tenant, resourceType, recordByOperation.getOrDefault(false, emptyList()), repository);
+
+          log.debug("process::Saved {} entities for resource type {} in tenant {}, "
+              + "sub-resource processing will be handled by background job",
+            recordCollection.getValue().size(), resourceType, tenant);
+        }
       }
+    } finally {
+      // Always clear the reindex context
+      ReindexContext.clear();
     }
   }
 

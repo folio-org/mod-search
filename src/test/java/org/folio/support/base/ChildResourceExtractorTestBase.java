@@ -10,7 +10,9 @@ import static org.folio.search.utils.SearchUtils.SUBJECTS_FIELD;
 import static org.folio.search.utils.SearchUtils.SUBJECT_SOURCE_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.SUBJECT_TYPE_ID_FIELD;
 import static org.folio.support.TestConstants.TENANT_ID;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -60,6 +62,24 @@ public abstract class ChildResourceExtractorTestBase {
 
     verify(repository).saveAll(argThat(set -> set.resourceEntities().isEmpty()
                                               && set.relationshipEntities().isEmpty()));
+  }
+
+  public void persistChildrenOnReindexTest(ChildResourceExtractor extractor,
+                                           InstanceChildResourceRepository repository,
+                                           Supplier<Map<String, Object>> eventDataSupplier) {
+    var eventData = eventDataSupplier.get();
+    var resource = eventData.get("resource").toString();
+    @SuppressWarnings("unchecked")
+    var eventBody = (Map<String, Object>) eventData.get("body");
+    var events = List.of(
+      resourceEvent(ResourceEventType.REINDEX, resource, eventBody),
+      resourceEvent(ResourceEventType.REINDEX, resource, eventBody));
+
+    extractor.persistChildrenOnReindex(false, events);
+
+    verify(repository, never()).deleteByInstanceIds(any(), any());
+    verify(repository).saveAllOnReindex(argThat(set -> !set.resourceEntities().isEmpty()
+                                                       && !set.relationshipEntities().isEmpty()));
   }
 
   protected int getExpectedEntitiesSize() {

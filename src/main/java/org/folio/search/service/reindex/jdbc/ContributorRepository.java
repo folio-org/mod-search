@@ -5,9 +5,11 @@ import static org.folio.search.utils.SearchUtils.AUTHORITY_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_TYPE_FIELD;
 import static org.folio.search.utils.SearchUtils.SUB_RESOURCE_INSTANCES_FIELD;
 
+import java.io.Reader;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +20,7 @@ import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.entity.ChildResourceEntityBatch;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.reindex.ReindexConstants;
+import org.folio.search.service.reindex.ReindexContext;
 import org.folio.search.utils.JdbcUtils;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
@@ -129,10 +132,25 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
       VALUES (?, ?, ?, ?)
       ON CONFLICT (id) DO UPDATE SET last_updated_date = CURRENT_TIMESTAMP;
     """;
+  private static final String INSERT_STAGING_ENTITIES_SQL = """
+      INSERT INTO %s.staging_contributor (id, name, name_type_id, authority_id, inserted_at)
+      VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+      ON CONFLICT (id) DO NOTHING;
+    """;
+  private static final String INSERT_ENTITIES_FOR_REINDEX_SQL = """
+      INSERT INTO %s.contributor (id, name, name_type_id, authority_id)
+      VALUES (?, ?, ?, ?)
+      ON CONFLICT DO NOTHING;
+    """;
   private static final String INSERT_RELATIONS_SQL = """
       INSERT INTO %s.instance_contributor (instance_id, contributor_id, type_id, tenant_id, shared)
       VALUES (?::uuid, ?, ?, ?, ?)
       ON CONFLICT DO NOTHING;
+    """;
+
+  private static final String INSERT_STAGING_RELATIONS_SQL = """
+      INSERT INTO %s.staging_instance_contributor (instance_id, contributor_id, type_id, tenant_id, shared, inserted_at)
+      VALUES (?::uuid, ?, ?, ?, ?, CURRENT_TIMESTAMP);
     """;
 
   private static final String ID_RANGE_INS_WHERE_CLAUSE = "ins.contributor_id >= ? AND ins.contributor_id <= ?";
@@ -142,46 +160,6 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
                                   FolioExecutionContext context,
                                   ReindexConfigurationProperties reindexConfig) {
     super(jdbcTemplate, jsonConverter, context, reindexConfig);
-  }
-
-  @Override
-  public List<Map<String, Object>> fetchByIdRange(String lower, String upper) {
-    var sql = getFetchBySql();
-    return jdbcTemplate.query(sql, rowToMapMapper(), lower, upper, lower, upper);
-  }
-
-  @Override
-  protected String getFetchBySql() {
-    return SELECT_QUERY.formatted(JdbcUtils.getSchemaName(context),
-      ID_RANGE_INS_WHERE_CLAUSE, ID_RANGE_CONTR_WHERE_CLAUSE);
-  }
-
-  @Override
-  protected RowMapper<Map<String, Object>> rowToMapMapper() {
-    return (rs, rowNum) -> {
-      Map<String, Object> contributor = new HashMap<>();
-      contributor.put("id", getId(rs));
-      contributor.put("name", getName(rs));
-      contributor.put("contributorNameTypeId", getNameTypeId(rs));
-      contributor.put(AUTHORITY_ID_FIELD, getAuthorityId(rs));
-
-      var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
-      if (!maps.isEmpty()) {
-        contributor.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
-      }
-
-      return contributor;
-    };
-  }
-
-  @Override
-  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp, int limit) {
-    return fetchByTimestamp(SELECT_BY_UPDATED_QUERY, rowToMapMapper2(), timestamp, limit, tenant);
-  }
-
-  @Override
-  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp, String fromId, int limit) {
-    return fetchByTimestamp(SELECT_BY_UPDATED_QUERY, rowToMapMapper2(), timestamp, fromId, limit, tenant);
   }
 
   @Override
@@ -200,16 +178,76 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
   }
 
   @Override
+  protected Optional<String> stagingEntityTable() {
+    return Optional.of(ReindexConstants.STAGING_CONTRIBUTOR_TABLE);
+  }
+
+  @Override
+  protected Optional<String> subEntityStagingTable() {
+    return Optional.of(ReindexConstants.STAGING_INSTANCE_CONTRIBUTOR_TABLE);
+  }
+
+  @Override
+  protected boolean supportsTenantSpecificDeletion() {
+    // Contributor table doesn't have tenant_id column - it's shared across tenants
+    return false;
+  }
+
+  @Override
+  public List<Map<String, Object>> fetchByIdRange(String lower, String upper) {
+    var sql = getFetchBySql();
+    return jdbcTemplate.query(sql, rowToMapMapper(), lower, upper, lower, upper);
+  }
+
+  @Override
+  protected String getFetchBySql() {
+    return SELECT_QUERY.formatted(JdbcUtils.getSchemaName(context),
+      ID_RANGE_INS_WHERE_CLAUSE, ID_RANGE_CONTR_WHERE_CLAUSE);
+  }
+
+  @Override
+  protected RowMapper<Map<String, Object>> rowToMapMapper() {
+    return (rs, rowNum) -> buildContributorMap(rs);
+  }
+
+  @Override
+  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp, int limit) {
+    return fetchByTimestamp(SELECT_BY_UPDATED_QUERY, rowToMapMapper2(), timestamp, limit, tenant);
+  }
+
+  @Override
+  public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp, String fromId, int limit) {
+    return fetchByTimestamp(SELECT_BY_UPDATED_QUERY, rowToMapMapper2(), timestamp, fromId, limit, tenant);
+  }
+
+  @Override
   public void deleteByInstanceIds(List<String> instanceIds, String tenantId) {
     deleteByInstanceIds(DELETE_QUERY, instanceIds, tenantId);
   }
 
   @Override
-  @SuppressWarnings("checkstyle:MethodLength")
   public void saveAll(ChildResourceEntityBatch entityBatch) {
-    var entitiesSql = INSERT_ENTITIES_SQL.formatted(JdbcUtils.getSchemaName(context));
+    saveEntities(INSERT_ENTITIES_SQL, entityBatch.resourceEntities());
+    saveRelations(INSERT_RELATIONS_SQL, entityBatch.relationshipEntities());
+  }
+
+  @Override
+  public void saveAllOnReindex(ChildResourceEntityBatch entityBatch) {
+    // Use staging tables only for member tenant specific full reindex
+    if (ReindexContext.isMemberTenantReindex()) {
+      saveEntities(INSERT_STAGING_ENTITIES_SQL, entityBatch.resourceEntities());
+      saveRelations(INSERT_STAGING_RELATIONS_SQL, entityBatch.relationshipEntities());
+    } else {
+      saveEntities(INSERT_ENTITIES_FOR_REINDEX_SQL, entityBatch.resourceEntities());
+      saveRelations(INSERT_RELATIONS_SQL, entityBatch.relationshipEntities());
+    }
+  }
+
+  @SuppressWarnings("java:S2077")
+  private void saveEntities(String sqlTemplate, Collection<Map<String, Object>> entities) {
+    var sql = sqlTemplate.formatted(JdbcUtils.getSchemaName(context));
     try {
-      jdbcTemplate.batchUpdate(entitiesSql, entityBatch.resourceEntities(), BATCH_OPERATION_SIZE,
+      jdbcTemplate.batchUpdate(sql, entities, BATCH_OPERATION_SIZE,
         (statement, entity) -> {
           statement.setString(1, (String) entity.get("id"));
           statement.setString(2, (String) entity.get("name"));
@@ -218,15 +256,18 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
         });
     } catch (DataAccessException e) {
       logWarnDebugError(SAVE_ENTITIES_BATCH_ERROR_MESSAGE, e);
-      for (var entity : entityBatch.resourceEntities()) {
-        jdbcTemplate.update(entitiesSql,
+      for (var entity : entities) {
+        jdbcTemplate.update(sql,
           entity.get("id"), entity.get("name"), entity.get("nameTypeId"), entity.get(AUTHORITY_ID_FIELD));
       }
     }
+  }
 
-    var relationsSql = INSERT_RELATIONS_SQL.formatted(JdbcUtils.getSchemaName(context));
+  @SuppressWarnings("java:S2077")
+  private void saveRelations(String sqlTemplate, Collection<Map<String, Object>> relationships) {
+    var sql = sqlTemplate.formatted(JdbcUtils.getSchemaName(context));
     try {
-      jdbcTemplate.batchUpdate(relationsSql, entityBatch.relationshipEntities(), BATCH_OPERATION_SIZE,
+      jdbcTemplate.batchUpdate(sql, relationships, BATCH_OPERATION_SIZE,
         (statement, entityRelation) -> {
           statement.setObject(1, entityRelation.get("instanceId"));
           statement.setString(2, (String) entityRelation.get("contributorId"));
@@ -236,29 +277,43 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
         });
     } catch (DataAccessException e) {
       logWarnDebugError(SAVE_RELATIONS_BATCH_ERROR_MESSAGE, e);
-      for (var entityRelation : entityBatch.relationshipEntities()) {
-        jdbcTemplate.update(relationsSql, entityRelation.get("instanceId"), entityRelation.get("contributorId"),
+      for (var entityRelation : relationships) {
+        jdbcTemplate.update(sql, entityRelation.get("instanceId"), entityRelation.get("contributorId"),
           entityRelation.get(CONTRIBUTOR_TYPE_FIELD), entityRelation.get("tenantId"), entityRelation.get("shared"));
       }
     }
   }
 
+  @Override
+  @SuppressWarnings("java:S2077")
+  public List<Map<String, Object>> fetchByIdRangeWithTimestamp(String lower, String upper, Timestamp timestamp) {
+    var sql = SELECT_QUERY.formatted(JdbcUtils.getSchemaName(context),
+      ID_RANGE_INS_WHERE_CLAUSE,
+      ID_RANGE_CONTR_WHERE_CLAUSE + " AND c.last_updated_date = ?");
+    return jdbcTemplate.query(sql, rowToMapMapper(), lower, upper, lower, upper, timestamp);
+  }
+
   protected RowMapper<Map<String, Object>> rowToMapMapper2() {
     return (rs, rowNum) -> {
-      Map<String, Object> contributor = new HashMap<>();
-      contributor.put("id", getId(rs));
-      contributor.put("name", getName(rs));
-      contributor.put("contributorNameTypeId", getNameTypeId(rs));
+      var contributor = buildContributorMap(rs);
       contributor.put(LAST_UPDATED_DATE_FIELD, rs.getTimestamp("last_updated_date"));
-      contributor.put(AUTHORITY_ID_FIELD, getAuthorityId(rs));
-
-      var maps = jsonConverter.fromJsonToListOfMaps(getInstances(rs)).stream().filter(Objects::nonNull).toList();
-      if (!maps.isEmpty()) {
-        contributor.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
-      }
-
       return contributor;
     };
+  }
+
+  private Map<String, Object> buildContributorMap(ResultSet rs) throws SQLException {
+    Map<String, Object> contributor = new HashMap<>();
+    contributor.put("id", getId(rs));
+    contributor.put("name", getName(rs));
+    contributor.put("contributorNameTypeId", getNameTypeId(rs));
+    contributor.put(AUTHORITY_ID_FIELD, getAuthorityId(rs));
+
+    var maps = jsonConverter.fromJsonToListOfMaps(getInstancesReader(rs)).stream().filter(Objects::nonNull).toList();
+    if (!maps.isEmpty()) {
+      contributor.put(SUB_RESOURCE_INSTANCES_FIELD, maps);
+    }
+
+    return contributor;
   }
 
   private String getId(ResultSet rs) throws SQLException {
@@ -277,7 +332,7 @@ public class ContributorRepository extends UploadRangeRepository implements Inst
     return rs.getString("authority_id");
   }
 
-  private String getInstances(ResultSet rs) throws SQLException {
-    return rs.getString(SUB_RESOURCE_INSTANCES_FIELD);
+  private Reader getInstancesReader(ResultSet rs) throws SQLException {
+    return rs.getCharacterStream(SUB_RESOURCE_INSTANCES_FIELD);
   }
 }

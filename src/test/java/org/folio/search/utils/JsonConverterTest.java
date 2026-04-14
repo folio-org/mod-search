@@ -67,7 +67,7 @@ class JsonConverterTest {
     var actual = jsonConverter.toJsonBytes(TestClass.of(FIELD_VALUE));
     assertThat(actual).isEqualTo(JSON_BYTES_BODY);
 
-    verify(objectMapper).writeValueAsString(TestClass.of(FIELD_VALUE));
+    verify(objectMapper).writeValueAsBytes(TestClass.of(FIELD_VALUE));
   }
 
   @Test

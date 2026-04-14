@@ -2,26 +2,24 @@ package org.folio.search.service.converter.preprocessor.extractor.impl;
 
 import static org.apache.commons.collections4.MapUtils.getMap;
 import static org.apache.commons.collections4.MapUtils.getString;
-import static org.folio.search.model.entity.CallNumberEntity.CALL_NUMBER_MAX_LENGTH;
+import static org.apache.commons.lang3.StringUtils.truncate;
 import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
 import static org.folio.search.utils.SearchUtils.prepareForExpectedFormat;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.TenantConfiguredFeature;
-import org.folio.search.model.entity.CallNumberEntity;
-import org.folio.search.model.entity.InstanceCallNumberEntity;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.FeatureConfigService;
 import org.folio.search.service.converter.preprocessor.extractor.ChildResourceExtractor;
 import org.folio.search.service.reindex.jdbc.CallNumberRepository;
-import org.folio.search.utils.JsonConverter;
+import org.folio.search.utils.ShaUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
@@ -36,14 +34,16 @@ public class CallNumberResourceExtractor extends ChildResourceExtractor {
   public static final String SUFFIX_FIELD = "suffix";
   public static final String TYPE_ID_FIELD = "typeId";
 
-  private final JsonConverter jsonConverter;
+  private static final int CALL_NUMBER_MAX_LENGTH = 50;
+  private static final int CALL_NUMBER_PREFIX_MAX_LENGTH = 20;
+  private static final int CALL_NUMBER_SUFFIX_MAX_LENGTH = 25;
+  private static final int CALL_NUMBER_TYPE_MAX_LENGTH = 40;
+
   private final FeatureConfigService featureConfigService;
 
   public CallNumberResourceExtractor(CallNumberRepository repository,
-                                     JsonConverter jsonConverter,
                                      FeatureConfigService featureConfigService) {
     super(repository);
-    this.jsonConverter = jsonConverter;
     this.featureConfigService = featureConfigService;
   }
 
@@ -57,14 +57,12 @@ public class CallNumberResourceExtractor extends ChildResourceExtractor {
                                                          List<Map<String, Object>> entities) {
     var resourceMap = getNewAsMap(event);
     return entities.stream()
-      .map(entity -> InstanceCallNumberEntity.builder()
-        .callNumberId(getString(entity, "id"))
-        .itemId(getString(resourceMap, "id"))
-        .instanceId(getString(resourceMap, "instanceId"))
-        .locationId(getString(resourceMap, "effectiveLocationId"))
-        .tenantId(event.getTenant())
-        .build())
-      .map(jsonConverter::convertToMap)
+      .map(entity -> Map.<String, Object>of(
+        "callNumberId", getString(entity, "id"),
+        "itemId", getString(resourceMap, "id"),
+        "instanceId", getString(resourceMap, "instanceId"),
+        "locationId", getString(resourceMap, "effectiveLocationId"),
+        "tenantId", event.getTenant()))
       .toList();
   }
 
@@ -73,9 +71,24 @@ public class CallNumberResourceExtractor extends ChildResourceExtractor {
     if (entityProperties == null || !featureConfigService.isEnabled(TenantConfiguredFeature.BROWSE_CALL_NUMBERS)) {
       return Collections.emptyMap();
     }
-    return toCallNumberEntity(entityProperties)
-      .map(jsonConverter::convertToMap)
-      .orElse(Collections.emptyMap());
+    var callNumberComponents = getCallNumberComponents(entityProperties);
+    var callNumber = prepareForExpectedFormat(
+      getString(callNumberComponents, CALL_NUMBER_FIELD), CALL_NUMBER_MAX_LENGTH);
+    if (StringUtils.isBlank(callNumber)) {
+      return Collections.emptyMap();
+    }
+    var callNumberPrefix = truncate(getString(callNumberComponents, PREFIX_FIELD), CALL_NUMBER_PREFIX_MAX_LENGTH);
+    var callNumberSuffix = truncate(getString(callNumberComponents, SUFFIX_FIELD), CALL_NUMBER_SUFFIX_MAX_LENGTH);
+    var callNumberTypeId = truncate(getString(callNumberComponents, TYPE_ID_FIELD), CALL_NUMBER_TYPE_MAX_LENGTH);
+    var id = ShaUtils.sha(callNumber, callNumberPrefix, callNumberSuffix, callNumberTypeId);
+
+    var entity = new HashMap<String, Object>();
+    entity.put("id", id);
+    entity.put("callNumber", callNumber);
+    entity.put("callNumberPrefix", callNumberPrefix);
+    entity.put("callNumberSuffix", callNumberSuffix);
+    entity.put("callNumberTypeId", callNumberTypeId);
+    return entity;
   }
 
   @Override
@@ -86,22 +99,6 @@ public class CallNumberResourceExtractor extends ChildResourceExtractor {
   @Override
   protected Set<Map<String, Object>> getChildResources(Map<String, Object> event) {
     return Set.of(event);
-  }
-
-  private Optional<CallNumberEntity> toCallNumberEntity(Map<String, Object> entityProperties) {
-    var callNumberComponents = getCallNumberComponents(entityProperties);
-    var callNumber = prepareForExpectedFormat(getString(callNumberComponents, CALL_NUMBER_FIELD),
-      CALL_NUMBER_MAX_LENGTH);
-    if (StringUtils.isNotBlank(callNumber)) {
-      var callNumberEntity = CallNumberEntity.builder()
-        .callNumber(callNumber)
-        .callNumberPrefix(getString(callNumberComponents, PREFIX_FIELD))
-        .callNumberSuffix(getString(callNumberComponents, SUFFIX_FIELD))
-        .callNumberTypeId(getString(callNumberComponents, TYPE_ID_FIELD))
-        .build();
-      return Optional.of(callNumberEntity);
-    }
-    return Optional.empty();
   }
 
   @SuppressWarnings("unchecked")

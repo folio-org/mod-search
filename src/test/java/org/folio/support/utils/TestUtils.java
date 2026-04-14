@@ -66,6 +66,7 @@ import org.folio.search.domain.dto.SubjectBrowseItem;
 import org.folio.search.domain.dto.SubjectBrowseResult;
 import org.folio.search.domain.dto.Tags;
 import org.folio.search.model.SearchResult;
+import org.folio.search.model.event.InstanceSharingCompleteEvent;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.ObjectFieldDescription;
@@ -431,6 +432,20 @@ public class TestUtils {
 
   public static ResourceEvent kafkaResourceEvent(String tenant, ResourceEventType type, Object n, Object o) {
     return new ResourceEvent().type(type).tenant(tenant)._new(n).old(o);
+  }
+
+  public static InstanceSharingCompleteEvent instanceSharingCompleteEvent(String instanceId, String sourceTenantId,
+                                                                          String targetTenantId,
+                                                                          InstanceSharingCompleteEvent.Status status,
+                                                                          String error) {
+    var event = new InstanceSharingCompleteEvent();
+    event.setId(UUID.randomUUID());
+    event.setInstanceIdentifier(instanceId);
+    event.setSourceTenantId(sourceTenantId);
+    event.setTargetTenantId(targetTenantId);
+    event.setStatus(status);
+    event.setError(error);
+    return event;
   }
 
   @SafeVarargs

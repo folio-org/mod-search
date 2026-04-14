@@ -34,6 +34,7 @@ class IndexingInstanceCallNumberIT extends BaseIntegrationTest {
 
   private static final String INSTANCE_ID_1 = randomId();
   private static final String INSTANCE_ID_2 = randomId();
+  private static final String LOCATION_ID = randomId();
 
   @BeforeAll
   static void prepare() {
@@ -77,7 +78,7 @@ class IndexingInstanceCallNumberIT extends BaseIntegrationTest {
       // assert that the document contains the expected fields
       assertCallNumberDocFields(sourceAsMap);
 
-      // assert that the document contains the expected instances object with count 2
+      // assert that the document contains the expected instances object with count 1
       @SuppressWarnings("unchecked")
       var instances = (List<Map<String, Object>>) sourceAsMap.get("instances");
       assertThat(instances)
@@ -137,7 +138,8 @@ class IndexingInstanceCallNumberIT extends BaseIntegrationTest {
   }
 
   private Item getItem(String itemId) {
-    return new Item().id(itemId).holdingsRecordId(randomId()).effectiveCallNumberComponents(callNumberComponents());
+    return new Item().id(itemId).holdingsRecordId(randomId()).effectiveLocationId(LOCATION_ID)
+      .effectiveCallNumberComponents(callNumberComponents());
   }
 
   private ItemEffectiveCallNumberComponents callNumberComponents() {

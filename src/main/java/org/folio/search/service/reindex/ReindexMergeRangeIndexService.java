@@ -31,16 +31,19 @@ public class ReindexMergeRangeIndexService {
   private final Map<ReindexEntityType, MergeRangeRepository> repositories;
   private final InventoryService inventoryService;
   private final ReindexConfigurationProperties reindexConfig;
+  private final StagingMigrationService migrationService;
 
   private InstanceChildrenResourceService instanceChildrenResourceService;
 
   public ReindexMergeRangeIndexService(List<MergeRangeRepository> repositories,
                                        InventoryService inventoryService,
-                                       ReindexConfigurationProperties reindexConfig) {
+                                       ReindexConfigurationProperties reindexConfig,
+                                       StagingMigrationService migrationService) {
     this.repositories = repositories.stream()
       .collect(Collectors.toMap(MergeRangeRepository::entityType, Function.identity()));
     this.inventoryService = inventoryService;
     this.reindexConfig = reindexConfig;
+    this.migrationService = migrationService;
     this.instanceChildrenResourceService = null;
   }
 
@@ -55,6 +58,12 @@ public class ReindexMergeRangeIndexService {
 
   public void truncateMergeRanges() {
     repositories.values().iterator().next().truncateMergeRanges();
+  }
+
+  public void analyzeEntityTables() {
+    log.info("analyzeEntityTables:: analyzing merge entity tables to update statistics");
+    repositories.values().forEach(MergeRangeRepository::analyzeEntityTable);
+    log.info("analyzeEntityTables:: analyzed merge entity tables");
   }
 
   public List<MergeRangeEntity> createMergeRanges(String tenantId) {
@@ -91,10 +100,21 @@ public class ReindexMergeRangeIndexService {
       .map(entity -> (Map<String, Object>) entity)
       .toList();
 
-    repositories.get(event.getRecordType().getEntityType()).saveEntities(event.getTenant(), entities);
-    if (instanceChildrenResourceService != null) {
-      instanceChildrenResourceService.persistChildrenOnReindex(event.getTenant(),
-        RESOURCE_NAME_MAP.get(event.getRecordType().getEntityType()), entities);
+    try {
+      // Set reindex mode for context-aware repositories
+      ReindexContext.setReindexMode(true);
+
+      // Use unified repository which will route to staging based on context
+      var repository = repositories.get(event.getRecordType().getEntityType());
+      repository.saveEntities(event.getTenant(), entities);
+
+      if (instanceChildrenResourceService != null) {
+        instanceChildrenResourceService.persistChildrenOnReindex(event.getTenant(),
+          RESOURCE_NAME_MAP.get(event.getRecordType().getEntityType()), entities);
+      }
+    } finally {
+      // Only clear reindex mode, preserve member tenant context for outer scope
+      ReindexContext.setReindexMode(false);
     }
   }
 
@@ -137,5 +157,15 @@ public class ReindexMergeRangeIndexService {
       case InventoryRecordType.HOLDING -> ReindexEntityType.HOLDINGS;
       default -> ReindexEntityType.ITEM;
     };
+  }
+
+  public void performStagingMigration(String targetTenantId) {
+    log.info("performStagingMigration:: Starting tenant-specific migration of staging tables for tenant: {}",
+      targetTenantId);
+    var result = migrationService.migrateAllStagingTables(targetTenantId);
+    log.info("performStagingMigration:: Tenant-specific migration completed for {}: instances={}, holdings={}, "
+        + "items={}, relationships={}",
+      targetTenantId, result.getTotalInstances(), result.getTotalHoldings(),
+      result.getTotalItems(), result.getTotalRelationships());
   }
 }

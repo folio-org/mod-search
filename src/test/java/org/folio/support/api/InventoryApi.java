@@ -8,11 +8,13 @@ import static org.folio.search.domain.dto.ResourceEventType.DELETE;
 import static org.folio.search.domain.dto.ResourceEventType.UPDATE;
 import static org.folio.search.utils.SearchUtils.INSTANCE_HOLDING_FIELD_NAME;
 import static org.folio.search.utils.SearchUtils.INSTANCE_ITEM_FIELD_NAME;
+import static org.folio.support.TestConstants.consortiumInstanceSharingCompleteTopic;
 import static org.folio.support.TestConstants.inventoryBoundWithTopic;
 import static org.folio.support.TestConstants.inventoryHoldingTopic;
 import static org.folio.support.TestConstants.inventoryInstanceTopic;
 import static org.folio.support.TestConstants.inventoryItemTopic;
 import static org.folio.support.utils.JsonTestUtils.toMap;
+import static org.folio.support.utils.TestUtils.instanceSharingCompleteEvent;
 import static org.folio.support.utils.TestUtils.kafkaResourceEvent;
 import static org.folio.support.utils.TestUtils.resourceEvent;
 
@@ -26,10 +28,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
-import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
-import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.model.event.InstanceSharingCompleteEvent;
 import org.folio.search.model.types.ResourceType;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
@@ -45,7 +46,7 @@ public class InventoryApi {
   private static final String ID_FIELD = "id";
   private static final String INSTANCE_ID_FIELD = "instanceId";
 
-  private final KafkaTemplate<String, ResourceEvent> kafkaTemplate;
+  private final KafkaTemplate<String, Object> kafkaTemplate;
 
   public void createInstance(String tenantId, Instance instance) {
     createInstance(tenantId, toMap(instance));
@@ -79,14 +80,17 @@ public class InventoryApi {
 
   public void deleteInstance(String tenant, String id) {
     var instance = INSTANCE_STORE.get(tenant).remove(id);
-
-    kafkaTemplate.send(inventoryInstanceTopic(tenant), getString(instance, ID_FIELD),
-        resourceEvent(ResourceType.INSTANCE, null).old(instance).tenant(tenant).type(DELETE))
+    var event = resourceEvent(ResourceType.INSTANCE, null).old(instance).tenant(tenant).type(DELETE);
+    kafkaTemplate.send(inventoryInstanceTopic(tenant), getString(instance, ID_FIELD), event)
       .whenComplete(onCompleteConsumer());
   }
 
-  public void createHolding(String tenant, String instanceId, Holding holding) {
-    createHolding(tenant, instanceId, toMap(holding));
+  public void shareInstance(String tenantId, String instanceId, InstanceSharingCompleteEvent.Status status,
+                            String errorMessage, String sourceTenantId, String targetTenantId) {
+    var instanceEvent = instanceSharingCompleteEvent(instanceId, sourceTenantId, targetTenantId, status, errorMessage);
+
+    kafkaTemplate.send(consortiumInstanceSharingCompleteTopic(tenantId), instanceId, instanceEvent)
+      .whenComplete(onCompleteConsumer());
   }
 
   public void createHolding(String tenant, String instanceId, Map<String, Object> holding) {
@@ -144,7 +148,7 @@ public class InventoryApi {
       .whenComplete(onCompleteConsumer());
   }
 
-  private BiConsumer<SendResult<String, ResourceEvent>, Throwable> onCompleteConsumer() {
+  private BiConsumer<SendResult<String, Object>, Throwable> onCompleteConsumer() {
     return (sendResult, throwable) -> {
       if (throwable != null) {
         log.error("Failed sending resource event", throwable);

@@ -56,11 +56,14 @@ public abstract class AbstractIdentifierProcessor<T> implements FieldProcessor<T
    * @return {@link List} of {@link String} identifier ids that matches names.
    */
   private Set<String> fetchIdentifierIdsFromCache() {
-    var identifierTypeIds = referenceDataService.fetchReferenceData(IDENTIFIER_TYPES, CqlQueryParam.NAME,
-      getIdentifierNames());
+    var identifierTypeIds = getIdentifierTypeIds();
     if (identifierTypeIds.isEmpty()) {
       log.warn("Failed to provide identifiers for [processor: {}]", this.getClass().getSimpleName());
     }
     return identifierTypeIds;
+  }
+
+  protected Set<String> getIdentifierTypeIds() {
+    return referenceDataService.fetchReferenceData(IDENTIFIER_TYPES, CqlQueryParam.NAME, getIdentifierNames());
   }
 }

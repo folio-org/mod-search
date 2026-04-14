@@ -136,6 +136,9 @@ folio:
       - name: search.index.instance
         numPartitions: 1
         replicationFactor: 1
+      - name: CONSORTIUM_INSTANCE_SHARING_COMPLETE
+        numPartitions: 1
+        replicationFactor: 1
     listener:
       events:
         concurrency: 1
@@ -164,6 +167,10 @@ folio:
         concurrency: 1
         topic-pattern: (${folio.environment}\.)(.*\.)linked-data\.(instance|work|hub)
         group-id: ${folio.environment}-mod-search-linked-data-group
+      instance-sharing-complete:
+        concurrency: 1
+        topic-pattern: (${folio.environment}\.)(.*\.)CONSORTIUM_INSTANCE_SHARING_COMPLETE
+        group-id: ${folio.environment}-mod-search-consortium-instance-sharing-complete-group
       reindex-range-index:
         concurrency: 1
         topic-pattern: (${folio.environment}\.)(.*\.)search\.reindex\.range-index

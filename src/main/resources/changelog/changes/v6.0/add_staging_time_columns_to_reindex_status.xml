@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="MSEARCH-1100@@add-staging-time-columns-to-reindex-status" author="viacheslav_kolesnyk">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="reindex_status"/>
+            <not>
+                <columnExists tableName="reindex_status" columnName="start_time_staging"/>
+            </not>
+        </preConditions>
+
+        <comment>Add start_time_staging and end_time_staging columns to reindex_status table for tracking staging phase timing</comment>
+
+        <addColumn tableName="reindex_status">
+            <column name="start_time_staging" type="DATETIME">
+                <constraints nullable="true"/>
+            </column>
+            <column name="end_time_staging" type="DATETIME">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>
+

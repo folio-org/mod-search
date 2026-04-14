@@ -2,7 +2,6 @@ package org.folio.search.service.reindex.jdbc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.utils.TestUtils.mapOf;
@@ -17,6 +16,7 @@ import java.util.Set;
 import java.util.UUID;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.model.entity.ChildResourceEntityBatch;
+import org.folio.search.service.reindex.ReindexContext;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.FolioModuleMetadata;
@@ -48,7 +48,7 @@ class CallNumberRepositoryIT {
 
   private static final String INSTANCE_ID = "9f8febd1-e96c-46c4-a5f4-84a45cc499a2";
   private static final Map<String, List<UUID>> ITEM_IDS =
-    Map.of("1", getList(1), "2", getList(2));
+    Map.of("1", getList(1), "2", getList(2), "3", getList(2), "4", getList(2), "5", getList(1));
   private @MockitoSpyBean JdbcTemplate jdbcTemplate;
   private @MockitoBean FolioExecutionContext context;
   private CallNumberRepository repository;
@@ -108,18 +108,53 @@ class CallNumberRepositoryIT {
       .extracting("callNumber", "instances")
       .contains(
         tuple("number1",
-          List.of(mapOf("count", null, "instanceContributors", null,
-            "instanceId", List.of("9f8febd1-e96c-46c4-a5f4-84a45cc499a2"), "instanceTitle", null,
-            "locationId", null, "resourceId", null, "shared", false, "tenantId", TENANT_ID, "typeId", null))),
+          List.of(mapOf("instanceId", List.of("9f8febd1-e96c-46c4-a5f4-84a45cc499a2"),
+            "locationId", null, "shared", false, "tenantId", TENANT_ID))),
         tuple("number2",
-          List.of(mapOf("count", null, "instanceContributors", null,
-            "instanceId", List.of("9f8febd1-e96c-46c4-a5f4-84a45cc499a2"), "instanceTitle", null,
-            "locationId", null, "resourceId", null, "shared", false, "tenantId", TENANT_ID, "typeId", null))));
+          List.of(mapOf("instanceId", List.of("9f8febd1-e96c-46c4-a5f4-84a45cc499a2"),
+            "locationId", null, "shared", false, "tenantId", TENANT_ID))));
   }
 
   @Test
   @Sql("/sql/populate-instances.sql")
-  void updateTenantIdForCentralInstances_updatesCallNumberRelationsAndCallNumber() {
+  @SuppressWarnings("checkstyle:MethodLength")
+  void saveAllOnReindex() {
+    // save entity "3" via saveAll first, capturing its last_updated_date
+    repository.saveAll(new ChildResourceEntityBatch(Set.of(callNumberEntity("3")),
+      List.of(callNumberRelation("3"))));
+    var lastUpdatedAfterSaveAll = jdbcTemplate.queryForObject(
+      "SELECT last_updated_date FROM call_number WHERE id = ?", Timestamp.class, "3");
+
+    // call saveAllOnReindex with existing entity "3" and new entity "4"
+    repository.saveAllOnReindex(new ChildResourceEntityBatch(
+      Set.of(callNumberEntity("3"), callNumberEntity("4")),
+      List.of(
+        callNumberRelation("3"),
+        callNumberRelation("4"),
+        callNumberRelation("4"))));
+
+    // assert: new entity "4" and its relations were saved
+    var ranges = repository.fetchByIdRange("0", "z");
+    assertThat(ranges)
+      .hasSize(2)
+      .extracting("callNumber", "instances")
+      .contains(
+        tuple("number3",
+          List.of(mapOf(
+            "instanceId", List.of(INSTANCE_ID), "locationId", null, "shared", false, "tenantId", TENANT_ID))),
+        tuple("number4",
+          List.of(mapOf(
+            "instanceId", List.of(INSTANCE_ID), "locationId", null, "shared", false, "tenantId", TENANT_ID))));
+
+    // assert: existing entity "3" was not updated (last_updated_date unchanged)
+    var lastUpdatedAfterReindex = jdbcTemplate.queryForObject(
+      "SELECT last_updated_date FROM call_number WHERE id = ?", Timestamp.class, "3");
+    assertThat(lastUpdatedAfterReindex).isEqualTo(lastUpdatedAfterSaveAll);
+  }
+
+  @Test
+  @Sql("/sql/populate-instances.sql")
+  void updateLastUpdatedDate_updatesCallNumberLastUpdatedDate() {
     var callNumberId = "cn-test";
 
     //manually set last_updated_date to past to verify it's updated after tenantId update
@@ -136,16 +171,8 @@ class CallNumberRepositoryIT {
     );
     repository.saveAll(new ChildResourceEntityBatch(Set.of(), List.of(relation)));
 
-    // verify member tenant is set before update
-    var before = repository.fetchByIdRange(callNumberId, callNumberId);
-    assertCallNumberInstanceTenantId(before, MEMBER_TENANT_ID);
-
     // act
-    repository.updateTenantIdForCentralInstances(List.of(INSTANCE_ID), CENTRAL_TENANT_ID);
-
-    // assert tenant is updated to central
-    var after = repository.fetchByIdRange(callNumberId, callNumberId);
-    assertCallNumberInstanceTenantId(after, CENTRAL_TENANT_ID);
+    repository.updateLastUpdatedDate(INSTANCE_ID);
 
     // assert last_updated_date is updated
     var lastUpdatedAfter = jdbcTemplate.queryForObject(
@@ -153,11 +180,32 @@ class CallNumberRepositoryIT {
     assertThat(lastUpdatedAfter).isNotNull().isAfter(pastTimestamp);
   }
 
-  private void assertCallNumberInstanceTenantId(List<Map<String, Object>> callNumbers, String expectedTenantId) {
-    assertThat(callNumbers).hasSize(1)
-      .flatExtracting(m -> (List<?>) m.get("instances"))
-      .extracting(i -> (String) ((Map<?, ?>) i).get("tenantId"))
-      .containsExactly(expectedTenantId);
+  @Test
+  @Sql("/sql/populate-instances.sql")
+  void saveAllOnReindex_savesToStagingTables_whenMemberTenantReindex() {
+    var callNumberId = "5";
+    var entities = Set.of(callNumberEntity(callNumberId));
+    var relations = List.of(callNumberRelation(callNumberId));
+
+    ReindexContext.setMemberTenantId(MEMBER_TENANT_ID);
+    try {
+      repository.saveAllOnReindex(new ChildResourceEntityBatch(entities, relations));
+    } finally {
+      ReindexContext.clearMemberTenantId();
+    }
+
+    assertThat(jdbcTemplate.queryForObject(
+      "SELECT count(*) FROM staging_call_number WHERE id = ?", Integer.class, callNumberId))
+      .isEqualTo(1);
+    assertThat(jdbcTemplate.queryForObject(
+      "SELECT count(*) FROM call_number WHERE id = ?", Integer.class, callNumberId))
+      .isZero();
+    assertThat(jdbcTemplate.queryForObject(
+      "SELECT count(*) FROM staging_instance_call_number", Integer.class))
+      .isEqualTo(1);
+    assertThat(jdbcTemplate.queryForObject(
+      "SELECT count(*) FROM instance_call_number", Integer.class))
+      .isZero();
   }
 
   private static List<UUID> getList(int size) {

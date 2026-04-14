@@ -40,6 +40,12 @@ class ClassificationResourceExtractorTest extends ChildResourceExtractorTestBase
   }
 
   @Test
+  void persistChildrenOnReindex() {
+    when(configService.isEnabled(TenantConfiguredFeature.BROWSE_CLASSIFICATIONS)).thenReturn(true);
+    persistChildrenOnReindexTest(extractor, repository, classificationsBodySupplier());
+  }
+
+  @Test
   void shouldNotPersistEmptyClassification() {
     when(configService.isEnabled(TenantConfiguredFeature.BROWSE_CLASSIFICATIONS)).thenReturn(true);
     shouldNotPersistEmptyChildrenTest(extractor, repository, emptyClassificationsBodySupplier());

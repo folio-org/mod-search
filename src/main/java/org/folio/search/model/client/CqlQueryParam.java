@@ -7,6 +7,7 @@ import lombok.Getter;
 public enum CqlQueryParam {
 
   ID("id"),
+  CODE("code"),
   NAME("name"),
   SOURCE("source"),
   HOLDINGS_ID("holdings.id");

@@ -1,8 +1,10 @@
 package org.folio.search.service.consortium;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
+@Primary
 @Component
 @RequiredArgsConstructor
 public class ConsortiumTenantProvider implements TenantProvider {

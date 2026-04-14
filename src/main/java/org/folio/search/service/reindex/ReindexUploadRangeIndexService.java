@@ -2,6 +2,7 @@ package org.folio.search.service.reindex;
 
 import static java.util.function.Function.identity;
 import static org.apache.commons.collections4.MapUtils.getString;
+import static org.folio.search.service.reindex.StagingMigrationService.RESOURCE_REINDEX_TIMESTAMP;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
 
 import java.sql.Timestamp;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.event.ReindexRangeIndexEvent;
 import org.folio.search.model.reindex.UploadRangeEntity;
@@ -20,6 +22,7 @@ import org.folio.search.service.reindex.jdbc.UploadRangeRepository;
 import org.folio.spring.tools.kafka.FolioMessageProducer;
 import org.springframework.stereotype.Service;
 
+@Log4j2
 @Service
 public class ReindexUploadRangeIndexService {
 
@@ -41,14 +44,37 @@ public class ReindexUploadRangeIndexService {
       .orElseThrow(() -> new UnsupportedOperationException("No repository found for entity type: " + entityType));
 
     var uploadRanges = repository.createUploadRanges();
-    statusService.updateReindexUploadStarted(entityType, uploadRanges.size());
-    indexRangeEventProducer.sendMessages(prepareEvents(uploadRanges));
+
+    // For member tenant reindex of instances, add member tenant ID to the events
+    if (ReindexContext.isMemberTenantReindex()) {
+      var memberTenantId = ReindexContext.getMemberTenantId();
+      updateStatusAndSendEvents(entityType, uploadRanges.size(), memberTenantId, uploadRanges);
+    } else {
+      updateStatusAndSendEvents(entityType, uploadRanges.size(), uploadRanges);
+    }
   }
 
   public Collection<ResourceEvent> fetchRecordRange(ReindexRangeIndexEvent rangeIndexEvent) {
     var entityType = rangeIndexEvent.getEntityType();
     var repository = repositories.get(entityType);
-    var recordMaps = repository.fetchByIdRange(rangeIndexEvent.getLower(), rangeIndexEvent.getUpper());
+
+    List<Map<String, Object>> recordMaps;
+    if (rangeIndexEvent.getMemberTenantId() != null) {
+      // Use timestamp-filtered range query for member tenant child resource reindex
+      recordMaps = repository.fetchByIdRangeWithTimestamp(
+        rangeIndexEvent.getLower(),
+        rangeIndexEvent.getUpper(),
+        RESOURCE_REINDEX_TIMESTAMP);
+      log.debug(
+        "fetchRecordRange:: Fetched {} records for consortium member reindex [entityType: {}, member tenant: {}]",
+        recordMaps.size(), entityType, rangeIndexEvent.getMemberTenantId());
+    } else {
+      // Use regular ID range query for standard reindex
+      recordMaps = repository.fetchByIdRange(rangeIndexEvent.getLower(), rangeIndexEvent.getUpper());
+      log.debug("fetchRecordRange:: Fetched {} records using standard ID range [entityType: {}]",
+        recordMaps.size(), entityType);
+    }
+
     return recordMaps.stream()
       .map(map -> new ResourceEvent().id(getString(map, ID_FIELD))
         .resourceName(ReindexConstants.RESOURCE_NAME_MAP.get(entityType).getName())
@@ -62,7 +88,19 @@ public class ReindexUploadRangeIndexService {
     repository.updateRangeStatus(event.getId(), Timestamp.from(Instant.now()), status, failCause);
   }
 
-  private List<ReindexRangeIndexEvent> prepareEvents(List<UploadRangeEntity> uploadRanges) {
+  private void updateStatusAndSendEvents(ReindexEntityType entityType, int rangeCount,
+                                         List<UploadRangeEntity> rangeEntities) {
+    updateStatusAndSendEvents(entityType, rangeCount, null, rangeEntities);
+  }
+
+  private void updateStatusAndSendEvents(ReindexEntityType entityType, int rangeCount, String memberTenantId,
+                                         List<UploadRangeEntity> rangeEntities) {
+    statusService.updateReindexUploadStarted(entityType, rangeCount);
+    var events = prepareEvents(memberTenantId, rangeEntities);
+    indexRangeEventProducer.sendMessages(events);
+  }
+
+  private List<ReindexRangeIndexEvent> prepareEvents(String memberTenantId, List<UploadRangeEntity> uploadRanges) {
     return uploadRanges.stream()
       .map(range -> {
         var event = new ReindexRangeIndexEvent();
@@ -70,6 +108,7 @@ public class ReindexUploadRangeIndexService {
         event.setEntityType(range.getEntityType());
         event.setLower(range.getLower());
         event.setUpper(range.getUpper());
+        event.setMemberTenantId(memberTenantId);
         return event;
       })
       .toList();

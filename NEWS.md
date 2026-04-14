@@ -14,6 +14,7 @@
 * Provides `resource-ids-streaming v1.0`
 * Provides `browse-inventory v1.0`
 * Provides `browse-authorities v1.0`
+* Provides `indices v1.2`
 * Removed `search`
 * Removed `browse`
 
@@ -22,9 +23,11 @@
   * Use unique consumer group per instance for inventory classification-type and call-number-type topics ([MSEARCH-1092](https://folio-org.atlassian.net/browse/MSEARCH-1092))
   * Remove identifiers from keyword alias for instance and authority mappings ([MSEARCH-1118](https://folio-org.atlassian.net/browse/MSEARCH-1118))
   * Change `all` query builder to use full term for multimatch search ([MSEARCH-1112](https://folio-org.atlassian.net/browse/MSEARCH-1112))
+  * Create a new listener for the CONSORTIUM_INSTANCE_SHARING_COMPLETE event to update the call number’s last_updated_date when an instance is shared to the central tenant ([MSEARCH-1168](https://folio-org.atlassian.net/browse/MSEARCH-1168))
 * **Authority Search**
   * Implement two-stage Kafka processing with event aggregation for instance indexing ([MSEARCH-1157](https://folio-org.atlassian.net/browse/MSEARCH-1157))
   * Separate LCCN and Canceled LCCN identifiers search to lccn and canceledLccn options ([MSEARCH-1066](https://folio-org.atlassian.net/browse/MSEARCH-1066))
+  * Use Authority-Specific Identifier Types for LCCN Lookups ([MSEARCH-1193](https://folio-org.atlassian.net/browse/MSEARCH-1193))
 * **Classification Browse**
   * Add title and contributors to classification browse response ([MSEARCH-1045](https://folio-org.atlassian.net/browse/MSEARCH-1045))
   * Add id to classification browse response ([MSEARCH-1093](https://folio-org.atlassian.net/browse/MSEARCH-1093))
@@ -37,6 +40,8 @@
   * Omit sub-resource if main value is blank ([MSEARCH-1084](https://folio-org.atlassian.net/browse/MSEARCH-1084))
   * Remove excessive escaping of backslash character in sub-resources ([MSEARCH-1094](https://folio-org.atlassian.net/browse/MSEARCH-1094))
   * Implement two-stage Kafka processing with event aggregation for instance indexing ([MSEARCH-1157](https://folio-org.atlassian.net/browse/MSEARCH-1157))
+  * Implement member tenant reindex ([MSEARCH-1100](https://folio-org.atlassian.net/browse/MSEARCH-1100))
+  * Don't recreate reindex status on upload phase start ([MSEARCH-1198](https://folio-org.atlassian.net/browse/MSEARCH-1198))
   * Add EXPORT-based merge ingestion for reindex using file-ready Kafka events and S3-backed record files ([MSEARCH-1175](https://folio-org.atlassian.net/browse/MSEARCH-1175))
 * **Instance Search**
   * Add support for searching by instance/holdings/item electronic access relationship ID ([MSEARCH-816](https://folio-org.atlassian.net/browse/MSEARCH-816))
@@ -74,6 +79,9 @@
   * Ignore shadow locations and location units while indexing domain events ([MSEARCH-1154](https://folio-org.atlassian.net/browse/MSEARCH-1154))
   * Add support for exact match on isbn, honor '*' in IsbnSearchTermProcessor ([MSEARCH-1011](https://folio-org.atlassian.net/browse/MSEARCH-1011))
   * Update instance_call_number tenantId on Instance becoming shared ([MSEARCH-1168](https://folio-org.atlassian.net/browse/MSEARCH-1168))
+  * Fix deadlocks for sub-resources on reindex ([MSEARCH-1196](https://folio-org.atlassian.net/browse/MSEARCH-1196))
+  * Manually analyze instance/holding/item tables before upload phase of reindexing ([MSEARCH-1197](https://folio-org.atlassian.net/browse/MSEARCH-1197))
+  * Set reindex status to completed when range is successfully processed on retry ([MSEARCH-1199](https://folio-org.atlassian.net/browse/MSEARCH-1199))
 
 ### Tech Dept
 * Migrate to Opensearch 3.0.0 ([MSEARCH-1033](https://folio-org.atlassian.net/browse/MSEARCH-1033))
@@ -89,6 +97,7 @@
 * Change spring-kafka-test scope from compile to test ([MSEARCH-1148](https://folio-org.atlassian.net/browse/MSEARCH-1148))
 * Fix race condition in shouldIndexInstanceCallNumber\_createNewDocument\_onItemCreate ([MSEARCH-1149](https://folio-org.atlassian.net/browse/MSEARCH-1149))
 * Use GitHub Workflows for builds ([MSEARCH-1158](https://folio-org.atlassian.net/browse/MSEARCH-1158))
+* Eliminate use of user-tenants on tenant enablement to avoid invalid caches
 
 ### Dependencies
 * Add `folio-s3-client 3.0.0-SNAPSHOT`

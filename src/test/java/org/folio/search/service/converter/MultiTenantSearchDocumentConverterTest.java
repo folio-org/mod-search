@@ -154,6 +154,94 @@ class MultiTenantSearchDocumentConverterTest {
     assertThat(actual).isEqualTo(emptyMap());
   }
 
+  @Test
+  void convertForReindex_positive_null() {
+    var actual = multiTenantConverter.convertForReindex(null);
+    assertThat(actual).isEmpty();
+    verifyNoInteractions(executionService, folioExecutionContext);
+  }
+
+  @Test
+  void convertForReindex_positive_emptyList() {
+    var actual = multiTenantConverter.convertForReindex(emptyList());
+    assertThat(actual).isEmpty();
+    verifyNoInteractions(executionService, folioExecutionContext);
+  }
+
+  @Test
+  void convertForReindex_positive_singleEvent() {
+    var event = resourceEvent(UNKNOWN, mapOf("id", RESOURCE_ID));
+    var searchDocument = searchDocument(event, INDEX);
+
+    when(resourceDescriptionService.find(UNKNOWN)).thenReturn(of(resourceDescription(UNKNOWN)));
+    when(searchDocumentConverter.convert(event)).thenReturn(of(searchDocument));
+
+    var actual = multiTenantConverter.convertForReindex(List.of(event));
+
+    assertThat(actual).containsExactly(searchDocument);
+    verifyNoInteractions(executionService, folioExecutionContext);
+  }
+
+  @Test
+  void convertForReindex_positive_multipleEvents() {
+    var events = List.of(
+      resourceEvent(null, UNKNOWN, mapOf("id", randomId())).type(ResourceEventType.UPDATE),
+      resourceEvent(null, UNKNOWN, mapOf("id", randomId())).type(ResourceEventType.DELETE));
+
+    when(resourceDescriptionService.find(UNKNOWN)).thenReturn(of(resourceDescription(UNKNOWN)));
+    when(searchDocumentConverter.convert(events.get(0))).thenReturn(of(searchDocument(events.get(0), INDEX)));
+    when(searchDocumentConverter.convert(events.get(1))).thenReturn(of(searchDocument(events.get(1), DELETE)));
+
+    var actual = multiTenantConverter.convertForReindex(events);
+
+    assertThat(actual).containsExactly(
+      searchDocument(events.get(0), INDEX),
+      searchDocument(events.get(1), DELETE));
+    verifyNoInteractions(executionService, folioExecutionContext);
+  }
+
+  @Test
+  void convertForReindex_positive_eventThatIsNotConverted() {
+    var event = resourceEvent(UNKNOWN, mapOf("id", RESOURCE_ID));
+
+    when(resourceDescriptionService.find(UNKNOWN)).thenReturn(of(resourceDescription(UNKNOWN)));
+    when(searchDocumentConverter.convert(event)).thenReturn(Optional.empty());
+
+    var actual = multiTenantConverter.convertForReindex(List.of(event));
+
+    assertThat(actual).isEmpty();
+    verifyNoInteractions(executionService, folioExecutionContext);
+  }
+
+  @Test
+  void convertForReindex_positive_eventWithoutId() {
+    var event = resourceEvent(null, UNKNOWN, mapOf("id", RESOURCE_ID)).tenant(TENANT_ID);
+
+    when(resourceDescriptionService.find(UNKNOWN)).thenReturn(of(resourceDescription(UNKNOWN)));
+    when(searchDocumentConverter.convert(any(ResourceEvent.class))).thenReturn(of(searchDocument(event, INDEX)));
+
+    var actual = multiTenantConverter.convertForReindex(List.of(event));
+
+    assertThat(actual).hasSize(1);
+    verifyNoInteractions(executionService, folioExecutionContext);
+  }
+
+  @Test
+  void convertForReindex_positive_eventWithCustomPreProcessor() {
+    var event = resourceEvent(UNKNOWN, mapOf("id", RESOURCE_ID));
+    var searchDocument = searchDocument(event, INDEX);
+
+    when(resourceDescriptionService.find(UNKNOWN)).thenReturn(of(resourceDescriptionWithPreProcessor()));
+    when(eventPreProcessorBeans.get(CUSTOM_PRE_PROCESSOR)).thenReturn(customEventPreProcessor);
+    when(customEventPreProcessor.preProcess(event)).thenReturn(List.of(event));
+    when(searchDocumentConverter.convert(event)).thenReturn(of(searchDocument));
+
+    var actual = multiTenantConverter.convertForReindex(List.of(event));
+
+    assertThat(actual).containsExactly(searchDocument);
+    verifyNoInteractions(executionService, folioExecutionContext);
+  }
+
   @SneakyThrows
   private static SearchDocumentBody searchDocument(ResourceEvent event, IndexActionType type) {
     return SearchDocumentBody.of(type == INDEX ? new BytesArray(SMILE_MAPPER.writeValueAsBytes(event.getNew())) : null,

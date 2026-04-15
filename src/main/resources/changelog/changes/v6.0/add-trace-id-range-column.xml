@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
+
+  <changeSet id="MSEARCH-1175@@alter:merge_range:add-column:trace_id" author="pavlo_smahin">
+    <preConditions onFail="MARK_RAN">
+      <tableExists tableName="merge_range"/>
+      <not>
+        <columnExists tableName="merge_range" columnName="trace_id"/>
+      </not>
+    </preConditions>
+
+    <comment>Add trace_id column to merge_range table</comment>
+
+    <addColumn tableName="merge_range">
+      <column name="trace_id" type="UUID" />
+    </addColumn>
+  </changeSet>
+
+</databaseChangeLog>

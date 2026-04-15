@@ -2,6 +2,7 @@ package org.folio.search.utils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.LogUtils.collectionToLogMsg;
+import static org.folio.search.utils.LogUtils.hideIfSet;
 
 import java.util.Arrays;
 import java.util.List;
@@ -30,5 +31,23 @@ class LogUtilsTest {
   void collectionToLogMsg_withHidingItems() {
     var actual = collectionToLogMsg(BIG_LIST, true);
     assertThat(actual).isEqualTo(MSG + BIG_LIST.size());
+  }
+
+  @Test
+  void hideIfSet_nullValue_returnsNotSet() {
+    var actual = hideIfSet(null);
+    assertThat(actual).isEqualTo("<not set>");
+  }
+
+  @Test
+  void hideIfSet_blankValue_returnsNotSet() {
+    var actual = hideIfSet(" ");
+    assertThat(actual).isEqualTo("<not set>");
+  }
+
+  @Test
+  void hideIfSet_nonBlankValue_returnsMaskedValue() {
+    var actual = hideIfSet("secret");
+    assertThat(actual).isEqualTo("***");
   }
 }

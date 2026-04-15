@@ -1070,6 +1070,11 @@
         "description": "Custom number of kafka concurrent threads for `inventory.reindex-records` message consuming."
       },
       {
+        "name": "KAFKA_REINDEX_FILE_READY_CONCURRENCY",
+        "value": "2",
+        "description": "Custom number of kafka concurrent threads for `inventory.reindex.file-ready` message consuming."
+      },
+      {
         "name": "KAFKA_CONSUMER_MAX_POLL_RECORDS",
         "value": "200",
         "description": "Maximum number of records returned in a single call to poll()."
@@ -1267,6 +1272,11 @@
         "description": "The maximum elasticsearch query offset for additional requests on browse around"
       },
       {
+        "name": "REINDEX_TYPE",
+        "value": "EXPORT",
+        "description": "Defines reindex data ingestion strategy: `PUBLISH` for Kafka payload events, `EXPORT` for file-ready events from remote storage."
+      },
+      {
         "name": "REINDEX_LOCATION_BATCH_SIZE",
         "value": "1000",
         "description": "Defines number of locations to retrieve per inventory http request on locations reindex process"
@@ -1310,6 +1320,36 @@
         "name": "REINDEX_MERGE_RANGE_PUBLISHER_RETRY_ATTEMPTS",
         "value": "5",
         "description": "The maximum number of retries for reindex merge range request publishing."
+      },
+      {
+        "name": "S3_REINDEX_URL",
+        "value": "https://s3.amazonaws.com",
+        "description": "Remote object storage endpoint for reindex EXPORT mode."
+      },
+      {
+        "name": "S3_REINDEX_REGION",
+        "value": "us-west-2",
+        "description": "Remote object storage region for reindex EXPORT mode."
+      },
+      {
+        "name": "S3_REINDEX_BUCKET",
+        "value": "",
+        "description": "Remote object storage bucket for reindex EXPORT mode."
+      },
+      {
+        "name": "S3_REINDEX_ACCESS_KEY_ID",
+        "value": "",
+        "description": "Access key ID for remote object storage in reindex EXPORT mode."
+      },
+      {
+        "name": "S3_REINDEX_SECRET_ACCESS_KEY",
+        "value": "",
+        "description": "Secret access key for remote object storage in reindex EXPORT mode."
+      },
+      {
+        "name": "S3_REINDEX_IS_AWS",
+        "value": "true",
+        "description": "Controls whether AWS-compatible SDK behavior is used for reindex EXPORT remote storage."
       }
     ]
   }

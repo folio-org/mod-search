@@ -61,6 +61,7 @@ folio:
       instance-children-index-delay-ms: 1000
       sub-resource-batch-size: 40
   reindex:
+    reindex-type: PUBLISH
     location-batch-size: 2
   query:
     properties:
@@ -130,6 +131,9 @@ folio:
       - name: inventory.reindex-records
         numPartitions: 1
         replicationFactor: 1
+      - name: inventory.reindex.file-ready
+        numPartitions: 1
+        replicationFactor: 1
       - name: search.index.instance
         numPartitions: 1
         replicationFactor: 1
@@ -176,6 +180,10 @@ folio:
         concurrency: 1
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.reindex-records
         group-id: ${folio.environment}-mod-search-reindex-records-group
+      reindex-file-ready:
+        concurrency: 1
+        topic-pattern: (${folio.environment}\.)(.*\.)inventory\.reindex\.file-ready
+        group-id: ${folio.environment}-mod-search-reindex-file-ready-group
       index-instance:
         concurrency: 1
         topic-pattern: (${folio.environment}\.)(.*\.)search\.index.instance

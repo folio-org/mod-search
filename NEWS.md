@@ -1,4 +1,4 @@
-## v6.0.0 YYYY-mm-DD
+## v6.0.0 2026-04-15
 ### Breaking changes
 * Migrate to Spring Boot 4 ([MSEARCH-1104](https://folio-org.atlassian.net/browse/MSEARCH-1104))
 * Delete deprecated stream resource ids endpoints ([MSEARCH-1053](https://folio-org.atlassian.net/browse/MSEARCH-1053))
@@ -15,8 +15,12 @@
 * Provides `browse-inventory v1.0`
 * Provides `browse-authorities v1.0`
 * Provides `indices v1.2`
-* Removed `search`
-* Removed `browse`
+* Removed `search` (split into `search-inventory`, `search-authorities`, `search-linked-data`, `search-facets`)
+* Removed `browse` (split into `browse-inventory`, `browse-authorities`)
+* Requires `holdings-storage v8.0`
+* Requires `item-storage v11.0`
+* Requires `authority-identifier-types v1.0`
+* Removed required `instance-reindex`
 
 ### Features
 * **General**
@@ -99,10 +103,20 @@
 * Eliminate use of user-tenants on tenant enablement to avoid invalid caches
 
 ### Dependencies
-* Bump `LIB_NAME` from `OLD_VERSION` to `NEW_VERSION`
-* Add `LIB_NAME VERSION`
-* Remove `LIB_NAME`
-* Change scope of `spring-kafka-test` from `compile` to `test`
+* Bump `spring-boot-starter-parent` from `3.4.3` to `4.0.5`
+* Bump `folio-spring-support` from `9.0.0` to `10.0.0`
+* Bump `folio-service-tools` from `5.0.0` to `6.0.0`
+* Bump `folio-isbn-utils` from `1.8.0` to `1.9.0`
+* Bump `folio-cql2pgjson` from `35.4.0` to `36.0.0`
+* Bump `opensearch-java` from `2.19.1` to `3.6.0`
+* Bump `apache-commons-io` from `2.18.0` to `2.21.0`
+* Bump `apache-commons-collections4` from `4.4` to `4.5.0`
+* Bump `marc4j` from `2.9.5` to `2.9.6`
+* Bump `lombok` from `1.18.36` to `1.18.44`
+* Bump `streamex` from `0.8.3` to `0.8.4`
+* Add `httpclient5 5.6`
+* Add `httpcore5 5.4`
+* Replace `spring-kafka` with `spring-boot-starter-kafka`
 
 ---
 

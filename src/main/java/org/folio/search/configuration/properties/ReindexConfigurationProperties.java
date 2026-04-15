@@ -35,6 +35,9 @@ public class ReindexConfigurationProperties {
 
   private Integer mergeRangeSize = 1_000;
 
+  @Min(100)
+  private Integer mergeExportBatchSize = 500;
+
   private Integer mergeRangePublisherCorePoolSize = 3;
 
   private Integer mergeRangePublisherMaxPoolSize = 6;
@@ -44,11 +47,11 @@ public class ReindexConfigurationProperties {
   private int mergeRangePublisherRetryAttempts = 5;
 
   /**
-   * Defines a type of reindex process. Default is EXPORT.
+   * Defines a type of reindex process. Default is PUBLISH.
    * EXPORT - will use exported S3 files.
    * PUBLISH - will use published Kafka messages.
    */
-  private ReindexType reindexType = ReindexType.EXPORT;
+  private ReindexType reindexType = ReindexType.PUBLISH;
 
   /**
    * Defines the PostgreSQL work_mem value to set for migration operations.

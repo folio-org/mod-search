@@ -181,7 +181,7 @@ folio:
         group-id: ${folio.environment}-mod-search-reindex-records-group
       reindex-file-ready:
         concurrency: 1
-        topic-pattern: (${folio.environment}\.)(.*\.)inventory\.reindex.file-ready
+        topic-pattern: (${folio.environment}\.)(.*\.)inventory\.reindex\.file-ready
         group-id: ${folio.environment}-mod-search-reindex-file-ready-group
       index-instance:
         concurrency: 1

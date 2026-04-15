@@ -35,6 +35,9 @@ public class ReindexConfigurationProperties {
 
   private Integer mergeRangeSize = 1_000;
 
+  @Min(100)
+  private Integer mergeExportBatchSize = 500;
+
   private Integer mergeRangePublisherCorePoolSize = 3;
 
   private Integer mergeRangePublisherMaxPoolSize = 6;
@@ -42,6 +45,13 @@ public class ReindexConfigurationProperties {
   private long mergeRangePublisherRetryIntervalMs = 1000;
 
   private int mergeRangePublisherRetryAttempts = 5;
+
+  /**
+   * Defines a type of reindex process. Default is PUBLISH.
+   * EXPORT - will use exported S3 files.
+   * PUBLISH - will use published Kafka messages.
+   */
+  private ReindexType reindexType = ReindexType.PUBLISH;
 
   /**
    * Defines the PostgreSQL work_mem value to set for migration operations.
@@ -75,20 +85,26 @@ public class ReindexConfigurationProperties {
     // Validate work_mem format
     if (!WORK_MEM_VALIDATION_PATTERN.matcher(migrationWorkMem).matches()) {
       var errorMsg = "Invalid work_mem configuration: " + migrationWorkMem
-        + ". Must be a number followed by KB, MB, or GB (e.g., '64MB', '512KB', '1GB')";
+                     + ". Must be a number followed by KB, MB, or GB (e.g., '64MB', '512KB', '1GB')";
       log.error(errorMsg);
       throw new IllegalArgumentException(errorMsg);
     }
 
     // Validate statement_timeout format
     if (!STATEMENT_TIMEOUT_VALIDATION_PATTERN.matcher(migrationStatementTimeout).matches()) {
-      var errorMsg = "Invalid statement_timeout configuration: " + migrationStatementTimeout
-        + ". Must be a number optionally followed by ms, s, min, or h (e.g., '0', '600000', '30min', '1h')";
+      var errorMsg = ("Invalid statement_timeout configuration: %s. "
+                      + "Must be a number optionally followed by ms, s, min, or h (e.g., '0', '600000', '30min', '1h')")
+        .formatted(migrationStatementTimeout);
       log.error(errorMsg);
       throw new IllegalArgumentException(errorMsg);
     }
 
     log.info("Reindex configuration validated successfully. Migration work_mem: {}, statement_timeout: {}",
       migrationWorkMem, migrationStatementTimeout);
+  }
+
+  public enum ReindexType {
+    PUBLISH,
+    EXPORT
   }
 }

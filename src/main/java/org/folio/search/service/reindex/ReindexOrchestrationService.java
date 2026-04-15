@@ -1,11 +1,11 @@
 package org.folio.search.service.reindex;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.message.FormattedMessage;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.exception.ReindexException;
+import org.folio.search.model.event.ReindexFileReadyEvent;
 import org.folio.search.model.event.ReindexRangeIndexEvent;
 import org.folio.search.model.event.ReindexRecordsEvent;
 import org.folio.search.model.types.ReindexEntityType;
@@ -13,21 +13,67 @@ import org.folio.search.model.types.ReindexRangeStatus;
 import org.folio.search.repository.PrimaryResourceRepository;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.spring.FolioExecutionContext;
-import org.springframework.dao.PessimisticLockingFailureException;
-import org.springframework.stereotype.Service;
 
 @Log4j2
-@Service
-@RequiredArgsConstructor
-public class ReindexOrchestrationService {
+public abstract class ReindexOrchestrationService {
 
+  protected final ReindexMergeRangeIndexService mergeRangeService;
   private final ReindexUploadRangeIndexService uploadRangeService;
-  private final ReindexMergeRangeIndexService mergeRangeService;
   private final ReindexStatusService reindexStatusService;
   private final PrimaryResourceRepository elasticRepository;
   private final ReindexService reindexService;
   private final MultiTenantSearchDocumentConverter documentConverter;
   private final FolioExecutionContext context;
+
+  protected ReindexOrchestrationService(
+      ReindexUploadRangeIndexService uploadRangeService,
+      ReindexMergeRangeIndexService mergeRangeService,
+      ReindexStatusService reindexStatusService,
+      PrimaryResourceRepository elasticRepository,
+      ReindexService reindexService,
+      MultiTenantSearchDocumentConverter documentConverter,
+      FolioExecutionContext context) {
+    this.mergeRangeService = mergeRangeService;
+    this.uploadRangeService = uploadRangeService;
+    this.reindexStatusService = reindexStatusService;
+    this.elasticRepository = elasticRepository;
+    this.reindexService = reindexService;
+    this.documentConverter = documentConverter;
+    this.context = context;
+  }
+
+  public boolean process(ReindexRangeIndexEvent event) {
+    var memberTenantId = getMemberTenantIdForRangeProcessing(event);
+
+    try {
+      log.info("process:: ReindexRangeIndexEvent [id: {}, tenantId: {}, memberTenantId: {}, "
+               + "entityType: {}, lower: {}, upper: {}, ts: {}]",
+        event.getId(), event.getTenant(), memberTenantId,
+        event.getEntityType(), event.getLower(), event.getUpper(), event.getTs());
+
+      var folioIndexOperationResponse = fetchRecordsAndIndexForUploadRange(event);
+      if (folioIndexOperationResponse.getStatus() == FolioIndexOperationResponse.StatusEnum.ERROR) {
+        throw handleReindexUploadFailure(event, folioIndexOperationResponse.getErrorMessage());
+      }
+      uploadRangeService.updateStatus(event, ReindexRangeStatus.SUCCESS, null);
+
+      log.info("process:: ReindexRangeIndexEvent processed [id: {}]", event.getId());
+      reindexStatusService.addProcessedUploadRanges(event.getEntityType(), 1);
+      return true;
+    } finally {
+      if (memberTenantId != null) {
+        ReindexContext.clearMemberTenantId();
+      }
+    }
+  }
+
+  public boolean process(ReindexRecordsEvent event) {
+    throw new UnsupportedOperationException("process(ReindexRecordsEvent) is not supported in this reindex mode");
+  }
+
+  public boolean process(ReindexFileReadyEvent event) {
+    throw new UnsupportedOperationException("process(ReindexFileReadyEvent) is not supported in this reindex mode");
+  }
 
   /**
    * Determines and sets the member tenant ID context for processing.
@@ -35,7 +81,7 @@ public class ReindexOrchestrationService {
    *
    * @return the member tenant ID that was set, or null if none was set
    */
-  private String getMemberTenantIdForProcessing() {
+  protected String getMemberTenantIdForProcessing() {
     var memberTenantId = reindexStatusService.getTargetTenantId();
 
     if (StringUtils.isNotBlank(memberTenantId)) {
@@ -53,7 +99,7 @@ public class ReindexOrchestrationService {
    * @param event the reindex range event containing member tenant information
    * @return the member tenant ID that was set, or null if none was set
    */
-  private String getMemberTenantIdForRangeProcessing(ReindexRangeIndexEvent event) {
+  protected String getMemberTenantIdForRangeProcessing(ReindexRangeIndexEvent event) {
     var memberTenantId = event.getMemberTenantId();
 
     if (StringUtils.isNotBlank(memberTenantId)) {
@@ -65,74 +111,16 @@ public class ReindexOrchestrationService {
     return null;
   }
 
-  public boolean process(ReindexRangeIndexEvent event) {
-    var memberTenantId = getMemberTenantIdForRangeProcessing(event);
-
-    try {
-      log.info("process:: ReindexRangeIndexEvent [id: {}, tenantId: {}, memberTenantId: {}, "
-          + "entityType: {}, lower: {}, upper: {}, ts: {}]",
-        event.getId(), event.getTenant(), memberTenantId,
-        event.getEntityType(), event.getLower(), event.getUpper(), event.getTs());
-
-      var folioIndexOperationResponse = fetchRecordsAndIndexForUploadRange(event);
-      if (folioIndexOperationResponse.getStatus() == FolioIndexOperationResponse.StatusEnum.ERROR) {
-        throw handleReindexUploadFailure(event, folioIndexOperationResponse.getErrorMessage());
-      }
-      uploadRangeService.updateStatus(event, ReindexRangeStatus.SUCCESS, null);
-
-      log.info("process:: ReindexRangeIndexEvent processed [id: {}]", event.getId());
-      reindexStatusService.addProcessedUploadRanges(event.getEntityType(), 1);
-      return true;
-    } finally {
-      // Clean up member tenant context
-      if (memberTenantId != null) {
-        ReindexContext.clearMemberTenantId();
-      }
-    }
-  }
-
-  public boolean process(ReindexRecordsEvent event) {
-    var memberTenantId = getMemberTenantIdForProcessing();
-
-    try {
-      log.info("process:: ReindexRecordsEvent [rangeId: {}, tenantId: {}, memberTenantId: {}, "
-        + "recordType: {}, recordsCount: {}]",
-        event.getRangeId(), event.getTenant(), memberTenantId, event.getRecordType(), event.getRecords().size());
-
-      persistEntities(event);
-      log.info("process:: ReindexRecordsEvent processed [rangeId: {}, recordType: {}]",
-        event.getRangeId(), event.getRecordType());
-    } catch (PessimisticLockingFailureException ex) {
-      log.warn(new FormattedMessage("process:: ReindexRecordsEvent indexing recoverable error"
-                                    + " [rangeId: {}, error: {}]", event.getRangeId(), ex.getMessage()), ex);
-      throw new ReindexException(ex.getMessage());
-    } catch (Exception ex) {
-      handleReindexMergeFailure(event, ex.getMessage());
-      return true;
-    } finally {
-      // Clean up member tenant context
-      if (memberTenantId != null) {
-        ReindexContext.clearMemberTenantId();
-      }
-    }
-
-    startUploadOnMergeCompletion();
-    return true;
-  }
-
-  private void persistEntities(ReindexRecordsEvent event) {
+  protected void persistEntities(ReindexRecordsEvent event) {
     var entityType = event.getRecordType().getEntityType();
     mergeRangeService.saveEntities(event);
-    mergeRangeService.updateStatus(entityType, event.getRangeId(), ReindexRangeStatus.SUCCESS, null);
-    reindexStatusService.addProcessedMergeRanges(entityType, 1);
+    handleMergeSuccess(entityType, event.getRangeId());
   }
 
-  private void startUploadOnMergeCompletion() {
+  protected void startUploadOnMergeCompletion() {
     if (reindexStatusService.isMergeCompleted()) {
-      // Get targetTenantId before migration
       var targetTenantId = reindexStatusService.getTargetTenantId();
 
-      // Check if this is a tenant-specific reindex that requires staging migration and OpenSearch cleanup
       if (targetTenantId != null) {
         log.info("process:: Merge completed for member tenant reindex. Starting staging migration [targetTenant: {}]",
           targetTenantId);
@@ -153,7 +141,7 @@ public class ReindexOrchestrationService {
     }
   }
 
-  private void performStagingMigration(String targetTenantId) {
+  protected void performStagingMigration(String targetTenantId) {
     try {
       log.info("performStagingMigration:: Starting staging migration for [targetTenant: {}]", targetTenantId);
       reindexStatusService.updateStagingStarted();
@@ -167,6 +155,26 @@ public class ReindexOrchestrationService {
       reindexStatusService.updateStagingFailed();
       throw new ReindexException("Migration failed: " + e.getMessage());
     }
+  }
+
+  protected void handleMergeSuccess(ReindexEntityType entityType, String rangeId) {
+    mergeRangeService.updateStatus(entityType, rangeId, ReindexRangeStatus.SUCCESS, null);
+    reindexStatusService.addProcessedMergeRanges(entityType, 1);
+  }
+
+  protected void handleMergeFailure(ReindexEntityType entityType, String rangeId, Exception ex) {
+    log.error(new FormattedMessage("process:: ReindexRecordsEvent indexing error [rangeId: {}, error: {}]",
+      rangeId, ex.getMessage()), ex);
+    reindexStatusService.updateReindexMergeFailed(entityType);
+    mergeRangeService.updateStatus(entityType, rangeId, ReindexRangeStatus.FAIL, ex.getMessage());
+  }
+
+  protected void handleReindexMergeFailure(ReindexRecordsEvent event, String errorMessage) {
+    log.warn("handleReindexMergeFailure:: ReindexRecordsEvent indexing error [rangeId: {}, error: {}]",
+      event.getRangeId(), errorMessage);
+    var entityType = event.getRecordType().getEntityType();
+    reindexStatusService.updateReindexMergeFailed(entityType);
+    mergeRangeService.updateStatus(entityType, event.getRangeId(), ReindexRangeStatus.FAIL, errorMessage);
   }
 
   private FolioIndexOperationResponse fetchRecordsAndIndexForUploadRange(ReindexRangeIndexEvent event) {
@@ -185,13 +193,5 @@ public class ReindexOrchestrationService {
     uploadRangeService.updateStatus(event, ReindexRangeStatus.FAIL, errorMessage);
     reindexStatusService.updateReindexUploadFailed(event.getEntityType());
     return new ReindexException(errorMessage);
-  }
-
-  private void handleReindexMergeFailure(ReindexRecordsEvent event, String errorMessage) {
-    log.warn("handleReindexMergeFailure:: ReindexRecordsEvent indexing error [rangeId: {}, error: {}]",
-      event.getRangeId(), errorMessage);
-    var entityType = event.getRecordType().getEntityType();
-    reindexStatusService.updateReindexMergeFailed(entityType);
-    mergeRangeService.updateStatus(entityType, event.getRangeId(), ReindexRangeStatus.FAIL, errorMessage);
   }
 }

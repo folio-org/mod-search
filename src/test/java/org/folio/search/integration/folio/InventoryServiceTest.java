@@ -30,14 +30,22 @@ import org.folio.spring.tools.kafka.FolioKafkaProperties;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @UnitTest
 @ExtendWith(SpringExtension.class)
+@EnableConfigurationProperties
 @ContextConfiguration(classes = {InventoryService.class, RetryTemplateConfiguration.class, FolioKafkaProperties.class,
                                  StreamIdsProperties.class, ReindexConfigurationProperties.class})
+@TestPropertySource(properties = {
+  "folio.reindex.reindex-type=EXPORT",
+  "folio.reindex.merge-range-publisher-retry-attempts=5",
+  "folio.reindex.merge-range-publisher-retry-interval-ms=10"
+})
 class InventoryServiceTest {
 
   @MockitoBean

@@ -8,6 +8,7 @@ box "FOLIO Backend" #LightBlue
   participant "mod-inventory-storage" as inventoryStorage
   participant "mod-consortia" as modConsortia
   participant "Kafka" as kafka
+  database "Object Storage\n(S3-compatible)" as s3
   database "Postgres\n(Intermediate Tables:\ninstance, holding, item, etc)" as postgres
   database "Elasticsearch" as elasticsearch
 end box
@@ -41,29 +42,36 @@ end
 modSearch -> inventoryStorage: Get total record count for entity types
 inventoryStorage --> modSearch: Return total counts
 
-' Create merge ranges
+' Create merge ranges (includes trace_id correlation token per range)
 modSearch -> postgres: Save merge ranges to merge_range table
 
 ' Update total merge ranges count in status
 modSearch -> postgres: Update total_merge_ranges in reindex_status
 
-' Trigger publishing of record batches by inventory-storage
-modSearch -> inventoryStorage: Trigger record batch publishing via Kafka\n(requests ReindexRecordsRequest publishing)
-inventoryStorage -> kafka: Publish record batches
-note right of kafka : Kafka event contains the actual\ninstance/holding/item records
-
-' --- Merge Phase Processing (Async) ---
-kafka -> modSearch: Consume ReindexRecordsEvent (contains record batch)
-modSearch -> postgres: Save record batch to intermediate tables\n(instance, holding, item)
-modSearch -> postgres: Update merge_range status (SUCCESS/FAIL)
-modSearch -> postgres: Increment processed_merge_ranges in reindex_status
+' Trigger merge ingestion
+modSearch -> inventoryStorage: Trigger range publishing/export for merge ranges
+alt REINDEX_TYPE=PUBLISH
+  inventoryStorage -> kafka: Publish ReindexRecordsEvent (records payload)
+  kafka -> modSearch: Consume ReindexRecordsEvent
+  modSearch -> postgres: Save record batch to intermediate tables\n(instance, holding, item)
+  modSearch -> postgres: Update merge_range status (SUCCESS/FAIL)
+  modSearch -> postgres: Increment processed_merge_ranges in reindex_status
+else REINDEX_TYPE=EXPORT
+  inventoryStorage -> s3: Export range records to object storage
+  inventoryStorage -> kafka: Publish ReindexFileReadyEvent\n(rangeId, traceId, objectKey, recordType)
+  kafka -> modSearch: Consume ReindexFileReadyEvent
+  modSearch -> s3: Read exported file by objectKey
+  modSearch -> postgres: Parse file lines and save records to\nintermediate tables in batches
+  modSearch -> postgres: Update merge_range status (SUCCESS/FAIL)
+  modSearch -> postgres: Increment processed_merge_ranges in reindex_status
+end
 
 ' --- Transition Check ---
 modSearch -> modSearch: Check if merge phase is complete for all types
 note left: Internal check, loops until\n`reindexStatusService.isMergeCompleted()` is true
 
 ' --- Upload Phase Initialization (after Merge complete) ---
-' Create upload ranges from intermediate tables
+' Create upload ranges from intermediate tables for upload-supported entity types
 modSearch -> postgres: Create upload ranges from intermediate tables\n(querying instance, holding, item tables)
 modSearch -> postgres: Save upload ranges to upload_range table
 modSearch -> postgres: Update total_upload_ranges in reindex_status

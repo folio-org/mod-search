@@ -12,9 +12,9 @@ import org.folio.s3.client.FolioS3Client;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.exception.ReindexException;
 import org.folio.search.model.event.ReindexFileReadyEvent;
-import org.folio.search.model.event.ReindexRecordsEvent;
 import org.folio.search.repository.PrimaryResourceRepository;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
+import org.folio.search.service.reindex.jdbc.RawLine;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -81,11 +81,11 @@ public class ExportReindexOrchestrationService extends ReindexOrchestrationServi
     try (var is = folioS3Client.read(event.getObjectKey());
          var isr = new InputStreamReader(is, StandardCharsets.UTF_8);
          var reader = new BufferedReader(isr)) {
-      List<Object> batch = new ArrayList<>(batchSize);
+      List<RawLine> batch = new ArrayList<>(batchSize);
       String line;
       while ((line = reader.readLine()) != null) {
         if (!line.isBlank()) {
-          batch.add(jsonConverter.fromJsonToMap(line));
+          batch.add(new RawLine(line, jsonConverter.fromJsonToMap(line)));
         }
         if (batch.size() >= batchSize) {
           saveBatch(event, batch, true);
@@ -95,22 +95,13 @@ public class ExportReindexOrchestrationService extends ReindexOrchestrationServi
     }
   }
 
-  private void saveBatch(ReindexFileReadyEvent event, List<Object> batch, boolean clearAfterSave) {
+  private void saveBatch(ReindexFileReadyEvent event, List<RawLine> batch, boolean clearAfterSave) {
     if (batch.isEmpty()) {
       return;
     }
-    mergeRangeService.saveEntities(toReindexRecordsEvent(event, batch));
+    mergeRangeService.saveEntitiesRaw(event.getTenantId(), event.getRecordType(), batch);
     if (clearAfterSave) {
       batch.clear();
     }
-  }
-
-  private ReindexRecordsEvent toReindexRecordsEvent(ReindexFileReadyEvent event, List<Object> records) {
-    var reindexRecordsEvent = new ReindexRecordsEvent();
-    reindexRecordsEvent.setRangeId(event.getRangeId());
-    reindexRecordsEvent.setTenant(event.getTenantId());
-    reindexRecordsEvent.setRecordType(event.getRecordType());
-    reindexRecordsEvent.setRecords(records);
-    return reindexRecordsEvent;
   }
 }

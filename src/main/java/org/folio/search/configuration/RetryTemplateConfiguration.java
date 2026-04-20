@@ -64,17 +64,6 @@ public class RetryTemplateConfiguration {
       .build());
   }
 
-  private static boolean isConnectionClosedException(Throwable throwable) {
-    var cause = throwable;
-    while (cause != null) {
-      if (cause instanceof ConnectionClosedException) {
-        return true;
-      }
-      cause = cause.getCause();
-    }
-    return false;
-  }
-
   @ConditionalOnBean(ReindexConfigurationProperties.class)
   @Bean(name = REINDEX_PUBLISH_RANGE_RETRY_TEMPLATE_NAME)
   public RetryTemplate reindexPublishRangeRetryTemplate(ReindexConfigurationProperties properties) {
@@ -93,5 +82,16 @@ public class RetryTemplateConfiguration {
       }
     });
     return retryTemplate;
+  }
+
+  private static boolean isConnectionClosedException(Throwable throwable) {
+    var cause = throwable;
+    while (cause != null) {
+      if (cause instanceof ConnectionClosedException) {
+        return true;
+      }
+      cause = cause.getCause();
+    }
+    return false;
   }
 }

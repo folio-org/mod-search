@@ -2,6 +2,7 @@ package org.folio.search.repository;
 
 import static java.util.Arrays.stream;
 import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
+import static org.folio.search.configuration.RetryTemplateConfiguration.SEARCH_RETRY_TEMPLATE_NAME;
 import static org.folio.search.configuration.RetryTemplateConfiguration.STREAM_IDS_RETRY_TEMPLATE_NAME;
 import static org.folio.search.utils.CollectionUtils.anyMatch;
 import static org.folio.search.utils.CollectionUtils.getValuesByPath;
@@ -49,6 +50,8 @@ public class SearchRepository {
   private final RestHighLevelClient client;
   @Qualifier(value = STREAM_IDS_RETRY_TEMPLATE_NAME)
   private final RetryTemplate retryTemplate;
+  @Qualifier(value = SEARCH_RETRY_TEMPLATE_NAME)
+  private final RetryTemplate searchRetryTemplate;
   private final IndexNameProvider indexNameProvider;
 
   public String analyze(String text, String field, ResourceType resource, String tenantId) {
@@ -72,7 +75,8 @@ public class SearchRepository {
   public SearchResponse search(ResourceRequest resourceRequest, SearchSourceBuilder searchSource) {
     var index = indexNameProvider.getIndexName(resourceRequest);
     var searchRequest = buildSearchRequest(index, searchSource);
-    return performExceptionalOperation(() -> client.search(searchRequest, DEFAULT), index, SEARCH_OPERATION_TYPE);
+    return searchRetryTemplate.invoke(
+      () -> performExceptionalOperation(() -> client.search(searchRequest, DEFAULT), index, SEARCH_OPERATION_TYPE));
   }
 
   /**
@@ -86,7 +90,8 @@ public class SearchRepository {
   public SearchResponse search(ResourceRequest resourceRequest, SearchSourceBuilder searchSource, String preference) {
     var index = indexNameProvider.getIndexName(resourceRequest);
     var searchRequest = buildSearchRequest(index, searchSource, preference);
-    return performExceptionalOperation(() -> client.search(searchRequest, DEFAULT), index, SEARCH_OPERATION_TYPE);
+    return searchRetryTemplate.invoke(
+      () -> performExceptionalOperation(() -> client.search(searchRequest, DEFAULT), index, SEARCH_OPERATION_TYPE));
   }
 
   /**
@@ -100,7 +105,8 @@ public class SearchRepository {
     var index = indexNameProvider.getIndexName(resourceRequest);
     var request = new MultiSearchRequest();
     searchSources.forEach(source -> request.add(buildSearchRequest(index, source)));
-    var response = performExceptionalOperation(() -> client.msearch(request, DEFAULT), index, "multiSearchApi");
+    var response = searchRetryTemplate.invoke(
+      () -> performExceptionalOperation(() -> client.msearch(request, DEFAULT), index, "multiSearchApi"));
 
     if (isFailedMultiSearchRequest(response.getResponses(), searchSources.size())) {
       var failureMessages = stream(response.getResponses())

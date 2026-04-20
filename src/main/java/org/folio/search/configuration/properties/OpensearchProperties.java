@@ -42,4 +42,14 @@ public class OpensearchProperties {
   private String pathPrefix;
 
   private boolean compressionEnabled = true;
+
+  /**
+   * Specifies the number of retry attempts for search requests on transient connection errors.
+   */
+  private int searchRetryAttempts = 3;
+
+  /**
+   * Specifies time in milliseconds to wait before reattempting a failed search request.
+   */
+  private long searchRetryIntervalMs = 500;
 }

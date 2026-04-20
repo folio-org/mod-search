@@ -10,7 +10,7 @@
 * Description ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))
 
 ### Bug fixes
-* Description ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))
+* Add retry for search operations ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))
 
 ### Tech Dept
 * Description ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))

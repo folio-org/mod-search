@@ -3,7 +3,9 @@ package org.folio.search.configuration;
 import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.logging.log4j.message.FormattedMessage;
+import org.folio.search.configuration.properties.OpensearchProperties;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.configuration.properties.StreamIdsProperties;
 import org.folio.search.exception.FolioIntegrationException;
@@ -25,6 +27,7 @@ public class RetryTemplateConfiguration {
 
   public static final String KAFKA_RETRY_TEMPLATE_NAME = "kafkaMessageListenerRetryTemplate";
   public static final String STREAM_IDS_RETRY_TEMPLATE_NAME = "streamIdsRetryTemplate";
+  public static final String SEARCH_RETRY_TEMPLATE_NAME = "searchRetryTemplate";
   public static final String REINDEX_PUBLISH_RANGE_RETRY_TEMPLATE_NAME = "reindexPublishRangeRetryTemplate";
 
   /**
@@ -52,6 +55,15 @@ public class RetryTemplateConfiguration {
       .build());
   }
 
+  @Bean(name = SEARCH_RETRY_TEMPLATE_NAME)
+  public RetryTemplate searchRetryTemplate(OpensearchProperties properties) {
+    return new RetryTemplate(RetryPolicy.builder()
+      .maxRetries(properties.getSearchRetryAttempts())
+      .delay(Duration.ofMillis(properties.getSearchRetryIntervalMs()))
+      .predicate(RetryTemplateConfiguration::isConnectionClosedException)
+      .build());
+  }
+
   @ConditionalOnBean(ReindexConfigurationProperties.class)
   @Bean(name = REINDEX_PUBLISH_RANGE_RETRY_TEMPLATE_NAME)
   public RetryTemplate reindexPublishRangeRetryTemplate(ReindexConfigurationProperties properties) {
@@ -70,5 +82,16 @@ public class RetryTemplateConfiguration {
       }
     });
     return retryTemplate;
+  }
+
+  private static boolean isConnectionClosedException(Throwable throwable) {
+    var cause = throwable;
+    while (cause != null) {
+      if (cause instanceof ConnectionClosedException) {
+        return true;
+      }
+      cause = cause.getCause();
+    }
+    return false;
   }
 }

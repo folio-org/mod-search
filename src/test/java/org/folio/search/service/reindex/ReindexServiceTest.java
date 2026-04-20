@@ -19,7 +19,6 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -38,7 +37,6 @@ import org.folio.search.exception.FolioIntegrationException;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.integration.folio.InventoryService;
 import org.folio.search.model.reindex.MergeRangeEntity;
-import org.folio.search.model.types.QueryVersion;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexStatus;
 import org.folio.search.service.IndexFamilyService;
@@ -88,37 +86,18 @@ class ReindexServiceTest {
   }
 
   @Test
-  void submitFullReindex_negative_shouldRejectWhenV1FamilyExists() {
-    var tenant = "central";
-    var familyId = UUID.randomUUID();
-    var family = new org.folio.search.model.reindex.IndexFamilyEntity(
-      familyId, 0, "folio_instance_central_0",
-      org.folio.search.model.types.IndexFamilyStatus.ACTIVE,
-      Timestamp.from(Instant.now()), Timestamp.from(Instant.now()), null, QueryVersion.V1);
-
-    when(consortiumService.getCentralTenant(tenant)).thenReturn(Optional.of(tenant));
-    when(indexFamilyService.findActiveFamily(tenant, QueryVersion.V1)).thenReturn(Optional.of(family));
-
-    var error = assertThrows(RequestValidationException.class,
-      () -> reindexService.submitFullReindex(tenant, null));
-
-    org.assertj.core.api.Assertions.assertThat(error.getMessage())
-      .contains("Use streaming reindex");
-    org.assertj.core.api.Assertions.assertThat(error.getKey()).isEqualTo("tenantId");
-    org.assertj.core.api.Assertions.assertThat(error.getValue()).isEqualTo(tenant);
-  }
-
-  @Test
   void submitFullReindex_positive() throws InterruptedException {
     var tenant = "central";
     var member = "member";
     var id = UUID.randomUUID();
     var bound = UUID.randomUUID().toString();
     var rangeEntity =
-      new MergeRangeEntity(id, INSTANCE, tenant, bound, bound, Timestamp.from(Instant.now()), null, null);
+      new MergeRangeEntity(id, INSTANCE, tenant, bound, bound,
+        java.sql.Timestamp.from(Instant.now()), null, null);
 
     when(consortiumService.getCentralTenant(tenant)).thenReturn(Optional.of(tenant));
-    when(indexFamilyService.findActiveFamily(tenant, QueryVersion.V1)).thenReturn(Optional.empty());
+    when(indexFamilyService.prepareLegacyV1RepresentativeFamily(tenant)).thenReturn(null);
+    when(indexFamilyService.activateLegacyV1RepresentativeFamily(tenant)).thenReturn(Optional.empty());
     when(mergeRangeService.createMergeRanges(tenant)).thenReturn(List.of(rangeEntity));
     when(executionService.executeSystemUserScoped(anyString(), any())).thenReturn(List.of());
     when(consortiumService.getConsortiumTenants(tenant)).thenReturn(List.of(member));
@@ -131,9 +110,11 @@ class ReindexServiceTest {
     ThreadUtils.sleep(Duration.ofSeconds(1));
 
     verify(reindexCommonService).deleteAllRecords();
+    verify(indexFamilyService).prepareLegacyV1RepresentativeFamily(tenant);
     verify(statusService).recreateMergeStatusRecords();
     verify(reindexCommonService, times(ReindexEntityType.supportUploadTypes().size()))
       .recreateIndex(any(), eq(tenant), eq(indexSettings));
+    verify(indexFamilyService).activateLegacyV1RepresentativeFamily(tenant);
     verify(mergeRangeService).createMergeRanges(tenant);
     verify(mergeRangeService).saveMergeRanges(anyList());
     verify(executionService).executeSystemUserScoped(eq(member), any());
@@ -152,10 +133,12 @@ class ReindexServiceTest {
     var id = UUID.randomUUID();
     var bound = UUID.randomUUID().toString();
     var rangeEntity =
-      new MergeRangeEntity(id, INSTANCE, tenant, bound, bound, Timestamp.from(Instant.now()), null, null);
+      new MergeRangeEntity(id, INSTANCE, tenant, bound, bound,
+        java.sql.Timestamp.from(Instant.now()), null, null);
 
     when(consortiumService.getCentralTenant(tenant)).thenReturn(Optional.of(tenant));
-    when(indexFamilyService.findActiveFamily(tenant, QueryVersion.V1)).thenReturn(Optional.empty());
+    when(indexFamilyService.prepareLegacyV1RepresentativeFamily(tenant)).thenReturn(null);
+    when(indexFamilyService.activateLegacyV1RepresentativeFamily(tenant)).thenReturn(Optional.empty());
     when(consortiumService.getConsortiumTenants(tenant)).thenReturn(List.of(member));
     when(mergeRangeService.createMergeRanges(tenant)).thenReturn(List.of(rangeEntity));
     when(executionService.executeSystemUserScoped(anyString(), any()))
@@ -170,6 +153,8 @@ class ReindexServiceTest {
     ThreadUtils.sleep(Duration.ofSeconds(1));
 
     verify(mergeRangeService).saveMergeRanges(anyList());
+    verify(indexFamilyService).prepareLegacyV1RepresentativeFamily(tenant);
+    verify(indexFamilyService).activateLegacyV1RepresentativeFamily(tenant);
     verify(statusService)
       .updateReindexMergeStarted(any(ReindexEntityType.class), eq(1));
     verify(mergeRangeService).fetchMergeRanges(any(ReindexEntityType.class));
@@ -304,7 +289,7 @@ class ReindexServiceTest {
   private MergeRangeEntity createMergeRangeEntity(ReindexEntityType entityType) {
     var id = UUID.randomUUID();
     return new MergeRangeEntity(id, entityType, TENANT_ID, id.toString(), id.toString(),
-      Timestamp.from(Instant.now()), null, null);
+      java.sql.Timestamp.from(Instant.now()), null, null);
   }
 
   private Answer<?> executeRunnable() {

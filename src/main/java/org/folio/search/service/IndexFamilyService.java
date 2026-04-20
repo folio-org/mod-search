@@ -30,6 +30,7 @@ import org.folio.search.model.reindex.IndexFamilyEntity;
 import org.folio.search.model.types.IndexFamilyStatus;
 import org.folio.search.model.types.QueryVersion;
 import org.folio.search.model.types.ResourceType;
+import org.folio.search.repository.IndexNameProvider;
 import org.folio.search.service.es.SearchMappingsHelper;
 import org.folio.search.service.es.SearchSettingsHelper;
 import org.folio.search.service.reindex.ReindexKafkaConsumerManager;
@@ -65,6 +66,7 @@ public class IndexFamilyService {
   private final SearchSettingsHelper searchSettingsHelper;
   private final SearchMappingsHelper searchMappingsHelper;
   private final JsonConverter jsonConverter;
+  private final IndexNameProvider indexNameProvider;
   private final ReindexKafkaConsumerManager reindexKafkaConsumerManager;
   private final StreamingReindexStatusRepository streamingReindexStatusRepository;
   private final FolioExecutionContext context;
@@ -178,7 +180,8 @@ public class IndexFamilyService {
         oldFamily.map(IndexFamilyEntity::getGeneration));
     }
 
-    oldFamily.ifPresent(old -> indexFamilyRepository.updateStatus(old.getId(), RETIRING));
+    oldFamily.ifPresent(old -> indexFamilyRepository.updateStatus(old.getId(),
+      isLegacyV1Representative(old, tenantId) ? RETIRED : RETIRING));
     indexFamilyRepository.updateStatus(familyId, ACTIVE);
     reindexKafkaConsumerManager.stopReindexConsumer(familyId);
 
@@ -198,8 +201,10 @@ public class IndexFamilyService {
 
     var tenantId = context.getTenantId();
     var aliasName = getAliasName(tenantId, family.getQueryVersion());
-    verifyAliasDoesNotPointTo(aliasName, family.getIndexName());
-    dropPhysicalIndex(family.getIndexName());
+    if (!isLegacyV1Representative(family, tenantId)) {
+      verifyAliasDoesNotPointTo(aliasName, family.getIndexName());
+      dropPhysicalIndex(family.getIndexName());
+    }
 
     if (family.getQueryVersion() == QueryVersion.V2) {
       dropV2BrowseIndices(tenantId, family.getGeneration());
@@ -246,32 +251,56 @@ public class IndexFamilyService {
     deleteFamilyCompletely(family);
   }
 
-  // V1 full reindex writes the legacy unsuffixed index and bypasses the family lifecycle,
-  // so any stale V1 family rows must be cleared before the merge+upload pipeline takes over.
+  // Legacy V1 full reindex still writes the unsuffixed index directly.
+  // Keep exactly one representative row in index_family so the newer families view can
+  // represent that legacy path without forcing V1 through the family lifecycle.
+  @Transactional
   @CacheEvict(cacheNames = {ACTIVE_INDEX_FAMILY_CACHE, CUTTING_OVER_INDEX_FAMILY_CACHE, PHYSICAL_INDEX_EXISTS_CACHE},
     allEntries = true, beforeInvocation = true)
-  public void removeAllV1Families() {
-    var v1Families = indexFamilyRepository.findByVersion(QueryVersion.V1);
-    if (v1Families.isEmpty()) {
-      return;
+  public IndexFamilyEntity prepareLegacyV1RepresentativeFamily(String tenantId) {
+    var representative = upsertLegacyV1RepresentativeFamily(tenantId, BUILDING);
+    log.info("prepareLegacyV1RepresentativeFamily:: ready [tenant: {}, familyId: {}]",
+      tenantId, representative.getId());
+    return representative;
+  }
+
+  @Transactional
+  @CacheEvict(cacheNames = {ACTIVE_INDEX_FAMILY_CACHE, CUTTING_OVER_INDEX_FAMILY_CACHE, PHYSICAL_INDEX_EXISTS_CACHE},
+    allEntries = true, beforeInvocation = true)
+  public Optional<IndexFamilyEntity> activateLegacyV1RepresentativeFamily(String tenantId) {
+    var legacyIndexName = legacyV1PhysicalIndexName(tenantId);
+    if (!physicalIndexExists(legacyIndexName)) {
+      log.warn("activateLegacyV1RepresentativeFamily:: skipped, legacy index is missing [tenant: {}, index: {}]",
+        tenantId, legacyIndexName);
+      return Optional.empty();
     }
-    v1Families.forEach(this::deleteFamilyCompletely);
+
+    var representative = upsertLegacyV1RepresentativeFamily(tenantId, ACTIVE);
+    log.info("activateLegacyV1RepresentativeFamily:: active [tenant: {}, familyId: {}]",
+      tenantId, representative.getId());
+    return Optional.of(representative);
   }
 
   private void deleteFamilyCompletely(IndexFamilyEntity family) {
+    cleanupFamilyArtifacts(family, true);
+    indexFamilyRepository.deleteById(family.getId());
+
+    log.info("deleteFamilyCompletely:: deleted [familyId: {}, index: {}, status: {}]",
+      family.getId(), family.getIndexName(), family.getStatus().getValue());
+  }
+
+  private void cleanupFamilyArtifacts(IndexFamilyEntity family, boolean dropIndex) {
     var familyId = family.getId();
     reindexKafkaConsumerManager.stopReindexConsumer(familyId);
-    dropPhysicalIndex(family.getIndexName());
+    if (dropIndex) {
+      dropPhysicalIndex(family.getIndexName());
+    }
 
     if (family.getQueryVersion() == QueryVersion.V2) {
       dropV2BrowseIndices(context.getTenantId(), family.getGeneration());
     }
 
     streamingReindexStatusRepository.deleteByFamilyId(familyId);
-    indexFamilyRepository.deleteById(familyId);
-
-    log.info("deleteFamilyCompletely:: deleted [familyId: {}, index: {}, status: {}]",
-      familyId, family.getIndexName(), family.getStatus().getValue());
   }
 
   public void markFailed(UUID familyId) {
@@ -698,5 +727,51 @@ public class IndexFamilyService {
     } catch (Exception e) {
       throw new SearchServiceException("Failed to drop physical index: " + indexName, e);
     }
+  }
+
+  private IndexFamilyEntity upsertLegacyV1RepresentativeFamily(String tenantId, IndexFamilyStatus status) {
+    var legacyIndexName = legacyV1PhysicalIndexName(tenantId);
+    var v1Families = indexFamilyRepository.findByVersion(QueryVersion.V1);
+    if (v1Families.isEmpty()) {
+      var now = Timestamp.from(Instant.now());
+      var activatedAt = status == ACTIVE ? now : null;
+      var entity = new IndexFamilyEntity(
+        UUID.randomUUID(),
+        indexFamilyRepository.getNextGeneration(QueryVersion.V1),
+        legacyIndexName,
+        status,
+        now,
+        activatedAt,
+        null,
+        QueryVersion.V1
+      );
+      indexFamilyRepository.create(entity);
+      return entity;
+    }
+
+    var representative = v1Families.stream()
+      .filter(family -> legacyIndexName.equals(family.getIndexName()))
+      .findFirst()
+      .or(() -> v1Families.stream().filter(family -> family.getStatus() == ACTIVE).findFirst())
+      .orElse(v1Families.getFirst());
+
+    for (var family : v1Families) {
+      if (!family.getId().equals(representative.getId())) {
+        deleteFamilyCompletely(family);
+      }
+    }
+
+    cleanupFamilyArtifacts(representative, !legacyIndexName.equals(representative.getIndexName()));
+    indexFamilyRepository.updateRepresentation(representative.getId(), legacyIndexName, status);
+    return indexFamilyRepository.findById(representative.getId()).orElse(representative);
+  }
+
+  private String legacyV1PhysicalIndexName(String tenantId) {
+    return indexNameProvider.getIndexName(ResourceType.INSTANCE, tenantId);
+  }
+
+  private boolean isLegacyV1Representative(IndexFamilyEntity family, String tenantId) {
+    return family.getQueryVersion() == QueryVersion.V1
+      && legacyV1PhysicalIndexName(tenantId).equals(family.getIndexName());
   }
 }

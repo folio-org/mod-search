@@ -21,8 +21,8 @@ public class IndexFamilyRepository {
   public static final String INDEX_FAMILY_TABLE = "index_family";
 
   private static final String INSERT_SQL = """
-    INSERT INTO %s (id, generation, index_name, status, created_at, query_version)
-    VALUES (?, ?, ?, ?, ?, ?);
+    INSERT INTO %s (id, generation, index_name, status, created_at, activated_at, retired_at, query_version)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?);
     """;
 
   private static final String SELECT_BY_ID_SQL = "SELECT * FROM %s WHERE id = ?;";
@@ -31,7 +31,7 @@ public class IndexFamilyRepository {
     "SELECT * FROM %s WHERE status = ? AND query_version = ?;";
 
   private static final String SELECT_BY_VERSION_SQL =
-    "SELECT * FROM %s WHERE query_version = ?;";
+    "SELECT * FROM %s WHERE query_version = ? ORDER BY generation, created_at, id;";
 
   private static final String SELECT_ACTIVE_BY_VERSION_SQL =
     "SELECT * FROM %s WHERE status = 'ACTIVE' AND query_version = ?;";
@@ -51,6 +51,22 @@ public class IndexFamilyRepository {
         END,
         retired_at = CASE
           WHEN ? = 'RETIRED' THEN COALESCE(retired_at, CURRENT_TIMESTAMP)
+          ELSE retired_at
+        END
+    WHERE id = ?;
+    """;
+
+  private static final String UPDATE_REPRESENTATION_SQL = """
+    UPDATE %s
+    SET index_name = ?,
+        status = ?,
+        activated_at = CASE
+          WHEN ? = 'ACTIVE' THEN COALESCE(activated_at, CURRENT_TIMESTAMP)
+          ELSE activated_at
+        END,
+        retired_at = CASE
+          WHEN ? = 'RETIRED' THEN COALESCE(retired_at, CURRENT_TIMESTAMP)
+          WHEN ? IN ('ACTIVE', 'BUILDING') THEN NULL
           ELSE retired_at
         END
     WHERE id = ?;
@@ -77,6 +93,8 @@ public class IndexFamilyRepository {
       entity.getIndexName(),
       entity.getStatus().name(),
       entity.getCreatedAt(),
+      entity.getActivatedAt(),
+      entity.getRetiredAt(),
       entity.getQueryVersion().getValue());
   }
 
@@ -117,6 +135,11 @@ public class IndexFamilyRepository {
   public void updateStatus(UUID id, IndexFamilyStatus status) {
     var sql = UPDATE_STATUS_SQL.formatted(getFullTableName(context, INDEX_FAMILY_TABLE));
     jdbcTemplate.update(sql, status.name(), status.name(), status.name(), id);
+  }
+
+  public void updateRepresentation(UUID id, String indexName, IndexFamilyStatus status) {
+    var sql = UPDATE_REPRESENTATION_SQL.formatted(getFullTableName(context, INDEX_FAMILY_TABLE));
+    jdbcTemplate.update(sql, indexName, status.name(), status.name(), status.name(), status.name(), id);
   }
 
   public void deleteById(UUID id) {

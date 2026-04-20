@@ -59,4 +59,53 @@ class IndexFamilyRepositoryTest {
     assertThat(retiredStatusCaptor.getValue()).isEqualTo("RETIRING");
     assertThat(idCaptor.getValue()).isEqualTo(familyId);
   }
+
+  @Test
+  void updateRepresentation_reactivatesFamilyAndClearsRetiredTimestamp() {
+    var familyId = UUID.randomUUID();
+    var sqlCaptor = ArgumentCaptor.forClass(String.class);
+    var indexNameCaptor = ArgumentCaptor.forClass(String.class);
+    var statusCaptor = ArgumentCaptor.forClass(String.class);
+    var activatedStatusCaptor = ArgumentCaptor.forClass(String.class);
+    var retiredStatusCaptor = ArgumentCaptor.forClass(String.class);
+    var activeResetCaptor = ArgumentCaptor.forClass(String.class);
+    var idCaptor = ArgumentCaptor.forClass(UUID.class);
+
+    repository.updateRepresentation(familyId, "folio_instance_test", IndexFamilyStatus.ACTIVE);
+
+    verify(jdbcTemplate).update(sqlCaptor.capture(), indexNameCaptor.capture(), statusCaptor.capture(),
+      activatedStatusCaptor.capture(), retiredStatusCaptor.capture(), activeResetCaptor.capture(), idCaptor.capture());
+    assertThat(sqlCaptor.getValue()).contains("SET index_name = ?");
+    assertThat(sqlCaptor.getValue()).contains("WHEN ? IN ('ACTIVE', 'BUILDING') THEN NULL");
+    assertThat(indexNameCaptor.getValue()).isEqualTo("folio_instance_test");
+    assertThat(statusCaptor.getValue()).isEqualTo("ACTIVE");
+    assertThat(activatedStatusCaptor.getValue()).isEqualTo("ACTIVE");
+    assertThat(retiredStatusCaptor.getValue()).isEqualTo("ACTIVE");
+    assertThat(activeResetCaptor.getValue()).isEqualTo("ACTIVE");
+    assertThat(idCaptor.getValue()).isEqualTo(familyId);
+  }
+
+  @Test
+  void updateRepresentation_buildingClearsRetiredTimestamp() {
+    var familyId = UUID.randomUUID();
+    var sqlCaptor = ArgumentCaptor.forClass(String.class);
+    var indexNameCaptor = ArgumentCaptor.forClass(String.class);
+    var statusCaptor = ArgumentCaptor.forClass(String.class);
+    var activatedStatusCaptor = ArgumentCaptor.forClass(String.class);
+    var retiredStatusCaptor = ArgumentCaptor.forClass(String.class);
+    var activeResetCaptor = ArgumentCaptor.forClass(String.class);
+    var idCaptor = ArgumentCaptor.forClass(UUID.class);
+
+    repository.updateRepresentation(familyId, "folio_instance_test", IndexFamilyStatus.BUILDING);
+
+    verify(jdbcTemplate).update(sqlCaptor.capture(), indexNameCaptor.capture(), statusCaptor.capture(),
+      activatedStatusCaptor.capture(), retiredStatusCaptor.capture(), activeResetCaptor.capture(), idCaptor.capture());
+    assertThat(sqlCaptor.getValue()).contains("WHEN ? IN ('ACTIVE', 'BUILDING') THEN NULL");
+    assertThat(indexNameCaptor.getValue()).isEqualTo("folio_instance_test");
+    assertThat(statusCaptor.getValue()).isEqualTo("BUILDING");
+    assertThat(activatedStatusCaptor.getValue()).isEqualTo("BUILDING");
+    assertThat(retiredStatusCaptor.getValue()).isEqualTo("BUILDING");
+    assertThat(activeResetCaptor.getValue()).isEqualTo("BUILDING");
+    assertThat(idCaptor.getValue()).isEqualTo(familyId);
+  }
 }

@@ -75,15 +75,15 @@ public class ReindexService {
     log.info("submitFullReindex:: for [tenantId: {}]", tenantId);
 
     validateTenant("submitFullReindex", tenantId);
-
-    indexFamilyService.removeAllV1Families();
+    indexFamilyService.prepareLegacyV1RepresentativeFamily(tenantId);
 
     var deleteStart = System.nanoTime();
     reindexCommonService.deleteAllRecords();
-    var deleteMs = ms(System.nanoTime() - deleteStart);
+    final long deleteMs = ms(System.nanoTime() - deleteStart);
     statusService.recreateMergeStatusRecords();
     var recreateStart = System.nanoTime();
     recreateIndices(tenantId, ReindexEntityType.supportUploadTypes(), indexSettings);
+    indexFamilyService.activateLegacyV1RepresentativeFamily(tenantId);
     log.info("submitFullReindex:: setup [deleteAll: {}ms, recreateIndices: {}ms]",
       deleteMs, ms(System.nanoTime() - recreateStart));
 

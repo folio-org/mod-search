@@ -156,6 +156,7 @@ public class OpensearchRestClientConfiguration {
         .to(timeout -> builder.setConnectTimeout(Timeout.ofMilliseconds(timeout)));
       MAPPER.from(this.properties::getSocketTimeout).asInt(Duration::toMillis)
         .to(timeout -> builder.setSocketTimeout(Timeout.ofMilliseconds(timeout)));
+      builder.setValidateAfterInactivity(Timeout.ofSeconds(5));
       return builder.build();
     }
 

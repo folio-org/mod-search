@@ -39,7 +39,6 @@ import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opensearch.action.search.ClearScrollRequest;
@@ -65,7 +64,6 @@ class SearchRepositoryTest {
   private static final String SCROLL_ID = randomId();
   private static final TimeValue KEEP_ALIVE_INTERVAL = TimeValue.timeValueMinutes(1L);
 
-  @InjectMocks
   private SearchRepository searchRepository;
   @Mock
   private RestHighLevelClient esClient;
@@ -74,12 +72,18 @@ class SearchRepositoryTest {
   @Mock
   private RetryTemplate retryTemplate;
   @Mock
+  private RetryTemplate searchRetryTemplate;
+  @Mock
   private IndexNameProvider indexNameProvider;
 
+  @SuppressWarnings({"rawtypes", "unchecked"})
   @BeforeEach
   void setUp() {
+    searchRepository = new SearchRepository(esClient, retryTemplate, searchRetryTemplate, indexNameProvider);
     lenient().when(indexNameProvider.getIndexName(any(ResourceRequest.class)))
       .thenAnswer(invocation -> SearchUtils.getIndexName(invocation.<ResourceRequest>getArgument(0)));
+    lenient().when(searchRetryTemplate.invoke(any(Supplier.class)))
+      .thenAnswer(invocation -> invocation.<Supplier>getArgument(0).get());
   }
 
   @Test

@@ -20,6 +20,7 @@ import java.util.UUID;
 import org.folio.search.client.InventoryInstanceClient;
 import org.folio.search.client.InventoryReindexRecordsClient;
 import org.folio.search.configuration.RetryTemplateConfiguration;
+import org.folio.search.configuration.properties.OpensearchProperties;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.configuration.properties.StreamIdsProperties;
 import org.folio.search.exception.FolioIntegrationException;
@@ -37,7 +38,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @UnitTest
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {InventoryService.class, RetryTemplateConfiguration.class, FolioKafkaProperties.class,
-                                 StreamIdsProperties.class, ReindexConfigurationProperties.class})
+                                 StreamIdsProperties.class, ReindexConfigurationProperties.class,
+                                 OpensearchProperties.class})
 class InventoryServiceTest {
 
   @MockitoBean

@@ -4,6 +4,7 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.boot.autoconfigure.cache.CacheType;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +14,11 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor(staticName = "of")
 @ConfigurationProperties(prefix = "spring.cache")
 public class CacheConfigurationProperties {
+
+  /**
+   * Cache type to use. Defaults to caffeine.
+   */
+  private CacheType type = CacheType.CAFFEINE;
 
   /**
    * List of cache names to create.

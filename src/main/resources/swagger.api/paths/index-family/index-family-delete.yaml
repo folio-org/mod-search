@@ -1,0 +1,26 @@
+delete:
+  operationId: deleteIndexFamily
+  summary: Delete a failed index family
+  description: Deletes a failed index family and removes its physical index resources
+  tags:
+    - index-management
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Index family ID to delete
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+  responses:
+    '204':
+      description: Index family deleted successfully
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '404':
+      description: Index family not found
+    '409':
+      description: Index family is not deletable in its current state
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

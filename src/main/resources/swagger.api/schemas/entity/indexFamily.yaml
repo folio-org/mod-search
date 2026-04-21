@@ -5,15 +5,15 @@ properties:
     type: string
     format: uuid
     description: Unique identifier for the index family
-  tenantId:
-    type: string
-    description: Tenant this family belongs to
   generation:
     type: integer
     description: Generation number (monotonically increasing)
   indexName:
     type: string
     description: Physical OpenSearch index name
+  queryVersion:
+    type: string
+    description: Query version served by this index family
   status:
     type: string
     enum:

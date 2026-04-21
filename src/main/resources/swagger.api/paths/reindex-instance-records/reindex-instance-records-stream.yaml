@@ -11,6 +11,13 @@ post:
         schema:
           $ref: '../../schemas/entity/indexSettings.yaml'
   parameters:
+    - name: queryVersion
+      in: query
+      required: false
+      schema:
+        type: string
+        default: '2'
+      description: Query version to build the streaming reindex for
     - $ref: '../../parameters/x-okapi-tenant-header.yaml'
   responses:
     '202':
@@ -18,19 +25,7 @@ post:
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              jobId:
-                type: string
-                format: uuid
-                description: Unique identifier for the streaming reindex job
-              familyId:
-                type: string
-                format: uuid
-                description: Index family being built
-              status:
-                type: string
-                description: Current status of the reindex operation
+            $ref: '../../schemas/entity/reindexFamilyJob.yaml'
     '400':
       $ref: '../../responses/badRequestResponse.yaml'
     '500':

@@ -1,33 +1,17 @@
 get:
-  operationId: getQueryVersionBindings
-  summary: List query version bindings
-  description: Returns all query version bindings for the current tenant
+  operationId: getQueryVersions
+  summary: List query versions
+  description: Returns query version availability for the current tenant
   tags:
     - index-management
   parameters:
     - $ref: '../../parameters/x-okapi-tenant-header.yaml'
   responses:
     '200':
-      description: List of query version bindings
+      description: List of query versions
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              bindings:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    queryVersion:
-                      type: string
-                    pathType:
-                      type: string
-                      enum: [LEGACY, FLAT]
-                    boundAt:
-                      type: string
-                      format: date-time
-              defaultVersion:
-                type: string
+            $ref: '../../schemas/entity/queryVersionCollection.yaml'
     '500':
       $ref: '../../responses/internalServerErrorResponse.yaml'

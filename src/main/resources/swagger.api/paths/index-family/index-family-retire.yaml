@@ -16,6 +16,10 @@ post:
   responses:
     '200':
       description: Index family retired successfully
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/entity/indexFamilyStatusResponse.yaml'
     '400':
       $ref: '../../responses/badRequestResponse.yaml'
     '404':

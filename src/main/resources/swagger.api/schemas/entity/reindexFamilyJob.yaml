@@ -1,0 +1,18 @@
+description: Response payload for streaming reindex operations
+type: object
+properties:
+  jobId:
+    type: string
+    format: uuid
+    description: Unique identifier for the streaming reindex job
+  familyId:
+    type: string
+    format: uuid
+    description: Index family associated with the job
+  queryVersion:
+    type: string
+    nullable: true
+    description: Query version requested for the job, when applicable
+  status:
+    type: string
+    description: Current status of the reindex operation

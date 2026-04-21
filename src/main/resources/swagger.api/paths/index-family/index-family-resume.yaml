@@ -1,7 +1,7 @@
 post:
-  operationId: switchOverIndexFamily
-  summary: Switch over to index family
-  description: Atomically switches the tenant alias to point to the specified index family
+  operationId: resumeIndexFamilyReindex
+  summary: Resume index family reindex
+  description: Resumes streaming reindex for the specified index family
   tags:
     - index-management
   parameters:
@@ -11,20 +11,20 @@ post:
       schema:
         type: string
         format: uuid
-      description: Index family ID to switch over to
+      description: Index family ID to resume reindex for
     - $ref: '../../parameters/x-okapi-tenant-header.yaml'
   responses:
-    '200':
-      description: Switch-over completed successfully
+    '202':
+      description: Streaming reindex has been resumed
       content:
         application/json:
           schema:
-            $ref: '../../schemas/entity/indexFamilyStatusResponse.yaml'
+            $ref: '../../schemas/entity/reindexFamilyJob.yaml'
     '400':
       $ref: '../../responses/badRequestResponse.yaml'
     '404':
       description: Index family not found
     '409':
-      description: Index family is not in STAGED or CUTTING_OVER status
+      description: Index family is not resumable in its current state
     '500':
       $ref: '../../responses/internalServerErrorResponse.yaml'

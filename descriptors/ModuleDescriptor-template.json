@@ -128,7 +128,7 @@
           "methods": [
             "POST"
           ],
-          "pathPattern": "/search/index/instance-search/reindex/stream",
+          "pathPattern": "/search/index/reindex/stream",
           "permissionsRequired": [
             "search.index.instance-search.reindex.stream.post"
           ],
@@ -155,6 +155,15 @@
           "methods": [
             "POST"
           ],
+          "pathPattern": "/search/index/families/{id}/resume",
+          "permissionsRequired": [
+            "search.index.families.item.resume.post"
+          ]
+        },
+        {
+          "methods": [
+            "POST"
+          ],
           "pathPattern": "/search/index/families/{id}/switch-over",
           "permissionsRequired": [
             "search.index.families.item.switch-over.post"
@@ -171,38 +180,29 @@
         },
         {
           "methods": [
-            "GET"
-          ],
-          "pathPattern": "/search/index/query-versions",
-          "permissionsRequired": [
-            "search.index.query-versions.collection.get"
-          ]
-        },
-        {
-          "methods": [
             "POST"
           ],
-          "pathPattern": "/search/index/query-versions/{version}/bind",
+          "pathPattern": "/search/index/families/{id}/rebuild-browse",
           "permissionsRequired": [
-            "search.index.query-versions.item.bind.post"
+            "search.index.families.item.rebuild-browse.post"
           ]
         },
         {
           "methods": [
             "DELETE"
           ],
-          "pathPattern": "/search/index/query-versions/{version}",
+          "pathPattern": "/search/index/families/{id}",
           "permissionsRequired": [
-            "search.index.query-versions.item.delete"
+            "search.index.families.item.delete"
           ]
         },
         {
           "methods": [
-            "PUT"
+            "GET"
           ],
-          "pathPattern": "/search/index/query-versions/default",
+          "pathPattern": "/search/index/query-versions",
           "permissionsRequired": [
-            "search.index.query-versions.default.put"
+            "search.index.query-versions.collection.get"
           ]
         }
       ]
@@ -811,6 +811,11 @@
       "description": "Returns configured index families for the tenant"
     },
     {
+      "permissionName": "search.index.families.item.resume.post",
+      "displayName": "Search - resumes an index family reindex",
+      "description": "Resumes streaming reindex for a BUILDING, STAGED, or FAILED index family"
+    },
+    {
       "permissionName": "search.index.families.item.switch-over.post",
       "displayName": "Search - switches over an index family",
       "description": "Promotes a STAGED index family to ACTIVE"
@@ -821,24 +826,19 @@
       "description": "Retires a RETIRING index family"
     },
     {
+      "permissionName": "search.index.families.item.rebuild-browse.post",
+      "displayName": "Search - rebuilds browse projections for an index family",
+      "description": "Starts asynchronous browse projection rebuild for an index family"
+    },
+    {
+      "permissionName": "search.index.families.item.delete",
+      "displayName": "Search - deletes a failed index family",
+      "description": "Deletes a failed index family and its underlying resources"
+    },
+    {
       "permissionName": "search.index.query-versions.collection.get",
-      "displayName": "Search - returns query version bindings",
-      "description": "Returns configured query version bindings for the tenant"
-    },
-    {
-      "permissionName": "search.index.query-versions.item.bind.post",
-      "displayName": "Search - binds a query version to flat search",
-      "description": "Binds a query version to the flat search path"
-    },
-    {
-      "permissionName": "search.index.query-versions.item.delete",
-      "displayName": "Search - unbinds a query version",
-      "description": "Removes a query version binding"
-    },
-    {
-      "permissionName": "search.index.query-versions.default.put",
-      "displayName": "Search - updates the default query version",
-      "description": "Sets the default query version for the tenant"
+      "displayName": "Search - returns query versions",
+      "description": "Returns query version availability for the tenant"
     },
     {
       "permissionName": "search.instances.collection.get",

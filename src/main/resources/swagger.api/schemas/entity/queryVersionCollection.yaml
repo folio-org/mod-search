@@ -1,0 +1,10 @@
+description: Collection of query versions available to the tenant
+type: object
+properties:
+  versions:
+    type: array
+    items:
+      $ref: 'queryVersionInfo.yaml'
+  defaultVersion:
+    type: string
+    description: Default query version used when the header is omitted

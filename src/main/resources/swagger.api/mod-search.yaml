@@ -130,20 +130,23 @@ paths:
   /search/index/families:
     $ref: 'paths/index-family/index-family-list.yaml'
 
+  /search/index/families/{id}/resume:
+    $ref: 'paths/index-family/index-family-resume.yaml'
+
   /search/index/families/{id}/switch-over:
     $ref: 'paths/index-family/index-family-switch-over.yaml'
 
   /search/index/families/{id}/retire:
     $ref: 'paths/index-family/index-family-retire.yaml'
 
+  /search/index/families/{id}/rebuild-browse:
+    $ref: 'paths/index-family/index-family-rebuild-browse.yaml'
+
+  /search/index/families/{id}:
+    $ref: 'paths/index-family/index-family-delete.yaml'
+
   /search/index/query-versions:
     $ref: 'paths/query-versions/query-versions-list.yaml'
-
-  /search/index/query-versions/{version}/bind:
-    $ref: 'paths/query-versions/query-versions-bind.yaml'
-
-  /search/index/query-versions/{version}:
-    $ref: 'paths/query-versions/query-versions-unbind.yaml'
 
   /search/config/languages:
     $ref: 'paths/search-config/search-config-languages.yaml'

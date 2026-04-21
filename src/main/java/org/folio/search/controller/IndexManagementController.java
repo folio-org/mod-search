@@ -7,12 +7,12 @@ import org.folio.search.domain.dto.CreateIndexRequest;
 import org.folio.search.domain.dto.FolioCreateIndexResponse;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.IndexSettings;
+import org.folio.search.domain.dto.ReindexFamilyJob;
 import org.folio.search.domain.dto.ReindexJob;
 import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.domain.dto.ReindexStatusItem;
 import org.folio.search.domain.dto.ReindexUploadDto;
 import org.folio.search.domain.dto.ResourceEvent;
-import org.folio.search.domain.dto.StreamingReindexInstanceRecords202Response;
 import org.folio.search.domain.dto.UpdateIndexDynamicSettingsRequest;
 import org.folio.search.domain.dto.UpdateMappingsRequest;
 import org.folio.search.model.types.QueryVersion;
@@ -80,13 +80,15 @@ public class IndexManagementController implements IndexManagementApi {
   }
 
   @Override
-  public ResponseEntity<StreamingReindexInstanceRecords202Response> streamingReindexInstanceRecords(
-    String tenantId, IndexSettings indexSettings) {
+  public ResponseEntity<ReindexFamilyJob> streamingReindexInstanceRecords(
+    String tenantId, String queryVersion, IndexSettings indexSettings) {
     log.info("Attempting to start streaming reindex for instance records [tenant: {}]", tenantId);
-    var job = streamingReindexService.startStreamingReindex(tenantId, QueryVersion.V2, indexSettings);
-    return ResponseEntity.accepted().body(new StreamingReindexInstanceRecords202Response()
+    var version = QueryVersion.fromString(queryVersion);
+    var job = streamingReindexService.startStreamingReindex(tenantId, version, indexSettings);
+    return ResponseEntity.accepted().body(new ReindexFamilyJob()
       .jobId(job.jobId())
       .familyId(job.familyId())
+      .queryVersion(version.getValue())
       .status("ACCEPTED"));
   }
 

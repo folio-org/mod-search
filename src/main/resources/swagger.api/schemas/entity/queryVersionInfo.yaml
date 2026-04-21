@@ -1,0 +1,22 @@
+description: Query version availability details
+type: object
+properties:
+  version:
+    type: string
+    description: Query version identifier
+  pathType:
+    type: string
+    enum:
+      - LEGACY
+      - FLAT
+    description: Code path used by this query version
+  hasActiveFamily:
+    type: boolean
+    description: Whether an active index family exists for this version
+  aliasName:
+    type: string
+    nullable: true
+    description: Alias name for the active family when present
+  isDefault:
+    type: boolean
+    description: Whether this version is the tenant default

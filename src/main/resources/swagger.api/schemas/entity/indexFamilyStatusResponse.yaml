@@ -1,0 +1,10 @@
+description: Status response for index family operations
+type: object
+properties:
+  status:
+    type: string
+    description: Status of the requested operation
+  familyId:
+    type: string
+    format: uuid
+    description: Index family identifier

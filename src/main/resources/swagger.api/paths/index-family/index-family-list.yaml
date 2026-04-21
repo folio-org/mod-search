@@ -12,13 +12,6 @@ get:
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              families:
-                type: array
-                items:
-                  $ref: '../../schemas/entity/indexFamily.yaml'
-              totalRecords:
-                type: integer
+            $ref: '../../schemas/entity/indexFamilyCollection.yaml'
     '500':
       $ref: '../../responses/internalServerErrorResponse.yaml'

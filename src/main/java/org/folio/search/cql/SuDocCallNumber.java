@@ -1,18 +1,17 @@
 package org.folio.search.cql;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.marc4j.callnum.AbstractCallNumber;
 import org.marc4j.callnum.Utils;
 
 public class SuDocCallNumber extends AbstractCallNumber {
-  private static final String GROUP1 = "([A-Za-z]+\\s*)";
-  private static final String GROUP2 = "(\\d+)";
-  private static final String GROUP3 = "(\\.(?:[A-Za-z]+\\d*|\\d+))";
-  private static final String GROUP4 = "(/(?:[A-Za-z]+(?:\\d+(?:-\\d+)?)?|\\d+(?:-\\d+)?))?";
-  private static final String GROUP5 = "(.*)";
-  private static final String SU_DOC_PATTERN = "^(?:" + GROUP1 + GROUP2 + GROUP3 + GROUP4 + ")?:?" + GROUP5;
-  private static final Pattern STEM_PATTERN = Pattern.compile(SU_DOC_PATTERN);
+  private static final Pattern STEM_PATTERN = Pattern.compile("^([A-Za-z]+)\\s*(\\d+)?(.*)$");
+  private static final Pattern TOKEN_PATTERN = Pattern.compile("[A-Za-z]+|\\d+|[:/.-]");
+  private static final String LETTER_TOKEN_PREFIX = "1";
+  private static final String DATE_TOKEN_PREFIX = "2";
+  private static final String NUMBER_TOKEN_PREFIX = "3";
 
   protected String authorSymbol;
   protected String subordinateOffice;
@@ -55,16 +54,20 @@ public class SuDocCallNumber extends AbstractCallNumber {
   }
 
   protected void parseCallNumber() {
-    var stemMatcher = STEM_PATTERN.matcher(rawCallNum);
-    if (stemMatcher.matches()) {
-      authorSymbol = stemMatcher.group(1);
-      subordinateOffice = stemMatcher.group(2);
-      series = stemMatcher.group(3);
-      subSeries = stemMatcher.group(4);
-      suffix = stemMatcher.group(5);
-    } else {
+    var stemAndSuffix = rawCallNum.split(":", 2);
+    var stem = stemAndSuffix[0].trim();
+    suffix = stemAndSuffix.length > 1 ? StringUtils.trimToNull(stemAndSuffix[1]) : null;
+
+    var stemMatcher = STEM_PATTERN.matcher(stem);
+    if (!stemMatcher.matches()) {
       suffix = rawCallNum;
+      return;
     }
+
+    authorSymbol = StringUtils.trimToNull(stemMatcher.group(1));
+    subordinateOffice = StringUtils.trimToNull(stemMatcher.group(2));
+    series = StringUtils.trimToNull(stemMatcher.group(3));
+    subSeries = null;
   }
 
   @Override
@@ -82,43 +85,68 @@ public class SuDocCallNumber extends AbstractCallNumber {
 
   private void buildShelfKey() {
     StringBuilder key = new StringBuilder();
-    if (authorSymbol != null) {
-      key.append(authorSymbol.trim());
-    }
-
-    appendWithSymbolIfNeeded(key, subordinateOffice);
-    appendWithSymbolIfNeeded(key, series);
-    appendWithSymbolIfNeeded(key, subSeries);
-    appendWithSymbolIfNeeded(key, suffix);
-
+    appendTokens(key, rawCallNum);
     shelfKey = key.toString();
   }
 
-  private void appendWithSymbolIfNeeded(StringBuilder key, String cnPart) {
+  private void appendTokens(StringBuilder key, String cnPart) {
     if (StringUtils.isBlank(cnPart)) {
       return;
     }
 
-    if (cnPart.startsWith(".") || cnPart.startsWith("/") || cnPart.startsWith("-") || cnPart.startsWith(":")) {
-      cnPart = cnPart.substring(1);
-    }
-    var parts = cnPart.split("[./ -]");
-    for (String part : parts) {
+    Matcher tokenMatcher = TOKEN_PATTERN.matcher(cnPart);
+    var afterColon = false;
+    while (tokenMatcher.find()) {
+      var part = tokenMatcher.group();
       if (!key.isEmpty()) {
         key.append(' ');
       }
-      part = part.trim();
 
-      if (StringUtils.isBlank(part)) {
-        continue;
+      if (!appendSeparator(key, part)) {
+        appendSortableToken(key, part, afterColon);
       }
-      if (Character.isAlphabetic(part.charAt(0))) {
-        key.append(" !");
-      } else if (part.length() >= 3) {
-        key.append("!");
-      }
-
-      Utils.appendNumericallySortable(key, part);
+      afterColon = afterColon || ":".equals(part);
     }
+  }
+
+  private void appendSortableToken(StringBuilder key, String token, boolean afterColon) {
+    if (Character.isLetter(token.charAt(0))) {
+      key.append(LETTER_TOKEN_PREFIX);
+      key.append(token.toUpperCase());
+      return;
+    }
+
+    key.append(isDateToken(token, afterColon) ? DATE_TOKEN_PREFIX : NUMBER_TOKEN_PREFIX);
+    Utils.appendNumericallySortable(key, token);
+  }
+
+  private boolean isDateToken(String token, boolean afterColon) {
+    return afterColon && token.length() >= 3 && token.length() <= 4;
+  }
+
+  private boolean appendSeparator(StringBuilder key, String token) {
+    if (token.length() != 1) {
+      return false;
+    }
+
+    return switch (token.charAt(0)) {
+      case '.' -> {
+        key.append("01");
+        yield true;
+      }
+      case ':' -> {
+        key.append("02");
+        yield true;
+      }
+      case '-' -> {
+        key.append("03");
+        yield true;
+      }
+      case '/' -> {
+        key.append("04");
+        yield true;
+      }
+      default -> false;
+    };
   }
 }

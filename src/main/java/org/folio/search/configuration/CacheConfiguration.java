@@ -7,9 +7,11 @@ import com.github.benmanes.caffeine.cache.CaffeineSpec;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.configuration.properties.CacheConfigurationProperties;
+import org.springframework.boot.autoconfigure.cache.CacheType;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
+import org.springframework.cache.support.NoOpCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -22,6 +24,10 @@ public class CacheConfiguration {
 
   @Bean
   public CacheManager cacheManager() {
+    if (CacheType.NONE == cacheProperties.getType()) {
+      return new NoOpCacheManager();
+    }
+
     var cacheManager = new CaffeineCacheManager();
 
     // Set cache names from configuration

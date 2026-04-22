@@ -1,4 +1,7 @@
 ## v6.0.3 2026-05-22
+### Features
+* Honor spring.cache.type=noop for cache manager ([MSEARCH-1204](https://folio-org.atlassian.net/browse/MSEARCH-1204))
+
 ### Tech Dept
 * Optimize integration tests to reduce build time by introducing centralized test data setup ([MSEARCH-1036](https://folio-org.atlassian.net/browse/MSEARCH-1036))
 

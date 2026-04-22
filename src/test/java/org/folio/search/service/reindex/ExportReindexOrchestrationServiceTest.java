@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -25,7 +26,6 @@ import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.exception.ReindexException;
 import org.folio.search.model.event.ReindexFileReadyEvent;
 import org.folio.search.model.event.ReindexRangeIndexEvent;
-import org.folio.search.model.event.ReindexRecordsEvent;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.types.IndexActionType;
 import org.folio.search.model.types.IndexingDataFormat;
@@ -33,6 +33,7 @@ import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexRangeStatus;
 import org.folio.search.repository.PrimaryResourceRepository;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
+import org.folio.search.service.reindex.jdbc.RawLine;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.testing.type.UnitTest;
@@ -202,9 +203,12 @@ class ExportReindexOrchestrationServiceTest {
 
     service.process(event);
 
-    var eventCaptor = ArgumentCaptor.forClass(ReindexRecordsEvent.class);
-    verify(mergeRangeService).saveEntities(eventCaptor.capture());
-    assertEquals(List.of(inventoryRecord), eventCaptor.getValue().getRecords());
+    var captor = ArgumentCaptor.<List<RawLine>>captor();
+    verify(mergeRangeService).saveEntitiesRaw(eq(event.getTenantId()), eq(INSTANCE), captor.capture());
+    var captured = captor.getValue();
+    assertEquals(1, captured.size());
+    assertEquals(line, captured.get(0).rawJson());
+    assertEquals(inventoryRecord, captured.get(0).data());
     verify(reindexStatusService).addProcessedMergeRanges(ReindexEntityType.INSTANCE, 1);
     verify(mergeRangeService).updateStatus(ReindexEntityType.INSTANCE, rangeId, SUCCESS, null);
   }
@@ -224,9 +228,14 @@ class ExportReindexOrchestrationServiceTest {
 
     service.process(event);
 
-    var eventCaptor = ArgumentCaptor.forClass(ReindexRecordsEvent.class);
-    verify(mergeRangeService).saveEntities(eventCaptor.capture());
-    assertEquals(List.of(record1, record2), eventCaptor.getValue().getRecords());
+    var captor = ArgumentCaptor.<List<RawLine>>captor();
+    verify(mergeRangeService).saveEntitiesRaw(eq(event.getTenantId()), eq(INSTANCE), captor.capture());
+    var captured = captor.getValue();
+    assertEquals(2, captured.size());
+    assertEquals(line1, captured.get(0).rawJson());
+    assertEquals(record1, captured.get(0).data());
+    assertEquals(line2, captured.get(1).rawJson());
+    assertEquals(record2, captured.get(1).data());
     verify(reindexStatusService).addProcessedMergeRanges(ReindexEntityType.INSTANCE, 1);
     verify(mergeRangeService).updateStatus(ReindexEntityType.INSTANCE, rangeId, SUCCESS, null);
   }
@@ -241,7 +250,7 @@ class ExportReindexOrchestrationServiceTest {
     when(reindexStatusService.getTargetTenantId()).thenReturn(MEMBER_TENANT_ID);
     when(folioS3Client.read(event.getObjectKey())).thenReturn(new ByteArrayInputStream((line + "\n").getBytes(UTF_8)));
     when(jsonConverter.fromJsonToMap(line)).thenReturn(inventoryRecord);
-    doThrow(new RuntimeException(failCause)).when(mergeRangeService).saveEntities(any(ReindexRecordsEvent.class));
+    doThrow(new RuntimeException(failCause)).when(mergeRangeService).saveEntitiesRaw(any(), any(), any());
 
     var result = service.process(event);
 
@@ -261,7 +270,7 @@ class ExportReindexOrchestrationServiceTest {
     when(folioS3Client.read(event.getObjectKey())).thenReturn(new ByteArrayInputStream((line + "\n").getBytes(UTF_8)));
     when(jsonConverter.fromJsonToMap(line)).thenReturn(inventoryRecord);
     doThrow(new PessimisticLockingFailureException("Deadlock"))
-      .when(mergeRangeService).saveEntities(any(ReindexRecordsEvent.class));
+      .when(mergeRangeService).saveEntitiesRaw(any(), any(), any());
 
     assertThrows(ReindexException.class, () -> service.process(event));
 

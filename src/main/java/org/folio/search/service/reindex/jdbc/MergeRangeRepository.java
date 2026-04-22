@@ -109,6 +109,8 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
 
   public abstract void saveEntities(String tenantId, List<Map<String, Object>> entities);
 
+  public abstract void saveEntitiesRaw(String tenantId, List<RawLine> entities);
+
   @Transactional
   public void deleteEntitiesForTenant(List<String> ids, String tenantId) {
     var hard = !instanceChildrenIndexEnabled;

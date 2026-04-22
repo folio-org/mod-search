@@ -75,6 +75,44 @@ public class ItemRepository extends MergeRangeRepository {
     }
   }
 
+  @Override
+  public void saveEntitiesRaw(String tenantId, List<RawLine> entities) {
+    if (ReindexContext.isReindexMode() && ReindexContext.getMemberTenantId() != null) {
+      saveEntitiesToStagingRaw(tenantId, entities);
+    } else {
+      saveEntitiesToMainRaw(tenantId, entities);
+    }
+  }
+
+  @SuppressWarnings("java:S2077")
+  private void saveEntitiesToMainRaw(String tenantId, List<RawLine> entities) {
+    var fullTableName = getFullTableName(context, entityTable());
+    var sql = INSERT_SQL.formatted(fullTableName);
+    jdbcTemplate.batchUpdate(sql, entities, BATCH_OPERATION_SIZE,
+      (statement, entity) -> {
+        statement.setObject(1, entity.data().get("id"));
+        statement.setString(2, tenantId);
+        statement.setObject(3, entity.data().get("instanceId"));
+        statement.setObject(4, entity.data().get("holdingsRecordId"));
+        statement.setString(5, entity.rawJson());
+      });
+  }
+
+  @SuppressWarnings("java:S2077")
+  private void saveEntitiesToStagingRaw(String tenantId, List<RawLine> entities) {
+    var fullTableName = getFullTableName(context, ReindexConstants.STAGING_ITEM_TABLE);
+    var sql = INSERT_STAGING_SQL.formatted(fullTableName);
+    jdbcTemplate.batchUpdate(sql, entities, BATCH_OPERATION_SIZE,
+      (statement, entity) -> {
+        statement.setObject(1, entity.data().get("id"));
+        statement.setString(2, tenantId);
+        statement.setObject(3, entity.data().get("instanceId"));
+        statement.setObject(4, entity.data().get("holdingsRecordId"));
+        statement.setString(5, entity.rawJson());
+      });
+    log.debug("Saved {} entities to staging table {}", entities.size(), ReindexConstants.STAGING_ITEM_TABLE);
+  }
+
   @SuppressWarnings("java:S2077")
   private void saveEntitiesToMain(String tenantId, List<Map<String, Object>> entities) {
     var fullTableName = getFullTableName(context, entityTable());

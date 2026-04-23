@@ -1,5 +1,6 @@
 package org.folio.search.service.reindex;
 
+import java.util.ArrayDeque;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,7 +8,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.extern.log4j.Log4j2;
@@ -37,6 +41,7 @@ import org.folio.search.service.reindex.jdbc.StreamingReindexStatusRepository;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
@@ -51,6 +56,7 @@ public class StreamingReindexService {
   private final StreamingReindexStatusRepository statusRepository;
   private final FolioExecutionContext context;
   private final Executor streamingReindexExecutor;
+  private final Executor streamingReindexInstanceBatchExecutor;
   private final ConsortiumTenantService consortiumTenantService;
   private final SystemUserScopedExecutionService executionService;
   private final MultiTenantSearchDocumentConverter searchDocumentConverter;
@@ -59,6 +65,10 @@ public class StreamingReindexService {
   private final IndexRepository indexRepository;
   @Nullable
   private final V2ReindexRuntimeStatusTracker runtimeStatusTracker;
+  @Value("${folio.streaming-reindex.instance-bounded-parallel-enabled:false}")
+  private boolean instanceBoundedParallelEnabled;
+  @Value("${folio.streaming-reindex.instance-bounded-parallel-max-in-flight:2}")
+  private int instanceBoundedParallelMaxInFlight;
 
   public StreamingReindexService(InventoryStreamingClient streamingClient,
                                  InstanceSearchIndexingPipeline indexingPipeline,
@@ -67,6 +77,8 @@ public class StreamingReindexService {
                                  StreamingReindexStatusRepository statusRepository,
                                  FolioExecutionContext context,
                                  @Qualifier("streamingReindexExecutor") Executor streamingReindexExecutor,
+                                 @Qualifier("streamingReindexInstanceBatchExecutor")
+                                 Executor streamingReindexInstanceBatchExecutor,
                                  ConsortiumTenantService consortiumTenantService,
                                  SystemUserScopedExecutionService executionService,
                                  MultiTenantSearchDocumentConverter searchDocumentConverter,
@@ -81,6 +93,7 @@ public class StreamingReindexService {
     this.statusRepository = statusRepository;
     this.context = context;
     this.streamingReindexExecutor = streamingReindexExecutor;
+    this.streamingReindexInstanceBatchExecutor = streamingReindexInstanceBatchExecutor;
     this.consortiumTenantService = consortiumTenantService;
     this.executionService = executionService;
     this.searchDocumentConverter = searchDocumentConverter;
@@ -336,11 +349,19 @@ public class StreamingReindexService {
     startResourceIfTracked(familyId, resourceType);
 
     final var resourceStart = System.nanoTime();
-    var recordCounter = new long[]{0};
-    var failedBatchCounter = new long[]{0};
+    var recordCounter = new AtomicLong();
+    var failedBatchCounter = new AtomicLong();
+    var instanceMaxInFlightBatches = configuredInstanceMaxInFlightBatches();
+    var instanceBatchesInFlight = isBoundedParallelInstanceStreaming(resourceType)
+      ? new ArrayDeque<CompletableFuture<Void>>(instanceMaxInFlightBatches)
+      : null;
+    var stopSubmittingInstanceBatches = instanceBatchesInFlight != null ? new AtomicBoolean() : null;
 
-    var batchCallback = createFlatBatchCallback(familyId, resourceType, tenantId, targetIndex, statusId,
-      recordCounter, failedBatchCounter);
+    var batchCallback = instanceBatchesInFlight == null
+      ? createFlatBatchCallback(familyId, resourceType, tenantId, targetIndex, recordCounter, failedBatchCounter)
+      : createParallelInstanceBatchCallback(
+        familyId, tenantId, targetIndex, recordCounter, failedBatchCounter,
+        instanceBatchesInFlight, stopSubmittingInstanceBatches, instanceMaxInFlightBatches);
 
     try {
       switch (resourceType) {
@@ -349,7 +370,14 @@ public class StreamingReindexService {
         case ITEM -> streamingClient.streamItems(okapiUrl, tenantId, token, familyId, batchCallback);
         default -> throw new IllegalStateException("Unsupported streaming resource: " + resourceType);
       }
+
+      if (instanceBatchesInFlight != null) {
+        awaitRemainingInstanceBatches(instanceBatchesInFlight, stopSubmittingInstanceBatches);
+      }
     } catch (Exception e) {
+      if (instanceBatchesInFlight != null && !instanceBatchesInFlight.isEmpty()) {
+        awaitRemainingInstanceBatchesAfterFailure(instanceBatchesInFlight, stopSubmittingInstanceBatches, tenantId);
+      }
       if (statusId != null) {
         updateResourceStatus(statusId, StreamingReindexStatus.FAILED);
       }
@@ -366,7 +394,7 @@ public class StreamingReindexService {
     advanceStreamingPhaseIfTracked(familyId, 1L);
 
     log.info("streamFlatResource:: completed [resource: {}, records: {}, failedBatches: {}, elapsed: {}ms]",
-      resourceType.value, recordCounter[0], failedBatchCounter[0], ms(System.nanoTime() - resourceStart));
+      resourceType.value, recordCounter.get(), failedBatchCounter.get(), ms(System.nanoTime() - resourceStart));
 
     if (resourceType == StreamingResource.INSTANCE) {
       indexingPipeline.logEnrichmentProfilingSummary();
@@ -374,28 +402,132 @@ public class StreamingReindexService {
   }
 
   private java.util.function.Consumer<List<Map<String, Object>>> createFlatBatchCallback(
-    UUID familyId, StreamingResource resourceType, String tenantId, String targetIndex, UUID statusId,
-    long[] recordCounter, long[] failedBatchCounter) {
-    return page -> {
-      try {
-        var batchStart = System.nanoTime();
-        var profiling = indexingPipeline.indexBatchToFamily(resourceType.value, page, tenantId, targetIndex);
-        var batchMs = ms(System.nanoTime() - batchStart);
+    UUID familyId, StreamingResource resourceType, String tenantId, String targetIndex,
+    AtomicLong recordCounter, AtomicLong failedBatchCounter) {
+    return page -> indexFlatBatch(
+      familyId, resourceType, tenantId, targetIndex, page, recordCounter, failedBatchCounter);
+  }
 
-        recordCounter[0] += page.size();
-        recordResourceBatchIfTracked(familyId, resourceType, profiling);
-        log.info("streamFlatResource:: batch indexed [resource: {}, batchSize: {}, totalRecords: {}, elapsed: {}ms]",
-          resourceType.value, page.size(), recordCounter[0], batchMs);
-      } catch (Exception e) {
-        failedBatchCounter[0]++;
-        log.error("streamFlatResource:: batch indexing failed [resource: {}, tenant: {}, batchSize: {}, "
-            + "failedBatches: {}]",
-          resourceType.value, tenantId, page.size(), failedBatchCounter[0], e);
-        throw e instanceof RuntimeException
-          ? (RuntimeException) e
-          : new SearchServiceException("Failed to index streamed batch for " + resourceType.value, e);
+  private java.util.function.Consumer<List<Map<String, Object>>> createParallelInstanceBatchCallback(
+    UUID familyId, String tenantId, String targetIndex, AtomicLong recordCounter, AtomicLong failedBatchCounter,
+    ArrayDeque<CompletableFuture<Void>> instanceBatchesInFlight, AtomicBoolean stopSubmittingInstanceBatches,
+    int instanceMaxInFlightBatches) {
+    return page -> {
+      throwIfInstanceBatchSubmissionStopped(stopSubmittingInstanceBatches);
+      drainCompletedInstanceBatches(instanceBatchesInFlight, stopSubmittingInstanceBatches);
+
+      if (instanceBatchesInFlight.size() >= instanceMaxInFlightBatches) {
+        awaitNextInstanceBatch(instanceBatchesInFlight, stopSubmittingInstanceBatches);
       }
+
+      throwIfInstanceBatchSubmissionStopped(stopSubmittingInstanceBatches);
+      var future = CompletableFuture.runAsync(
+        () -> indexFlatBatch(
+          familyId, StreamingResource.INSTANCE, tenantId, targetIndex, page, recordCounter, failedBatchCounter),
+        streamingReindexInstanceBatchExecutor
+      ).whenComplete((ignored, error) -> {
+        if (error != null) {
+          stopSubmittingInstanceBatches.set(true);
+        }
+      });
+      instanceBatchesInFlight.addLast(future);
     };
+  }
+
+  private void indexFlatBatch(UUID familyId, StreamingResource resourceType, String tenantId, String targetIndex,
+                              List<Map<String, Object>> page, AtomicLong recordCounter,
+                              AtomicLong failedBatchCounter) {
+    try {
+      var batchStart = System.nanoTime();
+      var profiling = indexingPipeline.indexBatchToFamily(resourceType.value, page, tenantId, targetIndex);
+      var batchMs = ms(System.nanoTime() - batchStart);
+      var totalRecords = recordCounter.addAndGet(page.size());
+
+      recordResourceBatchIfTracked(familyId, resourceType, profiling);
+      log.info("streamFlatResource:: batch indexed [resource: {}, batchSize: {}, totalRecords: {}, elapsed: {}ms]",
+        resourceType.value, page.size(), totalRecords, batchMs);
+    } catch (Exception e) {
+      var failedBatches = failedBatchCounter.incrementAndGet();
+      log.error("streamFlatResource:: batch indexing failed [resource: {}, tenant: {}, batchSize: {}, "
+          + "failedBatches: {}]",
+        resourceType.value, tenantId, page.size(), failedBatches, e);
+      throw e instanceof RuntimeException
+        ? (RuntimeException) e
+        : new SearchServiceException("Failed to index streamed batch for " + resourceType.value, e);
+    }
+  }
+
+  private boolean isBoundedParallelInstanceStreaming(StreamingResource resourceType) {
+    return instanceBoundedParallelEnabled
+      && resourceType == StreamingResource.INSTANCE;
+  }
+
+  private int configuredInstanceMaxInFlightBatches() {
+    return Math.max(1, instanceBoundedParallelMaxInFlight);
+  }
+
+  private void awaitRemainingInstanceBatches(ArrayDeque<CompletableFuture<Void>> instanceBatchesInFlight,
+                                             AtomicBoolean stopSubmittingInstanceBatches) {
+    while (!instanceBatchesInFlight.isEmpty()) {
+      awaitNextInstanceBatch(instanceBatchesInFlight, stopSubmittingInstanceBatches);
+    }
+  }
+
+  private void awaitRemainingInstanceBatchesAfterFailure(
+    ArrayDeque<CompletableFuture<Void>> instanceBatchesInFlight,
+    AtomicBoolean stopSubmittingInstanceBatches, String tenantId) {
+    stopSubmittingInstanceBatches.set(true);
+    RuntimeException drainFailure = null;
+    while (!instanceBatchesInFlight.isEmpty()) {
+      try {
+        awaitNextInstanceBatch(instanceBatchesInFlight, stopSubmittingInstanceBatches);
+      } catch (RuntimeException error) {
+        if (drainFailure == null) {
+          drainFailure = error;
+        }
+      }
+    }
+
+    if (drainFailure != null) {
+      log.warn("streamFlatResource:: drained in-flight instance batches after failure; batch work already "
+          + "submitted to OpenSearch could not be interrupted mid-flight [tenant: {}]",
+        tenantId, drainFailure);
+    }
+  }
+
+  private void drainCompletedInstanceBatches(ArrayDeque<CompletableFuture<Void>> instanceBatchesInFlight,
+                                             AtomicBoolean stopSubmittingInstanceBatches) {
+    while (!instanceBatchesInFlight.isEmpty() && instanceBatchesInFlight.peekFirst().isDone()) {
+      awaitNextInstanceBatch(instanceBatchesInFlight, stopSubmittingInstanceBatches);
+    }
+  }
+
+  private void awaitNextInstanceBatch(ArrayDeque<CompletableFuture<Void>> instanceBatchesInFlight,
+                                      AtomicBoolean stopSubmittingInstanceBatches) {
+    var nextBatch = instanceBatchesInFlight.removeFirst();
+    try {
+      nextBatch.join();
+    } catch (CompletionException e) {
+      stopSubmittingInstanceBatches.set(true);
+      throw unwrapInstanceBatchFailure(e);
+    }
+  }
+
+  private void throwIfInstanceBatchSubmissionStopped(AtomicBoolean stopSubmittingInstanceBatches) {
+    if (stopSubmittingInstanceBatches.get()) {
+      throw new SearchServiceException("Stopping instance batch submission after a prior batch failure");
+    }
+  }
+
+  private RuntimeException unwrapInstanceBatchFailure(CompletionException error) {
+    var cause = error.getCause();
+    if (cause instanceof Error err) {
+      throw err;
+    }
+    if (cause instanceof RuntimeException runtimeException) {
+      return runtimeException;
+    }
+    return new SearchServiceException("Failed to index streamed batch for instance", cause);
   }
 
   private List<String> resolveReindexTenants(String tenantId) {

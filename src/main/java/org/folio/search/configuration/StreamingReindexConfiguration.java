@@ -1,6 +1,8 @@
 package org.folio.search.configuration;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
+import org.folio.spring.scope.FolioExecutionScopeExecutionContextManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +20,21 @@ public class StreamingReindexConfiguration {
     executor.setMaxPoolSize(maxPoolSize);
     executor.setQueueCapacity(10);
     executor.setThreadNamePrefix("streaming-reindex-");
+    executor.initialize();
+    return executor;
+  }
+
+  @Bean("streamingReindexInstanceBatchExecutor")
+  public Executor streamingReindexInstanceBatchExecutor(
+    @Value("${folio.streaming-reindex.instance-bounded-parallel-max-in-flight:2}") int maxInFlight) {
+    var boundedConcurrency = Math.max(1, maxInFlight);
+    var executor = new ThreadPoolTaskExecutor();
+    executor.setCorePoolSize(boundedConcurrency);
+    executor.setMaxPoolSize(boundedConcurrency);
+    executor.setQueueCapacity(0);
+    executor.setThreadNamePrefix("streaming-instance-batch-");
+    executor.setTaskDecorator(FolioExecutionScopeExecutionContextManager::getRunnableWithCurrentFolioContext);
+    executor.setRejectedExecutionHandler(new CallerRunsPolicy());
     executor.initialize();
     return executor;
   }

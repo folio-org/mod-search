@@ -246,8 +246,15 @@ public class IndexFamilyService {
     return indexFamilyRepository.findActiveByVersion(version);
   }
 
-  public List<IndexFamilyEntity> findAllFamilies(String tenantId) {
-    return indexFamilyRepository.findAll();
+  public List<IndexFamilyEntity> findAllFamilies(String tenantId, boolean onlineOnly) {
+    var families = indexFamilyRepository.findAll();
+    if (!onlineOnly) {
+      return families;
+    }
+
+    return families.stream()
+      .filter(family -> family.getStatus() != RETIRING && family.getStatus() != RETIRED)
+      .toList();
   }
 
   public Optional<IndexFamilyEntity> findById(UUID id) {

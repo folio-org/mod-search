@@ -10,9 +10,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import jakarta.persistence.EntityNotFoundException;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.folio.search.exception.RequestValidationException;
+import org.folio.search.model.reindex.IndexFamilyEntity;
+import org.folio.search.model.types.IndexFamilyStatus;
 import org.folio.search.model.types.QueryVersion;
 import org.folio.search.service.IndexFamilyService;
 import org.folio.search.service.QueryVersionResolver;
@@ -67,6 +72,39 @@ class IndexFamilyControllerTest {
       .andExpect(jsonPath("$.familyId", is(familyId.toString())))
       .andExpect(jsonPath("$.queryVersion", is("2")))
       .andExpect(jsonPath("$.status", is("ACCEPTED")));
+  }
+
+  @Test
+  void listFamilies_returnsAllFamiliesByDefault() throws Exception {
+    var activeFamily = family(IndexFamilyStatus.ACTIVE, QueryVersion.V2, 1);
+    var retiredFamily = family(IndexFamilyStatus.RETIRED, QueryVersion.V1, 0);
+
+    when(context.getTenantId()).thenReturn(TENANT_ID);
+    when(indexFamilyService.findAllFamilies(TENANT_ID, false)).thenReturn(List.of(activeFamily, retiredFamily));
+
+    mockMvc.perform(get("/search/index/families")
+        .header(XOkapiHeaders.TENANT, TENANT_ID))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.totalRecords", is(2)))
+      .andExpect(jsonPath("$.families[0].status", is("active")))
+      .andExpect(jsonPath("$.families[1].status", is("retired")));
+  }
+
+  @Test
+  void listFamilies_omitsRetiringAndRetiredFamiliesWhenOnlineOnlyRequested() throws Exception {
+    var activeFamily = family(IndexFamilyStatus.ACTIVE, QueryVersion.V2, 1);
+    var buildingFamily = family(IndexFamilyStatus.BUILDING, QueryVersion.V2, 2);
+
+    when(context.getTenantId()).thenReturn(TENANT_ID);
+    when(indexFamilyService.findAllFamilies(TENANT_ID, true)).thenReturn(List.of(activeFamily, buildingFamily));
+
+    mockMvc.perform(get("/search/index/families")
+        .param("onlineOnly", "true")
+        .header(XOkapiHeaders.TENANT, TENANT_ID))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.totalRecords", is(2)))
+      .andExpect(jsonPath("$.families[0].status", is("active")))
+      .andExpect(jsonPath("$.families[1].status", is("building")));
   }
 
   @Test
@@ -152,5 +190,20 @@ class IndexFamilyControllerTest {
     mockMvc.perform(get("/search/index/families/{id}/status", familyId)
         .header(XOkapiHeaders.TENANT, TENANT_ID))
       .andExpect(status().isNotFound());
+  }
+
+  private static IndexFamilyEntity family(IndexFamilyStatus status, QueryVersion version, int generation) {
+    return new IndexFamilyEntity(
+      UUID.randomUUID(),
+      generation,
+      "index-" + generation,
+      status,
+      Timestamp.from(Instant.parse("2026-04-22T20:08:55.976Z")),
+      null,
+      status == IndexFamilyStatus.RETIRED
+        ? Timestamp.from(Instant.parse("2026-04-22T20:18:55.976Z"))
+        : null,
+      version
+    );
   }
 }

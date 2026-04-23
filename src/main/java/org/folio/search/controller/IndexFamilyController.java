@@ -40,9 +40,10 @@ public class IndexFamilyController {
   private final FolioExecutionContext context;
 
   @GetMapping("/search/index/families")
-  public ResponseEntity<FamilyListResponse> listFamilies() {
+  public ResponseEntity<FamilyListResponse> listFamilies(
+    @RequestParam(defaultValue = "false") boolean onlineOnly) {
     var tenantId = context.getTenantId();
-    var families = indexFamilyService.findAllFamilies(tenantId).stream()
+    var families = indexFamilyService.findAllFamilies(tenantId, onlineOnly).stream()
       .map(IndexFamilyController::toDto)
       .toList();
     return ResponseEntity.ok(new FamilyListResponse(families, families.size()));

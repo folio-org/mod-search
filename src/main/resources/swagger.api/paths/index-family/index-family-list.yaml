@@ -1,11 +1,18 @@
 get:
   operationId: getIndexFamilies
   summary: List index families
-  description: Returns all index families for the current tenant
+  description: Returns index families for the current tenant
   tags:
     - index-management
   parameters:
     - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+    - in: query
+      name: onlineOnly
+      required: false
+      schema:
+        type: boolean
+        default: false
+      description: When true, omits families in retiring and retired states
   responses:
     '200':
       description: List of index families

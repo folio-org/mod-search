@@ -1,7 +1,7 @@
 get:
   operationId: getIndexFamilyStatus
   summary: Get detailed runtime status for an index family
-  description: Returns the in-memory V2+ reindex progress and performance breakdown for the specified index family
+  description: Returns the in-memory V2+ reindex progress, including staged cutover snapshot telemetry for catch-up
   tags:
     - index-management
   parameters:

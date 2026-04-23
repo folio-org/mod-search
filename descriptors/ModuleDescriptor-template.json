@@ -173,6 +173,15 @@
           "methods": [
             "POST"
           ],
+          "pathPattern": "/search/index/families/{id}/cutover-snapshot/refresh",
+          "permissionsRequired": [
+            "search.index.families.item.cutover-snapshot-refresh.post"
+          ]
+        },
+        {
+          "methods": [
+            "POST"
+          ],
           "pathPattern": "/search/index/families/{id}/retire",
           "permissionsRequired": [
             "search.index.families.item.retire.post"
@@ -827,7 +836,12 @@
     {
       "permissionName": "search.index.families.item.switch-over.post",
       "displayName": "Search - switches over an index family",
-      "description": "Promotes a STAGED index family to ACTIVE"
+      "description": "Promotes a STAGED or CUTTING_OVER index family to ACTIVE"
+    },
+    {
+      "permissionName": "search.index.families.item.cutover-snapshot-refresh.post",
+      "displayName": "Search - refreshes an index family cutover snapshot",
+      "description": "Captures a new staged cutover snapshot for a STAGED V2 index family"
     },
     {
       "permissionName": "search.index.families.item.retire.post",

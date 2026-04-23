@@ -167,17 +167,34 @@ public class V2IndexFamilyRuntimeStatusService {
   }
 
   private void enrichCatchUpDetails(UUID familyId, V2ReindexPhaseRuntime runtime, Map<String, Object> details) {
+    var hasStagedSnapshot = consumerManager.hasStagedCutoverSnapshot(familyId);
+    if (hasStagedSnapshot) {
+      details.putAll(StagedCutoverSnapshotDetailsHelper.createBaseDetails(consumerManager, familyId));
+    }
+
     var consumerRunning = consumerManager.isConsumerRunning(familyId);
     if (consumerRunning) {
-      safeMetric(() -> details.put("consumerLag", consumerManager.getConsumerLag(familyId)));
+      safeMetric(() -> StagedCutoverSnapshotDetailsHelper.applyLagDetails(details,
+        consumerManager.getConsumerLag(familyId), null));
       safeMetric(() -> {
-        var lagToTarget = consumerManager.getConsumerLagToTarget(familyId);
-        details.put("consumerLagToTarget", lagToTarget);
+        var lagToTarget = hasStagedSnapshot
+          ? consumerManager.getConsumerLagToStagedCutoverSnapshot(familyId)
+          : consumerManager.getConsumerLagToTarget(familyId);
+        StagedCutoverSnapshotDetailsHelper.applyLagDetails(details, null, lagToTarget);
+        if (!hasStagedSnapshot) {
+          details.put("readyForSwitchOver", false);
+        }
         if (lagToTarget == 0L && runtimeStatusTracker != null) {
           runtimeStatusTracker.markCatchUpReady(familyId);
         }
       });
-      safeMetric(() -> details.put("partitions", consumerManager.getTrackedPartitionCount(familyId)));
+      if (!hasStagedSnapshot) {
+        safeMetric(() -> {
+          var partitions = consumerManager.getTrackedPartitionCount(familyId);
+          details.put("partitions", partitions);
+          details.putIfAbsent("targetPartitions", partitions);
+        });
+      }
       var catchUpRuntime = runtime;
       if (runtime.getFirstReadyAt() == null && runtimeStatusTracker != null) {
         catchUpRuntime = runtimeStatusTracker.find(familyId)
@@ -189,11 +206,11 @@ public class V2IndexFamilyRuntimeStatusService {
     }
 
     if (runtime.getStatus() == V2ReindexRuntimeStatus.COMPLETED) {
-      details.putIfAbsent("consumerLag", 0L);
-      details.putIfAbsent("consumerLagToTarget", 0L);
+      StagedCutoverSnapshotDetailsHelper.applyLagDetails(details, 0L, 0L);
     } else if (runtime.getLastObservedValue() != null) {
-      details.putIfAbsent("consumerLagToTarget", runtime.getLastObservedValue());
+      StagedCutoverSnapshotDetailsHelper.applyLagDetails(details, null, runtime.getLastObservedValue());
     }
+    details.putIfAbsent("readyForSwitchOver", false);
     putCatchUpTiming(details, runtime);
   }
 

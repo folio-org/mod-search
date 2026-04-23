@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -35,6 +36,7 @@ import org.folio.search.repository.IndexNameProvider;
 import org.folio.search.service.es.SearchMappingsHelper;
 import org.folio.search.service.es.SearchSettingsHelper;
 import org.folio.search.service.reindex.ReindexKafkaConsumerManager;
+import org.folio.search.service.reindex.StagedCutoverSnapshotDetailsHelper;
 import org.folio.search.service.reindex.V2ReindexRuntimeStatusTracker;
 import org.folio.search.service.reindex.jdbc.IndexFamilyRepository;
 import org.folio.search.service.reindex.jdbc.StreamingReindexStatusRepository;
@@ -154,13 +156,19 @@ public class IndexFamilyService {
         "Only STAGED or CUTTING_OVER families can be switched over", "status", newFamily.getStatus().getValue());
     }
 
-    reindexKafkaConsumerManager.captureTargetOffsets(familyId);
-    var lagToTarget = reindexKafkaConsumerManager.getConsumerLagToTarget(familyId);
-    recordCatchUpLagIfTracked(familyId, version, lagToTarget);
-    if (lagToTarget > 0) {
-      throw new RequestValidationException(
-        "Temporary reindex consumer has not reached cutover offset snapshot",
-        "consumerLag", String.valueOf(lagToTarget));
+    if (version == QueryVersion.V2 && newFamily.getStatus() == STAGED) {
+      ensureV2StagedSnapshotReadyForSwitchOver(familyId);
+      // CUTTING_OVER is intentionally the alias-swap recovery state.
+      // Once cutover has started, retries should complete the swap path without re-running the staged lag gate.
+    } else if (version == QueryVersion.V1) {
+      reindexKafkaConsumerManager.captureTargetOffsets(familyId);
+      var lagToTarget = reindexKafkaConsumerManager.getConsumerLagToTarget(familyId);
+      recordCatchUpLagIfTracked(familyId, version, lagToTarget);
+      if (lagToTarget > 0) {
+        throw new RequestValidationException(
+          "Temporary reindex consumer has not reached cutover offset snapshot",
+          "consumerLag", String.valueOf(lagToTarget));
+      }
     }
 
     var tenantId = context.getTenantId();
@@ -212,6 +220,31 @@ public class IndexFamilyService {
       }
       throw e;
     }
+  }
+
+  public void refreshStagedCutoverSnapshot(UUID familyId) {
+    var family = indexFamilyRepository.findById(familyId)
+      .orElseThrow(() -> new RequestValidationException("Index family not found", "familyId", familyId.toString()));
+
+    if (family.getQueryVersion() != QueryVersion.V2) {
+      throw new RequestValidationException(
+        "Only V2 families support staged cutover snapshot refresh",
+        "queryVersion", family.getQueryVersion().getValue());
+    }
+    if (family.getStatus() != STAGED) {
+      throw new RequestValidationException(
+        "Only STAGED families can refresh the staged cutover snapshot",
+        "status", family.getStatus().getValue());
+    }
+
+    reindexKafkaConsumerManager.refreshStagedCutoverSnapshot(familyId);
+    if (runtimeStatusTracker != null) {
+      runtimeStatusTracker.clearCatchUpReady(familyId);
+      runtimeStatusTracker.updatePhaseDetails(familyId, V2ReindexPhaseType.CATCH_UP, catchUpDetails(familyId,
+        reindexKafkaConsumerManager.getConsumerLagToStagedCutoverSnapshot(familyId)));
+    }
+    log.warn("refreshStagedCutoverSnapshot:: operator refreshed staged cutover snapshot [familyId: {}, tenant: {}]",
+      familyId, context.getTenantId());
   }
 
   @CacheEvict(cacheNames = {ACTIVE_INDEX_FAMILY_CACHE, CUTTING_OVER_INDEX_FAMILY_CACHE, PHYSICAL_INDEX_EXISTS_CACHE},
@@ -815,11 +848,53 @@ public class IndexFamilyService {
       if (lag == 0L) {
         runtimeStatusTracker.markCatchUpReady(familyId);
       }
-      runtimeStatusTracker.updatePhaseDetails(familyId, V2ReindexPhaseType.CATCH_UP, Map.of(
-        "consumerLag", lag,
-        "consumerLagToTarget", lag,
-        "partitions", reindexKafkaConsumerManager.getTrackedPartitionCount(familyId)));
+      runtimeStatusTracker.updatePhaseDetails(familyId, V2ReindexPhaseType.CATCH_UP, catchUpDetails(familyId, lag));
     }
+  }
+
+  private void ensureV2StagedSnapshotReadyForSwitchOver(UUID familyId) {
+    if (!reindexKafkaConsumerManager.hasStagedCutoverSnapshot(familyId)) {
+      throw new RequestValidationException(
+        "STAGED family cannot be switched over on this JVM: the staged cutover snapshot is missing. "
+          + "Resume the family to recreate the snapshot boundary.",
+        "familyId", familyId.toString());
+    }
+
+    final long lagToTarget;
+    try {
+      lagToTarget = reindexKafkaConsumerManager.getConsumerLagToStagedCutoverSnapshot(familyId);
+    } catch (SearchServiceException e) {
+      log.warn("ensureV2StagedSnapshotReadyForSwitchOver:: failed to validate staged snapshot readiness "
+          + "[familyId: {}, message: {}]",
+        familyId, e.getMessage(), e);
+      var validationError = new RequestValidationException(
+        "STAGED family cannot be switched over on this JVM: temporary reindex consumer state is missing. "
+          + "Resume the family to recreate the staged snapshot boundary.",
+        "familyId", familyId.toString());
+      validationError.initCause(e);
+      throw validationError;
+    }
+
+    recordCatchUpLagIfTracked(familyId, QueryVersion.V2, lagToTarget);
+    if (lagToTarget > 0) {
+      throw new RequestValidationException(
+        "Temporary reindex consumer has not reached the staged cutover snapshot",
+        "consumerLag", String.valueOf(lagToTarget));
+    }
+  }
+
+  private Map<String, Object> catchUpDetails(UUID familyId, long lag) {
+    var details = new LinkedHashMap<String, Object>();
+    if (reindexKafkaConsumerManager.hasStagedCutoverSnapshot(familyId)) {
+      details.putAll(StagedCutoverSnapshotDetailsHelper.createBaseDetails(reindexKafkaConsumerManager, familyId));
+      StagedCutoverSnapshotDetailsHelper.applyLagDetails(details, lag, lag);
+      return details;
+    }
+
+    details.put("consumerLag", lag);
+    details.put("consumerLagToTarget", lag);
+    details.put("partitions", reindexKafkaConsumerManager.getTrackedPartitionCount(familyId));
+    return details;
   }
 
   private void completeCatchUpPhaseIfTracked(UUID familyId) {

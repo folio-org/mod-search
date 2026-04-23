@@ -118,12 +118,15 @@ class V2IndexFamilyRuntimeStatusServiceTest {
   @Test
   void getStatus_reportsCatchUpSplitWhenLagHasReachedZeroBeforeManualSwitch() {
     var familyId = UUID.randomUUID();
+    var snapshotCapturedAt = Instant.parse("2026-04-22T20:08:15Z");
 
     when(indexFamilyService.findById(familyId)).thenReturn(Optional.of(family(familyId, IndexFamilyStatus.STAGED)));
+    when(consumerManager.hasStagedCutoverSnapshot(familyId)).thenReturn(true);
+    when(consumerManager.getStagedCutoverSnapshotCapturedAt(familyId)).thenReturn(Optional.of(snapshotCapturedAt));
+    when(consumerManager.getStagedCutoverSnapshotPartitionCount(familyId)).thenReturn(200);
     when(consumerManager.isConsumerRunning(familyId)).thenReturn(true);
     when(consumerManager.getConsumerLag(familyId)).thenReturn(0L);
-    when(consumerManager.getConsumerLagToTarget(familyId)).thenReturn(0L);
-    when(consumerManager.getTrackedPartitionCount(familyId)).thenReturn(200);
+    when(consumerManager.getConsumerLagToStagedCutoverSnapshot(familyId)).thenReturn(0L);
 
     var jobId = UUID.randomUUID();
     runtimeStatusTracker.startFamily(familyId, jobId, "diku", QueryVersion.V2);
@@ -135,7 +138,11 @@ class V2IndexFamilyRuntimeStatusServiceTest {
     assertThat(response.currentPhase()).isEqualTo("CATCHING_UP");
     assertThat(details.get("consumerLag")).isEqualTo(0L);
     assertThat(details.get("consumerLagToTarget")).isEqualTo(0L);
+    assertThat(details.get("snapshotCapturedAt")).isEqualTo(snapshotCapturedAt.toString());
+    assertThat(details.get("targetPartitions")).isEqualTo(200);
     assertThat(details.get("partitions")).isEqualTo(200);
+    assertThat(details.get("readyForSwitchOver")).isEqualTo(true);
+    assertThat(details.get("lagMeasuredAgainst")).isEqualTo("stagedSnapshot");
     assertThat(details.get("lagReachedZeroAt")).isInstanceOf(String.class);
     assertThat(details.get("timeUntilLagZeroMs")).isInstanceOf(Long.class);
     assertThat(details.get("timeWaitingForManualSwitchMs")).isInstanceOf(Long.class);

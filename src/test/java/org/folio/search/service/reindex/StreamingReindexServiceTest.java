@@ -7,7 +7,6 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
@@ -92,6 +91,7 @@ class StreamingReindexServiceTest {
     var tenantId = "central";
     var memberTenantId = "member";
     var familyId = UUID.randomUUID();
+    var snapshotCapturedAt = Instant.parse("2026-04-23T00:00:00Z");
     var family = new IndexFamilyEntity(familyId, 3, "target-index", IndexFamilyStatus.BUILDING,
       Timestamp.from(Instant.now()), null, null, QueryVersion.V2);
 
@@ -105,6 +105,9 @@ class StreamingReindexServiceTest {
       .thenReturn(Optional.of(streamingStatus("holding")));
     when(statusRepository.findByJobIdAndResourceType(any(), eq("item")))
       .thenReturn(Optional.of(streamingStatus("item")));
+    when(consumerManager.getConsumerLagToStagedCutoverSnapshot(familyId)).thenReturn(5L);
+    when(consumerManager.getStagedCutoverSnapshotCapturedAt(familyId)).thenReturn(Optional.of(snapshotCapturedAt));
+    when(consumerManager.getStagedCutoverSnapshotPartitionCount(familyId)).thenReturn(12);
 
     doAnswer(invocation -> {
       invocation.<Runnable>getArgument(0).run();
@@ -122,6 +125,7 @@ class StreamingReindexServiceTest {
     verify(streamingClient).streamInstances(eq("http://okapi"), eq(tenantId), eq("scoped-token"), eq(familyId), any());
     verify(streamingClient).streamHoldings(eq("http://okapi"), eq(tenantId), eq("scoped-token"), eq(familyId), any());
     verify(streamingClient).streamItems(eq("http://okapi"), eq(tenantId), eq("scoped-token"), eq(familyId), any());
+    verify(consumerManager).captureStagedCutoverSnapshot(familyId);
     verify(statusRepository).updateStatus(any(), eq("STREAMED"));
     verify(browseFullRebuildService).rebuildBrowse(familyId);
   }
@@ -227,6 +231,7 @@ class StreamingReindexServiceTest {
     var tenantId = "central";
     var familyId = UUID.randomUUID();
     var jobId = UUID.randomUUID();
+    var snapshotCapturedAt = Instant.parse("2026-04-23T00:00:00Z");
     var family = new IndexFamilyEntity(familyId, 3, "target-index", IndexFamilyStatus.BUILDING,
       Timestamp.from(Instant.now()), null, null, QueryVersion.V2);
     var statuses = List.of(
@@ -241,6 +246,9 @@ class StreamingReindexServiceTest {
     when(consortiumTenantService.getConsortiumTenants(tenantId)).thenReturn(List.of());
     when(statusRepository.findByFamilyId(familyId)).thenReturn(statuses);
     when(consumerManager.getCommittedOffsets(familyId, 3)).thenReturn(committedOffsets);
+    when(consumerManager.getConsumerLagToStagedCutoverSnapshot(familyId)).thenReturn(7L);
+    when(consumerManager.getStagedCutoverSnapshotCapturedAt(familyId)).thenReturn(Optional.of(snapshotCapturedAt));
+    when(consumerManager.getStagedCutoverSnapshotPartitionCount(familyId)).thenReturn(10);
 
     var actual = service.resumeStreamingReindex(familyId);
 
@@ -249,6 +257,7 @@ class StreamingReindexServiceTest {
     verify(consumerManager).resumeReindexConsumer(
       eq(familyId), eq("target-index"), eq(List.of(tenantId)), eq(3),
       eq(QueryVersion.V2), eq(committedOffsets));
+    verify(consumerManager).refreshStagedCutoverSnapshot(familyId);
     verify(indexFamilyService).updateStatus(familyId, IndexFamilyStatus.STAGED);
     verify(statusRepository, never()).deleteByFamilyId(familyId);
     verify(streamingClient, never()).streamInstances(anyString(), anyString(), anyString(), any(UUID.class), any());
@@ -326,6 +335,7 @@ class StreamingReindexServiceTest {
     var tenantId = "central";
     var familyId = UUID.randomUUID();
     var jobId = UUID.randomUUID();
+    var snapshotCapturedAt = Instant.parse("2026-04-23T00:00:00Z");
     var family = new IndexFamilyEntity(familyId, 4, "target-index", IndexFamilyStatus.FAILED,
       Timestamp.from(Instant.now()), null, null, QueryVersion.V2);
     var committedOffsets = Map.of(new TopicPartition("topic", 0), 50L);
@@ -339,11 +349,48 @@ class StreamingReindexServiceTest {
       completedStatus(jobId, familyId, "item")
     ));
     when(consumerManager.getCommittedOffsets(familyId, 4)).thenReturn(committedOffsets);
+    when(consumerManager.getConsumerLagToStagedCutoverSnapshot(familyId)).thenReturn(2L);
+    when(consumerManager.getStagedCutoverSnapshotCapturedAt(familyId)).thenReturn(Optional.of(snapshotCapturedAt));
+    when(consumerManager.getStagedCutoverSnapshotPartitionCount(familyId)).thenReturn(8);
 
     service.resumeStreamingReindex(familyId);
 
+    verify(consumerManager).refreshStagedCutoverSnapshot(familyId);
     verify(runtimeStatusTracker).resumeFamily(familyId, IndexFamilyStatus.STAGED);
-    verify(runtimeStatusTracker).startPhase(eq(familyId), eq(V2ReindexPhaseType.CATCH_UP), eq(1L), isNull());
+    verify(runtimeStatusTracker).startPhase(eq(familyId), eq(V2ReindexPhaseType.CATCH_UP), eq(1L), any());
+  }
+
+  @Test
+  void resumeStreamingReindex_recreatesSnapshotForResumedStagedV2Family() {
+    var tenantId = "central";
+    var familyId = UUID.randomUUID();
+    var jobId = UUID.randomUUID();
+    var snapshotCapturedAt = Instant.parse("2026-04-23T00:00:00Z");
+    var family = new IndexFamilyEntity(familyId, 3, "target-index", IndexFamilyStatus.STAGED,
+      Timestamp.from(Instant.now()), null, null, QueryVersion.V2);
+    var statuses = List.of(
+      completedStatus(jobId, familyId, "instance"),
+      completedStatus(jobId, familyId, "holding"),
+      completedStatus(jobId, familyId, "item")
+    );
+    var committedOffsets = Map.of(new TopicPartition("topic", 0), 100L);
+
+    when(context.getTenantId()).thenReturn(tenantId);
+    when(indexFamilyService.findById(familyId)).thenReturn(Optional.of(family));
+    when(consortiumTenantService.getConsortiumTenants(tenantId)).thenReturn(List.of());
+    when(statusRepository.findByFamilyId(familyId)).thenReturn(statuses);
+    when(consumerManager.getCommittedOffsets(familyId, 3)).thenReturn(committedOffsets);
+    when(consumerManager.getConsumerLagToStagedCutoverSnapshot(familyId)).thenReturn(1L);
+    when(consumerManager.getStagedCutoverSnapshotCapturedAt(familyId)).thenReturn(Optional.of(snapshotCapturedAt));
+    when(consumerManager.getStagedCutoverSnapshotPartitionCount(familyId)).thenReturn(6);
+
+    service.resumeStreamingReindex(familyId);
+
+    verify(consumerManager).resumeReindexConsumer(
+      eq(familyId), eq("target-index"), eq(List.of(tenantId)), eq(3),
+      eq(QueryVersion.V2), eq(committedOffsets));
+    verify(consumerManager).refreshStagedCutoverSnapshot(familyId);
+    verify(indexFamilyService, never()).updateStatus(familyId, IndexFamilyStatus.STAGED);
   }
 
   private static StreamingReindexStatusEntity streamingStatus(String resourceType) {

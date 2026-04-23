@@ -3,6 +3,7 @@ package org.folio.search.controller;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -144,7 +145,12 @@ class IndexFamilyControllerTest {
           new V2IndexFamilyRuntimeStatusService.PhaseBlock(
             "COMPLETED", "2026-04-22T20:08:03.300Z", "2026-04-22T20:08:16.506Z", 13206L, java.util.Map.of()),
           new V2IndexFamilyRuntimeStatusService.PhaseBlock(
-            "IN_PROGRESS", "2026-04-22T20:08:16.511Z", null, 39465L, java.util.Map.of("consumerLagToTarget", 0)),
+            "IN_PROGRESS", "2026-04-22T20:08:16.511Z", null, 39465L, java.util.Map.of(
+              "consumerLagToTarget", 0,
+              "snapshotCapturedAt", "2026-04-22T20:08:15.000Z",
+              "targetPartitions", 200,
+              "readyForSwitchOver", true,
+              "lagMeasuredAgainst", "stagedSnapshot")),
           new V2IndexFamilyRuntimeStatusService.PhaseBlock("PENDING", null, null, null, java.util.Map.of())),
         new V2IndexFamilyRuntimeStatusService.Resources(
           new V2IndexFamilyRuntimeStatusService.ResourceBlock(
@@ -165,7 +171,23 @@ class IndexFamilyControllerTest {
       .andExpect(jsonPath("$.familyId", is(familyId.toString())))
       .andExpect(jsonPath("$.currentPhase", is("CATCHING_UP")))
       .andExpect(jsonPath("$.summary.trackedInMemory", is(true)))
+      .andExpect(jsonPath("$.details.phases.catchUp.details.snapshotCapturedAt", is("2026-04-22T20:08:15.000Z")))
+      .andExpect(jsonPath("$.details.phases.catchUp.details.targetPartitions", is(200)))
+      .andExpect(jsonPath("$.details.phases.catchUp.details.readyForSwitchOver", is(true)))
       .andExpect(jsonPath("$.details.resources.instance.totalOsBulkMs", is(21100)));
+  }
+
+  @Test
+  void refreshCutoverSnapshot_returnsSuccessStatus() throws Exception {
+    var familyId = UUID.randomUUID();
+
+    mockMvc.perform(post("/search/index/families/{id}/cutover-snapshot/refresh", familyId)
+        .header(XOkapiHeaders.TENANT, TENANT_ID))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.status", is("CUTOVER_SNAPSHOT_REFRESHED")))
+      .andExpect(jsonPath("$.familyId", is(familyId.toString())));
+
+    verify(indexFamilyService).refreshStagedCutoverSnapshot(familyId);
   }
 
   @Test

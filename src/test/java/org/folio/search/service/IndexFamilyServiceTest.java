@@ -160,15 +160,15 @@ class IndexFamilyServiceTest {
       Timestamp.from(Instant.now()), null, null, QueryVersion.V2);
 
     when(indexFamilyRepository.findById(familyId)).thenReturn(Optional.of(family));
-    when(reindexKafkaConsumerManager.getConsumerLagToTarget(familyId)).thenReturn(3L);
+    when(reindexKafkaConsumerManager.hasStagedCutoverSnapshot(familyId)).thenReturn(true);
+    when(reindexKafkaConsumerManager.getConsumerLagToStagedCutoverSnapshot(familyId)).thenReturn(3L);
 
     var error = assertThrows(RequestValidationException.class, () -> service.switchOver(familyId));
 
     assertThat(error.getKey()).isEqualTo("consumerLag");
     assertThat(error.getValue()).isEqualTo("3");
     verify(indexFamilyRepository).lockByVersion(QueryVersion.V2);
-    verify(reindexKafkaConsumerManager).captureTargetOffsets(familyId);
-    verify(reindexKafkaConsumerManager).getConsumerLagToTarget(familyId);
+    verify(reindexKafkaConsumerManager).getConsumerLagToStagedCutoverSnapshot(familyId);
     verify(indexFamilyRepository, never()).updateStatus(familyId, IndexFamilyStatus.CUTTING_OVER);
     verify(reindexKafkaConsumerManager, never()).stopReindexConsumer(familyId);
   }
@@ -182,17 +182,33 @@ class IndexFamilyServiceTest {
     when(context.getTenantId()).thenReturn("tenant");
     when(indexFamilyRepository.findById(familyId)).thenReturn(Optional.of(family));
     when(indexFamilyRepository.findActiveByVersion(QueryVersion.V2)).thenReturn(Optional.empty());
-    when(reindexKafkaConsumerManager.getConsumerLagToTarget(familyId)).thenReturn(0L);
+    when(reindexKafkaConsumerManager.hasStagedCutoverSnapshot(familyId)).thenReturn(true);
+    when(reindexKafkaConsumerManager.getConsumerLagToStagedCutoverSnapshot(familyId)).thenReturn(0L);
 
     assertThrows(Exception.class, () -> service.switchOver(familyId));
 
-    verify(reindexKafkaConsumerManager).captureTargetOffsets(familyId);
-    verify(reindexKafkaConsumerManager).getConsumerLagToTarget(familyId);
+    verify(reindexKafkaConsumerManager).getConsumerLagToStagedCutoverSnapshot(familyId);
     verify(indexFamilyRepository).updateStatus(familyId, IndexFamilyStatus.CUTTING_OVER);
   }
 
   @Test
-  void switchOver_proceedsFromCuttingOverWhenLagIsZero() {
+  void switchOver_rejectsStagedFamilyWhenSnapshotIsMissing() {
+    var familyId = UUID.randomUUID();
+    var family = new IndexFamilyEntity(familyId, 2, "tenant_2", IndexFamilyStatus.STAGED,
+      Timestamp.from(Instant.now()), null, null, QueryVersion.V2);
+
+    when(indexFamilyRepository.findById(familyId)).thenReturn(Optional.of(family));
+    when(reindexKafkaConsumerManager.hasStagedCutoverSnapshot(familyId)).thenReturn(false);
+
+    var error = assertThrows(RequestValidationException.class, () -> service.switchOver(familyId));
+
+    assertThat(error.getKey()).isEqualTo("familyId");
+    verify(reindexKafkaConsumerManager, never()).getConsumerLagToStagedCutoverSnapshot(familyId);
+    verify(indexFamilyRepository, never()).updateStatus(familyId, IndexFamilyStatus.CUTTING_OVER);
+  }
+
+  @Test
+  void switchOver_proceedsFromCuttingOverWithoutLagGate() {
     var familyId = UUID.randomUUID();
     var family = new IndexFamilyEntity(familyId, 2, "tenant_2", IndexFamilyStatus.CUTTING_OVER,
       Timestamp.from(Instant.now()), null, null, QueryVersion.V2);
@@ -200,13 +216,25 @@ class IndexFamilyServiceTest {
     when(context.getTenantId()).thenReturn("tenant");
     when(indexFamilyRepository.findById(familyId)).thenReturn(Optional.of(family));
     when(indexFamilyRepository.findActiveByVersion(QueryVersion.V2)).thenReturn(Optional.empty());
-    when(reindexKafkaConsumerManager.getConsumerLagToTarget(familyId)).thenReturn(0L);
 
     assertThrows(Exception.class, () -> service.switchOver(familyId));
 
     verify(indexFamilyRepository).lockByVersion(QueryVersion.V2);
-    verify(reindexKafkaConsumerManager).captureTargetOffsets(familyId);
-    verify(reindexKafkaConsumerManager).getConsumerLagToTarget(familyId);
+    verify(reindexKafkaConsumerManager, never()).getConsumerLagToStagedCutoverSnapshot(familyId);
     verify(indexFamilyRepository, never()).updateStatus(familyId, IndexFamilyStatus.CUTTING_OVER);
+  }
+
+  @Test
+  void refreshStagedCutoverSnapshot_recapturesSnapshotForStagedV2Family() {
+    var familyId = UUID.randomUUID();
+    var family = new IndexFamilyEntity(familyId, 2, "tenant_2", IndexFamilyStatus.STAGED,
+      Timestamp.from(Instant.now()), null, null, QueryVersion.V2);
+
+    when(context.getTenantId()).thenReturn("tenant");
+    when(indexFamilyRepository.findById(familyId)).thenReturn(Optional.of(family));
+
+    service.refreshStagedCutoverSnapshot(familyId);
+
+    verify(reindexKafkaConsumerManager).refreshStagedCutoverSnapshot(familyId);
   }
 }

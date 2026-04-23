@@ -75,6 +75,10 @@ public class V2ReindexPhaseRuntime {
     }
   }
 
+  public void clearReady() {
+    firstReadyAt = null;
+  }
+
   public void totalSteps(long totalSteps) {
     this.totalSteps = Math.max(totalSteps, 0L);
   }

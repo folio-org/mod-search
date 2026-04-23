@@ -80,6 +80,12 @@ public class IndexFamilyController {
     return ResponseEntity.ok(new StatusResponse("SWITCHED_OVER", id.toString()));
   }
 
+  @PostMapping("/search/index/families/{id}/cutover-snapshot/refresh")
+  public ResponseEntity<StatusResponse> refreshCutoverSnapshot(@PathVariable UUID id) {
+    indexFamilyService.refreshStagedCutoverSnapshot(id);
+    return ResponseEntity.ok(new StatusResponse("CUTOVER_SNAPSHOT_REFRESHED", id.toString()));
+  }
+
   @PostMapping("/search/index/families/{id}/retire")
   public ResponseEntity<StatusResponse> retire(@PathVariable UUID id) {
     indexFamilyService.retireFamily(id);

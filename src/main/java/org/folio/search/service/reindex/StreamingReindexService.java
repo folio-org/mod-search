@@ -163,9 +163,10 @@ public class StreamingReindexService {
       log.info("executeV2StreamingReindex:: browse rebuilt [jobId: {}, elapsed: {}ms]",
         jobId, ms(System.nanoTime() - t0));
 
+      consumerManager.captureStagedCutoverSnapshot(family.getId());
       indexFamilyService.updateStatus(family.getId(), IndexFamilyStatus.STAGED);
       updateFamilyStatusIfTracked(family.getId(), IndexFamilyStatus.STAGED);
-      startPhaseIfTracked(family.getId(), V2ReindexPhaseType.CATCH_UP, 1L);
+      startPhaseIfTracked(family.getId(), V2ReindexPhaseType.CATCH_UP, 1L, stagedSnapshotDetails(family.getId()));
       log.info("executeV2StreamingReindex:: family promoted to STAGED [jobId: {}, familyId: {}]",
         jobId, family.getId());
 
@@ -530,6 +531,14 @@ public class StreamingReindexService {
       familyId, family.getIndexName(), reindexTenants, family.getGeneration(),
       family.getQueryVersion(), committedOffsets);
 
+    if (family.getQueryVersion() == QueryVersion.V2) {
+      consumerManager.refreshStagedCutoverSnapshot(familyId);
+      if (family.getStatus() == IndexFamilyStatus.STAGED) {
+        log.warn("resumeStreamingReindex:: recreated staged cutover snapshot after restart [familyId: {}]",
+          familyId);
+      }
+    }
+
     log.info("resumeStreamingReindex:: resumed temporary Kafka consumer from committed offsets "
         + "[familyId: {}, version: {}, tenant: {}]",
       familyId, family.getQueryVersion(), context.getTenantId());
@@ -540,7 +549,7 @@ public class StreamingReindexService {
     }
     if (family.getQueryVersion() == QueryVersion.V2 && runtimeStatusTracker != null) {
       runtimeStatusTracker.resumeFamily(familyId, IndexFamilyStatus.STAGED);
-      startPhaseIfTracked(familyId, V2ReindexPhaseType.CATCH_UP, 1L);
+      startPhaseIfTracked(familyId, V2ReindexPhaseType.CATCH_UP, 1L, stagedSnapshotDetails(familyId));
     }
 
     return new StreamingReindexJob(existingJobId, familyId);
@@ -636,6 +645,19 @@ public class StreamingReindexService {
     if (runtimeStatusTracker != null) {
       runtimeStatusTracker.startPhase(familyId, phaseType, totalSteps, details);
     }
+  }
+
+  private Map<String, Object> stagedSnapshotDetails(UUID familyId) {
+    var details = StagedCutoverSnapshotDetailsHelper.createBaseDetails(consumerManager, familyId);
+    try {
+      final var lagToTarget = consumerManager.getConsumerLagToStagedCutoverSnapshot(familyId);
+      StagedCutoverSnapshotDetailsHelper.applyLagDetails(details, null, lagToTarget);
+    } catch (RuntimeException e) {
+      log.warn("stagedSnapshotDetails:: failed to load staged snapshot lag telemetry [familyId: {}, message: {}]",
+        familyId, e.getMessage());
+      details.putIfAbsent("readyForSwitchOver", false);
+    }
+    return details;
   }
 
   private void advanceStreamingPhaseIfTracked(UUID familyId, long completedSteps) {

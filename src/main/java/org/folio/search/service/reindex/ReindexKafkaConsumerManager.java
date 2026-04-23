@@ -5,11 +5,13 @@ import static org.apache.kafka.clients.consumer.ConsumerConfig.AUTO_OFFSET_RESET
 import static org.apache.kafka.clients.consumer.ConsumerConfig.GROUP_ID_CONFIG;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -75,7 +77,8 @@ public class ReindexKafkaConsumerManager {
   private final SystemUserScopedExecutionService executionService;
 
   private final Map<UUID, ReindexConsumerState> activeConsumers = new ConcurrentHashMap<>();
-  private final Map<UUID, Map<TopicPartition, Long>> targetOffsets = new ConcurrentHashMap<>();
+  private final Map<UUID, Map<TopicPartition, Long>> v1TargetOffsets = new ConcurrentHashMap<>();
+  private final Map<UUID, StagedCutoverSnapshot> stagedCutoverSnapshots = new ConcurrentHashMap<>();
 
   public void resumeReindexConsumer(UUID familyId, String targetIndexName, Collection<String> tenantIds,
                                     int generation, QueryVersion version,
@@ -166,7 +169,8 @@ public class ReindexKafkaConsumerManager {
 
   public void stopReindexConsumer(UUID familyId) {
     var state = activeConsumers.remove(familyId);
-    targetOffsets.remove(familyId);
+    v1TargetOffsets.remove(familyId);
+    stagedCutoverSnapshots.remove(familyId);
     if (state != null) {
       state.container().stop();
       log.info("stopReindexConsumer:: stopped temporary consumer [familyId: {}]", familyId);
@@ -221,14 +225,57 @@ public class ReindexKafkaConsumerManager {
 
   private void captureTargetOffsetsForTopics(UUID familyId, Set<String> resolvedTopics) {
     var captured = captureStartOffsets(resolvedTopics);
-    targetOffsets.put(familyId, captured);
+    v1TargetOffsets.put(familyId, captured);
     log.info("captureTargetOffsets:: captured target offsets [familyId: {}, partitions: {}]",
       familyId, captured.size());
   }
 
+  /**
+   * Captures a fixed V2 staged cutover snapshot that remains sticky for the lifetime of the
+   * temporary consumer on this JVM. This is intentionally separate from the V1 target-offset
+   * capture semantics used after nested backfill completes.
+   */
+  public void captureStagedCutoverSnapshot(UUID familyId) {
+    if (stagedCutoverSnapshots.containsKey(familyId)) {
+      log.info("captureStagedCutoverSnapshot:: reusing existing staged cutover snapshot [familyId: {}]", familyId);
+      return;
+    }
+    refreshStagedCutoverSnapshot(familyId);
+  }
+
+  public void refreshStagedCutoverSnapshot(UUID familyId) {
+    var state = activeConsumers.get(familyId);
+    if (state == null) {
+      throw new SearchServiceException("No active consumer found for family " + familyId);
+    }
+
+    var capturedAt = Instant.now();
+    var captured = captureStartOffsets(state.resolvedTopics());
+    stagedCutoverSnapshots.put(familyId, new StagedCutoverSnapshot(capturedAt, captured));
+    log.info("refreshStagedCutoverSnapshot:: captured staged cutover snapshot [familyId: {}, capturedAt: {},"
+        + " partitions: {}]",
+      familyId, capturedAt, captured.size());
+  }
+
+  public boolean hasStagedCutoverSnapshot(UUID familyId) {
+    return stagedCutoverSnapshots.containsKey(familyId);
+  }
+
+  public Optional<Instant> getStagedCutoverSnapshotCapturedAt(UUID familyId) {
+    return Optional.ofNullable(stagedCutoverSnapshots.get(familyId))
+      .map(StagedCutoverSnapshot::capturedAt);
+  }
+
+  public int getStagedCutoverSnapshotPartitionCount(UUID familyId) {
+    return Optional.ofNullable(stagedCutoverSnapshots.get(familyId))
+      .map(StagedCutoverSnapshot::partitionOffsets)
+      .map(Map::size)
+      .orElse(0);
+  }
+
   public long getConsumerLagToTarget(UUID familyId) {
     var state = activeConsumers.get(familyId);
-    var captured = targetOffsets.get(familyId);
+    var captured = v1TargetOffsets.get(familyId);
     if (state == null || state.startOffsets().isEmpty()) {
       return 0L;
     }
@@ -236,13 +283,42 @@ public class ReindexKafkaConsumerManager {
       return getConsumerLag(familyId);
     }
 
+    return getConsumerLagToOffsets(familyId, captured, "Failed to calculate consumer lag to target offsets");
+  }
+
+  public long getConsumerLagToStagedCutoverSnapshot(UUID familyId) {
+    var state = activeConsumers.get(familyId);
+    if (state == null || state.startOffsets().isEmpty()) {
+      throw new SearchServiceException("No active consumer found for family " + familyId);
+    }
+
+    var snapshot = stagedCutoverSnapshots.get(familyId);
+    if (snapshot == null) {
+      throw new SearchServiceException("No staged cutover snapshot found for family " + familyId);
+    }
+
+    return getConsumerLagToOffsets(state, snapshot.partitionOffsets(),
+      "Failed to calculate consumer lag to staged cutover snapshot");
+  }
+
+  private long getConsumerLagToOffsets(UUID familyId, Map<TopicPartition, Long> targetOffsets, String errorMessage) {
+    var state = activeConsumers.get(familyId);
+    if (state == null || state.startOffsets().isEmpty()) {
+      return 0L;
+    }
+
+    return getConsumerLagToOffsets(state, targetOffsets, errorMessage);
+  }
+
+  private long getConsumerLagToOffsets(ReindexConsumerState state, Map<TopicPartition, Long> targetOffsets,
+                                       String errorMessage) {
     try (var adminClient = AdminClient.create(kafkaProperties.buildAdminProperties(null))) {
       var committedOffsets = adminClient.listConsumerGroupOffsets(state.groupId())
         .partitionsToOffsetAndMetadata()
         .get(ADMIN_TIMEOUT.toMillis(), TimeUnit.MILLISECONDS);
 
       long lag = 0L;
-      for (var entry : captured.entrySet()) {
+      for (var entry : targetOffsets.entrySet()) {
         var topicPartition = entry.getKey();
         var targetOffset = entry.getValue();
         var committedOffset = committedOffsets.getOrDefault(topicPartition,
@@ -251,12 +327,12 @@ public class ReindexKafkaConsumerManager {
       }
       return lag;
     } catch (Exception e) {
-      throw new SearchServiceException("Failed to calculate consumer lag to target offsets", e);
+      throw new SearchServiceException(errorMessage, e);
     }
   }
 
   public int getTrackedPartitionCount(UUID familyId) {
-    var captured = targetOffsets.get(familyId);
+    var captured = v1TargetOffsets.get(familyId);
     if (captured != null && !captured.isEmpty()) {
       return captured.size();
     }
@@ -447,6 +523,9 @@ public class ReindexKafkaConsumerManager {
                                       String groupId,
                                       Map<TopicPartition, Long> startOffsets,
                                       Set<String> resolvedTopics) {
+  }
+
+  private record StagedCutoverSnapshot(Instant capturedAt, Map<TopicPartition, Long> partitionOffsets) {
   }
 
   private record CollapsedEvent(String instanceId, String tenantId, CollapsedAction action) {

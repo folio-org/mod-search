@@ -1,7 +1,7 @@
 post:
-  operationId: switchOverIndexFamily
-  summary: Switch over to index family
-  description: Atomically switches the tenant alias to point to the specified index family using the stored staged cutover snapshot when applicable
+  operationId: refreshIndexFamilyCutoverSnapshot
+  summary: Refresh staged cutover snapshot for an index family
+  description: Captures a new staged cutover snapshot boundary for a STAGED V2 index family
   tags:
     - index-management
   parameters:
@@ -11,11 +11,11 @@ post:
       schema:
         type: string
         format: uuid
-      description: Index family ID to switch over to
+      description: Index family ID to refresh
     - $ref: '../../parameters/x-okapi-tenant-header.yaml'
   responses:
     '200':
-      description: Switch-over completed successfully
+      description: Cutover snapshot refresh completed successfully
       content:
         application/json:
           schema:
@@ -24,7 +24,5 @@ post:
       $ref: '../../responses/badRequestResponse.yaml'
     '404':
       description: Index family not found
-    '409':
-      description: Index family is not in STAGED or CUTTING_OVER status
     '500':
       $ref: '../../responses/internalServerErrorResponse.yaml'

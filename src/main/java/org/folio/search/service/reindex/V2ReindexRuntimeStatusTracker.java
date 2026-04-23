@@ -156,6 +156,13 @@ public class V2ReindexRuntimeStatusTracker {
     });
   }
 
+  public void clearCatchUpReady(UUID familyId) {
+    mutateIfTracked(familyId, (snapshot, now) -> {
+      snapshot.phase(V2ReindexPhaseType.CATCH_UP).clearReady();
+      snapshot.touch(now);
+    });
+  }
+
   public void startCutover(UUID familyId) {
     startPhase(familyId, V2ReindexPhaseType.CUTOVER, 1L);
   }

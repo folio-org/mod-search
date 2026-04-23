@@ -136,6 +136,9 @@ paths:
   /search/index/families/{id}/switch-over:
     $ref: 'paths/index-family/index-family-switch-over.yaml'
 
+  /search/index/families/{id}/cutover-snapshot/refresh:
+    $ref: 'paths/index-family/index-family-cutover-snapshot-refresh.yaml'
+
   /search/index/families/{id}/retire:
     $ref: 'paths/index-family/index-family-retire.yaml'
 

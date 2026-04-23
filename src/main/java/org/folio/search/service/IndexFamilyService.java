@@ -27,6 +27,7 @@ import org.folio.search.domain.dto.IndexSettings;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.reindex.IndexFamilyEntity;
+import org.folio.search.model.reindex.runtime.V2ReindexPhaseType;
 import org.folio.search.model.types.IndexFamilyStatus;
 import org.folio.search.model.types.QueryVersion;
 import org.folio.search.model.types.ResourceType;
@@ -34,6 +35,7 @@ import org.folio.search.repository.IndexNameProvider;
 import org.folio.search.service.es.SearchMappingsHelper;
 import org.folio.search.service.es.SearchSettingsHelper;
 import org.folio.search.service.reindex.ReindexKafkaConsumerManager;
+import org.folio.search.service.reindex.V2ReindexRuntimeStatusTracker;
 import org.folio.search.service.reindex.jdbc.IndexFamilyRepository;
 import org.folio.search.service.reindex.jdbc.StreamingReindexStatusRepository;
 import org.folio.search.utils.JsonConverter;
@@ -46,6 +48,7 @@ import org.opensearch.client.indices.CreateIndexRequest;
 import org.opensearch.client.indices.GetIndexRequest;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -70,6 +73,8 @@ public class IndexFamilyService {
   private final ReindexKafkaConsumerManager reindexKafkaConsumerManager;
   private final StreamingReindexStatusRepository streamingReindexStatusRepository;
   private final FolioExecutionContext context;
+  @Nullable
+  private final V2ReindexRuntimeStatusTracker runtimeStatusTracker;
 
   public IndexFamilyEntity allocateNewFamily(String tenantId, QueryVersion version, IndexSettings indexSettings) {
     var generation = indexFamilyRepository.getNextGeneration(version);
@@ -151,6 +156,7 @@ public class IndexFamilyService {
 
     reindexKafkaConsumerManager.captureTargetOffsets(familyId);
     var lagToTarget = reindexKafkaConsumerManager.getConsumerLagToTarget(familyId);
+    recordCatchUpLagIfTracked(familyId, version, lagToTarget);
     if (lagToTarget > 0) {
       throw new RequestValidationException(
         "Temporary reindex consumer has not reached cutover offset snapshot",
@@ -158,34 +164,54 @@ public class IndexFamilyService {
     }
 
     var tenantId = context.getTenantId();
-    if (newFamily.getStatus() == STAGED) {
-      indexFamilyRepository.updateStatus(familyId, CUTTING_OVER);
-      log.info("switchOver:: cutover started [familyId: {}, tenant: {}, version: {}, index: {}]",
-        familyId, tenantId, version, newFamily.getIndexName());
-    }
-
     var aliasName = getAliasName(tenantId, version);
     var oldFamily = indexFamilyRepository.findActiveByVersion(version);
-    log.info("switchOver:: switching alias [alias: {}, newIndex: {}, oldIndex: {}, version: {}]",
-      aliasName, newFamily.getIndexName(), oldFamily.map(IndexFamilyEntity::getIndexName).orElse("none"), version);
+    var cutoverStarted = false;
+    try {
+      if (version == QueryVersion.V2) {
+        completeCatchUpPhaseIfTracked(familyId);
+        startCutoverPhaseIfTracked(familyId, aliasName, newFamily.getIndexName(),
+          oldFamily.map(IndexFamilyEntity::getIndexName).orElse("none"));
+        cutoverStarted = true;
+      }
 
-    if (version == QueryVersion.V1 && physicalIndexExists(aliasName)) {
-      atomicRemoveIndexAndAddAlias(aliasName, newFamily.getIndexName());
-    } else {
-      atomicAliasSwap(aliasName, newFamily.getIndexName(), oldFamily.map(IndexFamilyEntity::getIndexName));
+      if (newFamily.getStatus() == STAGED) {
+        indexFamilyRepository.updateStatus(familyId, CUTTING_OVER);
+        log.info("switchOver:: cutover started [familyId: {}, tenant: {}, version: {}, index: {}]",
+          familyId, tenantId, version, newFamily.getIndexName());
+      }
+
+      log.info("switchOver:: switching alias [alias: {}, newIndex: {}, oldIndex: {}, version: {}]",
+        aliasName, newFamily.getIndexName(), oldFamily.map(IndexFamilyEntity::getIndexName).orElse("none"), version);
+
+      if (version == QueryVersion.V1 && physicalIndexExists(aliasName)) {
+        atomicRemoveIndexAndAddAlias(aliasName, newFamily.getIndexName());
+      } else {
+        atomicAliasSwap(aliasName, newFamily.getIndexName(), oldFamily.map(IndexFamilyEntity::getIndexName));
+      }
+
+      if (version == QueryVersion.V2) {
+        switchOverV2BrowseAliases(tenantId, newFamily.getGeneration(),
+          oldFamily.map(IndexFamilyEntity::getGeneration));
+      }
+
+      oldFamily.ifPresent(old -> indexFamilyRepository.updateStatus(old.getId(),
+        isLegacyV1Representative(old, tenantId) ? RETIRED : RETIRING));
+      indexFamilyRepository.updateStatus(familyId, ACTIVE);
+      reindexKafkaConsumerManager.stopReindexConsumer(familyId);
+
+      if (version == QueryVersion.V2) {
+        completeCutoverPhaseIfTracked(familyId);
+        updateFamilyStatusIfTracked(familyId, ACTIVE);
+      }
+
+      log.info("switchOver:: completed [alias: {}, activeIndex: {}]", aliasName, newFamily.getIndexName());
+    } catch (RuntimeException e) {
+      if (cutoverStarted) {
+        failCutoverPhaseIfTracked(familyId, e.getMessage());
+      }
+      throw e;
     }
-
-    if (version == QueryVersion.V2) {
-      switchOverV2BrowseAliases(tenantId, newFamily.getGeneration(),
-        oldFamily.map(IndexFamilyEntity::getGeneration));
-    }
-
-    oldFamily.ifPresent(old -> indexFamilyRepository.updateStatus(old.getId(),
-      isLegacyV1Representative(old, tenantId) ? RETIRED : RETIRING));
-    indexFamilyRepository.updateStatus(familyId, ACTIVE);
-    reindexKafkaConsumerManager.stopReindexConsumer(familyId);
-
-    log.info("switchOver:: completed [alias: {}, activeIndex: {}]", aliasName, newFamily.getIndexName());
   }
 
   @CacheEvict(cacheNames = {ACTIVE_INDEX_FAMILY_CACHE, CUTTING_OVER_INDEX_FAMILY_CACHE, PHYSICAL_INDEX_EXISTS_CACHE},
@@ -284,6 +310,7 @@ public class IndexFamilyService {
   private void deleteFamilyCompletely(IndexFamilyEntity family) {
     cleanupFamilyArtifacts(family, true);
     indexFamilyRepository.deleteById(family.getId());
+    removeTrackedFamilyIfPresent(family.getId());
 
     log.info("deleteFamilyCompletely:: deleted [familyId: {}, index: {}, status: {}]",
       family.getId(), family.getIndexName(), family.getStatus().getValue());
@@ -773,5 +800,56 @@ public class IndexFamilyService {
   private boolean isLegacyV1Representative(IndexFamilyEntity family, String tenantId) {
     return family.getQueryVersion() == QueryVersion.V1
       && legacyV1PhysicalIndexName(tenantId).equals(family.getIndexName());
+  }
+
+  private void recordCatchUpLagIfTracked(UUID familyId, QueryVersion version, long lag) {
+    if (runtimeStatusTracker != null && version == QueryVersion.V2) {
+      runtimeStatusTracker.recordCatchUpLag(familyId, lag);
+      runtimeStatusTracker.updatePhaseDetails(familyId, V2ReindexPhaseType.CATCH_UP, Map.of(
+        "consumerLag", lag,
+        "consumerLagToTarget", lag,
+        "partitions", reindexKafkaConsumerManager.getTrackedPartitionCount(familyId)));
+    }
+  }
+
+  private void completeCatchUpPhaseIfTracked(UUID familyId) {
+    if (runtimeStatusTracker != null) {
+      runtimeStatusTracker.completePhase(familyId, V2ReindexPhaseType.CATCH_UP);
+    }
+  }
+
+  private void startCutoverPhaseIfTracked(UUID familyId, String aliasName, String newIndex, String oldIndex) {
+    if (runtimeStatusTracker != null) {
+      runtimeStatusTracker.startPhase(
+        familyId,
+        V2ReindexPhaseType.CUTOVER,
+        1L,
+        Map.of("alias", aliasName, "newIndex", newIndex, "oldIndex", oldIndex));
+    }
+  }
+
+  private void completeCutoverPhaseIfTracked(UUID familyId) {
+    if (runtimeStatusTracker != null) {
+      runtimeStatusTracker.completePhase(familyId, V2ReindexPhaseType.CUTOVER);
+      runtimeStatusTracker.markFamilyCompleted(familyId);
+    }
+  }
+
+  private void failCutoverPhaseIfTracked(UUID familyId, String errorMessage) {
+    if (runtimeStatusTracker != null) {
+      runtimeStatusTracker.failPhase(familyId, V2ReindexPhaseType.CUTOVER, errorMessage);
+    }
+  }
+
+  private void updateFamilyStatusIfTracked(UUID familyId, IndexFamilyStatus status) {
+    if (runtimeStatusTracker != null) {
+      runtimeStatusTracker.updateFamilyStatus(familyId, status);
+    }
+  }
+
+  private void removeTrackedFamilyIfPresent(UUID familyId) {
+    if (runtimeStatusTracker != null) {
+      runtimeStatusTracker.removeFamily(familyId);
+    }
   }
 }

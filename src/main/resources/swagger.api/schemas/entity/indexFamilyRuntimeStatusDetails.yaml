@@ -1,0 +1,23 @@
+description: Detailed phase and resource breakdown for a V2+ reindex
+type: object
+properties:
+  phases:
+    type: object
+    properties:
+      streaming:
+        $ref: 'indexFamilyRuntimeStatusPhaseBlock.yaml'
+      browseRebuild:
+        $ref: 'indexFamilyRuntimeStatusPhaseBlock.yaml'
+      catchUp:
+        $ref: 'indexFamilyRuntimeStatusPhaseBlock.yaml'
+      cutover:
+        $ref: 'indexFamilyRuntimeStatusPhaseBlock.yaml'
+  resources:
+    type: object
+    properties:
+      instance:
+        $ref: 'indexFamilyRuntimeStatusResourceBlock.yaml'
+      holding:
+        $ref: 'indexFamilyRuntimeStatusResourceBlock.yaml'
+      item:
+        $ref: 'indexFamilyRuntimeStatusResourceBlock.yaml'

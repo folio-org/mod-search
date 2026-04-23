@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
@@ -27,6 +28,7 @@ import org.folio.search.client.InventoryStreamingClient;
 import org.folio.search.exception.RequestValidationException;
 import org.folio.search.model.reindex.IndexFamilyEntity;
 import org.folio.search.model.reindex.StreamingReindexStatusEntity;
+import org.folio.search.model.reindex.runtime.V2ReindexPhaseType;
 import org.folio.search.model.types.IndexFamilyStatus;
 import org.folio.search.model.types.QueryVersion;
 import org.folio.search.repository.IndexRepository;
@@ -77,6 +79,8 @@ class StreamingReindexServiceTest {
   private V2BrowseFullRebuildService browseFullRebuildService;
   @Mock
   private IndexRepository indexRepository;
+  @Mock
+  private V2ReindexRuntimeStatusTracker runtimeStatusTracker;
 
   @InjectMocks
   private StreamingReindexService service;
@@ -315,6 +319,31 @@ class StreamingReindexServiceTest {
       eq(familyId), eq("target-index"), eq(List.of(tenantId)), eq(4),
       eq(QueryVersion.V1), eq(committedOffsets));
     verify(statusRepository, never()).deleteByFamilyId(familyId);
+  }
+
+  @Test
+  void resumeStreamingReindex_clearsTrackedFailureForV2FamilyResumedFromCommittedOffsets() {
+    var tenantId = "central";
+    var familyId = UUID.randomUUID();
+    var jobId = UUID.randomUUID();
+    var family = new IndexFamilyEntity(familyId, 4, "target-index", IndexFamilyStatus.FAILED,
+      Timestamp.from(Instant.now()), null, null, QueryVersion.V2);
+    var committedOffsets = Map.of(new TopicPartition("topic", 0), 50L);
+
+    when(context.getTenantId()).thenReturn(tenantId);
+    when(indexFamilyService.findById(familyId)).thenReturn(Optional.of(family));
+    when(consortiumTenantService.getConsortiumTenants(tenantId)).thenReturn(List.of());
+    when(statusRepository.findByFamilyId(familyId)).thenReturn(List.of(
+      completedStatus(jobId, familyId, "instance"),
+      completedStatus(jobId, familyId, "holding"),
+      completedStatus(jobId, familyId, "item")
+    ));
+    when(consumerManager.getCommittedOffsets(familyId, 4)).thenReturn(committedOffsets);
+
+    service.resumeStreamingReindex(familyId);
+
+    verify(runtimeStatusTracker).resumeFamily(familyId, IndexFamilyStatus.STAGED);
+    verify(runtimeStatusTracker).startPhase(eq(familyId), eq(V2ReindexPhaseType.CATCH_UP), eq(1L), isNull());
   }
 
   private static StreamingReindexStatusEntity streamingStatus(String resourceType) {

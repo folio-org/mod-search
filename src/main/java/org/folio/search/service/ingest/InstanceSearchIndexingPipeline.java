@@ -48,8 +48,8 @@ public class InstanceSearchIndexingPipeline {
   /**
    * Batch index records to an explicit physical index name (used by streaming reindex).
    */
-  public void indexBatchToFamily(String resourceType, List<Map<String, Object>> records,
-                                 String tenantId, String targetIndexName) {
+  public BatchProfiling indexBatchToFamily(String resourceType, List<Map<String, Object>> records,
+                                           String tenantId, String targetIndexName) {
     var shared = consortiumTenantProvider.isCentralTenant(tenantId);
     long enrichNs = 0;
     long convertNs = 0;
@@ -71,8 +71,15 @@ public class InstanceSearchIndexingPipeline {
       resourceRepository.indexResources(documents);
     }
     var t2 = System.nanoTime();
+    var profiling = new BatchProfiling(
+      (t2 - t0) / 1_000_000,
+      enrichNs / 1_000_000,
+      convertNs / 1_000_000,
+      (t2 - t1) / 1_000_000,
+      documents.size());
     log.info("indexBatchToFamily:: [resource: {}, enrich: {}ms, convert: {}ms, osBulk: {}ms, docs: {}]",
-      resourceType, enrichNs / 1_000_000, convertNs / 1_000_000, (t2 - t1) / 1_000_000, documents.size());
+      resourceType, profiling.enrichMs(), profiling.convertMs(), profiling.osBulkMs(), profiling.docs());
+    return profiling;
   }
 
   public void logEnrichmentProfilingSummary() {
@@ -115,5 +122,8 @@ public class InstanceSearchIndexingPipeline {
       return num.longValue();
     }
     return System.currentTimeMillis();
+  }
+
+  public record BatchProfiling(long batchElapsedMs, long enrichMs, long convertMs, long osBulkMs, int docs) {
   }
 }

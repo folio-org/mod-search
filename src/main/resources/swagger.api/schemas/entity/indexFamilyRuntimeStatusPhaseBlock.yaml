@@ -1,0 +1,26 @@
+description: Runtime status for a single reindex phase
+type: object
+properties:
+  status:
+    type: string
+    enum:
+      - PENDING
+      - IN_PROGRESS
+      - COMPLETED
+      - FAILED
+      - UNAVAILABLE
+  startedAt:
+    type: string
+    format: date-time
+    nullable: true
+  completedAt:
+    type: string
+    format: date-time
+    nullable: true
+  elapsedMs:
+    type: integer
+    format: int64
+    nullable: true
+  details:
+    type: object
+    additionalProperties: true

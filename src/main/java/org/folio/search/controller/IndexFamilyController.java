@@ -5,12 +5,14 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.IndexSettings;
+import org.folio.search.domain.dto.ReindexFamilyJob;
 import org.folio.search.model.reindex.IndexFamilyEntity;
 import org.folio.search.model.types.QueryVersion;
 import org.folio.search.service.IndexFamilyService;
 import org.folio.search.service.QueryVersionResolver;
 import org.folio.search.service.browse.V2BrowseFullRebuildService;
 import org.folio.search.service.reindex.StreamingReindexService;
+import org.folio.search.service.reindex.V2IndexFamilyRuntimeStatusService;
 import org.folio.spring.FolioExecutionContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +36,7 @@ public class IndexFamilyController {
   private final StreamingReindexService streamingReindexService;
   private final QueryVersionResolver queryVersionResolver;
   private final V2BrowseFullRebuildService browseFullRebuildService;
+  private final V2IndexFamilyRuntimeStatusService v2IndexFamilyRuntimeStatusService;
   private final FolioExecutionContext context;
 
   @GetMapping("/search/index/families")
@@ -46,23 +49,28 @@ public class IndexFamilyController {
   }
 
   @PostMapping("/search/index/reindex/stream")
-  public ResponseEntity<ReindexJobResponse> startStreamingReindex(
+  public ResponseEntity<ReindexFamilyJob> startStreamingReindex(
     @RequestParam(defaultValue = "2") String queryVersion,
     @RequestBody(required = false) IndexSettings indexSettings) {
     var tenantId = context.getTenantId();
     var version = QueryVersion.fromString(queryVersion);
     var job = streamingReindexService.startStreamingReindex(tenantId, version, indexSettings);
     return ResponseEntity.status(HttpStatus.ACCEPTED)
-      .body(new ReindexJobResponse(job.jobId().toString(), job.familyId().toString(),
-        version.getValue(), "ACCEPTED"));
+      .body(new ReindexFamilyJob()
+        .jobId(job.jobId())
+        .familyId(job.familyId())
+        .queryVersion(version.getValue())
+        .status("ACCEPTED"));
   }
 
   @PostMapping("/search/index/families/{id}/resume")
-  public ResponseEntity<ReindexJobResponse> resumeStreamingReindex(@PathVariable UUID id) {
+  public ResponseEntity<ReindexFamilyJob> resumeStreamingReindex(@PathVariable UUID id) {
     var job = streamingReindexService.resumeStreamingReindex(id);
     return ResponseEntity.status(HttpStatus.ACCEPTED)
-      .body(new ReindexJobResponse(job.jobId().toString(), job.familyId().toString(),
-        null, "BUILDING"));
+      .body(new ReindexFamilyJob()
+        .jobId(job.jobId())
+        .familyId(job.familyId())
+        .status("BUILDING"));
   }
 
   @PostMapping("/search/index/families/{id}/switch-over")
@@ -82,6 +90,12 @@ public class IndexFamilyController {
     browseFullRebuildService.rebuildBrowseAsync(id);
     return ResponseEntity.status(HttpStatus.ACCEPTED)
       .body(new StatusResponse("REBUILD_BROWSE_STARTED", id.toString()));
+  }
+
+  @GetMapping("/search/index/families/{id}/status")
+  public ResponseEntity<V2IndexFamilyRuntimeStatusService.IndexFamilyRuntimeStatusResponse> getFamilyStatus(
+    @PathVariable UUID id) {
+    return ResponseEntity.ok(v2IndexFamilyRuntimeStatusService.getStatus(id));
   }
 
   @DeleteMapping("/search/index/families/{id}")
@@ -127,8 +141,6 @@ public class IndexFamilyController {
                    String createdAt, String activatedAt, String retiredAt) { }
 
   record FamilyListResponse(List<FamilyDto> families, int totalRecords) { }
-
-  record ReindexJobResponse(String jobId, String familyId, String queryVersion, String status) { }
 
   record StatusResponse(String status, String familyId) { }
 

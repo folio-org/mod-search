@@ -1,0 +1,14 @@
+description: Failure summary for a runtime-tracked index family
+type: object
+properties:
+  type:
+    type: string
+  message:
+    type: string
+  phase:
+    type: string
+    nullable: true
+  occurredAt:
+    type: string
+    format: date-time
+    nullable: true

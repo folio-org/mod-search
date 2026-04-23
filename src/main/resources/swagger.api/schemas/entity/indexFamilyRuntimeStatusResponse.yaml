@@ -1,0 +1,29 @@
+description: Detailed runtime status breakdown for a V2+ index family
+type: object
+properties:
+  familyId:
+    type: string
+    format: uuid
+  queryVersion:
+    type: string
+  familyStatus:
+    type: string
+  currentPhase:
+    type: string
+    enum:
+      - STREAMING
+      - BROWSE_REBUILD
+      - CATCHING_UP
+      - READY_TO_SWITCH
+      - CUTTING_OVER
+      - ACTIVE
+      - FAILED
+      - UNAVAILABLE
+  updatedAt:
+    type: string
+    format: date-time
+    nullable: true
+  summary:
+    $ref: 'indexFamilyRuntimeStatusSummary.yaml'
+  details:
+    $ref: 'indexFamilyRuntimeStatusDetails.yaml'

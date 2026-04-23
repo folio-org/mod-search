@@ -189,6 +189,15 @@
         },
         {
           "methods": [
+            "GET"
+          ],
+          "pathPattern": "/search/index/families/{id}/status",
+          "permissionsRequired": [
+            "search.index.families.item.status.get"
+          ]
+        },
+        {
+          "methods": [
             "DELETE"
           ],
           "pathPattern": "/search/index/families/{id}",
@@ -829,6 +838,11 @@
       "permissionName": "search.index.families.item.rebuild-browse.post",
       "displayName": "Search - rebuilds browse projections for an index family",
       "description": "Starts asynchronous browse projection rebuild for an index family"
+    },
+    {
+      "permissionName": "search.index.families.item.status.get",
+      "displayName": "Search - returns detailed runtime status for an index family",
+      "description": "Returns the in-memory V2+ reindex breakdown for an index family"
     },
     {
       "permissionName": "search.index.families.item.delete",

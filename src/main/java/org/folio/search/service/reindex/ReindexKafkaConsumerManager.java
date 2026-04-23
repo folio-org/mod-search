@@ -255,6 +255,15 @@ public class ReindexKafkaConsumerManager {
     }
   }
 
+  public int getTrackedPartitionCount(UUID familyId) {
+    var captured = targetOffsets.get(familyId);
+    if (captured != null && !captured.isEmpty()) {
+      return captured.size();
+    }
+    var state = activeConsumers.get(familyId);
+    return state != null ? state.startOffsets().size() : 0;
+  }
+
   public void applyV1EventsToFamily(List<ConsumerRecord<String, ResourceEvent>> records, String targetIndexName) {
     processCollapsedV1EventsByTenant(collapseV1Events(records), targetIndexName);
   }

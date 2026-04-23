@@ -142,6 +142,9 @@ paths:
   /search/index/families/{id}/rebuild-browse:
     $ref: 'paths/index-family/index-family-rebuild-browse.yaml'
 
+  /search/index/families/{id}/status:
+    $ref: 'paths/index-family/index-family-status.yaml'
+
   /search/index/families/{id}:
     $ref: 'paths/index-family/index-family-delete.yaml'
 

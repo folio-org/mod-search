@@ -1,0 +1,130 @@
+package org.folio.search.service.reindex;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.Optional;
+import java.util.UUID;
+import org.folio.search.model.reindex.IndexFamilyEntity;
+import org.folio.search.model.reindex.runtime.V2ReindexPhaseType;
+import org.folio.search.model.types.IndexFamilyStatus;
+import org.folio.search.model.types.QueryVersion;
+import org.folio.search.service.IndexFamilyService;
+import org.folio.spring.testing.type.UnitTest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+@UnitTest
+@ExtendWith(MockitoExtension.class)
+class V2IndexFamilyRuntimeStatusServiceTest {
+
+  @Mock
+  private IndexFamilyService indexFamilyService;
+  @Mock
+  private ReindexKafkaConsumerManager consumerManager;
+
+  private V2ReindexRuntimeStatusTracker runtimeStatusTracker;
+  private V2IndexFamilyRuntimeStatusService service;
+
+  @BeforeEach
+  void setUp() {
+    runtimeStatusTracker = new V2ReindexRuntimeStatusTracker();
+    service = new V2IndexFamilyRuntimeStatusService(indexFamilyService, consumerManager, runtimeStatusTracker);
+  }
+
+  @Test
+  void getStatus_returnsUnavailableWhenFamilyWasNotTrackedInThisJvm() {
+    var familyId = UUID.randomUUID();
+
+    when(indexFamilyService.findById(familyId)).thenReturn(Optional.of(family(familyId, IndexFamilyStatus.STAGED)));
+
+    runtimeStatusTracker.startPhase(familyId, V2ReindexPhaseType.CUTOVER, 1L);
+
+    var response = service.getStatus(familyId);
+
+    assertThat(response.currentPhase()).isEqualTo("UNAVAILABLE");
+    assertThat(response.summary().trackedInMemory()).isFalse();
+    assertThat(response.summary().message()).contains("unavailable");
+    assertThat(response.details()).isNull();
+  }
+
+  @Test
+  void getStatus_reportsResumedCatchUpInsteadOfStaleFailure() {
+    var familyId = UUID.randomUUID();
+    var jobId = UUID.randomUUID();
+
+    when(indexFamilyService.findById(familyId)).thenReturn(Optional.of(family(familyId, IndexFamilyStatus.STAGED)));
+    when(consumerManager.isConsumerRunning(familyId)).thenReturn(true);
+
+    runtimeStatusTracker.startFamily(familyId, jobId, "consortium", QueryVersion.V2);
+    runtimeStatusTracker.markFamilyFailed(familyId, "stale failure");
+    runtimeStatusTracker.resumeFamily(familyId, IndexFamilyStatus.STAGED);
+    runtimeStatusTracker.startPhase(familyId, V2ReindexPhaseType.CATCH_UP, 1L);
+
+    var response = service.getStatus(familyId);
+
+    assertThat(response.currentPhase()).isEqualTo("CATCHING_UP");
+    assertThat(response.summary().failure()).isNull();
+    assertThat(response.summary().liveMetricsAvailable()).isTrue();
+    assertThat(response.details().phases().catchUp().status()).isEqualTo("IN_PROGRESS");
+  }
+
+  @Test
+  void getStatus_reportsBrowseRebuildForActiveTrackedFamily() {
+    var familyId = UUID.randomUUID();
+    var jobId = UUID.randomUUID();
+
+    when(indexFamilyService.findById(familyId)).thenReturn(Optional.of(family(familyId, IndexFamilyStatus.ACTIVE)));
+    when(consumerManager.isConsumerRunning(familyId)).thenReturn(false);
+
+    runtimeStatusTracker.startFamily(familyId, jobId, "diku", QueryVersion.V2);
+    runtimeStatusTracker.updateFamilyStatus(familyId, IndexFamilyStatus.ACTIVE);
+    runtimeStatusTracker.markFamilyCompleted(familyId);
+    runtimeStatusTracker.startPhase(familyId, V2ReindexPhaseType.BROWSE_REBUILD, 5L);
+
+    var response = service.getStatus(familyId);
+
+    assertThat(response.currentPhase()).isEqualTo("BROWSE_REBUILD");
+    assertThat(response.summary().liveMetricsAvailable()).isTrue();
+    assertThat(response.details().phases().browseRebuild().status()).isEqualTo("IN_PROGRESS");
+  }
+
+  @Test
+  void getStatus_keepsActivePhaseWhenStandaloneBrowseRebuildFails() {
+    var familyId = UUID.randomUUID();
+    var jobId = UUID.randomUUID();
+
+    when(indexFamilyService.findById(familyId)).thenReturn(Optional.of(family(familyId, IndexFamilyStatus.ACTIVE)));
+    when(consumerManager.isConsumerRunning(familyId)).thenReturn(false);
+
+    runtimeStatusTracker.startFamily(familyId, jobId, "diku", QueryVersion.V2);
+    runtimeStatusTracker.updateFamilyStatus(familyId, IndexFamilyStatus.ACTIVE);
+    runtimeStatusTracker.markFamilyCompleted(familyId);
+    runtimeStatusTracker.startPhase(familyId, V2ReindexPhaseType.BROWSE_REBUILD, 5L);
+    runtimeStatusTracker.failPhase(familyId, V2ReindexPhaseType.BROWSE_REBUILD, "browse boom");
+
+    var response = service.getStatus(familyId);
+
+    assertThat(response.currentPhase()).isEqualTo("ACTIVE");
+    assertThat(response.summary().failure()).isNotNull();
+    assertThat(response.summary().failure().phase()).isEqualTo("BROWSE_REBUILD");
+  }
+
+  private static IndexFamilyEntity family(UUID familyId, IndexFamilyStatus status) {
+    return new IndexFamilyEntity(
+      familyId,
+      3,
+      "folio_instance_search_diku_3",
+      status,
+      Timestamp.from(Instant.now()),
+      status == IndexFamilyStatus.ACTIVE ? Timestamp.from(Instant.now()) : null,
+      null,
+      QueryVersion.V2
+    );
+  }
+}

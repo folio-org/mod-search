@@ -20,6 +20,8 @@ import org.folio.search.exception.RequestValidationException;
 import org.folio.search.exception.SearchServiceException;
 import org.folio.search.model.reindex.IndexFamilyEntity;
 import org.folio.search.model.reindex.StreamingReindexStatusEntity;
+import org.folio.search.model.reindex.runtime.V2ReindexPhaseType;
+import org.folio.search.model.reindex.runtime.V2ReindexResourceType;
 import org.folio.search.model.types.IndexFamilyStatus;
 import org.folio.search.model.types.QueryVersion;
 import org.folio.search.model.types.ResourceType;
@@ -35,6 +37,7 @@ import org.folio.search.service.reindex.jdbc.StreamingReindexStatusRepository;
 import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 @Log4j2
@@ -54,6 +57,8 @@ public class StreamingReindexService {
   private final NestedInstanceResourceRepository nestedInstanceRepository;
   private final V2BrowseFullRebuildService browseFullRebuildService;
   private final IndexRepository indexRepository;
+  @Nullable
+  private final V2ReindexRuntimeStatusTracker runtimeStatusTracker;
 
   public StreamingReindexService(InventoryStreamingClient streamingClient,
                                  InstanceSearchIndexingPipeline indexingPipeline,
@@ -67,7 +72,8 @@ public class StreamingReindexService {
                                  MultiTenantSearchDocumentConverter searchDocumentConverter,
                                  NestedInstanceResourceRepository nestedInstanceRepository,
                                  V2BrowseFullRebuildService browseFullRebuildService,
-                                 IndexRepository indexRepository) {
+                                 IndexRepository indexRepository,
+                                 @Nullable V2ReindexRuntimeStatusTracker runtimeStatusTracker) {
     this.streamingClient = streamingClient;
     this.indexingPipeline = indexingPipeline;
     this.indexFamilyService = indexFamilyService;
@@ -81,6 +87,7 @@ public class StreamingReindexService {
     this.nestedInstanceRepository = nestedInstanceRepository;
     this.browseFullRebuildService = browseFullRebuildService;
     this.indexRepository = indexRepository;
+    this.runtimeStatusTracker = runtimeStatusTracker;
   }
 
   public StreamingReindexJob startStreamingReindex(String tenantId, QueryVersion version,
@@ -107,6 +114,7 @@ public class StreamingReindexService {
     var jobId = UUID.randomUUID();
 
     try {
+      startRuntimeTracking(jobId, family, tenantId, version);
       createStatusRecords(jobId, family, version);
       streamingClient.clearCursors(family.getId());
       launchReindex(jobId, family, reindexTenants);
@@ -133,6 +141,9 @@ public class StreamingReindexService {
 
       disableRefreshInterval(targetIndex);
       try {
+        startPhaseIfTracked(family.getId(), V2ReindexPhaseType.STREAMING,
+          (long) tenantIds.size() * flatStreamingResources().size(),
+          Map.of("targetIndex", targetIndex, "tenantCount", tenantIds.size()));
         var t0 = System.nanoTime();
         for (var tenantId : tenantIds) {
           executionService.executeSystemUserScoped(tenantId, () -> {
@@ -146,12 +157,15 @@ public class StreamingReindexService {
         enableRefreshInterval(targetIndex);
       }
 
+      completePhaseIfTracked(family.getId(), V2ReindexPhaseType.STREAMING);
       var t0 = System.nanoTime();
       browseFullRebuildService.rebuildBrowse(family.getId());
       log.info("executeV2StreamingReindex:: browse rebuilt [jobId: {}, elapsed: {}ms]",
         jobId, ms(System.nanoTime() - t0));
 
       indexFamilyService.updateStatus(family.getId(), IndexFamilyStatus.STAGED);
+      updateFamilyStatusIfTracked(family.getId(), IndexFamilyStatus.STAGED);
+      startPhaseIfTracked(family.getId(), V2ReindexPhaseType.CATCH_UP, 1L);
       log.info("executeV2StreamingReindex:: family promoted to STAGED [jobId: {}, familyId: {}]",
         jobId, family.getId());
 
@@ -318,11 +332,13 @@ public class StreamingReindexService {
       updateResourceStatus(statusId, StreamingReindexStatus.IN_PROGRESS);
     }
 
+    startResourceIfTracked(familyId, resourceType);
+
     final var resourceStart = System.nanoTime();
     var recordCounter = new long[]{0};
     var failedBatchCounter = new long[]{0};
 
-    var batchCallback = createFlatBatchCallback(resourceType, tenantId, targetIndex, statusId,
+    var batchCallback = createFlatBatchCallback(familyId, resourceType, tenantId, targetIndex, statusId,
       recordCounter, failedBatchCounter);
 
     try {
@@ -336,12 +352,17 @@ public class StreamingReindexService {
       if (statusId != null) {
         updateResourceStatus(statusId, StreamingReindexStatus.FAILED);
       }
+      failResourceIfTracked(familyId, resourceType, e.getMessage());
+      failStreamingPhaseIfTracked(familyId, e.getMessage());
       throw e;
     }
 
     if (statusId != null) {
       updateResourceStatus(statusId, StreamingReindexStatus.COMPLETED);
     }
+
+    completeResourceIfTracked(familyId, resourceType);
+    advanceStreamingPhaseIfTracked(familyId, 1L);
 
     log.info("streamFlatResource:: completed [resource: {}, records: {}, failedBatches: {}, elapsed: {}ms]",
       resourceType.value, recordCounter[0], failedBatchCounter[0], ms(System.nanoTime() - resourceStart));
@@ -352,15 +373,16 @@ public class StreamingReindexService {
   }
 
   private java.util.function.Consumer<List<Map<String, Object>>> createFlatBatchCallback(
-    StreamingResource resourceType, String tenantId, String targetIndex, UUID statusId,
+    UUID familyId, StreamingResource resourceType, String tenantId, String targetIndex, UUID statusId,
     long[] recordCounter, long[] failedBatchCounter) {
     return page -> {
       try {
         var batchStart = System.nanoTime();
-        indexingPipeline.indexBatchToFamily(resourceType.value, page, tenantId, targetIndex);
+        var profiling = indexingPipeline.indexBatchToFamily(resourceType.value, page, tenantId, targetIndex);
         var batchMs = ms(System.nanoTime() - batchStart);
 
         recordCounter[0] += page.size();
+        recordResourceBatchIfTracked(familyId, resourceType, profiling);
         log.info("streamFlatResource:: batch indexed [resource: {}, batchSize: {}, totalRecords: {}, elapsed: {}ms]",
           resourceType.value, page.size(), recordCounter[0], batchMs);
       } catch (Exception e) {
@@ -398,6 +420,7 @@ public class StreamingReindexService {
     log.error("handleReindexFailure:: marking job failed [jobId: {}, familyId: {}, error: {}]",
       jobId, familyId, error.getMessage());
     updateJobStatus(jobId, StreamingReindexStatus.FAILED);
+    markFamilyFailedIfTracked(familyId, error.getMessage());
     consumerManager.stopReindexConsumer(familyId);
     indexFamilyService.markFailed(familyId);
   }
@@ -515,6 +538,10 @@ public class StreamingReindexService {
       indexFamilyService.updateStatus(familyId, IndexFamilyStatus.STAGED);
       log.info("resumeStreamingReindex:: family promoted to STAGED [familyId: {}]", familyId);
     }
+    if (family.getQueryVersion() == QueryVersion.V2 && runtimeStatusTracker != null) {
+      runtimeStatusTracker.resumeFamily(familyId, IndexFamilyStatus.STAGED);
+      startPhaseIfTracked(familyId, V2ReindexPhaseType.CATCH_UP, 1L);
+    }
 
     return new StreamingReindexJob(existingJobId, familyId);
   }
@@ -542,6 +569,7 @@ public class StreamingReindexService {
     if (clearStreamCursors) {
       streamingClient.clearCursors(familyId);
     }
+    startRuntimeTracking(jobId, family, context.getTenantId(), family.getQueryVersion());
 
     try {
       launchReindex(jobId, family, reindexTenants);
@@ -578,6 +606,98 @@ public class StreamingReindexService {
 
   private static long ms(long nanos) {
     return nanos / 1_000_000;
+  }
+
+  private void startRuntimeTracking(UUID jobId, IndexFamilyEntity family, String tenantId, QueryVersion version) {
+    if (runtimeStatusTracker == null || version != QueryVersion.V2) {
+      return;
+    }
+    runtimeStatusTracker.startFamily(family.getId(), jobId, tenantId, version);
+  }
+
+  private void updateFamilyStatusIfTracked(UUID familyId, IndexFamilyStatus status) {
+    if (runtimeStatusTracker != null) {
+      runtimeStatusTracker.updateFamilyStatus(familyId, status);
+    }
+  }
+
+  private void markFamilyFailedIfTracked(UUID familyId, String errorMessage) {
+    if (runtimeStatusTracker != null && runtimeStatusTracker.find(familyId).isPresent()) {
+      runtimeStatusTracker.markFamilyFailed(familyId, errorMessage);
+    }
+  }
+
+  private void startPhaseIfTracked(UUID familyId, V2ReindexPhaseType phaseType, long totalSteps) {
+    startPhaseIfTracked(familyId, phaseType, totalSteps, null);
+  }
+
+  private void startPhaseIfTracked(UUID familyId, V2ReindexPhaseType phaseType, long totalSteps,
+                                   Map<String, Object> details) {
+    if (runtimeStatusTracker != null) {
+      runtimeStatusTracker.startPhase(familyId, phaseType, totalSteps, details);
+    }
+  }
+
+  private void advanceStreamingPhaseIfTracked(UUID familyId, long completedSteps) {
+    if (runtimeStatusTracker != null) {
+      runtimeStatusTracker.advancePhase(familyId, V2ReindexPhaseType.STREAMING, completedSteps, null);
+    }
+  }
+
+  private void completePhaseIfTracked(UUID familyId, V2ReindexPhaseType phaseType) {
+    if (runtimeStatusTracker != null) {
+      runtimeStatusTracker.completePhase(familyId, phaseType);
+    }
+  }
+
+  private void failStreamingPhaseIfTracked(UUID familyId, String errorMessage) {
+    if (runtimeStatusTracker != null) {
+      runtimeStatusTracker.failPhase(familyId, V2ReindexPhaseType.STREAMING, errorMessage);
+    }
+  }
+
+  private void startResourceIfTracked(UUID familyId, StreamingResource resourceType) {
+    if (runtimeStatusTracker == null) {
+      return;
+    }
+    runtimeStatusTracker.startResource(familyId, mapResourceType(resourceType));
+  }
+
+  private void recordResourceBatchIfTracked(UUID familyId, StreamingResource resourceType,
+                                            InstanceSearchIndexingPipeline.BatchProfiling profiling) {
+    if (runtimeStatusTracker == null) {
+      return;
+    }
+    runtimeStatusTracker.recordResourceBatch(
+      familyId,
+      mapResourceType(resourceType),
+      profiling.docs(),
+      profiling.batchElapsedMs(),
+      profiling.enrichMs(),
+      profiling.convertMs(),
+      profiling.osBulkMs());
+  }
+
+  private void completeResourceIfTracked(UUID familyId, StreamingResource resourceType) {
+    if (runtimeStatusTracker == null) {
+      return;
+    }
+    runtimeStatusTracker.completeResource(familyId, mapResourceType(resourceType));
+  }
+
+  private void failResourceIfTracked(UUID familyId, StreamingResource resourceType, String errorMessage) {
+    if (runtimeStatusTracker == null) {
+      return;
+    }
+    runtimeStatusTracker.failResource(familyId, mapResourceType(resourceType), errorMessage);
+  }
+
+  private V2ReindexResourceType mapResourceType(StreamingResource resourceType) {
+    return switch (resourceType) {
+      case INSTANCE -> V2ReindexResourceType.INSTANCE;
+      case HOLDING -> V2ReindexResourceType.HOLDING;
+      case ITEM -> V2ReindexResourceType.ITEM;
+    };
   }
 
   public record StreamingReindexJob(UUID jobId, UUID familyId) {

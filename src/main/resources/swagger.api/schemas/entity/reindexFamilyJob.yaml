@@ -11,8 +11,7 @@ properties:
     description: Index family associated with the job
   queryVersion:
     type: string
-    nullable: true
-    description: Query version requested for the job, when applicable
+    description: Query version requested for the job, when applicable. Omitted when not applicable
   status:
     type: string
     description: Current status of the reindex operation

@@ -1,0 +1,28 @@
+get:
+  operationId: getIndexFamilyStatus
+  summary: Get detailed runtime status for an index family
+  description: Returns the in-memory V2+ reindex progress and performance breakdown for the specified index family
+  tags:
+    - index-management
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Index family ID to inspect
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+  responses:
+    '200':
+      description: Detailed runtime status for the specified index family
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/entity/indexFamilyRuntimeStatusResponse.yaml'
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '404':
+      description: Index family not found
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

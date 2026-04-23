@@ -1,0 +1,22 @@
+description: High-level runtime status summary for an index family
+type: object
+properties:
+  jobId:
+    type: string
+    format: uuid
+    nullable: true
+  trackedInMemory:
+    type: boolean
+  liveMetricsAvailable:
+    type: boolean
+  temporaryConsumerRunning:
+    type: boolean
+  overallElapsedMs:
+    type: integer
+    format: int64
+    nullable: true
+  message:
+    type: string
+    nullable: true
+  failure:
+    $ref: 'indexFamilyRuntimeStatusFailure.yaml'

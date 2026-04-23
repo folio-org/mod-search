@@ -1,0 +1,52 @@
+description: Runtime status and performance totals for a single V2 streaming resource
+type: object
+properties:
+  status:
+    type: string
+    enum:
+      - PENDING
+      - IN_PROGRESS
+      - COMPLETED
+      - FAILED
+      - UNAVAILABLE
+  startedAt:
+    type: string
+    format: date-time
+    nullable: true
+  completedAt:
+    type: string
+    format: date-time
+    nullable: true
+  elapsedMs:
+    type: integer
+    format: int64
+    nullable: true
+  processedRecords:
+    type: integer
+    format: int64
+  failedBatches:
+    type: integer
+    format: int64
+  batchCount:
+    type: integer
+    format: int64
+  totalBatchElapsedMs:
+    type: integer
+    format: int64
+  totalEnrichMs:
+    type: integer
+    format: int64
+  totalConvertMs:
+    type: integer
+    format: int64
+  totalOsBulkMs:
+    type: integer
+    format: int64
+  avgBatchElapsedMs:
+    type: number
+    format: double
+    nullable: true
+  avgDocsPerBatch:
+    type: number
+    format: double
+    nullable: true

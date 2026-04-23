@@ -18,6 +18,7 @@ public class V2ReindexPhaseRuntime {
   private long totalSteps;
   private long completedSteps;
   private Long lastObservedValue;
+  private Instant firstReadyAt;
   private long durationMs;
   private String errorMessage;
   private final Map<String, Object> details = new LinkedHashMap<>();
@@ -27,6 +28,9 @@ public class V2ReindexPhaseRuntime {
       startedAt = now;
     }
     status = V2ReindexRuntimeStatus.IN_PROGRESS;
+    endedAt = null;
+    errorMessage = null;
+    firstReadyAt = null;
     updatedAt = now;
     refreshDuration(now);
   }
@@ -65,6 +69,12 @@ public class V2ReindexPhaseRuntime {
     refreshDuration(now);
   }
 
+  public void markReady(Instant now) {
+    if (firstReadyAt == null) {
+      firstReadyAt = now;
+    }
+  }
+
   public void totalSteps(long totalSteps) {
     this.totalSteps = Math.max(totalSteps, 0L);
   }
@@ -91,6 +101,7 @@ public class V2ReindexPhaseRuntime {
     copy.totalSteps = totalSteps;
     copy.completedSteps = completedSteps;
     copy.lastObservedValue = lastObservedValue;
+    copy.firstReadyAt = firstReadyAt;
     copy.durationMs = durationMs;
     copy.errorMessage = errorMessage;
     copy.details.putAll(details);

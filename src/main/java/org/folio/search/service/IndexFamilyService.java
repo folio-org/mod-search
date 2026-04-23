@@ -812,6 +812,9 @@ public class IndexFamilyService {
   private void recordCatchUpLagIfTracked(UUID familyId, QueryVersion version, long lag) {
     if (runtimeStatusTracker != null && version == QueryVersion.V2) {
       runtimeStatusTracker.recordCatchUpLag(familyId, lag);
+      if (lag == 0L) {
+        runtimeStatusTracker.markCatchUpReady(familyId);
+      }
       runtimeStatusTracker.updatePhaseDetails(familyId, V2ReindexPhaseType.CATCH_UP, Map.of(
         "consumerLag", lag,
         "consumerLagToTarget", lag,

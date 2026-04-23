@@ -170,8 +170,21 @@ public class V2IndexFamilyRuntimeStatusService {
     var consumerRunning = consumerManager.isConsumerRunning(familyId);
     if (consumerRunning) {
       safeMetric(() -> details.put("consumerLag", consumerManager.getConsumerLag(familyId)));
-      safeMetric(() -> details.put("consumerLagToTarget", consumerManager.getConsumerLagToTarget(familyId)));
+      safeMetric(() -> {
+        var lagToTarget = consumerManager.getConsumerLagToTarget(familyId);
+        details.put("consumerLagToTarget", lagToTarget);
+        if (lagToTarget == 0L && runtimeStatusTracker != null) {
+          runtimeStatusTracker.markCatchUpReady(familyId);
+        }
+      });
       safeMetric(() -> details.put("partitions", consumerManager.getTrackedPartitionCount(familyId)));
+      var catchUpRuntime = runtime;
+      if (runtime.getFirstReadyAt() == null && runtimeStatusTracker != null) {
+        catchUpRuntime = runtimeStatusTracker.find(familyId)
+          .map(snapshot -> snapshot.phase(V2ReindexPhaseType.CATCH_UP))
+          .orElse(runtime);
+      }
+      putCatchUpTiming(details, catchUpRuntime);
       return;
     }
 
@@ -181,6 +194,21 @@ public class V2IndexFamilyRuntimeStatusService {
     } else if (runtime.getLastObservedValue() != null) {
       details.putIfAbsent("consumerLagToTarget", runtime.getLastObservedValue());
     }
+    putCatchUpTiming(details, runtime);
+  }
+
+  private void putCatchUpTiming(Map<String, Object> details, V2ReindexPhaseRuntime runtime) {
+    if (runtime.getFirstReadyAt() == null || runtime.getStartedAt() == null) {
+      return;
+    }
+
+    details.putIfAbsent("lagReachedZeroAt", toIso(runtime.getFirstReadyAt()));
+    details.putIfAbsent("timeUntilLagZeroMs",
+      Math.max(runtime.getFirstReadyAt().toEpochMilli() - runtime.getStartedAt().toEpochMilli(), 0L));
+
+    var waitEnd = runtime.getEndedAt() != null ? runtime.getEndedAt() : Instant.now();
+    details.putIfAbsent("timeWaitingForManualSwitchMs",
+      Math.max(waitEnd.toEpochMilli() - runtime.getFirstReadyAt().toEpochMilli(), 0L));
   }
 
   private ResourceBlock toResourceBlock(V2ReindexResourceRuntime runtime) {

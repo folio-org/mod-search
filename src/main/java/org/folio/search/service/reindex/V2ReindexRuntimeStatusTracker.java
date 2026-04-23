@@ -145,6 +145,17 @@ public class V2ReindexRuntimeStatusTracker {
     advancePhase(familyId, V2ReindexPhaseType.CATCH_UP, 0L, lag);
   }
 
+  public void markCatchUpReady(UUID familyId) {
+    markCatchUpReady(familyId, Instant.now());
+  }
+
+  public void markCatchUpReady(UUID familyId, Instant readyAt) {
+    mutateIfTracked(familyId, (snapshot, now) -> {
+      snapshot.phase(V2ReindexPhaseType.CATCH_UP).markReady(readyAt);
+      snapshot.touch(now);
+    });
+  }
+
   public void startCutover(UUID familyId) {
     startPhase(familyId, V2ReindexPhaseType.CUTOVER, 1L);
   }

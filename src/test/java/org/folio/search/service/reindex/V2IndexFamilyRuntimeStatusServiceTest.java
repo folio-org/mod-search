@@ -115,6 +115,60 @@ class V2IndexFamilyRuntimeStatusServiceTest {
     assertThat(response.summary().failure().phase()).isEqualTo("BROWSE_REBUILD");
   }
 
+  @Test
+  void getStatus_reportsCatchUpSplitWhenLagHasReachedZeroBeforeManualSwitch() {
+    var familyId = UUID.randomUUID();
+
+    when(indexFamilyService.findById(familyId)).thenReturn(Optional.of(family(familyId, IndexFamilyStatus.STAGED)));
+    when(consumerManager.isConsumerRunning(familyId)).thenReturn(true);
+    when(consumerManager.getConsumerLag(familyId)).thenReturn(0L);
+    when(consumerManager.getConsumerLagToTarget(familyId)).thenReturn(0L);
+    when(consumerManager.getTrackedPartitionCount(familyId)).thenReturn(200);
+
+    var jobId = UUID.randomUUID();
+    runtimeStatusTracker.startFamily(familyId, jobId, "diku", QueryVersion.V2);
+    runtimeStatusTracker.startPhase(familyId, V2ReindexPhaseType.CATCH_UP, 200L);
+
+    var response = service.getStatus(familyId);
+    var details = response.details().phases().catchUp().details();
+
+    assertThat(response.currentPhase()).isEqualTo("CATCHING_UP");
+    assertThat(details.get("consumerLag")).isEqualTo(0L);
+    assertThat(details.get("consumerLagToTarget")).isEqualTo(0L);
+    assertThat(details.get("partitions")).isEqualTo(200);
+    assertThat(details.get("lagReachedZeroAt")).isInstanceOf(String.class);
+    assertThat(details.get("timeUntilLagZeroMs")).isInstanceOf(Long.class);
+    assertThat(details.get("timeWaitingForManualSwitchMs")).isInstanceOf(Long.class);
+    assertThat((Long) details.get("timeUntilLagZeroMs")).isGreaterThanOrEqualTo(0L);
+    assertThat((Long) details.get("timeWaitingForManualSwitchMs")).isGreaterThanOrEqualTo(0L);
+  }
+
+  @Test
+  void getStatus_reportsCompletedCatchUpSplitAfterManualSwitch() {
+    var familyId = UUID.randomUUID();
+    var jobId = UUID.randomUUID();
+
+    when(indexFamilyService.findById(familyId)).thenReturn(Optional.of(family(familyId, IndexFamilyStatus.ACTIVE)));
+    when(consumerManager.isConsumerRunning(familyId)).thenReturn(false);
+
+    runtimeStatusTracker.startFamily(familyId, jobId, "diku", QueryVersion.V2);
+    runtimeStatusTracker.startPhase(familyId, V2ReindexPhaseType.CATCH_UP, 200L);
+    runtimeStatusTracker.markCatchUpReady(familyId);
+    runtimeStatusTracker.completePhase(familyId, V2ReindexPhaseType.CATCH_UP);
+    runtimeStatusTracker.markFamilyCompleted(familyId);
+
+    var response = service.getStatus(familyId);
+    var details = response.details().phases().catchUp().details();
+
+    assertThat(details.get("consumerLag")).isEqualTo(0L);
+    assertThat(details.get("consumerLagToTarget")).isEqualTo(0L);
+    assertThat(details.get("lagReachedZeroAt")).isInstanceOf(String.class);
+    assertThat(details.get("timeUntilLagZeroMs")).isInstanceOf(Long.class);
+    assertThat(details.get("timeWaitingForManualSwitchMs")).isInstanceOf(Long.class);
+    assertThat((Long) details.get("timeUntilLagZeroMs")).isGreaterThanOrEqualTo(0L);
+    assertThat((Long) details.get("timeWaitingForManualSwitchMs")).isGreaterThanOrEqualTo(0L);
+  }
+
   private static IndexFamilyEntity family(UUID familyId, IndexFamilyStatus status) {
     return new IndexFamilyEntity(
       familyId,

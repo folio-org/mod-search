@@ -14,6 +14,7 @@ import static org.folio.support.base.ApiEndpoints.instanceCallNumberBrowsePath;
 import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.support.base.ApiEndpoints.recordFacetsPath;
 import static org.folio.support.utils.CallNumberTestData.CallNumberTypeId.LC;
+import static org.folio.support.utils.CallNumberTestData.CallNumberTypeId.SUDOC;
 import static org.folio.support.utils.CallNumberTestData.callNumbers;
 import static org.folio.support.utils.CallNumberTestData.cnBrowseItem;
 import static org.folio.support.utils.CallNumberTestData.cnBrowseResult;
@@ -46,12 +47,14 @@ import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.reindex.jdbc.SubResourcesLockRepository;
 import org.folio.spring.testing.type.IntegrationTest;
+import org.folio.support.TestRailCase;
 import org.folio.support.base.BaseIntegrationTest;
 import org.folio.support.utils.CallNumberTestData;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -93,6 +96,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
   @BeforeEach
   void setUp() {
     updateLcConfig(List.of(UUID.fromString(LC.getId())));
+    updateSudocConfig(List.of(UUID.fromString(SUDOC.getId())));
   }
 
   @MethodSource("callNumberBrowsingDataProvider")
@@ -121,6 +125,37 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
       assertThat(actualFacet.getValues())
         .containsExactlyInAnyOrderElementsOf(expectedFacet.getValues());
     });
+  }
+
+  /**
+   * Only call numbers of the type(s) configured for a browse option appear as exact matches.
+   * Non-configured types (LC, DEWEY, NLM, OTHER) must NOT produce an exact match when browsing
+   * with the SUDOC option; only SUDOC-typed call numbers should.
+   */
+  @Test
+  @TestRailCase(627509)
+  void browseByCallNumber_sudocOption_onlyConfiguredTypesReturnExactMatch() {
+    var cnByNum = callNumbers().stream()
+      .map(CallNumberTestData.CallNumberTestDataRecord::callNumber)
+      .collect(Collectors.toMap(cn -> Integer.parseInt(cn.id()), identity()));
+
+    // Non-configured types (IDs 1=LC, 2=DEWEY, 3=NLM, 5=OTHER) must NOT produce an exact match
+    for (var cnId : List.of(1, 2, 3, 5)) {
+      var cn = cnByNum.get(cnId);
+      assertThat(browseSudoc(cn.fullCallNumber()).getItems())
+        .as("Expected no exact match for non-SUDOC call number '%s' (id=%d)", cn.callNumber(), cnId)
+        .anySatisfy(item -> assertThat(item).isEqualTo(cnEmptyBrowseItem(cn.fullCallNumber())));
+    }
+
+    // ID 4 = "Y 10.13:980" (SUDOC type) SHOULD produce an exact match
+    var sudocCn = cnByNum.get(4);
+    assertThat(browseSudoc(sudocCn.fullCallNumber()).getItems())
+      .as("Expected exact match for SUDOC call number '%s'", sudocCn.callNumber())
+      .anySatisfy(item -> {
+        assertThat(item.getFullCallNumber()).isEqualTo(sudocCn.fullCallNumber());
+        assertThat(item.getIsAnchor()).isTrue();
+        assertThat(item.getTotalRecords()).isGreaterThan(0);
+      });
   }
 
   private static Stream<Arguments> facetQueriesProvider() {
@@ -248,6 +283,26 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
       arguments(11, backwardQuery, BrowseOptionType.ALL, callNumbers.get(50).fullCallNumber(), 5,
         cnBrowseResult(null, null, 100, emptyList()))
     );
+  }
+
+  private CallNumberBrowseResult browseSudoc(String fullCallNumber) {
+    var query = "fullCallNumber >= {value} or fullCallNumber < {value}";
+    var request = get(instanceCallNumberBrowsePath(BrowseOptionType.SUDOC))
+      .param("expandAll", "true")
+      .param("query", prepareQuery(query, '"' + fullCallNumber + '"'))
+      .param("limit", "5");
+    return parseResponse(doGet(request), CallNumberBrowseResult.class);
+  }
+
+  private static void updateSudocConfig(List<UUID> typeIds) {
+    var config = new BrowseConfig()
+      .id(BrowseOptionType.SUDOC)
+      .shelvingAlgorithm(ShelvingOrderAlgorithmType.SUDOC)
+      .typeIds(typeIds);
+
+    var stub = mockCallNumberTypes(okapi.wireMockServer(), typeIds.toArray(new UUID[0]));
+    doPut(browseConfigPath(BrowseType.INSTANCE_CALL_NUMBER, BrowseOptionType.SUDOC), config);
+    okapi.wireMockServer().removeStub(stub);
   }
 
   private static void updateLcConfig(List<UUID> typeIds) {

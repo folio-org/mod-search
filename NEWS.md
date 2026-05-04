@@ -13,7 +13,8 @@
 * Add retry for search operations ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))
 
 ### Tech Dept
-* Description ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))
+* Add `@TestRailCase` annotation for linking integration tests to TestRail cases
+* Add integration test coverage for SUDOC call-number browse type filtering (TestRail C627509)
 
 ### Dependencies
 * Bump `LIB_NAME` from `OLD_VERSION` to `NEW_VERSION`

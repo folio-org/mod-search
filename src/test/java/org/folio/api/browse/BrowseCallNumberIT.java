@@ -2,6 +2,11 @@ package org.folio.api.browse;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.domain.dto.BrowseOptionType.ALL;
+import static org.folio.search.domain.dto.BrowseOptionType.LC;
+import static org.folio.search.domain.dto.BrowseOptionType.NLM;
+import static org.folio.search.domain.dto.BrowseOptionType.OTHER;
+import static org.folio.search.domain.dto.BrowseOptionType.SUDOC;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.instanceCallNumberBrowsePath;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
@@ -38,22 +43,21 @@ public abstract class BrowseCallNumberIT extends BaseSharedTest {
 
   @BeforeEach
   void setUp() {
-    updateCnConfig(List.of(UUID.fromString(LC_TYPE_ID)), BrowseOptionType.LC, ShelvingOrderAlgorithmType.LC, TENANT_ID);
-    updateCnConfig(List.of(UUID.fromString(SUDOC_TYPE_ID)), BrowseOptionType.SUDOC, ShelvingOrderAlgorithmType.SUDOC,
-      TENANT_ID);
-    updateCnConfig(List.of(UUID.fromString(NLM_TYPE_ID)), BrowseOptionType.NLM, ShelvingOrderAlgorithmType.NLM,
-      TENANT_ID);
-    updateCnConfig(List.of(UUID.fromString(OTHER_TYPE_ID)), BrowseOptionType.OTHER, ShelvingOrderAlgorithmType.DEFAULT,
-      TENANT_ID);
+    updateCnConfig(List.of(), ALL, ShelvingOrderAlgorithmType.DEFAULT, TENANT_ID);
+    updateCnConfig(List.of(UUID.fromString(LC_TYPE_ID)), LC, ShelvingOrderAlgorithmType.LC, TENANT_ID);
+    updateCnConfig(List.of(UUID.fromString(SUDOC_TYPE_ID)), SUDOC, ShelvingOrderAlgorithmType.SUDOC, TENANT_ID);
+    updateCnConfig(List.of(UUID.fromString(NLM_TYPE_ID)), NLM, ShelvingOrderAlgorithmType.NLM, TENANT_ID);
+    updateCnConfig(List.of(UUID.fromString(OTHER_TYPE_ID)), OTHER, ShelvingOrderAlgorithmType.DEFAULT, TENANT_ID);
   }
 
+  @TestRailCase(477527)
   @MethodSource("callNumberBrowsingDataProvider")
   @DisplayName("browseByCallNumber_parameterized")
   @ParameterizedTest(name = "[{index}] query={0}, value=''{1}'', limit={2}")
   void browseByCallNumber_parameterized(String query, String anchor, Integer limit,
                                         CallNumberBrowseResult expected) {
     var searchQuery = prepareQuery(query, '"' + anchor + '"');
-    var request = get(instanceCallNumberBrowsePath(BrowseOptionType.ALL))
+    var request = get(instanceCallNumberBrowsePath(ALL))
       .param("expandAll", "true")
       .param(QUERY_PARAM, searchQuery)
       .param(LIMIT_PARAM, String.valueOf(limit));
@@ -64,25 +68,32 @@ public abstract class BrowseCallNumberIT extends BaseSharedTest {
 
   /**
    * Only call numbers of the type(s) configured for a browse option appear as exact matches.
-   * Non-configured types (LC, DEWEY, NLM, OTHER) must NOT produce an exact match when browsing
-   * with the SUDOC option; only SUDOC-typed call numbers should.
+   * Call numbers of non-configured types must NOT produce an exact match; only the configured
+   * type should.
    */
-  @Test
-  @TestRailCase(627509)
-  void browseByCallNumber_sudocOption_onlyConfiguredTypesReturnExactMatch() {
-    // Non-SUDOC types should NOT produce an exact match
-    for (var callNumber : List.of("Q127.U6U49", "338.1 MOG", "QV 18.2 L765 2015", "SYLY-12")) {
-      assertThat(browse(callNumber, BrowseOptionType.SUDOC).getItems())
-        .as("Expected no exact match for non-SUDOC call number '%s'", callNumber)
+  @TestRailCase({627504, 627506, 627509})
+  @ParameterizedTest(name = "[{index}] browseOption={0}, configuredTypeId={1}, exactMatchCallNumber={4}")
+  @MethodSource("onlyConfiguredTypesReturnExactMatchProvider")
+  void browseByCallNumber_onlyConfiguredTypesReturnExactMatch(BrowseOptionType browseOptionType,
+                                                              String configuredTypeId,
+                                                              ShelvingOrderAlgorithmType algorithmType,
+                                                              List<String> nonMatchingCallNumbers,
+                                                              String exactMatchCallNumber) {
+    updateCnConfig(List.of(UUID.fromString(configuredTypeId)), browseOptionType, algorithmType, TENANT_ID);
+
+    // Non-configured types should NOT produce an exact match
+    for (var callNumber : nonMatchingCallNumbers) {
+      assertThat(browse(callNumber, browseOptionType).getItems())
+        .as("Expected no exact match for call number '%s' with %s option", callNumber, browseOptionType)
         .anySatisfy(item -> assertThat(item).usingRecursiveComparison()
           .ignoringFields(ENTRY_IGNORING_FIELDS).isEqualTo(cnEmptyBrowseItem(callNumber)));
     }
 
-    // SUDOC type SHOULD produce an exact match
-    assertThat(browse("Y 10.13:980", BrowseOptionType.SUDOC).getItems())
-      .as("Expected exact match for SUDOC call number 'Y 10.13:980'")
+    // Configured type SHOULD produce an exact match
+    assertThat(browse(exactMatchCallNumber, browseOptionType).getItems())
+      .as("Expected exact match for call number '%s' with %s option", exactMatchCallNumber, browseOptionType)
       .anySatisfy(item -> {
-        assertThat(item.getFullCallNumber()).isEqualTo("Y 10.13:980");
+        assertThat(item.getFullCallNumber()).isEqualTo(exactMatchCallNumber);
         assertThat(item.getIsAnchor()).isTrue();
         assertThat(item.getTotalRecords()).isGreaterThan(0);
       });
@@ -116,7 +127,7 @@ public abstract class BrowseCallNumberIT extends BaseSharedTest {
   @Test
   void browseByCallNumber_lcOption_browsingAroundAnchor() {
     var aroundQuery = "fullCallNumber >= {value} or fullCallNumber < {value}";
-    var request = get(instanceCallNumberBrowsePath(BrowseOptionType.LC))
+    var request = get(instanceCallNumberBrowsePath(LC))
       .param("expandAll", "true")
       .param(QUERY_PARAM, prepareQuery(aroundQuery, "\"RC280.N4 N49\""))
       .param(LIMIT_PARAM, "5");
@@ -131,11 +142,31 @@ public abstract class BrowseCallNumberIT extends BaseSharedTest {
     assertThat(actual).usingRecursiveComparison().ignoringFields(COLLECTION_IGNORING_FIELDS).isEqualTo(expected);
   }
 
+  private static Stream<Arguments> onlyConfiguredTypesReturnExactMatchProvider() {
+    return Stream.of(
+      // ALL option configured with SUDOC only — LC, DEWEY, NLM, OTHER must not match. TestRail case 627504
+      arguments(ALL, SUDOC_TYPE_ID, ShelvingOrderAlgorithmType.DEFAULT,
+        List.of("Q127.U6U49", "338.1 MOG", "QV 18.2 L765 2015", "SYLY-12"),
+        "Y 10.13:980"),
+      // LC option configured with LC only — SUDOC, DEWEY, NLM, OTHER must not match. TestRail case 627506
+      arguments(LC, LC_TYPE_ID, ShelvingOrderAlgorithmType.LC,
+        List.of("Y 10.13:980", "338.1 MOG", "QV 18.2 L765 2015", "SYLY-12"),
+        "Q127.U6U49"),
+      // SUDOC option configured with SUDOC only — LC, DEWEY, NLM, OTHER must not match. TestRail case 627509
+      arguments(SUDOC, SUDOC_TYPE_ID, ShelvingOrderAlgorithmType.SUDOC,
+        List.of("Q127.U6U49", "338.1 MOG", "QV 18.2 L765 2015", "SYLY-12"),
+        "Y 10.13:980")
+    );
+  }
+
   private static Stream<Arguments> emptyConfigBrowseOptionProvider() {
     return Stream.of(
-      arguments(BrowseOptionType.LC, ShelvingOrderAlgorithmType.LC),
-      arguments(BrowseOptionType.NLM, ShelvingOrderAlgorithmType.NLM),
-      arguments(BrowseOptionType.OTHER, ShelvingOrderAlgorithmType.DEFAULT)
+      // TestRail case 627500
+      arguments(LC, ShelvingOrderAlgorithmType.LC),
+      // TestRail case 627501
+      arguments(NLM, ShelvingOrderAlgorithmType.NLM),
+      // TestRail case 627502
+      arguments(OTHER, ShelvingOrderAlgorithmType.DEFAULT)
     );
   }
 

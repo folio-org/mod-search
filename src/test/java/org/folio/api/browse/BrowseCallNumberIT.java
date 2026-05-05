@@ -14,6 +14,7 @@ import static org.folio.support.base.ApiEndpoints.instanceCallNumberBrowsePath;
 import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.support.base.ApiEndpoints.recordFacetsPath;
 import static org.folio.support.utils.CallNumberTestData.CallNumberTypeId.LC;
+import static org.folio.support.utils.CallNumberTestData.CallNumberTypeId.NLM;
 import static org.folio.support.utils.CallNumberTestData.CallNumberTypeId.SUDOC;
 import static org.folio.support.utils.CallNumberTestData.callNumbers;
 import static org.folio.support.utils.CallNumberTestData.cnBrowseItem;
@@ -97,6 +98,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
   @BeforeEach
   void setUp() {
     updateLcConfig(List.of(UUID.fromString(LC.getId())));
+    updateNlmConfig(List.of(UUID.fromString(NLM.getId())));
     updateSudocConfig(List.of(UUID.fromString(SUDOC.getId())));
   }
 
@@ -158,28 +160,34 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
   }
 
   /**
-   * When the LC browse config has no configured call number types (empty typeIds),
-   * call numbers of every type should produce an exact match when browsing with the LC option.
+   * When a browse config has no configured call number types (empty typeIds),
+   * call numbers of every type should produce an exact match for that browse option.
    */
-  @Test
-  @TestRailCase(627500)
-  void browseByCallNumber_lcOption_emptyConfig_allTypesReturnExactMatch() {
-    updateLcConfig(emptyList());
+  @TestRailCase({627500, 627501})
+  @ParameterizedTest(name = "[{0}] empty config - all types return exact match")
+  @MethodSource("emptyConfigBrowseOptionProvider")
+  void browseByCallNumber_emptyConfig_allTypesReturnExactMatch(BrowseOptionType browseOptionType) {
+    updateCnConfig(emptyList(), browseOptionType,
+      ShelvingOrderAlgorithmType.valueOf(browseOptionType.name()));
 
     var cnByNum = createCallNumberLookup();
 
     // IDs 1=LC, 2=DEWEY, 3=NLM, 4=SUDOC, 5=OTHER
     for (var cnId : List.of(1, 2, 3, 4, 5)) {
       var cn = cnByNum.get(cnId);
-      assertThat(browse(cn.fullCallNumber(), BrowseOptionType.LC).getItems())
-        .as("Expected exact match for '%s' (id=%d, type=%s) with empty LC config",
-          cn.callNumber(), cnId, cn.callNumberTypeId())
+      assertThat(browse(cn.fullCallNumber(), browseOptionType).getItems())
+        .as("Expected exact match for '%s' (id=%d, type=%s) with empty %s config",
+          cn.callNumber(), cnId, cn.callNumberTypeId(), browseOptionType)
         .anySatisfy(item -> {
           assertThat(item.getFullCallNumber()).isEqualTo(cn.fullCallNumber());
           assertThat(item.getIsAnchor()).isTrue();
           assertThat(item.getTotalRecords()).isGreaterThan(0);
         });
     }
+  }
+
+  private static Stream<Arguments> emptyConfigBrowseOptionProvider() {
+    return Stream.of(arguments(BrowseOptionType.LC), arguments(BrowseOptionType.NLM));
   }
 
   private static Map<Integer, CallNumberResource> createCallNumberLookup() {
@@ -320,6 +328,10 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
       .param("query", prepareQuery(query, '"' + fullCallNumber + '"'))
       .param("limit", "5");
     return parseResponse(doGet(request), CallNumberBrowseResult.class);
+  }
+
+  private static void updateNlmConfig(List<UUID> typeIds) {
+    updateCnConfig(typeIds, BrowseOptionType.NLM, ShelvingOrderAlgorithmType.NLM);
   }
 
   private static void updateSudocConfig(List<UUID> typeIds) {

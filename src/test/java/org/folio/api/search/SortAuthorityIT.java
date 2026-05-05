@@ -3,37 +3,31 @@ package org.folio.api.search;
 import static org.folio.cql2pgjson.model.CqlSort.ASCENDING;
 import static org.folio.cql2pgjson.model.CqlSort.DESCENDING;
 import static org.folio.support.base.ApiEndpoints.allRecordsSortedBy;
-import static org.folio.support.utils.TestUtils.randomId;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import java.util.Collections;
 import java.util.stream.IntStream;
 import org.folio.search.domain.dto.Authority;
-import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.BaseIntegrationTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-@IntegrationTest
-public class SortAuthorityIT extends BaseIntegrationTest {
+public abstract class SortAuthorityIT extends BaseIntegrationTest {
+
+  public static final Authority[] AUTHORITIES = authorities();
 
   private static final int RECORDS_COUNT = 5;
+  private static final String AUTHORITY_ID_FILTER =
+    "id==(" + AUTHORITIES[0].getId() + " OR " + AUTHORITIES[1].getId() + " OR "
+    + AUTHORITIES[2].getId() + " OR " + AUTHORITIES[3].getId() + " OR " + AUTHORITIES[4].getId() + ")";
 
-  @BeforeAll
-  static void prepare() {
-    setUpTenant(RECORDS_COUNT, authorities());
-  }
-
-  @AfterAll
-  static void cleanUp() {
-    removeTenant();
+  private static String scoped(String query) {
+    return AUTHORITY_ID_FILTER + " AND (" + query + ")";
   }
 
   @Test
   void canSortAuthoritiesByHeadingRef_asc() throws Exception {
-    doSearchByAuthorities(allRecordsSortedBy("headingRef", ASCENDING))
+    doSearchByAuthorities(scoped(allRecordsSortedBy("headingRef", ASCENDING)))
       .andExpect(jsonPath("totalRecords", is(RECORDS_COUNT)))
       .andExpect(jsonPath("authorities[0].headingRef", is("111")))
       .andExpect(jsonPath("authorities[1].headingRef", is("aaa")))
@@ -44,7 +38,7 @@ public class SortAuthorityIT extends BaseIntegrationTest {
 
   @Test
   void canSortAuthoritiesByHeadingRef_desc() throws Exception {
-    doSearchByAuthorities(allRecordsSortedBy("headingRef", DESCENDING))
+    doSearchByAuthorities(scoped(allRecordsSortedBy("headingRef", DESCENDING)))
       .andExpect(jsonPath("totalRecords", is(RECORDS_COUNT)))
       .andExpect(jsonPath("authorities[0].headingRef", is("zzz")))
       .andExpect(jsonPath("authorities[1].headingRef", is("ŚŚŚ")))
@@ -55,7 +49,7 @@ public class SortAuthorityIT extends BaseIntegrationTest {
 
   @Test
   void canSortAuthoritiesByHeadingType_asc() throws Exception {
-    doSearchByAuthorities(allRecordsSortedBy("headingType", ASCENDING))
+    doSearchByAuthorities(scoped(allRecordsSortedBy("headingType", ASCENDING)))
       .andExpect(jsonPath("totalRecords", is(RECORDS_COUNT)))
       .andExpect(jsonPath("authorities[0].headingType", is("Corporate Name")))
       .andExpect(jsonPath("authorities[1].headingType", is("Genre")))
@@ -71,7 +65,7 @@ public class SortAuthorityIT extends BaseIntegrationTest {
 
   @Test
   void canSortAuthoritiesByHeadingType_desc() throws Exception {
-    doSearchByAuthorities(allRecordsSortedBy("headingType", DESCENDING))
+    doSearchByAuthorities(scoped(allRecordsSortedBy("headingType", DESCENDING)))
       .andExpect(jsonPath("totalRecords", is(RECORDS_COUNT)))
       .andExpect(jsonPath("authorities[0].headingType", is("Uniform Title")))
 
@@ -87,7 +81,7 @@ public class SortAuthorityIT extends BaseIntegrationTest {
 
   @Test
   void canSortAuthoritiesByAuthRefType_asc() throws Exception {
-    doSearchByAuthorities(allRecordsSortedBy("authRefType", ASCENDING))
+    doSearchByAuthorities(scoped(allRecordsSortedBy("authRefType", ASCENDING)))
       .andExpect(jsonPath("totalRecords", is(RECORDS_COUNT)))
       .andExpect(jsonPath("authorities[0].authRefType", is("Auth/Ref")))
 
@@ -105,7 +99,7 @@ public class SortAuthorityIT extends BaseIntegrationTest {
 
   @Test
   void canSortAuthoritiesByAuthRefType_desc() throws Exception {
-    doSearchByAuthorities(allRecordsSortedBy("authRefType", DESCENDING))
+    doSearchByAuthorities(scoped(allRecordsSortedBy("authRefType", DESCENDING)))
       .andExpect(jsonPath("totalRecords", is(RECORDS_COUNT)))
       .andExpect(jsonPath("authorities[0].authRefType", is("Reference")))
 
@@ -123,7 +117,7 @@ public class SortAuthorityIT extends BaseIntegrationTest {
 
   @Test
   void search_negative_invalidSortOption() throws Exception {
-    attemptSearchByAuthorities(allRecordsSortedBy("unknownSort", ASCENDING))
+    attemptSearchByAuthorities(scoped(allRecordsSortedBy("unknownSort", ASCENDING)))
       .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is("Sort field not found or cannot be used.")))
       .andExpect(jsonPath("$.errors[0].type", is("RequestValidationException")))
@@ -133,8 +127,15 @@ public class SortAuthorityIT extends BaseIntegrationTest {
   }
 
   private static Authority[] authorities() {
-    var authorities = IntStream.range(0, RECORDS_COUNT)
-      .mapToObj(i -> new Authority().id(randomId()))
+    var ids = new String[] {
+      "50720001-0000-0000-0000-000000000001",
+      "50720001-0000-0000-0000-000000000002",
+      "50720001-0000-0000-0000-000000000003",
+      "50720001-0000-0000-0000-000000000004",
+      "50720001-0000-0000-0000-000000000005"
+    };
+    var authorities = IntStream.range(0, 5)
+      .mapToObj(i -> new Authority().id(ids[i]))
       .toArray(Authority[]::new);
 
     authorities[0]

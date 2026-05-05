@@ -13,30 +13,24 @@ import java.util.stream.Stream;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthorityBrowseItem;
 import org.folio.search.domain.dto.AuthorityBrowseResult;
-import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.BaseIntegrationTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-@IntegrationTest
-public class BrowseAuthorityIT extends BaseIntegrationTest {
+public abstract class BrowseAuthorityIT extends BaseIntegrationTest {
+
+  public static final Authority[] AUTHORITIES = authorities();
 
   private static final String REFERENCE = "Reference";
   private static final String AUTHORIZED = "Authorized";
+  private static final String BROWSE_SOURCE_FILE_ID = "b4000001-5de4-4467-b77f-b2057d6d69b6";
+  private static final String AUTHORITY_SCOPE_FILTER = "sourceFileId==\"" + BROWSE_SOURCE_FILE_ID + "\"";
 
-  @BeforeAll
-  static void prepare() {
-    setUpTenant(46, authorities());
-  }
-
-  @AfterAll
-  static void cleanUp() {
-    removeTenant();
+  private static String scoped(String query) {
+    return "(" + query + ") and " + AUTHORITY_SCOPE_FILTER;
   }
 
   @MethodSource("authorityBrowsingDataProvider")
@@ -44,7 +38,7 @@ public class BrowseAuthorityIT extends BaseIntegrationTest {
   @ParameterizedTest(name = "[{index}] query={0}, value=''{1}'', limit={2}")
   void browseByAuthority_parameterized(String query, String anchor, Integer limit, AuthorityBrowseResult expected) {
     var request = get(authorityBrowsePath())
-      .param("query", prepareQuery(query, '"' + anchor + '"'))
+      .param("query", scoped(prepareQuery(query, '"' + anchor + '"')))
       .param("limit", String.valueOf(limit));
     var actual = parseResponse(doGet(request), AuthorityBrowseResult.class);
     assertThat(actual).isEqualTo(expected);
@@ -57,7 +51,8 @@ public class BrowseAuthorityIT extends BaseIntegrationTest {
                                    + "and isTitleHeadingRef==false "
                                    + "and tenantId==" + TENANT_ID + " "
                                    + "and shared==false "
-                                   + "and headingType==(\"Personal Name\")", "\"Ĵämes Röllins\""))
+                                   + "and headingType==(\"Personal Name\") "
+                                   + "and " + AUTHORITY_SCOPE_FILTER, "\"Ĵämes Röllins\""))
       .param("limit", "7")
       .param("precedingRecordsCount", "2");
     var actual = parseResponse(doGet(request), AuthorityBrowseResult.class);
@@ -73,7 +68,7 @@ public class BrowseAuthorityIT extends BaseIntegrationTest {
   @Test
   void browseByAuthority_browsingAroundWithDiacritics() {
     var request = get(authorityBrowsePath())
-      .param("query", prepareQuery("(headingRef>={value} or headingRef<{value})", "\"Ĵämes Röllins test\""))
+      .param("query", scoped(prepareQuery("(headingRef>={value} or headingRef<{value})", "\"Ĵämes Röllins test\"")))
       .param("limit", "3")
       .param("precedingRecordsCount", "2");
     var actual = parseResponse(doGet(request), AuthorityBrowseResult.class);
@@ -89,7 +84,7 @@ public class BrowseAuthorityIT extends BaseIntegrationTest {
   @Test
   void browseByAuthority_browsingAroundWithPrecedingRecordsCount() {
     var request = get(authorityBrowsePath())
-      .param("query", prepareQuery("headingRef < {value} or headingRef >= {value}", "\"Ĵämes Röllins\""))
+      .param("query", scoped(prepareQuery("headingRef < {value} or headingRef >= {value}", "\"Ĵämes Röllins\"")))
       .param("limit", "7")
       .param("precedingRecordsCount", "2");
     var actual = parseResponse(doGet(request), AuthorityBrowseResult.class);
@@ -108,7 +103,7 @@ public class BrowseAuthorityIT extends BaseIntegrationTest {
   @Test
   void browseByAuthority_browsingAroundWithSeveralExactMatches() {
     var request = get(authorityBrowsePath())
-      .param("query", prepareQuery("headingRef < {value} or headingRef >= {value}", "\"Zappa Frank\""))
+      .param("query", scoped(prepareQuery("headingRef < {value} or headingRef >= {value}", "\"Zappa Frank\"")))
       .param("limit", "3");
     var actual = parseResponse(doGet(request), AuthorityBrowseResult.class);
     assertThat(actual).isEqualTo(new AuthorityBrowseResult()
@@ -123,7 +118,7 @@ public class BrowseAuthorityIT extends BaseIntegrationTest {
   @Test
   void browseByAuthority_browsingAroundWithoutHighlightMatch() {
     var request = get(authorityBrowsePath())
-      .param("query", prepareQuery("headingRef < {value} or headingRef >= {value}", "\"fantasy\""))
+      .param("query", scoped(prepareQuery("headingRef < {value} or headingRef >= {value}", "\"fantasy\"")))
       .param("limit", "5")
       .param("highlightMatch", "false");
     var actual = parseResponse(doGet(request), AuthorityBrowseResult.class);
@@ -417,7 +412,7 @@ public class BrowseAuthorityIT extends BaseIntegrationTest {
     return new Authority().id(getId(index)).tenantId(TENANT_ID)
       .subjectHeadings(String.format("Authority #%02d", index))
       .source("MARC")
-      .sourceFileId("5de462a2-7a90-4467-b77f-b2057d6d69b6").naturalId("nbc123435");
+      .sourceFileId(BROWSE_SOURCE_FILE_ID).naturalId("nbc123435");
   }
 
   private static Authority authority(int index, String headingRef, String headingType, String authRefType,
@@ -425,7 +420,7 @@ public class BrowseAuthorityIT extends BaseIntegrationTest {
     return new Authority().id(getId(index)).headingRef(headingRef)
       .tenantId(TENANT_ID).shared(false)
       .authRefType(authRefType).headingType(headingType)
-      .sourceFileId("5de462a2-7a90-4467-b77f-b2057d6d69b6").naturalId("nbc123435").numberOfTitles(numberOfTitles);
+      .sourceFileId(BROWSE_SOURCE_FILE_ID).naturalId("nbc123435").numberOfTitles(numberOfTitles);
   }
 
   private static AuthorityBrowseItem authorityBrowseItem(String heading, int index, String type, String headingType,

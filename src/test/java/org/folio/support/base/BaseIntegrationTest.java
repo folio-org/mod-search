@@ -468,6 +468,16 @@ public abstract class BaseIntegrationTest {
     saveRecords(tenant, validationPath, records, expectedCount, matchers, consumer);
   }
 
+  protected static void sendAuthorities(String tenantId, Authority... authorities) {
+    for (Authority a : authorities) {
+      kafkaTemplate.send(inventoryAuthorityTopic(tenantId), a.getId(), event(a, AUTHORITY, tenantId));
+    }
+  }
+
+  protected static void sendRawAuthority(String tenantId, Map<String, Object> rawAuthority) {
+    kafkaTemplate.send(inventoryAuthorityTopic(tenantId), event(rawAuthority, AUTHORITY, tenantId));
+  }
+
   protected static <T> void saveRecords(String tenant, String validationPath, List<T> records, Integer expectedCount,
                                         Consumer<T> consumer) {
     saveRecords(tenant, validationPath, records, expectedCount, emptyList(), consumer);

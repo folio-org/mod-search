@@ -11,6 +11,7 @@ import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CONTRIB
 import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_SUBJECTS;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.SEARCH_ALL_FIELDS;
 import static org.folio.support.TestConstants.TENANT_ID;
+import static org.folio.support.base.ApiEndpoints.authoritySearchPath;
 import static org.folio.support.sample.SampleInstances.getSemanticWebAsMap;
 
 import java.util.Arrays;
@@ -51,7 +52,7 @@ class SearchBrowseIT extends BaseIntegrationTest {
 
   // ─── record counts (filled in Task 11 after all data is wired) ──────────────
   private static final int TOTAL_INSTANCES       = 0; // FILL IN TASK 11
-  private static final int TOTAL_AUTHORITIES     = 0; // FILL IN TASK 11
+  private static final int TOTAL_AUTHORITIES     = 116; // 51 sample + 15 filter + 5 sort + 45 browse
   private static final int EXPECTED_CALL_NUMBER_COUNT    = 100;
   private static final int EXPECTED_CONTRIBUTOR_COUNT    = 13;
   private static final int EXPECTED_CLASSIFICATION_COUNT = 19;
@@ -66,6 +67,7 @@ class SearchBrowseIT extends BaseIntegrationTest {
     enableFeature(BROWSE_SUBJECTS);
     enableFeature(BROWSE_CLASSIFICATIONS);
     loadInstancesUnderLock(subResourcesLockRepository);
+    loadAuthorities();
     await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
       assertThat(countIndexDocument(ResourceType.INSTANCE_CALL_NUMBER, TENANT_ID))
         .isEqualTo(EXPECTED_CALL_NUMBER_COUNT));
@@ -78,6 +80,7 @@ class SearchBrowseIT extends BaseIntegrationTest {
     await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
       assertThat(countIndexDocument(ResourceType.INSTANCE_SUBJECT, TENANT_ID))
         .isEqualTo(EXPECTED_SUBJECT_COUNT));
+    checkThatEventsFromKafkaAreIndexed(TENANT_ID, authoritySearchPath(), TOTAL_AUTHORITIES, emptyList());
     // further awaits (total) added in later tasks
   }
 
@@ -107,10 +110,20 @@ class SearchBrowseIT extends BaseIntegrationTest {
     // BrowseSubject group
     Arrays.stream(BrowseSubjectIT.INSTANCES).forEach(i -> inventoryApi.createInstance(TENANT_ID, i));
 
+    // Authority-linked instances (required for SearchAuthorityIT.numberOfTitles assertions)
+    Arrays.stream(SearchAuthorityIT.LINKED_INSTANCES).forEach(i -> inventoryApi.createInstance(TENANT_ID, i));
+
     repo.unlockSubResource(ReindexEntityType.CALL_NUMBER, cnLock, TENANT_ID);
     repo.unlockSubResource(ReindexEntityType.CONTRIBUTOR, contribLock, TENANT_ID);
     repo.unlockSubResource(ReindexEntityType.CLASSIFICATION, classifLock, TENANT_ID);
     repo.unlockSubResource(ReindexEntityType.SUBJECT, subjLock, TENANT_ID);
+  }
+
+  private static void loadAuthorities() {
+    sendRawAuthority(TENANT_ID, SearchAuthorityIT.AUTHORITY_SAMPLE);
+    sendAuthorities(TENANT_ID, SearchAuthorityFilterIT.AUTHORITIES);
+    sendAuthorities(TENANT_ID, SortAuthorityIT.AUTHORITIES);
+    sendAuthorities(TENANT_ID, BrowseAuthorityIT.AUTHORITIES);
   }
 
   @AfterAll

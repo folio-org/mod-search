@@ -478,6 +478,18 @@ public abstract class BaseIntegrationTest {
     kafkaTemplate.send(inventoryAuthorityTopic(tenantId), event(rawAuthority, AUTHORITY, tenantId));
   }
 
+  protected static void sendLinkedDataInstance(String tenantId, Map<String, Object> instance) {
+    kafkaTemplate.send(linkedDataInstanceTopic(tenantId), event(instance, LINKED_DATA_INSTANCE, tenantId));
+  }
+
+  protected static void sendLinkedDataWork(String tenantId, Map<String, Object> work) {
+    kafkaTemplate.send(linkedDataWorkTopic(tenantId), event(work, LINKED_DATA_WORK, tenantId));
+  }
+
+  protected static void sendLinkedDataHub(String tenantId, Map<String, Object> hub) {
+    kafkaTemplate.send(linkedDataHubTopic(tenantId), event(hub, LINKED_DATA_HUB, tenantId));
+  }
+
   protected static <T> void saveRecords(String tenant, String validationPath, List<T> records, Integer expectedCount,
                                         Consumer<T> consumer) {
     saveRecords(tenant, validationPath, records, expectedCount, emptyList(), consumer);

@@ -12,6 +12,9 @@ import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_SUBJECT
 import static org.folio.search.domain.dto.TenantConfiguredFeature.SEARCH_ALL_FIELDS;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.authoritySearchPath;
+import static org.folio.support.base.ApiEndpoints.linkedDataHubSearchPath;
+import static org.folio.support.base.ApiEndpoints.linkedDataInstanceSearchPath;
+import static org.folio.support.base.ApiEndpoints.linkedDataWorkSearchPath;
 import static org.folio.support.sample.SampleInstances.getSemanticWebAsMap;
 
 import java.util.Arrays;
@@ -81,7 +84,7 @@ class SearchBrowseIT extends BaseIntegrationTest {
       assertThat(countIndexDocument(ResourceType.INSTANCE_SUBJECT, TENANT_ID))
         .isEqualTo(EXPECTED_SUBJECT_COUNT));
     checkThatEventsFromKafkaAreIndexed(TENANT_ID, authoritySearchPath(), TOTAL_AUTHORITIES, emptyList());
-    // further awaits (total) added in later tasks
+    loadLinkedData();
   }
 
   private static void loadInstancesUnderLock(SubResourcesLockRepository repo) {
@@ -124,6 +127,18 @@ class SearchBrowseIT extends BaseIntegrationTest {
     sendAuthorities(TENANT_ID, SearchAuthorityFilterIT.AUTHORITIES);
     sendAuthorities(TENANT_ID, SortAuthorityIT.AUTHORITIES);
     sendAuthorities(TENANT_ID, BrowseAuthorityIT.AUTHORITIES);
+  }
+
+  private static void loadLinkedData() {
+    SearchLinkedDataInstanceIT.INSTANCE_SAMPLES.forEach(i -> sendLinkedDataInstance(TENANT_ID, i));
+    checkThatEventsFromKafkaAreIndexed(TENANT_ID, linkedDataInstanceSearchPath(),
+      SearchLinkedDataInstanceIT.INSTANCE_SAMPLES.size(), emptyList());
+    SearchLinkedDataWorkIT.WORK_SAMPLES.forEach(w -> sendLinkedDataWork(TENANT_ID, w));
+    checkThatEventsFromKafkaAreIndexed(TENANT_ID, linkedDataWorkSearchPath(),
+      SearchLinkedDataWorkIT.WORK_SAMPLES.size(), emptyList());
+    SearchLinkedDataHubIT.HUB_SAMPLES.forEach(h -> sendLinkedDataHub(TENANT_ID, h));
+    checkThatEventsFromKafkaAreIndexed(TENANT_ID, linkedDataHubSearchPath(),
+      SearchLinkedDataHubIT.HUB_SAMPLES.size(), emptyList());
   }
 
   @AfterAll

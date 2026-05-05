@@ -30,27 +30,19 @@ import static org.folio.support.utils.LinkedDataTestUtils.toTotalRecords;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-import org.folio.search.domain.dto.LinkedDataInstance;
+import java.util.List;
+import java.util.Map;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.BaseIntegrationTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 @IntegrationTest
-public class SearchLinkedDataInstanceIT extends BaseIntegrationTest {
+public abstract class SearchLinkedDataInstanceIT extends BaseIntegrationTest {
 
-  @BeforeAll
-  static void prepare() {
-    setUpTenant(LinkedDataInstance.class, getInstanceSampleAsMap(), getInstance2SampleAsMap());
-  }
-
-  @AfterAll
-  static void cleanUp() {
-    removeTenant();
-  }
+  public static final List<Map<String, Object>> INSTANCE_SAMPLES =
+    List.of(getInstanceSampleAsMap(), getInstance2SampleAsMap());
 
   @DisplayName("search by linked data instances (all 2 instances are found)")
   @ParameterizedTest(name = "[{0}] {1}")

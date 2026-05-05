@@ -4,7 +4,6 @@ import static org.folio.cql2pgjson.model.CqlSort.ASCENDING;
 import static org.folio.cql2pgjson.model.CqlSort.DESCENDING;
 import static org.folio.support.base.ApiEndpoints.allRecordsSortedBy;
 import static org.folio.support.sample.SampleInstances.getSemanticWeb;
-import static org.folio.support.utils.TestUtils.randomId;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -15,32 +14,27 @@ import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Metadata;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.BaseIntegrationTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 @IntegrationTest
-public class SortInstanceIT extends BaseIntegrationTest {
+public abstract class SortInstanceIT extends BaseIntegrationTest {
 
-  private static final String ID_ANIMAL_FARM = randomId();
-  private static final String ID_ZERO_MINUS_TEN = randomId();
-  private static final String ID_CALLING_ME_HOME = randomId();
-  private static final String ID_WALK_IN_MY_SOUL = randomId();
-  private static final String ID_STAR_WARS = randomId();
+  public static final String ID_ANIMAL_FARM     = "a0000001-sort-inst-0000-000000000001";
+  public static final String ID_ZERO_MINUS_TEN  = "a0000002-sort-inst-0000-000000000002";
+  public static final String ID_CALLING_ME_HOME = "a0000003-sort-inst-0000-000000000003";
+  public static final String ID_WALK_IN_MY_SOUL = "a0000004-sort-inst-0000-000000000004";
+  public static final String ID_STAR_WARS       = "a0000005-sort-inst-0000-000000000005";
 
-  @BeforeAll
-  static void prepare() {
-    setUpTenant(instances());
-  }
+  public static final String SORT_INSTANCE_ID_FILTER =
+      "id==(%s OR %s OR %s OR %s OR %s)".formatted(
+          ID_ANIMAL_FARM, ID_ZERO_MINUS_TEN, ID_CALLING_ME_HOME, ID_WALK_IN_MY_SOUL, ID_STAR_WARS);
 
-  @AfterAll
-  static void cleanUp() {
-    removeTenant();
-  }
+  public static final Instance[] INSTANCES = instances();
 
   @Test
   void canSortInstancesByContributors_asc() throws Exception {
-    doSearchByInstances(allRecordsSortedBy("contributors", ASCENDING)).andExpect(jsonPath("totalRecords", is(5)))
+    doSearchByInstances(SORT_INSTANCE_ID_FILTER + " sortBy contributors/sort." + ASCENDING)
+      .andExpect(jsonPath("totalRecords", is(5)))
       .andExpect(jsonPath("instances[0].contributors[0].name", is("1111 2222")))
       .andExpect(jsonPath("instances[1].contributors[1].name", is("bbb ccc")))
       .andExpect(jsonPath("instances[2].contributors[0].name", is("bcc ccc")))
@@ -50,7 +44,8 @@ public class SortInstanceIT extends BaseIntegrationTest {
 
   @Test
   void canSortInstancesByContributors_desc() throws Exception {
-    doSearchByInstances(allRecordsSortedBy("contributors", DESCENDING)).andExpect(jsonPath("totalRecords", is(5)))
+    doSearchByInstances(SORT_INSTANCE_ID_FILTER + " sortBy contributors/sort." + DESCENDING)
+      .andExpect(jsonPath("totalRecords", is(5)))
       .andExpect(jsonPath("instances[0].contributors[0].name", is("yyy zzz")))
       .andExpect(jsonPath("instances[1].contributors[0].name", is("Śląsk")))
       .andExpect(jsonPath("instances[2].contributors[0].name", is("bcc ccc")))
@@ -60,7 +55,8 @@ public class SortInstanceIT extends BaseIntegrationTest {
 
   @Test
   void canSortInstancesByDate1_asc() throws Exception {
-    doSearchByInstances(allRecordsSortedBy("normalizedDate1", ASCENDING)).andExpect(jsonPath("totalRecords", is(5)))
+    doSearchByInstances(SORT_INSTANCE_ID_FILTER + " sortBy normalizedDate1/sort." + ASCENDING)
+      .andExpect(jsonPath("totalRecords", is(5)))
       .andExpect(jsonPath("instances[0].dates.date1", is("19u5")))
       .andExpect(jsonPath("instances[1].dates.date1", is("199u")))
       .andExpect(jsonPath("instances[2].dates.date1", is("1999")))
@@ -70,7 +66,8 @@ public class SortInstanceIT extends BaseIntegrationTest {
 
   @Test
   void canSortInstancesByDate1_desc() throws Exception {
-    doSearchByInstances(allRecordsSortedBy("normalizedDate1", DESCENDING)).andExpect(jsonPath("totalRecords", is(5)))
+    doSearchByInstances(SORT_INSTANCE_ID_FILTER + " sortBy normalizedDate1/sort." + DESCENDING)
+      .andExpect(jsonPath("totalRecords", is(5)))
       .andExpect(jsonPath("instances[0].dates.date1", is("2021")))
       .andExpect(jsonPath("instances[1].dates.date1", is("2001")))
       .andExpect(jsonPath("instances[2].dates.date1", is("1999")))
@@ -80,7 +77,8 @@ public class SortInstanceIT extends BaseIntegrationTest {
 
   @Test
   void canSortInstancesByTitle_asc() throws Exception {
-    doSearchByInstances(allRecordsSortedBy("title", ASCENDING)).andExpect(jsonPath("totalRecords", is(5)))
+    doSearchByInstances(SORT_INSTANCE_ID_FILTER + " sortBy title/sort." + ASCENDING)
+      .andExpect(jsonPath("totalRecords", is(5)))
       .andExpect(jsonPath("instances[0].title", is("Calling Me Home")))
       .andExpect(jsonPath("instances[1].title", is("Animal farm")))
       .andExpect(jsonPath("instances[2].title", is("Star Wars")))
@@ -90,7 +88,8 @@ public class SortInstanceIT extends BaseIntegrationTest {
 
   @Test
   void canSortInstancesByTitle_desc() throws Exception {
-    doSearchByInstances(allRecordsSortedBy("title", DESCENDING)).andExpect(jsonPath("totalRecords", is(5)))
+    doSearchByInstances(SORT_INSTANCE_ID_FILTER + " sortBy title/sort." + DESCENDING)
+      .andExpect(jsonPath("totalRecords", is(5)))
       .andExpect(jsonPath("instances[0].title", is("Zero Minus Ten")))
       .andExpect(jsonPath("instances[1].title", is("Walk in My Soul")))
       .andExpect(jsonPath("instances[2].title", is("Star Wars")))
@@ -100,7 +99,7 @@ public class SortInstanceIT extends BaseIntegrationTest {
 
   @Test
   void canSortInstancesByMetadataCreatedDate_asc() throws Exception {
-    doSearchByInstances(allRecordsSortedBy("metadata.createdDate", ASCENDING))
+    doSearchByInstances(SORT_INSTANCE_ID_FILTER + " sortBy metadata.createdDate/sort." + ASCENDING)
       .andExpect(jsonPath("totalRecords", is(5)))
       .andExpect(jsonPath("instances[0].id", is(ID_ANIMAL_FARM)))
       .andExpect(jsonPath("instances[1].id", is(ID_ZERO_MINUS_TEN)))
@@ -111,7 +110,7 @@ public class SortInstanceIT extends BaseIntegrationTest {
 
   @Test
   void canSortInstancesByMetadataCreatedDate_desc() throws Exception {
-    doSearchByInstances(allRecordsSortedBy("metadata.createdDate", DESCENDING))
+    doSearchByInstances(SORT_INSTANCE_ID_FILTER + " sortBy metadata.createdDate/sort." + DESCENDING)
       .andExpect(jsonPath("totalRecords", is(5)))
       .andExpect(jsonPath("instances[0].id", is(ID_STAR_WARS)))
       .andExpect(jsonPath("instances[1].id", is(ID_WALK_IN_MY_SOUL)))
@@ -122,7 +121,7 @@ public class SortInstanceIT extends BaseIntegrationTest {
 
   @Test
   void canSortInstancesByMetadataUpdatedDate_asc() throws Exception {
-    doSearchByInstances(allRecordsSortedBy("metadata.updatedDate", ASCENDING))
+    doSearchByInstances(SORT_INSTANCE_ID_FILTER + " sortBy metadata.updatedDate/sort." + ASCENDING)
       .andExpect(jsonPath("totalRecords", is(5)))
       .andExpect(jsonPath("instances[0].id", is(ID_ANIMAL_FARM)))
       .andExpect(jsonPath("instances[1].id", is(ID_ZERO_MINUS_TEN)))
@@ -133,7 +132,7 @@ public class SortInstanceIT extends BaseIntegrationTest {
 
   @Test
   void canSortInstancesByMetadataUpdatedDate_desc() throws Exception {
-    doSearchByInstances(allRecordsSortedBy("metadata.updatedDate", DESCENDING))
+    doSearchByInstances(SORT_INSTANCE_ID_FILTER + " sortBy metadata.updatedDate/sort." + DESCENDING)
       .andExpect(jsonPath("totalRecords", is(5)))
       .andExpect(jsonPath("instances[0].id", is(ID_STAR_WARS)))
       .andExpect(jsonPath("instances[1].id", is(ID_WALK_IN_MY_SOUL)))

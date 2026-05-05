@@ -8,6 +8,7 @@ import static org.folio.search.domain.dto.TenantConfiguredFeature.SEARCH_ALL_FIE
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.sample.SampleInstances.getSemanticWebAsMap;
 
+import java.util.Arrays;
 import org.folio.api.browse.BrowseAuthorityIT;
 import org.folio.api.browse.BrowseCallNumberIT;
 import org.folio.api.browse.BrowseClassificationIT;
@@ -62,9 +63,9 @@ class SearchBrowseIT extends BaseIntegrationTest {
     enableFeature(BROWSE_CLASSIFICATIONS);
 
     // Acquire sub-resource locks before batch-loading instances
-    var cnLock = subResourcesLockRepository.lockSubResource(ReindexEntityType.CALL_NUMBER, TENANT_ID)
+    final var cnLock = subResourcesLockRepository.lockSubResource(ReindexEntityType.CALL_NUMBER, TENANT_ID)
       .orElseThrow(() -> new IllegalStateException("Unable to lock CALL_NUMBER resource"));
-    var contribLock = subResourcesLockRepository.lockSubResource(ReindexEntityType.CONTRIBUTOR, TENANT_ID)
+    final var contribLock = subResourcesLockRepository.lockSubResource(ReindexEntityType.CONTRIBUTOR, TENANT_ID)
       .orElseThrow(() -> new IllegalStateException("Unable to lock CONTRIBUTOR resource"));
     final var classifLock = subResourcesLockRepository.lockSubResource(ReindexEntityType.CLASSIFICATION, TENANT_ID)
       .orElseThrow(() -> new IllegalStateException("Unable to lock CLASSIFICATION resource"));
@@ -73,6 +74,12 @@ class SearchBrowseIT extends BaseIntegrationTest {
 
     // ─── Instance data loading (added in Tasks 3-10, currently empty) ───────────
     inventoryApi.createInstance(TENANT_ID, getSemanticWebAsMap()); // Task 3
+
+    // SortInstance group (5 instances) — Task 4
+    Arrays.stream(SortInstanceIT.INSTANCES).forEach(i -> inventoryApi.createInstance(TENANT_ID, i));
+
+    // SortInstanceByTitle group (13 instances) — Task 4
+    Arrays.stream(SortInstanceByTitleIT.INSTANCES).forEach(i -> inventoryApi.createInstance(TENANT_ID, i));
 
     // ─── Release sub-resource locks ─────────────────────────────────────────────
     subResourcesLockRepository.unlockSubResource(ReindexEntityType.CALL_NUMBER, cnLock, TENANT_ID);

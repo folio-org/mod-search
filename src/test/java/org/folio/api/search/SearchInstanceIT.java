@@ -1,8 +1,6 @@
 package org.folio.api.search;
 
-import static org.folio.support.sample.SampleInstances.getSemanticWebAsMap;
 import static org.folio.support.sample.SampleInstances.getSemanticWebId;
-import static org.folio.support.sample.SampleInstances.getSemanticWebMatchers;
 import static org.folio.support.sample.SampleInstancesResponse.getInstanceBasicResponseSample;
 import static org.folio.support.sample.SampleInstancesResponse.getInstanceFullResponseSample;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
@@ -12,12 +10,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.assertj.core.api.Assertions;
-import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceSearchResult;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.BaseIntegrationTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -25,17 +20,7 @@ import org.junit.jupiter.params.provider.CsvFileSource;
 import org.junit.jupiter.params.provider.CsvSource;
 
 @IntegrationTest
-public class SearchInstanceIT extends BaseIntegrationTest {
-
-  @BeforeAll
-  static void prepare() {
-    setUpTenant(Instance.class, getSemanticWebMatchers(), getSemanticWebAsMap());
-  }
-
-  @AfterAll
-  static void cleanUp() {
-    removeTenant();
-  }
+public abstract class SearchInstanceIT extends BaseIntegrationTest {
 
   @CsvFileSource(resources = "/test-resources/instance-search-test-queries.csv",
                  useHeadersInDisplayName = true)

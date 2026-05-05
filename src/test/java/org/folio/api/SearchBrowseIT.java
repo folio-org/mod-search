@@ -6,6 +6,7 @@ import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CONTRIB
 import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_SUBJECTS;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.SEARCH_ALL_FIELDS;
 import static org.folio.support.TestConstants.TENANT_ID;
+import static org.folio.support.sample.SampleInstances.getSemanticWebAsMap;
 
 import org.folio.api.browse.BrowseAuthorityIT;
 import org.folio.api.browse.BrowseCallNumberIT;
@@ -65,13 +66,13 @@ class SearchBrowseIT extends BaseIntegrationTest {
       .orElseThrow(() -> new IllegalStateException("Unable to lock CALL_NUMBER resource"));
     var contribLock = subResourcesLockRepository.lockSubResource(ReindexEntityType.CONTRIBUTOR, TENANT_ID)
       .orElseThrow(() -> new IllegalStateException("Unable to lock CONTRIBUTOR resource"));
-    var classifLock = subResourcesLockRepository.lockSubResource(ReindexEntityType.CLASSIFICATION, TENANT_ID)
+    final var classifLock = subResourcesLockRepository.lockSubResource(ReindexEntityType.CLASSIFICATION, TENANT_ID)
       .orElseThrow(() -> new IllegalStateException("Unable to lock CLASSIFICATION resource"));
-    var subjLock = subResourcesLockRepository.lockSubResource(ReindexEntityType.SUBJECT, TENANT_ID)
+    final var subjLock = subResourcesLockRepository.lockSubResource(ReindexEntityType.SUBJECT, TENANT_ID)
       .orElseThrow(() -> new IllegalStateException("Unable to lock SUBJECT resource"));
 
     // ─── Instance data loading (added in Tasks 3-10, currently empty) ───────────
-    // inventoryApi.createInstance(TENANT_ID, SampleInstances.getSemanticWebAsMap()); // Task 3
+    inventoryApi.createInstance(TENANT_ID, getSemanticWebAsMap()); // Task 3
 
     // ─── Release sub-resource locks ─────────────────────────────────────────────
     subResourcesLockRepository.unlockSubResource(ReindexEntityType.CALL_NUMBER, cnLock, TENANT_ID);

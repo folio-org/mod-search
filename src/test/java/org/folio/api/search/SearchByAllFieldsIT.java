@@ -1,33 +1,16 @@
 package org.folio.api.search;
 
-import static org.folio.search.domain.dto.TenantConfiguredFeature.SEARCH_ALL_FIELDS;
-import static org.folio.support.sample.SampleInstances.getSemanticWebAsMap;
 import static org.folio.support.sample.SampleInstances.getSemanticWebId;
-import static org.folio.support.sample.SampleInstances.getSemanticWebMatchers;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-import org.folio.search.domain.dto.Instance;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.BaseIntegrationTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 @IntegrationTest
-public class SearchByAllFieldsIT extends BaseIntegrationTest {
-
-  @BeforeAll
-  static void prepare() {
-    setUpTenant(Instance.class, () -> enableFeature(SEARCH_ALL_FIELDS),
-      getSemanticWebMatchers(), getSemanticWebAsMap());
-  }
-
-  @AfterAll
-  static void cleanUp() {
-    removeTenant();
-  }
+public abstract class SearchByAllFieldsIT extends BaseIntegrationTest {
 
   @ValueSource(strings = {
     // instance field values

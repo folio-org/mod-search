@@ -1,5 +1,9 @@
 package org.folio.api;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
+import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
+import static org.awaitility.Durations.ONE_MINUTE;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CALL_NUMBERS;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CLASSIFICATIONS;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CONTRIBUTORS;
@@ -30,6 +34,7 @@ import org.folio.api.search.SortInstanceByTitleIT;
 import org.folio.api.search.SortInstanceIT;
 import org.folio.api.search.SortItemIT;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.reindex.jdbc.SubResourcesLockRepository;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.BaseIntegrationTest;
@@ -54,60 +59,42 @@ class SearchBrowseIT extends BaseIntegrationTest {
   @BeforeAll
   static void setUpSharedTenant(@Autowired SubResourcesLockRepository subResourcesLockRepository) {
     enableTenant(TENANT_ID);
-
-    // Features must be enabled BEFORE loading data
     enableFeature(SEARCH_ALL_FIELDS);
     enableFeature(BROWSE_CALL_NUMBERS);
     enableFeature(BROWSE_CONTRIBUTORS);
     enableFeature(BROWSE_SUBJECTS);
     enableFeature(BROWSE_CLASSIFICATIONS);
+    loadInstancesUnderLock(subResourcesLockRepository);
+    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
+      assertThat(countIndexDocument(ResourceType.INSTANCE_CALL_NUMBER, TENANT_ID))
+        .isEqualTo(EXPECTED_CALL_NUMBER_COUNT));
+    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
+      assertThat(countIndexDocument(ResourceType.INSTANCE_CLASSIFICATION, TENANT_ID))
+        .isEqualTo(EXPECTED_CLASSIFICATION_COUNT));
+    // further awaits (contributor, subject, total) added in later tasks
+  }
 
-    // Acquire sub-resource locks before batch-loading instances
-    final var cnLock = subResourcesLockRepository.lockSubResource(ReindexEntityType.CALL_NUMBER, TENANT_ID)
+  private static void loadInstancesUnderLock(SubResourcesLockRepository repo) {
+    final var cnLock = repo.lockSubResource(ReindexEntityType.CALL_NUMBER, TENANT_ID)
       .orElseThrow(() -> new IllegalStateException("Unable to lock CALL_NUMBER resource"));
-    final var contribLock = subResourcesLockRepository.lockSubResource(ReindexEntityType.CONTRIBUTOR, TENANT_ID)
+    final var contribLock = repo.lockSubResource(ReindexEntityType.CONTRIBUTOR, TENANT_ID)
       .orElseThrow(() -> new IllegalStateException("Unable to lock CONTRIBUTOR resource"));
-    final var classifLock = subResourcesLockRepository.lockSubResource(ReindexEntityType.CLASSIFICATION, TENANT_ID)
+    final var classifLock = repo.lockSubResource(ReindexEntityType.CLASSIFICATION, TENANT_ID)
       .orElseThrow(() -> new IllegalStateException("Unable to lock CLASSIFICATION resource"));
-    final var subjLock = subResourcesLockRepository.lockSubResource(ReindexEntityType.SUBJECT, TENANT_ID)
+    final var subjLock = repo.lockSubResource(ReindexEntityType.SUBJECT, TENANT_ID)
       .orElseThrow(() -> new IllegalStateException("Unable to lock SUBJECT resource"));
 
-    // ─── Instance data loading (added in Tasks 3-10, currently empty) ───────────
     inventoryApi.createInstance(TENANT_ID, getSemanticWebAsMap()); // Task 3
-
-    // SortInstance group (5 instances) — Task 4
     Arrays.stream(SortInstanceIT.INSTANCES).forEach(i -> inventoryApi.createInstance(TENANT_ID, i));
-
-    // SortInstanceByTitle group (13 instances) — Task 4
     Arrays.stream(SortInstanceByTitleIT.INSTANCES).forEach(i -> inventoryApi.createInstance(TENANT_ID, i));
-
-    // SearchByEmptyValues group (2 instances) — Task 5
     Arrays.stream(SearchByEmptyValuesIT.INSTANCES).forEach(i -> inventoryApi.createInstance(TENANT_ID, i));
+    Arrays.stream(BrowseCallNumberIT.INSTANCES).forEach(i -> inventoryApi.createInstance(TENANT_ID, i)); // Task 7
+    Arrays.stream(BrowseClassificationIT.INSTANCES).forEach(i -> inventoryApi.createInstance(TENANT_ID, i)); // Task 7
 
-    // ─── Release sub-resource locks ─────────────────────────────────────────────
-    subResourcesLockRepository.unlockSubResource(ReindexEntityType.CALL_NUMBER, cnLock, TENANT_ID);
-    subResourcesLockRepository.unlockSubResource(ReindexEntityType.CONTRIBUTOR, contribLock, TENANT_ID);
-    subResourcesLockRepository.unlockSubResource(ReindexEntityType.CLASSIFICATION, classifLock, TENANT_ID);
-    subResourcesLockRepository.unlockSubResource(ReindexEntityType.SUBJECT, subjLock, TENANT_ID);
-
-    // ─── Authority + linked-data loading (Tasks 9-10) ───────────────────────────
-    // (added in Tasks 9 and 10)
-
-    // ─── Wait for indexes (activated in Task 11) ────────────────────────────────
-    // checkThatEventsFromKafkaAreIndexed(TENANT_ID, instanceSearchPath(), TOTAL_INSTANCES, emptyList());
-    // checkThatEventsFromKafkaAreIndexed(TENANT_ID, authoritySearchPath(), TOTAL_AUTHORITIES, emptyList());
-    // await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
-    //   assertThat(countIndexDocument(ResourceType.INSTANCE_CALL_NUMBER, TENANT_ID))
-    //     .isEqualTo(EXPECTED_CALL_NUMBER_COUNT));
-    // await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
-    //   assertThat(countIndexDocument(ResourceType.INSTANCE_CONTRIBUTOR, TENANT_ID))
-    //     .isEqualTo(EXPECTED_CONTRIBUTOR_COUNT));
-    // await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
-    //   assertThat(countIndexDocument(ResourceType.INSTANCE_CLASSIFICATION, TENANT_ID))
-    //     .isEqualTo(EXPECTED_CLASSIFICATION_COUNT));
-    // await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
-    //   assertThat(countIndexDocument(ResourceType.INSTANCE_SUBJECT, TENANT_ID))
-    //     .isEqualTo(EXPECTED_SUBJECT_COUNT));
+    repo.unlockSubResource(ReindexEntityType.CALL_NUMBER, cnLock, TENANT_ID);
+    repo.unlockSubResource(ReindexEntityType.CONTRIBUTOR, contribLock, TENANT_ID);
+    repo.unlockSubResource(ReindexEntityType.CLASSIFICATION, classifLock, TENANT_ID);
+    repo.unlockSubResource(ReindexEntityType.SUBJECT, subjLock, TENANT_ID);
   }
 
   @AfterAll

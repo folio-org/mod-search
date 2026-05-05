@@ -1,17 +1,10 @@
 package org.folio.api.browse;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.function.Function.identity;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.await;
-import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
-import static org.awaitility.Durations.ONE_MINUTE;
-import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CALL_NUMBERS;
-import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.browseConfigPath;
 import static org.folio.support.base.ApiEndpoints.instanceCallNumberBrowsePath;
-import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.support.base.ApiEndpoints.recordFacetsPath;
 import static org.folio.support.utils.CallNumberTestData.CallNumberTypeId.LC;
 import static org.folio.support.utils.CallNumberTestData.CallNumberTypeId.SUDOC;
@@ -44,55 +37,21 @@ import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.RecordType;
 import org.folio.search.domain.dto.ShelvingOrderAlgorithmType;
 import org.folio.search.model.index.CallNumberResource;
-import org.folio.search.model.types.ReindexEntityType;
-import org.folio.search.model.types.ResourceType;
-import org.folio.search.service.reindex.jdbc.SubResourcesLockRepository;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.TestRailCase;
 import org.folio.support.base.BaseIntegrationTest;
 import org.folio.support.utils.CallNumberTestData;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.TestPropertySource;
 
 @IntegrationTest
-@TestPropertySource(properties = "folio.search-config.indexing.instance-children-index-enabled=true")
-public class BrowseCallNumberIT extends BaseIntegrationTest {
+public abstract class BrowseCallNumberIT extends BaseIntegrationTest {
 
-  private static final List<Instance> INSTANCES = CallNumberTestData.instances();
-
-  @BeforeAll
-  static void prepare(@Autowired SubResourcesLockRepository subResourcesLockRepository) {
-    setUpTenant(TENANT_ID);
-
-    enableFeature(BROWSE_CALL_NUMBERS);
-
-    var timestamp = subResourcesLockRepository.lockSubResource(ReindexEntityType.CALL_NUMBER, TENANT_ID);
-    if (timestamp.isEmpty()) {
-      throw new IllegalStateException("Unexpected state of database: unable to lock call-number resource");
-    }
-    var instances = BrowseCallNumberIT.INSTANCES.toArray(Instance[]::new);
-    saveRecords(TENANT_ID, instanceSearchPath(), asList(instances), instances.length, emptyList(),
-      instance -> inventoryApi.createInstance(TENANT_ID, instance));
-    subResourcesLockRepository.unlockSubResource(ReindexEntityType.CALL_NUMBER, timestamp.get(), TENANT_ID);
-
-    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() -> {
-      var counted = countIndexDocument(ResourceType.INSTANCE_CALL_NUMBER, TENANT_ID);
-      assertThat(counted).isEqualTo(100);
-    });
-  }
-
-  @AfterAll
-  static void cleanUp() {
-    removeTenant();
-  }
+  public static final Instance[] INSTANCES = CallNumberTestData.instances().toArray(new Instance[0]);
 
   @BeforeEach
   void setUp() {
@@ -214,83 +173,83 @@ public class BrowseCallNumberIT extends BaseIntegrationTest {
       // anchor call number appears in the middle of the result set
       arguments(1, aroundQuery, BrowseOptionType.ALL, callNumbers.get(1).fullCallNumber(), 5,
         cnBrowseResult(callNumbers.get(91).fullCallNumber(), callNumbers.get(68).fullCallNumber(), 100, List.of(
-          cnBrowseItem(callNumbers.get(91), 1, INSTANCES.get(45).getTitle()),
-          cnBrowseItem(callNumbers.get(25), 1, INSTANCES.get(15).getTitle()),
+          cnBrowseItem(callNumbers.get(91), 1, INSTANCES[45].getTitle()),
+          cnBrowseItem(callNumbers.get(25), 1, INSTANCES[15].getTitle()),
           cnBrowseItem(callNumbers.get(1), 3, null, true),
-          cnBrowseItem(callNumbers.get(70), 1, INSTANCES.get(34).getTitle()),
-          cnBrowseItem(callNumbers.get(68), 1, INSTANCES.get(34).getTitle())
+          cnBrowseItem(callNumbers.get(70), 1, INSTANCES[34].getTitle()),
+          cnBrowseItem(callNumbers.get(68), 1, INSTANCES[34].getTitle())
         ))),
 
       // not existed anchor call number appears in the middle of the result set
       arguments(2, aroundQuery, BrowseOptionType.ALL, "TA357 .A78 2011", 5,
         cnBrowseResult(callNumbers.get(25).fullCallNumber(), callNumbers.get(68).fullCallNumber(), 100, List.of(
-          cnBrowseItem(callNumbers.get(25), 1, INSTANCES.get(15).getTitle()),
+          cnBrowseItem(callNumbers.get(25), 1, INSTANCES[15].getTitle()),
           cnBrowseItem(callNumbers.get(1), 3, null),
           cnEmptyBrowseItem("TA357 .A78 2011"),
-          cnBrowseItem(callNumbers.get(70), 1, INSTANCES.get(34).getTitle()),
-          cnBrowseItem(callNumbers.get(68), 1, INSTANCES.get(34).getTitle())
+          cnBrowseItem(callNumbers.get(70), 1, INSTANCES[34].getTitle()),
+          cnBrowseItem(callNumbers.get(68), 1, INSTANCES[34].getTitle())
         ))),
 
       // anchor call number appears first in the result set
       arguments(3, aroundQuery, BrowseOptionType.ALL, callNumbers.get(50).fullCallNumber(), 5,
         cnBrowseResult(null, callNumbers.get(40).fullCallNumber(), 100, List.of(
-          cnBrowseItem(callNumbers.get(50), 1, INSTANCES.get(26).getTitle(), true),
-          cnBrowseItem(callNumbers.get(97), 1, INSTANCES.get(48).getTitle()),
-          cnBrowseItem(callNumbers.get(40), 1, INSTANCES.get(19).getTitle())
+          cnBrowseItem(callNumbers.get(50), 1, INSTANCES[26].getTitle(), true),
+          cnBrowseItem(callNumbers.get(97), 1, INSTANCES[48].getTitle()),
+          cnBrowseItem(callNumbers.get(40), 1, INSTANCES[19].getTitle())
         ))),
 
       // not existed anchor call number appears first in the result set
       arguments(4, aroundQuery, BrowseOptionType.ALL, "0.0", 5,
         cnBrowseResult(null, callNumbers.get(97).fullCallNumber(), 100, List.of(
           cnEmptyBrowseItem("0.0"),
-          cnBrowseItem(callNumbers.get(50), 1, INSTANCES.get(26).getTitle()),
-          cnBrowseItem(callNumbers.get(97), 1, INSTANCES.get(48).getTitle())
+          cnBrowseItem(callNumbers.get(50), 1, INSTANCES[26].getTitle()),
+          cnBrowseItem(callNumbers.get(97), 1, INSTANCES[48].getTitle())
         ))),
 
       // anchor call number appears last in the result set
       arguments(5, aroundQuery, BrowseOptionType.ALL, callNumbers.get(11).fullCallNumber(), 5,
         cnBrowseResult(callNumbers.get(49).fullCallNumber(), null, 100, List.of(
-          cnBrowseItem(callNumbers.get(49), 1, INSTANCES.get(26).getTitle()),
-          cnBrowseItem(callNumbers.get(44), 1, INSTANCES.get(24).getTitle()),
-          cnBrowseItem(callNumbers.get(11), 1, INSTANCES.get(5).getTitle(), true)
+          cnBrowseItem(callNumbers.get(49), 1, INSTANCES[26].getTitle()),
+          cnBrowseItem(callNumbers.get(44), 1, INSTANCES[24].getTitle()),
+          cnBrowseItem(callNumbers.get(11), 1, INSTANCES[5].getTitle(), true)
         ))),
 
       // not existed anchor call number appears last in the result set
       arguments(6, aroundQuery, BrowseOptionType.ALL, "ZZ", 5,
         cnBrowseResult(callNumbers.get(44).fullCallNumber(), null, 100, List.of(
-          cnBrowseItem(callNumbers.get(44), 1, INSTANCES.get(24).getTitle()),
-          cnBrowseItem(callNumbers.get(11), 1, INSTANCES.get(5).getTitle()),
+          cnBrowseItem(callNumbers.get(44), 1, INSTANCES[24].getTitle()),
+          cnBrowseItem(callNumbers.get(11), 1, INSTANCES[5].getTitle()),
           cnEmptyBrowseItem("ZZ")
         ))),
 
       // anchor call number appears in the middle of the result set when filtering by type
       arguments(7, aroundQuery, BrowseOptionType.LC, callNumbers.get(46).fullCallNumber(), 5,
         cnBrowseResult(callNumbers.get(66).fullCallNumber(), callNumbers.get(21).fullCallNumber(), 20, List.of(
-          cnBrowseItem(callNumbers.get(66), 1, INSTANCES.get(32).getTitle()),
-          cnBrowseItem(callNumbers.get(96), 1, INSTANCES.get(47).getTitle()),
-          cnBrowseItem(callNumbers.get(46), 1, INSTANCES.get(25).getTitle(), true),
-          cnBrowseItem(callNumbers.get(86), 1, INSTANCES.get(42).getTitle()),
+          cnBrowseItem(callNumbers.get(66), 1, INSTANCES[32].getTitle()),
+          cnBrowseItem(callNumbers.get(96), 1, INSTANCES[47].getTitle()),
+          cnBrowseItem(callNumbers.get(46), 1, INSTANCES[25].getTitle(), true),
+          cnBrowseItem(callNumbers.get(86), 1, INSTANCES[42].getTitle()),
           cnBrowseItem(callNumbers.get(21), 2, null)
         ))),
 
       // call number with backslashes
       arguments(7, aroundQuery, BrowseOptionType.ALL, "BR\\\\140 .J\\\\\\\\86", 5,
         cnBrowseResult(callNumbers.get(76).fullCallNumber(), callNumbers.get(80).fullCallNumber(), 100, List.of(
-          cnBrowseItem(callNumbers.get(76), 1, INSTANCES.get(36).getTitle()),
-          cnBrowseItem(callNumbers.get(15), 1, INSTANCES.get(8).getTitle()),
-          cnBrowseItem(callNumbers.get(95), 1, INSTANCES.get(47).getTitle(), true),
-          cnBrowseItem(callNumbers.get(20), 1, INSTANCES.get(11).getTitle()),
-          cnBrowseItem(callNumbers.get(80), 1, INSTANCES.get(39).getTitle())
+          cnBrowseItem(callNumbers.get(76), 1, INSTANCES[36].getTitle()),
+          cnBrowseItem(callNumbers.get(15), 1, INSTANCES[8].getTitle()),
+          cnBrowseItem(callNumbers.get(95), 1, INSTANCES[47].getTitle(), true),
+          cnBrowseItem(callNumbers.get(20), 1, INSTANCES[11].getTitle()),
+          cnBrowseItem(callNumbers.get(80), 1, INSTANCES[39].getTitle())
         ))),
 
       // forward browsing from the middle of the result set
       arguments(8, forwardQuery, BrowseOptionType.ALL, callNumbers.get(22).fullCallNumber(), 5,
         cnBrowseResult(callNumbers.get(47).fullCallNumber(), callNumbers.get(32).fullCallNumber(), 100, List.of(
-          cnBrowseItem(callNumbers.get(47), 1, INSTANCES.get(26).getTitle()),
-          cnBrowseItem(callNumbers.get(62), 1, INSTANCES.get(30).getTitle()),
-          cnBrowseItem(callNumbers.get(67), 1, INSTANCES.get(33).getTitle()),
-          cnBrowseItem(callNumbers.get(55), 1, INSTANCES.get(28).getTitle()),
-          cnBrowseItem(callNumbers.get(32), 1, INSTANCES.get(16).getTitle())
+          cnBrowseItem(callNumbers.get(47), 1, INSTANCES[26].getTitle()),
+          cnBrowseItem(callNumbers.get(62), 1, INSTANCES[30].getTitle()),
+          cnBrowseItem(callNumbers.get(67), 1, INSTANCES[33].getTitle()),
+          cnBrowseItem(callNumbers.get(55), 1, INSTANCES[28].getTitle()),
+          cnBrowseItem(callNumbers.get(32), 1, INSTANCES[16].getTitle())
         ))),
 
       // forward browsing from the end of the result set
@@ -300,11 +259,11 @@ public class BrowseCallNumberIT extends BaseIntegrationTest {
       // backward browsing from the middle of the result set
       arguments(10, backwardQuery, BrowseOptionType.ALL, callNumbers.get(22).fullCallNumber(), 5,
         cnBrowseResult(callNumbers.get(92).fullCallNumber(), callNumbers.get(90).fullCallNumber(), 100, List.of(
-          cnBrowseItem(callNumbers.get(92), 1, INSTANCES.get(45).getTitle()),
-          cnBrowseItem(callNumbers.get(17), 1, INSTANCES.get(10).getTitle()),
-          cnBrowseItem(callNumbers.get(27), 1, INSTANCES.get(15).getTitle()),
-          cnBrowseItem(callNumbers.get(42), 1, INSTANCES.get(22).getTitle()),
-          cnBrowseItem(callNumbers.get(90), 1, INSTANCES.get(44).getTitle())
+          cnBrowseItem(callNumbers.get(92), 1, INSTANCES[45].getTitle()),
+          cnBrowseItem(callNumbers.get(17), 1, INSTANCES[10].getTitle()),
+          cnBrowseItem(callNumbers.get(27), 1, INSTANCES[15].getTitle()),
+          cnBrowseItem(callNumbers.get(42), 1, INSTANCES[22].getTitle()),
+          cnBrowseItem(callNumbers.get(90), 1, INSTANCES[44].getTitle())
         ))),
 
       // backward browsing from the end of the result set

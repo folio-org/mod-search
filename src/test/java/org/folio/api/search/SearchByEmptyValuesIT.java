@@ -12,25 +12,21 @@ import org.folio.search.domain.dto.Contributor;
 import org.folio.search.domain.dto.Instance;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.BaseIntegrationTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 @IntegrationTest
-public class SearchByEmptyValuesIT extends BaseIntegrationTest {
+public abstract class SearchByEmptyValuesIT extends BaseIntegrationTest {
 
-  private static final String INSTANCE_ID_1 = randomId();
-  private static final String INSTANCE_ID_2 = randomId();
+  public static final String INSTANCE_ID_1 = "c0000001-emptyv-0000-000000000001";
+  public static final String INSTANCE_ID_2 = "c0000002-emptyv-0000-000000000002";
+  public static final Instance[] INSTANCES = instances();
 
-  @BeforeAll
-  static void prepare() {
-    setUpTenant(instances());
-  }
+  private static final String ID_FILTER =
+      "id==(%s OR %s)".formatted(INSTANCE_ID_1, INSTANCE_ID_2);
 
-  @AfterAll
-  static void cleanUp() {
-    removeTenant();
+  private String scoped(String query) {
+    return ID_FILTER + " AND (" + query + ")";
   }
 
   @CsvSource({
@@ -47,7 +43,7 @@ public class SearchByEmptyValuesIT extends BaseIntegrationTest {
   @ParameterizedTest
   void search_parameterized(String query, String titles) throws Exception {
     var expectedTitles = StringUtils.isNotEmpty(titles) ? asList(titles.split(";")) : null;
-    doSearchByInstances(query + " sortBy title")
+    doSearchByInstances(scoped(query) + " sortBy title")
       .andExpect(jsonPath("totalRecords", is(expectedTitles == null ? 0 : expectedTitles.size())))
       .andExpect(expectedTitles == null
                  ? jsonPath("instances[*].title").doesNotExist()

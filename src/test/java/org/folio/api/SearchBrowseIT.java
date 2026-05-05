@@ -81,6 +81,9 @@ class SearchBrowseIT extends BaseIntegrationTest {
     // SortInstanceByTitle group (13 instances) — Task 4
     Arrays.stream(SortInstanceByTitleIT.INSTANCES).forEach(i -> inventoryApi.createInstance(TENANT_ID, i));
 
+    // SearchByEmptyValues group (2 instances) — Task 5
+    Arrays.stream(SearchByEmptyValuesIT.INSTANCES).forEach(i -> inventoryApi.createInstance(TENANT_ID, i));
+
     // ─── Release sub-resource locks ─────────────────────────────────────────────
     subResourcesLockRepository.unlockSubResource(ReindexEntityType.CALL_NUMBER, cnLock, TENANT_ID);
     subResourcesLockRepository.unlockSubResource(ReindexEntityType.CONTRIBUTOR, contribLock, TENANT_ID);

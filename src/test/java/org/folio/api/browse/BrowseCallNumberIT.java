@@ -43,6 +43,7 @@ import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.RecordType;
 import org.folio.search.domain.dto.ShelvingOrderAlgorithmType;
+import org.folio.search.model.index.CallNumberResource;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.reindex.jdbc.SubResourcesLockRepository;
@@ -135,27 +136,56 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
   @Test
   @TestRailCase(627509)
   void browseByCallNumber_sudocOption_onlyConfiguredTypesReturnExactMatch() {
-    var cnByNum = callNumbers().stream()
-      .map(CallNumberTestData.CallNumberTestDataRecord::callNumber)
-      .collect(Collectors.toMap(cn -> Integer.parseInt(cn.id()), identity()));
+    var cnByNum = createCallNumberLookup();
 
     // Non-configured types (IDs 1=LC, 2=DEWEY, 3=NLM, 5=OTHER) must NOT produce an exact match
     for (var cnId : List.of(1, 2, 3, 5)) {
       var cn = cnByNum.get(cnId);
-      assertThat(browseSudoc(cn.fullCallNumber()).getItems())
+      assertThat(browse(cn.fullCallNumber(), BrowseOptionType.SUDOC).getItems())
         .as("Expected no exact match for non-SUDOC call number '%s' (id=%d)", cn.callNumber(), cnId)
         .anySatisfy(item -> assertThat(item).isEqualTo(cnEmptyBrowseItem(cn.fullCallNumber())));
     }
 
     // ID 4 = "Y 10.13:980" (SUDOC type) SHOULD produce an exact match
     var sudocCn = cnByNum.get(4);
-    assertThat(browseSudoc(sudocCn.fullCallNumber()).getItems())
+    assertThat(browse(sudocCn.fullCallNumber(), BrowseOptionType.SUDOC).getItems())
       .as("Expected exact match for SUDOC call number '%s'", sudocCn.callNumber())
       .anySatisfy(item -> {
         assertThat(item.getFullCallNumber()).isEqualTo(sudocCn.fullCallNumber());
         assertThat(item.getIsAnchor()).isTrue();
         assertThat(item.getTotalRecords()).isGreaterThan(0);
       });
+  }
+
+  /**
+   * When the LC browse config has no configured call number types (empty typeIds),
+   * call numbers of every type should produce an exact match when browsing with the LC option.
+   */
+  @Test
+  @TestRailCase(627500)
+  void browseByCallNumber_lcOption_emptyConfig_allTypesReturnExactMatch() {
+    updateLcConfig(emptyList());
+
+    var cnByNum = createCallNumberLookup();
+
+    // IDs 1=LC, 2=DEWEY, 3=NLM, 4=SUDOC, 5=OTHER
+    for (var cnId : List.of(1, 2, 3, 4, 5)) {
+      var cn = cnByNum.get(cnId);
+      assertThat(browse(cn.fullCallNumber(), BrowseOptionType.LC).getItems())
+        .as("Expected exact match for '%s' (id=%d, type=%s) with empty LC config",
+          cn.callNumber(), cnId, cn.callNumberTypeId())
+        .anySatisfy(item -> {
+          assertThat(item.getFullCallNumber()).isEqualTo(cn.fullCallNumber());
+          assertThat(item.getIsAnchor()).isTrue();
+          assertThat(item.getTotalRecords()).isGreaterThan(0);
+        });
+    }
+  }
+
+  private static Map<Integer, CallNumberResource> createCallNumberLookup() {
+    return callNumbers().stream()
+      .map(CallNumberTestData.CallNumberTestDataRecord::callNumber)
+      .collect(Collectors.toMap(cn -> Integer.parseInt(cn.id()), identity()));
   }
 
   private static Stream<Arguments> facetQueriesProvider() {
@@ -178,9 +208,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
     var forwardQuery = "fullCallNumber > {value}";
     var backwardQuery = "fullCallNumber < {value}";
 
-    var callNumbers = callNumbers().stream()
-      .map(CallNumberTestData.CallNumberTestDataRecord::callNumber)
-      .collect(Collectors.toMap(callNumberResource -> Integer.parseInt(callNumberResource.id()), identity()));
+    var callNumbers = createCallNumberLookup();
 
     return Stream.of(
       // anchor call number appears in the middle of the result set
@@ -285,9 +313,9 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
     );
   }
 
-  private CallNumberBrowseResult browseSudoc(String fullCallNumber) {
+  private CallNumberBrowseResult browse(String fullCallNumber, BrowseOptionType browseOptionType) {
     var query = "fullCallNumber >= {value} or fullCallNumber < {value}";
-    var request = get(instanceCallNumberBrowsePath(BrowseOptionType.SUDOC))
+    var request = get(instanceCallNumberBrowsePath(browseOptionType))
       .param("expandAll", "true")
       .param("query", prepareQuery(query, '"' + fullCallNumber + '"'))
       .param("limit", "5");
@@ -295,24 +323,22 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
   }
 
   private static void updateSudocConfig(List<UUID> typeIds) {
-    var config = new BrowseConfig()
-      .id(BrowseOptionType.SUDOC)
-      .shelvingAlgorithm(ShelvingOrderAlgorithmType.SUDOC)
-      .typeIds(typeIds);
-
-    var stub = mockCallNumberTypes(okapi.wireMockServer(), typeIds.toArray(new UUID[0]));
-    doPut(browseConfigPath(BrowseType.INSTANCE_CALL_NUMBER, BrowseOptionType.SUDOC), config);
-    okapi.wireMockServer().removeStub(stub);
+    updateCnConfig(typeIds, BrowseOptionType.SUDOC, ShelvingOrderAlgorithmType.SUDOC);
   }
 
   private static void updateLcConfig(List<UUID> typeIds) {
+    updateCnConfig(typeIds, BrowseOptionType.LC, ShelvingOrderAlgorithmType.LC);
+  }
+
+  private static void updateCnConfig(List<UUID> typeIds, BrowseOptionType browseOptionType,
+                                     ShelvingOrderAlgorithmType algorithmType) {
     var config = new BrowseConfig()
-      .id(BrowseOptionType.LC)
-      .shelvingAlgorithm(ShelvingOrderAlgorithmType.LC)
+      .id(browseOptionType)
+      .shelvingAlgorithm(algorithmType)
       .typeIds(typeIds);
 
     var stub = mockCallNumberTypes(okapi.wireMockServer(), typeIds.toArray(new UUID[0]));
-    doPut(browseConfigPath(BrowseType.INSTANCE_CALL_NUMBER, BrowseOptionType.LC), config);
+    doPut(browseConfigPath(BrowseType.INSTANCE_CALL_NUMBER, browseOptionType), config);
     okapi.wireMockServer().removeStub(stub);
   }
 }

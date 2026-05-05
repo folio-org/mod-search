@@ -15,6 +15,7 @@ import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.support.base.ApiEndpoints.recordFacetsPath;
 import static org.folio.support.utils.CallNumberTestData.CallNumberTypeId.LC;
 import static org.folio.support.utils.CallNumberTestData.CallNumberTypeId.NLM;
+import static org.folio.support.utils.CallNumberTestData.CallNumberTypeId.OTHER;
 import static org.folio.support.utils.CallNumberTestData.CallNumberTypeId.SUDOC;
 import static org.folio.support.utils.CallNumberTestData.callNumbers;
 import static org.folio.support.utils.CallNumberTestData.cnBrowseItem;
@@ -99,6 +100,7 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
   void setUp() {
     updateLcConfig(List.of(UUID.fromString(LC.getId())));
     updateNlmConfig(List.of(UUID.fromString(NLM.getId())));
+    updateOtherConfig(List.of(UUID.fromString(OTHER.getId())));
     updateSudocConfig(List.of(UUID.fromString(SUDOC.getId())));
   }
 
@@ -163,12 +165,12 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
    * When a browse config has no configured call number types (empty typeIds),
    * call numbers of every type should produce an exact match for that browse option.
    */
-  @TestRailCase({627500, 627501})
+  @TestRailCase({627500, 627501, 627502})
   @ParameterizedTest(name = "[{0}] empty config - all types return exact match")
   @MethodSource("emptyConfigBrowseOptionProvider")
-  void browseByCallNumber_emptyConfig_allTypesReturnExactMatch(BrowseOptionType browseOptionType) {
-    updateCnConfig(emptyList(), browseOptionType,
-      ShelvingOrderAlgorithmType.valueOf(browseOptionType.name()));
+  void browseByCallNumber_emptyConfig_allTypesReturnExactMatch(BrowseOptionType browseOptionType,
+                                                               ShelvingOrderAlgorithmType algorithmType) {
+    updateCnConfig(emptyList(), browseOptionType, algorithmType);
 
     var cnByNum = createCallNumberLookup();
 
@@ -187,7 +189,11 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
   }
 
   private static Stream<Arguments> emptyConfigBrowseOptionProvider() {
-    return Stream.of(arguments(BrowseOptionType.LC), arguments(BrowseOptionType.NLM));
+    return Stream.of(
+      arguments(BrowseOptionType.LC, ShelvingOrderAlgorithmType.LC),
+      arguments(BrowseOptionType.NLM, ShelvingOrderAlgorithmType.NLM),
+      arguments(BrowseOptionType.OTHER, ShelvingOrderAlgorithmType.DEFAULT)
+    );
   }
 
   private static Map<Integer, CallNumberResource> createCallNumberLookup() {
@@ -332,6 +338,10 @@ class BrowseCallNumberIT extends BaseIntegrationTest {
 
   private static void updateNlmConfig(List<UUID> typeIds) {
     updateCnConfig(typeIds, BrowseOptionType.NLM, ShelvingOrderAlgorithmType.NLM);
+  }
+
+  private static void updateOtherConfig(List<UUID> typeIds) {
+    updateCnConfig(typeIds, BrowseOptionType.OTHER, ShelvingOrderAlgorithmType.DEFAULT);
   }
 
   private static void updateSudocConfig(List<UUID> typeIds) {

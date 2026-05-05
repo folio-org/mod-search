@@ -34,8 +34,6 @@ import org.folio.search.domain.dto.RecordType;
 import org.folio.search.domain.dto.Tags;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.BaseIntegrationTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -43,7 +41,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @IntegrationTest
-public class SearchInstanceFilterIT extends BaseIntegrationTest {
+public abstract class SearchInstanceFilterIT extends BaseIntegrationTest {
 
   private static final String AVAILABLE = "Available";
   private static final String CHECKED_OUT = "Checked out";
@@ -114,18 +112,6 @@ public class SearchInstanceFilterIT extends BaseIntegrationTest {
 
   private static final String[] DATES = array(
     "2021", "ddd9", "2020", "d99\\", "2023", "2022", "0", "1000");
-
-  @BeforeAll
-  static void prepare() {
-    var holdingsMatcher = jsonPath("sum($.instances..holdings.length())", is((double) HOLDINGS_IDS.length));
-    var itemsMatcher = jsonPath("sum($.instances..items.length())", is((double) ITEM_IDS.length));
-    setUpTenant(List.of(holdingsMatcher, itemsMatcher), instances());
-  }
-
-  @AfterAll
-  static void cleanUp() {
-    removeTenant();
-  }
 
   @MethodSource("filteredSearchQueriesProvider")
   @DisplayName("searchByInstances_parameterized")

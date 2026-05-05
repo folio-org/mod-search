@@ -17,15 +17,13 @@ import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemStatus;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.BaseIntegrationTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @IntegrationTest
-public class SortItemIT extends BaseIntegrationTest {
+public abstract class SortItemIT extends BaseIntegrationTest {
 
   private static final String[] IDS = array(
     "497a920b-225f-44c2-9a48-964c52fb5cc3",
@@ -39,18 +37,6 @@ public class SortItemIT extends BaseIntegrationTest {
     "1650bee3-1e90-4815-ac12-31d1a12bd7c2",
     "0646ce7c-efcd-4449-ba29-f5aba3ec7690",
     "bafb734e-88f4-4fbe-bd78-119630d225bb");
-
-  @BeforeAll
-  static void prepare() {
-    var holdingsMatcher = jsonPath("sum($.instances..holdings.length())", is(5.0));
-    var itemsMatcher = jsonPath("sum($.instances..items.length())", is(21.0));
-    setUpTenant(List.of(holdingsMatcher, itemsMatcher), instances());
-  }
-
-  @AfterAll
-  static void cleanUp() {
-    removeTenant();
-  }
 
   @MethodSource("sortItemQueryProvider")
   @DisplayName("searchByInstances_parameterized")

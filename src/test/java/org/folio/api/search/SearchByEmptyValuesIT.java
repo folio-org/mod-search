@@ -18,7 +18,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 @IntegrationTest
-class SearchByEmptyValuesIT extends BaseIntegrationTest {
+public class SearchByEmptyValuesIT extends BaseIntegrationTest {
 
   private static final String INSTANCE_ID_1 = randomId();
   private static final String INSTANCE_ID_2 = randomId();

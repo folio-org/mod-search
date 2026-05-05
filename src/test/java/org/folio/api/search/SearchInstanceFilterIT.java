@@ -43,7 +43,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @IntegrationTest
-class SearchInstanceFilterIT extends BaseIntegrationTest {
+public class SearchInstanceFilterIT extends BaseIntegrationTest {
 
   private static final String AVAILABLE = "Available";
   private static final String CHECKED_OUT = "Checked out";

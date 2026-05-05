@@ -20,7 +20,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 @IntegrationTest
-class SortInstanceIT extends BaseIntegrationTest {
+public class SortInstanceIT extends BaseIntegrationTest {
 
   private static final String ID_ANIMAL_FARM = randomId();
   private static final String ID_ZERO_MINUS_TEN = randomId();

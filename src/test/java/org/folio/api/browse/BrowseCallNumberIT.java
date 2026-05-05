@@ -64,7 +64,7 @@ import org.springframework.test.context.TestPropertySource;
 
 @IntegrationTest
 @TestPropertySource(properties = "folio.search-config.indexing.instance-children-index-enabled=true")
-class BrowseCallNumberIT extends BaseIntegrationTest {
+public class BrowseCallNumberIT extends BaseIntegrationTest {
 
   private static final List<Instance> INSTANCES = CallNumberTestData.instances();
 

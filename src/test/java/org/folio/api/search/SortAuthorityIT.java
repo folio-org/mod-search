@@ -17,7 +17,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 @IntegrationTest
-class SortAuthorityIT extends BaseIntegrationTest {
+public class SortAuthorityIT extends BaseIntegrationTest {
 
   private static final int RECORDS_COUNT = 5;
 

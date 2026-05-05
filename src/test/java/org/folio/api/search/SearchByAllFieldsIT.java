@@ -16,7 +16,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 @IntegrationTest
-class SearchByAllFieldsIT extends BaseIntegrationTest {
+public class SearchByAllFieldsIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void prepare() {

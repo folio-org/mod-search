@@ -49,7 +49,7 @@ import org.springframework.test.context.TestPropertySource;
 
 @IntegrationTest
 @TestPropertySource(properties = "folio.search-config.indexing.instance-children-index-enabled=true")
-class BrowseContributorIT extends BaseIntegrationTest {
+public class BrowseContributorIT extends BaseIntegrationTest {
 
   private static final String[] NAME_TYPE_IDS =
     array("e2ef4075-310a-4447-a231-712bf10cc985", "0ad0a89a-741d-4f1a-85a6-ada214751013",

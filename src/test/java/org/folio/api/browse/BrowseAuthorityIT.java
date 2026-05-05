@@ -24,7 +24,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @IntegrationTest
-class BrowseAuthorityIT extends BaseIntegrationTest {
+public class BrowseAuthorityIT extends BaseIntegrationTest {
 
   private static final String REFERENCE = "Reference";
   private static final String AUTHORIZED = "Authorized";

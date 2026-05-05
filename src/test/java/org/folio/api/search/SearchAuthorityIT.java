@@ -34,7 +34,7 @@ import org.junit.jupiter.params.provider.CsvFileSource;
 import org.junit.jupiter.params.provider.CsvSource;
 
 @IntegrationTest
-class SearchAuthorityIT extends BaseIntegrationTest {
+public class SearchAuthorityIT extends BaseIntegrationTest {
 
   private static final String AUTHORIZED_TYPE = "Authorized";
   private static final String REFERENCE_TYPE = "Reference";

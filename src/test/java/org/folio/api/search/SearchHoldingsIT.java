@@ -15,7 +15,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 @IntegrationTest
-class SearchHoldingsIT extends BaseIntegrationTest {
+public class SearchHoldingsIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void prepare() {

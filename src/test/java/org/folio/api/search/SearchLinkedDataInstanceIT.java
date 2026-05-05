@@ -40,7 +40,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 @IntegrationTest
-class SearchLinkedDataInstanceIT extends BaseIntegrationTest {
+public class SearchLinkedDataInstanceIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void prepare() {

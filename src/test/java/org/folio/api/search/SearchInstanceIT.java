@@ -25,7 +25,7 @@ import org.junit.jupiter.params.provider.CsvFileSource;
 import org.junit.jupiter.params.provider.CsvSource;
 
 @IntegrationTest
-class SearchInstanceIT extends BaseIntegrationTest {
+public class SearchInstanceIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void prepare() {

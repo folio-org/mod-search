@@ -50,7 +50,7 @@ import org.springframework.test.context.TestPropertySource;
 
 @IntegrationTest
 @TestPropertySource(properties = "folio.search-config.indexing.instance-children-index-enabled=true")
-class BrowseClassificationIT extends BaseIntegrationTest {
+public class BrowseClassificationIT extends BaseIntegrationTest {
 
   private static final String LC_TYPE_ID = "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a";
   private static final String LC2_TYPE_ID = "308c950f-8209-4f2e-9702-0c004a9f21bc";

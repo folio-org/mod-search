@@ -25,7 +25,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @IntegrationTest
-class SortItemIT extends BaseIntegrationTest {
+public class SortItemIT extends BaseIntegrationTest {
 
   private static final String[] IDS = array(
     "497a920b-225f-44c2-9a48-964c52fb5cc3",

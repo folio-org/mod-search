@@ -13,7 +13,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 @IntegrationTest
-class SortInstanceByTitleIT extends BaseIntegrationTest {
+public class SortInstanceByTitleIT extends BaseIntegrationTest {
 
   private static final List<String> TITLES = List.of(
     "Ground water in Africa.",

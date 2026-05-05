@@ -35,7 +35,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @IntegrationTest
-class SearchAuthorityFilterIT extends BaseIntegrationTest {
+public class SearchAuthorityFilterIT extends BaseIntegrationTest {
 
   private static final int RECORDS_COUNT = 15;
 

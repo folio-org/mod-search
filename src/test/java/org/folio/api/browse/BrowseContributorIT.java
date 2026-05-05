@@ -1,15 +1,8 @@
 package org.folio.api.browse;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.await;
-import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
-import static org.awaitility.Durations.ONE_MINUTE;
-import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CONTRIBUTORS;
-import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.instanceContributorBrowsePath;
-import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.support.base.ApiEndpoints.recordFacetsPath;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
 import static org.folio.support.utils.TestUtils.array;
@@ -22,7 +15,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -32,24 +24,16 @@ import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.RecordType;
-import org.folio.search.model.types.ReindexEntityType;
-import org.folio.search.model.types.ResourceType;
-import org.folio.search.service.reindex.jdbc.SubResourcesLockRepository;
-import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.BaseIntegrationTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.TestPropertySource;
 
-@IntegrationTest
-@TestPropertySource(properties = "folio.search-config.indexing.instance-children-index-enabled=true")
-public class BrowseContributorIT extends BaseIntegrationTest {
+public abstract class BrowseContributorIT extends BaseIntegrationTest {
+
+  public static final Instance[] INSTANCES = instances();
 
   private static final String[] NAME_TYPE_IDS =
     array("e2ef4075-310a-4447-a231-712bf10cc985", "0ad0a89a-741d-4f1a-85a6-ada214751013",
@@ -59,39 +43,6 @@ public class BrowseContributorIT extends BaseIntegrationTest {
       "653ffe66-aa3f-4f1c-a090-c42c4011ef40");
   private static final String[] AUTHORITY_IDS =
     array("0a4c6d10-2161-4f64-aace-9e919489b6c9", "7ff32633-cc49-4332-870a-b05e329d2a2d");
-  private static final Instance[] INSTANCES = instances();
-
-  @BeforeAll
-  static void prepare(@Autowired SubResourcesLockRepository subResourcesLockRepository) {
-    setUpTenant();
-
-    enableFeature(BROWSE_CONTRIBUTORS);
-
-    var timestamp = subResourcesLockRepository.lockSubResource(ReindexEntityType.CONTRIBUTOR, TENANT_ID);
-    if (timestamp.isEmpty()) {
-      throw new IllegalStateException("Unexpected state of database: unable to lock contributor resource");
-    }
-
-    saveRecords(TENANT_ID, instanceSearchPath(), asList(INSTANCES), INSTANCES.length, emptyList(),
-      instance -> inventoryApi.createInstance(TENANT_ID, instance));
-
-    // this is needed to test deleting contributors when all instances are unlinked from a contributor
-    var instanceToUpdate = INSTANCES[0];
-    instanceToUpdate.setContributors(Collections.emptyList());
-    inventoryApi.updateInstance(TENANT_ID, instanceToUpdate);
-
-    subResourcesLockRepository.unlockSubResource(ReindexEntityType.CONTRIBUTOR, timestamp.get(), TENANT_ID);
-
-    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() -> {
-      var counted = countIndexDocument(ResourceType.INSTANCE_CONTRIBUTOR, TENANT_ID);
-      assertThat(counted).isEqualTo(13);
-    });
-  }
-
-  @AfterAll
-  static void cleanUp() {
-    removeTenant();
-  }
 
   @MethodSource("contributorBrowsingDataProvider")
   @DisplayName("browseByContributor_parameterized")

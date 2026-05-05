@@ -1,5 +1,6 @@
 package org.folio.api;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
@@ -71,7 +72,13 @@ class SearchBrowseIT extends BaseIntegrationTest {
     await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
       assertThat(countIndexDocument(ResourceType.INSTANCE_CLASSIFICATION, TENANT_ID))
         .isEqualTo(EXPECTED_CLASSIFICATION_COUNT));
-    // further awaits (contributor, subject, total) added in later tasks
+    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
+      assertThat(countIndexDocument(ResourceType.INSTANCE_CONTRIBUTOR, TENANT_ID))
+        .isEqualTo(EXPECTED_CONTRIBUTOR_COUNT));
+    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
+      assertThat(countIndexDocument(ResourceType.INSTANCE_SUBJECT, TENANT_ID))
+        .isEqualTo(EXPECTED_SUBJECT_COUNT));
+    // further awaits (total) added in later tasks
   }
 
   private static void loadInstancesUnderLock(SubResourcesLockRepository repo) {
@@ -90,6 +97,15 @@ class SearchBrowseIT extends BaseIntegrationTest {
     Arrays.stream(SearchByEmptyValuesIT.INSTANCES).forEach(i -> inventoryApi.createInstance(TENANT_ID, i));
     Arrays.stream(BrowseCallNumberIT.INSTANCES).forEach(i -> inventoryApi.createInstance(TENANT_ID, i)); // Task 7
     Arrays.stream(BrowseClassificationIT.INSTANCES).forEach(i -> inventoryApi.createInstance(TENANT_ID, i)); // Task 7
+
+    // BrowseContributor group
+    Arrays.stream(BrowseContributorIT.INSTANCES).forEach(i -> inventoryApi.createInstance(TENANT_ID, i));
+    // Mutation: clear contributors from first instance so deletion re-index is tested
+    BrowseContributorIT.INSTANCES[0].setContributors(emptyList());
+    inventoryApi.updateInstance(TENANT_ID, BrowseContributorIT.INSTANCES[0]);
+
+    // BrowseSubject group
+    Arrays.stream(BrowseSubjectIT.INSTANCES).forEach(i -> inventoryApi.createInstance(TENANT_ID, i));
 
     repo.unlockSubResource(ReindexEntityType.CALL_NUMBER, cnLock, TENANT_ID);
     repo.unlockSubResource(ReindexEntityType.CONTRIBUTOR, contribLock, TENANT_ID);

@@ -1,15 +1,7 @@
 package org.folio.api.browse;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.await;
-import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
-import static org.awaitility.Durations.ONE_MINUTE;
-import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_SUBJECTS;
-import static org.folio.search.model.types.ResourceType.INSTANCE_SUBJECT;
-import static org.folio.support.TestConstants.TENANT_ID;
-import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.support.base.ApiEndpoints.instanceSubjectBrowsePath;
 import static org.folio.support.base.ApiEndpoints.recordFacetsPath;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
@@ -35,23 +27,16 @@ import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.RecordType;
 import org.folio.search.domain.dto.Subject;
 import org.folio.search.domain.dto.SubjectBrowseResult;
-import org.folio.search.model.types.ReindexEntityType;
-import org.folio.search.service.reindex.jdbc.SubResourcesLockRepository;
-import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.BaseIntegrationTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.TestPropertySource;
 
-@IntegrationTest
-@TestPropertySource(properties = "folio.search-config.indexing.instance-children-index-enabled=true")
-public class BrowseSubjectIT extends BaseIntegrationTest {
+public abstract class BrowseSubjectIT extends BaseIntegrationTest {
+
+  public static final Instance[] INSTANCES = instances();
 
   private static final String MUSIC_AUTHORITY_ID_1 = "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a";
   private static final String MUSIC_AUTHORITY_ID_2 = "308c950f-8209-4f2e-9702-0c004a9f21bc";
@@ -59,34 +44,6 @@ public class BrowseSubjectIT extends BaseIntegrationTest {
   private static final String MUSIC_SOURCE_ID_2 = "308c950f-8209-4f2e-9702-0c004a9f21bd";
   private static final String MUSIC_TYPE_ID_1 = "e62bbefe-adf5-4b1e-b3e7-43d877b0c91c";
   private static final String MUSIC_TYPE_ID_2 = "308c950f-8209-4f2e-9702-0c004a9f21be";
-  private static final Instance[] INSTANCES = instances();
-
-  @BeforeAll
-  static void prepare(@Autowired SubResourcesLockRepository subResourcesLockRepository) {
-    setUpTenant();
-
-    enableFeature(BROWSE_SUBJECTS);
-
-    var timestamp = subResourcesLockRepository.lockSubResource(ReindexEntityType.SUBJECT, TENANT_ID);
-    if (timestamp.isEmpty()) {
-      throw new IllegalStateException("Unexpected state of database: unable to lock subject resource");
-    }
-
-    saveRecords(TENANT_ID, instanceSearchPath(), asList(INSTANCES), INSTANCES.length, emptyList(),
-      instance -> inventoryApi.createInstance(TENANT_ID, instance));
-
-    subResourcesLockRepository.unlockSubResource(ReindexEntityType.SUBJECT, timestamp.get(), TENANT_ID);
-
-    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() -> {
-      var counted = countIndexDocument(INSTANCE_SUBJECT, TENANT_ID);
-      assertThat(counted).isEqualTo(28);
-    });
-  }
-
-  @AfterAll
-  static void cleanUp() {
-    removeTenant();
-  }
 
   @MethodSource("subjectBrowsingDataProvider")
   @DisplayName("browseBySubject_parameterized")

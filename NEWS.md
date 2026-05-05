@@ -15,6 +15,7 @@
 ### Tech Dept
 * Add `@TestRailCase` annotation for linking integration tests to TestRail cases
 * Add integration test coverage for SUDOC call-number browse type filtering (TestRail C627509)
+* Add integration test coverage for LC call-number browse with empty config returning all types (TestRail C627500)
 
 ### Dependencies
 * Bump `LIB_NAME` from `OLD_VERSION` to `NEW_VERSION`

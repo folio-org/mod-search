@@ -3,7 +3,6 @@ package org.folio.api.search;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.sample.SampleAuthorities.getAuthorityNaturalId;
-import static org.folio.support.sample.SampleAuthorities.getAuthoritySampleAsMap;
 import static org.folio.support.sample.SampleAuthorities.getAuthoritySampleId;
 import static org.folio.support.sample.SampleAuthorities.getAuthoritySourceFileId;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
@@ -12,15 +11,9 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import java.util.List;
-import java.util.Map;
 import org.assertj.core.api.InstanceOfAssertFactories;
-import org.folio.search.domain.dto.AlternativeTitle;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthoritySearchResult;
-import org.folio.search.domain.dto.Contributor;
-import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.SeriesItem;
-import org.folio.search.domain.dto.Subject;
 import org.folio.support.base.BaseIntegrationTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,18 +22,6 @@ import org.junit.jupiter.params.provider.CsvFileSource;
 import org.junit.jupiter.params.provider.CsvSource;
 
 public abstract class SearchAuthorityIT extends BaseIntegrationTest {
-
-  public static final Map<String, Object> AUTHORITY_SAMPLE = getAuthoritySampleAsMap();
-  public static final Instance[] LINKED_INSTANCES = {
-    new Instance().id("aa110001-0000-0000-0000-000000000001").title("test-resource")
-      .subjects(List.of(new Subject().value("s1").authorityId(getAuthoritySampleId()))),
-    new Instance().id("aa110001-0000-0000-0000-000000000002").title("test-resource")
-      .contributors(List.of(new Contributor().name("c1").authorityId(getAuthoritySampleId()))),
-    new Instance().id("aa110001-0000-0000-0000-000000000003").title("test-resource")
-      .alternativeTitles(List.of(new AlternativeTitle().alternativeTitle("a1").authorityId(getAuthoritySampleId()))),
-    new Instance().id("aa110001-0000-0000-0000-000000000004").title("test-resource")
-      .series(List.of(new SeriesItem().value("s1").authorityId(getAuthoritySampleId())))
-  };
 
   private static final String AUTHORIZED_TYPE = "Authorized";
   private static final String REFERENCE_TYPE = "Reference";

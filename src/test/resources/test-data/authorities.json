@@ -1,0 +1,1045 @@
+[
+  {
+    "id": "55294032-fcf6-45cc-b6da-4420a61ef72c",
+    "personalName": "Gary A. Wills",
+    "sftPersonalName": [
+      "a sft personal name"
+    ],
+    "saftPersonalName": [
+      "a saft personal name"
+    ],
+    "personalNameTitle": "a personal title",
+    "sftPersonalNameTitle": [
+      "a sft personal title"
+    ],
+    "saftPersonalNameTitle": [
+      "a saft personal title"
+    ],
+    "corporateName": "a corporate name",
+    "sftCorporateName": [
+      "a sft corporate name"
+    ],
+    "saftCorporateName": [
+      "a saft corporate name"
+    ],
+    "corporateNameTitle": "a corporate title",
+    "sftCorporateNameTitle": [
+      "a sft corporate title"
+    ],
+    "saftCorporateNameTitle": [
+      "a saft corporate title"
+    ],
+    "meetingName": "a conference name",
+    "sftMeetingName": [
+      "a sft conference name"
+    ],
+    "saftMeetingName": [
+      "a saft conference name"
+    ],
+    "meetingNameTitle": "a conference title",
+    "sftMeetingNameTitle": [
+      "a sft conference title"
+    ],
+    "saftMeetingNameTitle": [
+      "a saft conference title"
+    ],
+    "geographicName": "a geographic name",
+    "sftGeographicName": [
+      "a sft geographic name"
+    ],
+    "saftGeographicName": [
+      "a saft geographic name"
+    ],
+    "uniformTitle": "an uniform title",
+    "sftUniformTitle": [
+      "a sft uniform title"
+    ],
+    "saftUniformTitle": [
+      "a saft uniform title"
+    ],
+    "namedEvent": "a named event",
+    "sftNamedEvent": [
+      "a sft named event"
+    ],
+    "saftNamedEvent": [
+      "a saft named event"
+    ],
+    "generalSubdivision": "a general subdivision",
+    "sftGeneralSubdivision": [
+      "a sft general subdivision"
+    ],
+    "saftGeneralSubdivision": [
+      "a saft general subdivision"
+    ],
+    "topicalTerm": "a topical term",
+    "sftTopicalTerm": [
+      "a sft topical term"
+    ],
+    "saftTopicalTerm": [
+      "a saft topical term"
+    ],
+    "genreTerm": "a genre term",
+    "sftGenreTerm": [
+      "a sft genre term"
+    ],
+    "saftGenreTerm": [
+      "a saft genre term"
+    ],
+    "chronTerm": "a chron term",
+    "sftChronTerm": [
+      "a sft chron term"
+    ],
+    "saftChronTerm": [
+      "a saft chron term"
+    ],
+    "mediumPerfTerm": "a medium perf term",
+    "sftMediumPerfTerm": [
+      "a sft medium perf term"
+    ],
+    "saftMediumPerfTerm": [
+      "a saft medium perf term"
+    ],
+    "geographicSubdivision": "a geographic subdivision",
+    "sftGeographicSubdivision": [
+      "a sft geographic subdivision"
+    ],
+    "saftGeographicSubdivision": [
+      "a saft geographic subdivision"
+    ],
+    "chronSubdivision": "a chron subdivision",
+    "sftChronSubdivision": [
+      "a sft chron subdivision"
+    ],
+    "saftChronSubdivision": [
+      "a saft chron subdivision"
+    ],
+    "formSubdivision": "a form subdivision",
+    "sftFormSubdivision": [
+      "a sft form subdivision"
+    ],
+    "saftFormSubdivision": [
+      "a saft form subdivision"
+    ],
+    "subjectHeadings": "a subject heading",
+    "identifiers": [
+      {
+        "identifierTypeId": "caaf835f-2037-46c5-9c62-71abaaaa78c5",
+        "value": "authority-identifier"
+      },
+      {
+        "identifierTypeId": "d6f3c637-3969-4dc6-9146-6371063f049e",
+        "value": "3114176276"
+      },
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "3745-1086"
+      },
+      {
+        "value": "2003065165",
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
+      },
+      {
+        "value": "n 2003075732",
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
+      },
+      {
+        "value": "canceled LCCN",
+        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9"
+      }
+    ],
+    "metadata": {
+      "createdDate": "2021-11-14T12:00:00.000+00:00",
+      "createdByUserId": "09934b6d-2940-4c48-b96b-d2f5b439e50e",
+      "updatedDate": "2021-11-15T15:00:00.000+00:00",
+      "updatedByUserId": "f0f94ee3-eace-4670-84c9-99dee171d2c8"
+    },
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "an authority note"
+      }
+    ],
+    "sourceFileId": "5de462a2-7a90-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "numberOfTitles": 0,
+    "tags": {
+      "tagList": [
+        "search-authority"
+      ]
+    }
+  },
+  {
+    "id": "1353873c-0e5e-4d64-a2f9-6c444dc4cd46",
+    "personalName": "Resource 0",
+    "subjectHeadings": "a",
+    "sourceFileId": "1353873c-0e5e-4d64-a2f9-6c444dc4cd46",
+    "metadata": {
+      "createdDate": "2021-03-01T00:00:00.000+00:00",
+      "updatedDate": "2021-03-05T12:30:00.000+00:00"
+    },
+    "tags": {
+      "tagList": [
+        "search-authority-filter"
+      ]
+    }
+  },
+  {
+    "id": "cc6bbc19-3f54-43c5-8736-b85688619641",
+    "personalName": "Resource 1",
+    "subjectHeadings": "a",
+    "sourceFileId": "1353873c-0e5e-4d64-a2f9-6c444dc4cd46",
+    "metadata": {
+      "createdDate": "2021-03-10T01:00:00.000+00:00",
+      "updatedDate": "2021-03-12T15:40:00.000+00:00"
+    },
+    "tags": {
+      "tagList": [
+        "search-authority-filter"
+      ]
+    }
+  },
+  {
+    "id": "39a52d91-8dbb-4348-ab06-5c6115e600cd",
+    "personalNameTitle": "Resource 2",
+    "subjectHeadings": "a",
+    "sourceFileId": "1353873c-0e5e-4d64-a2f9-6c444dc4cd46",
+    "metadata": {
+      "createdDate": "2021-03-08T15:00:00.000+00:00",
+      "updatedDate": "2021-03-15T22:30:00.000+00:00"
+    },
+    "tags": {
+      "tagList": [
+        "search-authority-filter"
+      ]
+    }
+  },
+  {
+    "id": "62f72eeb-ed5a-4619-b01f-1750d5528d25",
+    "personalName": "Resource 3",
+    "subjectHeadings": "a",
+    "sourceFileId": "1353873c-0e5e-4d64-a2f9-6c444dc4cd46",
+    "metadata": {
+      "createdDate": "2021-03-15T12:00:00.000+00:00",
+      "updatedDate": "2021-03-15T12:00:00.000+00:00"
+    },
+    "tags": {
+      "tagList": [
+        "search-authority-filter"
+      ]
+    }
+  },
+  {
+    "id": "6edc7db0-5363-41ec-bf63-0242ac130002",
+    "meetingNameTitle": "ConferenceName",
+    "subjectHeadings": "b",
+    "sourceFileId": "cc6bbc19-3f54-43c5-8736-b85688619641",
+    "tags": {
+      "tagList": [
+        "search-authority-filter"
+      ]
+    }
+  },
+  {
+    "id": "75b6e1e8-5363-41ec-bf63-0242ac130002",
+    "geographicName": "GeographicName",
+    "subjectHeadings": "c",
+    "sourceFileId": "39a52d91-8dbb-4348-ab06-5c6115e600cd",
+    "tags": {
+      "tagList": [
+        "search-authority-filter"
+      ]
+    }
+  },
+  {
+    "id": "62f72eeb-ed5a-4619-b01f-1750d5528d27",
+    "genreTerm": "GenreTerm",
+    "subjectHeadings": "c",
+    "sourceFileId": "39a52d91-8dbb-4348-ab06-5c6115e600cd",
+    "tags": {
+      "tagList": [
+        "search-authority-filter"
+      ]
+    }
+  },
+  {
+    "id": "62f72eeb-ed5a-4619-b01f-1750d5528d28",
+    "genreTerm": "GenreTerm",
+    "subjectHeadings": "c",
+    "sourceFileId": "39a52d91-8dbb-4348-ab06-5c6115e600cd",
+    "tags": {
+      "tagList": [
+        "search-authority-filter"
+      ]
+    }
+  },
+  {
+    "id": "7bfb7550-5363-41ec-bf63-0242ac130002",
+    "corporateName": "CorporateName",
+    "subjectHeadings": "d",
+    "sourceFileId": "62f72eeb-ed5a-4619-b01f-1750d5528d25",
+    "tags": {
+      "tagList": [
+        "search-authority-filter"
+      ]
+    }
+  },
+  {
+    "id": "3ec9be46-b002-472e-87c9-0e8a4c9eb8d2",
+    "corporateName": "CorporateName",
+    "subjectHeadings": "d",
+    "sourceFileId": "62f72eeb-ed5a-4619-b01f-1750d5528d25",
+    "tags": {
+      "tagList": [
+        "search-authority-filter"
+      ]
+    }
+  },
+  {
+    "id": "74f97d56-37ce-44b8-9316-4e5dd4efc103",
+    "topicalTerm": "TopicalTerm",
+    "subjectHeadings": "k",
+    "sourceFileId": "6edc7db0-5363-41ec-bf63-0242ac130002",
+    "tags": {
+      "tagList": [
+        "search-authority-filter"
+      ]
+    }
+  },
+  {
+    "id": "62f72eeb-ed5a-4619-b01f-1750d5528d32",
+    "uniformTitle": "UniformTitle",
+    "subjectHeadings": "n",
+    "sourceFileId": "75b6e1e8-5363-41ec-bf63-0242ac130002",
+    "tags": {
+      "tagList": [
+        "search-authority-filter"
+      ]
+    }
+  },
+  {
+    "id": "8eb6625e-5363-41ec-bf63-0242ac130002",
+    "uniformTitle": "UniformTitle",
+    "subjectHeadings": "n",
+    "sourceFileId": "75b6e1e8-5363-41ec-bf63-0242ac130002",
+    "tags": {
+      "tagList": [
+        "search-authority-filter"
+      ]
+    }
+  },
+  {
+    "id": "0d4cfb3c-0d5d-4bab-8e99-8f077b09bd34",
+    "saftUniformTitle": [
+      "UniformTitle"
+    ],
+    "subjectHeadings": "r",
+    "tags": {
+      "tagList": [
+        "search-authority-filter"
+      ]
+    }
+  },
+  {
+    "id": "2dfd4b30-8c45-4a2e-8779-05f338513584",
+    "saftPersonalName": [
+      "PersonalName"
+    ],
+    "subjectHeadings": "r",
+    "tags": {
+      "tagList": [
+        "search-authority-filter"
+      ]
+    }
+  },
+  {
+    "id": "50720001-0000-4000-8000-000000000001",
+    "personalName": "111",
+    "tags": {
+      "tagList": [
+        "sort-authority"
+      ]
+    }
+  },
+  {
+    "id": "50720001-0000-4000-8000-000000000002",
+    "corporateName": "aaa",
+    "tags": {
+      "tagList": [
+        "sort-authority"
+      ]
+    }
+  },
+  {
+    "id": "50720001-0000-4000-8000-000000000003",
+    "sftUniformTitle": [
+      "ŚŚŚ"
+    ],
+    "tags": {
+      "tagList": [
+        "sort-authority"
+      ]
+    }
+  },
+  {
+    "id": "50720001-0000-4000-8000-000000000004",
+    "saftGenreTerm": [
+      "ccc"
+    ],
+    "tags": {
+      "tagList": [
+        "sort-authority"
+      ]
+    }
+  },
+  {
+    "id": "50720001-0000-4000-8000-000000000005",
+    "personalName": "zzz",
+    "tags": {
+      "tagList": [
+        "sort-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "01320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #01",
+    "personalNameTitle": "Brian K. Vaughan Title",
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "02320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #02",
+    "sftPersonalNameTitle": [
+      "Ĵämes Röllins"
+    ],
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "03320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #03",
+    "saftPersonalNameTitle": [
+      "Brad Thor"
+    ],
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "04320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #04",
+    "corporateNameTitle": "Disney",
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "05320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #05",
+    "sftCorporateNameTitle": [
+      "Blumberg Green Beauty"
+    ],
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "06320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #06",
+    "saftCorporateNameTitle": [
+      "Amazon Kindle"
+    ],
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "07320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #07",
+    "meetingNameTitle": "Comic-Con",
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "08320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #08",
+    "sftMeetingNameTitle": [
+      "Biomedical Symposium"
+    ],
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "09320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #09",
+    "saftMeetingNameTitle": [
+      "World Conference On Corporate Accounting (WCCA)"
+    ],
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "10320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #10",
+    "geographicName": "Asia Pacific",
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "11320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #11",
+    "sftGeographicName": [
+      "North America"
+    ],
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "12320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #12",
+    "saftGeographicName": [
+      "Canada"
+    ],
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "13320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #13",
+    "uniformTitle": "Harry Potter",
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "14320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #14",
+    "sftUniformTitle": [
+      "War and Peace"
+    ],
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "15320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #15",
+    "saftUniformTitle": [
+      "The Lord of the Rings"
+    ],
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "16320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #16",
+    "topicalTerm": "Science",
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "17320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #17",
+    "sftTopicalTerm": [
+      "Fantasy"
+    ],
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "18320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #18",
+    "saftTopicalTerm": [
+      "History"
+    ],
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "19320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #19",
+    "genreTerm": "Novel",
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "20320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #20",
+    "sftGenreTerm": [
+      "Poetry"
+    ],
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "21320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #21",
+    "saftGenreTerm": [
+      "Prose",
+      "Romance"
+    ],
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "22320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #22",
+    "personalName": "Brian K. Vaughan",
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "23320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #23",
+    "personalName": "Zappa Frank",
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "24320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #24",
+    "topicalTerm": "Zappa Frank",
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "25320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #25",
+    "namedEvent": "Eruption of Vesuvius",
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "26320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #26",
+    "sftNamedEvent": [
+      "Revolution"
+    ],
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "27320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #27",
+    "saftNamedEvent": [
+      "Stock Market Crash"
+    ],
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "28320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #28",
+    "generalSubdivision": "Periodicals",
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "29320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #29",
+    "sftGeneralSubdivision": [
+      "Knowledge"
+    ],
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "30320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #30",
+    "saftGeneralSubdivision": [
+      "Shrines"
+    ],
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "31320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #31",
+    "chronTerm": "xChronTerm",
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "32320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #32",
+    "sftChronTerm": [
+      "xsftChronTerm"
+    ],
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "33320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #33",
+    "saftChronTerm": [
+      "xsaftChronTerm"
+    ],
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "34320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #34",
+    "mediumPerfTerm": "xMediumPerfTerm",
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "35320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #35",
+    "sftMediumPerfTerm": [
+      "xsftMediumPerfTerm"
+    ],
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "36320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #36",
+    "saftMediumPerfTerm": [
+      "xsaftMediumPerfTerm"
+    ],
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "37320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #37",
+    "geographicSubdivision": "xGeographicSubdivision",
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "38320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #38",
+    "sftGeographicSubdivision": [
+      "xsftGeographicSubdivision"
+    ],
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "39320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #39",
+    "saftGeographicSubdivision": [
+      "xsaftGeographicSubdivision"
+    ],
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "40320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #40",
+    "chronSubdivision": "xChronSubdivision",
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "41320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #41",
+    "sftChronSubdivision": [
+      "xsftChronSubdivision"
+    ],
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "42320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #42",
+    "saftChronSubdivision": [
+      "xsaftChronSubdivision"
+    ],
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "43320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #43",
+    "formSubdivision": "xFormSubdivision",
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "44320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #44",
+    "sftFormSubdivision": [
+      "xsftFormSubdivision"
+    ],
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  },
+  {
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "naturalId": "nbc123435",
+    "id": "45320dbd-6de3-453a-b05d-452fc1eb1e0d",
+    "subjectHeadings": "Authority #45",
+    "saftFormSubdivision": [
+      "xsaftFormSubdivision"
+    ],
+    "tags": {
+      "tagList": [
+        "browse-authority"
+      ]
+    }
+  }
+]

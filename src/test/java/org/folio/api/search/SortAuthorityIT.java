@@ -6,20 +6,21 @@ import static org.folio.support.base.ApiEndpoints.allRecordsSortedBy;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-import java.util.Collections;
-import java.util.stream.IntStream;
-import org.folio.search.domain.dto.Authority;
 import org.folio.support.base.BaseIntegrationTest;
 import org.junit.jupiter.api.Test;
 
 public abstract class SortAuthorityIT extends BaseIntegrationTest {
 
-  public static final Authority[] AUTHORITIES = authorities();
-
   private static final int RECORDS_COUNT = 5;
+  private static final String[] IDS = {
+    "50720001-0000-4000-8000-000000000001",
+    "50720001-0000-4000-8000-000000000002",
+    "50720001-0000-4000-8000-000000000003",
+    "50720001-0000-4000-8000-000000000004",
+    "50720001-0000-4000-8000-000000000005"
+  };
   private static final String AUTHORITY_ID_FILTER =
-    "id==(" + AUTHORITIES[0].getId() + " OR " + AUTHORITIES[1].getId() + " OR "
-    + AUTHORITIES[2].getId() + " OR " + AUTHORITIES[3].getId() + " OR " + AUTHORITIES[4].getId() + ")";
+    "id==(" + IDS[0] + " OR " + IDS[1] + " OR " + IDS[2] + " OR " + IDS[3] + " OR " + IDS[4] + ")";
 
   private static String scoped(String query) {
     return AUTHORITY_ID_FILTER + " AND (" + query + ")";
@@ -124,35 +125,5 @@ public abstract class SortAuthorityIT extends BaseIntegrationTest {
       .andExpect(jsonPath("$.errors[0].code", is("validation_error")))
       .andExpect(jsonPath("$.errors[0].parameters[0].key", is("sortField")))
       .andExpect(jsonPath("$.errors[0].parameters[0].value", is("unknownSort")));
-  }
-
-  private static Authority[] authorities() {
-    var ids = new String[] {
-      "50720001-0000-0000-0000-000000000001",
-      "50720001-0000-0000-0000-000000000002",
-      "50720001-0000-0000-0000-000000000003",
-      "50720001-0000-0000-0000-000000000004",
-      "50720001-0000-0000-0000-000000000005"
-    };
-    var authorities = IntStream.range(0, 5)
-      .mapToObj(i -> new Authority().id(ids[i]))
-      .toArray(Authority[]::new);
-
-    authorities[0]
-      .personalName("111");
-
-    authorities[1]
-      .corporateName("aaa");
-
-    authorities[2]
-      .sftUniformTitle(Collections.singletonList("ŚŚŚ"));
-
-    authorities[3]
-      .saftGenreTerm(Collections.singletonList("ccc"));
-
-    authorities[4]
-      .personalName("zzz");
-
-    return authorities;
   }
 }

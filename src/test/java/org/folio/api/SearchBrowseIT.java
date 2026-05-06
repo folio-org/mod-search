@@ -44,6 +44,7 @@ import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.reindex.jdbc.SubResourcesLockRepository;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.BaseIntegrationTest;
+import org.folio.support.testdata.SharedTestDataManager;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
@@ -121,7 +122,10 @@ class SearchBrowseIT extends BaseIntegrationTest {
     Arrays.stream(BrowseSubjectIT.INSTANCES).forEach(i -> inventoryApi.createInstance(TENANT_ID, i));
 
     // Authority-linked instances (required for SearchAuthorityIT.numberOfTitles assertions)
-    Arrays.stream(SearchAuthorityIT.LINKED_INSTANCES).forEach(i -> inventoryApi.createInstance(TENANT_ID, i));
+    SharedTestDataManager.instances().stream()
+      .filter(i -> i.getTags() != null && i.getTags().getTagList() != null
+                   && i.getTags().getTagList().contains("search-authority-linked"))
+      .forEach(i -> inventoryApi.createInstance(TENANT_ID, i));
 
     // SearchInstanceFilter group
     Arrays.stream(SearchInstanceFilterIT.INSTANCES).forEach(i -> inventoryApi.createInstance(TENANT_ID, i));
@@ -136,10 +140,7 @@ class SearchBrowseIT extends BaseIntegrationTest {
   }
 
   private static void loadAuthorities() {
-    sendRawAuthority(TENANT_ID, SearchAuthorityIT.AUTHORITY_SAMPLE);
-    sendAuthorities(TENANT_ID, SearchAuthorityFilterIT.AUTHORITIES);
-    sendAuthorities(TENANT_ID, SortAuthorityIT.AUTHORITIES);
-    sendAuthorities(TENANT_ID, BrowseAuthorityIT.AUTHORITIES);
+    SharedTestDataManager.authorities().forEach(a -> sendAuthorities(TENANT_ID, a));
   }
 
   private static void loadLinkedData() {

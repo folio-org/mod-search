@@ -22,8 +22,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 public abstract class BrowseAuthorityIT extends BaseIntegrationTest {
 
-  public static final Authority[] AUTHORITIES = authorities();
-
   private static final String REFERENCE = "Reference";
   private static final String AUTHORIZED = "Authorized";
   private static final String BROWSE_SOURCE_FILE_ID = "b4000001-5de4-4467-b77f-b2057d6d69b6";
@@ -356,57 +354,6 @@ public abstract class BrowseAuthorityIT extends BaseIntegrationTest {
     );
   }
 
-  @SuppressWarnings("checkstyle:MethodLength")
-  private static Authority[] authorities() {
-    return new Authority[]
-      {
-        authority(1).personalNameTitle("Brian K. Vaughan Title"),
-        authority(2).sftPersonalNameTitle(List.of("Ĵämes Röllins")),
-        authority(3).saftPersonalNameTitle(List.of("Brad Thor")),
-        authority(4).corporateNameTitle("Disney"),
-        authority(5).sftCorporateNameTitle(List.of("Blumberg Green Beauty")),
-        authority(6).saftCorporateNameTitle(List.of("Amazon Kindle")),
-        authority(7).meetingNameTitle("Comic-Con"),
-        authority(8).sftMeetingNameTitle(List.of("Biomedical Symposium")),
-        authority(9).saftMeetingNameTitle(List.of("World Conference On Corporate Accounting (WCCA)")),
-        authority(10).geographicName("Asia Pacific"),
-        authority(11).sftGeographicName(List.of("North America")),
-        authority(12).saftGeographicName(List.of("Canada")),
-        authority(13).uniformTitle("Harry Potter"),
-        authority(14).sftUniformTitle(List.of("War and Peace")),
-        authority(15).saftUniformTitle(List.of("The Lord of the Rings")),
-        authority(16).topicalTerm("Science"),
-        authority(17).sftTopicalTerm(List.of("Fantasy")),
-        authority(18).saftTopicalTerm(List.of("History")),
-        authority(19).genreTerm("Novel"),
-        authority(20).sftGenreTerm(List.of("Poetry")),
-        authority(21).saftGenreTerm(List.of("Prose", "Romance")),
-        authority(22).personalName("Brian K. Vaughan"),
-        authority(23).personalName("Zappa Frank"),
-        authority(24).topicalTerm("Zappa Frank"),
-        authority(25).namedEvent("Eruption of Vesuvius"),
-        authority(26).sftNamedEvent(List.of("Revolution")),
-        authority(27).saftNamedEvent(List.of("Stock Market Crash")),
-        authority(28).generalSubdivision("Periodicals"),
-        authority(29).sftGeneralSubdivision(List.of("Knowledge")),
-        authority(30).saftGeneralSubdivision(List.of("Shrines")),
-        authority(31).chronTerm("xChronTerm"),
-        authority(32).sftChronTerm(List.of("xsftChronTerm")),
-        authority(33).saftChronTerm(List.of("xsaftChronTerm")),
-        authority(34).mediumPerfTerm("xMediumPerfTerm"),
-        authority(35).sftMediumPerfTerm(List.of("xsftMediumPerfTerm")),
-        authority(36).saftMediumPerfTerm(List.of("xsaftMediumPerfTerm")),
-        authority(37).geographicSubdivision("xGeographicSubdivision"),
-        authority(38).sftGeographicSubdivision(List.of("xsftGeographicSubdivision")),
-        authority(39).saftGeographicSubdivision(List.of("xsaftGeographicSubdivision")),
-        authority(40).chronSubdivision("xChronSubdivision"),
-        authority(41).sftChronSubdivision(List.of("xsftChronSubdivision")),
-        authority(42).saftChronSubdivision(List.of("xsaftChronSubdivision")),
-        authority(43).formSubdivision("xFormSubdivision"),
-        authority(44).sftFormSubdivision(List.of("xsftFormSubdivision")),
-        authority(45).saftFormSubdivision(List.of("xsaftFormSubdivision"))
-      };
-  }
 
   private static Authority authority(int index) {
     return new Authority().id(getId(index)).tenantId(TENANT_ID)

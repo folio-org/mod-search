@@ -14,16 +14,11 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetResult;
-import org.folio.search.domain.dto.Metadata;
 import org.folio.search.domain.dto.RecordType;
 import org.folio.support.base.BaseIntegrationTest;
 import org.junit.jupiter.api.DisplayName;
@@ -34,11 +29,24 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 public abstract class SearchAuthorityFilterIT extends BaseIntegrationTest {
 
-  public static final Authority[] AUTHORITIES = authorities();
-
   private static final int RECORDS_COUNT = 15;
-  private static final String[] IDS = Arrays.stream(AUTHORITIES)
-    .map(Authority::getId).toArray(String[]::new);
+  private static final String[] IDS = {
+    "1353873c-0e5e-4d64-a2f9-6c444dc4cd46",
+    "cc6bbc19-3f54-43c5-8736-b85688619641",
+    "39a52d91-8dbb-4348-ab06-5c6115e600cd",
+    "62f72eeb-ed5a-4619-b01f-1750d5528d25",
+    "6edc7db0-5363-41ec-bf63-0242ac130002",
+    "75b6e1e8-5363-41ec-bf63-0242ac130002",
+    "62f72eeb-ed5a-4619-b01f-1750d5528d27",
+    "62f72eeb-ed5a-4619-b01f-1750d5528d28",
+    "7bfb7550-5363-41ec-bf63-0242ac130002",
+    "3ec9be46-b002-472e-87c9-0e8a4c9eb8d2",
+    "74f97d56-37ce-44b8-9316-4e5dd4efc103",
+    "62f72eeb-ed5a-4619-b01f-1750d5528d32",
+    "8eb6625e-5363-41ec-bf63-0242ac130002",
+    "0d4cfb3c-0d5d-4bab-8e99-8f077b09bd34",
+    "2dfd4b30-8c45-4a2e-8779-05f338513584"
+  };
   private static final String AUTHORITY_ID_FILTER =
     "id==(" + String.join(" OR ", IDS) + ")";
 
@@ -226,107 +234,5 @@ public abstract class SearchAuthorityFilterIT extends BaseIntegrationTest {
       arguments("sourceFileId==(\"" + IDS[5] + "\" or \"" + IDS[6] + "\")", array("sourceFileId:2"),
         mapOf("sourceFileId", facet(facetItem(IDS[5], 2))))
     );
-  }
-
-  @SuppressWarnings("checkstyle:MethodLength")
-  private static Authority[] authorities() {
-    var ids = new String[] {
-      "1353873c-0e5e-4d64-a2f9-6c444dc4cd46", "cc6bbc19-3f54-43c5-8736-b85688619641",
-      "39a52d91-8dbb-4348-ab06-5c6115e600cd", "62f72eeb-ed5a-4619-b01f-1750d5528d25",
-      "6edc7db0-5363-11ec-bf63-0242ac130002", "75b6e1e8-5363-11ec-bf63-0242ac130002",
-      "62f72eeb-ed5a-4619-b01f-1750d5528d27", "62f72eeb-ed5a-4619-b01f-1750d5528d28",
-      "7bfb7550-5363-11ec-bf63-0242ac130002", "3ec9be46-b002-472e-87c9-0e8a4c9eb8d2",
-      "74f97d56-37ce-44b8-9316-4e5dd4efc103", "62f72eeb-ed5a-4619-b01f-1750d5528d32",
-      "8eb6625e-5363-11ec-bf63-0242ac130002", "0d4cfb3c-0d5d-4bab-8e99-8f077b09bd34",
-      "2dfd4b30-8c45-4a2e-8779-05f338513584"
-    };
-    var authorities = IntStream.range(0, 15)
-      .mapToObj(i -> new Authority().id(ids[i]))
-      .toArray(Authority[]::new);
-
-    authorities[0]
-      .personalName("Resource 0")
-      .subjectHeadings("a")
-      .sourceFileId(ids[0])
-      .metadata(metadata("2021-03-01T00:00:00.000+00:00", "2021-03-05T12:30:00.000+00:00"));
-
-    authorities[1]
-      .personalName("Resource 1")
-      .subjectHeadings("a")
-      .sourceFileId(ids[0])
-      .metadata(metadata("2021-03-10T01:00:00.000+00:00", "2021-03-12T15:40:00.000+00:00"));
-
-    authorities[2]
-      .personalNameTitle("Resource 2")
-      .subjectHeadings("a")
-      .sourceFileId(ids[0])
-      .metadata(metadata("2021-03-08T15:00:00.000+00:00", "2021-03-15T22:30:00.000+00:00"));
-
-    authorities[3]
-      .personalName("Resource 3")
-      .subjectHeadings("a")
-      .sourceFileId(ids[0])
-      .metadata(metadata("2021-03-15T12:00:00.000+00:00", "2021-03-15T12:00:00.000+00:00"));
-
-    authorities[4]
-      .meetingNameTitle("ConferenceName")
-      .subjectHeadings("b")
-      .sourceFileId(ids[1]);
-
-    authorities[5]
-      .geographicName("GeographicName")
-      .subjectHeadings("c")
-      .sourceFileId(ids[2]);
-
-    authorities[6]
-      .genreTerm("GenreTerm")
-      .subjectHeadings("c")
-      .sourceFileId(ids[2]);
-
-    authorities[7]
-      .genreTerm("GenreTerm")
-      .subjectHeadings("c")
-      .sourceFileId(ids[2]);
-
-    authorities[8]
-      .corporateName("CorporateName")
-      .subjectHeadings("d")
-      .sourceFileId(ids[3]);
-
-    authorities[9]
-      .corporateName("CorporateName")
-      .subjectHeadings("d")
-      .sourceFileId(ids[3]);
-
-    authorities[10]
-      .topicalTerm("TopicalTerm")
-      .subjectHeadings("k")
-      .sourceFileId(ids[4]);
-
-    authorities[11]
-      .uniformTitle("UniformTitle")
-      .subjectHeadings("n")
-      .sourceFileId(ids[5]);
-
-    authorities[12]
-      .uniformTitle("UniformTitle")
-      .subjectHeadings("n")
-      .sourceFileId(ids[5]);
-
-    authorities[13]
-      .saftUniformTitle(Collections.singletonList("UniformTitle"))
-      .subjectHeadings("r")
-      .sourceFileId(null);
-
-    authorities[14]
-      .saftPersonalName(Collections.singletonList("PersonalName"))
-      .subjectHeadings("r")
-      .sourceFileId(null);
-
-    return authorities;
-  }
-
-  private static Metadata metadata(String createdDate, String updatedDate) {
-    return new Metadata().createdDate(createdDate).updatedDate(updatedDate);
   }
 }

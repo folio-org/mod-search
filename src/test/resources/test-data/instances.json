@@ -262,5 +262,2576 @@
         "search-authority-linked"
       ]
     }
+  },
+  {
+    "id": "a0000001-0000-4000-8000-000000000000",
+    "tenantId": "test_tenant",
+    "hrid": "inst000000000022",
+    "source": "FOLIO",
+    "title": "Animal farm",
+    "indexTitle": "B1 Animal farm",
+    "alternativeTitles": [
+      {
+        "alternativeTitle": "An alternative title"
+      },
+      {
+        "alternativeTitle": "déjà vu"
+      },
+      {
+        "alternativeTitle": "Le parler arabe de Cherchell, Algérie."
+      },
+      {
+        "alternativeTitle": "An Uniform title",
+        "alternativeTitleTypeId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
+      },
+      {
+        "alternativeTitle": "Pang'ok bangk'asyurangsŭ",
+        "authorityId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
+      },
+      {
+        "alternativeTitle": "Der Preis der Verführung : die gesetzliche Schadensersatzklage wegen Ehebruchs in England zwischen 1857 und 1970 / Eike Götz Hosemann."
+      }
+    ],
+    "editions": [],
+    "series": [
+      {
+        "value": "Cooperative information systems",
+        "authorityId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "0262012103",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "9781609383657",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "9780262012102",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "978-0-471-44250-9 (cloth : alk. paper)",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "047144250X",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "2003065165",
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
+      },
+      {
+        "value": "n 2003075732",
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
+      },
+      {
+        "value": "canceled LCCN",
+        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9"
+      },
+      {
+        "value": "0317-8471",
+        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
+      },
+      {
+        "value": "0040-781X",
+        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
+      },
+      {
+        "value": "(OCoLC)ocm0060710867",
+        "identifierTypeId": "c3c651c7-96b4-416c-a1af-17146ce0a409"
+      },
+      {
+        "value": "ocm0012345 800630",
+        "identifierTypeId": "82fb97e1-f460-4099-9ac8-97518341ed1a"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "yyy zzz"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Semantic Web",
+        "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72d"
+      },
+      {
+        "value": "backslash\\ \"double\\-quotes\\\" te\\st"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "025.04",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      },
+      {
+        "classificationNumber": "HD1691 .I5 1967",
+        "classificationTypeId": "ce176ace-a53e-4b4d-aa89-725ed7b2edac"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "MIT Press",
+        "place": "Cambridge, Mass. ",
+        "dateOfPublication": "c2004",
+        "role": "Publisher"
+      }
+    ],
+    "publicationFrequency": [],
+    "publicationRange": [],
+    "electronicAccess": [
+      {
+        "uri": "https://testlibrary.sample.com/journal/10.1002/(ISSN)1938-3703",
+        "linkText": "electronic access link text",
+        "publicNote": "Online access via Wiley (1996-current)",
+        "materialsSpecification": "electronic access material",
+        "relationshipId": "a1c0b4f2-3d8e-4b5f-8a7c-6d9e0f2b1c3d"
+      }
+    ],
+    "dates": {
+      "date1": "1999",
+      "date2": "2000",
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "instanceFormats": [],
+    "physicalDescriptions": [
+      "xx, 238 p. : ill. ; 24 cm."
+    ],
+    "languages": [
+      "eng"
+    ],
+    "administrativeNotes": [
+      "original + pcc",
+      "for deletion"
+    ],
+    "notes": [
+      {
+        "note": "Includes bibliographical references and index.",
+        "staffOnly": false,
+        "instanceNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
+      },
+      {
+        "note": "The development of the Semantic Web, with machine-readable content, has the potential to revolutionize the World Wide Web and its uses. A Semantic Web Primer provides an introduction and guide to this continuously evolving field, describing its key ideas, languages, and technologies. Suitable for use as a textbook or for independent study by professionals, it concentrates on undergraduate-level fundamental concepts and techniques that will enable readers to proceed with building applications on their own and includes exercises, project descriptions, and annotated references to relevant online materials. The third edition of this widely used text has been thoroughly updated, with significant new material that reflects a rapidly developing field. Treatment of the different languages (OWL2, rules) expands the coverage of RDF and OWL, defining the data model independently of XML and including coverage of N3/Turtle and RDFa. A chapter is devoted to OWL2, the new W3C standard. This edition also features additional coverage of the query language SPARQL, the rule language RIF and the possibility of interaction between rules and ontology languages and applications. The chapter on Semantic Web applications reflects the rapid developments of the past few years. A new chapter offers ideas for term projects",
+        "staffOnly": false,
+        "instanceNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
+      },
+      {
+        "note": "Librarian private note",
+        "staffOnly": true,
+        "instanceNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
+      }
+    ],
+    "modeOfIssuanceId": "9d18a02f-5897-4c31-9106-c9abb5c7ae8b",
+    "catalogedDate": "2019-04-05",
+    "discoverySuppress": false,
+    "isBoundWith": true,
+    "statisticalCodeIds": [
+      "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
+    ],
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
+    "statusUpdatedDate": "2020-12-08T15:47:13.625+0000",
+    "tags": {
+      "tagList": [
+        "sort-instance"
+      ]
+    },
+    "metadata": {
+      "createdDate": "2021-01-01T10:00:00.000+00:00",
+      "updatedDate": "2021-01-15T10:00:00.000+00:00"
+    },
+    "holdingsRecords2": [],
+    "natureOfContentTermIds": [
+      "85657646-6b6f-4e71-b54c-d47f3b95a5ed"
+    ]
+  },
+  {
+    "id": "a0000002-0000-4000-8000-000000000000",
+    "tenantId": "test_tenant",
+    "hrid": "inst000000000022",
+    "source": "FOLIO",
+    "title": "Zero Minus Ten",
+    "alternativeTitles": [
+      {
+        "alternativeTitle": "An alternative title"
+      },
+      {
+        "alternativeTitle": "déjà vu"
+      },
+      {
+        "alternativeTitle": "Le parler arabe de Cherchell, Algérie."
+      },
+      {
+        "alternativeTitle": "An Uniform title",
+        "alternativeTitleTypeId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
+      },
+      {
+        "alternativeTitle": "Pang'ok bangk'asyurangsŭ",
+        "authorityId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
+      },
+      {
+        "alternativeTitle": "Der Preis der Verführung : die gesetzliche Schadensersatzklage wegen Ehebruchs in England zwischen 1857 und 1970 / Eike Götz Hosemann."
+      }
+    ],
+    "editions": [],
+    "series": [
+      {
+        "value": "Cooperative information systems",
+        "authorityId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "0262012103",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "9781609383657",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "9780262012102",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "978-0-471-44250-9 (cloth : alk. paper)",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "047144250X",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "2003065165",
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
+      },
+      {
+        "value": "n 2003075732",
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
+      },
+      {
+        "value": "canceled LCCN",
+        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9"
+      },
+      {
+        "value": "0317-8471",
+        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
+      },
+      {
+        "value": "0040-781X",
+        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
+      },
+      {
+        "value": "(OCoLC)ocm0060710867",
+        "identifierTypeId": "c3c651c7-96b4-416c-a1af-17146ce0a409"
+      },
+      {
+        "value": "ocm0012345 800630",
+        "identifierTypeId": "82fb97e1-f460-4099-9ac8-97518341ed1a"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "aaa bbb",
+        "primary": false
+      },
+      {
+        "name": "bbb ccc",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Semantic Web",
+        "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72d"
+      },
+      {
+        "value": "backslash\\ \"double\\-quotes\\\" te\\st"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "025.04",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      },
+      {
+        "classificationNumber": "HD1691 .I5 1967",
+        "classificationTypeId": "ce176ace-a53e-4b4d-aa89-725ed7b2edac"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "MIT Press",
+        "place": "Cambridge, Mass. ",
+        "dateOfPublication": "c2004",
+        "role": "Publisher"
+      }
+    ],
+    "publicationFrequency": [],
+    "publicationRange": [],
+    "electronicAccess": [
+      {
+        "uri": "https://testlibrary.sample.com/journal/10.1002/(ISSN)1938-3703",
+        "linkText": "electronic access link text",
+        "publicNote": "Online access via Wiley (1996-current)",
+        "materialsSpecification": "electronic access material",
+        "relationshipId": "a1c0b4f2-3d8e-4b5f-8a7c-6d9e0f2b1c3d"
+      }
+    ],
+    "dates": {
+      "date1": "199u",
+      "date2": "2000",
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "instanceFormats": [],
+    "physicalDescriptions": [
+      "xx, 238 p. : ill. ; 24 cm."
+    ],
+    "languages": [
+      "eng"
+    ],
+    "administrativeNotes": [
+      "original + pcc",
+      "for deletion"
+    ],
+    "notes": [
+      {
+        "note": "Includes bibliographical references and index.",
+        "staffOnly": false,
+        "instanceNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
+      },
+      {
+        "note": "The development of the Semantic Web, with machine-readable content, has the potential to revolutionize the World Wide Web and its uses. A Semantic Web Primer provides an introduction and guide to this continuously evolving field, describing its key ideas, languages, and technologies. Suitable for use as a textbook or for independent study by professionals, it concentrates on undergraduate-level fundamental concepts and techniques that will enable readers to proceed with building applications on their own and includes exercises, project descriptions, and annotated references to relevant online materials. The third edition of this widely used text has been thoroughly updated, with significant new material that reflects a rapidly developing field. Treatment of the different languages (OWL2, rules) expands the coverage of RDF and OWL, defining the data model independently of XML and including coverage of N3/Turtle and RDFa. A chapter is devoted to OWL2, the new W3C standard. This edition also features additional coverage of the query language SPARQL, the rule language RIF and the possibility of interaction between rules and ontology languages and applications. The chapter on Semantic Web applications reflects the rapid developments of the past few years. A new chapter offers ideas for term projects",
+        "staffOnly": false,
+        "instanceNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
+      },
+      {
+        "note": "Librarian private note",
+        "staffOnly": true,
+        "instanceNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
+      }
+    ],
+    "modeOfIssuanceId": "9d18a02f-5897-4c31-9106-c9abb5c7ae8b",
+    "catalogedDate": "2019-04-05",
+    "discoverySuppress": false,
+    "isBoundWith": true,
+    "statisticalCodeIds": [
+      "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
+    ],
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
+    "statusUpdatedDate": "2020-12-08T15:47:13.625+0000",
+    "tags": {
+      "tagList": [
+        "sort-instance"
+      ]
+    },
+    "metadata": {
+      "createdDate": "2021-02-01T10:00:00.000+00:00",
+      "updatedDate": "2021-02-15T10:00:00.000+00:00"
+    },
+    "holdingsRecords2": [],
+    "natureOfContentTermIds": [
+      "85657646-6b6f-4e71-b54c-d47f3b95a5ed"
+    ]
+  },
+  {
+    "id": "a0000003-0000-4000-8000-000000000000",
+    "tenantId": "test_tenant",
+    "hrid": "inst000000000022",
+    "source": "FOLIO",
+    "title": "Calling Me Home",
+    "indexTitle": "A1 Calling Me Home",
+    "alternativeTitles": [
+      {
+        "alternativeTitle": "An alternative title"
+      },
+      {
+        "alternativeTitle": "déjà vu"
+      },
+      {
+        "alternativeTitle": "Le parler arabe de Cherchell, Algérie."
+      },
+      {
+        "alternativeTitle": "An Uniform title",
+        "alternativeTitleTypeId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
+      },
+      {
+        "alternativeTitle": "Pang'ok bangk'asyurangsŭ",
+        "authorityId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
+      },
+      {
+        "alternativeTitle": "Der Preis der Verführung : die gesetzliche Schadensersatzklage wegen Ehebruchs in England zwischen 1857 und 1970 / Eike Götz Hosemann."
+      }
+    ],
+    "editions": [],
+    "series": [
+      {
+        "value": "Cooperative information systems",
+        "authorityId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "0262012103",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "9781609383657",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "9780262012102",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "978-0-471-44250-9 (cloth : alk. paper)",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "047144250X",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "2003065165",
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
+      },
+      {
+        "value": "n 2003075732",
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
+      },
+      {
+        "value": "canceled LCCN",
+        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9"
+      },
+      {
+        "value": "0317-8471",
+        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
+      },
+      {
+        "value": "0040-781X",
+        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
+      },
+      {
+        "value": "(OCoLC)ocm0060710867",
+        "identifierTypeId": "c3c651c7-96b4-416c-a1af-17146ce0a409"
+      },
+      {
+        "value": "ocm0012345 800630",
+        "identifierTypeId": "82fb97e1-f460-4099-9ac8-97518341ed1a"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "bcc ccc"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Semantic Web",
+        "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72d"
+      },
+      {
+        "value": "backslash\\ \"double\\-quotes\\\" te\\st"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "025.04",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      },
+      {
+        "classificationNumber": "HD1691 .I5 1967",
+        "classificationTypeId": "ce176ace-a53e-4b4d-aa89-725ed7b2edac"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "MIT Press",
+        "place": "Cambridge, Mass. ",
+        "dateOfPublication": "c2004",
+        "role": "Publisher"
+      }
+    ],
+    "publicationFrequency": [],
+    "publicationRange": [],
+    "electronicAccess": [
+      {
+        "uri": "https://testlibrary.sample.com/journal/10.1002/(ISSN)1938-3703",
+        "linkText": "electronic access link text",
+        "publicNote": "Online access via Wiley (1996-current)",
+        "materialsSpecification": "electronic access material",
+        "relationshipId": "a1c0b4f2-3d8e-4b5f-8a7c-6d9e0f2b1c3d"
+      }
+    ],
+    "dates": {
+      "date1": "2021",
+      "date2": "2022",
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "instanceFormats": [],
+    "physicalDescriptions": [
+      "xx, 238 p. : ill. ; 24 cm."
+    ],
+    "languages": [
+      "eng"
+    ],
+    "administrativeNotes": [
+      "original + pcc",
+      "for deletion"
+    ],
+    "notes": [
+      {
+        "note": "Includes bibliographical references and index.",
+        "staffOnly": false,
+        "instanceNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
+      },
+      {
+        "note": "The development of the Semantic Web, with machine-readable content, has the potential to revolutionize the World Wide Web and its uses. A Semantic Web Primer provides an introduction and guide to this continuously evolving field, describing its key ideas, languages, and technologies. Suitable for use as a textbook or for independent study by professionals, it concentrates on undergraduate-level fundamental concepts and techniques that will enable readers to proceed with building applications on their own and includes exercises, project descriptions, and annotated references to relevant online materials. The third edition of this widely used text has been thoroughly updated, with significant new material that reflects a rapidly developing field. Treatment of the different languages (OWL2, rules) expands the coverage of RDF and OWL, defining the data model independently of XML and including coverage of N3/Turtle and RDFa. A chapter is devoted to OWL2, the new W3C standard. This edition also features additional coverage of the query language SPARQL, the rule language RIF and the possibility of interaction between rules and ontology languages and applications. The chapter on Semantic Web applications reflects the rapid developments of the past few years. A new chapter offers ideas for term projects",
+        "staffOnly": false,
+        "instanceNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
+      },
+      {
+        "note": "Librarian private note",
+        "staffOnly": true,
+        "instanceNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
+      }
+    ],
+    "modeOfIssuanceId": "9d18a02f-5897-4c31-9106-c9abb5c7ae8b",
+    "catalogedDate": "2019-04-05",
+    "discoverySuppress": false,
+    "isBoundWith": true,
+    "statisticalCodeIds": [
+      "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
+    ],
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
+    "statusUpdatedDate": "2020-12-08T15:47:13.625+0000",
+    "tags": {
+      "tagList": [
+        "sort-instance"
+      ]
+    },
+    "metadata": {
+      "createdDate": "2021-03-01T10:00:00.000+00:00",
+      "updatedDate": "2021-03-15T10:00:00.000+00:00"
+    },
+    "holdingsRecords2": [],
+    "natureOfContentTermIds": [
+      "85657646-6b6f-4e71-b54c-d47f3b95a5ed"
+    ]
+  },
+  {
+    "id": "a0000004-0000-4000-8000-000000000000",
+    "tenantId": "test_tenant",
+    "hrid": "inst000000000022",
+    "source": "FOLIO",
+    "title": "Walk in My Soul",
+    "alternativeTitles": [
+      {
+        "alternativeTitle": "An alternative title"
+      },
+      {
+        "alternativeTitle": "déjà vu"
+      },
+      {
+        "alternativeTitle": "Le parler arabe de Cherchell, Algérie."
+      },
+      {
+        "alternativeTitle": "An Uniform title",
+        "alternativeTitleTypeId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
+      },
+      {
+        "alternativeTitle": "Pang'ok bangk'asyurangsŭ",
+        "authorityId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
+      },
+      {
+        "alternativeTitle": "Der Preis der Verführung : die gesetzliche Schadensersatzklage wegen Ehebruchs in England zwischen 1857 und 1970 / Eike Götz Hosemann."
+      }
+    ],
+    "editions": [],
+    "series": [
+      {
+        "value": "Cooperative information systems",
+        "authorityId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "0262012103",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "9781609383657",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "9780262012102",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "978-0-471-44250-9 (cloth : alk. paper)",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "047144250X",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "2003065165",
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
+      },
+      {
+        "value": "n 2003075732",
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
+      },
+      {
+        "value": "canceled LCCN",
+        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9"
+      },
+      {
+        "value": "0317-8471",
+        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
+      },
+      {
+        "value": "0040-781X",
+        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
+      },
+      {
+        "value": "(OCoLC)ocm0060710867",
+        "identifierTypeId": "c3c651c7-96b4-416c-a1af-17146ce0a409"
+      },
+      {
+        "value": "ocm0012345 800630",
+        "identifierTypeId": "82fb97e1-f460-4099-9ac8-97518341ed1a"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "1111 2222",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Semantic Web",
+        "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72d"
+      },
+      {
+        "value": "backslash\\ \"double\\-quotes\\\" te\\st"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "025.04",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      },
+      {
+        "classificationNumber": "HD1691 .I5 1967",
+        "classificationTypeId": "ce176ace-a53e-4b4d-aa89-725ed7b2edac"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "MIT Press",
+        "place": "Cambridge, Mass. ",
+        "dateOfPublication": "c2004",
+        "role": "Publisher"
+      }
+    ],
+    "publicationFrequency": [],
+    "publicationRange": [],
+    "electronicAccess": [
+      {
+        "uri": "https://testlibrary.sample.com/journal/10.1002/(ISSN)1938-3703",
+        "linkText": "electronic access link text",
+        "publicNote": "Online access via Wiley (1996-current)",
+        "materialsSpecification": "electronic access material",
+        "relationshipId": "a1c0b4f2-3d8e-4b5f-8a7c-6d9e0f2b1c3d"
+      }
+    ],
+    "dates": {
+      "date1": "2001",
+      "date2": "2002",
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "instanceFormats": [],
+    "physicalDescriptions": [
+      "xx, 238 p. : ill. ; 24 cm."
+    ],
+    "languages": [
+      "eng"
+    ],
+    "administrativeNotes": [
+      "original + pcc",
+      "for deletion"
+    ],
+    "notes": [
+      {
+        "note": "Includes bibliographical references and index.",
+        "staffOnly": false,
+        "instanceNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
+      },
+      {
+        "note": "The development of the Semantic Web, with machine-readable content, has the potential to revolutionize the World Wide Web and its uses. A Semantic Web Primer provides an introduction and guide to this continuously evolving field, describing its key ideas, languages, and technologies. Suitable for use as a textbook or for independent study by professionals, it concentrates on undergraduate-level fundamental concepts and techniques that will enable readers to proceed with building applications on their own and includes exercises, project descriptions, and annotated references to relevant online materials. The third edition of this widely used text has been thoroughly updated, with significant new material that reflects a rapidly developing field. Treatment of the different languages (OWL2, rules) expands the coverage of RDF and OWL, defining the data model independently of XML and including coverage of N3/Turtle and RDFa. A chapter is devoted to OWL2, the new W3C standard. This edition also features additional coverage of the query language SPARQL, the rule language RIF and the possibility of interaction between rules and ontology languages and applications. The chapter on Semantic Web applications reflects the rapid developments of the past few years. A new chapter offers ideas for term projects",
+        "staffOnly": false,
+        "instanceNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
+      },
+      {
+        "note": "Librarian private note",
+        "staffOnly": true,
+        "instanceNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
+      }
+    ],
+    "modeOfIssuanceId": "9d18a02f-5897-4c31-9106-c9abb5c7ae8b",
+    "catalogedDate": "2019-04-05",
+    "discoverySuppress": false,
+    "isBoundWith": true,
+    "statisticalCodeIds": [
+      "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
+    ],
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
+    "statusUpdatedDate": "2020-12-08T15:47:13.625+0000",
+    "tags": {
+      "tagList": [
+        "sort-instance"
+      ]
+    },
+    "metadata": {
+      "createdDate": "2021-04-01T10:00:00.000+00:00",
+      "updatedDate": "2021-04-15T10:00:00.000+00:00"
+    },
+    "holdingsRecords2": [],
+    "natureOfContentTermIds": [
+      "85657646-6b6f-4e71-b54c-d47f3b95a5ed"
+    ]
+  },
+  {
+    "id": "a0000005-0000-4000-8000-000000000000",
+    "tenantId": "test_tenant",
+    "hrid": "inst000000000022",
+    "source": "FOLIO",
+    "title": "Star Wars",
+    "alternativeTitles": [
+      {
+        "alternativeTitle": "An alternative title"
+      },
+      {
+        "alternativeTitle": "déjà vu"
+      },
+      {
+        "alternativeTitle": "Le parler arabe de Cherchell, Algérie."
+      },
+      {
+        "alternativeTitle": "An Uniform title",
+        "alternativeTitleTypeId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
+      },
+      {
+        "alternativeTitle": "Pang'ok bangk'asyurangsŭ",
+        "authorityId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
+      },
+      {
+        "alternativeTitle": "Der Preis der Verführung : die gesetzliche Schadensersatzklage wegen Ehebruchs in England zwischen 1857 und 1970 / Eike Götz Hosemann."
+      }
+    ],
+    "editions": [],
+    "series": [
+      {
+        "value": "Cooperative information systems",
+        "authorityId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "0262012103",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "9781609383657",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "9780262012102",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "978-0-471-44250-9 (cloth : alk. paper)",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "047144250X",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "2003065165",
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
+      },
+      {
+        "value": "n 2003075732",
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
+      },
+      {
+        "value": "canceled LCCN",
+        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9"
+      },
+      {
+        "value": "0317-8471",
+        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
+      },
+      {
+        "value": "0040-781X",
+        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
+      },
+      {
+        "value": "(OCoLC)ocm0060710867",
+        "identifierTypeId": "c3c651c7-96b4-416c-a1af-17146ce0a409"
+      },
+      {
+        "value": "ocm0012345 800630",
+        "identifierTypeId": "82fb97e1-f460-4099-9ac8-97518341ed1a"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Śląsk",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Semantic Web",
+        "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72d"
+      },
+      {
+        "value": "backslash\\ \"double\\-quotes\\\" te\\st"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "025.04",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      },
+      {
+        "classificationNumber": "HD1691 .I5 1967",
+        "classificationTypeId": "ce176ace-a53e-4b4d-aa89-725ed7b2edac"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "MIT Press",
+        "place": "Cambridge, Mass. ",
+        "dateOfPublication": "c2004",
+        "role": "Publisher"
+      }
+    ],
+    "publicationFrequency": [],
+    "publicationRange": [],
+    "electronicAccess": [
+      {
+        "uri": "https://testlibrary.sample.com/journal/10.1002/(ISSN)1938-3703",
+        "linkText": "electronic access link text",
+        "publicNote": "Online access via Wiley (1996-current)",
+        "materialsSpecification": "electronic access material",
+        "relationshipId": "a1c0b4f2-3d8e-4b5f-8a7c-6d9e0f2b1c3d"
+      }
+    ],
+    "dates": {
+      "date1": "19u5",
+      "date2": "1998",
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "instanceFormats": [],
+    "physicalDescriptions": [
+      "xx, 238 p. : ill. ; 24 cm."
+    ],
+    "languages": [
+      "eng"
+    ],
+    "administrativeNotes": [
+      "original + pcc",
+      "for deletion"
+    ],
+    "notes": [
+      {
+        "note": "Includes bibliographical references and index.",
+        "staffOnly": false,
+        "instanceNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
+      },
+      {
+        "note": "The development of the Semantic Web, with machine-readable content, has the potential to revolutionize the World Wide Web and its uses. A Semantic Web Primer provides an introduction and guide to this continuously evolving field, describing its key ideas, languages, and technologies. Suitable for use as a textbook or for independent study by professionals, it concentrates on undergraduate-level fundamental concepts and techniques that will enable readers to proceed with building applications on their own and includes exercises, project descriptions, and annotated references to relevant online materials. The third edition of this widely used text has been thoroughly updated, with significant new material that reflects a rapidly developing field. Treatment of the different languages (OWL2, rules) expands the coverage of RDF and OWL, defining the data model independently of XML and including coverage of N3/Turtle and RDFa. A chapter is devoted to OWL2, the new W3C standard. This edition also features additional coverage of the query language SPARQL, the rule language RIF and the possibility of interaction between rules and ontology languages and applications. The chapter on Semantic Web applications reflects the rapid developments of the past few years. A new chapter offers ideas for term projects",
+        "staffOnly": false,
+        "instanceNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
+      },
+      {
+        "note": "Librarian private note",
+        "staffOnly": true,
+        "instanceNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
+      }
+    ],
+    "modeOfIssuanceId": "9d18a02f-5897-4c31-9106-c9abb5c7ae8b",
+    "catalogedDate": "2019-04-05",
+    "discoverySuppress": false,
+    "isBoundWith": true,
+    "statisticalCodeIds": [
+      "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
+    ],
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
+    "statusUpdatedDate": "2020-12-08T15:47:13.625+0000",
+    "tags": {
+      "tagList": [
+        "sort-instance"
+      ]
+    },
+    "metadata": {
+      "createdDate": "2021-05-01T10:00:00.000+00:00",
+      "updatedDate": "2021-05-15T10:00:00.000+00:00"
+    },
+    "holdingsRecords2": [],
+    "natureOfContentTermIds": [
+      "85657646-6b6f-4e71-b54c-d47f3b95a5ed"
+    ]
+  },
+  {
+    "id": "b0000001-0000-4000-8000-000000000000",
+    "title": "Ground water in Africa.",
+    "tags": {
+      "tagList": [
+        "sort-instance-by-title"
+      ]
+    }
+  },
+  {
+    "id": "b0000002-0000-4000-8000-000000000000",
+    "title": "Ground water in North and West Africa.",
+    "tags": {
+      "tagList": [
+        "sort-instance-by-title"
+      ]
+    }
+  },
+  {
+    "id": "b0000003-0000-4000-8000-000000000000",
+    "title": "Ground-water hydrology of the Chad Basin in Bornu and Dikwa Emirates, Northeastern Nigeria :with special emphasis on the flow life of the Artesian system  /by R. E. Miller [and three others].",
+    "tags": {
+      "tagList": [
+        "sort-instance-by-title"
+      ]
+    }
+  },
+  {
+    "id": "b0000004-0000-4000-8000-000000000000",
+    "title": "Ground-water resources of the Bengasi area, Cyrenaica, United Kingdom of Libya / by W.W. Doyel and F.J. Maguire.",
+    "tags": {
+      "tagList": [
+        "sort-instance-by-title"
+      ]
+    }
+  },
+  {
+    "id": "b0000005-0000-4000-8000-000000000000",
+    "title": "Ground-water exploration in Al Marj area, Cyrenaica, United Kingdom of Libya / by T.G. Newport and Yousef Haddor.",
+    "tags": {
+      "tagList": [
+        "sort-instance-by-title"
+      ]
+    }
+  },
+  {
+    "id": "b0000006-0000-4000-8000-000000000000",
+    "title": "Regional geology and ground-water hydrology of the SaÌhÌʹil SuÌsah area, Tunisia / by L.C. Dutcher and H.E. Thomas.",
+    "tags": {
+      "tagList": [
+        "sort-instance-by-title"
+      ]
+    }
+  },
+  {
+    "id": "b0000007-0000-4000-8000-000000000000",
+    "title": "The occurrence, chemical quality and use of ground water in the TÌʹabulbah area, Tunisia by L.C. Dutcher and H.E. Thomas.",
+    "tags": {
+      "tagList": [
+        "sort-instance-by-title"
+      ]
+    }
+  },
+  {
+    "id": "b0000008-0000-4000-8000-000000000000",
+    "title": "Evaluation of baseline ground-water conditions in the Mosteiros, Ribeira Paul, and Ribeira Fajã Basins, Republic of Cape Verde, West Africa, 2005-06by Victor M. Heilweil ... [et al.] ; prepared in cooperation with the Millennium Challenge Corporation, Millennium Challenge Account, and Instituto Nacional de Gestão dos Recursos Hídricos.",
+    "tags": {
+      "tagList": [
+        "sort-instance-by-title"
+      ]
+    }
+  },
+  {
+    "id": "b0000009-0000-4000-8000-000000000000",
+    "title": "Significance of ground-water chemistry in performance of North Sahara tube wells in Algeria and Tunisia by Frank E. Clarke and Blair F. Jones.",
+    "tags": {
+      "tagList": [
+        "sort-instance-by-title"
+      ]
+    }
+  },
+  {
+    "id": "b0000010-0000-4000-8000-000000000000",
+    "title": "The occurrence, chemical quality and use of ground water in the TÌʹabulbah area, Tunisia / by L.C. Dutcher and H.E. Thomas.",
+    "tags": {
+      "tagList": [
+        "sort-instance-by-title"
+      ]
+    }
+  },
+  {
+    "id": "b0000011-0000-4000-8000-000000000000",
+    "title": "Ground water in the Sirte area, Tripolitania United Kingdom of Libya  /by William Ogilbee.",
+    "tags": {
+      "tagList": [
+        "sort-instance-by-title"
+      ]
+    }
+  },
+  {
+    "id": "b0000012-0000-4000-8000-000000000000",
+    "title": "Ground water in Eastern, Central and Southern Africa /United Nations, Department of Technical Co-operation for Development.",
+    "tags": {
+      "tagList": [
+        "sort-instance-by-title"
+      ]
+    }
+  },
+  {
+    "id": "b0000013-0000-4000-8000-000000000000",
+    "title": "Ground-water exploration in Al Marj area, Cyrenaica, United Kingdom of Libya by T.G. Newport and Yousef Haddor.",
+    "tags": {
+      "tagList": [
+        "sort-instance-by-title"
+      ]
+    }
+  },
+  {
+    "id": "30d564e2-4d5d-41b4-bfe6-da3e2e2835e4",
+    "title": "title1",
+    "indexTitle": "indexTitle",
+    "languages": [
+      "eng"
+    ],
+    "instanceTypeId": "c0000001-0000-4000-8000-000000000000",
+    "subjects": [],
+    "contributors": [
+      {
+        "name": "c1"
+      }
+    ],
+    "tags": {
+      "tagList": [
+        "search-by-empty-values"
+      ]
+    }
+  },
+  {
+    "id": "25ae81da-4254-49a8-acb3-dc452d9cc7df",
+    "title": "title2",
+    "indexTitle": "",
+    "instanceTypeId": "c0000002-0000-4000-8000-000000000000",
+    "contributors": [],
+    "tags": {
+      "tagList": [
+        "search-by-empty-values"
+      ]
+    }
+  },
+  {
+    "id": "1353873c-0e5e-4d64-a2f9-6c444dc4cd46",
+    "title": "Resource0",
+    "tenantId": "test_tenant",
+    "source": "MARC",
+    "languages": [
+      "eng",
+      "ita"
+    ],
+    "instanceTypeId": "de9e38bb-89a8-43ee-922f-c973b122cbb3",
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a",
+    "staffSuppress": true,
+    "discoverySuppress": true,
+    "instanceFormatIds": [
+      "25a81102-a2a9-4576-85ff-133ebcbcef2c",
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "tags": {
+      "tagList": [
+        "text",
+        "science",
+        "search-instance-filter"
+      ]
+    },
+    "statisticalCodeIds": [
+      "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
+    ],
+    "metadata": {
+      "createdDate": "2021-03-01T00:00:00.000+00:00",
+      "updatedDate": "2021-03-05T12:30:00.000+00:00"
+    },
+    "dates": {
+      "date1": "2021"
+    },
+    "classifications": [
+      {
+        "classificationTypeId": "5af5cb9d-063f-48ea-8148-7da3ecaafd7d",
+        "classificationNumber": "QA76.73.C15"
+      }
+    ]
+  },
+  {
+    "id": "cc6bbc19-3f54-43c5-8736-b85688619641",
+    "title": "Resource1",
+    "tenantId": "test_tenant",
+    "source": "MARC",
+    "languages": [
+      "eng",
+      "ger",
+      "fra"
+    ],
+    "instanceTypeId": "24da24dd-03ae-4e34-bad6-c79e342baeb9",
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf",
+    "staffSuppress": true,
+    "discoverySuppress": true,
+    "instanceFormatIds": [
+      "25a81102-a2a9-4576-85ff-133ebcbcef2c"
+    ],
+    "tags": {
+      "tagList": [
+        "future",
+        "search-instance-filter"
+      ]
+    },
+    "metadata": {
+      "createdDate": "2021-03-10T01:00:00.000+00:00",
+      "updatedDate": "2021-03-12T15:40:00.000+00:00"
+    },
+    "dates": {
+      "date1": "ddd9"
+    },
+    "classifications": [
+      {
+        "classificationTypeId": "7e5684a9-c8c1-4c1e-85b9-d047f53eeb6d",
+        "classificationNumber": "TK5105.88815"
+      }
+    ]
+  },
+  {
+    "id": "39a52d91-8dbb-4348-ab06-5c6115e600cd",
+    "title": "Resource2",
+    "tenantId": "test_tenant",
+    "source": "FOLIO",
+    "languages": [
+      "rus",
+      "ukr"
+    ],
+    "instanceTypeId": "24da24dd-03ae-4e34-bad6-c79e342baeb9",
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a",
+    "staffSuppress": true,
+    "instanceFormatIds": [
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "tags": {
+      "tagList": [
+        "future",
+        "science",
+        "search-instance-filter"
+      ]
+    },
+    "metadata": {
+      "createdDate": "2021-03-08T15:00:00.000+00:00",
+      "updatedDate": "2021-03-15T22:30:00.000+00:00"
+    },
+    "dates": {
+      "date1": "2020"
+    }
+  },
+  {
+    "id": "62f72eeb-ed5a-4619-b01f-1750d5528d25",
+    "title": "Resource3",
+    "tenantId": "test_tenant",
+    "source": "MARC",
+    "languages": [
+      "ita"
+    ],
+    "staffSuppress": false,
+    "discoverySuppress": false,
+    "instanceTypeId": "de9e38bb-89a8-43ee-922f-c973b122cbb3",
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf",
+    "instanceFormatIds": [
+      "89f6d4f0-9cd2-4015-828d-331dc3adb47a",
+      "25a81102-a2a9-4576-85ff-133ebcbcef2c",
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "tags": {
+      "tagList": [
+        "casual",
+        "cooking",
+        "search-instance-filter"
+      ]
+    },
+    "metadata": {
+      "createdDate": "2021-03-15T12:00:00.000+00:00",
+      "updatedDate": "2021-03-15T12:00:00.000+00:00"
+    },
+    "dates": {
+      "date1": "d99\\"
+    }
+  },
+  {
+    "id": "6d9ccc82-8142-4fbc-b6ba-8e3429fd9aca",
+    "title": "Resource4",
+    "tenantId": "test_tenant",
+    "source": "FOLIO",
+    "languages": [
+      "eng",
+      "fra"
+    ],
+    "instanceTypeId": "de9e38bb-89a8-43ee-922f-c973b122cbb3",
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf",
+    "instanceFormatIds": [
+      "25a81102-a2a9-4576-85ff-133ebcbcef2c"
+    ],
+    "tags": {
+      "tagList": [
+        "cooking",
+        "search-instance-filter"
+      ]
+    },
+    "dates": {
+      "date1": "2023",
+      "date2": "2023"
+    }
+  },
+  {
+    "id": "497a920b-225f-44c2-9a48-964c52fb5cc3",
+    "title": "Death of the Price Jackal",
+    "tags": {
+      "tagList": [
+        "sort-item"
+      ]
+    }
+  },
+  {
+    "id": "b3122ab1-8745-43a9-8b31-8a248bef387b",
+    "title": "Wild and Wicked",
+    "tags": {
+      "tagList": [
+        "sort-item"
+      ]
+    }
+  },
+  {
+    "id": "9e20dd36-e46e-4e12-b35e-f3339a947966",
+    "title": "Sword of Gruko",
+    "tags": {
+      "tagList": [
+        "sort-item"
+      ]
+    }
+  },
+  {
+    "id": "36805693-dd16-400e-be24-7e9a362f79fe",
+    "title": "The Blade in the Ice",
+    "tags": {
+      "tagList": [
+        "sort-item"
+      ]
+    }
+  },
+  {
+    "id": "414f663b-b97b-42ed-8a96-3195067126ff",
+    "title": "The Raven Crystal",
+    "tags": {
+      "tagList": [
+        "sort-item"
+      ]
+    }
+  },
+  {
+    "id": "f0000001-0000-4000-8000-000000000000",
+    "title": "Instance 1",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000002-0000-4000-8000-000000000000",
+    "title": "Instance 2",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000003-0000-4000-8000-000000000000",
+    "title": "Instance 3",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000004-0000-4000-8000-000000000000",
+    "title": "Instance 4",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000005-0000-4000-8000-000000000000",
+    "title": "Instance 5",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000006-0000-4000-8000-000000000000",
+    "title": "Instance 6",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000007-0000-4000-8000-000000000000",
+    "title": "Instance 7",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000008-0000-4000-8000-000000000000",
+    "title": "Instance 8",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000009-0000-4000-8000-000000000000",
+    "title": "Instance 9",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000010-0000-4000-8000-000000000000",
+    "title": "Instance 10",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000011-0000-4000-8000-000000000000",
+    "title": "Instance 11",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000012-0000-4000-8000-000000000000",
+    "title": "Instance 12",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000013-0000-4000-8000-000000000000",
+    "title": "Instance 13",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000014-0000-4000-8000-000000000000",
+    "title": "Instance 14",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000015-0000-4000-8000-000000000000",
+    "title": "Instance 15",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000016-0000-4000-8000-000000000000",
+    "title": "Instance 16",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000017-0000-4000-8000-000000000000",
+    "title": "Instance 17",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000018-0000-4000-8000-000000000000",
+    "title": "Instance 18",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000019-0000-4000-8000-000000000000",
+    "title": "Instance 19",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000020-0000-4000-8000-000000000000",
+    "title": "Instance 20",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000021-0000-4000-8000-000000000000",
+    "title": "Instance 21",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000022-0000-4000-8000-000000000000",
+    "title": "Instance 22",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000023-0000-4000-8000-000000000000",
+    "title": "Instance 23",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000024-0000-4000-8000-000000000000",
+    "title": "Instance 24",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000025-0000-4000-8000-000000000000",
+    "title": "Instance 25",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000026-0000-4000-8000-000000000000",
+    "title": "Instance 26",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000027-0000-4000-8000-000000000000",
+    "title": "Instance 27",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000028-0000-4000-8000-000000000000",
+    "title": "Instance 28",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000029-0000-4000-8000-000000000000",
+    "title": "Instance 29",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000030-0000-4000-8000-000000000000",
+    "title": "Instance 30",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000031-0000-4000-8000-000000000000",
+    "title": "Instance 31",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000032-0000-4000-8000-000000000000",
+    "title": "Instance 32",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000033-0000-4000-8000-000000000000",
+    "title": "Instance 33",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000034-0000-4000-8000-000000000000",
+    "title": "Instance 34",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000035-0000-4000-8000-000000000000",
+    "title": "Instance 35",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000036-0000-4000-8000-000000000000",
+    "title": "Instance 36",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000037-0000-4000-8000-000000000000",
+    "title": "Instance 37",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000038-0000-4000-8000-000000000000",
+    "title": "Instance 38",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000039-0000-4000-8000-000000000000",
+    "title": "Instance 39",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000040-0000-4000-8000-000000000000",
+    "title": "Instance 40",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000041-0000-4000-8000-000000000000",
+    "title": "Instance 41",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000042-0000-4000-8000-000000000000",
+    "title": "Instance 42",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000043-0000-4000-8000-000000000000",
+    "title": "Instance 43",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000044-0000-4000-8000-000000000000",
+    "title": "Instance 44",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000045-0000-4000-8000-000000000000",
+    "title": "Instance 45",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000046-0000-4000-8000-000000000000",
+    "title": "Instance 46",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000047-0000-4000-8000-000000000000",
+    "title": "Instance 47",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000048-0000-4000-8000-000000000000",
+    "title": "Instance 48",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000049-0000-4000-8000-000000000000",
+    "title": "Instance 49",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "f0000050-0000-4000-8000-000000000000",
+    "title": "Instance 50",
+    "tags": {
+      "tagList": [
+        "browse-call-number"
+      ]
+    }
+  },
+  {
+    "id": "c0000001-0000-4000-b000-000000000000",
+    "title": "instance #01",
+    "staffSuppress": false,
+    "discoverySuppress": false,
+    "tags": {
+      "tagList": [
+        "browse-classification"
+      ]
+    },
+    "classifications": [
+      {
+        "classificationNumber": "BJ1453 .I49 1983",
+        "classificationTypeId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a"
+      },
+      {
+        "classificationNumber": "HD1691 .I5 1967",
+        "classificationTypeId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a"
+      }
+    ]
+  },
+  {
+    "id": "c0000002-0000-4000-b000-000000000000",
+    "title": "instance #02",
+    "staffSuppress": false,
+    "discoverySuppress": false,
+    "tags": {
+      "tagList": [
+        "browse-classification"
+      ]
+    },
+    "classifications": [
+      {
+        "classificationNumber": "BJ1453 .I49 1983",
+        "classificationTypeId": "308c950f-8209-4f2e-9702-0c004a9f21bc"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Contributor A"
+      },
+      {
+        "name": "Contributor B"
+      }
+    ]
+  },
+  {
+    "id": "c0000003-0000-4000-b000-000000000000",
+    "title": "instance #03",
+    "staffSuppress": false,
+    "discoverySuppress": false,
+    "tags": {
+      "tagList": [
+        "browse-classification"
+      ]
+    },
+    "classifications": [
+      {
+        "classificationNumber": "HQ536 .A565 2018",
+        "classificationTypeId": "308c950f-8209-4f2e-9702-0c004a9f21bc"
+      },
+      {
+        "classificationNumber": "N6679.R64 G88 2010",
+        "classificationTypeId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a"
+      }
+    ]
+  },
+  {
+    "id": "c0000004-0000-4000-b000-000000000000",
+    "title": "instance #04",
+    "staffSuppress": false,
+    "discoverySuppress": false,
+    "tags": {
+      "tagList": [
+        "browse-classification"
+      ]
+    },
+    "classifications": [
+      {
+        "classificationNumber": "QD33 .O87",
+        "classificationTypeId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a"
+      }
+    ]
+  },
+  {
+    "id": "c0000005-0000-4000-b000-000000000000",
+    "title": "instance #05",
+    "staffSuppress": false,
+    "discoverySuppress": false,
+    "tags": {
+      "tagList": [
+        "browse-classification"
+      ]
+    },
+    "classifications": [
+      {
+        "classificationNumber": "QD453 .M8 1961",
+        "classificationTypeId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a"
+      },
+      {
+        "classificationNumber": "146.4",
+        "classificationTypeId": "50524585-046b-49a1-8ca7-8d46f2a8dc19"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Contributor X"
+      }
+    ]
+  },
+  {
+    "id": "c0000006-0000-4000-b000-000000000000",
+    "title": "instance #06",
+    "staffSuppress": false,
+    "discoverySuppress": false,
+    "tags": {
+      "tagList": [
+        "browse-classification"
+      ]
+    },
+    "classifications": [
+      {
+        "classificationNumber": "SF433 .D47 2004",
+        "classificationTypeId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a"
+      },
+      {
+        "classificationNumber": "TX545 .M45",
+        "classificationTypeId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a"
+      }
+    ]
+  },
+  {
+    "id": "c0000007-0000-4000-b000-000000000000",
+    "title": "instance #07",
+    "staffSuppress": false,
+    "discoverySuppress": false,
+    "tags": {
+      "tagList": [
+        "browse-classification"
+      ]
+    },
+    "classifications": [
+      {
+        "classificationNumber": "221.609",
+        "classificationTypeId": "50524585-046b-49a1-8ca7-8d46f2a8dc19"
+      },
+      {
+        "classificationNumber": "SF991 .M94",
+        "classificationTypeId": "308c950f-8209-4f2e-9702-0c004a9f21bc"
+      }
+    ]
+  },
+  {
+    "id": "c0000008-0000-4000-b000-000000000000",
+    "title": "instance #08",
+    "staffSuppress": false,
+    "discoverySuppress": false,
+    "tags": {
+      "tagList": [
+        "browse-classification"
+      ]
+    },
+    "classifications": [
+      {
+        "classificationNumber": "TN800 .F4613",
+        "classificationTypeId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a"
+      }
+    ]
+  },
+  {
+    "id": "c0000009-0000-4000-b000-000000000000",
+    "title": "instance #09",
+    "staffSuppress": false,
+    "discoverySuppress": false,
+    "tags": {
+      "tagList": [
+        "browse-classification"
+      ]
+    },
+    "classifications": [
+      {
+        "classificationNumber": "292.07",
+        "classificationTypeId": "50524585-046b-49a1-8ca7-8d46f2a8dc19"
+      },
+      {
+        "classificationNumber": "333.91",
+        "classificationTypeId": "50524585-046b-49a1-8ca7-8d46f2a8dc19"
+      },
+      {
+        "classificationNumber": "372.4",
+        "classificationTypeId": "50524585-046b-49a1-8ca7-8d46f2a8dc19"
+      }
+    ]
+  },
+  {
+    "id": "c0000010-0000-4000-b000-000000000000",
+    "title": "instance #10",
+    "staffSuppress": false,
+    "discoverySuppress": false,
+    "tags": {
+      "tagList": [
+        "browse-classification"
+      ]
+    },
+    "classifications": [
+      {
+        "classificationNumber": "146.4",
+        "classificationTypeId": "50524585-046b-49a1-8ca7-8d46f2a8dc19"
+      },
+      {
+        "classificationNumber": "QD33 .O87",
+        "classificationTypeId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a"
+      },
+      {
+        "classificationNumber": "SF991 .M94"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Contributor Y"
+      }
+    ]
+  },
+  {
+    "id": "c0000011-0000-4000-b000-000000000000",
+    "title": "instance #11",
+    "staffSuppress": false,
+    "discoverySuppress": false,
+    "tags": {
+      "tagList": [
+        "browse-classification"
+      ]
+    },
+    "classifications": [
+      {
+        "classificationNumber": "TX545 M45",
+        "classificationTypeId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a"
+      }
+    ]
+  },
+  {
+    "id": "c0000012-0000-4000-b000-000000000000",
+    "title": "instance #12",
+    "staffSuppress": false,
+    "discoverySuppress": false,
+    "tags": {
+      "tagList": [
+        "browse-classification"
+      ]
+    },
+    "classifications": [
+      {
+        "classificationNumber": "TX\\545.\\\\M45",
+        "classificationTypeId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a"
+      }
+    ]
+  },
+  {
+    "id": "a0000001-0000-4000-9000-000000000000",
+    "title": "instance #00",
+    "staffSuppress": false,
+    "discoverySuppress": false,
+    "contributors": [
+      {
+        "name": "Darth Vader",
+        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
+        "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9",
+        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299"
+      }
+    ],
+    "tags": {
+      "tagList": [
+        "browse-contributor"
+      ]
+    }
+  },
+  {
+    "id": "a0000002-0000-4000-9000-000000000000",
+    "title": "instance #01",
+    "staffSuppress": false,
+    "discoverySuppress": false,
+    "contributors": [
+      {
+        "name": "Bon Jovi",
+        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
+        "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9",
+        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299"
+      },
+      {
+        "name": "Klaus Meine",
+        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
+        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d",
+        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299"
+      },
+      {
+        "name": "Anthony Kiedis",
+        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
+        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d",
+        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299"
+      }
+    ],
+    "tags": {
+      "tagList": [
+        "browse-contributor"
+      ]
+    }
+  },
+  {
+    "id": "a0000003-0000-4000-9000-000000000000",
+    "title": "instance #02",
+    "staffSuppress": false,
+    "discoverySuppress": false,
+    "contributors": [
+      {
+        "name": "Bon Jovi",
+        "contributorNameTypeId": "0ad0a89a-741d-4f1a-85a6-ada214751013",
+        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d",
+        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299"
+      },
+      {
+        "name": "Klaus Meine",
+        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
+        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d",
+        "contributorTypeId": "3ae36e29-e38f-457c-8fcf-1974a6cb63d3"
+      },
+      {
+        "name": "Anthony Kiedis",
+        "contributorNameTypeId": "0ad0a89a-741d-4f1a-85a6-ada214751013",
+        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d",
+        "contributorTypeId": "653ffe66-aa3f-4f1c-a090-c42c4011ef40"
+      }
+    ],
+    "tags": {
+      "tagList": [
+        "browse-contributor"
+      ]
+    }
+  },
+  {
+    "id": "a0000004-0000-4000-9000-000000000000",
+    "title": "instance #03",
+    "staffSuppress": false,
+    "discoverySuppress": false,
+    "contributors": [
+      {
+        "name": "Bon Jovi",
+        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
+        "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9",
+        "contributorTypeId": "3ae36e29-e38f-457c-8fcf-1974a6cb63d3"
+      },
+      {
+        "name": "Bon Jovi",
+        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
+        "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9",
+        "contributorTypeId": "653ffe66-aa3f-4f1c-a090-c42c4011ef40"
+      },
+      {
+        "name": "Klaus Meine",
+        "contributorNameTypeId": "0ad0a89a-741d-4f1a-85a6-ada214751013",
+        "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9"
+      }
+    ],
+    "tags": {
+      "tagList": [
+        "browse-contributor"
+      ]
+    }
+  },
+  {
+    "id": "a0000005-0000-4000-9000-000000000000",
+    "title": "instance #04",
+    "staffSuppress": false,
+    "discoverySuppress": false,
+    "contributors": [
+      {
+        "name": "John Lennon",
+        "contributorNameTypeId": "1f857623-89ca-4f0b-ab56-5c30f706df3e",
+        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d",
+        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299"
+      },
+      {
+        "name": "Paul McCartney",
+        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
+        "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9",
+        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299"
+      },
+      {
+        "name": "George Harrison",
+        "contributorNameTypeId": "0ad0a89a-741d-4f1a-85a6-ada214751013",
+        "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9",
+        "contributorTypeId": "653ffe66-aa3f-4f1c-a090-c42c4011ef40"
+      },
+      {
+        "name": "Ringo Starr",
+        "contributorNameTypeId": "0ad0a89a-741d-4f1a-85a6-ada214751013",
+        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d",
+        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299"
+      }
+    ],
+    "tags": {
+      "tagList": [
+        "browse-contributor"
+      ]
+    }
+  },
+  {
+    "id": "a0000006-0000-4000-9000-000000000000",
+    "title": "instance #05",
+    "staffSuppress": false,
+    "discoverySuppress": false,
+    "contributors": [
+      {
+        "name": "John Lennon",
+        "contributorNameTypeId": "1f857623-89ca-4f0b-ab56-5c30f706df3e",
+        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d",
+        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299"
+      },
+      {
+        "name": "Paul McCartney",
+        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
+        "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9",
+        "contributorTypeId": "3ae36e29-e38f-457c-8fcf-1974a6cb63d3"
+      },
+      {
+        "name": "George Harrison",
+        "contributorNameTypeId": "0ad0a89a-741d-4f1a-85a6-ada214751013",
+        "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9",
+        "contributorTypeId": "653ffe66-aa3f-4f1c-a090-c42c4011ef40"
+      },
+      {
+        "name": "Ringo Starr",
+        "contributorNameTypeId": "0ad0a89a-741d-4f1a-85a6-ada214751013",
+        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d",
+        "contributorTypeId": "3ae36e29-e38f-457c-8fcf-1974a6cb63d3"
+      }
+    ],
+    "tags": {
+      "tagList": [
+        "browse-contributor"
+      ]
+    }
+  },
+  {
+    "id": "a0000007-0000-4000-9000-000000000000",
+    "title": "instance #06",
+    "staffSuppress": false,
+    "discoverySuppress": false,
+    "contributors": [
+      {
+        "name": "Paul McCartney",
+        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
+        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d",
+        "contributorTypeId": "653ffe66-aa3f-4f1c-a090-c42c4011ef40"
+      },
+      {
+        "name": "John Lennon",
+        "contributorNameTypeId": "1f857623-89ca-4f0b-ab56-5c30f706df3e",
+        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299"
+      },
+      {
+        "name": "Wi\\lly \\ Wonka"
+      }
+    ],
+    "tags": {
+      "tagList": [
+        "browse-contributor"
+      ]
+    }
+  },
+  {
+    "id": "b0000001-0000-4000-9000-000000000000",
+    "title": "instance #01",
+    "staffSuppress": false,
+    "discoverySuppress": false,
+    "subjects": [
+      {
+        "value": "History"
+      },
+      {
+        "value": "Music",
+        "authorityId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a",
+        "sourceId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91b",
+        "typeId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91c"
+      },
+      {
+        "value": "Music",
+        "authorityId": "308c950f-8209-4f2e-9702-0c004a9f21bc",
+        "sourceId": "308c950f-8209-4f2e-9702-0c004a9f21bd",
+        "typeId": "308c950f-8209-4f2e-9702-0c004a9f21be"
+      },
+      {
+        "value": "Biography"
+      }
+    ],
+    "tags": {
+      "tagList": [
+        "browse-subject"
+      ]
+    }
+  },
+  {
+    "id": "b0000002-0000-4000-9000-000000000000",
+    "title": "instance #02",
+    "staffSuppress": false,
+    "discoverySuppress": false,
+    "subjects": [
+      {
+        "value": "Fantasy"
+      },
+      {
+        "value": "Music",
+        "authorityId": "308c950f-8209-4f2e-9702-0c004a9f21bc",
+        "sourceId": "308c950f-8209-4f2e-9702-0c004a9f21bd",
+        "typeId": "308c950f-8209-4f2e-9702-0c004a9f21be"
+      }
+    ],
+    "tags": {
+      "tagList": [
+        "browse-subject"
+      ]
+    }
+  },
+  {
+    "id": "b0000003-0000-4000-9000-000000000000",
+    "title": "instance #03",
+    "staffSuppress": false,
+    "discoverySuppress": false,
+    "subjects": [
+      {
+        "value": "United States",
+        "sourceId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91b",
+        "typeId": "308c950f-8209-4f2e-9702-0c004a9f21be"
+      },
+      {
+        "value": "History"
+      },
+      {
+        "value": "Rules"
+      }
+    ],
+    "tags": {
+      "tagList": [
+        "browse-subject"
+      ]
+    }
+  },
+  {
+    "id": "b0000004-0000-4000-9000-000000000000",
+    "title": "instance #04",
+    "staffSuppress": false,
+    "discoverySuppress": false,
+    "subjects": [
+      {
+        "value": "Europe"
+      },
+      {
+        "value": "Music",
+        "typeId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91c"
+      }
+    ],
+    "tags": {
+      "tagList": [
+        "browse-subject"
+      ]
+    }
+  },
+  {
+    "id": "b0000005-0000-4000-9000-000000000000",
+    "title": "instance #05",
+    "staffSuppress": false,
+    "discoverySuppress": false,
+    "subjects": [
+      {
+        "value": "Book"
+      },
+      {
+        "value": "Text"
+      },
+      {
+        "value": "Biography"
+      }
+    ],
+    "tags": {
+      "tagList": [
+        "browse-subject"
+      ]
+    }
+  },
+  {
+    "id": "b0000006-0000-4000-9000-000000000000",
+    "title": "instance #06",
+    "staffSuppress": false,
+    "discoverySuppress": false,
+    "subjects": [
+      {
+        "value": "Religion"
+      },
+      {
+        "value": "History"
+      },
+      {
+        "value": "Philosophy"
+      }
+    ],
+    "tags": {
+      "tagList": [
+        "browse-subject"
+      ]
+    }
+  },
+  {
+    "id": "b0000007-0000-4000-9000-000000000000",
+    "title": "instance #07",
+    "staffSuppress": false,
+    "discoverySuppress": false,
+    "subjects": [
+      {
+        "value": "Science"
+      },
+      {
+        "value": "Science--Methodology"
+      },
+      {
+        "value": "Science\\--Philosophy"
+      }
+    ],
+    "tags": {
+      "tagList": [
+        "browse-subject"
+      ]
+    }
+  },
+  {
+    "id": "b0000008-0000-4000-9000-000000000000",
+    "title": "instance #08",
+    "staffSuppress": false,
+    "discoverySuppress": false,
+    "subjects": [
+      {
+        "value": "Water"
+      },
+      {
+        "value": "Water-supply"
+      }
+    ],
+    "tags": {
+      "tagList": [
+        "browse-subject"
+      ]
+    }
+  },
+  {
+    "id": "b0000009-0000-4000-9000-000000000000",
+    "title": "instance #09",
+    "staffSuppress": false,
+    "discoverySuppress": false,
+    "subjects": [
+      {
+        "value": "Water--Analysis"
+      },
+      {
+        "value": "Water--Purification"
+      },
+      {
+        "value": "Water--Microbiology"
+      }
+    ],
+    "tags": {
+      "tagList": [
+        "browse-subject"
+      ]
+    }
+  },
+  {
+    "id": "b0000010-0000-4000-9000-000000000000",
+    "title": "instance #10",
+    "staffSuppress": false,
+    "discoverySuppress": false,
+    "subjects": [
+      {
+        "value": "Database design"
+      },
+      {
+        "value": "Database management"
+      },
+      {
+        "value": "Textbooks"
+      }
+    ],
+    "tags": {
+      "tagList": [
+        "browse-subject"
+      ]
+    }
+  },
+  {
+    "id": "b0000011-0000-4000-9000-000000000000",
+    "title": "instance #11",
+    "staffSuppress": false,
+    "discoverySuppress": false,
+    "subjects": [
+      {
+        "value": "History"
+      },
+      {
+        "value": "Music",
+        "typeId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91c"
+      },
+      {
+        "value": "Biography"
+      }
+    ],
+    "tags": {
+      "tagList": [
+        "browse-subject"
+      ]
+    }
+  },
+  {
+    "id": "b0000012-0000-4000-9000-000000000000",
+    "title": "instance #12",
+    "staffSuppress": false,
+    "discoverySuppress": false,
+    "subjects": [
+      {
+        "value": "History"
+      },
+      {
+        "value": "Music",
+        "authorityId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a",
+        "typeId": "308c950f-8209-4f2e-9702-0c004a9f21be"
+      },
+      {
+        "value": "Biography"
+      }
+    ],
+    "tags": {
+      "tagList": [
+        "browse-subject"
+      ]
+    }
+  },
+  {
+    "id": "b0000013-0000-4000-9000-000000000000",
+    "title": "instance #13",
+    "staffSuppress": false,
+    "discoverySuppress": false,
+    "subjects": [
+      {
+        "value": "History"
+      },
+      {
+        "value": "Music",
+        "sourceId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91b"
+      },
+      {
+        "value": "Biography"
+      }
+    ],
+    "tags": {
+      "tagList": [
+        "browse-subject"
+      ]
+    }
+  },
+  {
+    "id": "b0000014-0000-4000-9000-000000000000",
+    "title": "instance #14",
+    "staffSuppress": false,
+    "discoverySuppress": false,
+    "subjects": [
+      {
+        "value": "History"
+      },
+      {
+        "value": "Music",
+        "authorityId": "308c950f-8209-4f2e-9702-0c004a9f21bc",
+        "sourceId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91b"
+      },
+      {
+        "value": "Biography"
+      }
+    ],
+    "tags": {
+      "tagList": [
+        "browse-subject"
+      ]
+    }
+  },
+  {
+    "id": "b0000015-0000-4000-9000-000000000000",
+    "title": "instance #15",
+    "staffSuppress": false,
+    "discoverySuppress": false,
+    "subjects": [
+      {
+        "value": "History"
+      },
+      {
+        "value": "Music",
+        "sourceId": "308c950f-8209-4f2e-9702-0c004a9f21bd",
+        "typeId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91c"
+      },
+      {
+        "value": "Biography"
+      }
+    ],
+    "tags": {
+      "tagList": [
+        "browse-subject"
+      ]
+    }
   }
 ]

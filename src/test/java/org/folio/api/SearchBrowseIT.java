@@ -16,9 +16,7 @@ import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.support.base.ApiEndpoints.linkedDataHubSearchPath;
 import static org.folio.support.base.ApiEndpoints.linkedDataInstanceSearchPath;
 import static org.folio.support.base.ApiEndpoints.linkedDataWorkSearchPath;
-import static org.folio.support.sample.SampleInstances.getSemanticWebAsMap;
 
-import java.util.Arrays;
 import org.folio.api.browse.BrowseAuthorityIT;
 import org.folio.api.browse.BrowseCallNumberIT;
 import org.folio.api.browse.BrowseClassificationIT;
@@ -55,12 +53,8 @@ import org.springframework.test.context.TestPropertySource;
 @TestPropertySource(properties = "folio.search-config.indexing.instance-children-index-enabled=true")
 class SearchBrowseIT extends BaseIntegrationTest {
 
-  // ─── record counts (filled in Task 11 after all data is wired) ──────────────
-  // 1 semantic-web + 5 SortInstanceIT + 13 SortInstanceByTitleIT + 2 SearchByEmptyValuesIT
-  // + 49 BrowseCallNumberIT + 12 BrowseClassificationIT + 7 BrowseContributorIT
-  // + 15 BrowseSubjectIT + 4 SearchAuthorityIT.LINKED_INSTANCES
-  // + 5 SearchInstanceFilterIT + 5 SortItemIT = 118
-  private static final int TOTAL_INSTANCES       = 118;
+  // 119 instances from instances.json
+  private static final int TOTAL_INSTANCES       = 119;
   private static final int TOTAL_AUTHORITIES     = 116; // 51 sample + 15 filter + 5 sort + 45 browse
   private static final int EXPECTED_CALL_NUMBER_COUNT    = 97;
   private static final int EXPECTED_CONTRIBUTOR_COUNT    = 13;
@@ -105,33 +99,29 @@ class SearchBrowseIT extends BaseIntegrationTest {
     final var subjLock = repo.lockSubResource(ReindexEntityType.SUBJECT, TENANT_ID)
       .orElseThrow(() -> new IllegalStateException("Unable to lock SUBJECT resource"));
 
-    inventoryApi.createInstance(TENANT_ID, getSemanticWebAsMap()); // Task 3
-    Arrays.stream(SortInstanceIT.INSTANCES).forEach(i -> inventoryApi.createInstance(TENANT_ID, i));
-    Arrays.stream(SortInstanceByTitleIT.INSTANCES).forEach(i -> inventoryApi.createInstance(TENANT_ID, i));
-    Arrays.stream(SearchByEmptyValuesIT.INSTANCES).forEach(i -> inventoryApi.createInstance(TENANT_ID, i));
-    Arrays.stream(BrowseCallNumberIT.INSTANCES).forEach(i -> inventoryApi.createInstance(TENANT_ID, i)); // Task 7
-    Arrays.stream(BrowseClassificationIT.INSTANCES).forEach(i -> inventoryApi.createInstance(TENANT_ID, i)); // Task 7
+    // Load all instances from unified JSON
+    SharedTestDataManager.instances().forEach(i -> inventoryApi.createInstance(TENANT_ID, i));
 
-    // BrowseContributor group
-    Arrays.stream(BrowseContributorIT.INSTANCES).forEach(i -> inventoryApi.createInstance(TENANT_ID, i));
-    // Mutation: clear contributors from first instance so deletion re-index is tested
-    BrowseContributorIT.INSTANCES[0].setContributors(emptyList());
-    inventoryApi.updateInstance(TENANT_ID, BrowseContributorIT.INSTANCES[0]);
+    // Load flat holdings and items (each record has an instanceId field)
+    SharedTestDataManager.holdings().forEach(h -> {
+      var instanceId = (String) h.get("instanceId");
+      inventoryApi.createHolding(TENANT_ID, instanceId, h);
+    });
+    SharedTestDataManager.items().forEach(item -> {
+      var instanceId = (String) item.get("instanceId");
+      inventoryApi.createItem(TENANT_ID, instanceId, item);
+    });
 
-    // BrowseSubject group
-    Arrays.stream(BrowseSubjectIT.INSTANCES).forEach(i -> inventoryApi.createInstance(TENANT_ID, i));
-
-    // Authority-linked instances (required for SearchAuthorityIT.numberOfTitles assertions)
-    SharedTestDataManager.instances().stream()
+    // Mutation: clear contributors from the first browse-contributor instance
+    var browseContribInstances = SharedTestDataManager.instances().stream()
       .filter(i -> i.getTags() != null && i.getTags().getTagList() != null
-                   && i.getTags().getTagList().contains("search-authority-linked"))
-      .forEach(i -> inventoryApi.createInstance(TENANT_ID, i));
-
-    // SearchInstanceFilter group
-    Arrays.stream(SearchInstanceFilterIT.INSTANCES).forEach(i -> inventoryApi.createInstance(TENANT_ID, i));
-
-    // SortItem group
-    Arrays.stream(SortItemIT.INSTANCES).forEach(i -> inventoryApi.createInstance(TENANT_ID, i));
+                   && i.getTags().getTagList().contains("browse-contributor"))
+      .toList();
+    if (!browseContribInstances.isEmpty()) {
+      var first = browseContribInstances.get(0);
+      first.setContributors(emptyList());
+      inventoryApi.updateInstance(TENANT_ID, first);
+    }
 
     repo.unlockSubResource(ReindexEntityType.CALL_NUMBER, cnLock, TENANT_ID);
     repo.unlockSubResource(ReindexEntityType.CONTRIBUTOR, contribLock, TENANT_ID);

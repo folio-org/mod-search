@@ -4,7 +4,6 @@ import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import java.util.List;
-import org.folio.search.domain.dto.Instance;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.BaseIntegrationTest;
 import org.junit.jupiter.api.Test;
@@ -51,24 +50,22 @@ public abstract class SortInstanceByTitleIT extends BaseIntegrationTest {
   );
 
   public static final List<String> TITLE_IDS = List.of(
-      "b0000001-0000-0000-0000-000000000001",
-      "b0000002-0000-0000-0000-000000000002",
-      "b0000003-0000-0000-0000-000000000003",
-      "b0000004-0000-0000-0000-000000000004",
-      "b0000005-0000-0000-0000-000000000005",
-      "b0000006-0000-0000-0000-000000000006",
-      "b0000007-0000-0000-0000-000000000007",
-      "b0000008-0000-0000-0000-000000000008",
-      "b0000009-0000-0000-0000-000000000009",
-      "b0000010-0000-0000-0000-000000000010",
-      "b0000011-0000-0000-0000-000000000011",
-      "b0000012-0000-0000-0000-000000000012",
-      "b0000013-0000-0000-0000-000000000013"
+      "b0000001-0000-4000-8000-000000000000",
+      "b0000002-0000-4000-8000-000000000000",
+      "b0000003-0000-4000-8000-000000000000",
+      "b0000004-0000-4000-8000-000000000000",
+      "b0000005-0000-4000-8000-000000000000",
+      "b0000006-0000-4000-8000-000000000000",
+      "b0000007-0000-4000-8000-000000000000",
+      "b0000008-0000-4000-8000-000000000000",
+      "b0000009-0000-4000-8000-000000000000",
+      "b0000010-0000-4000-8000-000000000000",
+      "b0000011-0000-4000-8000-000000000000",
+      "b0000012-0000-4000-8000-000000000000",
+      "b0000013-0000-4000-8000-000000000000"
   );
 
-  public static final String SORT_TITLE_ID_FILTER = "id==(" + String.join(" OR ", TITLE_IDS) + ")";
-
-  public static final Instance[] INSTANCES = instances();
+  private static final String TAG_FILTER = "tags.tagList==\"sort-instance-by-title\"";
 
   @Test
   void canSortInstancesByContributors_asc() throws Exception {
@@ -76,15 +73,8 @@ public abstract class SortInstanceByTitleIT extends BaseIntegrationTest {
       .sorted(String::compareToIgnoreCase)
       .toList();
 
-    doSearchByInstances(SORT_TITLE_ID_FILTER + " sortBy title")
+    doSearchByInstances(TAG_FILTER + " sortBy title")
       .andExpect(jsonPath("totalRecords", is(13)))
       .andExpect(jsonPath("instances[*].title", is(expectedTitleOrder)));
-  }
-
-  private static Instance[] instances() {
-    var ids = TITLE_IDS.iterator();
-    return TITLES.stream()
-      .map(title -> new Instance().id(ids.next()).title(title))
-      .toArray(Instance[]::new);
   }
 }

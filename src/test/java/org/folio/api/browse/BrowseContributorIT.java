@@ -10,13 +10,13 @@ import static org.folio.support.utils.TestUtils.contributorBrowseItem;
 import static org.folio.support.utils.TestUtils.facet;
 import static org.folio.support.utils.TestUtils.facetItem;
 import static org.folio.support.utils.TestUtils.mapOf;
-import static org.folio.support.utils.TestUtils.randomId;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.Contributor;
 import org.folio.search.domain.dto.ContributorBrowseResult;
@@ -42,8 +42,6 @@ public abstract class BrowseContributorIT extends BaseIntegrationTest {
       "653ffe66-aa3f-4f1c-a090-c42c4011ef40");
   private static final String[] AUTHORITY_IDS =
     array("0a4c6d10-2161-4f64-aace-9e919489b6c9", "7ff32633-cc49-4332-870a-b05e329d2a2d");
-
-  public static final Instance[] INSTANCES = instances();
 
   @MethodSource("contributorBrowsingDataProvider")
   @DisplayName("browseByContributor_parameterized")
@@ -235,13 +233,10 @@ public abstract class BrowseContributorIT extends BaseIntegrationTest {
           contributorBrowseItem(1, "Paul McCartney", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[2])))));
   }
 
-  private static Instance[] instances() {
-    return contributorBrowseInstanceData().stream().map(BrowseContributorIT::instance).toArray(Instance[]::new);
-  }
-
   @SuppressWarnings("unchecked")
   private static Instance instance(List<Object> data) {
-    return new Instance().id(randomId()).title((String) data.get(0)).contributors((List<Contributor>) data.get(1))
+    return new Instance().id(UUID.randomUUID().toString()).title((String) data.get(0))
+      .contributors((List<Contributor>) data.get(1))
       .staffSuppress(false).discoverySuppress(false).holdings(emptyList());
   }
 

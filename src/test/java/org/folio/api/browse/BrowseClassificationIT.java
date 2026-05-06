@@ -9,7 +9,6 @@ import static org.folio.support.utils.JsonTestUtils.parseResponse;
 import static org.folio.support.utils.TestUtils.classificationBrowseItem;
 import static org.folio.support.utils.TestUtils.classificationBrowseResult;
 import static org.folio.support.utils.TestUtils.mockClassificationTypes;
-import static org.folio.support.utils.TestUtils.randomId;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
@@ -41,8 +40,6 @@ public abstract class BrowseClassificationIT extends BaseIntegrationTest {
   private static final String LC_TYPE_ID = "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a";
   private static final String LC2_TYPE_ID = "308c950f-8209-4f2e-9702-0c004a9f21bc";
   private static final String DEWEY_TYPE_ID = "50524585-046b-49a1-8ca7-8d46f2a8dc19";
-
-  public static final Instance[] INSTANCES = instances();
 
   @BeforeEach
   void setUp() {
@@ -221,17 +218,11 @@ public abstract class BrowseClassificationIT extends BaseIntegrationTest {
     );
   }
 
-  private static Instance[] instances() {
-    return classificationBrowseInstanceData().stream()
-      .map(BrowseClassificationIT::instance)
-      .toArray(Instance[]::new);
-  }
-
   @SuppressWarnings("unchecked")
   private static Instance instance(List<Object> data) {
     var pairs = (List<Pair<String, String>>) data.get(1);
     var instance = new Instance()
-      .id(randomId())
+      .id(UUID.randomUUID().toString())
       .title((String) data.get(0))
       .classifications(pairs.stream()
         .map(pair -> new Classification()

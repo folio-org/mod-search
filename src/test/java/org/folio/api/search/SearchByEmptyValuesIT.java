@@ -1,15 +1,10 @@
 package org.folio.api.search;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import static org.folio.support.utils.TestUtils.randomId;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.folio.search.domain.dto.Contributor;
-import org.folio.search.domain.dto.Instance;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.BaseIntegrationTest;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -20,14 +15,8 @@ public abstract class SearchByEmptyValuesIT extends BaseIntegrationTest {
 
   public static final String INSTANCE_ID_1 = "30d564e2-4d5d-41b4-bfe6-da3e2e2835e4";
   public static final String INSTANCE_ID_2 = "25ae81da-4254-49a8-acb3-dc452d9cc7df";
-  public static final Instance[] INSTANCES = instances();
 
-  private static final String ID_FILTER =
-      "id==(%s OR %s)".formatted(INSTANCE_ID_1, INSTANCE_ID_2);
-
-  private String scoped(String query) {
-    return ID_FILTER + " AND (" + query + ")";
-  }
+  private static final String TAG_FILTER = "tags.tagList==\"search-by-empty-values\"";
 
   @CsvSource({
     "cql.allRecords=1, title1;title2",
@@ -43,29 +32,10 @@ public abstract class SearchByEmptyValuesIT extends BaseIntegrationTest {
   @ParameterizedTest
   void search_parameterized(String query, String titles) throws Exception {
     var expectedTitles = StringUtils.isNotEmpty(titles) ? asList(titles.split(";")) : null;
-    doSearchByInstances(scoped(query) + " sortBy title")
+    doSearchByInstances(TAG_FILTER + " AND (" + query + ")" + " sortBy title")
       .andExpect(jsonPath("totalRecords", is(expectedTitles == null ? 0 : expectedTitles.size())))
       .andExpect(expectedTitles == null
                  ? jsonPath("instances[*].title").doesNotExist()
                  : jsonPath("instances[*].title", is(expectedTitles)));
-  }
-
-  private static Instance[] instances() {
-    return new Instance[] {
-      new Instance()
-        .id(INSTANCE_ID_1)
-        .title("title1")
-        .indexTitle("indexTitle")
-        .languages(List.of("eng"))
-        .instanceTypeId(randomId())
-        .subjects(emptyList())
-        .contributors(List.of(new Contributor().name("c1"))),
-
-      new Instance()
-        .id(INSTANCE_ID_2)
-        .title("title2")
-        .indexTitle("")
-        .instanceTypeId(randomId())
-        .contributors(emptyList())};
   }
 }

@@ -9,7 +9,6 @@ import static org.folio.support.utils.TestUtils.array;
 import static org.folio.support.utils.TestUtils.facet;
 import static org.folio.support.utils.TestUtils.facetItem;
 import static org.folio.support.utils.TestUtils.mapOf;
-import static org.folio.support.utils.TestUtils.randomId;
 import static org.folio.support.utils.TestUtils.subjectBrowseItem;
 import static org.folio.support.utils.TestUtils.subjectBrowseResult;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -20,6 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetResult;
@@ -43,8 +43,6 @@ public abstract class BrowseSubjectIT extends BaseIntegrationTest {
   private static final String MUSIC_SOURCE_ID_2 = "308c950f-8209-4f2e-9702-0c004a9f21bd";
   private static final String MUSIC_TYPE_ID_1 = "e62bbefe-adf5-4b1e-b3e7-43d877b0c91c";
   private static final String MUSIC_TYPE_ID_2 = "308c950f-8209-4f2e-9702-0c004a9f21be";
-
-  public static final Instance[] INSTANCES = instances();
 
   @MethodSource("subjectBrowsingDataProvider")
   @DisplayName("browseBySubject_parameterized")
@@ -357,16 +355,10 @@ public abstract class BrowseSubjectIT extends BaseIntegrationTest {
     );
   }
 
-  private static Instance[] instances() {
-    return subjectBrowseInstanceData().stream()
-      .map(BrowseSubjectIT::instance)
-      .toArray(Instance[]::new);
-  }
-
   @SuppressWarnings("unchecked")
   private static Instance instance(List<Object> data) {
     return new Instance()
-      .id(randomId())
+      .id(UUID.randomUUID().toString())
       .title((String) data.get(0))
       .subjects(((List<Object>) data.get(1)).stream()
         .map(val -> {

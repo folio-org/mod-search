@@ -1,8 +1,6 @@
 package org.folio.api.search;
 
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.recordFacetsPath;
@@ -19,19 +17,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import org.folio.search.domain.dto.Classification;
-import org.folio.search.domain.dto.Dates;
 import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetResult;
-import org.folio.search.domain.dto.Holding;
-import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.Item;
-import org.folio.search.domain.dto.ItemStatus;
-import org.folio.search.domain.dto.Metadata;
 import org.folio.search.domain.dto.RecordType;
-import org.folio.search.domain.dto.Tags;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.BaseIntegrationTest;
 import org.junit.jupiter.api.DisplayName;
@@ -114,16 +103,14 @@ public abstract class SearchInstanceFilterIT extends BaseIntegrationTest {
   private static final String[] DATES = array(
     "2021", "ddd9", "2020", "d99\\", "2023", "2022", "0", "1000");
 
-  public static final Instance[] INSTANCES = instances();
-
-  private static final String ID_FILTER = "id==(" + String.join(" OR ", IDS) + ")";
+  private static final String TAG_FILTER = "tags.tagList==\"search-instance-filter\"";
 
   private static String scoped(String query) {
     int idx = query.toLowerCase().indexOf(" sortby ");
     if (idx >= 0) {
-      return "(" + ID_FILTER + " AND " + query.substring(0, idx) + ")" + query.substring(idx);
+      return "(" + TAG_FILTER + " AND " + query.substring(0, idx) + ")" + query.substring(idx);
     }
-    return "(" + ID_FILTER + " AND " + query + ")";
+    return "(" + TAG_FILTER + " AND " + query + ")";
   }
 
   @MethodSource("filteredSearchQueriesProvider")
@@ -518,159 +505,5 @@ public abstract class SearchInstanceFilterIT extends BaseIntegrationTest {
       arr[0] = scoped((String) arr[0]);
       return Arguments.of((Object[]) arr);
     });
-  }
-
-  @SuppressWarnings("checkstyle:MethodLength")
-  private static Instance[] instances() {
-    var instances = IntStream.range(0, 5)
-      .mapToObj(i -> new Instance().id(IDS[i]).title("Resource" + i))
-      .toArray(Instance[]::new);
-
-    instances[0]
-      .tenantId(TENANT_ID)
-      .source("MARC")
-      .languages(List.of("eng", "ita"))
-      .instanceTypeId(TYPES[1])
-      .statusId(STATUSES[0])
-      .staffSuppress(true)
-      .discoverySuppress(true)
-      .instanceFormatIds(List.of(FORMATS[1], FORMATS[2]))
-      .tags(tags("text", "science"))
-      .statisticalCodeIds(singletonList("b5968c9e-cddc-4576-99e3-8e60aed8b0dd"))
-      .metadata(metadata("2021-03-01T00:00:00.000+00:00", "2021-03-05T12:30:00.000+00:00"))
-      .dates(new Dates().date1(DATES[0]))
-      .items(List.of(
-        new Item().id(ITEM_IDS[0])
-          .effectiveLocationId(LOCATIONS[0]).status(itemStatus(AVAILABLE))
-          .holdingsRecordId(HOLDINGS_IDS[0])
-          .discoverySuppress(true)
-          .materialTypeId(MATERIAL_TYPES[0])
-          .metadata(metadata("2021-03-01T00:00:00.000+00:00", "2021-03-05T12:30:00.000+00:00"))
-          .tags(tags("itag1", "itag3"))))
-      .holdings(List.of(
-        new Holding().id(HOLDINGS_IDS[0])
-          .holdingsTypeId(HOLDINGS_TYPES[0])
-          .metadata(metadata("2021-03-01T00:00:00.000+00:00", "2021-03-05T12:30:00.000+00:00"))
-          .permanentLocationId(PERMANENT_LOCATIONS[0]).tags(tags("htag1", "htag2"))))
-      .addClassificationsItem(new Classification()
-        .classificationTypeId(CLASSIFICATION_TYPE_IDS[0])
-        .classificationNumber("QA76.73.C15"));
-
-    instances[1]
-      .tenantId(TENANT_ID)
-      .source("MARC")
-      .languages(List.of("eng", "ger", "fra"))
-      .instanceTypeId(TYPES[0])
-      .statusId(STATUSES[1])
-      .staffSuppress(true)
-      .discoverySuppress(true)
-      .instanceFormatIds(List.of(FORMATS[1]))
-      .tags(tags("future"))
-      .metadata(metadata("2021-03-10T01:00:00.000+00:00", "2021-03-12T15:40:00.000+00:00"))
-      .dates(new Dates().date1(DATES[1]))
-      .items(List.of(
-        new Item().id(ITEM_IDS[1])
-          .holdingsRecordId(HOLDINGS_IDS[1])
-          .effectiveLocationId(LOCATIONS[1]).status(itemStatus(AVAILABLE))
-          .discoverySuppress(false)
-          .materialTypeId(MATERIAL_TYPES[1])
-          .statisticalCodeIds(singletonList("615e9911-edb1-4ab3-a9c3-a461a3de02f8"))
-          .metadata(metadata("2021-03-10T01:00:00.000+00:00", "2021-03-12T15:40:00.000+00:00"))
-          .tags(tags("itag2", "itag3"))))
-      .holdings(List.of(new Holding().id(HOLDINGS_IDS[1]).discoverySuppress(true)
-        .holdingsTypeId(HOLDINGS_TYPES[1])
-        .metadata(metadata("2021-03-10T01:00:00.000+00:00", "2021-03-12T15:40:00.000+00:00"))
-        .permanentLocationId(PERMANENT_LOCATIONS[1]).tags(tags("htag2", "htag3"))))
-      .addClassificationsItem(new Classification()
-        .classificationTypeId(CLASSIFICATION_TYPE_IDS[1])
-        .classificationNumber("TK5105.88815"));
-
-    instances[2]
-      .tenantId(TENANT_ID)
-      .source("FOLIO")
-      .languages(List.of("rus", "ukr"))
-      .instanceTypeId(TYPES[0])
-      .statusId(STATUSES[0])
-      .staffSuppress(true)
-      .instanceFormatIds(List.of(FORMATS[2]))
-      .tags(tags("future", "science"))
-      .metadata(metadata("2021-03-08T15:00:00.000+00:00", "2021-03-15T22:30:00.000+00:00"))
-      .dates(new Dates().date1(DATES[2]))
-      .items(List.of(
-        new Item().id(ITEM_IDS[2])
-          .holdingsRecordId(HOLDINGS_IDS[2])
-          .effectiveLocationId(LOCATIONS[0]).status(itemStatus(MISSING))
-          .metadata(metadata("2021-03-08T15:00:00.000+00:00", "2021-03-15T22:30:00.000+00:00"))
-          .discoverySuppress(true).materialTypeId(MATERIAL_TYPES[0]).tags(tags("itag3")),
-        new Item().id(ITEM_IDS[3])
-          .holdingsRecordId(HOLDINGS_IDS[2])
-          .effectiveLocationId(LOCATIONS[1]).status(itemStatus(CHECKED_OUT))
-          .tags(tags("itag1", "itag2", "itag3"))))
-      .holdings(List.of(new Holding().id(HOLDINGS_IDS[2]).discoverySuppress(true)));
-
-    instances[3]
-      .tenantId(TENANT_ID)
-      .source("MARC")
-      .languages(List.of("ita"))
-      .staffSuppress(false)
-      .discoverySuppress(false)
-      .instanceTypeId(TYPES[1])
-      .statusId(STATUSES[1])
-      .instanceFormatIds(List.of(FORMATS))
-      .tags(tags("casual", "cooking"))
-      .metadata(metadata("2021-03-15T12:00:00.000+00:00", "2021-03-15T12:00:00.000+00:00"))
-      .dates(new Dates().date1(DATES[3]))
-      .items(List.of(new Item().id(ITEM_IDS[4])
-          .holdingsRecordId(HOLDINGS_IDS[3])
-          .effectiveLocationId(LOCATIONS[0]).status(itemStatus(MISSING))
-          .metadata(metadata("2014-03-15T12:00:00.000+00:00", "2014-03-15T12:00:00.000+00:00"))
-          .materialTypeId(MATERIAL_TYPES[1]),
-        new Item().id(ITEM_IDS[7])
-          .holdingsRecordId(HOLDINGS_IDS[4])
-          .effectiveLocationId(LOCATIONS[0]).status(itemStatus(MISSING))
-          .metadata(metadata("2024-03-15T12:00:00.000+00:00", "2024-03-15T12:00:00.000+00:00"))
-          .materialTypeId(MATERIAL_TYPES[1])))
-      .holdings(List.of(
-        new Holding().id(HOLDINGS_IDS[3]).permanentLocationId(PERMANENT_LOCATIONS[0])
-          .holdingsTypeId(HOLDINGS_TYPES[1])
-          .metadata(metadata("2014-03-15T12:00:00.000+00:00", "2014-03-15T12:00:00.000+00:00"))
-          .sourceId("FOLIO").statisticalCodeIds(singletonList("a2b01891-c9ab-4d04-8af8-8989af1c6aad")),
-        new Holding().id(HOLDINGS_IDS[4]).permanentLocationId(PERMANENT_LOCATIONS[1])
-          .holdingsTypeId(HOLDINGS_TYPES[0])
-          .metadata(metadata("2024-03-15T12:00:00.000+00:00", "2024-03-15T12:00:00.000+00:00"))
-          .tags(tags("htag2")),
-        new Holding().id(HOLDINGS_IDS[5]).permanentLocationId(PERMANENT_LOCATIONS[2]).tags(tags("htag3"))));
-
-    instances[4]
-      .tenantId(TENANT_ID)
-      .source("FOLIO")
-      .languages(List.of("eng", "fra"))
-      .instanceTypeId(TYPES[1])
-      .statusId(STATUSES[1])
-      .instanceFormatIds(List.of(FORMATS[1]))
-      .tags(tags("cooking"))
-      .dates(new Dates().date1(DATES[4]).date2(DATES[4]))
-      .items(List.of(
-        new Item().id(ITEM_IDS[5]).holdingsRecordId(HOLDINGS_IDS[6])
-          .effectiveLocationId(LOCATIONS[0]).status(itemStatus(CHECKED_OUT)).tags(tags("itag3")),
-        new Item().id(ITEM_IDS[6]).holdingsRecordId(HOLDINGS_IDS[6])
-          .effectiveLocationId(LOCATIONS[1]).status(itemStatus(AVAILABLE))
-          .materialTypeId(MATERIAL_TYPES[1])))
-      .holdings(List.of(new Holding().id(HOLDINGS_IDS[6])
-        .permanentLocationId(PERMANENT_LOCATIONS[2]).tags(tags("htag1"))));
-
-    return instances;
-  }
-
-  private static ItemStatus itemStatus(String itemStatus) {
-    return new ItemStatus().name(itemStatus);
-  }
-
-  private static Tags tags(String... tags) {
-    return new Tags().tagList(asList(tags));
-  }
-
-  private static Metadata metadata(String createdDate, String updatedDate) {
-    return new Metadata().createdDate(createdDate).updatedDate(updatedDate);
   }
 }

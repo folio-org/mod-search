@@ -8,13 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import org.folio.search.domain.dto.Holding;
-import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.Item;
-import org.folio.search.domain.dto.ItemStatus;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.BaseIntegrationTest;
 import org.junit.jupiter.api.DisplayName;
@@ -39,38 +33,36 @@ public abstract class SortItemIT extends BaseIntegrationTest {
     "0646ce7c-efcd-4449-ba29-f5aba3ec7690",
     "bafb734e-88f4-4fbe-bd78-119630d225bb");
   private static final String[] ITEM_IDS = array(
-    "ee000001-0000-0000-0000-000000000001",
-    "ee000001-0000-0000-0000-000000000002",
-    "ee000001-0000-0000-0000-000000000003",
-    "ee000001-0000-0000-0000-000000000004",
-    "ee000001-0000-0000-0000-000000000005",
-    "ee000001-0000-0000-0000-000000000006",
-    "ee000001-0000-0000-0000-000000000007",
-    "ee000001-0000-0000-0000-000000000008",
-    "ee000001-0000-0000-0000-000000000009",
-    "ee000001-0000-0000-0000-000000000010",
-    "ee000001-0000-0000-0000-000000000011",
-    "ee000001-0000-0000-0000-000000000012",
-    "ee000001-0000-0000-0000-000000000013",
-    "ee000001-0000-0000-0000-000000000014",
-    "ee000001-0000-0000-0000-000000000015",
-    "ee000001-0000-0000-0000-000000000016",
-    "ee000001-0000-0000-0000-000000000017",
-    "ee000001-0000-0000-0000-000000000018",
-    "ee000001-0000-0000-0000-000000000019",
-    "ee000001-0000-0000-0000-000000000020",
-    "ee000001-0000-0000-0000-000000000021");
+    "e0000001-0000-4000-a000-000000000000",
+    "e0000002-0000-4000-a000-000000000000",
+    "e0000003-0000-4000-a000-000000000000",
+    "e0000004-0000-4000-a000-000000000000",
+    "e0000005-0000-4000-a000-000000000000",
+    "e0000006-0000-4000-a000-000000000000",
+    "e0000007-0000-4000-a000-000000000000",
+    "e0000008-0000-4000-a000-000000000000",
+    "e0000009-0000-4000-a000-000000000000",
+    "e0000010-0000-4000-a000-000000000000",
+    "e0000011-0000-4000-a000-000000000000",
+    "e0000012-0000-4000-a000-000000000000",
+    "e0000013-0000-4000-a000-000000000000",
+    "e0000014-0000-4000-a000-000000000000",
+    "e0000015-0000-4000-a000-000000000000",
+    "e0000016-0000-4000-a000-000000000000",
+    "e0000017-0000-4000-a000-000000000000",
+    "e0000018-0000-4000-a000-000000000000",
+    "e0000019-0000-4000-a000-000000000000",
+    "e0000020-0000-4000-a000-000000000000",
+    "e0000021-0000-4000-a000-000000000000");
 
-  public static final Instance[] INSTANCES = instances();
+  private static final String TAG = "tags.tagList==\"sort-item\"";
 
-  private static final String ID_FILTER = "id==(" + String.join(" OR ", IDS) + ")";
-
-  private static String scoped(String query) {
+  private static String tagged(String query) {
     int idx = query.toLowerCase().indexOf(" sortby ");
     if (idx >= 0) {
-      return "(" + ID_FILTER + " AND " + query.substring(0, idx) + ")" + query.substring(idx);
+      return "(" + TAG + " AND " + query.substring(0, idx) + ")" + query.substring(idx);
     }
-    return "(" + ID_FILTER + " AND " + query + ")";
+    return "(" + TAG + " AND " + query + ")";
   }
 
   @MethodSource("sortItemQueryProvider")
@@ -85,54 +77,17 @@ public abstract class SortItemIT extends BaseIntegrationTest {
 
   private static Stream<Arguments> sortItemQueryProvider() {
     return Stream.of(
-      arguments(scoped("(id=*) sortby title"), asIdsList(0, 2, 3, 4, 1)),
-      arguments(scoped("(id=*) sortby title/sort.descending"), asIdsList(1, 4, 3, 2, 0)),
-      arguments(scoped("(id=*) sortby item.status.name"), asIdsList(0, 1, 3, 2, 4)),
-      arguments(scoped("(id=*) sortby item.status.name/sort.descending"), asIdsList(4, 0, 3, 1, 2)),
+      arguments(tagged("(id=*) sortby title"), asIdsList(0, 2, 3, 4, 1)),
+      arguments(tagged("(id=*) sortby title/sort.descending"), asIdsList(1, 4, 3, 2, 0)),
+      arguments(tagged("(id=*) sortby item.status.name"), asIdsList(0, 1, 3, 2, 4)),
+      arguments(tagged("(id=*) sortby item.status.name/sort.descending"), asIdsList(4, 0, 3, 1, 2)),
 
-      arguments(scoped("(id=*) sortby items.status.name"), asIdsList(0, 1, 3, 2, 4)),
-      arguments(scoped("(id=*) sortby items.status.name/sort.descending"), asIdsList(4, 0, 3, 1, 2))
+      arguments(tagged("(id=*) sortby items.status.name"), asIdsList(0, 1, 3, 2, 4)),
+      arguments(tagged("(id=*) sortby items.status.name/sort.descending"), asIdsList(4, 0, 3, 1, 2))
     );
   }
 
   private static List<String> asIdsList(Integer... indices) {
     return Arrays.stream(indices).map(index -> IDS[index]).toList();
-  }
-
-  private static Instance[] instances() {
-    var instances = IntStream.range(0, 5)
-      .mapToObj(i -> new Instance().id(IDS[i]))
-      .toArray(Instance[]::new);
-
-    var nextItemId = new AtomicInteger();
-
-    instances[0].title("Death of the Price Jackal").holdings(List.of(new Holding().id(HOLDINGS_IDS[0]))).items(List.of(
-      item("Available", HOLDINGS_IDS[0], nextItemId), item("Available", HOLDINGS_IDS[0], nextItemId),
-      item("Aged to lost", HOLDINGS_IDS[0], nextItemId), item("Unknown", HOLDINGS_IDS[0], nextItemId)));
-
-    instances[1].title("Wild and Wicked").holdings(List.of(new Holding().id(HOLDINGS_IDS[1]))).items(List.of(
-      item("Missing", HOLDINGS_IDS[1], nextItemId), item("Available", HOLDINGS_IDS[1], nextItemId),
-      item("Awaiting pickup", HOLDINGS_IDS[1], nextItemId), item("In process", HOLDINGS_IDS[1], nextItemId)));
-
-    instances[2].title("Sword of Gruko").holdings(List.of(new Holding().id(HOLDINGS_IDS[2]))).items(List.of(
-      item("In progress", HOLDINGS_IDS[2], nextItemId), item("Checked out", HOLDINGS_IDS[2], nextItemId),
-      item("In progress", HOLDINGS_IDS[2], nextItemId), item("In process", HOLDINGS_IDS[2], nextItemId),
-      item("In transit", HOLDINGS_IDS[2], nextItemId)));
-
-    instances[3].title("The Blade in the Ice").holdings(List.of(new Holding().id(HOLDINGS_IDS[3]))).items(List.of(
-      item("Awaiting delivery", HOLDINGS_IDS[3], nextItemId), item("Checked out", HOLDINGS_IDS[3], nextItemId),
-      item("Awaiting pickup", HOLDINGS_IDS[3], nextItemId), item("Unavailable", HOLDINGS_IDS[3], nextItemId)));
-
-    instances[4].title("The Raven Crystal").holdings(List.of(new Holding().id(HOLDINGS_IDS[4]))).items(List.of(
-      item("Unavailable", HOLDINGS_IDS[4], nextItemId), item("Unknown", HOLDINGS_IDS[4], nextItemId),
-      item("Restricted", HOLDINGS_IDS[4], nextItemId), item("On order", HOLDINGS_IDS[4], nextItemId)));
-
-    return instances;
-  }
-
-  private static Item item(String status, String holdingId, AtomicInteger nextItemId) {
-    return new Item().id(ITEM_IDS[nextItemId.getAndIncrement()])
-      .status(new ItemStatus().name(status))
-      .holdingsRecordId(holdingId);
   }
 }

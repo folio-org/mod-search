@@ -35,13 +35,14 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @IntegrationTest
+@SuppressWarnings("checkstyle:DeclarationOrder")
 public abstract class BrowseClassificationIT extends BaseIntegrationTest {
-
-  public static final Instance[] INSTANCES = instances();
 
   private static final String LC_TYPE_ID = "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a";
   private static final String LC2_TYPE_ID = "308c950f-8209-4f2e-9702-0c004a9f21bc";
   private static final String DEWEY_TYPE_ID = "50524585-046b-49a1-8ca7-8d46f2a8dc19";
+
+  public static final Instance[] INSTANCES = instances();
 
   @BeforeEach
   void setUp() {

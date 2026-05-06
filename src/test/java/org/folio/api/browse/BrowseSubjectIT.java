@@ -34,9 +34,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+@SuppressWarnings("checkstyle:DeclarationOrder")
 public abstract class BrowseSubjectIT extends BaseIntegrationTest {
-
-  public static final Instance[] INSTANCES = instances();
 
   private static final String MUSIC_AUTHORITY_ID_1 = "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a";
   private static final String MUSIC_AUTHORITY_ID_2 = "308c950f-8209-4f2e-9702-0c004a9f21bc";
@@ -44,6 +43,8 @@ public abstract class BrowseSubjectIT extends BaseIntegrationTest {
   private static final String MUSIC_SOURCE_ID_2 = "308c950f-8209-4f2e-9702-0c004a9f21bd";
   private static final String MUSIC_TYPE_ID_1 = "e62bbefe-adf5-4b1e-b3e7-43d877b0c91c";
   private static final String MUSIC_TYPE_ID_2 = "308c950f-8209-4f2e-9702-0c004a9f21be";
+
+  public static final Instance[] INSTANCES = instances();
 
   @MethodSource("subjectBrowsingDataProvider")
   @DisplayName("browseBySubject_parameterized")

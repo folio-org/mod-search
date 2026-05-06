@@ -18,8 +18,8 @@ import org.junit.jupiter.params.provider.CsvSource;
 @IntegrationTest
 public abstract class SearchByEmptyValuesIT extends BaseIntegrationTest {
 
-  public static final String INSTANCE_ID_1 = "c0000001-emptyv-0000-000000000001";
-  public static final String INSTANCE_ID_2 = "c0000002-emptyv-0000-000000000002";
+  public static final String INSTANCE_ID_1 = "30d564e2-4d5d-41b4-bfe6-da3e2e2835e4";
+  public static final String INSTANCE_ID_2 = "25ae81da-4254-49a8-acb3-dc452d9cc7df";
   public static final Instance[] INSTANCES = instances();
 
   private static final String ID_FILTER =

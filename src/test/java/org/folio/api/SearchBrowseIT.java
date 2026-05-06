@@ -12,6 +12,7 @@ import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_SUBJECT
 import static org.folio.search.domain.dto.TenantConfiguredFeature.SEARCH_ALL_FIELDS;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.authoritySearchPath;
+import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.support.base.ApiEndpoints.linkedDataHubSearchPath;
 import static org.folio.support.base.ApiEndpoints.linkedDataInstanceSearchPath;
 import static org.folio.support.base.ApiEndpoints.linkedDataWorkSearchPath;
@@ -54,9 +55,13 @@ import org.springframework.test.context.TestPropertySource;
 class SearchBrowseIT extends BaseIntegrationTest {
 
   // ─── record counts (filled in Task 11 after all data is wired) ──────────────
-  private static final int TOTAL_INSTANCES       = 0; // FILL IN TASK 11
+  // 1 semantic-web + 5 SortInstanceIT + 13 SortInstanceByTitleIT + 2 SearchByEmptyValuesIT
+  // + 49 BrowseCallNumberIT + 12 BrowseClassificationIT + 7 BrowseContributorIT
+  // + 15 BrowseSubjectIT + 4 SearchAuthorityIT.LINKED_INSTANCES
+  // + 5 SearchInstanceFilterIT + 5 SortItemIT = 118
+  private static final int TOTAL_INSTANCES       = 118;
   private static final int TOTAL_AUTHORITIES     = 116; // 51 sample + 15 filter + 5 sort + 45 browse
-  private static final int EXPECTED_CALL_NUMBER_COUNT    = 100;
+  private static final int EXPECTED_CALL_NUMBER_COUNT    = 97;
   private static final int EXPECTED_CONTRIBUTOR_COUNT    = 13;
   private static final int EXPECTED_CLASSIFICATION_COUNT = 19;
   private static final int EXPECTED_SUBJECT_COUNT        = 28;
@@ -83,10 +88,12 @@ class SearchBrowseIT extends BaseIntegrationTest {
     await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
       assertThat(countIndexDocument(ResourceType.INSTANCE_SUBJECT, TENANT_ID))
         .isEqualTo(EXPECTED_SUBJECT_COUNT));
+    checkThatEventsFromKafkaAreIndexed(TENANT_ID, instanceSearchPath(), TOTAL_INSTANCES, emptyList());
     checkThatEventsFromKafkaAreIndexed(TENANT_ID, authoritySearchPath(), TOTAL_AUTHORITIES, emptyList());
     loadLinkedData();
   }
 
+  @SuppressWarnings("checkstyle:MethodLength")
   private static void loadInstancesUnderLock(SubResourcesLockRepository repo) {
     final var cnLock = repo.lockSubResource(ReindexEntityType.CALL_NUMBER, TENANT_ID)
       .orElseThrow(() -> new IllegalStateException("Unable to lock CALL_NUMBER resource"));
@@ -115,6 +122,12 @@ class SearchBrowseIT extends BaseIntegrationTest {
 
     // Authority-linked instances (required for SearchAuthorityIT.numberOfTitles assertions)
     Arrays.stream(SearchAuthorityIT.LINKED_INSTANCES).forEach(i -> inventoryApi.createInstance(TENANT_ID, i));
+
+    // SearchInstanceFilter group
+    Arrays.stream(SearchInstanceFilterIT.INSTANCES).forEach(i -> inventoryApi.createInstance(TENANT_ID, i));
+
+    // SortItem group
+    Arrays.stream(SortItemIT.INSTANCES).forEach(i -> inventoryApi.createInstance(TENANT_ID, i));
 
     repo.unlockSubResource(ReindexEntityType.CALL_NUMBER, cnLock, TENANT_ID);
     repo.unlockSubResource(ReindexEntityType.CONTRIBUTOR, contribLock, TENANT_ID);

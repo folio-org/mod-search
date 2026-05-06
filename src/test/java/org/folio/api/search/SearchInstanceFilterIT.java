@@ -41,6 +41,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @IntegrationTest
+@SuppressWarnings("checkstyle:DeclarationOrder")
 public abstract class SearchInstanceFilterIT extends BaseIntegrationTest {
 
   private static final String AVAILABLE = "Available";
@@ -112,6 +113,18 @@ public abstract class SearchInstanceFilterIT extends BaseIntegrationTest {
 
   private static final String[] DATES = array(
     "2021", "ddd9", "2020", "d99\\", "2023", "2022", "0", "1000");
+
+  public static final Instance[] INSTANCES = instances();
+
+  private static final String ID_FILTER = "id==(" + String.join(" OR ", IDS) + ")";
+
+  private static String scoped(String query) {
+    int idx = query.toLowerCase().indexOf(" sortby ");
+    if (idx >= 0) {
+      return "(" + ID_FILTER + " AND " + query.substring(0, idx) + ")" + query.substring(idx);
+    }
+    return "(" + ID_FILTER + " AND " + query + ")";
+  }
 
   @MethodSource("filteredSearchQueriesProvider")
   @DisplayName("searchByInstances_parameterized")
@@ -349,7 +362,11 @@ public abstract class SearchInstanceFilterIT extends BaseIntegrationTest {
         List.of(IDS[0])),
       arguments(format("(classifications.classificationTypeId==(%s or %s)) sortby title",
         CLASSIFICATION_TYPE_IDS[0], CLASSIFICATION_TYPE_IDS[1]), List.of(IDS[0], IDS[1]))
-    );
+    ).map(a -> {
+      var arr = a.get().clone();
+      arr[0] = scoped((String) arr[0]);
+      return Arguments.of((Object[]) arr);
+    });
   }
 
   private static Stream<Arguments> invalidDateSearchQueriesProvider() {
@@ -496,7 +513,11 @@ public abstract class SearchInstanceFilterIT extends BaseIntegrationTest {
         "holdings.statisticalCodeIds", facet(facetItem("a2b01891-c9ab-4d04-8af8-8989af1c6aad", 1)))),
 
       arguments("id=*", array("holdings.sourceId"), mapOf("holdings.sourceId", facet(facetItem("FOLIO", 1))))
-    );
+    ).map(a -> {
+      var arr = a.get().clone();
+      arr[0] = scoped((String) arr[0]);
+      return Arguments.of((Object[]) arr);
+    });
   }
 
   @SuppressWarnings("checkstyle:MethodLength")

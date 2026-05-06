@@ -19,11 +19,11 @@ import org.junit.jupiter.api.Test;
 @IntegrationTest
 public abstract class SortInstanceIT extends BaseIntegrationTest {
 
-  public static final String ID_ANIMAL_FARM     = "a0000001-sort-inst-0000-000000000001";
-  public static final String ID_ZERO_MINUS_TEN  = "a0000002-sort-inst-0000-000000000002";
-  public static final String ID_CALLING_ME_HOME = "a0000003-sort-inst-0000-000000000003";
-  public static final String ID_WALK_IN_MY_SOUL = "a0000004-sort-inst-0000-000000000004";
-  public static final String ID_STAR_WARS       = "a0000005-sort-inst-0000-000000000005";
+  public static final String ID_ANIMAL_FARM     = "a0000001-0000-0000-0000-000000000001";
+  public static final String ID_ZERO_MINUS_TEN  = "a0000002-0000-0000-0000-000000000002";
+  public static final String ID_CALLING_ME_HOME = "a0000003-0000-0000-0000-000000000003";
+  public static final String ID_WALK_IN_MY_SOUL = "a0000004-0000-0000-0000-000000000004";
+  public static final String ID_STAR_WARS       = "a0000005-0000-0000-0000-000000000005";
 
   public static final String SORT_INSTANCE_ID_FILTER =
       "id==(%s OR %s OR %s OR %s OR %s)".formatted(

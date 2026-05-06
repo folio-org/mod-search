@@ -31,9 +31,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+@SuppressWarnings("checkstyle:DeclarationOrder")
 public abstract class BrowseContributorIT extends BaseIntegrationTest {
-
-  public static final Instance[] INSTANCES = instances();
 
   private static final String[] NAME_TYPE_IDS =
     array("e2ef4075-310a-4447-a231-712bf10cc985", "0ad0a89a-741d-4f1a-85a6-ada214751013",
@@ -43,6 +42,8 @@ public abstract class BrowseContributorIT extends BaseIntegrationTest {
       "653ffe66-aa3f-4f1c-a090-c42c4011ef40");
   private static final String[] AUTHORITY_IDS =
     array("0a4c6d10-2161-4f64-aace-9e919489b6c9", "7ff32633-cc49-4332-870a-b05e329d2a2d");
+
+  public static final Instance[] INSTANCES = instances();
 
   @MethodSource("contributorBrowsingDataProvider")
   @DisplayName("browseByContributor_parameterized")

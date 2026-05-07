@@ -125,11 +125,11 @@
   {
     "id": "aa110001-0000-4000-8000-000000000001",
     "source": "FOLIO",
-    "title": "test-resource",
+    "title": "Urban Planning and Environmental Design",
     "indexTitle": null,
     "subjects": [
       {
-        "value": "s1",
+        "value": "Environmental design",
         "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72c"
       }
     ],
@@ -139,11 +139,11 @@
   {
     "id": "aa110001-0000-4000-8000-000000000002",
     "source": "FOLIO",
-    "title": "test-resource",
+    "title": "Agricultural Economics and Rural Development",
     "indexTitle": null,
     "contributors": [
       {
-        "name": "c1",
+        "name": "Jane Kowalski",
         "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72c"
       }
     ],
@@ -153,11 +153,11 @@
   {
     "id": "aa110001-0000-4000-8000-000000000003",
     "source": "FOLIO",
-    "title": "test-resource",
+    "title": "Introduction to Quantum Mechanics",
     "indexTitle": null,
     "alternativeTitles": [
       {
-        "alternativeTitle": "a1",
+        "alternativeTitle": "Intro to Quantum Mechanics",
         "alternativeTitleTypeId": "9d968396-0cce-4e9f-8867-c4d04c01f535",
         "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72c"
       }
@@ -168,11 +168,11 @@
   {
     "id": "aa110001-0000-4000-8000-000000000004",
     "source": "FOLIO",
-    "title": "test-resource",
+    "title": "Comparative Literature: European Traditions",
     "indexTitle": null,
     "series": [
       {
-        "value": "s1",
+        "value": "Studies in Environmental Planning",
         "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72c"
       }
     ],
@@ -863,11 +863,11 @@
   {
     "id": "30d564e2-4d5d-41b4-bfe6-da3e2e2835e4",
     "source": "FOLIO",
-    "title": "title1",
-    "indexTitle": "indexTitle",
+    "title": "Biomedical Ethics: Principles and Cases",
+    "indexTitle": "Biomedical Ethics",
     "contributors": [
       {
-        "name": "c1"
+        "name": "Marcus Webb"
       }
     ],
     "instanceTypeId": "c0000001-0000-4000-8000-000000000000",
@@ -879,8 +879,8 @@
   {
     "id": "25ae81da-4254-49a8-acb3-dc452d9cc7df",
     "source": "FOLIO",
-    "title": "title2",
-    "indexTitle": "indexTitle",
+    "title": "Environmental Law and Policy",
+    "indexTitle": "Environmental Law and Policy",
     "instanceTypeId": "c0000002-0000-4000-8000-000000000000",
     "discoverySuppress": false
   },
@@ -922,7 +922,7 @@
       }
     ],
     "dates": {
-      "date1": "ddd9"
+      "date1": "1999"
     },
     "instanceTypeId": "24da24dd-03ae-4e34-bad6-c79e342baeb9",
     "instanceFormatIds": [
@@ -961,7 +961,7 @@
     "title": "Resource3",
     "indexTitle": null,
     "dates": {
-      "date1": "d99\\"
+      "date1": "1995"
     },
     "instanceTypeId": "de9e38bb-89a8-43ee-922f-c973b122cbb3",
     "instanceFormatIds": [
@@ -1438,7 +1438,7 @@
   {
     "id": "c0000001-0000-4000-b000-000000000000",
     "source": "FOLIO",
-    "title": "instance #01",
+    "title": "Foundations of Information Retrieval",
     "indexTitle": null,
     "classifications": [
       {
@@ -1456,14 +1456,14 @@
   {
     "id": "c0000002-0000-4000-b000-000000000000",
     "source": "FOLIO",
-    "title": "instance #02",
+    "title": "Advanced Topics in Computer Science",
     "indexTitle": null,
     "contributors": [
       {
-        "name": "Contributor A"
+        "name": "Alan Turing"
       },
       {
-        "name": "Contributor B"
+        "name": "Grace Hopper"
       }
     ],
     "classifications": [
@@ -1478,7 +1478,7 @@
   {
     "id": "c0000003-0000-4000-b000-000000000000",
     "source": "FOLIO",
-    "title": "instance #03",
+    "title": "Introduction to Library Science",
     "indexTitle": null,
     "classifications": [
       {
@@ -1496,7 +1496,7 @@
   {
     "id": "c0000004-0000-4000-b000-000000000000",
     "source": "FOLIO",
-    "title": "instance #04",
+    "title": "Cataloguing and Classification Standards",
     "indexTitle": null,
     "classifications": [
       {
@@ -1510,11 +1510,11 @@
   {
     "id": "c0000005-0000-4000-b000-000000000000",
     "source": "FOLIO",
-    "title": "instance #05",
+    "title": "Network Protocols and Architectures",
     "indexTitle": null,
     "contributors": [
       {
-        "name": "Contributor X"
+        "name": "Vint Cerf"
       }
     ],
     "classifications": [
@@ -1533,7 +1533,7 @@
   {
     "id": "c0000006-0000-4000-b000-000000000000",
     "source": "FOLIO",
-    "title": "instance #06",
+    "title": "Digital Preservation and Archiving",
     "indexTitle": null,
     "classifications": [
       {
@@ -1551,7 +1551,7 @@
   {
     "id": "c0000007-0000-4000-b000-000000000000",
     "source": "FOLIO",
-    "title": "instance #07",
+    "title": "Special Collections Management",
     "indexTitle": null,
     "classifications": [
       {
@@ -1569,7 +1569,7 @@
   {
     "id": "c0000008-0000-4000-b000-000000000000",
     "source": "FOLIO",
-    "title": "instance #08",
+    "title": "Metadata Standards in Digital Libraries",
     "indexTitle": null,
     "classifications": [
       {
@@ -1583,7 +1583,7 @@
   {
     "id": "c0000009-0000-4000-b000-000000000000",
     "source": "FOLIO",
-    "title": "instance #09",
+    "title": "Knowledge Organization and Representation",
     "indexTitle": null,
     "classifications": [
       {
@@ -1605,11 +1605,11 @@
   {
     "id": "c0000010-0000-4000-b000-000000000000",
     "source": "FOLIO",
-    "title": "instance #10",
+    "title": "Geographic Information Systems: Principles and Applications",
     "indexTitle": null,
     "contributors": [
       {
-        "name": "Contributor Y"
+        "name": "Roger Tomlinson"
       }
     ],
     "classifications": [
@@ -1632,7 +1632,7 @@
   {
     "id": "c0000011-0000-4000-b000-000000000000",
     "source": "FOLIO",
-    "title": "instance #11",
+    "title": "Open Access and Scholarly Communication",
     "indexTitle": null,
     "classifications": [
       {
@@ -1646,7 +1646,7 @@
   {
     "id": "c0000012-0000-4000-b000-000000000000",
     "source": "FOLIO",
-    "title": "instance #12",
+    "title": "Digital Humanities: Methods and Practice",
     "indexTitle": null,
     "classifications": [
       {
@@ -1660,7 +1660,7 @@
   {
     "id": "a0000001-0000-4000-9000-000000000000",
     "source": "FOLIO",
-    "title": "instance #00",
+    "title": "The Galactic Empire: A Political History",
     "indexTitle": null,
     "contributors": [
       {
@@ -1676,7 +1676,7 @@
   {
     "id": "a0000002-0000-4000-9000-000000000000",
     "source": "FOLIO",
-    "title": "instance #01",
+    "title": "Rock Legends: Stadium Anthems and Arena Rock",
     "indexTitle": null,
     "contributors": [
       {
@@ -1704,7 +1704,7 @@
   {
     "id": "a0000003-0000-4000-9000-000000000000",
     "source": "FOLIO",
-    "title": "instance #02",
+    "title": "Hard Rock Chronicles: From Heavy Metal to Alternative",
     "indexTitle": null,
     "contributors": [
       {
@@ -1732,7 +1732,7 @@
   {
     "id": "a0000004-0000-4000-9000-000000000000",
     "source": "FOLIO",
-    "title": "instance #03",
+    "title": "Blaze of Glory: The Bon Jovi Story",
     "indexTitle": null,
     "contributors": [
       {
@@ -1759,7 +1759,7 @@
   {
     "id": "a0000005-0000-4000-9000-000000000000",
     "source": "FOLIO",
-    "title": "instance #04",
+    "title": "The Beatles Complete Works",
     "indexTitle": null,
     "contributors": [
       {
@@ -1793,7 +1793,7 @@
   {
     "id": "a0000006-0000-4000-9000-000000000000",
     "source": "FOLIO",
-    "title": "instance #05",
+    "title": "The Fab Four: A Musical Biography",
     "indexTitle": null,
     "contributors": [
       {
@@ -1827,7 +1827,7 @@
   {
     "id": "a0000007-0000-4000-9000-000000000000",
     "source": "FOLIO",
-    "title": "instance #06",
+    "title": "Yesterday and Today: Songs of Lennon and McCartney",
     "indexTitle": null,
     "contributors": [
       {
@@ -1851,7 +1851,7 @@
   {
     "id": "b0000001-0000-4000-9000-000000000000",
     "source": "FOLIO",
-    "title": "instance #01",
+    "title": "Music Through the Ages: A Historical Survey",
     "indexTitle": null,
     "subjects": [
       {
@@ -1875,7 +1875,7 @@
   {
     "id": "b0000002-0000-4000-9000-000000000000",
     "source": "FOLIO",
-    "title": "instance #02",
+    "title": "The Symphony of Middle-Earth: Fantasy and Music",
     "indexTitle": null,
     "subjects": [
       {
@@ -1892,7 +1892,7 @@
   {
     "id": "b0000003-0000-4000-9000-000000000000",
     "source": "FOLIO",
-    "title": "instance #03",
+    "title": "Constitutional History of the United States",
     "indexTitle": null,
     "subjects": [
       {
@@ -1911,7 +1911,7 @@
   {
     "id": "b0000004-0000-4000-9000-000000000000",
     "source": "FOLIO",
-    "title": "instance #04",
+    "title": "European Musical Traditions: Baroque to Romantic",
     "indexTitle": null,
     "subjects": [
       {
@@ -1927,7 +1927,7 @@
   {
     "id": "b0000005-0000-4000-9000-000000000000",
     "source": "FOLIO",
-    "title": "instance #05",
+    "title": "Lives of the Great Authors: A Literary Biography",
     "indexTitle": null,
     "subjects": [
       {
@@ -1946,7 +1946,7 @@
   {
     "id": "b0000006-0000-4000-9000-000000000000",
     "source": "FOLIO",
-    "title": "instance #06",
+    "title": "Faith and Reason: History of Western Philosophy",
     "indexTitle": null,
     "subjects": [
       {
@@ -1965,7 +1965,7 @@
   {
     "id": "b0000007-0000-4000-9000-000000000000",
     "source": "FOLIO",
-    "title": "instance #07",
+    "title": "The Philosophy of Scientific Method",
     "indexTitle": null,
     "subjects": [
       {
@@ -1984,7 +1984,7 @@
   {
     "id": "b0000008-0000-4000-9000-000000000000",
     "source": "FOLIO",
-    "title": "instance #08",
+    "title": "Freshwater Resources and Supply Management",
     "indexTitle": null,
     "subjects": [
       {
@@ -2000,7 +2000,7 @@
   {
     "id": "b0000009-0000-4000-9000-000000000000",
     "source": "FOLIO",
-    "title": "instance #09",
+    "title": "Drinking Water: Treatment and Microbiological Safety",
     "indexTitle": null,
     "subjects": [
       {
@@ -2019,7 +2019,7 @@
   {
     "id": "b0000010-0000-4000-9000-000000000000",
     "source": "FOLIO",
-    "title": "instance #10",
+    "title": "Principles of Database Systems: Design and Management",
     "indexTitle": null,
     "subjects": [
       {
@@ -2038,7 +2038,7 @@
   {
     "id": "b0000011-0000-4000-9000-000000000000",
     "source": "FOLIO",
-    "title": "instance #11",
+    "title": "Beethoven: Life, Letters, and Legacy",
     "indexTitle": null,
     "subjects": [
       {
@@ -2057,7 +2057,7 @@
   {
     "id": "b0000012-0000-4000-9000-000000000000",
     "source": "FOLIO",
-    "title": "instance #12",
+    "title": "Mozart: The Wonder Child and His Music",
     "indexTitle": null,
     "subjects": [
       {
@@ -2077,7 +2077,7 @@
   {
     "id": "b0000013-0000-4000-9000-000000000000",
     "source": "FOLIO",
-    "title": "instance #13",
+    "title": "Brahms and the German Romantic Tradition",
     "indexTitle": null,
     "subjects": [
       {
@@ -2096,7 +2096,7 @@
   {
     "id": "b0000014-0000-4000-9000-000000000000",
     "source": "FOLIO",
-    "title": "instance #14",
+    "title": "Chopin: A Life in Music and Exile",
     "indexTitle": null,
     "subjects": [
       {
@@ -2116,7 +2116,7 @@
   {
     "id": "b0000015-0000-4000-9000-000000000000",
     "source": "FOLIO",
-    "title": "instance #15",
+    "title": "Schubert: The Wanderer and His Songs",
     "indexTitle": null,
     "subjects": [
       {

@@ -1,8 +1,6 @@
 [
   {
     "id": "5bf370e0-8cca-4d9c-82e4-5170ab2a0a39",
-    "tenantId": "test_tenant",
-    "hrid": "inst000000000022",
     "source": "FOLIO",
     "title": "A sem\\ntic web primer :0747-0850 & wolves",
     "indexTitle": "Semantic web primer",
@@ -128,17 +126,6 @@
         "role": "Publisher"
       }
     ],
-    "publicationFrequency": [],
-    "publicationRange": [],
-    "electronicAccess": [
-      {
-        "uri": "https://testlibrary.sample.com/journal/10.1002/(ISSN)1938-3703",
-        "linkText": "electronic access link text",
-        "publicNote": "Online access via Wiley (1996-current)",
-        "materialsSpecification": "electronic access material",
-        "relationshipId": "a1c0b4f2-3d8e-4b5f-8a7c-6d9e0f2b1c3d"
-      }
-    ],
     "dates": {
       "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
       "date1": "1\\9u",
@@ -148,60 +135,11 @@
     "instanceFormatIds": [
       "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
     ],
-    "instanceFormats": [],
-    "physicalDescriptions": [
-      "xx, 238 p. : ill. ; 24 cm."
-    ],
     "languages": [
       "eng"
     ],
-    "administrativeNotes": [
-      "original + pcc",
-      "for deletion"
-    ],
-    "notes": [
-      {
-        "note": "Includes bibliographical references and index.",
-        "staffOnly": false,
-        "instanceNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
-      },
-      {
-        "note": "The development of the Semantic Web, with machine-readable content, has the potential to revolutionize the World Wide Web and its uses. A Semantic Web Primer provides an introduction and guide to this continuously evolving field, describing its key ideas, languages, and technologies. Suitable for use as a textbook or for independent study by professionals, it concentrates on undergraduate-level fundamental concepts and techniques that will enable readers to proceed with building applications on their own and includes exercises, project descriptions, and annotated references to relevant online materials. The third edition of this widely used text has been thoroughly updated, with significant new material that reflects a rapidly developing field. Treatment of the different languages (OWL2, rules) expands the coverage of RDF and OWL, defining the data model independently of XML and including coverage of N3/Turtle and RDFa. A chapter is devoted to OWL2, the new W3C standard. This edition also features additional coverage of the query language SPARQL, the rule language RIF and the possibility of interaction between rules and ontology languages and applications. The chapter on Semantic Web applications reflects the rapid developments of the past few years. A new chapter offers ideas for term projects",
-        "staffOnly": false,
-        "instanceNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
-      },
-      {
-        "note": "Librarian private note",
-        "staffOnly": true,
-        "instanceNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
-      }
-    ],
-    "modeOfIssuanceId": "9d18a02f-5897-4c31-9106-c9abb5c7ae8b",
-    "catalogedDate": "2019-04-05",
     "discoverySuppress": false,
-    "isBoundWith": true,
-    "statisticalCodeIds": [
-      "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
-    ],
-    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
-    "statusUpdatedDate": "2020-12-08T15:47:13.625+0000",
-    "tags": {
-      "tagList": [
-        "book",
-        "electronic",
-        "electronic book",
-        "semantic-web"
-      ]
-    },
-    "metadata": {
-      "createdDate": "2020-12-08T15:47:13.625+00:00",
-      "updatedDate": "2021-01-15T15:17:22.851+00:00",
-      "updatedByUserId": "d2533d6c-a42c-5bff-ad77-22f87c297925"
-    },
-    "holdingsRecords2": [],
-    "natureOfContentTermIds": [
-      "85657646-6b6f-4e71-b54c-d47f3b95a5ed"
-    ]
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "aa110001-0000-4000-8000-000000000001",
@@ -211,12 +149,7 @@
         "value": "s1",
         "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72c"
       }
-    ],
-    "tags": {
-      "tagList": [
-        "search-authority-linked"
-      ]
-    }
+    ]
   },
   {
     "id": "aa110001-0000-4000-8000-000000000002",
@@ -226,12 +159,7 @@
         "name": "c1",
         "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72c"
       }
-    ],
-    "tags": {
-      "tagList": [
-        "search-authority-linked"
-      ]
-    }
+    ]
   },
   {
     "id": "aa110001-0000-4000-8000-000000000003",
@@ -241,12 +169,7 @@
         "alternativeTitle": "a1",
         "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72c"
       }
-    ],
-    "tags": {
-      "tagList": [
-        "search-authority-linked"
-      ]
-    }
+    ]
   },
   {
     "id": "aa110001-0000-4000-8000-000000000004",
@@ -256,17 +179,10 @@
         "value": "s1",
         "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72c"
       }
-    ],
-    "tags": {
-      "tagList": [
-        "search-authority-linked"
-      ]
-    }
+    ]
   },
   {
     "id": "a0000001-0000-4000-8000-000000000000",
-    "tenantId": "test_tenant",
-    "hrid": "inst000000000022",
     "source": "FOLIO",
     "title": "Animal farm",
     "indexTitle": "B1 Animal farm",
@@ -381,17 +297,6 @@
         "role": "Publisher"
       }
     ],
-    "publicationFrequency": [],
-    "publicationRange": [],
-    "electronicAccess": [
-      {
-        "uri": "https://testlibrary.sample.com/journal/10.1002/(ISSN)1938-3703",
-        "linkText": "electronic access link text",
-        "publicNote": "Online access via Wiley (1996-current)",
-        "materialsSpecification": "electronic access material",
-        "relationshipId": "a1c0b4f2-3d8e-4b5f-8a7c-6d9e0f2b1c3d"
-      }
-    ],
     "dates": {
       "date1": "1999",
       "date2": "2000",
@@ -401,61 +306,14 @@
     "instanceFormatIds": [
       "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
     ],
-    "instanceFormats": [],
-    "physicalDescriptions": [
-      "xx, 238 p. : ill. ; 24 cm."
-    ],
     "languages": [
       "eng"
     ],
-    "administrativeNotes": [
-      "original + pcc",
-      "for deletion"
-    ],
-    "notes": [
-      {
-        "note": "Includes bibliographical references and index.",
-        "staffOnly": false,
-        "instanceNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
-      },
-      {
-        "note": "The development of the Semantic Web, with machine-readable content, has the potential to revolutionize the World Wide Web and its uses. A Semantic Web Primer provides an introduction and guide to this continuously evolving field, describing its key ideas, languages, and technologies. Suitable for use as a textbook or for independent study by professionals, it concentrates on undergraduate-level fundamental concepts and techniques that will enable readers to proceed with building applications on their own and includes exercises, project descriptions, and annotated references to relevant online materials. The third edition of this widely used text has been thoroughly updated, with significant new material that reflects a rapidly developing field. Treatment of the different languages (OWL2, rules) expands the coverage of RDF and OWL, defining the data model independently of XML and including coverage of N3/Turtle and RDFa. A chapter is devoted to OWL2, the new W3C standard. This edition also features additional coverage of the query language SPARQL, the rule language RIF and the possibility of interaction between rules and ontology languages and applications. The chapter on Semantic Web applications reflects the rapid developments of the past few years. A new chapter offers ideas for term projects",
-        "staffOnly": false,
-        "instanceNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
-      },
-      {
-        "note": "Librarian private note",
-        "staffOnly": true,
-        "instanceNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
-      }
-    ],
-    "modeOfIssuanceId": "9d18a02f-5897-4c31-9106-c9abb5c7ae8b",
-    "catalogedDate": "2019-04-05",
     "discoverySuppress": false,
-    "isBoundWith": true,
-    "statisticalCodeIds": [
-      "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
-    ],
-    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
-    "statusUpdatedDate": "2020-12-08T15:47:13.625+0000",
-    "tags": {
-      "tagList": [
-        "sort-instance"
-      ]
-    },
-    "metadata": {
-      "createdDate": "2021-01-01T10:00:00.000+00:00",
-      "updatedDate": "2021-01-15T10:00:00.000+00:00"
-    },
-    "holdingsRecords2": [],
-    "natureOfContentTermIds": [
-      "85657646-6b6f-4e71-b54c-d47f3b95a5ed"
-    ]
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "a0000002-0000-4000-8000-000000000000",
-    "tenantId": "test_tenant",
-    "hrid": "inst000000000022",
     "source": "FOLIO",
     "title": "Zero Minus Ten",
     "alternativeTitles": [
@@ -574,17 +432,6 @@
         "role": "Publisher"
       }
     ],
-    "publicationFrequency": [],
-    "publicationRange": [],
-    "electronicAccess": [
-      {
-        "uri": "https://testlibrary.sample.com/journal/10.1002/(ISSN)1938-3703",
-        "linkText": "electronic access link text",
-        "publicNote": "Online access via Wiley (1996-current)",
-        "materialsSpecification": "electronic access material",
-        "relationshipId": "a1c0b4f2-3d8e-4b5f-8a7c-6d9e0f2b1c3d"
-      }
-    ],
     "dates": {
       "date1": "199u",
       "date2": "2000",
@@ -594,61 +441,14 @@
     "instanceFormatIds": [
       "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
     ],
-    "instanceFormats": [],
-    "physicalDescriptions": [
-      "xx, 238 p. : ill. ; 24 cm."
-    ],
     "languages": [
       "eng"
     ],
-    "administrativeNotes": [
-      "original + pcc",
-      "for deletion"
-    ],
-    "notes": [
-      {
-        "note": "Includes bibliographical references and index.",
-        "staffOnly": false,
-        "instanceNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
-      },
-      {
-        "note": "The development of the Semantic Web, with machine-readable content, has the potential to revolutionize the World Wide Web and its uses. A Semantic Web Primer provides an introduction and guide to this continuously evolving field, describing its key ideas, languages, and technologies. Suitable for use as a textbook or for independent study by professionals, it concentrates on undergraduate-level fundamental concepts and techniques that will enable readers to proceed with building applications on their own and includes exercises, project descriptions, and annotated references to relevant online materials. The third edition of this widely used text has been thoroughly updated, with significant new material that reflects a rapidly developing field. Treatment of the different languages (OWL2, rules) expands the coverage of RDF and OWL, defining the data model independently of XML and including coverage of N3/Turtle and RDFa. A chapter is devoted to OWL2, the new W3C standard. This edition also features additional coverage of the query language SPARQL, the rule language RIF and the possibility of interaction between rules and ontology languages and applications. The chapter on Semantic Web applications reflects the rapid developments of the past few years. A new chapter offers ideas for term projects",
-        "staffOnly": false,
-        "instanceNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
-      },
-      {
-        "note": "Librarian private note",
-        "staffOnly": true,
-        "instanceNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
-      }
-    ],
-    "modeOfIssuanceId": "9d18a02f-5897-4c31-9106-c9abb5c7ae8b",
-    "catalogedDate": "2019-04-05",
     "discoverySuppress": false,
-    "isBoundWith": true,
-    "statisticalCodeIds": [
-      "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
-    ],
-    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
-    "statusUpdatedDate": "2020-12-08T15:47:13.625+0000",
-    "tags": {
-      "tagList": [
-        "sort-instance"
-      ]
-    },
-    "metadata": {
-      "createdDate": "2021-02-01T10:00:00.000+00:00",
-      "updatedDate": "2021-02-15T10:00:00.000+00:00"
-    },
-    "holdingsRecords2": [],
-    "natureOfContentTermIds": [
-      "85657646-6b6f-4e71-b54c-d47f3b95a5ed"
-    ]
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "a0000003-0000-4000-8000-000000000000",
-    "tenantId": "test_tenant",
-    "hrid": "inst000000000022",
     "source": "FOLIO",
     "title": "Calling Me Home",
     "indexTitle": "A1 Calling Me Home",
@@ -763,17 +563,6 @@
         "role": "Publisher"
       }
     ],
-    "publicationFrequency": [],
-    "publicationRange": [],
-    "electronicAccess": [
-      {
-        "uri": "https://testlibrary.sample.com/journal/10.1002/(ISSN)1938-3703",
-        "linkText": "electronic access link text",
-        "publicNote": "Online access via Wiley (1996-current)",
-        "materialsSpecification": "electronic access material",
-        "relationshipId": "a1c0b4f2-3d8e-4b5f-8a7c-6d9e0f2b1c3d"
-      }
-    ],
     "dates": {
       "date1": "2021",
       "date2": "2022",
@@ -783,61 +572,14 @@
     "instanceFormatIds": [
       "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
     ],
-    "instanceFormats": [],
-    "physicalDescriptions": [
-      "xx, 238 p. : ill. ; 24 cm."
-    ],
     "languages": [
       "eng"
     ],
-    "administrativeNotes": [
-      "original + pcc",
-      "for deletion"
-    ],
-    "notes": [
-      {
-        "note": "Includes bibliographical references and index.",
-        "staffOnly": false,
-        "instanceNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
-      },
-      {
-        "note": "The development of the Semantic Web, with machine-readable content, has the potential to revolutionize the World Wide Web and its uses. A Semantic Web Primer provides an introduction and guide to this continuously evolving field, describing its key ideas, languages, and technologies. Suitable for use as a textbook or for independent study by professionals, it concentrates on undergraduate-level fundamental concepts and techniques that will enable readers to proceed with building applications on their own and includes exercises, project descriptions, and annotated references to relevant online materials. The third edition of this widely used text has been thoroughly updated, with significant new material that reflects a rapidly developing field. Treatment of the different languages (OWL2, rules) expands the coverage of RDF and OWL, defining the data model independently of XML and including coverage of N3/Turtle and RDFa. A chapter is devoted to OWL2, the new W3C standard. This edition also features additional coverage of the query language SPARQL, the rule language RIF and the possibility of interaction between rules and ontology languages and applications. The chapter on Semantic Web applications reflects the rapid developments of the past few years. A new chapter offers ideas for term projects",
-        "staffOnly": false,
-        "instanceNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
-      },
-      {
-        "note": "Librarian private note",
-        "staffOnly": true,
-        "instanceNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
-      }
-    ],
-    "modeOfIssuanceId": "9d18a02f-5897-4c31-9106-c9abb5c7ae8b",
-    "catalogedDate": "2019-04-05",
     "discoverySuppress": false,
-    "isBoundWith": true,
-    "statisticalCodeIds": [
-      "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
-    ],
-    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
-    "statusUpdatedDate": "2020-12-08T15:47:13.625+0000",
-    "tags": {
-      "tagList": [
-        "sort-instance"
-      ]
-    },
-    "metadata": {
-      "createdDate": "2021-03-01T10:00:00.000+00:00",
-      "updatedDate": "2021-03-15T10:00:00.000+00:00"
-    },
-    "holdingsRecords2": [],
-    "natureOfContentTermIds": [
-      "85657646-6b6f-4e71-b54c-d47f3b95a5ed"
-    ]
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "a0000004-0000-4000-8000-000000000000",
-    "tenantId": "test_tenant",
-    "hrid": "inst000000000022",
     "source": "FOLIO",
     "title": "Walk in My Soul",
     "alternativeTitles": [
@@ -952,17 +694,6 @@
         "role": "Publisher"
       }
     ],
-    "publicationFrequency": [],
-    "publicationRange": [],
-    "electronicAccess": [
-      {
-        "uri": "https://testlibrary.sample.com/journal/10.1002/(ISSN)1938-3703",
-        "linkText": "electronic access link text",
-        "publicNote": "Online access via Wiley (1996-current)",
-        "materialsSpecification": "electronic access material",
-        "relationshipId": "a1c0b4f2-3d8e-4b5f-8a7c-6d9e0f2b1c3d"
-      }
-    ],
     "dates": {
       "date1": "2001",
       "date2": "2002",
@@ -972,61 +703,14 @@
     "instanceFormatIds": [
       "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
     ],
-    "instanceFormats": [],
-    "physicalDescriptions": [
-      "xx, 238 p. : ill. ; 24 cm."
-    ],
     "languages": [
       "eng"
     ],
-    "administrativeNotes": [
-      "original + pcc",
-      "for deletion"
-    ],
-    "notes": [
-      {
-        "note": "Includes bibliographical references and index.",
-        "staffOnly": false,
-        "instanceNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
-      },
-      {
-        "note": "The development of the Semantic Web, with machine-readable content, has the potential to revolutionize the World Wide Web and its uses. A Semantic Web Primer provides an introduction and guide to this continuously evolving field, describing its key ideas, languages, and technologies. Suitable for use as a textbook or for independent study by professionals, it concentrates on undergraduate-level fundamental concepts and techniques that will enable readers to proceed with building applications on their own and includes exercises, project descriptions, and annotated references to relevant online materials. The third edition of this widely used text has been thoroughly updated, with significant new material that reflects a rapidly developing field. Treatment of the different languages (OWL2, rules) expands the coverage of RDF and OWL, defining the data model independently of XML and including coverage of N3/Turtle and RDFa. A chapter is devoted to OWL2, the new W3C standard. This edition also features additional coverage of the query language SPARQL, the rule language RIF and the possibility of interaction between rules and ontology languages and applications. The chapter on Semantic Web applications reflects the rapid developments of the past few years. A new chapter offers ideas for term projects",
-        "staffOnly": false,
-        "instanceNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
-      },
-      {
-        "note": "Librarian private note",
-        "staffOnly": true,
-        "instanceNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
-      }
-    ],
-    "modeOfIssuanceId": "9d18a02f-5897-4c31-9106-c9abb5c7ae8b",
-    "catalogedDate": "2019-04-05",
     "discoverySuppress": false,
-    "isBoundWith": true,
-    "statisticalCodeIds": [
-      "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
-    ],
-    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
-    "statusUpdatedDate": "2020-12-08T15:47:13.625+0000",
-    "tags": {
-      "tagList": [
-        "sort-instance"
-      ]
-    },
-    "metadata": {
-      "createdDate": "2021-04-01T10:00:00.000+00:00",
-      "updatedDate": "2021-04-15T10:00:00.000+00:00"
-    },
-    "holdingsRecords2": [],
-    "natureOfContentTermIds": [
-      "85657646-6b6f-4e71-b54c-d47f3b95a5ed"
-    ]
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "a0000005-0000-4000-8000-000000000000",
-    "tenantId": "test_tenant",
-    "hrid": "inst000000000022",
     "source": "FOLIO",
     "title": "Star Wars",
     "alternativeTitles": [
@@ -1034,21 +718,21 @@
         "alternativeTitle": "An alternative title"
       },
       {
-        "alternativeTitle": "déjà vu"
+        "alternativeTitle": "d\u00e9j\u00e0 vu"
       },
       {
-        "alternativeTitle": "Le parler arabe de Cherchell, Algérie."
+        "alternativeTitle": "Le parler arabe de Cherchell, Alge\u0301rie."
       },
       {
         "alternativeTitle": "An Uniform title",
         "alternativeTitleTypeId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
       },
       {
-        "alternativeTitle": "Pang'ok bangk'asyurangsŭ",
+        "alternativeTitle": "Pang'ok bangk'asyurangsu\u0306",
         "authorityId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
       },
       {
-        "alternativeTitle": "Der Preis der Verführung : die gesetzliche Schadensersatzklage wegen Ehebruchs in England zwischen 1857 und 1970 / Eike Götz Hosemann."
+        "alternativeTitle": "Der Preis der Verfu\u0308hrung : die gesetzliche Schadensersatzklage wegen Ehebruchs in England zwischen 1857 und 1970 / Eike Go\u0308tz Hosemann."
       }
     ],
     "editions": [],
@@ -1110,7 +794,7 @@
     ],
     "contributors": [
       {
-        "name": "Śląsk",
+        "name": "\u015al\u0105sk",
         "primary": true
       }
     ],
@@ -1141,17 +825,6 @@
         "role": "Publisher"
       }
     ],
-    "publicationFrequency": [],
-    "publicationRange": [],
-    "electronicAccess": [
-      {
-        "uri": "https://testlibrary.sample.com/journal/10.1002/(ISSN)1938-3703",
-        "linkText": "electronic access link text",
-        "publicNote": "Online access via Wiley (1996-current)",
-        "materialsSpecification": "electronic access material",
-        "relationshipId": "a1c0b4f2-3d8e-4b5f-8a7c-6d9e0f2b1c3d"
-      }
-    ],
     "dates": {
       "date1": "19u5",
       "date2": "1998",
@@ -1161,173 +834,63 @@
     "instanceFormatIds": [
       "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
     ],
-    "instanceFormats": [],
-    "physicalDescriptions": [
-      "xx, 238 p. : ill. ; 24 cm."
-    ],
     "languages": [
       "eng"
     ],
-    "administrativeNotes": [
-      "original + pcc",
-      "for deletion"
-    ],
-    "notes": [
-      {
-        "note": "Includes bibliographical references and index.",
-        "staffOnly": false,
-        "instanceNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
-      },
-      {
-        "note": "The development of the Semantic Web, with machine-readable content, has the potential to revolutionize the World Wide Web and its uses. A Semantic Web Primer provides an introduction and guide to this continuously evolving field, describing its key ideas, languages, and technologies. Suitable for use as a textbook or for independent study by professionals, it concentrates on undergraduate-level fundamental concepts and techniques that will enable readers to proceed with building applications on their own and includes exercises, project descriptions, and annotated references to relevant online materials. The third edition of this widely used text has been thoroughly updated, with significant new material that reflects a rapidly developing field. Treatment of the different languages (OWL2, rules) expands the coverage of RDF and OWL, defining the data model independently of XML and including coverage of N3/Turtle and RDFa. A chapter is devoted to OWL2, the new W3C standard. This edition also features additional coverage of the query language SPARQL, the rule language RIF and the possibility of interaction between rules and ontology languages and applications. The chapter on Semantic Web applications reflects the rapid developments of the past few years. A new chapter offers ideas for term projects",
-        "staffOnly": false,
-        "instanceNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
-      },
-      {
-        "note": "Librarian private note",
-        "staffOnly": true,
-        "instanceNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
-      }
-    ],
-    "modeOfIssuanceId": "9d18a02f-5897-4c31-9106-c9abb5c7ae8b",
-    "catalogedDate": "2019-04-05",
     "discoverySuppress": false,
-    "isBoundWith": true,
-    "statisticalCodeIds": [
-      "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
-    ],
-    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
-    "statusUpdatedDate": "2020-12-08T15:47:13.625+0000",
-    "tags": {
-      "tagList": [
-        "sort-instance"
-      ]
-    },
-    "metadata": {
-      "createdDate": "2021-05-01T10:00:00.000+00:00",
-      "updatedDate": "2021-05-15T10:00:00.000+00:00"
-    },
-    "holdingsRecords2": [],
-    "natureOfContentTermIds": [
-      "85657646-6b6f-4e71-b54c-d47f3b95a5ed"
-    ]
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "b0000001-0000-4000-8000-000000000000",
-    "title": "Ground water in Africa.",
-    "tags": {
-      "tagList": [
-        "sort-instance-by-title"
-      ]
-    }
+    "title": "Ground water in Africa."
   },
   {
     "id": "b0000002-0000-4000-8000-000000000000",
-    "title": "Ground water in North and West Africa.",
-    "tags": {
-      "tagList": [
-        "sort-instance-by-title"
-      ]
-    }
+    "title": "Ground water in North and West Africa."
   },
   {
     "id": "b0000003-0000-4000-8000-000000000000",
-    "title": "Ground-water hydrology of the Chad Basin in Bornu and Dikwa Emirates, Northeastern Nigeria :with special emphasis on the flow life of the Artesian system  /by R. E. Miller [and three others].",
-    "tags": {
-      "tagList": [
-        "sort-instance-by-title"
-      ]
-    }
+    "title": "Ground-water hydrology of the Chad Basin in Bornu and Dikwa Emirates, Northeastern Nigeria :with special emphasis on the flow life of the Artesian system  /by R. E. Miller [and three others]."
   },
   {
     "id": "b0000004-0000-4000-8000-000000000000",
-    "title": "Ground-water resources of the Bengasi area, Cyrenaica, United Kingdom of Libya / by W.W. Doyel and F.J. Maguire.",
-    "tags": {
-      "tagList": [
-        "sort-instance-by-title"
-      ]
-    }
+    "title": "Ground-water resources of the Bengasi area, Cyrenaica, United Kingdom of Libya / by W.W. Doyel and F.J. Maguire."
   },
   {
     "id": "b0000005-0000-4000-8000-000000000000",
-    "title": "Ground-water exploration in Al Marj area, Cyrenaica, United Kingdom of Libya / by T.G. Newport and Yousef Haddor.",
-    "tags": {
-      "tagList": [
-        "sort-instance-by-title"
-      ]
-    }
+    "title": "Ground-water exploration in Al Marj area, Cyrenaica, United Kingdom of Libya / by T.G. Newport and Yousef Haddor."
   },
   {
     "id": "b0000006-0000-4000-8000-000000000000",
-    "title": "Regional geology and ground-water hydrology of the SaÌhÌʹil SuÌsah area, Tunisia / by L.C. Dutcher and H.E. Thomas.",
-    "tags": {
-      "tagList": [
-        "sort-instance-by-title"
-      ]
-    }
+    "title": "Regional geology and ground-water hydrology of the Sa\u00cch\u00cc\u02b9il Su\u00ccsah area, Tunisia / by L.C. Dutcher and H.E. Thomas."
   },
   {
     "id": "b0000007-0000-4000-8000-000000000000",
-    "title": "The occurrence, chemical quality and use of ground water in the TÌʹabulbah area, Tunisia by L.C. Dutcher and H.E. Thomas.",
-    "tags": {
-      "tagList": [
-        "sort-instance-by-title"
-      ]
-    }
+    "title": "The occurrence, chemical quality and use of ground water in the T\u00cc\u02b9abulbah area, Tunisia by L.C. Dutcher and H.E. Thomas."
   },
   {
     "id": "b0000008-0000-4000-8000-000000000000",
-    "title": "Evaluation of baseline ground-water conditions in the Mosteiros, Ribeira Paul, and Ribeira Fajã Basins, Republic of Cape Verde, West Africa, 2005-06by Victor M. Heilweil ... [et al.] ; prepared in cooperation with the Millennium Challenge Corporation, Millennium Challenge Account, and Instituto Nacional de Gestão dos Recursos Hídricos.",
-    "tags": {
-      "tagList": [
-        "sort-instance-by-title"
-      ]
-    }
+    "title": "Evaluation of baseline ground-water conditions in the Mosteiros, Ribeira Paul, and Ribeira Faj\u00e3 Basins, Republic of Cape Verde, West Africa, 2005-06by Victor M. Heilweil ... [et al.] ; prepared in cooperation with the Millennium Challenge Corporation, Millennium Challenge Account, and Instituto Nacional de Gest\u00e3o dos Recursos H\u00eddricos."
   },
   {
     "id": "b0000009-0000-4000-8000-000000000000",
-    "title": "Significance of ground-water chemistry in performance of North Sahara tube wells in Algeria and Tunisia by Frank E. Clarke and Blair F. Jones.",
-    "tags": {
-      "tagList": [
-        "sort-instance-by-title"
-      ]
-    }
+    "title": "Significance of ground-water chemistry in performance of North Sahara tube wells in Algeria and Tunisia by Frank E. Clarke and Blair F. Jones."
   },
   {
     "id": "b0000010-0000-4000-8000-000000000000",
-    "title": "The occurrence, chemical quality and use of ground water in the TÌʹabulbah area, Tunisia / by L.C. Dutcher and H.E. Thomas.",
-    "tags": {
-      "tagList": [
-        "sort-instance-by-title"
-      ]
-    }
+    "title": "The occurrence, chemical quality and use of ground water in the T\u00cc\u02b9abulbah area, Tunisia / by L.C. Dutcher and H.E. Thomas."
   },
   {
     "id": "b0000011-0000-4000-8000-000000000000",
-    "title": "Ground water in the Sirte area, Tripolitania United Kingdom of Libya  /by William Ogilbee.",
-    "tags": {
-      "tagList": [
-        "sort-instance-by-title"
-      ]
-    }
+    "title": "Ground water in the Sirte area, Tripolitania United Kingdom of Libya  /by William Ogilbee."
   },
   {
     "id": "b0000012-0000-4000-8000-000000000000",
-    "title": "Ground water in Eastern, Central and Southern Africa /United Nations, Department of Technical Co-operation for Development.",
-    "tags": {
-      "tagList": [
-        "sort-instance-by-title"
-      ]
-    }
+    "title": "Ground water in Eastern, Central and Southern Africa /United Nations, Department of Technical Co-operation for Development."
   },
   {
     "id": "b0000013-0000-4000-8000-000000000000",
-    "title": "Ground-water exploration in Al Marj area, Cyrenaica, United Kingdom of Libya by T.G. Newport and Yousef Haddor.",
-    "tags": {
-      "tagList": [
-        "sort-instance-by-title"
-      ]
-    }
+    "title": "Ground-water exploration in Al Marj area, Cyrenaica, United Kingdom of Libya by T.G. Newport and Yousef Haddor."
   },
   {
     "id": "30d564e2-4d5d-41b4-bfe6-da3e2e2835e4",
@@ -1342,29 +905,18 @@
       {
         "name": "c1"
       }
-    ],
-    "tags": {
-      "tagList": [
-        "search-by-empty-values"
-      ]
-    }
+    ]
   },
   {
     "id": "25ae81da-4254-49a8-acb3-dc452d9cc7df",
     "title": "title2",
     "indexTitle": "",
     "instanceTypeId": "c0000002-0000-4000-8000-000000000000",
-    "contributors": [],
-    "tags": {
-      "tagList": [
-        "search-by-empty-values"
-      ]
-    }
+    "contributors": []
   },
   {
     "id": "1353873c-0e5e-4d64-a2f9-6c444dc4cd46",
     "title": "Resource0",
-    "tenantId": "test_tenant",
     "source": "MARC",
     "languages": [
       "eng",
@@ -1378,20 +930,6 @@
       "25a81102-a2a9-4576-85ff-133ebcbcef2c",
       "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
     ],
-    "tags": {
-      "tagList": [
-        "text",
-        "science",
-        "search-instance-filter"
-      ]
-    },
-    "statisticalCodeIds": [
-      "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
-    ],
-    "metadata": {
-      "createdDate": "2021-03-01T00:00:00.000+00:00",
-      "updatedDate": "2021-03-05T12:30:00.000+00:00"
-    },
     "dates": {
       "date1": "2021"
     },
@@ -1405,7 +943,6 @@
   {
     "id": "cc6bbc19-3f54-43c5-8736-b85688619641",
     "title": "Resource1",
-    "tenantId": "test_tenant",
     "source": "MARC",
     "languages": [
       "eng",
@@ -1419,16 +956,6 @@
     "instanceFormatIds": [
       "25a81102-a2a9-4576-85ff-133ebcbcef2c"
     ],
-    "tags": {
-      "tagList": [
-        "future",
-        "search-instance-filter"
-      ]
-    },
-    "metadata": {
-      "createdDate": "2021-03-10T01:00:00.000+00:00",
-      "updatedDate": "2021-03-12T15:40:00.000+00:00"
-    },
     "dates": {
       "date1": "ddd9"
     },
@@ -1442,7 +969,6 @@
   {
     "id": "39a52d91-8dbb-4348-ab06-5c6115e600cd",
     "title": "Resource2",
-    "tenantId": "test_tenant",
     "source": "FOLIO",
     "languages": [
       "rus",
@@ -1454,17 +980,6 @@
     "instanceFormatIds": [
       "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
     ],
-    "tags": {
-      "tagList": [
-        "future",
-        "science",
-        "search-instance-filter"
-      ]
-    },
-    "metadata": {
-      "createdDate": "2021-03-08T15:00:00.000+00:00",
-      "updatedDate": "2021-03-15T22:30:00.000+00:00"
-    },
     "dates": {
       "date1": "2020"
     }
@@ -1472,7 +987,6 @@
   {
     "id": "62f72eeb-ed5a-4619-b01f-1750d5528d25",
     "title": "Resource3",
-    "tenantId": "test_tenant",
     "source": "MARC",
     "languages": [
       "ita"
@@ -1486,17 +1000,6 @@
       "25a81102-a2a9-4576-85ff-133ebcbcef2c",
       "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
     ],
-    "tags": {
-      "tagList": [
-        "casual",
-        "cooking",
-        "search-instance-filter"
-      ]
-    },
-    "metadata": {
-      "createdDate": "2021-03-15T12:00:00.000+00:00",
-      "updatedDate": "2021-03-15T12:00:00.000+00:00"
-    },
     "dates": {
       "date1": "d99\\"
     }
@@ -1504,7 +1007,6 @@
   {
     "id": "6d9ccc82-8142-4fbc-b6ba-8e3429fd9aca",
     "title": "Resource4",
-    "tenantId": "test_tenant",
     "source": "FOLIO",
     "languages": [
       "eng",
@@ -1515,12 +1017,6 @@
     "instanceFormatIds": [
       "25a81102-a2a9-4576-85ff-133ebcbcef2c"
     ],
-    "tags": {
-      "tagList": [
-        "cooking",
-        "search-instance-filter"
-      ]
-    },
     "dates": {
       "date1": "2023",
       "date2": "2023"
@@ -1528,509 +1024,229 @@
   },
   {
     "id": "497a920b-225f-44c2-9a48-964c52fb5cc3",
-    "title": "Death of the Price Jackal",
-    "tags": {
-      "tagList": [
-        "sort-item"
-      ]
-    }
+    "title": "Death of the Price Jackal"
   },
   {
     "id": "b3122ab1-8745-43a9-8b31-8a248bef387b",
-    "title": "Wild and Wicked",
-    "tags": {
-      "tagList": [
-        "sort-item"
-      ]
-    }
+    "title": "Wild and Wicked"
   },
   {
     "id": "9e20dd36-e46e-4e12-b35e-f3339a947966",
-    "title": "Sword of Gruko",
-    "tags": {
-      "tagList": [
-        "sort-item"
-      ]
-    }
+    "title": "Sword of Gruko"
   },
   {
     "id": "36805693-dd16-400e-be24-7e9a362f79fe",
-    "title": "The Blade in the Ice",
-    "tags": {
-      "tagList": [
-        "sort-item"
-      ]
-    }
+    "title": "The Blade in the Ice"
   },
   {
     "id": "414f663b-b97b-42ed-8a96-3195067126ff",
-    "title": "The Raven Crystal",
-    "tags": {
-      "tagList": [
-        "sort-item"
-      ]
-    }
+    "title": "The Raven Crystal"
   },
   {
     "id": "f0000001-0000-4000-8000-000000000000",
-    "title": "Instance 1",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 1"
   },
   {
     "id": "f0000002-0000-4000-8000-000000000000",
-    "title": "Instance 2",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 2"
   },
   {
     "id": "f0000003-0000-4000-8000-000000000000",
-    "title": "Instance 3",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 3"
   },
   {
     "id": "f0000004-0000-4000-8000-000000000000",
-    "title": "Instance 4",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 4"
   },
   {
     "id": "f0000005-0000-4000-8000-000000000000",
-    "title": "Instance 5",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 5"
   },
   {
     "id": "f0000006-0000-4000-8000-000000000000",
-    "title": "Instance 6",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 6"
   },
   {
     "id": "f0000007-0000-4000-8000-000000000000",
-    "title": "Instance 7",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 7"
   },
   {
     "id": "f0000008-0000-4000-8000-000000000000",
-    "title": "Instance 8",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 8"
   },
   {
     "id": "f0000009-0000-4000-8000-000000000000",
-    "title": "Instance 9",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 9"
   },
   {
     "id": "f0000010-0000-4000-8000-000000000000",
-    "title": "Instance 10",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 10"
   },
   {
     "id": "f0000011-0000-4000-8000-000000000000",
-    "title": "Instance 11",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 11"
   },
   {
     "id": "f0000012-0000-4000-8000-000000000000",
-    "title": "Instance 12",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 12"
   },
   {
     "id": "f0000013-0000-4000-8000-000000000000",
-    "title": "Instance 13",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 13"
   },
   {
     "id": "f0000014-0000-4000-8000-000000000000",
-    "title": "Instance 14",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 14"
   },
   {
     "id": "f0000015-0000-4000-8000-000000000000",
-    "title": "Instance 15",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 15"
   },
   {
     "id": "f0000016-0000-4000-8000-000000000000",
-    "title": "Instance 16",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 16"
   },
   {
     "id": "f0000017-0000-4000-8000-000000000000",
-    "title": "Instance 17",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 17"
   },
   {
     "id": "f0000018-0000-4000-8000-000000000000",
-    "title": "Instance 18",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 18"
   },
   {
     "id": "f0000019-0000-4000-8000-000000000000",
-    "title": "Instance 19",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 19"
   },
   {
     "id": "f0000020-0000-4000-8000-000000000000",
-    "title": "Instance 20",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 20"
   },
   {
     "id": "f0000021-0000-4000-8000-000000000000",
-    "title": "Instance 21",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 21"
   },
   {
     "id": "f0000022-0000-4000-8000-000000000000",
-    "title": "Instance 22",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 22"
   },
   {
     "id": "f0000023-0000-4000-8000-000000000000",
-    "title": "Instance 23",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 23"
   },
   {
     "id": "f0000024-0000-4000-8000-000000000000",
-    "title": "Instance 24",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 24"
   },
   {
     "id": "f0000025-0000-4000-8000-000000000000",
-    "title": "Instance 25",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 25"
   },
   {
     "id": "f0000026-0000-4000-8000-000000000000",
-    "title": "Instance 26",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 26"
   },
   {
     "id": "f0000027-0000-4000-8000-000000000000",
-    "title": "Instance 27",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 27"
   },
   {
     "id": "f0000028-0000-4000-8000-000000000000",
-    "title": "Instance 28",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 28"
   },
   {
     "id": "f0000029-0000-4000-8000-000000000000",
-    "title": "Instance 29",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 29"
   },
   {
     "id": "f0000030-0000-4000-8000-000000000000",
-    "title": "Instance 30",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 30"
   },
   {
     "id": "f0000031-0000-4000-8000-000000000000",
-    "title": "Instance 31",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 31"
   },
   {
     "id": "f0000032-0000-4000-8000-000000000000",
-    "title": "Instance 32",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 32"
   },
   {
     "id": "f0000033-0000-4000-8000-000000000000",
-    "title": "Instance 33",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 33"
   },
   {
     "id": "f0000034-0000-4000-8000-000000000000",
-    "title": "Instance 34",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 34"
   },
   {
     "id": "f0000035-0000-4000-8000-000000000000",
-    "title": "Instance 35",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 35"
   },
   {
     "id": "f0000036-0000-4000-8000-000000000000",
-    "title": "Instance 36",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 36"
   },
   {
     "id": "f0000037-0000-4000-8000-000000000000",
-    "title": "Instance 37",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 37"
   },
   {
     "id": "f0000038-0000-4000-8000-000000000000",
-    "title": "Instance 38",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 38"
   },
   {
     "id": "f0000039-0000-4000-8000-000000000000",
-    "title": "Instance 39",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 39"
   },
   {
     "id": "f0000040-0000-4000-8000-000000000000",
-    "title": "Instance 40",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 40"
   },
   {
     "id": "f0000041-0000-4000-8000-000000000000",
-    "title": "Instance 41",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 41"
   },
   {
     "id": "f0000042-0000-4000-8000-000000000000",
-    "title": "Instance 42",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 42"
   },
   {
     "id": "f0000043-0000-4000-8000-000000000000",
-    "title": "Instance 43",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 43"
   },
   {
     "id": "f0000044-0000-4000-8000-000000000000",
-    "title": "Instance 44",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 44"
   },
   {
     "id": "f0000045-0000-4000-8000-000000000000",
-    "title": "Instance 45",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 45"
   },
   {
     "id": "f0000046-0000-4000-8000-000000000000",
-    "title": "Instance 46",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 46"
   },
   {
     "id": "f0000047-0000-4000-8000-000000000000",
-    "title": "Instance 47",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 47"
   },
   {
     "id": "f0000048-0000-4000-8000-000000000000",
-    "title": "Instance 48",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 48"
   },
   {
     "id": "f0000049-0000-4000-8000-000000000000",
-    "title": "Instance 49",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 49"
   },
   {
     "id": "f0000050-0000-4000-8000-000000000000",
-    "title": "Instance 50",
-    "tags": {
-      "tagList": [
-        "browse-call-number"
-      ]
-    }
+    "title": "Instance 50"
   },
   {
     "id": "c0000001-0000-4000-b000-000000000000",
     "title": "instance #01",
     "staffSuppress": false,
     "discoverySuppress": false,
-    "tags": {
-      "tagList": [
-        "browse-classification"
-      ]
-    },
     "classifications": [
       {
         "classificationNumber": "BJ1453 .I49 1983",
@@ -2047,11 +1263,6 @@
     "title": "instance #02",
     "staffSuppress": false,
     "discoverySuppress": false,
-    "tags": {
-      "tagList": [
-        "browse-classification"
-      ]
-    },
     "classifications": [
       {
         "classificationNumber": "BJ1453 .I49 1983",
@@ -2072,11 +1283,6 @@
     "title": "instance #03",
     "staffSuppress": false,
     "discoverySuppress": false,
-    "tags": {
-      "tagList": [
-        "browse-classification"
-      ]
-    },
     "classifications": [
       {
         "classificationNumber": "HQ536 .A565 2018",
@@ -2093,11 +1299,6 @@
     "title": "instance #04",
     "staffSuppress": false,
     "discoverySuppress": false,
-    "tags": {
-      "tagList": [
-        "browse-classification"
-      ]
-    },
     "classifications": [
       {
         "classificationNumber": "QD33 .O87",
@@ -2110,11 +1311,6 @@
     "title": "instance #05",
     "staffSuppress": false,
     "discoverySuppress": false,
-    "tags": {
-      "tagList": [
-        "browse-classification"
-      ]
-    },
     "classifications": [
       {
         "classificationNumber": "QD453 .M8 1961",
@@ -2136,11 +1332,6 @@
     "title": "instance #06",
     "staffSuppress": false,
     "discoverySuppress": false,
-    "tags": {
-      "tagList": [
-        "browse-classification"
-      ]
-    },
     "classifications": [
       {
         "classificationNumber": "SF433 .D47 2004",
@@ -2157,11 +1348,6 @@
     "title": "instance #07",
     "staffSuppress": false,
     "discoverySuppress": false,
-    "tags": {
-      "tagList": [
-        "browse-classification"
-      ]
-    },
     "classifications": [
       {
         "classificationNumber": "221.609",
@@ -2178,11 +1364,6 @@
     "title": "instance #08",
     "staffSuppress": false,
     "discoverySuppress": false,
-    "tags": {
-      "tagList": [
-        "browse-classification"
-      ]
-    },
     "classifications": [
       {
         "classificationNumber": "TN800 .F4613",
@@ -2195,11 +1376,6 @@
     "title": "instance #09",
     "staffSuppress": false,
     "discoverySuppress": false,
-    "tags": {
-      "tagList": [
-        "browse-classification"
-      ]
-    },
     "classifications": [
       {
         "classificationNumber": "292.07",
@@ -2220,11 +1396,6 @@
     "title": "instance #10",
     "staffSuppress": false,
     "discoverySuppress": false,
-    "tags": {
-      "tagList": [
-        "browse-classification"
-      ]
-    },
     "classifications": [
       {
         "classificationNumber": "146.4",
@@ -2249,11 +1420,6 @@
     "title": "instance #11",
     "staffSuppress": false,
     "discoverySuppress": false,
-    "tags": {
-      "tagList": [
-        "browse-classification"
-      ]
-    },
     "classifications": [
       {
         "classificationNumber": "TX545 M45",
@@ -2266,11 +1432,6 @@
     "title": "instance #12",
     "staffSuppress": false,
     "discoverySuppress": false,
-    "tags": {
-      "tagList": [
-        "browse-classification"
-      ]
-    },
     "classifications": [
       {
         "classificationNumber": "TX\\545.\\\\M45",
@@ -2290,12 +1451,7 @@
         "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9",
         "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299"
       }
-    ],
-    "tags": {
-      "tagList": [
-        "browse-contributor"
-      ]
-    }
+    ]
   },
   {
     "id": "a0000002-0000-4000-9000-000000000000",
@@ -2321,12 +1477,7 @@
         "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d",
         "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299"
       }
-    ],
-    "tags": {
-      "tagList": [
-        "browse-contributor"
-      ]
-    }
+    ]
   },
   {
     "id": "a0000003-0000-4000-9000-000000000000",
@@ -2352,12 +1503,7 @@
         "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d",
         "contributorTypeId": "653ffe66-aa3f-4f1c-a090-c42c4011ef40"
       }
-    ],
-    "tags": {
-      "tagList": [
-        "browse-contributor"
-      ]
-    }
+    ]
   },
   {
     "id": "a0000004-0000-4000-9000-000000000000",
@@ -2382,12 +1528,7 @@
         "contributorNameTypeId": "0ad0a89a-741d-4f1a-85a6-ada214751013",
         "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9"
       }
-    ],
-    "tags": {
-      "tagList": [
-        "browse-contributor"
-      ]
-    }
+    ]
   },
   {
     "id": "a0000005-0000-4000-9000-000000000000",
@@ -2419,12 +1560,7 @@
         "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d",
         "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299"
       }
-    ],
-    "tags": {
-      "tagList": [
-        "browse-contributor"
-      ]
-    }
+    ]
   },
   {
     "id": "a0000006-0000-4000-9000-000000000000",
@@ -2456,12 +1592,7 @@
         "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d",
         "contributorTypeId": "3ae36e29-e38f-457c-8fcf-1974a6cb63d3"
       }
-    ],
-    "tags": {
-      "tagList": [
-        "browse-contributor"
-      ]
-    }
+    ]
   },
   {
     "id": "a0000007-0000-4000-9000-000000000000",
@@ -2483,12 +1614,7 @@
       {
         "name": "Wi\\lly \\ Wonka"
       }
-    ],
-    "tags": {
-      "tagList": [
-        "browse-contributor"
-      ]
-    }
+    ]
   },
   {
     "id": "b0000001-0000-4000-9000-000000000000",
@@ -2514,12 +1640,7 @@
       {
         "value": "Biography"
       }
-    ],
-    "tags": {
-      "tagList": [
-        "browse-subject"
-      ]
-    }
+    ]
   },
   {
     "id": "b0000002-0000-4000-9000-000000000000",
@@ -2536,12 +1657,7 @@
         "sourceId": "308c950f-8209-4f2e-9702-0c004a9f21bd",
         "typeId": "308c950f-8209-4f2e-9702-0c004a9f21be"
       }
-    ],
-    "tags": {
-      "tagList": [
-        "browse-subject"
-      ]
-    }
+    ]
   },
   {
     "id": "b0000003-0000-4000-9000-000000000000",
@@ -2560,12 +1676,7 @@
       {
         "value": "Rules"
       }
-    ],
-    "tags": {
-      "tagList": [
-        "browse-subject"
-      ]
-    }
+    ]
   },
   {
     "id": "b0000004-0000-4000-9000-000000000000",
@@ -2580,12 +1691,7 @@
         "value": "Music",
         "typeId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91c"
       }
-    ],
-    "tags": {
-      "tagList": [
-        "browse-subject"
-      ]
-    }
+    ]
   },
   {
     "id": "b0000005-0000-4000-9000-000000000000",
@@ -2602,12 +1708,7 @@
       {
         "value": "Biography"
       }
-    ],
-    "tags": {
-      "tagList": [
-        "browse-subject"
-      ]
-    }
+    ]
   },
   {
     "id": "b0000006-0000-4000-9000-000000000000",
@@ -2624,12 +1725,7 @@
       {
         "value": "Philosophy"
       }
-    ],
-    "tags": {
-      "tagList": [
-        "browse-subject"
-      ]
-    }
+    ]
   },
   {
     "id": "b0000007-0000-4000-9000-000000000000",
@@ -2646,12 +1742,7 @@
       {
         "value": "Science\\--Philosophy"
       }
-    ],
-    "tags": {
-      "tagList": [
-        "browse-subject"
-      ]
-    }
+    ]
   },
   {
     "id": "b0000008-0000-4000-9000-000000000000",
@@ -2665,12 +1756,7 @@
       {
         "value": "Water-supply"
       }
-    ],
-    "tags": {
-      "tagList": [
-        "browse-subject"
-      ]
-    }
+    ]
   },
   {
     "id": "b0000009-0000-4000-9000-000000000000",
@@ -2687,12 +1773,7 @@
       {
         "value": "Water--Microbiology"
       }
-    ],
-    "tags": {
-      "tagList": [
-        "browse-subject"
-      ]
-    }
+    ]
   },
   {
     "id": "b0000010-0000-4000-9000-000000000000",
@@ -2709,12 +1790,7 @@
       {
         "value": "Textbooks"
       }
-    ],
-    "tags": {
-      "tagList": [
-        "browse-subject"
-      ]
-    }
+    ]
   },
   {
     "id": "b0000011-0000-4000-9000-000000000000",
@@ -2732,12 +1808,7 @@
       {
         "value": "Biography"
       }
-    ],
-    "tags": {
-      "tagList": [
-        "browse-subject"
-      ]
-    }
+    ]
   },
   {
     "id": "b0000012-0000-4000-9000-000000000000",
@@ -2756,12 +1827,7 @@
       {
         "value": "Biography"
       }
-    ],
-    "tags": {
-      "tagList": [
-        "browse-subject"
-      ]
-    }
+    ]
   },
   {
     "id": "b0000013-0000-4000-9000-000000000000",
@@ -2779,12 +1845,7 @@
       {
         "value": "Biography"
       }
-    ],
-    "tags": {
-      "tagList": [
-        "browse-subject"
-      ]
-    }
+    ]
   },
   {
     "id": "b0000014-0000-4000-9000-000000000000",
@@ -2803,12 +1864,7 @@
       {
         "value": "Biography"
       }
-    ],
-    "tags": {
-      "tagList": [
-        "browse-subject"
-      ]
-    }
+    ]
   },
   {
     "id": "b0000015-0000-4000-9000-000000000000",
@@ -2827,11 +1883,6 @@
       {
         "value": "Biography"
       }
-    ],
-    "tags": {
-      "tagList": [
-        "browse-subject"
-      ]
-    }
+    ]
   }
 ]

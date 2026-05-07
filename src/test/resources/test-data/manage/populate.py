@@ -1,0 +1,439 @@
+#!/usr/bin/env python3
+"""
+populate.py — Fill missing fields in instances/holdings/items JSON with realistic data.
+
+Deterministic: uses each record's UUID as a seed so output is stable across runs.
+Run from any directory.
+
+Usage:
+    python manage/populate.py
+"""
+
+import hashlib
+import json
+import re
+import random
+from pathlib import Path
+
+MANAGE_DIR = Path(__file__).parent
+DATA_DIR   = MANAGE_DIR.parent
+
+# ---------------------------------------------------------------------------
+# Ref UUIDs (subset of _REF_NAMES from import.py)
+# ---------------------------------------------------------------------------
+INSTANCE_TYPE_TEXT     = "6312d172-f0cf-40f6-b27d-9fa8feaf332f"
+INSTANCE_TYPE_POOL     = [
+    ("6312d172-f0cf-40f6-b27d-9fa8feaf332f", 60),   # text
+    ("535e3160-763a-42f9-b0c0-d8ed7df6e2a2", 10),   # still image
+    ("225faa14-f9bf-4ecd-990d-69433c912434",  8),   # two-dimensional moving image
+    ("497b5090-3da2-486c-b57f-de5bb3c2e26d",  6),   # notated music
+    ("3be24c14-3551-4180-9292-26a786649c8b",  5),   # performed music
+    ("df5dddff-9c30-4507-8b82-119ff972d4d7",  4),   # computer dataset
+    ("a2c91e87-6bab-44d6-8adb-1fd02481fc4f",  4),   # other
+    ("9bce18bd-45bf-4949-8fa8-63163e4b7d7f",  3),   # sounds
+]
+
+FORMAT_ID_POOL = [
+    "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da",
+    "89f6d4f0-9cd2-4015-828d-331dc3adb47a",
+    "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb",
+    "25a81102-a2a9-4576-85ff-133ebcbcef2c",
+]
+
+STATUS_ID_POOL = [
+    "9634a5ab-9228-4703-baf2-4d12ebc77d56",  # Available
+    "1117f093-0bfd-4324-aa3f-96c77f43b2bf",  # Not Available
+    "54cb0be0-2b5b-4da5-a687-32dec54b016a",  # Temporary Location
+]
+
+CONTRIBUTOR_NAME_TYPE_PERSONAL  = "2b94c631-fca9-4892-a730-03ee529ffe2a"
+CONTRIBUTOR_NAME_TYPE_CORPORATE = "2e48e713-17f3-4c13-a9f8-23845bb210aa"
+CONTRIBUTOR_TYPE_AUTHOR         = "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+CONTRIBUTOR_TYPE_EDITOR         = "9deb29d1-3e71-4951-9413-a80adac703d0"
+
+MATERIAL_TYPE_POOL = [
+    ("1a54b431-2e4f-452d-9cae-9cee66c9a892", 55),   # book
+    ("d9acad2f-2aac-4b48-9097-e6ab85906b25", 15),   # text
+    ("615b8413-82d5-4203-aa6e-e37984cb5ac3", 10),   # electronic resource
+    ("5ee11d91-f7e8-481d-b079-65d708582ccc",  5),   # dvd
+    ("fd6c6515-d470-4561-9c32-3e3290d4ca98",  5),   # microform
+    ("dd0bf600-dbd9-44ab-9ff2-e2a61a6539f1",  5),   # sound recording
+    ("30b3e36a-d3b2-415e-98c2-47fbdf878862",  5),   # video recording
+]
+
+HOLDINGS_TYPE_POOL = [
+    ("0c422f92-0f4d-4d32-8cbe-390ebc33a3e5", 50),   # Physical
+    ("03c9c400-b9e3-4a07-ac0e-05ab470233ed", 20),   # Monograph
+    ("996f93e2-5b5e-4cf2-9168-33ced1f95eed", 10),   # Electronic
+    ("e6da6c98-6dd0-41bc-8b4b-cfd4bbd9c3ae", 10),   # Serial
+    ("dc35d0ae-e877-488b-8e97-6e41444e6d0a",  5),   # Multi-part monograph
+    ("d02bb1e2-fa7f-4354-a9f4-1ca9b81510a2",  5),   # Periodical
+]
+
+CALL_NUMBER_TYPE_LC    = "95467209-6d7b-468b-94df-0f5d7ad2747d"
+CALL_NUMBER_TYPE_DEWEY = "03dd64d0-5626-4ecd-8ece-4531e0069f35"
+CALL_NUMBER_TYPE_POOL  = [
+    ("95467209-6d7b-468b-94df-0f5d7ad2747d", 60),   # LC
+    ("03dd64d0-5626-4ecd-8ece-4531e0069f35", 25),   # Dewey
+    ("054d460d-d6b9-4469-9e37-7a78a2266655", 10),   # NLM
+    ("6caca63e-5651-4db6-9247-3205156e9699",  5),   # Other
+]
+
+LOCATION_POOL = [
+    ("fcd64ce1-6995-48f0-840e-89ffa2288371", 30),   # Main Library
+    ("53cf956f-c1df-410b-8bea-27f712cca7c0", 20),   # Annex
+    ("184aae84-a5bf-4c6a-85ba-4a7c73026cd5", 10),   # Online
+    ("f34d27c6-a8eb-461b-acd6-5dea81771e70", 10),   # SECOND FLOOR
+    ("b241764c-1466-4e1d-a028-1a3684a5da87",  8),   # Popular Reading Collection
+    ("758258bc-ecc1-41b8-abca-f7b610822ffd",  6),   # ORWIG ETHNO CD
+    ("65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",  5),   # Special Collections
+    ("0d106980-1789-42ac-b355-a6c7a74ddea3",  4),   # Annex Stacks
+    ("4fdca025-1629-4688-aeb7-9c5fe5c73549",  4),   # Reference Room
+    ("81f1ab2c-83c5-4a90-a8b7-c8c8179c0697",  3),   # Reserve Desk
+]
+
+# ---------------------------------------------------------------------------
+# Realistic content pools
+# ---------------------------------------------------------------------------
+AUTHORS = [
+    "Smith, John A.", "Johnson, Mary L.", "Williams, Robert T.", "Brown, Patricia K.",
+    "Jones, Michael D.", "Garcia, Linda R.", "Miller, David S.", "Davis, Barbara E.",
+    "Wilson, James F.", "Anderson, Susan G.", "Taylor, Thomas H.", "Thomas, Dorothy C.",
+    "Hernandez, Carlos M.", "Moore, Nancy W.", "Martin, Sandra J.", "Jackson, Mark B.",
+    "Thompson, Betty N.", "White, Daniel P.", "Lopez, Margaret Y.", "Lee, Christopher Z.",
+    "Harris, Elizabeth A.", "Clark, Kenneth L.", "Lewis, Sharon M.", "Robinson, Paul D.",
+    "Walker, Donna E.", "Young, Steven F.", "Allen, Carol G.", "King, Jason H.",
+    "Wright, Lisa I.", "Scott, Matthew J.", "Torres, Angela K.", "Nguyen, Kevin L.",
+    "Hill, Michelle M.", "Flores, Brian N.", "Green, Deborah O.", "Adams, Timothy P.",
+    "Nelson, Virginia Q.", "Baker, Raymond R.", "Hall, Katherine S.", "Rivera, Anthony T.",
+    "Campbell, Melissa U.", "Mitchell, Gregory V.", "Carter, Julie W.", "Roberts, Alan X.",
+    "Gomez, Rachel Y.", "Phillips, Frank Z.", "Evans, Christine A.", "Turner, Lawrence B.",
+    "Diaz, Amanda C.", "Parker, George D.",
+]
+
+PUBLISHERS = [
+    ("MIT Press", "Cambridge, Mass."),
+    ("Oxford University Press", "Oxford"),
+    ("Cambridge University Press", "Cambridge"),
+    ("Springer", "New York"),
+    ("Wiley", "Hoboken, N.J."),
+    ("Elsevier", "Amsterdam"),
+    ("Routledge", "London"),
+    ("Palgrave Macmillan", "Basingstoke"),
+    ("Harvard University Press", "Cambridge, Mass."),
+    ("Princeton University Press", "Princeton"),
+    ("University of Chicago Press", "Chicago"),
+    ("Stanford University Press", "Stanford, Calif."),
+    ("Yale University Press", "New Haven"),
+    ("Columbia University Press", "New York"),
+    ("Sage Publications", "Thousand Oaks, Calif."),
+    ("Johns Hopkins University Press", "Baltimore"),
+    ("Duke University Press", "Durham"),
+    ("University of Michigan Press", "Ann Arbor"),
+    ("Penn State University Press", "University Park, Pa."),
+    ("Penguin Books", "London"),
+]
+
+SUBJECTS_POOL = [
+    "Information technology", "Computer science", "Machine learning", "Data analysis",
+    "Environmental policy", "Urban planning", "Economic development", "Social sciences",
+    "History of science", "Philosophy of mind", "Political theory", "Public administration",
+    "Molecular biology", "Genetics", "Neuroscience", "Clinical psychology",
+    "Architectural design", "Urban sociology", "Cultural anthropology", "Education reform",
+    "International relations", "Global economics", "Climate change", "Renewable energy",
+    "Literature and society", "Media studies", "Communication theory", "Digital humanities",
+    "Library science", "Information management", "Knowledge organization", "Metadata",
+    "Artificial intelligence", "Natural language processing", "Computer vision",
+    "Quantum computing", "Cryptography", "Network security", "Database systems",
+    "Statistics", "Applied mathematics", "Operations research", "Game theory",
+]
+
+SERIES_POOL = [
+    "Studies in information science",
+    "Advances in computer science",
+    "Monographs in library and information science",
+    "Interdisciplinary studies in knowledge management",
+    "Research in applied linguistics",
+    "Topics in modern biology",
+    "Contemporary issues in education",
+    "International studies in political economy",
+    "Perspectives on urban and regional development",
+    "Cambridge studies in publishing and printing history",
+    "MIT Press series in cognitive science",
+    "Contributions to economics",
+    "Lecture notes in computer science",
+    "Texts in applied mathematics",
+    "Springer series in solid-state sciences",
+]
+
+LC_CLASS_PREFIXES = [
+    "QA", "Q", "Z", "HM", "HV", "HD", "P", "PN", "PS", "PR", "LB",
+    "JZ", "GE", "QH", "QP", "RC", "RJ", "S", "TA", "TK", "TR",
+]
+
+ITEM_STATUSES = [
+    ("Available", 60),
+    ("Checked out", 12),
+    ("In transit", 5),
+    ("Awaiting pickup", 4),
+    ("In process", 4),
+    ("Missing", 4),
+    ("On order", 4),
+    ("Restricted", 3),
+    ("Unavailable", 2),
+    ("Withdrawn", 2),
+]
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+def rng(record_id: str, salt: str = "") -> random.Random:
+    """Return a deterministic Random instance seeded from the record UUID."""
+    digest = hashlib.sha256((record_id + salt).encode()).digest()
+    seed = int.from_bytes(digest[:8], "little")
+    return random.Random(seed)
+
+
+def weighted_choice(rnd: random.Random, pool: list) -> str:
+    items, weights = zip(*pool)
+    return rnd.choices(items, weights=weights, k=1)[0]
+
+
+def strip_leading_article(title: str) -> str:
+    return re.sub(r"^(A |An |The )", "", title, flags=re.IGNORECASE).strip()
+
+
+def make_isbn(rnd: random.Random) -> str:
+    digits = [rnd.randint(0, 9) for _ in range(12)]
+    check = (10 - sum((3 if i % 2 else 1) * d for i, d in enumerate(digits))) % 10
+    return "978-" + "".join(str(d) for d in digits[:3]) + "-" + \
+           "".join(str(d) for d in digits[3:9]) + "-" + \
+           "".join(str(d) for d in digits[9:]) + "-" + str(check)
+
+
+def make_lc_call_number(rnd: random.Random) -> str:
+    prefix = rnd.choice(LC_CLASS_PREFIXES)
+    num    = rnd.randint(1, 9999)
+    alpha  = rnd.choice(list("ABCDEFGHJKLMNPQRSTUVWXYZ"))
+    year   = rnd.randint(1960, 2024)
+    return f"{prefix}{num} .{alpha}{rnd.randint(10,99)} {year}"
+
+
+def make_dewey_call_number(rnd: random.Random) -> str:
+    main = rnd.randint(0, 999)
+    dec  = rnd.randint(0, 99)
+    return f"{main:03d}.{dec:02d}"
+
+
+def make_call_number(rnd: random.Random, cn_type_id: str) -> str:
+    if cn_type_id == CALL_NUMBER_TYPE_DEWEY:
+        return make_dewey_call_number(rnd)
+    return make_lc_call_number(rnd)
+
+
+# ---------------------------------------------------------------------------
+# Populate instances
+# ---------------------------------------------------------------------------
+def populate_instances(records: list) -> list:
+    out = []
+    for r in records:
+        r = dict(r)
+        rid  = r["id"]
+        rnd  = rng(rid)
+        rnd2 = rng(rid, "b")
+
+        # instanceTypeId
+        if not r.get("instanceTypeId"):
+            r["instanceTypeId"] = weighted_choice(rnd, INSTANCE_TYPE_POOL)
+
+        # indexTitle — strip leading article from title
+        if not r.get("indexTitle"):
+            r["indexTitle"] = strip_leading_article(r.get("title", ""))
+
+        # languages
+        if "languages" not in r:
+            r["languages"] = ["eng"]
+
+        # statusId
+        if "statusId" not in r:
+            r["statusId"] = rnd.choice(STATUS_ID_POOL)
+
+        # instanceFormatIds
+        if "instanceFormatIds" not in r:
+            r["instanceFormatIds"] = [rnd.choice(FORMAT_ID_POOL)]
+
+        # dates
+        if "dates" not in r:
+            year = rnd.randint(1950, 2023)
+            r["dates"] = {
+                "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+                "date1": str(year),
+                "date2": str(year + rnd.randint(0, 10)) if rnd.random() < 0.3 else None,
+            }
+            if r["dates"]["date2"] is None:
+                del r["dates"]["date2"]
+
+        # contributors — fill missing contributorNameTypeId / contributorTypeId
+        existing_contribs = r.get("contributors", [])
+        fixed_contribs = []
+        for c in existing_contribs:
+            c = dict(c)
+            if "contributorNameTypeId" not in c:
+                c["contributorNameTypeId"] = CONTRIBUTOR_NAME_TYPE_PERSONAL
+            if "contributorTypeId" not in c:
+                c["contributorTypeId"] = CONTRIBUTOR_TYPE_AUTHOR
+            fixed_contribs.append(c)
+
+        # add a primary contributor if none present
+        if not fixed_contribs:
+            author = rnd.choice(AUTHORS)
+            is_editor = rnd.random() < 0.15
+            fixed_contribs = [{
+                "name": author,
+                "contributorNameTypeId": CONTRIBUTOR_NAME_TYPE_PERSONAL,
+                "contributorTypeId": CONTRIBUTOR_TYPE_EDITOR if is_editor else CONTRIBUTOR_TYPE_AUTHOR,
+                "primary": True,
+            }]
+            if rnd.random() < 0.4:
+                second = rnd.choice([a for a in AUTHORS if a != author])
+                fixed_contribs.append({
+                    "name": second,
+                    "contributorNameTypeId": CONTRIBUTOR_NAME_TYPE_PERSONAL,
+                    "contributorTypeId": CONTRIBUTOR_TYPE_AUTHOR,
+                })
+
+        r["contributors"] = fixed_contribs
+
+        # publication
+        if "publication" not in r:
+            pub, place = rnd.choice(PUBLISHERS)
+            year = r.get("dates", {}).get("date1", str(rnd.randint(1960, 2023)))
+            r["publication"] = [{
+                "publisher": pub,
+                "place": place,
+                "dateOfPublication": str(year)[:4],
+                "role": "Publisher",
+            }]
+
+        # identifiers — add ISBN if none
+        if "identifiers" not in r:
+            isbn = make_isbn(rnd2)
+            r["identifiers"] = [{
+                "value": isbn,
+                "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422",  # ISBN
+            }]
+
+        # subjects
+        if "subjects" not in r:
+            n = rnd.randint(1, 3)
+            chosen = rnd.sample(SUBJECTS_POOL, n)
+            r["subjects"] = [{"value": s} for s in chosen]
+
+        # classifications
+        if "classifications" not in r:
+            cn_type = rnd.choice([CALL_NUMBER_TYPE_LC, CALL_NUMBER_TYPE_DEWEY])
+            cn      = make_call_number(rnd2, cn_type)
+            r["classifications"] = [{
+                "classificationNumber": cn,
+                "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b",
+            }]
+
+        # series
+        if "series" not in r and rnd.random() < 0.35:
+            r["series"] = [{"value": rnd.choice(SERIES_POOL)}]
+
+        out.append(r)
+    return out
+
+
+# ---------------------------------------------------------------------------
+# Populate holdings
+# ---------------------------------------------------------------------------
+def populate_holdings(records: list) -> list:
+    out = []
+    for r in records:
+        r = dict(r)
+        rid = r["id"]
+        rnd = rng(rid)
+
+        if not r.get("holdingsTypeId"):
+            r["holdingsTypeId"] = weighted_choice(rnd, HOLDINGS_TYPE_POOL)
+
+        if not r.get("permanentLocationId"):
+            r["permanentLocationId"] = weighted_choice(rnd, LOCATION_POOL)
+
+        if not r.get("callNumberTypeId"):
+            r["callNumberTypeId"] = weighted_choice(rnd, CALL_NUMBER_TYPE_POOL)
+
+        if not r.get("callNumber"):
+            r["callNumber"] = make_call_number(rng(rid, "cn"), r["callNumberTypeId"])
+
+        if "copyNumber" not in r and rnd.random() < 0.4:
+            r["copyNumber"] = str(rnd.randint(1, 5))
+
+        out.append(r)
+    return out
+
+
+# ---------------------------------------------------------------------------
+# Populate items — index holdings by id for location lookup
+# ---------------------------------------------------------------------------
+def populate_items(records: list, holdings_by_id: dict) -> list:
+    out = []
+    for r in records:
+        r = dict(r)
+        rid = r["id"]
+        rnd = rng(rid)
+
+        if not r.get("materialTypeId"):
+            r["materialTypeId"] = weighted_choice(rnd, MATERIAL_TYPE_POOL)
+
+        if not r.get("effectiveLocationId"):
+            h = holdings_by_id.get(r.get("holdingsRecordId", ""))
+            if h and h.get("permanentLocationId"):
+                r["effectiveLocationId"] = h["permanentLocationId"]
+            else:
+                r["effectiveLocationId"] = weighted_choice(rnd, LOCATION_POOL)
+
+        if "status" not in r:
+            status_name = weighted_choice(rnd, ITEM_STATUSES)
+            r["status"] = {"name": status_name}
+
+        # item-level call number on ~20 % of items (the rest inherit from holdings)
+        if "itemLevelCallNumber" not in r and rnd.random() < 0.2:
+            cn_type = weighted_choice(rnd, CALL_NUMBER_TYPE_POOL)
+            r["itemLevelCallNumberTypeId"] = cn_type
+            r["itemLevelCallNumber"] = make_call_number(rng(rid, "icn"), cn_type)
+
+        out.append(r)
+    return out
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+def main():
+    inst_path  = DATA_DIR / "instances.json"
+    hold_path  = DATA_DIR / "holdings.json"
+    items_path = DATA_DIR / "items.json"
+
+    instances = json.loads(inst_path.read_text())
+    holdings  = json.loads(hold_path.read_text())
+    items     = json.loads(items_path.read_text())
+
+    holdings_by_id = {h["id"]: h for h in holdings}
+
+    instances = populate_instances(instances)
+    holdings  = populate_holdings(holdings)
+    items     = populate_items(items, holdings_by_id)
+
+    inst_path.write_text(json.dumps(instances, indent=2, ensure_ascii=False))
+    hold_path.write_text(json.dumps(holdings, indent=2, ensure_ascii=False))
+    items_path.write_text(json.dumps(items, indent=2, ensure_ascii=False))
+
+    print(f"Populated {len(instances)} instances, {len(holdings)} holdings, {len(items)} items")
+
+
+if __name__ == "__main__":
+    main()

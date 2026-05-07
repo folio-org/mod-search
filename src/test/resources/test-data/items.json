@@ -3,6 +3,8 @@
     "id": "fd37e8d3-adf3-44f8-8b10-658ad8ba8319",
     "holdingsRecordId": "c9ee975f-ea3e-461d-b190-d1f3c11a35b0",
     "instanceId": "1353873c-0e5e-4d64-a2f9-6c444dc4cd46",
+    "itemLevelCallNumber": "QP4989 .U16 1991",
+    "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "status": {
       "name": "Available"
     },
@@ -25,6 +27,8 @@
     "id": "fae9b380-d48e-4fb8-8a6a-f810449973af",
     "holdingsRecordId": "0cd836aa-4415-40a4-b6fe-35b5a1454669",
     "instanceId": "39a52d91-8dbb-4348-ab06-5c6115e600cd",
+    "itemLevelCallNumber": "P4274 .X87 1974",
+    "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "status": {
       "name": "Missing",
       "date": "2024-05-27T00:00:00.000+00:00"
@@ -37,10 +41,13 @@
     "id": "8b3afe85-0887-4f53-9104-1302e881bf25",
     "holdingsRecordId": "0cd836aa-4415-40a4-b6fe-35b5a1454669",
     "instanceId": "39a52d91-8dbb-4348-ab06-5c6115e600cd",
+    "itemLevelCallNumber": "154.12",
+    "itemLevelCallNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "status": {
       "name": "Checked out",
       "date": "2024-11-02T00:00:00.000+00:00"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "f1a49577-5096-4771-a8a0-d07d642241eb",
     "discoverySuppress": false
   },
@@ -48,6 +55,8 @@
     "id": "b2895b5d-c1eb-47e8-9402-90119104d765",
     "holdingsRecordId": "2b134022-85f0-4ebf-bc57-58b76b6b8e7a",
     "instanceId": "62f72eeb-ed5a-4619-b01f-1750d5528d25",
+    "itemLevelCallNumber": "TR2894 .Y31 2012",
+    "itemLevelCallNumberTypeId": "054d460d-d6b9-4469-9e37-7a78a2266655",
     "status": {
       "name": "Missing",
       "date": "2024-11-22T00:00:00.000+00:00"
@@ -64,6 +73,7 @@
       "name": "Checked out",
       "date": "2024-01-31T00:00:00.000+00:00"
     },
+    "materialTypeId": "30b3e36a-d3b2-415e-98c2-47fbdf878862",
     "effectiveLocationId": "ce23dfa1-17e8-4a1f-ad6b-34ce6ab352c2",
     "discoverySuppress": false
   },
@@ -94,27 +104,39 @@
     "id": "e0000001-0000-4000-a000-000000000000",
     "holdingsRecordId": "7ac8e203-defb-4bf9-9f87-4ffd67823ad8",
     "instanceId": "497a920b-225f-44c2-9a48-964c52fb5cc3",
+    "itemLevelCallNumber": "HV5323 .M30 2024",
+    "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "615b8413-82d5-4203-aa6e-e37984cb5ac3",
+    "effectiveLocationId": "184aae84-a5bf-4c6a-85ba-4a7c73026cd5",
     "discoverySuppress": false
   },
   {
     "id": "e0000002-0000-4000-a000-000000000000",
     "holdingsRecordId": "7ac8e203-defb-4bf9-9f87-4ffd67823ad8",
     "instanceId": "497a920b-225f-44c2-9a48-964c52fb5cc3",
+    "itemLevelCallNumber": "QH5678 .N12 2002",
+    "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
+    "effectiveLocationId": "53cf956f-c1df-410b-8bea-27f712cca7c0",
     "discoverySuppress": false
   },
   {
     "id": "e0000003-0000-4000-a000-000000000000",
     "holdingsRecordId": "7ac8e203-defb-4bf9-9f87-4ffd67823ad8",
     "instanceId": "497a920b-225f-44c2-9a48-964c52fb5cc3",
+    "itemLevelCallNumber": "TA6747 .L20 2019",
+    "itemLevelCallNumberTypeId": "6caca63e-5651-4db6-9247-3205156e9699",
     "status": {
       "name": "Aged to lost"
     },
+    "materialTypeId": "615b8413-82d5-4203-aa6e-e37984cb5ac3",
+    "effectiveLocationId": "184aae84-a5bf-4c6a-85ba-4a7c73026cd5",
     "discoverySuppress": false
   },
   {
@@ -124,6 +146,8 @@
     "status": {
       "name": "Unknown"
     },
+    "materialTypeId": "d9acad2f-2aac-4b48-9097-e6ab85906b25",
+    "effectiveLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
     "discoverySuppress": false
   },
   {
@@ -134,6 +158,8 @@
       "name": "Missing",
       "date": "2023-04-01T00:00:00.000+00:00"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
+    "effectiveLocationId": "f34d27c6-a8eb-461b-acd6-5dea81771e70",
     "discoverySuppress": false
   },
   {
@@ -143,6 +169,8 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
+    "effectiveLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
     "discoverySuppress": false
   },
   {
@@ -153,6 +181,8 @@
       "name": "Awaiting pickup",
       "date": "2023-03-27T00:00:00.000+00:00"
     },
+    "materialTypeId": "5ee11d91-f7e8-481d-b079-65d708582ccc",
+    "effectiveLocationId": "184aae84-a5bf-4c6a-85ba-4a7c73026cd5",
     "discoverySuppress": false
   },
   {
@@ -162,6 +192,8 @@
     "status": {
       "name": "In process"
     },
+    "materialTypeId": "30b3e36a-d3b2-415e-98c2-47fbdf878862",
+    "effectiveLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
     "discoverySuppress": false
   },
   {
@@ -171,16 +203,22 @@
     "status": {
       "name": "In progress"
     },
+    "materialTypeId": "615b8413-82d5-4203-aa6e-e37984cb5ac3",
+    "effectiveLocationId": "f34d27c6-a8eb-461b-acd6-5dea81771e70",
     "discoverySuppress": false
   },
   {
     "id": "e0000010-0000-4000-a000-000000000000",
     "holdingsRecordId": "1650bee3-1e90-4815-ac12-31d1a12bd7c2",
     "instanceId": "9e20dd36-e46e-4e12-b35e-f3339a947966",
+    "itemLevelCallNumber": "PN3582 .V87 1998",
+    "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "status": {
       "name": "Checked out",
       "date": "2023-05-18T00:00:00.000+00:00"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
+    "effectiveLocationId": "53cf956f-c1df-410b-8bea-27f712cca7c0",
     "discoverySuppress": false
   },
   {
@@ -190,6 +228,8 @@
     "status": {
       "name": "In progress"
     },
+    "materialTypeId": "615b8413-82d5-4203-aa6e-e37984cb5ac3",
+    "effectiveLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
     "discoverySuppress": false
   },
   {
@@ -199,6 +239,8 @@
     "status": {
       "name": "In process"
     },
+    "materialTypeId": "5ee11d91-f7e8-481d-b079-65d708582ccc",
+    "effectiveLocationId": "f34d27c6-a8eb-461b-acd6-5dea81771e70",
     "discoverySuppress": false
   },
   {
@@ -209,6 +251,8 @@
       "name": "In transit",
       "date": "2024-06-30T00:00:00.000+00:00"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
+    "effectiveLocationId": "4fdca025-1629-4688-aeb7-9c5fe5c73549",
     "discoverySuppress": false
   },
   {
@@ -218,6 +262,8 @@
     "status": {
       "name": "Awaiting delivery"
     },
+    "materialTypeId": "fd6c6515-d470-4561-9c32-3e3290d4ca98",
+    "effectiveLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
     "discoverySuppress": false
   },
   {
@@ -228,6 +274,8 @@
       "name": "Checked out",
       "date": "2024-06-23T00:00:00.000+00:00"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
+    "effectiveLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
     "discoverySuppress": false
   },
   {
@@ -238,6 +286,8 @@
       "name": "Awaiting pickup",
       "date": "2024-04-17T00:00:00.000+00:00"
     },
+    "materialTypeId": "30b3e36a-d3b2-415e-98c2-47fbdf878862",
+    "effectiveLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
     "discoverySuppress": false
   },
   {
@@ -247,6 +297,8 @@
     "status": {
       "name": "Unavailable"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
+    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
     "discoverySuppress": false
   },
   {
@@ -256,6 +308,8 @@
     "status": {
       "name": "Unavailable"
     },
+    "materialTypeId": "615b8413-82d5-4203-aa6e-e37984cb5ac3",
+    "effectiveLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
     "discoverySuppress": false
   },
   {
@@ -265,6 +319,8 @@
     "status": {
       "name": "Unknown"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
+    "effectiveLocationId": "b241764c-1466-4e1d-a028-1a3684a5da87",
     "discoverySuppress": false
   },
   {
@@ -275,6 +331,8 @@
       "name": "Restricted",
       "date": "2023-07-09T00:00:00.000+00:00"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
+    "effectiveLocationId": "b241764c-1466-4e1d-a028-1a3684a5da87",
     "discoverySuppress": false
   },
   {
@@ -284,6 +342,8 @@
     "status": {
       "name": "On order"
     },
+    "materialTypeId": "d9acad2f-2aac-4b48-9097-e6ab85906b25",
+    "effectiveLocationId": "b241764c-1466-4e1d-a028-1a3684a5da87",
     "discoverySuppress": false
   },
   {
@@ -297,6 +357,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "d9acad2f-2aac-4b48-9097-e6ab85906b25",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -304,6 +365,8 @@
     "id": "f0000050-0002-4000-a000-000000000000",
     "holdingsRecordId": "f0000050-0000-4000-9000-000000000000",
     "instanceId": "f0000050-0000-4000-8000-000000000000",
+    "itemLevelCallNumber": "QH3613 .M99 2005",
+    "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
       "callNumber": "15,747-12N-12P",
       "prefix": "Microfilm ",
@@ -312,6 +375,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "fd6c6515-d470-4561-9c32-3e3290d4ca98",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -327,6 +391,7 @@
       "name": "Checked out",
       "date": "2024-08-03T00:00:00.000+00:00"
     },
+    "materialTypeId": "fd6c6515-d470-4561-9c32-3e3290d4ca98",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -334,6 +399,8 @@
     "id": "f0000002-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000001-0000-4000-9000-000000000000",
     "instanceId": "f0000001-0000-4000-8000-000000000000",
+    "itemLevelCallNumber": "HD6624 .G25 1999",
+    "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
       "callNumber": "664.051 4",
       "typeId": "0b5d15ad-7f08-45f1-8504-7bab31a2b4e5"
@@ -341,6 +408,7 @@
     "status": {
       "name": "On order"
     },
+    "materialTypeId": "dd0bf600-dbd9-44ab-9ff2-e2a61a6539f1",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "discoverySuppress": false
   },
@@ -356,6 +424,7 @@
       "name": "Missing",
       "date": "2024-04-25T00:00:00.000+00:00"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -363,6 +432,8 @@
     "id": "f0000004-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000003-0000-4000-9000-000000000000",
     "instanceId": "f0000003-0000-4000-8000-000000000000",
+    "itemLevelCallNumber": "LB7535 .Z37 1967",
+    "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
       "callNumber": "WG 200 M489 1969",
       "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
@@ -370,6 +441,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -377,6 +449,8 @@
     "id": "f0000005-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000003-0000-4000-9000-000000000000",
     "instanceId": "f0000003-0000-4000-8000-000000000000",
+    "itemLevelCallNumber": "619.88",
+    "itemLevelCallNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "effectiveCallNumberComponents": {
       "callNumber": "Y 10.13:980",
       "typeId": "6b368b19-01af-4a44-a0d3-09ec5d1e3e19"
@@ -385,6 +459,7 @@
       "name": "Checked out",
       "date": "2024-09-25T00:00:00.000+00:00"
     },
+    "materialTypeId": "dd0bf600-dbd9-44ab-9ff2-e2a61a6539f1",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -400,6 +475,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -416,6 +492,7 @@
       "name": "Restricted",
       "date": "2023-07-22T00:00:00.000+00:00"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -431,6 +508,7 @@
       "name": "Restricted",
       "date": "2024-09-30T00:00:00.000+00:00"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -445,6 +523,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "discoverySuppress": false
   },
@@ -459,6 +538,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "30b3e36a-d3b2-415e-98c2-47fbdf878862",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -473,6 +553,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "d9acad2f-2aac-4b48-9097-e6ab85906b25",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "discoverySuppress": false
   },
@@ -480,6 +561,8 @@
     "id": "f0000012-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000005-0000-4000-9000-000000000000",
     "instanceId": "f0000005-0000-4000-8000-000000000000",
+    "itemLevelCallNumber": "HV4466 .Y90 1961",
+    "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
       "callNumber": "Y 4.En 2/3:99-96",
       "typeId": "6b368b19-01af-4a44-a0d3-09ec5d1e3e19"
@@ -487,6 +570,7 @@
     "status": {
       "name": "On order"
     },
+    "materialTypeId": "d9acad2f-2aac-4b48-9097-e6ab85906b25",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "discoverySuppress": false
   },
@@ -503,6 +587,7 @@
       "name": "Checked out",
       "date": "2023-12-24T00:00:00.000+00:00"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
     "discoverySuppress": false
   },
@@ -518,6 +603,7 @@
       "name": "Missing",
       "date": "2024-08-04T00:00:00.000+00:00"
     },
+    "materialTypeId": "d9acad2f-2aac-4b48-9097-e6ab85906b25",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -525,6 +611,8 @@
     "id": "f0000015-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000007-0000-4000-9000-000000000000",
     "instanceId": "f0000007-0000-4000-8000-000000000000",
+    "itemLevelCallNumber": "TR5757 .F18 2004",
+    "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
       "suffix": "STA",
       "callNumber": "748.5",
@@ -535,6 +623,7 @@
       "name": "Checked out",
       "date": "2024-07-30T00:00:00.000+00:00"
     },
+    "materialTypeId": "d9acad2f-2aac-4b48-9097-e6ab85906b25",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -549,6 +638,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "30b3e36a-d3b2-415e-98c2-47fbdf878862",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "discoverySuppress": false
   },
@@ -563,6 +653,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "30b3e36a-d3b2-415e-98c2-47fbdf878862",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "discoverySuppress": false
   },
@@ -579,6 +670,7 @@
       "name": "Missing",
       "date": "2023-11-02T00:00:00.000+00:00"
     },
+    "materialTypeId": "d9acad2f-2aac-4b48-9097-e6ab85906b25",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
     "discoverySuppress": false
   },
@@ -595,6 +687,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "5ee11d91-f7e8-481d-b079-65d708582ccc",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -610,6 +703,7 @@
       "name": "In transit",
       "date": "2024-05-30T00:00:00.000+00:00"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -617,6 +711,8 @@
     "id": "f0000021-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000011-0000-4000-9000-000000000000",
     "instanceId": "f0000011-0000-4000-8000-000000000000",
+    "itemLevelCallNumber": "TR9808 .T85 2018",
+    "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
       "callNumber": "818/.309 19",
       "typeId": "0b5d15ad-7f08-45f1-8504-7bab31a2b4e5"
@@ -625,6 +721,7 @@
       "name": "Missing",
       "date": "2023-09-19T00:00:00.000+00:00"
     },
+    "materialTypeId": "d9acad2f-2aac-4b48-9097-e6ab85906b25",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "discoverySuppress": false
   },
@@ -632,6 +729,8 @@
     "id": "f0000022-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000012-0000-4000-9000-000000000000",
     "instanceId": "f0000012-0000-4000-8000-000000000000",
+    "itemLevelCallNumber": "HD6855 .T37 1999",
+    "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
       "callNumber": "WL 500 I61p",
       "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
@@ -640,6 +739,7 @@
       "name": "Declared lost",
       "date": "2024-09-15T00:00:00.000+00:00"
     },
+    "materialTypeId": "615b8413-82d5-4203-aa6e-e37984cb5ac3",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
     "discoverySuppress": false
   },
@@ -656,6 +756,7 @@
       "name": "Checked out",
       "date": "2024-03-17T00:00:00.000+00:00"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -672,6 +773,7 @@
       "name": "In transit",
       "date": "2024-01-24T00:00:00.000+00:00"
     },
+    "materialTypeId": "d9acad2f-2aac-4b48-9097-e6ab85906b25",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "discoverySuppress": false
   },
@@ -687,6 +789,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
     "discoverySuppress": false
   },
@@ -694,6 +797,8 @@
     "id": "f0000026-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000014-0000-4000-9000-000000000000",
     "instanceId": "f0000014-0000-4000-8000-000000000000",
+    "itemLevelCallNumber": "LB9780 .D41 1961",
+    "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
       "suffix": "MCH",
       "callNumber": "929.1973",
@@ -703,6 +808,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -718,6 +824,7 @@
       "name": "Checked out",
       "date": "2023-05-27T00:00:00.000+00:00"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "discoverySuppress": false
   },
@@ -732,6 +839,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
     "discoverySuppress": false
   },
@@ -739,6 +847,8 @@
     "id": "f0000029-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000016-0000-4000-9000-000000000000",
     "instanceId": "f0000016-0000-4000-8000-000000000000",
+    "itemLevelCallNumber": "P5557 .Y52 1980",
+    "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
       "callNumber": "SYLY-12",
       "typeId": "cf74a451-5b9e-4a58-8c5c-2eff9fb4db67"
@@ -746,6 +856,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -761,6 +872,7 @@
       "name": "Checked out",
       "date": "2023-07-16T00:00:00.000+00:00"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "discoverySuppress": false
   },
@@ -777,6 +889,7 @@
       "name": "Restricted",
       "date": "2024-01-13T00:00:00.000+00:00"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -784,6 +897,8 @@
     "id": "f0000032-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000016-0000-4000-9000-000000000000",
     "instanceId": "f0000016-0000-4000-8000-000000000000",
+    "itemLevelCallNumber": "362.28",
+    "itemLevelCallNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "effectiveCallNumberComponents": {
       "callNumber": "WS105 O52m 1929f",
       "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
@@ -791,6 +906,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
     "discoverySuppress": false
   },
@@ -805,6 +921,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -821,6 +938,7 @@
       "name": "Checked out",
       "date": "2024-03-05T00:00:00.000+00:00"
     },
+    "materialTypeId": "dd0bf600-dbd9-44ab-9ff2-e2a61a6539f1",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "discoverySuppress": false
   },
@@ -838,6 +956,7 @@
       "name": "Checked out",
       "date": "2024-05-27T00:00:00.000+00:00"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -845,6 +964,8 @@
     "id": "f0000036-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000017-0000-4000-9000-000000000000",
     "instanceId": "f0000017-0000-4000-8000-000000000000",
+    "itemLevelCallNumber": "S862 .V67 1974",
+    "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
       "callNumber": "J29.2:D84/2",
       "typeId": "6b368b19-01af-4a44-a0d3-09ec5d1e3e19"
@@ -853,6 +974,7 @@
       "name": "In transit",
       "date": "2024-06-26T00:00:00.000+00:00"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -868,6 +990,7 @@
       "name": "Restricted",
       "date": "2023-01-17T00:00:00.000+00:00"
     },
+    "materialTypeId": "d9acad2f-2aac-4b48-9097-e6ab85906b25",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "discoverySuppress": false
   },
@@ -884,6 +1007,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -891,6 +1015,8 @@
     "id": "f0000039-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000018-0000-4000-9000-000000000000",
     "instanceId": "f0000018-0000-4000-8000-000000000000",
+    "itemLevelCallNumber": "S9133 .K85 1969",
+    "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
       "callNumber": "WB 100 M4891",
       "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
@@ -898,6 +1024,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "discoverySuppress": false
   },
@@ -913,6 +1040,7 @@
       "name": "In transit",
       "date": "2024-09-08T00:00:00.000+00:00"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
     "discoverySuppress": false
   },
@@ -929,6 +1057,7 @@
       "name": "Checked out",
       "date": "2023-05-29T00:00:00.000+00:00"
     },
+    "materialTypeId": "d9acad2f-2aac-4b48-9097-e6ab85906b25",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -943,6 +1072,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "615b8413-82d5-4203-aa6e-e37984cb5ac3",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "discoverySuppress": false
   },
@@ -958,6 +1088,7 @@
       "name": "Missing",
       "date": "2024-03-16T00:00:00.000+00:00"
     },
+    "materialTypeId": "30b3e36a-d3b2-415e-98c2-47fbdf878862",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
     "discoverySuppress": false
   },
@@ -972,6 +1103,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -979,6 +1111,8 @@
     "id": "f0000045-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000020-0000-4000-9000-000000000000",
     "instanceId": "f0000020-0000-4000-8000-000000000000",
+    "itemLevelCallNumber": "852.30",
+    "itemLevelCallNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "effectiveCallNumberComponents": {
       "callNumber": "Y 4.C 73/8:115-85",
       "prefix": "USG",
@@ -987,6 +1121,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "discoverySuppress": false
   },
@@ -1001,6 +1136,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "5ee11d91-f7e8-481d-b079-65d708582ccc",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "discoverySuppress": false
   },
@@ -1017,6 +1153,7 @@
       "name": "Checked out",
       "date": "2023-08-05T00:00:00.000+00:00"
     },
+    "materialTypeId": "d9acad2f-2aac-4b48-9097-e6ab85906b25",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
     "discoverySuppress": false
   },
@@ -1033,6 +1170,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "615b8413-82d5-4203-aa6e-e37984cb5ac3",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -1048,6 +1186,7 @@
       "name": "In transit",
       "date": "2024-09-30T00:00:00.000+00:00"
     },
+    "materialTypeId": "30b3e36a-d3b2-415e-98c2-47fbdf878862",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "discoverySuppress": false
   },
@@ -1062,6 +1201,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "fd6c6515-d470-4561-9c32-3e3290d4ca98",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "discoverySuppress": false
   },
@@ -1079,6 +1219,7 @@
       "name": "Checked out",
       "date": "2024-09-03T00:00:00.000+00:00"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "discoverySuppress": false
   },
@@ -1093,6 +1234,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "discoverySuppress": false
   },
@@ -1107,6 +1249,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "d9acad2f-2aac-4b48-9097-e6ab85906b25",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
     "discoverySuppress": false
   },
@@ -1121,6 +1264,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "30b3e36a-d3b2-415e-98c2-47fbdf878862",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
     "discoverySuppress": false
   },
@@ -1135,6 +1279,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
     "discoverySuppress": false
   },
@@ -1150,6 +1295,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "d9acad2f-2aac-4b48-9097-e6ab85906b25",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
     "discoverySuppress": false
   },
@@ -1157,6 +1303,8 @@
     "id": "f0000057-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000027-0000-4000-9000-000000000000",
     "instanceId": "f0000027-0000-4000-8000-000000000000",
+    "itemLevelCallNumber": "204.25",
+    "itemLevelCallNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "effectiveCallNumberComponents": {
       "callNumber": "WL 11 AA1 J64 2016",
       "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
@@ -1164,6 +1312,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -1180,6 +1329,7 @@
       "name": "Checked out",
       "date": "2023-03-11T00:00:00.000+00:00"
     },
+    "materialTypeId": "5ee11d91-f7e8-481d-b079-65d708582ccc",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -1195,6 +1345,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -1210,6 +1361,7 @@
       "name": "Checked out",
       "date": "2023-03-25T00:00:00.000+00:00"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -1225,6 +1377,7 @@
     "status": {
       "name": "On order"
     },
+    "materialTypeId": "615b8413-82d5-4203-aa6e-e37984cb5ac3",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "discoverySuppress": false
   },
@@ -1232,6 +1385,8 @@
     "id": "f0000062-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000028-0000-4000-9000-000000000000",
     "instanceId": "f0000028-0000-4000-8000-000000000000",
+    "itemLevelCallNumber": "QP2857 .Y67 1999",
+    "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
       "callNumber": "WS 420 F1985 2015",
       "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
@@ -1239,6 +1394,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "d9acad2f-2aac-4b48-9097-e6ab85906b25",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -1253,6 +1409,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "615b8413-82d5-4203-aa6e-e37984cb5ac3",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -1268,6 +1425,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "5ee11d91-f7e8-481d-b079-65d708582ccc",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -1283,6 +1441,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -1299,6 +1458,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -1313,6 +1473,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "discoverySuppress": false
   },
@@ -1327,6 +1488,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "fd6c6515-d470-4561-9c32-3e3290d4ca98",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "discoverySuppress": false
   },
@@ -1342,6 +1504,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "d9acad2f-2aac-4b48-9097-e6ab85906b25",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
     "discoverySuppress": false
   },
@@ -1357,6 +1520,7 @@
       "name": "Declared lost",
       "date": "2023-06-17T00:00:00.000+00:00"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -1374,6 +1538,7 @@
       "name": "Checked out",
       "date": "2024-11-20T00:00:00.000+00:00"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -1389,6 +1554,7 @@
       "name": "Checked out",
       "date": "2023-01-23T00:00:00.000+00:00"
     },
+    "materialTypeId": "fd6c6515-d470-4561-9c32-3e3290d4ca98",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "discoverySuppress": false
   },
@@ -1396,6 +1562,8 @@
     "id": "f0000073-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000031-0000-4000-9000-000000000000",
     "instanceId": "f0000031-0000-4000-8000-000000000000",
+    "itemLevelCallNumber": "QA6302 .P61 1976",
+    "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
       "callNumber": "J 1.8/2:R 11/988",
       "typeId": "6b368b19-01af-4a44-a0d3-09ec5d1e3e19"
@@ -1404,6 +1572,7 @@
       "name": "Checked out",
       "date": "2024-10-06T00:00:00.000+00:00"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
     "discoverySuppress": false
   },
@@ -1420,6 +1589,7 @@
       "name": "Missing",
       "date": "2023-08-05T00:00:00.000+00:00"
     },
+    "materialTypeId": "5ee11d91-f7e8-481d-b079-65d708582ccc",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -1435,6 +1605,7 @@
       "name": "Missing",
       "date": "2023-06-29T00:00:00.000+00:00"
     },
+    "materialTypeId": "dd0bf600-dbd9-44ab-9ff2-e2a61a6539f1",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -1442,6 +1613,8 @@
     "id": "f0000076-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000034-0000-4000-9000-000000000000",
     "instanceId": "f0000034-0000-4000-8000-000000000000",
+    "itemLevelCallNumber": "PR1957 .Y37 2006",
+    "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
       "suffix": "CEM",
       "callNumber": "929.5",
@@ -1452,6 +1625,7 @@
       "name": "In transit",
       "date": "2024-09-15T00:00:00.000+00:00"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "discoverySuppress": false
   },
@@ -1466,6 +1640,7 @@
     "status": {
       "name": "On order"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
     "discoverySuppress": false
   },
@@ -1473,6 +1648,8 @@
     "id": "f0000078-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000035-0000-4000-9000-000000000000",
     "instanceId": "f0000035-0000-4000-8000-000000000000",
+    "itemLevelCallNumber": "QP8255 .P24 2010",
+    "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
       "callNumber": "A 1.28:823",
       "prefix": "U S Doc",
@@ -1481,6 +1658,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -1498,6 +1676,7 @@
       "name": "Missing",
       "date": "2023-12-06T00:00:00.000+00:00"
     },
+    "materialTypeId": "615b8413-82d5-4203-aa6e-e37984cb5ac3",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "discoverySuppress": false
   },
@@ -1505,6 +1684,8 @@
     "id": "f0000080-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000036-0000-4000-9000-000000000000",
     "instanceId": "f0000036-0000-4000-8000-000000000000",
+    "itemLevelCallNumber": "PN469 .E68 1992",
+    "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
       "callNumber": "SB1.P71",
       "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
@@ -1512,6 +1693,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "615b8413-82d5-4203-aa6e-e37984cb5ac3",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
     "discoverySuppress": false
   },
@@ -1527,6 +1709,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -1542,6 +1725,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "d9acad2f-2aac-4b48-9097-e6ab85906b25",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "discoverySuppress": false
   },
@@ -1557,6 +1741,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
     "discoverySuppress": false
   },
@@ -1572,6 +1757,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "615b8413-82d5-4203-aa6e-e37984cb5ac3",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -1587,6 +1773,7 @@
       "name": "Missing",
       "date": "2023-03-01T00:00:00.000+00:00"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "discoverySuppress": false
   },
@@ -1603,6 +1790,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "615b8413-82d5-4203-aa6e-e37984cb5ac3",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -1618,6 +1806,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
     "discoverySuppress": false
   },
@@ -1632,6 +1821,7 @@
     "status": {
       "name": "Withdrawn"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -1647,6 +1837,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "d9acad2f-2aac-4b48-9097-e6ab85906b25",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "discoverySuppress": false
   },
@@ -1654,6 +1845,8 @@
     "id": "f0000090-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000041-0000-4000-9000-000000000000",
     "instanceId": "f0000041-0000-4000-8000-000000000000",
+    "itemLevelCallNumber": "LB4812 .R15 1974",
+    "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
       "callNumber": "E99.I7 P4",
       "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
@@ -1662,6 +1855,7 @@
       "name": "Missing",
       "date": "2023-05-11T00:00:00.000+00:00"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "discoverySuppress": false
   },
@@ -1669,6 +1863,8 @@
     "id": "f0000091-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000041-0000-4000-9000-000000000000",
     "instanceId": "f0000041-0000-4000-8000-000000000000",
+    "itemLevelCallNumber": "RJ1974 .H81 1994",
+    "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
       "suffix": "WAT",
       "callNumber": "363.41",
@@ -1679,6 +1875,7 @@
       "name": "Checked out",
       "date": "2023-05-13T00:00:00.000+00:00"
     },
+    "materialTypeId": "30b3e36a-d3b2-415e-98c2-47fbdf878862",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -1694,6 +1891,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "discoverySuppress": false
   },
@@ -1708,6 +1906,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "d9acad2f-2aac-4b48-9097-e6ab85906b25",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
     "discoverySuppress": false
   },
@@ -1722,6 +1921,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "fd6c6515-d470-4561-9c32-3e3290d4ca98",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -1729,6 +1929,8 @@
     "id": "f0000095-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000043-0000-4000-9000-000000000000",
     "instanceId": "f0000043-0000-4000-8000-000000000000",
+    "itemLevelCallNumber": "QH7547 .S68 1995",
+    "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
       "callNumber": "Q127.U6U49",
       "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
@@ -1737,6 +1939,7 @@
       "name": "Awaiting pickup",
       "date": "2024-05-02T00:00:00.000+00:00"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "discoverySuppress": false
   },
@@ -1753,6 +1956,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "d9acad2f-2aac-4b48-9097-e6ab85906b25",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
     "discoverySuppress": false
   },
@@ -1767,6 +1971,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "615b8413-82d5-4203-aa6e-e37984cb5ac3",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -1781,6 +1986,7 @@
     "status": {
       "name": "On order"
     },
+    "materialTypeId": "615b8413-82d5-4203-aa6e-e37984cb5ac3",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "discoverySuppress": false
   },
@@ -1797,6 +2003,7 @@
       "name": "Missing",
       "date": "2023-02-17T00:00:00.000+00:00"
     },
+    "materialTypeId": "5ee11d91-f7e8-481d-b079-65d708582ccc",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "discoverySuppress": false
   },
@@ -1804,6 +2011,8 @@
     "id": "f0000100-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000046-0000-4000-9000-000000000000",
     "instanceId": "f0000046-0000-4000-8000-000000000000",
+    "itemLevelCallNumber": "HV2263 .P65 2007",
+    "itemLevelCallNumberTypeId": "054d460d-d6b9-4469-9e37-7a78a2266655",
     "effectiveCallNumberComponents": {
       "callNumber": "SDD 66727",
       "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
@@ -1811,6 +2020,7 @@
     "status": {
       "name": "In process"
     },
+    "materialTypeId": "dd0bf600-dbd9-44ab-9ff2-e2a61a6539f1",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "discoverySuppress": false
   },
@@ -1826,6 +2036,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "615b8413-82d5-4203-aa6e-e37984cb5ac3",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "discoverySuppress": false
   },
@@ -1840,6 +2051,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "d9acad2f-2aac-4b48-9097-e6ab85906b25",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "discoverySuppress": false
   },
@@ -1855,6 +2067,7 @@
       "name": "Checked out",
       "date": "2023-05-21T00:00:00.000+00:00"
     },
+    "materialTypeId": "d9acad2f-2aac-4b48-9097-e6ab85906b25",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
     "discoverySuppress": false
   },
@@ -1862,6 +2075,8 @@
     "id": "f0000104-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000048-0000-4000-9000-000000000000",
     "instanceId": "f0000048-0000-4000-8000-000000000000",
+    "itemLevelCallNumber": "619.86",
+    "itemLevelCallNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "effectiveCallNumberComponents": {
       "callNumber": "BR\\140 .J\\\\86",
       "typeId": "cf74a451-5b9e-4a58-8c5c-2eff9fb4db67"
@@ -1869,6 +2084,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
     "discoverySuppress": false
   },
@@ -1884,6 +2100,7 @@
       "name": "Checked out",
       "date": "2023-06-16T00:00:00.000+00:00"
     },
+    "materialTypeId": "615b8413-82d5-4203-aa6e-e37984cb5ac3",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
     "discoverySuppress": false
   },
@@ -1898,6 +2115,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
     "discoverySuppress": false
   },
@@ -1912,6 +2130,7 @@
     "status": {
       "name": "Available"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -1927,6 +2146,7 @@
       "name": "Checked out",
       "date": "2024-04-28T00:00:00.000+00:00"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },
@@ -1942,6 +2162,7 @@
     "status": {
       "name": "On order"
     },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "discoverySuppress": false
   },

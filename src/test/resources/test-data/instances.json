@@ -126,35 +126,112 @@
     "id": "aa110001-0000-4000-8000-000000000001",
     "source": "FOLIO",
     "title": "Urban Planning and Environmental Design",
-    "indexTitle": null,
+    "indexTitle": "Urban Planning and Environmental Design",
+    "identifiers": [
+      {
+        "value": "978-453-016782-871-2",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Taylor, Thomas H.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
     "subjects": [
       {
         "value": "Environmental design",
         "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72c"
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "classifications": [
+      {
+        "classificationNumber": "988.15",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "University of Chicago Press",
+        "place": "Chicago",
+        "dateOfPublication": "1969",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1969"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "aa110001-0000-4000-8000-000000000002",
     "source": "FOLIO",
     "title": "Agricultural Economics and Rural Development",
-    "indexTitle": null,
+    "indexTitle": "Agricultural Economics and Rural Development",
+    "identifiers": [
+      {
+        "value": "978-135-984066-006-6",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
     "contributors": [
       {
         "name": "Jane Kowalski",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
         "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72c"
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "subjects": [
+      {
+        "value": "Machine learning"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "099.77",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Palgrave Macmillan",
+        "place": "Basingstoke",
+        "dateOfPublication": "1976",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1976"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "aa110001-0000-4000-8000-000000000003",
     "source": "FOLIO",
     "title": "Introduction to Quantum Mechanics",
-    "indexTitle": null,
+    "indexTitle": "Introduction to Quantum Mechanics",
     "alternativeTitles": [
       {
         "alternativeTitle": "Intro to Quantum Mechanics",
@@ -162,22 +239,116 @@
         "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72c"
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "identifiers": [
+      {
+        "value": "978-878-491804-691-7",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Wright, Lisa I.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Data analysis"
+      },
+      {
+        "value": "Natural language processing"
+      },
+      {
+        "value": "Network security"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "TK5290 .L69 1983",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Penn State University Press",
+        "place": "University Park, Pa.",
+        "dateOfPublication": "1973",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1973"
+    },
+    "instanceTypeId": "497b5090-3da2-486c-b57f-de5bb3c2e26d",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "aa110001-0000-4000-8000-000000000004",
     "source": "FOLIO",
     "title": "Comparative Literature: European Traditions",
-    "indexTitle": null,
+    "indexTitle": "Comparative Literature: European Traditions",
     "series": [
       {
         "value": "Studies in Environmental Planning",
         "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72c"
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "identifiers": [
+      {
+        "value": "978-211-900037-244-9",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Garcia, Linda R.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Cultural anthropology"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "909.94",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "MIT Press",
+        "place": "Cambridge, Mass.",
+        "dateOfPublication": "2004",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2004"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "25a81102-a2a9-4576-85ff-133ebcbcef2c"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "a0000001-0000-4000-8000-000000000000",
@@ -248,7 +419,9 @@
     ],
     "contributors": [
       {
-        "name": "yyy zzz"
+        "name": "yyy zzz",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
       }
     ],
     "subjects": [
@@ -297,7 +470,7 @@
     "id": "a0000002-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Zero Minus Ten",
-    "indexTitle": null,
+    "indexTitle": "Zero Minus Ten",
     "alternativeTitles": [
       {
         "alternativeTitle": "Der Preis der Verführung : die gesetzliche Schadensersatzklage wegen Ehebruchs in England zwischen 1857 und 1970 / Eike Götz Hosemann.",
@@ -362,10 +535,14 @@
     ],
     "contributors": [
       {
-        "name": "aaa bbb"
+        "name": "aaa bbb",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
       },
       {
         "name": "bbb ccc",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
         "primary": true
       }
     ],
@@ -480,7 +657,9 @@
     ],
     "contributors": [
       {
-        "name": "bcc ccc"
+        "name": "bcc ccc",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
       }
     ],
     "subjects": [
@@ -529,7 +708,7 @@
     "id": "a0000004-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Walk in My Soul",
-    "indexTitle": null,
+    "indexTitle": "Walk in My Soul",
     "alternativeTitles": [
       {
         "alternativeTitle": "Pang'ok bangk'asyurangsŭ",
@@ -596,6 +775,8 @@
     "contributors": [
       {
         "name": "1111 2222",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
         "primary": true
       }
     ],
@@ -645,7 +826,7 @@
     "id": "a0000005-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Star Wars",
-    "indexTitle": null,
+    "indexTitle": "Star Wars",
     "alternativeTitles": [
       {
         "alternativeTitle": "déjà vu",
@@ -711,6 +892,8 @@
     "contributors": [
       {
         "name": "Śląsk",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
         "primary": true
       }
     ],
@@ -760,139 +943,913 @@
     "id": "b0000001-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Ground water in Africa.",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Ground water in Africa.",
+    "identifiers": [
+      {
+        "value": "978-965-244787-341-2",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Turner, Lawrence B.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      },
+      {
+        "name": "Gomez, Rachel Y.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Natural language processing"
+      },
+      {
+        "value": "Molecular biology"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "090.75",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Oxford University Press",
+        "place": "Oxford",
+        "dateOfPublication": "2013",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2013"
+    },
+    "instanceTypeId": "225faa14-f9bf-4ecd-990d-69433c912434",
+    "instanceFormatIds": [
+      "25a81102-a2a9-4576-85ff-133ebcbcef2c"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
     "id": "b0000002-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Ground water in North and West Africa.",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Ground water in North and West Africa.",
+    "series": [
+      {
+        "value": "International studies in political economy"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-277-722947-108-6",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Evans, Christine A.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "9deb29d1-3e71-4951-9413-a80adac703d0",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Database systems"
+      },
+      {
+        "value": "Computer science"
+      },
+      {
+        "value": "Urban planning"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "JZ2807 .J14 2007",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "University of Michigan Press",
+        "place": "Ann Arbor",
+        "dateOfPublication": "1991",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1991",
+      "date2": "2000"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "b0000003-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Ground-water hydrology of the Chad Basin in Bornu and Dikwa Emirates, Northeastern Nigeria :with special emphasis on the flow life of the Artesian system  /by R. E. Miller [and three others].",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Ground-water hydrology of the Chad Basin in Bornu and Dikwa Emirates, Northeastern Nigeria :with special emphasis on the flow life of the Artesian system  /by R. E. Miller [and three others].",
+    "series": [
+      {
+        "value": "International studies in political economy"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-835-019202-355-7",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Mitchell, Gregory V.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "9deb29d1-3e71-4951-9413-a80adac703d0",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Communication theory"
+      },
+      {
+        "value": "Natural language processing"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "846.44",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Duke University Press",
+        "place": "Durham",
+        "dateOfPublication": "2019",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2019",
+      "date2": "2024"
+    },
+    "instanceTypeId": "a2c91e87-6bab-44d6-8adb-1fd02481fc4f",
+    "instanceFormatIds": [
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "b0000004-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Ground-water resources of the Bengasi area, Cyrenaica, United Kingdom of Libya / by W.W. Doyel and F.J. Maguire.",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Ground-water resources of the Bengasi area, Cyrenaica, United Kingdom of Libya / by W.W. Doyel and F.J. Maguire.",
+    "identifiers": [
+      {
+        "value": "978-740-097567-521-1",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Smith, John A.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      },
+      {
+        "name": "Davis, Barbara E.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Data analysis"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "180.11",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Wiley",
+        "place": "Hoboken, N.J.",
+        "dateOfPublication": "1960",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1960"
+    },
+    "instanceTypeId": "a2c91e87-6bab-44d6-8adb-1fd02481fc4f",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "b0000005-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Ground-water exploration in Al Marj area, Cyrenaica, United Kingdom of Libya / by T.G. Newport and Yousef Haddor.",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Ground-water exploration in Al Marj area, Cyrenaica, United Kingdom of Libya / by T.G. Newport and Yousef Haddor.",
+    "identifiers": [
+      {
+        "value": "978-434-475354-688-7",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Jackson, Mark B.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "History of science"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "405.55",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Cambridge University Press",
+        "place": "Cambridge",
+        "dateOfPublication": "1974",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1974"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "b0000006-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Regional geology and ground-water hydrology of the SaÌhÌʹil SuÌsah area, Tunisia / by L.C. Dutcher and H.E. Thomas.",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Regional geology and ground-water hydrology of the SaÌhÌʹil SuÌsah area, Tunisia / by L.C. Dutcher and H.E. Thomas.",
+    "identifiers": [
+      {
+        "value": "978-540-854378-122-9",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Young, Steven F.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "9deb29d1-3e71-4951-9413-a80adac703d0",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Climate change"
+      },
+      {
+        "value": "Data analysis"
+      },
+      {
+        "value": "Political theory"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "PS4488 .W86 2002",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Palgrave Macmillan",
+        "place": "Basingstoke",
+        "dateOfPublication": "1969",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1969"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
     "id": "b0000007-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "The occurrence, chemical quality and use of ground water in the TÌʹabulbah area, Tunisia by L.C. Dutcher and H.E. Thomas.",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "occurrence, chemical quality and use of ground water in the TÌʹabulbah area, Tunisia by L.C. Dutcher and H.E. Thomas.",
+    "identifiers": [
+      {
+        "value": "978-072-901724-027-7",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Lopez, Margaret Y.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      },
+      {
+        "name": "Moore, Nancy W.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Applied mathematics"
+      },
+      {
+        "value": "Public administration"
+      },
+      {
+        "value": "Operations research"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "636.77",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Princeton University Press",
+        "place": "Princeton",
+        "dateOfPublication": "1976",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1976",
+      "date2": "1982"
+    },
+    "instanceTypeId": "3be24c14-3551-4180-9292-26a786649c8b",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "b0000008-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Evaluation of baseline ground-water conditions in the Mosteiros, Ribeira Paul, and Ribeira Fajã Basins, Republic of Cape Verde, West Africa, 2005-06by Victor M. Heilweil ... [et al.] ; prepared in cooperation with the Millennium Challenge Corporation, Millennium Challenge Account, and Instituto Nacional de Gestão dos Recursos Hídricos.",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Evaluation of baseline ground-water conditions in the Mosteiros, Ribeira Paul, and Ribeira Fajã Basins, Republic of Cape Verde, West Africa, 2005-06by Victor M. Heilweil ... [et al.] ; prepared in cooperation with the Millennium Challenge Corporation, Millennium Challenge Account, and Instituto Nacional de Gestão dos Recursos Hídricos.",
+    "identifiers": [
+      {
+        "value": "978-549-863386-365-2",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Thompson, Betty N.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Quantum computing"
+      },
+      {
+        "value": "Philosophy of mind"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "PN5579 .V68 1989",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Penn State University Press",
+        "place": "University Park, Pa.",
+        "dateOfPublication": "2013",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2013",
+      "date2": "2022"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
     "id": "b0000009-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Significance of ground-water chemistry in performance of North Sahara tube wells in Algeria and Tunisia by Frank E. Clarke and Blair F. Jones.",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Significance of ground-water chemistry in performance of North Sahara tube wells in Algeria and Tunisia by Frank E. Clarke and Blair F. Jones.",
+    "identifiers": [
+      {
+        "value": "978-108-084806-475-3",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Torres, Angela K.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      },
+      {
+        "name": "Wilson, James F.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Computer vision"
+      },
+      {
+        "value": "Genetics"
+      },
+      {
+        "value": "Cryptography"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "JZ3189 .U71 2009",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Duke University Press",
+        "place": "Durham",
+        "dateOfPublication": "1997",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1997",
+      "date2": "2006"
+    },
+    "instanceTypeId": "497b5090-3da2-486c-b57f-de5bb3c2e26d",
+    "instanceFormatIds": [
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "b0000010-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "The occurrence, chemical quality and use of ground water in the TÌʹabulbah area, Tunisia / by L.C. Dutcher and H.E. Thomas.",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "occurrence, chemical quality and use of ground water in the TÌʹabulbah area, Tunisia / by L.C. Dutcher and H.E. Thomas.",
+    "identifiers": [
+      {
+        "value": "978-490-671978-809-2",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Wilson, James F.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "9deb29d1-3e71-4951-9413-a80adac703d0",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "History of science"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "173.96",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Routledge",
+        "place": "London",
+        "dateOfPublication": "1977",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1977"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "b0000011-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Ground water in the Sirte area, Tripolitania United Kingdom of Libya  /by William Ogilbee.",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Ground water in the Sirte area, Tripolitania United Kingdom of Libya  /by William Ogilbee.",
+    "identifiers": [
+      {
+        "value": "978-198-798779-595-4",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Davis, Barbara E.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      },
+      {
+        "name": "White, Daniel P.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Cultural anthropology"
+      },
+      {
+        "value": "International relations"
+      },
+      {
+        "value": "Political theory"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "Z2364 .G82 1987",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Princeton University Press",
+        "place": "Princeton",
+        "dateOfPublication": "1968",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1968"
+    },
+    "instanceTypeId": "a2c91e87-6bab-44d6-8adb-1fd02481fc4f",
+    "instanceFormatIds": [
+      "25a81102-a2a9-4576-85ff-133ebcbcef2c"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "b0000012-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Ground water in Eastern, Central and Southern Africa /United Nations, Department of Technical Co-operation for Development.",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Ground water in Eastern, Central and Southern Africa /United Nations, Department of Technical Co-operation for Development.",
+    "series": [
+      {
+        "value": "Advances in computer science"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-454-378793-216-5",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Lewis, Sharon M.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Social sciences"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "053.80",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Penguin Books",
+        "place": "London",
+        "dateOfPublication": "1964",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1964",
+      "date2": "1968"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "b0000013-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Ground-water exploration in Al Marj area, Cyrenaica, United Kingdom of Libya by T.G. Newport and Yousef Haddor.",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Ground-water exploration in Al Marj area, Cyrenaica, United Kingdom of Libya by T.G. Newport and Yousef Haddor.",
+    "series": [
+      {
+        "value": "Cambridge studies in publishing and printing history"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-550-623172-186-8",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Martin, Sandra J.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Clinical psychology"
+      },
+      {
+        "value": "Metadata"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "PS9021 .V45 1967",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Penn State University Press",
+        "place": "University Park, Pa.",
+        "dateOfPublication": "1998",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1998"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "30d564e2-4d5d-41b4-bfe6-da3e2e2835e4",
     "source": "FOLIO",
     "title": "Biomedical Ethics: Principles and Cases",
     "indexTitle": "Biomedical Ethics",
-    "contributors": [
+    "identifiers": [
       {
-        "name": "Marcus Webb"
+        "value": "978-543-783970-088-0",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
       }
     ],
+    "contributors": [
+      {
+        "name": "Marcus Webb",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Political theory"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "218.70",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Routledge",
+        "place": "London",
+        "dateOfPublication": "1955",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1955"
+    },
     "instanceTypeId": "c0000001-0000-4000-8000-000000000000",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
     "languages": [
       "eng"
     ],
-    "discoverySuppress": false
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "25ae81da-4254-49a8-acb3-dc452d9cc7df",
     "source": "FOLIO",
     "title": "Environmental Law and Policy",
     "indexTitle": "Environmental Law and Policy",
+    "identifiers": [
+      {
+        "value": "978-425-683331-651-1",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Brown, Patricia K.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "9deb29d1-3e71-4951-9413-a80adac703d0",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Operations research"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "TA5656 .C45 2005",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Routledge",
+        "place": "London",
+        "dateOfPublication": "1958",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1958"
+    },
     "instanceTypeId": "c0000002-0000-4000-8000-000000000000",
-    "discoverySuppress": false
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
     "id": "1353873c-0e5e-4d64-a2f9-6c444dc4cd46",
     "source": "MARC",
     "title": "Resource0",
-    "indexTitle": null,
+    "indexTitle": "Resource0",
+    "identifiers": [
+      {
+        "value": "978-039-933254-823-7",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Moore, Nancy W.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Clinical psychology"
+      },
+      {
+        "value": "Natural language processing"
+      }
+    ],
     "classifications": [
       {
         "classificationNumber": "QA76.73.C15",
         "classificationTypeId": "5af5cb9d-063f-48ea-8148-7da3ecaafd7d"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Yale University Press",
+        "place": "New Haven",
+        "dateOfPublication": "2021",
+        "role": "Publisher"
       }
     ],
     "dates": {
@@ -914,11 +1871,43 @@
     "id": "cc6bbc19-3f54-43c5-8736-b85688619641",
     "source": "MARC",
     "title": "Resource1",
-    "indexTitle": null,
+    "indexTitle": "Resource1",
+    "identifiers": [
+      {
+        "value": "978-922-997176-736-6",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Campbell, Melissa U.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "9deb29d1-3e71-4951-9413-a80adac703d0",
+        "primary": true
+      },
+      {
+        "name": "Jones, Michael D.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Literature and society"
+      }
+    ],
     "classifications": [
       {
         "classificationNumber": "TK5105.88815",
         "classificationTypeId": "7e5684a9-c8c1-4c1e-85b9-d047f53eeb6d"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "MIT Press",
+        "place": "Cambridge, Mass.",
+        "dateOfPublication": "1999",
+        "role": "Publisher"
       }
     ],
     "dates": {
@@ -940,7 +1929,46 @@
     "id": "39a52d91-8dbb-4348-ab06-5c6115e600cd",
     "source": "FOLIO",
     "title": "Resource2",
-    "indexTitle": null,
+    "indexTitle": "Resource2",
+    "identifiers": [
+      {
+        "value": "978-630-227928-741-5",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Green, Deborah O.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Economic development"
+      },
+      {
+        "value": "Public administration"
+      },
+      {
+        "value": "Quantum computing"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "412.98",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "MIT Press",
+        "place": "Cambridge, Mass.",
+        "dateOfPublication": "2020",
+        "role": "Publisher"
+      }
+    ],
     "dates": {
       "date1": "2020"
     },
@@ -959,7 +1987,51 @@
     "id": "62f72eeb-ed5a-4619-b01f-1750d5528d25",
     "source": "MARC",
     "title": "Resource3",
-    "indexTitle": null,
+    "indexTitle": "Resource3",
+    "series": [
+      {
+        "value": "International studies in political economy"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-446-552250-314-3",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Robinson, Paul D.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Statistics"
+      },
+      {
+        "value": "Machine learning"
+      },
+      {
+        "value": "Education reform"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "162.04",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Palgrave Macmillan",
+        "place": "Basingstoke",
+        "dateOfPublication": "1995",
+        "role": "Publisher"
+      }
+    ],
     "dates": {
       "date1": "1995"
     },
@@ -979,7 +2051,53 @@
     "id": "6d9ccc82-8142-4fbc-b6ba-8e3429fd9aca",
     "source": "FOLIO",
     "title": "Resource4",
-    "indexTitle": null,
+    "indexTitle": "Resource4",
+    "series": [
+      {
+        "value": "Cambridge studies in publishing and printing history"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-610-215587-229-8",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Davis, Barbara E.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      },
+      {
+        "name": "Parker, George D.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Computer vision"
+      },
+      {
+        "value": "Database systems"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "RC9211 .R19 1972",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "MIT Press",
+        "place": "Cambridge, Mass.",
+        "dateOfPublication": "2023",
+        "role": "Publisher"
+      }
+    ],
     "dates": {
       "date1": "2023",
       "date2": "2023"
@@ -999,447 +2117,3249 @@
     "id": "497a920b-225f-44c2-9a48-964c52fb5cc3",
     "source": "FOLIO",
     "title": "Death of the Price Jackal",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Death of the Price Jackal",
+    "identifiers": [
+      {
+        "value": "978-981-922588-252-7",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Thompson, Betty N.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Communication theory"
+      },
+      {
+        "value": "Clinical psychology"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "142.11",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Routledge",
+        "place": "London",
+        "dateOfPublication": "1976",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1976"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
     "id": "b3122ab1-8745-43a9-8b31-8a248bef387b",
     "source": "FOLIO",
     "title": "Wild and Wicked",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Wild and Wicked",
+    "identifiers": [
+      {
+        "value": "978-730-195418-451-2",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Hernandez, Carlos M.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Computer vision"
+      },
+      {
+        "value": "Knowledge organization"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "Q2446 .G87 1964",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "University of Chicago Press",
+        "place": "Chicago",
+        "dateOfPublication": "1983",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1983"
+    },
+    "instanceTypeId": "df5dddff-9c30-4507-8b82-119ff972d4d7",
+    "instanceFormatIds": [
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "9e20dd36-e46e-4e12-b35e-f3339a947966",
     "source": "FOLIO",
     "title": "Sword of Gruko",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Sword of Gruko",
+    "identifiers": [
+      {
+        "value": "978-312-548891-528-2",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Gomez, Rachel Y.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Artificial intelligence"
+      },
+      {
+        "value": "Network security"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "205.05",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Princeton University Press",
+        "place": "Princeton",
+        "dateOfPublication": "1968",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1968",
+      "date2": "1971"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "36805693-dd16-400e-be24-7e9a362f79fe",
     "source": "FOLIO",
     "title": "The Blade in the Ice",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Blade in the Ice",
+    "identifiers": [
+      {
+        "value": "978-034-569503-467-2",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Hernandez, Carlos M.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Machine learning"
+      },
+      {
+        "value": "Artificial intelligence"
+      },
+      {
+        "value": "Digital humanities"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "QP7124 .M32 1979",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Routledge",
+        "place": "London",
+        "dateOfPublication": "1970",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1970",
+      "date2": "1980"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
     "id": "414f663b-b97b-42ed-8a96-3195067126ff",
     "source": "FOLIO",
     "title": "The Raven Crystal",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Raven Crystal",
+    "identifiers": [
+      {
+        "value": "978-794-461003-312-2",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Lee, Christopher Z.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Library science"
+      },
+      {
+        "value": "Database systems"
+      },
+      {
+        "value": "Urban planning"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "TK9223 .E73 2011",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Harvard University Press",
+        "place": "Cambridge, Mass.",
+        "dateOfPublication": "1951",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1951"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
     "id": "f0000001-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 1",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 1",
+    "identifiers": [
+      {
+        "value": "978-749-872789-799-8",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Lopez, Margaret Y.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Economic development"
+      },
+      {
+        "value": "Library science"
+      },
+      {
+        "value": "Political theory"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "QA1771 .R93 1975",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Columbia University Press",
+        "place": "New York",
+        "dateOfPublication": "1951",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1951"
+    },
+    "instanceTypeId": "535e3160-763a-42f9-b0c0-d8ed7df6e2a2",
+    "instanceFormatIds": [
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
     "id": "f0000002-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 2",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 2",
+    "identifiers": [
+      {
+        "value": "978-010-453766-202-8",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Carter, Julie W.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      },
+      {
+        "name": "Torres, Angela K.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Global economics"
+      },
+      {
+        "value": "Public administration"
+      },
+      {
+        "value": "Clinical psychology"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "641.81",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Oxford University Press",
+        "place": "Oxford",
+        "dateOfPublication": "1997",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1997"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "25a81102-a2a9-4576-85ff-133ebcbcef2c"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "f0000003-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 3",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 3",
+    "series": [
+      {
+        "value": "Springer series in solid-state sciences"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-702-768009-578-5",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Clark, Kenneth L.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Architectural design"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "PS3898 .S37 2005",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "University of Michigan Press",
+        "place": "Ann Arbor",
+        "dateOfPublication": "2012",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2012"
+    },
+    "instanceTypeId": "a2c91e87-6bab-44d6-8adb-1fd02481fc4f",
+    "instanceFormatIds": [
+      "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
     "id": "f0000004-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 4",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 4",
+    "series": [
+      {
+        "value": "Interdisciplinary studies in knowledge management"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-703-262238-515-2",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Anderson, Susan G.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "9deb29d1-3e71-4951-9413-a80adac703d0",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Computer science"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "HM3819 .L23 1998",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Springer",
+        "place": "New York",
+        "dateOfPublication": "2003",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2003",
+      "date2": "2011"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "f0000005-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 5",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 5",
+    "identifiers": [
+      {
+        "value": "978-935-784608-546-5",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Williams, Robert T.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      },
+      {
+        "name": "Mitchell, Gregory V.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Urban planning"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "242.80",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Routledge",
+        "place": "London",
+        "dateOfPublication": "2007",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2007"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "f0000006-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 6",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 6",
+    "identifiers": [
+      {
+        "value": "978-599-251286-441-4",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Thomas, Dorothy C.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Game theory"
+      },
+      {
+        "value": "Machine learning"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "LB4445 .B39 2002",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "University of Michigan Press",
+        "place": "Ann Arbor",
+        "dateOfPublication": "1950",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1950"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
     "id": "f0000007-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 7",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 7",
+    "identifiers": [
+      {
+        "value": "978-007-777513-312-7",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Smith, John A.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Library science"
+      },
+      {
+        "value": "Urban planning"
+      },
+      {
+        "value": "Renewable energy"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "RC3154 .V85 1998",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Springer",
+        "place": "New York",
+        "dateOfPublication": "2005",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2005"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
     "id": "f0000008-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 8",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 8",
+    "identifiers": [
+      {
+        "value": "978-739-938210-596-4",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Thompson, Betty N.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      },
+      {
+        "name": "Lee, Christopher Z.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Cryptography"
+      },
+      {
+        "value": "Urban planning"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "124.73",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Elsevier",
+        "place": "Amsterdam",
+        "dateOfPublication": "1988",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1988",
+      "date2": "1994"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
     "id": "f0000009-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 9",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 9",
+    "series": [
+      {
+        "value": "Studies in information science"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-570-475816-119-2",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Parker, George D.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      },
+      {
+        "name": "Adams, Timothy P.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Philosophy of mind"
+      },
+      {
+        "value": "Applied mathematics"
+      },
+      {
+        "value": "Economic development"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "180.53",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Palgrave Macmillan",
+        "place": "Basingstoke",
+        "dateOfPublication": "2022",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2022"
+    },
+    "instanceTypeId": "535e3160-763a-42f9-b0c0-d8ed7df6e2a2",
+    "instanceFormatIds": [
+      "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
     "id": "f0000010-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 10",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 10",
+    "identifiers": [
+      {
+        "value": "978-420-788219-198-7",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Lopez, Margaret Y.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "9deb29d1-3e71-4951-9413-a80adac703d0",
+        "primary": true
+      },
+      {
+        "name": "Walker, Donna E.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Media studies"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "LB6916 .W82 2000",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Sage Publications",
+        "place": "Thousand Oaks, Calif.",
+        "dateOfPublication": "2008",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2008"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "f0000011-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 11",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 11",
+    "identifiers": [
+      {
+        "value": "978-726-736260-739-8",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Phillips, Frank Z.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      },
+      {
+        "name": "Turner, Lawrence B.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Molecular biology"
+      },
+      {
+        "value": "Cultural anthropology"
+      },
+      {
+        "value": "Metadata"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "507.79",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Penn State University Press",
+        "place": "University Park, Pa.",
+        "dateOfPublication": "1972",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1972"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "f0000012-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 12",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 12",
+    "series": [
+      {
+        "value": "MIT Press series in cognitive science"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-698-307568-689-5",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Clark, Kenneth L.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      },
+      {
+        "name": "Hernandez, Carlos M.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Statistics"
+      },
+      {
+        "value": "Data analysis"
+      },
+      {
+        "value": "Library science"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "664.28",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Cambridge University Press",
+        "place": "Cambridge",
+        "dateOfPublication": "1970",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1970"
+    },
+    "instanceTypeId": "497b5090-3da2-486c-b57f-de5bb3c2e26d",
+    "instanceFormatIds": [
+      "25a81102-a2a9-4576-85ff-133ebcbcef2c"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "f0000013-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 13",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 13",
+    "identifiers": [
+      {
+        "value": "978-430-843217-893-6",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Williams, Robert T.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Cryptography"
+      },
+      {
+        "value": "Molecular biology"
+      },
+      {
+        "value": "History of science"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "PS6390 .R93 1988",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Duke University Press",
+        "place": "Durham",
+        "dateOfPublication": "1993",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1993"
+    },
+    "instanceTypeId": "a2c91e87-6bab-44d6-8adb-1fd02481fc4f",
+    "instanceFormatIds": [
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
     "id": "f0000014-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 14",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 14",
+    "series": [
+      {
+        "value": "International studies in political economy"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-041-862922-121-6",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Mitchell, Gregory V.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Machine learning"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "204.96",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Palgrave Macmillan",
+        "place": "Basingstoke",
+        "dateOfPublication": "1969",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1969"
+    },
+    "instanceTypeId": "225faa14-f9bf-4ecd-990d-69433c912434",
+    "instanceFormatIds": [
+      "25a81102-a2a9-4576-85ff-133ebcbcef2c"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
     "id": "f0000015-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 15",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 15",
+    "identifiers": [
+      {
+        "value": "978-809-511811-528-1",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Davis, Barbara E.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "9deb29d1-3e71-4951-9413-a80adac703d0",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Knowledge organization"
+      },
+      {
+        "value": "Urban planning"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "Q8933 .B64 2021",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Oxford University Press",
+        "place": "Oxford",
+        "dateOfPublication": "1999",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1999",
+      "date2": "2000"
+    },
+    "instanceTypeId": "225faa14-f9bf-4ecd-990d-69433c912434",
+    "instanceFormatIds": [
+      "25a81102-a2a9-4576-85ff-133ebcbcef2c"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "f0000016-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 16",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 16",
+    "identifiers": [
+      {
+        "value": "978-624-214564-944-5",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Scott, Matthew J.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Neuroscience"
+      },
+      {
+        "value": "Applied mathematics"
+      },
+      {
+        "value": "Computer science"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "RC4015 .L67 2008",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Harvard University Press",
+        "place": "Cambridge, Mass.",
+        "dateOfPublication": "2011",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2011"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "f0000017-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 17",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 17",
+    "identifiers": [
+      {
+        "value": "978-586-814563-288-4",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "White, Daniel P.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Cultural anthropology"
+      },
+      {
+        "value": "Data analysis"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "475.42",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Princeton University Press",
+        "place": "Princeton",
+        "dateOfPublication": "1996",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1996"
+    },
+    "instanceTypeId": "497b5090-3da2-486c-b57f-de5bb3c2e26d",
+    "instanceFormatIds": [
+      "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "f0000018-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 18",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 18",
+    "identifiers": [
+      {
+        "value": "978-921-122611-092-8",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Parker, George D.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Literature and society"
+      },
+      {
+        "value": "Database systems"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "111.80",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "University of Michigan Press",
+        "place": "Ann Arbor",
+        "dateOfPublication": "2007",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2007"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "f0000019-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 19",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 19",
+    "identifiers": [
+      {
+        "value": "978-163-169763-896-3",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Lee, Christopher Z.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Genetics"
+      },
+      {
+        "value": "International relations"
+      },
+      {
+        "value": "Game theory"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "HD8236 .Y68 2004",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Springer",
+        "place": "New York",
+        "dateOfPublication": "2000",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2000"
+    },
+    "instanceTypeId": "225faa14-f9bf-4ecd-990d-69433c912434",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "f0000020-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 20",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 20",
+    "identifiers": [
+      {
+        "value": "978-992-853651-010-1",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Roberts, Alan X.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "9deb29d1-3e71-4951-9413-a80adac703d0",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Genetics"
+      },
+      {
+        "value": "Knowledge organization"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "536.02",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Duke University Press",
+        "place": "Durham",
+        "dateOfPublication": "2017",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2017"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "f0000021-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 21",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 21",
+    "identifiers": [
+      {
+        "value": "978-738-444372-321-8",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Evans, Christine A.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      },
+      {
+        "name": "Roberts, Alan X.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Philosophy of mind"
+      },
+      {
+        "value": "Digital humanities"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "PR2501 .A98 2011",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Springer",
+        "place": "New York",
+        "dateOfPublication": "1999",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1999"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "25a81102-a2a9-4576-85ff-133ebcbcef2c"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "f0000022-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 22",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 22",
+    "identifiers": [
+      {
+        "value": "978-619-324644-304-6",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Johnson, Mary L.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Molecular biology"
+      },
+      {
+        "value": "Information technology"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "212.11",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Springer",
+        "place": "New York",
+        "dateOfPublication": "1973",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1973"
+    },
+    "instanceTypeId": "497b5090-3da2-486c-b57f-de5bb3c2e26d",
+    "instanceFormatIds": [
+      "25a81102-a2a9-4576-85ff-133ebcbcef2c"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "f0000023-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 23",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 23",
+    "series": [
+      {
+        "value": "Texts in applied mathematics"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-638-175735-239-5",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Harris, Elizabeth A.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      },
+      {
+        "name": "Johnson, Mary L.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Architectural design"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "Z6032 .E89 1981",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Palgrave Macmillan",
+        "place": "Basingstoke",
+        "dateOfPublication": "1971",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1971"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "25a81102-a2a9-4576-85ff-133ebcbcef2c"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "f0000024-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 24",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 24",
+    "identifiers": [
+      {
+        "value": "978-850-410286-982-1",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Scott, Matthew J.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "History of science"
+      },
+      {
+        "value": "Natural language processing"
+      },
+      {
+        "value": "Cryptography"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "964.61",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "University of Michigan Press",
+        "place": "Ann Arbor",
+        "dateOfPublication": "2016",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2016"
+    },
+    "instanceTypeId": "535e3160-763a-42f9-b0c0-d8ed7df6e2a2",
+    "instanceFormatIds": [
+      "25a81102-a2a9-4576-85ff-133ebcbcef2c"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "f0000025-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 25",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 25",
+    "identifiers": [
+      {
+        "value": "978-821-451753-821-1",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Green, Deborah O.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      },
+      {
+        "name": "Harris, Elizabeth A.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Media studies"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "685.00",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Cambridge University Press",
+        "place": "Cambridge",
+        "dateOfPublication": "2006",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2006"
+    },
+    "instanceTypeId": "497b5090-3da2-486c-b57f-de5bb3c2e26d",
+    "instanceFormatIds": [
+      "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "f0000026-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 26",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 26",
+    "identifiers": [
+      {
+        "value": "978-565-303882-010-9",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Baker, Raymond R.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Communication theory"
+      },
+      {
+        "value": "Genetics"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "S2175 .T32 1962",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Sage Publications",
+        "place": "Thousand Oaks, Calif.",
+        "dateOfPublication": "2017",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2017"
+    },
+    "instanceTypeId": "225faa14-f9bf-4ecd-990d-69433c912434",
+    "instanceFormatIds": [
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "f0000027-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 27",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 27",
+    "series": [
+      {
+        "value": "Research in applied linguistics"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-411-938438-105-9",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Torres, Angela K.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Information technology"
+      },
+      {
+        "value": "Applied mathematics"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "508.83",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "University of Chicago Press",
+        "place": "Chicago",
+        "dateOfPublication": "1980",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1980",
+      "date2": "1990"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "f0000028-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 28",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 28",
+    "identifiers": [
+      {
+        "value": "978-652-430519-680-9",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Moore, Nancy W.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Artificial intelligence"
+      },
+      {
+        "value": "Political theory"
+      },
+      {
+        "value": "Digital humanities"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "HD8471 .J90 2001",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Oxford University Press",
+        "place": "Oxford",
+        "dateOfPublication": "1974",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1974",
+      "date2": "1979"
+    },
+    "instanceTypeId": "df5dddff-9c30-4507-8b82-119ff972d4d7",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "f0000029-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 29",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 29",
+    "series": [
+      {
+        "value": "MIT Press series in cognitive science"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-446-982855-484-7",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Adams, Timothy P.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Global economics"
+      },
+      {
+        "value": "Political theory"
+      },
+      {
+        "value": "Cultural anthropology"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "099.14",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Princeton University Press",
+        "place": "Princeton",
+        "dateOfPublication": "1964",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1964"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "25a81102-a2a9-4576-85ff-133ebcbcef2c"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "f0000030-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 30",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 30",
+    "identifiers": [
+      {
+        "value": "978-955-848010-358-8",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Young, Steven F.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Library science"
+      },
+      {
+        "value": "Political theory"
+      },
+      {
+        "value": "Cultural anthropology"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "PN8655 .L89 2021",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Elsevier",
+        "place": "Amsterdam",
+        "dateOfPublication": "1981",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1981",
+      "date2": "1988"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "f0000031-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 31",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 31",
+    "identifiers": [
+      {
+        "value": "978-224-367758-043-9",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Turner, Lawrence B.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      },
+      {
+        "name": "Harris, Elizabeth A.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Molecular biology"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "267.55",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Johns Hopkins University Press",
+        "place": "Baltimore",
+        "dateOfPublication": "1981",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1981"
+    },
+    "instanceTypeId": "497b5090-3da2-486c-b57f-de5bb3c2e26d",
+    "instanceFormatIds": [
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
     "id": "f0000032-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 32",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 32",
+    "identifiers": [
+      {
+        "value": "978-871-222163-020-2",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Jones, Michael D.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "History of science"
+      },
+      {
+        "value": "Climate change"
+      },
+      {
+        "value": "Digital humanities"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "JZ1013 .C49 2012",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Palgrave Macmillan",
+        "place": "Basingstoke",
+        "dateOfPublication": "2019",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2019"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "f0000033-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 33",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 33",
+    "series": [
+      {
+        "value": "Studies in information science"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-223-441212-583-1",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Gomez, Rachel Y.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "9deb29d1-3e71-4951-9413-a80adac703d0",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Philosophy of mind"
+      },
+      {
+        "value": "Game theory"
+      },
+      {
+        "value": "Applied mathematics"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "GE1748 .C51 1975",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Harvard University Press",
+        "place": "Cambridge, Mass.",
+        "dateOfPublication": "1986",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1986"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "f0000034-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 34",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 34",
+    "series": [
+      {
+        "value": "MIT Press series in cognitive science"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-574-514486-805-9",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Williams, Robert T.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Artificial intelligence"
+      },
+      {
+        "value": "Neuroscience"
+      },
+      {
+        "value": "Machine learning"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "307.06",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "University of Michigan Press",
+        "place": "Ann Arbor",
+        "dateOfPublication": "1995",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1995"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "f0000035-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 35",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 35",
+    "identifiers": [
+      {
+        "value": "978-449-242584-062-4",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Scott, Matthew J.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      },
+      {
+        "name": "Lewis, Sharon M.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Global economics"
+      },
+      {
+        "value": "Cryptography"
+      },
+      {
+        "value": "History of science"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "Q9498 .N34 2020",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Stanford University Press",
+        "place": "Stanford, Calif.",
+        "dateOfPublication": "1999",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1999"
+    },
+    "instanceTypeId": "535e3160-763a-42f9-b0c0-d8ed7df6e2a2",
+    "instanceFormatIds": [
+      "25a81102-a2a9-4576-85ff-133ebcbcef2c"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
     "id": "f0000036-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 36",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 36",
+    "identifiers": [
+      {
+        "value": "978-649-246448-092-6",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Hernandez, Carlos M.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      },
+      {
+        "name": "Davis, Barbara E.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Molecular biology"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "523.06",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Elsevier",
+        "place": "Amsterdam",
+        "dateOfPublication": "1983",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1983"
+    },
+    "instanceTypeId": "497b5090-3da2-486c-b57f-de5bb3c2e26d",
+    "instanceFormatIds": [
+      "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "f0000037-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 37",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 37",
+    "identifiers": [
+      {
+        "value": "978-516-285923-327-7",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Moore, Nancy W.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      },
+      {
+        "name": "Thomas, Dorothy C.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Molecular biology"
+      },
+      {
+        "value": "Knowledge organization"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "680.51",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Routledge",
+        "place": "London",
+        "dateOfPublication": "2009",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2009",
+      "date2": "2016"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "f0000038-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 38",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 38",
+    "identifiers": [
+      {
+        "value": "978-093-002435-061-7",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Phillips, Frank Z.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      },
+      {
+        "name": "Baker, Raymond R.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Literature and society"
+      },
+      {
+        "value": "Machine learning"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "221.40",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Harvard University Press",
+        "place": "Cambridge, Mass.",
+        "dateOfPublication": "1972",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1972"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "f0000039-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 39",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 39",
+    "series": [
+      {
+        "value": "Contributions to economics"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-157-814254-200-3",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Hill, Michelle M.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Statistics"
+      },
+      {
+        "value": "Neuroscience"
+      },
+      {
+        "value": "Genetics"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "813.79",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "University of Chicago Press",
+        "place": "Chicago",
+        "dateOfPublication": "1982",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1982",
+      "date2": "1992"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
     "id": "f0000040-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 40",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 40",
+    "identifiers": [
+      {
+        "value": "978-848-989064-429-7",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Rivera, Anthony T.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Molecular biology"
+      },
+      {
+        "value": "Neuroscience"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "863.72",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Duke University Press",
+        "place": "Durham",
+        "dateOfPublication": "2004",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2004"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "25a81102-a2a9-4576-85ff-133ebcbcef2c"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "f0000041-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 41",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 41",
+    "series": [
+      {
+        "value": "Cambridge studies in publishing and printing history"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-411-667093-363-3",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Nelson, Virginia Q.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "International relations"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "537.76",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "University of Chicago Press",
+        "place": "Chicago",
+        "dateOfPublication": "2017",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2017"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "f0000042-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 42",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 42",
+    "identifiers": [
+      {
+        "value": "978-375-390412-846-8",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Jackson, Mark B.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Cultural anthropology"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "JZ240 .L37 1976",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "MIT Press",
+        "place": "Cambridge, Mass.",
+        "dateOfPublication": "1974",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1974"
+    },
+    "instanceTypeId": "497b5090-3da2-486c-b57f-de5bb3c2e26d",
+    "instanceFormatIds": [
+      "25a81102-a2a9-4576-85ff-133ebcbcef2c"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
     "id": "f0000043-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 43",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 43",
+    "identifiers": [
+      {
+        "value": "978-109-723257-969-4",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Lee, Christopher Z.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Metadata"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "807.51",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "University of Michigan Press",
+        "place": "Ann Arbor",
+        "dateOfPublication": "1994",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1994"
+    },
+    "instanceTypeId": "535e3160-763a-42f9-b0c0-d8ed7df6e2a2",
+    "instanceFormatIds": [
+      "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "f0000044-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 44",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 44",
+    "series": [
+      {
+        "value": "Texts in applied mathematics"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-998-884567-723-0",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Anderson, Susan G.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Architectural design"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "395.99",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Sage Publications",
+        "place": "Thousand Oaks, Calif.",
+        "dateOfPublication": "1998",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1998"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "f0000045-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 45",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 45",
+    "identifiers": [
+      {
+        "value": "978-843-748836-759-2",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Hill, Michelle M.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Quantum computing"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "033.60",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Wiley",
+        "place": "Hoboken, N.J.",
+        "dateOfPublication": "2013",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2013"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "f0000046-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 46",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 46",
+    "identifiers": [
+      {
+        "value": "978-140-723980-358-4",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Garcia, Linda R.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      },
+      {
+        "name": "King, Jason H.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Urban sociology"
+      },
+      {
+        "value": "Digital humanities"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "740.17",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Elsevier",
+        "place": "Amsterdam",
+        "dateOfPublication": "1998",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1998"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
     "id": "f0000047-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 47",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 47",
+    "identifiers": [
+      {
+        "value": "978-588-265538-409-5",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Phillips, Frank Z.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      },
+      {
+        "name": "Martin, Sandra J.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Knowledge organization"
+      },
+      {
+        "value": "History of science"
+      },
+      {
+        "value": "Philosophy of mind"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "268.52",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Palgrave Macmillan",
+        "place": "Basingstoke",
+        "dateOfPublication": "2010",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2010"
+    },
+    "instanceTypeId": "535e3160-763a-42f9-b0c0-d8ed7df6e2a2",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
     "id": "f0000048-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 48",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 48",
+    "identifiers": [
+      {
+        "value": "978-946-934640-232-8",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Williams, Robert T.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Genetics"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "097.18",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Princeton University Press",
+        "place": "Princeton",
+        "dateOfPublication": "1968",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1968"
+    },
+    "instanceTypeId": "497b5090-3da2-486c-b57f-de5bb3c2e26d",
+    "instanceFormatIds": [
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
     "id": "f0000049-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 49",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 49",
+    "identifiers": [
+      {
+        "value": "978-371-916152-063-6",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Nelson, Virginia Q.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Political theory"
+      },
+      {
+        "value": "Media studies"
+      },
+      {
+        "value": "History of science"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "HV9493 .T50 2021",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Cambridge University Press",
+        "place": "Cambridge",
+        "dateOfPublication": "2006",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2006"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
     "id": "f0000050-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Instance 50",
-    "indexTitle": null,
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "indexTitle": "Instance 50",
+    "identifiers": [
+      {
+        "value": "978-514-700573-460-0",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Hill, Michelle M.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      },
+      {
+        "name": "Wright, Lisa I.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "International relations"
+      },
+      {
+        "value": "Social sciences"
+      },
+      {
+        "value": "Economic development"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "TR9115 .C83 1971",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Stanford University Press",
+        "place": "Stanford, Calif.",
+        "dateOfPublication": "1971",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1971",
+      "date2": "1974"
+    },
+    "instanceTypeId": "3be24c14-3551-4180-9292-26a786649c8b",
+    "instanceFormatIds": [
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "c0000001-0000-4000-b000-000000000000",
     "source": "FOLIO",
     "title": "Foundations of Information Retrieval",
-    "indexTitle": null,
+    "indexTitle": "Foundations of Information Retrieval",
+    "identifiers": [
+      {
+        "value": "978-393-071437-384-8",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Miller, David S.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      },
+      {
+        "name": "Evans, Christine A.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Applied mathematics"
+      },
+      {
+        "value": "Political theory"
+      }
+    ],
     "classifications": [
       {
         "classificationNumber": "BJ1453 .I49 1983",
@@ -1450,20 +5370,60 @@
         "classificationTypeId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a"
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "publication": [
+      {
+        "publisher": "Duke University Press",
+        "place": "Durham",
+        "dateOfPublication": "1998",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1998"
+    },
+    "instanceTypeId": "535e3160-763a-42f9-b0c0-d8ed7df6e2a2",
+    "instanceFormatIds": [
+      "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "c0000002-0000-4000-b000-000000000000",
     "source": "FOLIO",
     "title": "Advanced Topics in Computer Science",
-    "indexTitle": null,
+    "indexTitle": "Advanced Topics in Computer Science",
+    "identifiers": [
+      {
+        "value": "978-821-849021-870-2",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
     "contributors": [
       {
-        "name": "Alan Turing"
+        "name": "Alan Turing",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
       },
       {
-        "name": "Grace Hopper"
+        "name": "Grace Hopper",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Renewable energy"
+      },
+      {
+        "value": "Urban sociology"
+      },
+      {
+        "value": "Literature and society"
       }
     ],
     "classifications": [
@@ -1472,14 +5432,56 @@
         "classificationTypeId": "308c950f-8209-4f2e-9702-0c004a9f21bc"
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "publication": [
+      {
+        "publisher": "Oxford University Press",
+        "place": "Oxford",
+        "dateOfPublication": "2017",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2017",
+      "date2": "2018"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "c0000003-0000-4000-b000-000000000000",
     "source": "FOLIO",
     "title": "Introduction to Library Science",
-    "indexTitle": null,
+    "indexTitle": "Introduction to Library Science",
+    "identifiers": [
+      {
+        "value": "978-615-962846-510-5",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "King, Jason H.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Urban planning"
+      },
+      {
+        "value": "Cryptography"
+      }
+    ],
     "classifications": [
       {
         "classificationNumber": "HQ536 .A565 2018",
@@ -1490,31 +5492,107 @@
         "classificationTypeId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a"
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "publication": [
+      {
+        "publisher": "Palgrave Macmillan",
+        "place": "Basingstoke",
+        "dateOfPublication": "1998",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1998"
+    },
+    "instanceTypeId": "535e3160-763a-42f9-b0c0-d8ed7df6e2a2",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
     "id": "c0000004-0000-4000-b000-000000000000",
     "source": "FOLIO",
     "title": "Cataloguing and Classification Standards",
-    "indexTitle": null,
+    "indexTitle": "Cataloguing and Classification Standards",
+    "identifiers": [
+      {
+        "value": "978-917-871135-643-1",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Gomez, Rachel Y.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      },
+      {
+        "name": "Roberts, Alan X.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Information technology"
+      }
+    ],
     "classifications": [
       {
         "classificationNumber": "QD33 .O87",
         "classificationTypeId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a"
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "publication": [
+      {
+        "publisher": "Columbia University Press",
+        "place": "New York",
+        "dateOfPublication": "1956",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1956",
+      "date2": "1959"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
     "id": "c0000005-0000-4000-b000-000000000000",
     "source": "FOLIO",
     "title": "Network Protocols and Architectures",
-    "indexTitle": null,
+    "indexTitle": "Network Protocols and Architectures",
+    "identifiers": [
+      {
+        "value": "978-515-174398-787-7",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
     "contributors": [
       {
-        "name": "Vint Cerf"
+        "name": "Vint Cerf",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Data analysis"
       }
     ],
     "classifications": [
@@ -1527,14 +5605,58 @@
         "classificationTypeId": "50524585-046b-49a1-8ca7-8d46f2a8dc19"
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "publication": [
+      {
+        "publisher": "Cambridge University Press",
+        "place": "Cambridge",
+        "dateOfPublication": "1964",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1964",
+      "date2": "1971"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "c0000006-0000-4000-b000-000000000000",
     "source": "FOLIO",
     "title": "Digital Preservation and Archiving",
-    "indexTitle": null,
+    "indexTitle": "Digital Preservation and Archiving",
+    "series": [
+      {
+        "value": "Monographs in library and information science"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-081-454861-906-4",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Taylor, Thomas H.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Computer science"
+      }
+    ],
     "classifications": [
       {
         "classificationNumber": "SF433 .D47 2004",
@@ -1545,14 +5667,57 @@
         "classificationTypeId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a"
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "publication": [
+      {
+        "publisher": "Princeton University Press",
+        "place": "Princeton",
+        "dateOfPublication": "1954",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1954"
+    },
+    "instanceTypeId": "535e3160-763a-42f9-b0c0-d8ed7df6e2a2",
+    "instanceFormatIds": [
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "c0000007-0000-4000-b000-000000000000",
     "source": "FOLIO",
     "title": "Special Collections Management",
-    "indexTitle": null,
+    "indexTitle": "Special Collections Management",
+    "series": [
+      {
+        "value": "Contemporary issues in education"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-906-280639-309-1",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Clark, Kenneth L.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "9deb29d1-3e71-4951-9413-a80adac703d0",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Social sciences"
+      }
+    ],
     "classifications": [
       {
         "classificationNumber": "221.609",
@@ -1563,28 +5728,117 @@
         "classificationTypeId": "308c950f-8209-4f2e-9702-0c004a9f21bc"
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "publication": [
+      {
+        "publisher": "Oxford University Press",
+        "place": "Oxford",
+        "dateOfPublication": "1969",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1969"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "c0000008-0000-4000-b000-000000000000",
     "source": "FOLIO",
     "title": "Metadata Standards in Digital Libraries",
-    "indexTitle": null,
+    "indexTitle": "Metadata Standards in Digital Libraries",
+    "identifiers": [
+      {
+        "value": "978-791-457041-917-5",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Roberts, Alan X.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      },
+      {
+        "name": "Clark, Kenneth L.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Network security"
+      },
+      {
+        "value": "Molecular biology"
+      }
+    ],
     "classifications": [
       {
         "classificationNumber": "TN800 .F4613",
         "classificationTypeId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a"
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "publication": [
+      {
+        "publisher": "University of Chicago Press",
+        "place": "Chicago",
+        "dateOfPublication": "1971",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1971"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "c0000009-0000-4000-b000-000000000000",
     "source": "FOLIO",
     "title": "Knowledge Organization and Representation",
-    "indexTitle": null,
+    "indexTitle": "Knowledge Organization and Representation",
+    "series": [
+      {
+        "value": "Springer series in solid-state sciences"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-626-427431-908-2",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Taylor, Thomas H.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "9deb29d1-3e71-4951-9413-a80adac703d0",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Climate change"
+      }
+    ],
     "classifications": [
       {
         "classificationNumber": "292.07",
@@ -1599,17 +5853,56 @@
         "classificationTypeId": "50524585-046b-49a1-8ca7-8d46f2a8dc19"
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "publication": [
+      {
+        "publisher": "Princeton University Press",
+        "place": "Princeton",
+        "dateOfPublication": "2017",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2017",
+      "date2": "2024"
+    },
+    "instanceTypeId": "9bce18bd-45bf-4949-8fa8-63163e4b7d7f",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "c0000010-0000-4000-b000-000000000000",
     "source": "FOLIO",
     "title": "Geographic Information Systems: Principles and Applications",
-    "indexTitle": null,
+    "indexTitle": "Geographic Information Systems: Principles and Applications",
+    "identifiers": [
+      {
+        "value": "978-506-067352-535-9",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
     "contributors": [
       {
-        "name": "Roger Tomlinson"
+        "name": "Roger Tomlinson",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Statistics"
+      },
+      {
+        "value": "Environmental policy"
+      },
+      {
+        "value": "Economic development"
       }
     ],
     "classifications": [
@@ -1626,42 +5919,153 @@
         "classificationTypeId": null
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "publication": [
+      {
+        "publisher": "Elsevier",
+        "place": "Amsterdam",
+        "dateOfPublication": "1967",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1967"
+    },
+    "instanceTypeId": "3be24c14-3551-4180-9292-26a786649c8b",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "c0000011-0000-4000-b000-000000000000",
     "source": "FOLIO",
     "title": "Open Access and Scholarly Communication",
-    "indexTitle": null,
+    "indexTitle": "Open Access and Scholarly Communication",
+    "identifiers": [
+      {
+        "value": "978-247-693870-350-0",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Baker, Raymond R.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Literature and society"
+      },
+      {
+        "value": "Cultural anthropology"
+      }
+    ],
     "classifications": [
       {
         "classificationNumber": "TX545 M45",
         "classificationTypeId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a"
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "publication": [
+      {
+        "publisher": "Palgrave Macmillan",
+        "place": "Basingstoke",
+        "dateOfPublication": "1959",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1959",
+      "date2": "1962"
+    },
+    "instanceTypeId": "225faa14-f9bf-4ecd-990d-69433c912434",
+    "instanceFormatIds": [
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "c0000012-0000-4000-b000-000000000000",
     "source": "FOLIO",
     "title": "Digital Humanities: Methods and Practice",
-    "indexTitle": null,
+    "indexTitle": "Digital Humanities: Methods and Practice",
+    "identifiers": [
+      {
+        "value": "978-780-978781-839-5",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Flores, Brian N.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Computer science"
+      },
+      {
+        "value": "Social sciences"
+      },
+      {
+        "value": "Renewable energy"
+      }
+    ],
     "classifications": [
       {
         "classificationNumber": "TX\\545.\\\\M45",
         "classificationTypeId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a"
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "publication": [
+      {
+        "publisher": "Sage Publications",
+        "place": "Thousand Oaks, Calif.",
+        "dateOfPublication": "1997",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1997"
+    },
+    "instanceTypeId": "9bce18bd-45bf-4949-8fa8-63163e4b7d7f",
+    "instanceFormatIds": [
+      "25a81102-a2a9-4576-85ff-133ebcbcef2c"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "a0000001-0000-4000-9000-000000000000",
     "source": "FOLIO",
     "title": "The Galactic Empire: A Political History",
-    "indexTitle": null,
+    "indexTitle": "Galactic Empire: A Political History",
+    "identifiers": [
+      {
+        "value": "978-458-699929-395-2",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
     "contributors": [
       {
         "name": "Darth Vader",
@@ -1670,14 +6074,56 @@
         "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9"
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "subjects": [
+      {
+        "value": "Education reform"
+      },
+      {
+        "value": "Architectural design"
+      },
+      {
+        "value": "Clinical psychology"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "828.19",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Elsevier",
+        "place": "Amsterdam",
+        "dateOfPublication": "1992",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1992"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
     "id": "a0000002-0000-4000-9000-000000000000",
     "source": "FOLIO",
     "title": "Rock Legends: Stadium Anthems and Arena Rock",
-    "indexTitle": null,
+    "indexTitle": "Rock Legends: Stadium Anthems and Arena Rock",
+    "identifiers": [
+      {
+        "value": "978-940-275678-628-2",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
     "contributors": [
       {
         "name": "Bon Jovi",
@@ -1698,14 +6144,53 @@
         "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d"
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "subjects": [
+      {
+        "value": "Data analysis"
+      },
+      {
+        "value": "Metadata"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "703.95",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "University of Chicago Press",
+        "place": "Chicago",
+        "dateOfPublication": "1995",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1995"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "25a81102-a2a9-4576-85ff-133ebcbcef2c"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "a0000003-0000-4000-9000-000000000000",
     "source": "FOLIO",
     "title": "Hard Rock Chronicles: From Heavy Metal to Alternative",
-    "indexTitle": null,
+    "indexTitle": "Hard Rock Chronicles: From Heavy Metal to Alternative",
+    "identifiers": [
+      {
+        "value": "978-880-259068-995-3",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
     "contributors": [
       {
         "name": "Bon Jovi",
@@ -1726,14 +6211,54 @@
         "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d"
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "subjects": [
+      {
+        "value": "Social sciences"
+      },
+      {
+        "value": "Library science"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "PR5302 .X77 2017",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Columbia University Press",
+        "place": "New York",
+        "dateOfPublication": "1983",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1983",
+      "date2": "1984"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "a0000004-0000-4000-9000-000000000000",
     "source": "FOLIO",
     "title": "Blaze of Glory: The Bon Jovi Story",
-    "indexTitle": null,
+    "indexTitle": "Blaze of Glory: The Bon Jovi Story",
+    "identifiers": [
+      {
+        "value": "978-948-926236-931-4",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
     "contributors": [
       {
         "name": "Bon Jovi",
@@ -1750,17 +6275,54 @@
       {
         "name": "Klaus Meine",
         "contributorNameTypeId": "0ad0a89a-741d-4f1a-85a6-ada214751013",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
         "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9"
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "subjects": [
+      {
+        "value": "Social sciences"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "639.07",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Oxford University Press",
+        "place": "Oxford",
+        "dateOfPublication": "1995",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1995"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "a0000005-0000-4000-9000-000000000000",
     "source": "FOLIO",
     "title": "The Beatles Complete Works",
-    "indexTitle": null,
+    "indexTitle": "Beatles Complete Works",
+    "identifiers": [
+      {
+        "value": "978-134-735055-789-1",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
     "contributors": [
       {
         "name": "John Lennon",
@@ -1787,14 +6349,50 @@
         "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d"
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "subjects": [
+      {
+        "value": "Genetics"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "HV8362 .H56 1991",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Routledge",
+        "place": "London",
+        "dateOfPublication": "2014",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2014"
+    },
+    "instanceTypeId": "9bce18bd-45bf-4949-8fa8-63163e4b7d7f",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "a0000006-0000-4000-9000-000000000000",
     "source": "FOLIO",
     "title": "The Fab Four: A Musical Biography",
-    "indexTitle": null,
+    "indexTitle": "Fab Four: A Musical Biography",
+    "identifiers": [
+      {
+        "value": "978-845-611382-816-1",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
     "contributors": [
       {
         "name": "John Lennon",
@@ -1821,14 +6419,54 @@
         "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d"
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "subjects": [
+      {
+        "value": "Information management"
+      },
+      {
+        "value": "Operations research"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "569.95",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Palgrave Macmillan",
+        "place": "Basingstoke",
+        "dateOfPublication": "1950",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1950",
+      "date2": "1959"
+    },
+    "instanceTypeId": "535e3160-763a-42f9-b0c0-d8ed7df6e2a2",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "a0000007-0000-4000-9000-000000000000",
     "source": "FOLIO",
     "title": "Yesterday and Today: Songs of Lennon and McCartney",
-    "indexTitle": null,
+    "indexTitle": "Yesterday and Today: Songs of Lennon and McCartney",
+    "identifiers": [
+      {
+        "value": "978-375-471035-513-0",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
     "contributors": [
       {
         "name": "Paul McCartney",
@@ -1842,17 +6480,74 @@
         "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299"
       },
       {
-        "name": "Wi\\lly \\ Wonka"
+        "name": "Wi\\lly \\ Wonka",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "subjects": [
+      {
+        "value": "Knowledge organization"
+      },
+      {
+        "value": "Economic development"
+      },
+      {
+        "value": "Genetics"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "P1366 .U59 2020",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Columbia University Press",
+        "place": "New York",
+        "dateOfPublication": "2001",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2001"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
     "id": "b0000001-0000-4000-9000-000000000000",
     "source": "FOLIO",
     "title": "Music Through the Ages: A Historical Survey",
-    "indexTitle": null,
+    "indexTitle": "Music Through the Ages: A Historical Survey",
+    "identifiers": [
+      {
+        "value": "978-278-980336-361-8",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Phillips, Frank Z.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      },
+      {
+        "name": "Carter, Julie W.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
     "subjects": [
       {
         "value": "History"
@@ -1869,14 +6564,58 @@
         "value": "Biography"
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "classifications": [
+      {
+        "classificationNumber": "HV4326 .C54 1981",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Cambridge University Press",
+        "place": "Cambridge",
+        "dateOfPublication": "1977",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1977"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "25a81102-a2a9-4576-85ff-133ebcbcef2c"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "b0000002-0000-4000-9000-000000000000",
     "source": "FOLIO",
     "title": "The Symphony of Middle-Earth: Fantasy and Music",
-    "indexTitle": null,
+    "indexTitle": "Symphony of Middle-Earth: Fantasy and Music",
+    "series": [
+      {
+        "value": "Springer series in solid-state sciences"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-228-424484-706-7",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Nelson, Virginia Q.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "9deb29d1-3e71-4951-9413-a80adac703d0",
+        "primary": true
+      }
+    ],
     "subjects": [
       {
         "value": "Fantasy"
@@ -1886,14 +6625,59 @@
         "authorityId": "308c950f-8209-4f2e-9702-0c004a9f21bc"
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "classifications": [
+      {
+        "classificationNumber": "664.42",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Columbia University Press",
+        "place": "New York",
+        "dateOfPublication": "2012",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2012",
+      "date2": "2019"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "b0000003-0000-4000-9000-000000000000",
     "source": "FOLIO",
     "title": "Constitutional History of the United States",
-    "indexTitle": null,
+    "indexTitle": "Constitutional History of the United States",
+    "identifiers": [
+      {
+        "value": "978-287-386307-539-7",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Robinson, Paul D.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      },
+      {
+        "name": "Diaz, Amanda C.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
     "subjects": [
       {
         "value": "United States"
@@ -1905,14 +6689,53 @@
         "value": "Rules"
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "classifications": [
+      {
+        "classificationNumber": "QA3550 .D81 1976",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Harvard University Press",
+        "place": "Cambridge, Mass.",
+        "dateOfPublication": "2004",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2004"
+    },
+    "instanceTypeId": "535e3160-763a-42f9-b0c0-d8ed7df6e2a2",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
     "id": "b0000004-0000-4000-9000-000000000000",
     "source": "FOLIO",
     "title": "European Musical Traditions: Baroque to Romantic",
-    "indexTitle": null,
+    "indexTitle": "European Musical Traditions: Baroque to Romantic",
+    "identifiers": [
+      {
+        "value": "978-664-625104-806-0",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Campbell, Melissa U.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
     "subjects": [
       {
         "value": "Europe"
@@ -1921,14 +6744,53 @@
         "value": "Music"
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "classifications": [
+      {
+        "classificationNumber": "RJ4039 .A87 1972",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Harvard University Press",
+        "place": "Cambridge, Mass.",
+        "dateOfPublication": "1961",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1961"
+    },
+    "instanceTypeId": "535e3160-763a-42f9-b0c0-d8ed7df6e2a2",
+    "instanceFormatIds": [
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "b0000005-0000-4000-9000-000000000000",
     "source": "FOLIO",
     "title": "Lives of the Great Authors: A Literary Biography",
-    "indexTitle": null,
+    "indexTitle": "Lives of the Great Authors: A Literary Biography",
+    "identifiers": [
+      {
+        "value": "978-531-292828-126-9",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Diaz, Amanda C.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
     "subjects": [
       {
         "value": "Book"
@@ -1940,14 +6802,59 @@
         "value": "Biography"
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "classifications": [
+      {
+        "classificationNumber": "PN1400 .S28 1971",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Cambridge University Press",
+        "place": "Cambridge",
+        "dateOfPublication": "1967",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1967",
+      "date2": "1974"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "b0000006-0000-4000-9000-000000000000",
     "source": "FOLIO",
     "title": "Faith and Reason: History of Western Philosophy",
-    "indexTitle": null,
+    "indexTitle": "Faith and Reason: History of Western Philosophy",
+    "identifiers": [
+      {
+        "value": "978-639-468476-235-9",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Diaz, Amanda C.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      },
+      {
+        "name": "Young, Steven F.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
     "subjects": [
       {
         "value": "Religion"
@@ -1959,14 +6866,53 @@
         "value": "Philosophy"
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "classifications": [
+      {
+        "classificationNumber": "TK6447 .D53 1986",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Duke University Press",
+        "place": "Durham",
+        "dateOfPublication": "2013",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2013"
+    },
+    "instanceTypeId": "a2c91e87-6bab-44d6-8adb-1fd02481fc4f",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "b0000007-0000-4000-9000-000000000000",
     "source": "FOLIO",
     "title": "The Philosophy of Scientific Method",
-    "indexTitle": null,
+    "indexTitle": "Philosophy of Scientific Method",
+    "identifiers": [
+      {
+        "value": "978-478-242995-569-2",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Clark, Kenneth L.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
     "subjects": [
       {
         "value": "Science"
@@ -1978,14 +6924,54 @@
         "value": "Science\\--Philosophy"
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "classifications": [
+      {
+        "classificationNumber": "725.19",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Penguin Books",
+        "place": "London",
+        "dateOfPublication": "2023",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2023",
+      "date2": "2030"
+    },
+    "instanceTypeId": "3be24c14-3551-4180-9292-26a786649c8b",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "b0000008-0000-4000-9000-000000000000",
     "source": "FOLIO",
     "title": "Freshwater Resources and Supply Management",
-    "indexTitle": null,
+    "indexTitle": "Freshwater Resources and Supply Management",
+    "identifiers": [
+      {
+        "value": "978-140-138658-883-7",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Torres, Angela K.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
     "subjects": [
       {
         "value": "Water"
@@ -1994,14 +6980,59 @@
         "value": "Water-supply"
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "classifications": [
+      {
+        "classificationNumber": "HV8680 .B16 2015",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Princeton University Press",
+        "place": "Princeton",
+        "dateOfPublication": "1975",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1975",
+      "date2": "1976"
+    },
+    "instanceTypeId": "225faa14-f9bf-4ecd-990d-69433c912434",
+    "instanceFormatIds": [
+      "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "b0000009-0000-4000-9000-000000000000",
     "source": "FOLIO",
     "title": "Drinking Water: Treatment and Microbiological Safety",
-    "indexTitle": null,
+    "indexTitle": "Drinking Water: Treatment and Microbiological Safety",
+    "series": [
+      {
+        "value": "Contributions to economics"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-246-566632-834-5",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Rivera, Anthony T.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
     "subjects": [
       {
         "value": "Water--Analysis"
@@ -2013,14 +7044,58 @@
         "value": "Water--Microbiology"
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "classifications": [
+      {
+        "classificationNumber": "318.89",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Princeton University Press",
+        "place": "Princeton",
+        "dateOfPublication": "1958",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1958"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
     "id": "b0000010-0000-4000-9000-000000000000",
     "source": "FOLIO",
     "title": "Principles of Database Systems: Design and Management",
-    "indexTitle": null,
+    "indexTitle": "Principles of Database Systems: Design and Management",
+    "series": [
+      {
+        "value": "Texts in applied mathematics"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-850-192879-322-4",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Miller, David S.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
     "subjects": [
       {
         "value": "Database design"
@@ -2032,14 +7107,58 @@
         "value": "Textbooks"
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "classifications": [
+      {
+        "classificationNumber": "HM3125 .B27 2023",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Springer",
+        "place": "New York",
+        "dateOfPublication": "1959",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1959"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
     "id": "b0000011-0000-4000-9000-000000000000",
     "source": "FOLIO",
     "title": "Beethoven: Life, Letters, and Legacy",
-    "indexTitle": null,
+    "indexTitle": "Beethoven: Life, Letters, and Legacy",
+    "series": [
+      {
+        "value": "Studies in information science"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-240-698095-317-2",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Gomez, Rachel Y.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
     "subjects": [
       {
         "value": "History"
@@ -2051,14 +7170,59 @@
         "value": "Biography"
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "classifications": [
+      {
+        "classificationNumber": "707.54",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Penn State University Press",
+        "place": "University Park, Pa.",
+        "dateOfPublication": "1959",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1959",
+      "date2": "1961"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "b0000012-0000-4000-9000-000000000000",
     "source": "FOLIO",
     "title": "Mozart: The Wonder Child and His Music",
-    "indexTitle": null,
+    "indexTitle": "Mozart: The Wonder Child and His Music",
+    "series": [
+      {
+        "value": "MIT Press series in cognitive science"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-849-188842-402-6",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Anderson, Susan G.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
     "subjects": [
       {
         "value": "History"
@@ -2071,14 +7235,53 @@
         "value": "Biography"
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "classifications": [
+      {
+        "classificationNumber": "207.69",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Harvard University Press",
+        "place": "Cambridge, Mass.",
+        "dateOfPublication": "2008",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2008"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "25a81102-a2a9-4576-85ff-133ebcbcef2c"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "b0000013-0000-4000-9000-000000000000",
     "source": "FOLIO",
     "title": "Brahms and the German Romantic Tradition",
-    "indexTitle": null,
+    "indexTitle": "Brahms and the German Romantic Tradition",
+    "identifiers": [
+      {
+        "value": "978-060-585785-033-6",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Anderson, Susan G.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
     "subjects": [
       {
         "value": "History"
@@ -2090,14 +7293,59 @@
         "value": "Biography"
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "classifications": [
+      {
+        "classificationNumber": "Z1121 .L59 1977",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "University of Chicago Press",
+        "place": "Chicago",
+        "dateOfPublication": "1985",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1985",
+      "date2": "1985"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
     "id": "b0000014-0000-4000-9000-000000000000",
     "source": "FOLIO",
     "title": "Chopin: A Life in Music and Exile",
-    "indexTitle": null,
+    "indexTitle": "Chopin: A Life in Music and Exile",
+    "identifiers": [
+      {
+        "value": "978-504-913372-759-5",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Thomas, Dorothy C.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      },
+      {
+        "name": "Parker, George D.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
     "subjects": [
       {
         "value": "History"
@@ -2110,14 +7358,58 @@
         "value": "Biography"
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "classifications": [
+      {
+        "classificationNumber": "Z4056 .U98 1999",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Duke University Press",
+        "place": "Durham",
+        "dateOfPublication": "1979",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1979"
+    },
+    "instanceTypeId": "535e3160-763a-42f9-b0c0-d8ed7df6e2a2",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
     "id": "b0000015-0000-4000-9000-000000000000",
     "source": "FOLIO",
     "title": "Schubert: The Wanderer and His Songs",
-    "indexTitle": null,
+    "indexTitle": "Schubert: The Wanderer and His Songs",
+    "identifiers": [
+      {
+        "value": "978-449-869818-347-5",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Gomez, Rachel Y.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      },
+      {
+        "name": "Davis, Barbara E.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
     "subjects": [
       {
         "value": "History"
@@ -2129,7 +7421,32 @@
         "value": "Biography"
       }
     ],
-    "instanceTypeId": null,
-    "discoverySuppress": false
+    "classifications": [
+      {
+        "classificationNumber": "P7229 .B15 2003",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Duke University Press",
+        "place": "Durham",
+        "dateOfPublication": "2006",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2006"
+    },
+    "instanceTypeId": "225faa14-f9bf-4ecd-990d-69433c912434",
+    "instanceFormatIds": [
+      "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   }
 ]

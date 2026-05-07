@@ -41,3 +41,5 @@ application-local.yml
 .agents/
 skills-lock.json
 docs/superpowers/
+# SQLite test data manager DB
+src/test/resources/test-data/manage/test-data.db

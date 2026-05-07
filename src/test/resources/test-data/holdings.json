@@ -14,19 +14,19 @@
     "instanceId": "5bf370e0-8cca-4d9c-82e4-5170ab2a0a39",
     "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
     "callNumber": "332.2",
-    "callNumberPrefix": "prefix",
-    "callNumberSuffix": "suffix",
-    "copyNumber": "copy number"
+    "callNumberPrefix": "GEN",
+    "callNumberSuffix": "c.1",
+    "copyNumber": "Copy 1"
   },
   {
     "id": "a663dea9-6547-4b2d-9daa-76cadd662272",
     "discoverySuppress": false,
     "instanceId": "5bf370e0-8cca-4d9c-82e4-5170ab2a0a39",
     "permanentLocationId": "758258bc-ecc1-41b8-abca-f7b610822ffd",
-    "callNumber": "call number1",
-    "callNumberPrefix": "prefix1",
-    "callNumberSuffix": "suffix1",
-    "copyNumber": "copy number1"
+    "callNumber": "TK5105.88815 .B74 2004",
+    "callNumberPrefix": "REF",
+    "callNumberSuffix": "c.2",
+    "copyNumber": "Copy 2"
   },
   {
     "id": "c9ee975f-ea3e-461d-b190-d1f3c11a35b0",

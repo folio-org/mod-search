@@ -10,13 +10,20 @@ import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CLASSIF
 import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CONTRIBUTORS;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_SUBJECTS;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.SEARCH_ALL_FIELDS;
+import static org.folio.search.model.types.ResourceType.INSTANCE_CALL_NUMBER;
+import static org.folio.search.model.types.ResourceType.INSTANCE_CLASSIFICATION;
+import static org.folio.search.model.types.ResourceType.INSTANCE_CONTRIBUTOR;
+import static org.folio.search.model.types.ResourceType.INSTANCE_SUBJECT;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.authoritySearchPath;
 import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.support.base.ApiEndpoints.linkedDataHubSearchPath;
 import static org.folio.support.base.ApiEndpoints.linkedDataInstanceSearchPath;
 import static org.folio.support.base.ApiEndpoints.linkedDataWorkSearchPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.sql.Timestamp;
+import java.util.List;
 import org.folio.api.browse.BrowseAuthorityIT;
 import org.folio.api.browse.BrowseCallNumberIT;
 import org.folio.api.browse.BrowseClassificationIT;
@@ -37,9 +44,10 @@ import org.folio.api.search.SortAuthorityIT;
 import org.folio.api.search.SortInstanceByTitleIT;
 import org.folio.api.search.SortInstanceIT;
 import org.folio.api.search.SortItemIT;
+import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.types.ReindexEntityType;
-import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.reindex.jdbc.SubResourcesLockRepository;
+import org.folio.search.service.scheduled.ScheduledInstanceSubResourcesService;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.BaseIntegrationTest;
 import org.folio.support.testdata.SharedTestDataManager;
@@ -48,6 +56,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.web.servlet.MvcResult;
 
 @IntegrationTest
 @TestPropertySource(properties = "folio.search-config.indexing.instance-children-index-enabled=true")
@@ -55,94 +64,89 @@ class SearchBrowseIT extends BaseIntegrationTest {
 
   // 119 instances from instances.json
   private static final int TOTAL_INSTANCES       = 119;
-  private static final int TOTAL_AUTHORITIES     = 116; // 51 sample + 15 filter + 5 sort + 45 browse
-  private static final int EXPECTED_CALL_NUMBER_COUNT    = 97;
-  private static final int EXPECTED_CONTRIBUTOR_COUNT    = 13;
-  private static final int EXPECTED_CLASSIFICATION_COUNT = 19;
-  private static final int EXPECTED_SUBJECT_COUNT        = 28;
+  private static final int TOTAL_AUTHORITIES     = 117; // 51 sample + 15 filter + 5 sort + 45 browse
+  private static final int EXPECTED_CALL_NUMBER_COUNT    = 105;
+  private static final int EXPECTED_CONTRIBUTOR_COUNT    = 28;
+  private static final int EXPECTED_CLASSIFICATION_COUNT = 23;
+  private static final int EXPECTED_SUBJECT_COUNT        = 31;
 
   @BeforeAll
-  static void setUpSharedTenant(@Autowired SubResourcesLockRepository subResourcesLockRepository) {
+  static void setUpSharedTenant(
+    @Autowired SubResourcesLockRepository lockRepo,
+    @Autowired ScheduledInstanceSubResourcesService scheduledSubResourcesService) {
     enableTenant(TENANT_ID);
     enableFeature(SEARCH_ALL_FIELDS);
     enableFeature(BROWSE_CALL_NUMBERS);
     enableFeature(BROWSE_CONTRIBUTORS);
     enableFeature(BROWSE_SUBJECTS);
     enableFeature(BROWSE_CLASSIFICATIONS);
-    loadInstancesUnderLock(subResourcesLockRepository);
-    loadAuthorities();
-    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
-      assertThat(countIndexDocument(ResourceType.INSTANCE_CALL_NUMBER, TENANT_ID))
-        .isEqualTo(EXPECTED_CALL_NUMBER_COUNT));
-    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
-      assertThat(countIndexDocument(ResourceType.INSTANCE_CLASSIFICATION, TENANT_ID))
-        .isEqualTo(EXPECTED_CLASSIFICATION_COUNT));
-    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
-      assertThat(countIndexDocument(ResourceType.INSTANCE_CONTRIBUTOR, TENANT_ID))
-        .isEqualTo(EXPECTED_CONTRIBUTOR_COUNT));
-    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
-      assertThat(countIndexDocument(ResourceType.INSTANCE_SUBJECT, TENANT_ID))
-        .isEqualTo(EXPECTED_SUBJECT_COUNT));
+    SharedTestDataManager.loadInventory(TENANT_ID, new SharedTestDataManager.LockManager() {
+
+        private Timestamp subjLock;
+        private Timestamp classifLock;
+        private Timestamp contribLock;
+        private Timestamp cnLock;
+
+        @Override
+        public void lockAll() {
+          cnLock = lockRepo.lockSubResource(ReindexEntityType.CALL_NUMBER, TENANT_ID)
+            .orElseThrow(() -> new IllegalStateException("Unable to lock CALL_NUMBER resource"));
+          contribLock = lockRepo.lockSubResource(ReindexEntityType.CONTRIBUTOR, TENANT_ID)
+            .orElseThrow(() -> new IllegalStateException("Unable to lock CONTRIBUTOR resource"));
+          classifLock = lockRepo.lockSubResource(ReindexEntityType.CLASSIFICATION, TENANT_ID)
+            .orElseThrow(() -> new IllegalStateException("Unable to lock CLASSIFICATION resource"));
+          subjLock = lockRepo.lockSubResource(ReindexEntityType.SUBJECT, TENANT_ID)
+            .orElseThrow(() -> new IllegalStateException("Unable to lock SUBJECT resource"));
+        }
+
+        @Override
+        public void unlockAll() {
+          lockRepo.unlockSubResource(ReindexEntityType.CALL_NUMBER, cnLock, TENANT_ID);
+          lockRepo.unlockSubResource(ReindexEntityType.CONTRIBUTOR, contribLock, TENANT_ID);
+          lockRepo.unlockSubResource(ReindexEntityType.CLASSIFICATION, classifLock, TENANT_ID);
+          lockRepo.unlockSubResource(ReindexEntityType.SUBJECT, subjLock, TENANT_ID);
+        }
+      },
+      scheduledSubResourcesService::persistChildren, SearchBrowseIT::indexRecords);
+    SharedTestDataManager.loadAuthorities(TENANT_ID, SearchBrowseIT::indexRecords);
+    awaitSubResourceIndexing();
     checkThatEventsFromKafkaAreIndexed(TENANT_ID, instanceSearchPath(), TOTAL_INSTANCES, emptyList());
     checkThatEventsFromKafkaAreIndexed(TENANT_ID, authoritySearchPath(), TOTAL_AUTHORITIES, emptyList());
     loadLinkedData();
   }
 
-  @SuppressWarnings("checkstyle:MethodLength")
-  private static void loadInstancesUnderLock(SubResourcesLockRepository repo) {
-    final var cnLock = repo.lockSubResource(ReindexEntityType.CALL_NUMBER, TENANT_ID)
-      .orElseThrow(() -> new IllegalStateException("Unable to lock CALL_NUMBER resource"));
-    final var contribLock = repo.lockSubResource(ReindexEntityType.CONTRIBUTOR, TENANT_ID)
-      .orElseThrow(() -> new IllegalStateException("Unable to lock CONTRIBUTOR resource"));
-    final var classifLock = repo.lockSubResource(ReindexEntityType.CLASSIFICATION, TENANT_ID)
-      .orElseThrow(() -> new IllegalStateException("Unable to lock CLASSIFICATION resource"));
-    final var subjLock = repo.lockSubResource(ReindexEntityType.SUBJECT, TENANT_ID)
-      .orElseThrow(() -> new IllegalStateException("Unable to lock SUBJECT resource"));
-
-    // Load all instances from unified JSON
-    SharedTestDataManager.instances().forEach(i -> inventoryApi.createInstance(TENANT_ID, i));
-
-    // Load flat holdings and items (each record has an instanceId field)
-    SharedTestDataManager.holdings().forEach(h -> {
-      var instanceId = (String) h.get("instanceId");
-      inventoryApi.createHolding(TENANT_ID, instanceId, h);
-    });
-    SharedTestDataManager.items().forEach(item -> {
-      var instanceId = (String) item.get("instanceId");
-      inventoryApi.createItem(TENANT_ID, instanceId, item);
-    });
-
-    // Mutation: clear contributors from the first browse-contributor instance
-    var browseContribInstances = SharedTestDataManager.instances().stream()
-      .filter(i -> i.getTags() != null && i.getTags().getTagList() != null
-                   && i.getTags().getTagList().contains("browse-contributor"))
-      .toList();
-    if (!browseContribInstances.isEmpty()) {
-      var first = browseContribInstances.get(0);
-      first.setContributors(emptyList());
-      inventoryApi.updateInstance(TENANT_ID, first);
-    }
-
-    repo.unlockSubResource(ReindexEntityType.CALL_NUMBER, cnLock, TENANT_ID);
-    repo.unlockSubResource(ReindexEntityType.CONTRIBUTOR, contribLock, TENANT_ID);
-    repo.unlockSubResource(ReindexEntityType.CLASSIFICATION, classifLock, TENANT_ID);
-    repo.unlockSubResource(ReindexEntityType.SUBJECT, subjLock, TENANT_ID);
-  }
-
-  private static void loadAuthorities() {
-    SharedTestDataManager.authorities().forEach(a -> sendAuthorities(TENANT_ID, a));
+  private static void awaitSubResourceIndexing() {
+    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
+      assertThat(countIndexDocument(INSTANCE_CALL_NUMBER, TENANT_ID))
+        .isEqualTo(EXPECTED_CALL_NUMBER_COUNT));
+    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
+      assertThat(countIndexDocument(INSTANCE_CLASSIFICATION, TENANT_ID))
+        .isEqualTo(EXPECTED_CLASSIFICATION_COUNT));
+    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
+      assertThat(countIndexDocument(INSTANCE_CONTRIBUTOR, TENANT_ID))
+        .isEqualTo(EXPECTED_CONTRIBUTOR_COUNT));
+    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
+      assertThat(countIndexDocument(INSTANCE_SUBJECT, TENANT_ID))
+        .isEqualTo(EXPECTED_SUBJECT_COUNT));
   }
 
   private static void loadLinkedData() {
-    SearchLinkedDataInstanceIT.INSTANCE_SAMPLES.forEach(i -> sendLinkedDataInstance(TENANT_ID, i));
+    SharedTestDataManager.loadLinkedData(TENANT_ID, SearchBrowseIT::indexRecords);
     checkThatEventsFromKafkaAreIndexed(TENANT_ID, linkedDataInstanceSearchPath(),
       SearchLinkedDataInstanceIT.INSTANCE_SAMPLES.size(), emptyList());
-    SearchLinkedDataWorkIT.WORK_SAMPLES.forEach(w -> sendLinkedDataWork(TENANT_ID, w));
     checkThatEventsFromKafkaAreIndexed(TENANT_ID, linkedDataWorkSearchPath(),
       SearchLinkedDataWorkIT.WORK_SAMPLES.size(), emptyList());
-    SearchLinkedDataHubIT.HUB_SAMPLES.forEach(h -> sendLinkedDataHub(TENANT_ID, h));
     checkThatEventsFromKafkaAreIndexed(TENANT_ID, linkedDataHubSearchPath(),
       SearchLinkedDataHubIT.HUB_SAMPLES.size(), emptyList());
+  }
+
+  private static void indexRecords(List<ResourceEvent> events) {
+    try {
+      var mvcResult = doPost("/search/index/records", events).andReturn();
+      System.out.println(mvcResult.getResponse().getContentAsString());
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to index records", e);
+    }
   }
 
   @AfterAll

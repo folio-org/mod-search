@@ -24,6 +24,7 @@ import org.apache.kafka.common.header.internals.RecordHeaders;
 import org.apache.kafka.common.record.TimestampType;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
+import org.folio.search.service.InventoryEntityPersistenceService;
 import org.folio.search.service.consortium.ConsortiumTenantExecutor;
 import org.folio.search.service.reindex.jdbc.ItemRepository;
 import org.folio.search.service.reindex.jdbc.MergeInstanceRepository;
@@ -57,8 +58,10 @@ class PopulateInstanceBatchInterceptorTest {
   void setUp() {
     when(instanceRepository.entityType()).thenCallRealMethod();
     when(itemRepository.entityType()).thenCallRealMethod();
+    var inventoryEntityPersistenceService = new InventoryEntityPersistenceService(
+      List.of(instanceRepository, itemRepository));
     populateInstanceBatchInterceptor = new PopulateInstanceBatchInterceptor(
-      List.of(instanceRepository, itemRepository),
+      inventoryEntityPersistenceService,
       executionService,
       systemUserScopedExecutionService
     );

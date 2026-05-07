@@ -40,3 +40,4 @@ application-local.yml
 !/.jpb/
 .agents/
 skills-lock.json
+docs/superpowers/

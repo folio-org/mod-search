@@ -35,6 +35,7 @@ import static org.opensearch.client.RequestOptions.DEFAULT;
 import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
 import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_CLASS;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -90,6 +91,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpHeaders;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.ResultMatcher;
@@ -101,6 +103,7 @@ import tools.jackson.databind.ObjectMapper;
 @EnablePostgres
 @EnableElasticSearch
 @AutoConfigureMockMvc
+@DirtiesContext(classMode = AFTER_CLASS)
 @SpringBootTest(classes = SearchApplication.class,
   properties = {
     "spring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.StringSerializer",
@@ -555,7 +558,7 @@ public abstract class BaseIntegrationTest {
     return value != null ? queryTemplate.replace("{value}", value) : queryTemplate;
   }
 
-  static ResourceEvent event(Object object, ResourceType resourceType, String tenant) {
+  protected static ResourceEvent event(Object object, ResourceType resourceType, String tenant) {
     return resourceEvent(tenant, resourceType, CREATE, object);
   }
 

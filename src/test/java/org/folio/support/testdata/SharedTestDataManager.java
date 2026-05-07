@@ -1,57 +1,64 @@
 package org.folio.support.testdata;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
-import java.util.Arrays;
+import static org.folio.search.domain.dto.ResourceEventType.CREATE;
+import static org.folio.search.model.types.ResourceType.AUTHORITY;
+import static org.folio.search.model.types.ResourceType.HOLDINGS;
+import static org.folio.search.model.types.ResourceType.INSTANCE;
+import static org.folio.search.model.types.ResourceType.ITEM;
+import static org.folio.search.model.types.ResourceType.LINKED_DATA_HUB;
+import static org.folio.search.model.types.ResourceType.LINKED_DATA_INSTANCE;
+import static org.folio.search.model.types.ResourceType.LINKED_DATA_WORK;
+import static org.folio.search.utils.SearchUtils.ID_FIELD;
+import static org.folio.support.utils.JsonTestUtils.readJsonFromFile;
+
 import java.util.List;
 import java.util.Map;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.Instance;
+import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.model.types.ResourceType;
+import tools.jackson.core.type.TypeReference;
 
 /**
- * Loads all shared integration-test data from JSON classpath resources and
- * verifies that each batch is fully indexed before returning. No caller should
- * need an extra await() after invoking these methods.
+ * Loads all shared integration-test data from JSON classpath resources
+ * via the {@code POST /search/index/records} HTTP endpoint.
  */
 public final class SharedTestDataManager {
 
-  private static final ObjectMapper MAPPER = new ObjectMapper();
-  private static final String BASE = "test-data/";
+  private static final String BASE = "/test-data/";
 
-  private SharedTestDataManager() {}
+  private SharedTestDataManager() { }
 
   // -------------------------------------------------------------------------
   // Read helpers — parse JSON arrays from classpath
   // -------------------------------------------------------------------------
 
-  public static List<Instance> instances() {
-    return readArray(BASE + "instances.json", Instance[].class);
+  public static List<Map<String, Object>> instances() {
+    return readJsonFromFile(BASE + "instances.json", new TypeReference<>() { });
   }
 
   public static List<Map<String, Object>> holdings() {
-    return readMapArray(BASE + "holdings.json");
+    return readJsonFromFile(BASE + "holdings.json", new TypeReference<>() { });
   }
 
   public static List<Map<String, Object>> items() {
-    return readMapArray(BASE + "items.json");
+    return readJsonFromFile(BASE + "items.json", new TypeReference<>() { });
   }
 
-  public static List<Authority> authorities() {
-    return readArray(BASE + "authorities.json", Authority[].class);
+  public static List<Map<String, Object>> authorities() {
+    return readJsonFromFile(BASE + "authorities.json", new TypeReference<>() { });
   }
 
   public static List<Map<String, Object>> linkedDataInstances() {
-    return readMapArray(BASE + "linked-data-instances.json");
+    return readJsonFromFile(BASE + "linked-data-instances.json", new TypeReference<>() { });
   }
 
   public static List<Map<String, Object>> linkedDataWorks() {
-    return readMapArray(BASE + "linked-data-works.json");
+    return readJsonFromFile(BASE + "linked-data-works.json", new TypeReference<>() { });
   }
 
   public static List<Map<String, Object>> linkedDataHubs() {
-    return readMapArray(BASE + "linked-data-hubs.json");
+    return readJsonFromFile(BASE + "linked-data-hubs.json", new TypeReference<>() { });
   }
 
   // -------------------------------------------------------------------------
@@ -67,122 +74,62 @@ public final class SharedTestDataManager {
   }
 
   // -------------------------------------------------------------------------
-  // Main entry point — orchestrates load + verify for all resource types
+  // Loading entry points
   // -------------------------------------------------------------------------
 
   /**
-   * Full data-load sequence: instances (under sub-resource lock), authorities,
-   * linked-data. Each batch blocks until fully indexed.
+   * Indexes all inventory records (instances, holdings, items) under sub-resource locks so that
+   * the scheduled job does not race with initial data load. After releasing locks, calls
+   * {@code persistChildren()} directly to process sub-resources synchronously.
    */
-  public static void loadAll(
-      String tenantId,
-      InstanceSender instanceSender,
-      AuthoritySender authoritySender,
-      LinkedDataSender linkedDataSender,
-      LockManager lockManager,
-      IndexVerifier verifier) {
-
-    loadInstancesUnderLock(tenantId, instanceSender, lockManager);
-    verifier.awaitIndexed(tenantId, "/search/instances", instanceCount());
-
-    loadAuthorities(tenantId, authoritySender);
-    verifier.awaitIndexed(tenantId, "/search/authorities", authorityCount());
-
-    loadLinkedData(tenantId, linkedDataSender, verifier);
+  public static void loadInventory(String tenantId, LockManager lockManager,
+                                   RecordsChildrenIndexer childrenIndexer,
+                                   RecordsIndexer indexer) {
+    lockManager.lockAll();
+    indexer.index(instances().stream().map(i -> event(i, INSTANCE, tenantId)).toList());
+    indexer.index(holdings().stream().map(i -> event(i, HOLDINGS, tenantId)).toList());
+    indexer.index(items().stream().map(i -> event(i, ITEM, tenantId)).toList());
+    lockManager.unlockAll();
+    childrenIndexer.indexChildren();
   }
 
-  // -------------------------------------------------------------------------
-  // Private load methods
-  // -------------------------------------------------------------------------
-
-  private static void loadInstancesUnderLock(
-      String tenantId, InstanceSender sender, LockManager lock) {
-    lock.acquireAll();
-    instances().forEach(i -> sender.send(tenantId, i));
-    holdings().forEach(h -> sender.sendHolding(tenantId, h));
-    items().forEach(it -> sender.sendItem(tenantId, it));
-    lock.releaseAll();
+  /**
+   * Indexes all authority records.
+   */
+  public static void loadAuthorities(String tenantId, RecordsIndexer indexer) {
+    var events = authorities().stream()
+      .map(a -> event(a, AUTHORITY, tenantId))
+      .toList();
+    indexer.index(events);
   }
 
-  private static void loadAuthorities(String tenantId, AuthoritySender sender) {
-    authorities().forEach(a -> sender.send(tenantId, a));
+  /**
+   * Indexes all linked-data records (instances, works, hubs) in order.
+   */
+  public static void loadLinkedData(String tenantId, RecordsIndexer indexer) {
+    indexer.index(linkedDataInstances().stream().map(i -> event(i, LINKED_DATA_INSTANCE, tenantId)).toList());
+    indexer.index(linkedDataWorks().stream().map(w -> event(w, LINKED_DATA_WORK, tenantId)).toList());
+    indexer.index(linkedDataHubs().stream().map(h -> event(h, LINKED_DATA_HUB, tenantId)).toList());
   }
 
-  private static void loadLinkedData(
-      String tenantId, LinkedDataSender sender, IndexVerifier verifier) {
-    var ldInstances = linkedDataInstances();
-    ldInstances.forEach(i -> sender.sendInstance(tenantId, i));
-    verifier.awaitIndexed(tenantId, "/search/linked-data/instances", ldInstances.size());
-
-    var ldWorks = linkedDataWorks();
-    ldWorks.forEach(w -> sender.sendWork(tenantId, w));
-    verifier.awaitIndexed(tenantId, "/search/linked-data/works", ldWorks.size());
-
-    var ldHubs = linkedDataHubs();
-    ldHubs.forEach(h -> sender.sendHub(tenantId, h));
-    verifier.awaitIndexed(tenantId, "/search/linked-data/hubs", ldHubs.size());
+  private static ResourceEvent event(Map<String, Object> payload, ResourceType type, String tenantId) {
+    return new ResourceEvent().id(payload.get(ID_FIELD).toString()).resourceName(type.getName()).type(CREATE).tenant(tenantId)._new(payload);
   }
 
-  // -------------------------------------------------------------------------
-  // Private JSON parsing utils
-  // -------------------------------------------------------------------------
-
-  private static <T> List<T> readArray(String path, Class<T[]> type) {
-    try (InputStream in = SharedTestDataManager.class.getClassLoader().getResourceAsStream(path)) {
-      if (in == null) {
-        throw new IllegalStateException("Test data resource not found on classpath: " + path);
-      }
-      return Arrays.asList(MAPPER.readValue(in, type));
-    } catch (IOException e) {
-      throw new UncheckedIOException("Failed to read test data: " + path, e);
-    }
-  }
-
-  @SuppressWarnings("unchecked")
-  private static List<Map<String, Object>> readMapArray(String path) {
-    return (List<Map<String, Object>>) (List<?>) readArray(path, Map[].class);
-  }
-
-  // -------------------------------------------------------------------------
-  // Functional interfaces — keep this class Spring-free
-  // -------------------------------------------------------------------------
-
-  /** Sends instance events and separate holding/item events to Kafka. */
-  public interface InstanceSender {
-    void send(String tenantId, Instance instance);
-
-    void sendHolding(String tenantId, Map<String, Object> holding);
-
-    void sendItem(String tenantId, Map<String, Object> item);
-  }
-
-  /** Sends authority events to Kafka. */
   @FunctionalInterface
-  public interface AuthoritySender {
-    void send(String tenantId, Authority authority);
+  public interface RecordsIndexer {
+    void index(List<ResourceEvent> events);
   }
 
-  /** Sends linked-data events (instance / work / hub) to Kafka. */
-  public interface LinkedDataSender {
-    void sendInstance(String tenantId, Map<String, Object> instance);
-
-    void sendWork(String tenantId, Map<String, Object> work);
-
-    void sendHub(String tenantId, Map<String, Object> hub);
+  @FunctionalInterface
+  public interface RecordsChildrenIndexer {
+    void indexChildren();
   }
 
-  /** Acquires and releases sub-resource index locks around instance loading. */
   public interface LockManager {
-    void acquireAll();
 
-    void releaseAll();
-  }
+    void lockAll();
 
-  /**
-   * Blocks until a resource batch is fully indexed.
-   */
-  @FunctionalInterface
-  public interface IndexVerifier {
-    void awaitIndexed(String tenantId, String searchPath, int expectedCount);
+    void unlockAll();
   }
 }

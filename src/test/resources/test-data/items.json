@@ -4,6 +4,7 @@
     "hrid": "item000000000014",
     "accessionNumber": "item_accession_number",
     "holdingsRecordId": "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19",
+    "instanceId": "5bf370e0-8cca-4d9c-82e4-5170ab2a0a39",
     "formerIds": [
       "207b9372-127f-4bdd-83e0-147c9fe9bc16",
       "81ae0f60-f2bc-450c-84c8-5a21096daed9"
@@ -68,6 +69,7 @@
     "id": "100d10bf-2f06-4aa0-be15-0b95b2d9f9e3",
     "hrid": "item000000000015",
     "holdingsRecordId": "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19",
+    "instanceId": "5bf370e0-8cca-4d9c-82e4-5170ab2a0a39",
     "formerIds": [],
     "barcode": "90000",
     "itemLevelCallNumber": "TK5105.88815 . A58 2004 FT MEADE",
@@ -138,6 +140,7 @@
     "id": "49347f02-69ac-4c12-b6f2-2afb6059c94b",
     "hrid": "it00000000001",
     "holdingsRecordId": "9550c935-401a-4a85-875e-4d1fe7678870",
+    "instanceId": "5bf370e0-8cca-4d9c-82e4-5170ab2a0a39",
     "formerIds": [],
     "barcode": "12345",
     "effectiveCallNumberComponents": {
@@ -471,1165 +474,6 @@
     }
   },
   {
-    "id": "f0000001-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000001-0000-4000-9000-000000000000",
-    "instanceId": "f0000001-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "TA357 .A78 2010",
-      "typeId": "cbc422b0-b71a-4d2d-9a2a-9fcc56a57a3e"
-    },
-    "volume": "v.1",
-    "copyNumber": "c.1"
-  },
-  {
-    "id": "f0000001-0002-4000-a000-000000000000",
-    "holdingsRecordId": "f0000001-0000-4000-9000-000000000000",
-    "instanceId": "f0000001-0000-4000-8000-000000000000",
-    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
-    "effectiveCallNumberComponents": {
-      "callNumber": "664.051 4",
-      "typeId": "0b5d15ad-1738-4e9e-a9c1-e972e95ce71c"
-    },
-    "enumeration": "v.2 no.1-3 1949",
-    "copyNumber": "c.1"
-  },
-  {
-    "id": "f0000002-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000002-0000-4000-9000-000000000000",
-    "instanceId": "f0000002-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "TA357 .A78 2010",
-      "typeId": "cbc422b0-b71a-4d2d-9a2a-9fcc56a57a3e"
-    },
-    "volume": "v.1",
-    "copyNumber": "c.1"
-  },
-  {
-    "id": "f0000003-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000003-0000-4000-9000-000000000000",
-    "instanceId": "f0000003-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "WG 200 M489 1969",
-      "typeId": "530b84ea-4965-4cda-9d9e-6a5ef91fd21e"
-    }
-  },
-  {
-    "id": "f0000003-0002-4000-a000-000000000000",
-    "holdingsRecordId": "f0000003-0000-4000-9000-000000000000",
-    "instanceId": "f0000003-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "Y 10.13:980",
-      "typeId": "6b368b19-0d18-4689-8d15-cf904e15b3f0"
-    }
-  },
-  {
-    "id": "f0000004-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000004-0000-4000-9000-000000000000",
-    "instanceId": "f0000004-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "PICOULT",
-      "typeId": "cf74a451-41ad-49aa-aa2b-21d2d2f2e235",
-      "prefix": "FIC"
-    }
-  },
-  {
-    "id": "f0000004-0002-4000-a000-000000000000",
-    "holdingsRecordId": "f0000004-0000-4000-9000-000000000000",
-    "instanceId": "f0000004-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "HB30.G64 1974",
-      "typeId": "cbc422b0-b71a-4d2d-9a2a-9fcc56a57a3e",
-      "prefix": "microfm"
-    }
-  },
-  {
-    "id": "f0000004-0003-4000-a000-000000000000",
-    "holdingsRecordId": "f0000004-0000-4000-9000-000000000000",
-    "instanceId": "f0000004-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "618.92/12",
-      "typeId": "0b5d15ad-1738-4e9e-a9c1-e972e95ce71c"
-    }
-  },
-  {
-    "id": "f0000004-0004-4000-a000-000000000000",
-    "holdingsRecordId": "f0000004-0000-4000-9000-000000000000",
-    "instanceId": "f0000004-0000-4000-8000-000000000000",
-    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
-    "effectiveCallNumberComponents": {
-      "callNumber": "QZ 380 N494 1979",
-      "typeId": "530b84ea-4965-4cda-9d9e-6a5ef91fd21e"
-    }
-  },
-  {
-    "id": "f0000005-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000005-0000-4000-9000-000000000000",
-    "instanceId": "f0000005-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "TA357 .A78 2010",
-      "typeId": "cbc422b0-b71a-4d2d-9a2a-9fcc56a57a3e"
-    },
-    "volume": "v.1",
-    "copyNumber": "c.1"
-  },
-  {
-    "id": "f0000005-0002-4000-a000-000000000000",
-    "holdingsRecordId": "f0000005-0000-4000-9000-000000000000",
-    "instanceId": "f0000005-0000-4000-8000-000000000000",
-    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
-    "effectiveCallNumberComponents": {
-      "callNumber": "QZ 380 N494 1979",
-      "typeId": "530b84ea-4965-4cda-9d9e-6a5ef91fd21e"
-    }
-  },
-  {
-    "id": "f0000005-0003-4000-a000-000000000000",
-    "holdingsRecordId": "f0000005-0000-4000-9000-000000000000",
-    "instanceId": "f0000005-0000-4000-8000-000000000000",
-    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
-    "effectiveCallNumberComponents": {
-      "callNumber": "Y 4.En 2/3:99-96",
-      "typeId": "6b368b19-0d18-4689-8d15-cf904e15b3f0"
-    }
-  },
-  {
-    "id": "f0000006-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000006-0000-4000-9000-000000000000",
-    "instanceId": "f0000006-0000-4000-8000-000000000000",
-    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
-    "effectiveCallNumberComponents": {
-      "callNumber": "FICTION HART",
-      "typeId": "cf74a451-41ad-49aa-aa2b-21d2d2f2e235",
-      "prefix": "LARGE PRINT"
-    }
-  },
-  {
-    "id": "f0000006-0002-4000-a000-000000000000",
-    "holdingsRecordId": "f0000006-0000-4000-9000-000000000000",
-    "instanceId": "f0000006-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "Z997.S93",
-      "typeId": "cbc422b0-b71a-4d2d-9a2a-9fcc56a57a3e"
-    }
-  },
-  {
-    "id": "f0000007-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000007-0000-4000-9000-000000000000",
-    "instanceId": "f0000007-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "748.5",
-      "typeId": "0b5d15ad-1738-4e9e-a9c1-e972e95ce71c",
-      "prefix": "DVD",
-      "suffix": "STA"
-    }
-  },
-  {
-    "id": "f0000008-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000008-0000-4000-9000-000000000000",
-    "instanceId": "f0000008-0000-4000-8000-000000000000",
-    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
-    "effectiveCallNumberComponents": {
-      "callNumber": "QZ 380 N494 1979",
-      "typeId": "530b84ea-4965-4cda-9d9e-6a5ef91fd21e"
-    }
-  },
-  {
-    "id": "f0000008-0002-4000-a000-000000000000",
-    "holdingsRecordId": "f0000008-0000-4000-9000-000000000000",
-    "instanceId": "f0000008-0000-4000-8000-000000000000",
-    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
-    "effectiveCallNumberComponents": {
-      "callNumber": "WG140 H719b",
-      "typeId": "530b84ea-4965-4cda-9d9e-6a5ef91fd21e"
-    }
-  },
-  {
-    "id": "f0000008-0003-4000-a000-000000000000",
-    "holdingsRecordId": "f0000008-0000-4000-9000-000000000000",
-    "instanceId": "f0000008-0000-4000-8000-000000000000",
-    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
-    "effectiveCallNumberComponents": {
-      "callNumber": "HE 20.315/2: 96-4",
-      "typeId": "6b368b19-0d18-4689-8d15-cf904e15b3f0",
-      "prefix": "US MicFiche"
-    }
-  },
-  {
-    "id": "f0000009-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000009-0000-4000-9000-000000000000",
-    "instanceId": "f0000009-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "BLUE",
-      "typeId": "cf74a451-41ad-49aa-aa2b-21d2d2f2e235",
-      "prefix": "POP/ROCK",
-      "suffix": "CD"
-    }
-  },
-  {
-    "id": "f0000010-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000010-0000-4000-9000-000000000000",
-    "instanceId": "f0000010-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "RJ421 .D3",
-      "typeId": "cbc422b0-b71a-4d2d-9a2a-9fcc56a57a3e"
-    },
-    "copyNumber": "Copy 1"
-  },
-  {
-    "id": "f0000011-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000011-0000-4000-9000-000000000000",
-    "instanceId": "f0000011-0000-4000-8000-000000000000",
-    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
-    "effectiveCallNumberComponents": {
-      "callNumber": "818/.309 19",
-      "typeId": "0b5d15ad-1738-4e9e-a9c1-e972e95ce71c"
-    }
-  },
-  {
-    "id": "f0000012-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000012-0000-4000-9000-000000000000",
-    "instanceId": "f0000012-0000-4000-8000-000000000000",
-    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
-    "effectiveCallNumberComponents": {
-      "callNumber": "WL 500 I61p",
-      "typeId": "530b84ea-4965-4cda-9d9e-6a5ef91fd21e"
-    },
-    "copyNumber": "c.1"
-  },
-  {
-    "id": "f0000012-0002-4000-a000-000000000000",
-    "holdingsRecordId": "f0000012-0000-4000-9000-000000000000",
-    "instanceId": "f0000012-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "Y 4.En2/3:99th 99-96",
-      "typeId": "6b368b19-0d18-4689-8d15-cf904e15b3f0",
-      "prefix": "US"
-    }
-  },
-  {
-    "id": "f0000012-0003-4000-a000-000000000000",
-    "holdingsRecordId": "f0000012-0000-4000-9000-000000000000",
-    "instanceId": "f0000012-0000-4000-8000-000000000000",
-    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
-    "effectiveCallNumberComponents": {
-      "callNumber": "CHOPIN",
-      "typeId": "cf74a451-41ad-49aa-aa2b-21d2d2f2e235",
-      "prefix": "CD PIANO"
-    }
-  },
-  {
-    "id": "f0000013-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000013-0000-4000-9000-000000000000",
-    "instanceId": "f0000013-0000-4000-8000-000000000000",
-    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
-    "effectiveCallNumberComponents": {
-      "callNumber": "QP363 .N6 1965",
-      "typeId": "cbc422b0-b71a-4d2d-9a2a-9fcc56a57a3e",
-      "suffix": "FT MEADE"
-    },
-    "copyNumber": "Copy 2"
-  },
-  {
-    "id": "f0000014-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000014-0000-4000-9000-000000000000",
-    "instanceId": "f0000014-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "929.1973",
-      "typeId": "0b5d15ad-1738-4e9e-a9c1-e972e95ce71c",
-      "prefix": "GEN",
-      "suffix": "MCH"
-    }
-  },
-  {
-    "id": "f0000015-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000015-0000-4000-9000-000000000000",
-    "instanceId": "f0000015-0000-4000-8000-000000000000",
-    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
-    "effectiveCallNumberComponents": {
-      "callNumber": "WK 385 P973e 1969",
-      "typeId": "530b84ea-4965-4cda-9d9e-6a5ef91fd21e"
-    }
-  },
-  {
-    "id": "f0000016-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000016-0000-4000-9000-000000000000",
-    "instanceId": "f0000016-0000-4000-8000-000000000000",
-    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
-    "effectiveCallNumberComponents": {
-      "callNumber": "GS1.2:So2/4",
-      "typeId": "6b368b19-0d18-4689-8d15-cf904e15b3f0"
-    }
-  },
-  {
-    "id": "f0000016-0002-4000-a000-000000000000",
-    "holdingsRecordId": "f0000016-0000-4000-9000-000000000000",
-    "instanceId": "f0000016-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "SYLY-12",
-      "typeId": "cf74a451-41ad-49aa-aa2b-21d2d2f2e235"
-    }
-  },
-  {
-    "id": "f0000016-0003-4000-a000-000000000000",
-    "holdingsRecordId": "f0000016-0000-4000-9000-000000000000",
-    "instanceId": "f0000016-0000-4000-8000-000000000000",
-    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
-    "effectiveCallNumberComponents": {
-      "callNumber": "RC280.N4 N49",
-      "typeId": "cbc422b0-b71a-4d2d-9a2a-9fcc56a57a3e"
-    }
-  },
-  {
-    "id": "f0000016-0004-4000-a000-000000000000",
-    "holdingsRecordId": "f0000016-0000-4000-9000-000000000000",
-    "instanceId": "f0000016-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "912.773",
-      "typeId": "0b5d15ad-1738-4e9e-a9c1-e972e95ce71c",
-      "prefix": "LH "
-    }
-  },
-  {
-    "id": "f0000016-0005-4000-a000-000000000000",
-    "holdingsRecordId": "f0000016-0000-4000-9000-000000000000",
-    "instanceId": "f0000016-0000-4000-8000-000000000000",
-    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
-    "effectiveCallNumberComponents": {
-      "callNumber": "WS105 O52m 1929f",
-      "typeId": "530b84ea-4965-4cda-9d9e-6a5ef91fd21e"
-    }
-  },
-  {
-    "id": "f0000016-0006-4000-a000-000000000000",
-    "holdingsRecordId": "f0000016-0000-4000-9000-000000000000",
-    "instanceId": "f0000016-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "J29.2:D84/2",
-      "typeId": "6b368b19-0d18-4689-8d15-cf904e15b3f0"
-    }
-  },
-  {
-    "id": "f0000016-0007-4000-a000-000000000000",
-    "holdingsRecordId": "f0000016-0000-4000-9000-000000000000",
-    "instanceId": "f0000016-0000-4000-8000-000000000000",
-    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
-    "effectiveCallNumberComponents": {
-      "callNumber": "M653-202",
-      "typeId": "cf74a451-41ad-49aa-aa2b-21d2d2f2e235",
-      "prefix": "MICROFILM"
-    }
-  },
-  {
-    "id": "f0000017-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000017-0000-4000-9000-000000000000",
-    "instanceId": "f0000017-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "929.1973",
-      "typeId": "0b5d15ad-1738-4e9e-a9c1-e972e95ce71c",
-      "prefix": "GEN",
-      "suffix": "MCH"
-    }
-  },
-  {
-    "id": "f0000017-0002-4000-a000-000000000000",
-    "holdingsRecordId": "f0000017-0000-4000-9000-000000000000",
-    "instanceId": "f0000017-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "J29.2:D84/2",
-      "typeId": "6b368b19-0d18-4689-8d15-cf904e15b3f0"
-    }
-  },
-  {
-    "id": "f0000017-0003-4000-a000-000000000000",
-    "holdingsRecordId": "f0000017-0000-4000-9000-000000000000",
-    "instanceId": "f0000017-0000-4000-8000-000000000000",
-    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
-    "effectiveCallNumberComponents": {
-      "callNumber": "GV837 .F92",
-      "typeId": "cbc422b0-b71a-4d2d-9a2a-9fcc56a57a3e"
-    },
-    "copyNumber": "c.1"
-  },
-  {
-    "id": "f0000017-0004-4000-a000-000000000000",
-    "holdingsRecordId": "f0000017-0000-4000-9000-000000000000",
-    "instanceId": "f0000017-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "977.322",
-      "typeId": "0b5d15ad-1738-4e9e-a9c1-e972e95ce71c",
-      "prefix": "LH DVD",
-      "suffix": "MCH"
-    }
-  },
-  {
-    "id": "f0000018-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000018-0000-4000-9000-000000000000",
-    "instanceId": "f0000018-0000-4000-8000-000000000000",
-    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
-    "effectiveCallNumberComponents": {
-      "callNumber": "WB 100 M4891",
-      "typeId": "530b84ea-4965-4cda-9d9e-6a5ef91fd21e"
-    }
-  },
-  {
-    "id": "f0000018-0002-4000-a000-000000000000",
-    "holdingsRecordId": "f0000018-0000-4000-9000-000000000000",
-    "instanceId": "f0000018-0000-4000-8000-000000000000",
-    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
-    "effectiveCallNumberComponents": {
-      "callNumber": "EP 1.8: Ac 7/2",
-      "typeId": "6b368b19-0d18-4689-8d15-cf904e15b3f0"
-    }
-  },
-  {
-    "id": "f0000019-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000019-0000-4000-9000-000000000000",
-    "instanceId": "f0000019-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "Rowling",
-      "typeId": "cf74a451-41ad-49aa-aa2b-21d2d2f2e235",
-      "prefix": "jFICTION"
-    }
-  },
-  {
-    "id": "f0000019-0002-4000-a000-000000000000",
-    "holdingsRecordId": "f0000019-0000-4000-9000-000000000000",
-    "instanceId": "f0000019-0000-4000-8000-000000000000",
-    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
-    "effectiveCallNumberComponents": {
-      "callNumber": "AN2.I45 C48",
-      "typeId": "cbc422b0-b71a-4d2d-9a2a-9fcc56a57a3e"
-    }
-  },
-  {
-    "id": "f0000020-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000020-0000-4000-9000-000000000000",
-    "instanceId": "f0000020-0000-4000-8000-000000000000",
-    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
-    "effectiveCallNumberComponents": {
-      "callNumber": "616.99/383",
-      "typeId": "0b5d15ad-1738-4e9e-a9c1-e972e95ce71c"
-    }
-  },
-  {
-    "id": "f0000020-0002-4000-a000-000000000000",
-    "holdingsRecordId": "f0000020-0000-4000-9000-000000000000",
-    "instanceId": "f0000020-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "QX 4 J647m",
-      "typeId": "530b84ea-4965-4cda-9d9e-6a5ef91fd21e"
-    }
-  },
-  {
-    "id": "f0000020-0003-4000-a000-000000000000",
-    "holdingsRecordId": "f0000020-0000-4000-9000-000000000000",
-    "instanceId": "f0000020-0000-4000-8000-000000000000",
-    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
-    "effectiveCallNumberComponents": {
-      "callNumber": "Y 4.C 73/8:115-85",
-      "typeId": "6b368b19-0d18-4689-8d15-cf904e15b3f0",
-      "prefix": "USG"
-    }
-  },
-  {
-    "id": "f0000020-0004-4000-a000-000000000000",
-    "holdingsRecordId": "f0000020-0000-4000-9000-000000000000",
-    "instanceId": "f0000020-0000-4000-8000-000000000000",
-    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
-    "effectiveCallNumberComponents": {
-      "callNumber": "0634V",
-      "typeId": "cf74a451-41ad-49aa-aa2b-21d2d2f2e235"
-    }
-  },
-  {
-    "id": "f0000021-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000021-0000-4000-9000-000000000000",
-    "instanceId": "f0000021-0000-4000-8000-000000000000",
-    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
-    "effectiveCallNumberComponents": {
-      "callNumber": "QP363 .N6 1965",
-      "typeId": "cbc422b0-b71a-4d2d-9a2a-9fcc56a57a3e",
-      "suffix": "FT MEADE"
-    },
-    "copyNumber": "Copy 2"
-  },
-  {
-    "id": "f0000021-0002-4000-a000-000000000000",
-    "holdingsRecordId": "f0000021-0000-4000-9000-000000000000",
-    "instanceId": "f0000021-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "929.1973",
-      "typeId": "0b5d15ad-1738-4e9e-a9c1-e972e95ce71c",
-      "prefix": "GEN",
-      "suffix": "MCH"
-    }
-  },
-  {
-    "id": "f0000021-0003-4000-a000-000000000000",
-    "holdingsRecordId": "f0000021-0000-4000-9000-000000000000",
-    "instanceId": "f0000021-0000-4000-8000-000000000000",
-    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
-    "effectiveCallNumberComponents": {
-      "callNumber": "WK 385 P973e 1969",
-      "typeId": "530b84ea-4965-4cda-9d9e-6a5ef91fd21e"
-    }
-  },
-  {
-    "id": "f0000022-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000022-0000-4000-9000-000000000000",
-    "instanceId": "f0000022-0000-4000-8000-000000000000",
-    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
-    "effectiveCallNumberComponents": {
-      "callNumber": "RC667 .N47 2010",
-      "typeId": "cbc422b0-b71a-4d2d-9a2a-9fcc56a57a3e"
-    },
-    "copyNumber": "c. 1"
-  },
-  {
-    "id": "f0000023-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000023-0000-4000-9000-000000000000",
-    "instanceId": "f0000023-0000-4000-8000-000000000000",
-    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
-    "effectiveCallNumberComponents": {
-      "callNumber": "912.773",
-      "typeId": "0b5d15ad-1738-4e9e-a9c1-e972e95ce71c",
-      "prefix": "R",
-      "suffix": "(LOCAL HISTORY)"
-    }
-  },
-  {
-    "id": "f0000024-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000024-0000-4000-9000-000000000000",
-    "instanceId": "f0000024-0000-4000-8000-000000000000",
-    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
-    "effectiveCallNumberComponents": {
-      "callNumber": "WC 450 R47 2012",
-      "typeId": "530b84ea-4965-4cda-9d9e-6a5ef91fd21e"
-    }
-  },
-  {
-    "id": "f0000025-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000025-0000-4000-9000-000000000000",
-    "instanceId": "f0000025-0000-4000-8000-000000000000",
-    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
-    "effectiveCallNumberComponents": {
-      "callNumber": "Y4.J89/2:R53",
-      "typeId": "6b368b19-0d18-4689-8d15-cf904e15b3f0"
-    },
-    "copyNumber": "c.1"
-  },
-  {
-    "id": "f0000026-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000026-0000-4000-9000-000000000000",
-    "instanceId": "f0000026-0000-4000-8000-000000000000",
-    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
-    "effectiveCallNumberComponents": {
-      "callNumber": "DKLY-12",
-      "typeId": "cf74a451-41ad-49aa-aa2b-21d2d2f2e235"
-    }
-  },
-  {
-    "id": "f0000026-0002-4000-a000-000000000000",
-    "holdingsRecordId": "f0000026-0000-4000-9000-000000000000",
-    "instanceId": "f0000026-0000-4000-8000-000000000000",
-    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
-    "effectiveCallNumberComponents": {
-      "callNumber": "PJ4.J8",
-      "typeId": "cbc422b0-b71a-4d2d-9a2a-9fcc56a57a3e"
-    },
-    "enumeration": "v.227 no.2 1935",
-    "copyNumber": "c.2"
-  },
-  {
-    "id": "f0000027-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000027-0000-4000-9000-000000000000",
-    "instanceId": "f0000027-0000-4000-8000-000000000000",
-    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
-    "effectiveCallNumberComponents": {
-      "callNumber": "929.31",
-      "typeId": "0b5d15ad-1738-4e9e-a9c1-e972e95ce71c",
-      "prefix": "REF"
-    }
-  },
-  {
-    "id": "f0000027-0002-4000-a000-000000000000",
-    "holdingsRecordId": "f0000027-0000-4000-9000-000000000000",
-    "instanceId": "f0000027-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "WL 11 AA1 J64 2016",
-      "typeId": "530b84ea-4965-4cda-9d9e-6a5ef91fd21e"
-    }
-  },
-  {
-    "id": "f0000027-0003-4000-a000-000000000000",
-    "holdingsRecordId": "f0000027-0000-4000-9000-000000000000",
-    "instanceId": "f0000027-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "Y10.2:P38",
-      "typeId": "6b368b19-0d18-4689-8d15-cf904e15b3f0",
-      "prefix": "microfc"
-    }
-  },
-  {
-    "id": "f0000027-0004-4000-a000-000000000000",
-    "holdingsRecordId": "f0000027-0000-4000-9000-000000000000",
-    "instanceId": "f0000027-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "0.257638889",
-      "typeId": "cf74a451-41ad-49aa-aa2b-21d2d2f2e235",
-      "prefix": "Oversize"
-    }
-  },
-  {
-    "id": "f0000028-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000028-0000-4000-9000-000000000000",
-    "instanceId": "f0000028-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "QR1.I6",
-      "typeId": "cbc422b0-b71a-4d2d-9a2a-9fcc56a57a3e"
-    },
-    "volume": "v.12",
-    "enumeration": "1898",
-    "copyNumber": "c.1"
-  },
-  {
-    "id": "f0000028-0002-4000-a000-000000000000",
-    "holdingsRecordId": "f0000028-0000-4000-9000-000000000000",
-    "instanceId": "f0000028-0000-4000-8000-000000000000",
-    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
-    "effectiveCallNumberComponents": {
-      "callNumber": "370.977",
-      "typeId": "0b5d15ad-1738-4e9e-a9c1-e972e95ce71c",
-      "suffix": "DEK"
-    }
-  },
-  {
-    "id": "f0000028-0003-4000-a000-000000000000",
-    "holdingsRecordId": "f0000028-0000-4000-9000-000000000000",
-    "instanceId": "f0000028-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "WS 420 F1985 2015",
-      "typeId": "530b84ea-4965-4cda-9d9e-6a5ef91fd21e"
-    }
-  },
-  {
-    "id": "f0000029-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000029-0000-4000-9000-000000000000",
-    "instanceId": "f0000029-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "I 29.6/6:F 75/988",
-      "typeId": "6b368b19-0d18-4689-8d15-cf904e15b3f0"
-    }
-  },
-  {
-    "id": "f0000029-0002-4000-a000-000000000000",
-    "holdingsRecordId": "f0000029-0000-4000-9000-000000000000",
-    "instanceId": "f0000029-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "977",
-      "typeId": "cf74a451-41ad-49aa-aa2b-21d2d2f2e235",
-      "suffix": "1987 ED."
-    }
-  },
-  {
-    "id": "f0000029-0003-4000-a000-000000000000",
-    "holdingsRecordId": "f0000029-0000-4000-9000-000000000000",
-    "instanceId": "f0000029-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "EMI 458",
-      "typeId": "cbc422b0-b71a-4d2d-9a2a-9fcc56a57a3e",
-      "prefix": "AudCD"
-    }
-  },
-  {
-    "id": "f0000030-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000030-0000-4000-9000-000000000000",
-    "instanceId": "f0000030-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "338.1",
-      "typeId": "0b5d15ad-1738-4e9e-a9c1-e972e95ce71c",
-      "prefix": "R",
-      "suffix": "MOG"
-    }
-  },
-  {
-    "id": "f0000030-0002-4000-a000-000000000000",
-    "holdingsRecordId": "f0000030-0000-4000-9000-000000000000",
-    "instanceId": "f0000030-0000-4000-8000-000000000000",
-    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
-    "effectiveCallNumberComponents": {
-      "callNumber": "WY 11 AA1 J92h 2010",
-      "typeId": "530b84ea-4965-4cda-9d9e-6a5ef91fd21e"
-    }
-  },
-  {
-    "id": "f0000030-0003-4000-a000-000000000000",
-    "holdingsRecordId": "f0000030-0000-4000-9000-000000000000",
-    "instanceId": "f0000030-0000-4000-8000-000000000000",
-    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
-    "effectiveCallNumberComponents": {
-      "callNumber": "A 1.68: 1461/991",
-      "typeId": "6b368b19-0d18-4689-8d15-cf904e15b3f0"
-    },
-    "copyNumber": "c.4"
-  },
-  {
-    "id": "f0000030-0004-4000-a000-000000000000",
-    "holdingsRecordId": "f0000030-0000-4000-9000-000000000000",
-    "instanceId": "f0000030-0000-4000-8000-000000000000",
-    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
-    "effectiveCallNumberComponents": {
-      "callNumber": "Fiction Rowling",
-      "typeId": "cf74a451-41ad-49aa-aa2b-21d2d2f2e235",
-      "prefix": "Teen Spanish"
-    }
-  },
-  {
-    "id": "f0000031-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000031-0000-4000-9000-000000000000",
-    "instanceId": "f0000031-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "D848 .A1934 2018",
-      "typeId": "cbc422b0-b71a-4d2d-9a2a-9fcc56a57a3e"
-    }
-  },
-  {
-    "id": "f0000031-0002-4000-a000-000000000000",
-    "holdingsRecordId": "f0000031-0000-4000-9000-000000000000",
-    "instanceId": "f0000031-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "929.377328",
-      "typeId": "0b5d15ad-1738-4e9e-a9c1-e972e95ce71c",
-      "prefix": "R",
-      "suffix": "GSDC"
-    }
-  },
-  {
-    "id": "f0000031-0003-4000-a000-000000000000",
-    "holdingsRecordId": "f0000031-0000-4000-9000-000000000000",
-    "instanceId": "f0000031-0000-4000-8000-000000000000",
-    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
-    "effectiveCallNumberComponents": {
-      "callNumber": "WK 850 D5363 2010",
-      "typeId": "530b84ea-4965-4cda-9d9e-6a5ef91fd21e"
-    }
-  },
-  {
-    "id": "f0000031-0004-4000-a000-000000000000",
-    "holdingsRecordId": "f0000031-0000-4000-9000-000000000000",
-    "instanceId": "f0000031-0000-4000-8000-000000000000",
-    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
-    "effectiveCallNumberComponents": {
-      "callNumber": "J 1.8/2:R 11/988",
-      "typeId": "6b368b19-0d18-4689-8d15-cf904e15b3f0"
-    }
-  },
-  {
-    "id": "f0000032-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000032-0000-4000-9000-000000000000",
-    "instanceId": "f0000032-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "Meyer ",
-      "typeId": "cf74a451-41ad-49aa-aa2b-21d2d2f2e235",
-      "prefix": "Teen Graphic Novel"
-    },
-    "volume": "v.1"
-  },
-  {
-    "id": "f0000033-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000033-0000-4000-9000-000000000000",
-    "instanceId": "f0000033-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "HV6021 .W55 2018",
-      "typeId": "cbc422b0-b71a-4d2d-9a2a-9fcc56a57a3e"
-    }
-  },
-  {
-    "id": "f0000034-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000034-0000-4000-9000-000000000000",
-    "instanceId": "f0000034-0000-4000-8000-000000000000",
-    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
-    "effectiveCallNumberComponents": {
-      "callNumber": "929.5",
-      "typeId": "0b5d15ad-1738-4e9e-a9c1-e972e95ce71c",
-      "prefix": "LOCAL ",
-      "suffix": "CEM"
-    }
-  },
-  {
-    "id": "f0000035-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000035-0000-4000-9000-000000000000",
-    "instanceId": "f0000035-0000-4000-8000-000000000000",
-    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
-    "effectiveCallNumberComponents": {
-      "callNumber": "WA 900.AA1 I55h 1996",
-      "typeId": "530b84ea-4965-4cda-9d9e-6a5ef91fd21e"
-    }
-  },
-  {
-    "id": "f0000035-0002-4000-a000-000000000000",
-    "holdingsRecordId": "f0000035-0000-4000-9000-000000000000",
-    "instanceId": "f0000035-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "A 1.28:823",
-      "typeId": "6b368b19-0d18-4689-8d15-cf904e15b3f0",
-      "prefix": "U S Doc"
-    }
-  },
-  {
-    "id": "f0000035-0003-4000-a000-000000000000",
-    "holdingsRecordId": "f0000035-0000-4000-9000-000000000000",
-    "instanceId": "f0000035-0000-4000-8000-000000000000",
-    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
-    "effectiveCallNumberComponents": {
-      "callNumber": "Twilight Breaking",
-      "typeId": "cf74a451-41ad-49aa-aa2b-21d2d2f2e235",
-      "prefix": "DVD",
-      "suffix": "pt. 1"
-    },
-    "enumeration": "2 discs"
-  },
-  {
-    "id": "f0000036-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000036-0000-4000-9000-000000000000",
-    "instanceId": "f0000036-0000-4000-8000-000000000000",
-    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
-    "effectiveCallNumberComponents": {
-      "callNumber": "SB1.P71",
-      "typeId": "cbc422b0-b71a-4d2d-9a2a-9fcc56a57a3e"
-    },
-    "enumeration": "no.146-147 1996"
-  },
-  {
-    "id": "f0000036-0002-4000-a000-000000000000",
-    "holdingsRecordId": "f0000036-0000-4000-9000-000000000000",
-    "instanceId": "f0000036-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "977.328",
-      "typeId": "0b5d15ad-1738-4e9e-a9c1-e972e95ce71c",
-      "suffix": "BIG"
-    }
-  },
-  {
-    "id": "f0000036-0003-4000-a000-000000000000",
-    "holdingsRecordId": "f0000036-0000-4000-9000-000000000000",
-    "instanceId": "f0000036-0000-4000-8000-000000000000",
-    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
-    "effectiveCallNumberComponents": {
-      "callNumber": "QV 18.2 L765 2015",
-      "typeId": "530b84ea-4965-4cda-9d9e-6a5ef91fd21e",
-      "prefix": "Stacks"
-    },
-    "copyNumber": "c.3"
-  },
-  {
-    "id": "f0000036-0004-4000-a000-000000000000",
-    "holdingsRecordId": "f0000036-0000-4000-9000-000000000000",
-    "instanceId": "f0000036-0000-4000-8000-000000000000",
-    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
-    "effectiveCallNumberComponents": {
-      "callNumber": "I 1.98:M 77",
-      "typeId": "6b368b19-0d18-4689-8d15-cf904e15b3f0",
-      "suffix": "Final"
-    }
-  },
-  {
-    "id": "f0000036-0005-4000-a000-000000000000",
-    "holdingsRecordId": "f0000036-0000-4000-9000-000000000000",
-    "instanceId": "f0000036-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "King",
-      "typeId": "cf74a451-41ad-49aa-aa2b-21d2d2f2e235",
-      "prefix": "CD Horror"
-    },
-    "enumeration": "13 discs"
-  },
-  {
-    "id": "f0000037-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000037-0000-4000-9000-000000000000",
-    "instanceId": "f0000037-0000-4000-8000-000000000000",
-    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
-    "effectiveCallNumberComponents": {
-      "callNumber": "BJ1499.S65",
-      "typeId": "cbc422b0-b71a-4d2d-9a2a-9fcc56a57a3e"
-    }
-  },
-  {
-    "id": "f0000038-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000038-0000-4000-9000-000000000000",
-    "instanceId": "f0000038-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "371.782",
-      "typeId": "0b5d15ad-1738-4e9e-a9c1-e972e95ce71c",
-      "prefix": "SOCIAL SCIENCE",
-      "suffix": "ARC"
-    }
-  },
-  {
-    "id": "f0000039-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000039-0000-4000-9000-000000000000",
-    "instanceId": "f0000039-0000-4000-8000-000000000000",
-    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
-    "effectiveCallNumberComponents": {
-      "callNumber": "Wv 4 B311 2018",
-      "typeId": "530b84ea-4965-4cda-9d9e-6a5ef91fd21e",
-      "prefix": "Reserve"
-    },
-    "copyNumber": "c.2"
-  },
-  {
-    "id": "f0000040-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000040-0000-4000-9000-000000000000",
-    "instanceId": "f0000040-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "Y 4.Ag 8/3:H 91",
-      "typeId": "6b368b19-0d18-4689-8d15-cf904e15b3f0"
-    }
-  },
-  {
-    "id": "f0000040-0002-4000-a000-000000000000",
-    "holdingsRecordId": "f0000040-0000-4000-9000-000000000000",
-    "instanceId": "f0000040-0000-4000-8000-000000000000",
-    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
-    "effectiveCallNumberComponents": {
-      "callNumber": "Collins",
-      "typeId": "cf74a451-41ad-49aa-aa2b-21d2d2f2e235",
-      "prefix": "Picture Book"
-    }
-  },
-  {
-    "id": "f0000041-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000041-0000-4000-9000-000000000000",
-    "instanceId": "f0000041-0000-4000-8000-000000000000",
-    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
-    "effectiveCallNumberComponents": {
-      "callNumber": "E99.I7 P4",
-      "typeId": "cbc422b0-b71a-4d2d-9a2a-9fcc56a57a3e"
-    }
-  },
-  {
-    "id": "f0000041-0002-4000-a000-000000000000",
-    "holdingsRecordId": "f0000041-0000-4000-9000-000000000000",
-    "instanceId": "f0000041-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "363.41",
-      "typeId": "0b5d15ad-1738-4e9e-a9c1-e972e95ce71c",
-      "prefix": "YA",
-      "suffix": "WAT"
-    }
-  },
-  {
-    "id": "f0000042-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000042-0000-4000-9000-000000000000",
-    "instanceId": "f0000042-0000-4000-8000-000000000000",
-    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
-    "effectiveCallNumberComponents": {
-      "callNumber": "WV 11.1 L435h 1975",
-      "typeId": "530b84ea-4965-4cda-9d9e-6a5ef91fd21e",
-      "prefix": "History"
-    }
-  },
-  {
-    "id": "f0000042-0002-4000-a000-000000000000",
-    "holdingsRecordId": "f0000042-0000-4000-9000-000000000000",
-    "instanceId": "f0000042-0000-4000-8000-000000000000",
-    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
-    "effectiveCallNumberComponents": {
-      "callNumber": "Y 1.1/8:98-588/pt.1",
-      "typeId": "6b368b19-0d18-4689-8d15-cf904e15b3f0"
-    }
-  },
-  {
-    "id": "f0000043-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000043-0000-4000-9000-000000000000",
-    "instanceId": "f0000043-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "MMC-3625",
-      "typeId": "cf74a451-41ad-49aa-aa2b-21d2d2f2e235"
-    }
-  },
-  {
-    "id": "f0000043-0002-4000-a000-000000000000",
-    "holdingsRecordId": "f0000043-0000-4000-9000-000000000000",
-    "instanceId": "f0000043-0000-4000-8000-000000000000",
-    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
-    "effectiveCallNumberComponents": {
-      "callNumber": "Q127.U6U49",
-      "typeId": "cbc422b0-b71a-4d2d-9a2a-9fcc56a57a3e"
-    },
-    "enumeration": "1981 source materials v.1",
-    "copyNumber": "c.1"
-  },
-  {
-    "id": "f0000044-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000044-0000-4000-9000-000000000000",
-    "instanceId": "f0000044-0000-4000-8000-000000000000",
-    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
-    "effectiveCallNumberComponents": {
-      "callNumber": "553.7",
-      "typeId": "0b5d15ad-1738-4e9e-a9c1-e972e95ce71c",
-      "prefix": "J",
-      "suffix": "STE"
-    }
-  },
-  {
-    "id": "f0000044-0002-4000-a000-000000000000",
-    "holdingsRecordId": "f0000044-0000-4000-9000-000000000000",
-    "instanceId": "f0000044-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "WF 11.1 J13a 2009",
-      "typeId": "530b84ea-4965-4cda-9d9e-6a5ef91fd21e"
-    }
-  },
-  {
-    "id": "f0000045-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000045-0000-4000-9000-000000000000",
-    "instanceId": "f0000045-0000-4000-8000-000000000000",
-    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
-    "effectiveCallNumberComponents": {
-      "callNumber": "A 1.38:290/1945",
-      "typeId": "6b368b19-0d18-4689-8d15-cf904e15b3f0"
-    }
-  },
-  {
-    "id": "f0000045-0002-4000-a000-000000000000",
-    "holdingsRecordId": "f0000045-0000-4000-9000-000000000000",
-    "instanceId": "f0000045-0000-4000-8000-000000000000",
-    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
-    "effectiveCallNumberComponents": {
-      "callNumber": "9200 4683",
-      "typeId": "cf74a451-41ad-49aa-aa2b-21d2d2f2e235",
-      "prefix": "f"
-    },
-    "enumeration": "no.51-96,98-140 1972-75"
-  },
-  {
-    "id": "f0000046-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000046-0000-4000-9000-000000000000",
-    "instanceId": "f0000046-0000-4000-8000-000000000000",
-    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
-    "effectiveCallNumberComponents": {
-      "callNumber": "SDD 66727",
-      "typeId": "cbc422b0-b71a-4d2d-9a2a-9fcc56a57a3e"
-    }
-  },
-  {
-    "id": "f0000046-0002-4000-a000-000000000000",
-    "holdingsRecordId": "f0000046-0000-4000-9000-000000000000",
-    "instanceId": "f0000046-0000-4000-8000-000000000000",
-    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
-    "effectiveCallNumberComponents": {
-      "callNumber": "791.4502",
-      "typeId": "0b5d15ad-1738-4e9e-a9c1-e972e95ce71c",
-      "prefix": "CD"
-    },
-    "enumeration": "5 discs"
-  },
-  {
-    "id": "f0000047-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000047-0000-4000-9000-000000000000",
-    "instanceId": "f0000047-0000-4000-8000-000000000000",
-    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
-    "effectiveCallNumberComponents": {
-      "callNumber": "WD 308 1993",
-      "typeId": "530b84ea-4965-4cda-9d9e-6a5ef91fd21e"
-    }
-  },
-  {
-    "id": "f0000047-0002-4000-a000-000000000000",
-    "holdingsRecordId": "f0000047-0000-4000-9000-000000000000",
-    "instanceId": "f0000047-0000-4000-8000-000000000000",
-    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
-    "effectiveCallNumberComponents": {
-      "callNumber": "Y 3.T 22/2:2 F 76/Sum",
-      "typeId": "6b368b19-0d18-4689-8d15-cf904e15b3f0"
-    }
-  },
-  {
-    "id": "f0000048-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000048-0000-4000-9000-000000000000",
-    "instanceId": "f0000048-0000-4000-8000-000000000000",
-    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
-    "effectiveCallNumberComponents": {
-      "callNumber": "BR\\140 .J\\\\86",
-      "typeId": "cf74a451-41ad-49aa-aa2b-21d2d2f2e235"
-    }
-  },
-  {
-    "id": "f0000048-0002-4000-a000-000000000000",
-    "holdingsRecordId": "f0000048-0000-4000-9000-000000000000",
-    "instanceId": "f0000048-0000-4000-8000-000000000000",
-    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
-    "effectiveCallNumberComponents": {
-      "callNumber": "JZ1720 .C75 2019",
-      "typeId": "cbc422b0-b71a-4d2d-9a2a-9fcc56a57a3e"
-    }
-  },
-  {
-    "id": "f0000049-0001-4000-a000-000000000000",
-    "holdingsRecordId": "f0000049-0000-4000-9000-000000000000",
-    "instanceId": "f0000049-0000-4000-8000-000000000000",
-    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
-    "effectiveCallNumberComponents": {
-      "callNumber": "015/.73",
-      "typeId": "0b5d15ad-1738-4e9e-a9c1-e972e95ce71c"
-    }
-  },
-  {
-    "id": "f0000049-0002-4000-a000-000000000000",
-    "holdingsRecordId": "f0000049-0000-4000-9000-000000000000",
-    "instanceId": "f0000049-0000-4000-8000-000000000000",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
-    "effectiveCallNumberComponents": {
-      "callNumber": "WY 153.5 P467",
-      "typeId": "530b84ea-4965-4cda-9d9e-6a5ef91fd21e"
-    }
-  },
-  {
     "id": "f0000050-0001-4000-a000-000000000000",
     "holdingsRecordId": "f0000050-0000-4000-9000-000000000000",
     "instanceId": "f0000050-0000-4000-8000-000000000000",
@@ -1650,5 +494,1327 @@
       "prefix": "Microfilm "
     },
     "enumeration": "(Series 1-3)"
+  },
+  {
+    "id": "f0000001-0000-4000-a000-000000000000",
+    "instanceId": "f0000001-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000001-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "TA357 .A78 2010",
+      "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
+    }
+  },
+  {
+    "id": "f0000002-0000-4000-a000-000000000000",
+    "instanceId": "f0000001-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000001-0000-4000-9000-000000000000",
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "effectiveCallNumberComponents": {
+      "callNumber": "664.051 4",
+      "typeId": "0b5d15ad-7f08-45f1-8504-7bab31a2b4e5"
+    }
+  },
+  {
+    "id": "f0000003-0000-4000-a000-000000000000",
+    "instanceId": "f0000002-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000002-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "TA357 .A78 2010",
+      "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
+    }
+  },
+  {
+    "id": "f0000004-0000-4000-a000-000000000000",
+    "instanceId": "f0000003-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000003-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "WG 200 M489 1969",
+      "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
+    }
+  },
+  {
+    "id": "f0000005-0000-4000-a000-000000000000",
+    "instanceId": "f0000003-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000003-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "Y 10.13:980",
+      "typeId": "6b368b19-01af-4a44-a0d3-09ec5d1e3e19"
+    }
+  },
+  {
+    "id": "f0000006-0000-4000-a000-000000000000",
+    "instanceId": "f0000004-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000004-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "PICOULT",
+      "typeId": "cf74a451-5b9e-4a58-8c5c-2eff9fb4db67",
+      "prefix": "FIC"
+    }
+  },
+  {
+    "id": "f0000007-0000-4000-a000-000000000000",
+    "instanceId": "f0000004-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000004-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "HB30.G64 1974",
+      "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014",
+      "prefix": "microfm"
+    }
+  },
+  {
+    "id": "f0000008-0000-4000-a000-000000000000",
+    "instanceId": "f0000004-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000004-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "618.92/12",
+      "typeId": "0b5d15ad-7f08-45f1-8504-7bab31a2b4e5"
+    }
+  },
+  {
+    "id": "f0000009-0000-4000-a000-000000000000",
+    "instanceId": "f0000004-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000004-0000-4000-9000-000000000000",
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "effectiveCallNumberComponents": {
+      "callNumber": "QZ 380 N494 1979",
+      "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
+    }
+  },
+  {
+    "id": "f0000010-0000-4000-a000-000000000000",
+    "instanceId": "f0000005-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000005-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "TA357 .A78 2010",
+      "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
+    }
+  },
+  {
+    "id": "f0000011-0000-4000-a000-000000000000",
+    "instanceId": "f0000005-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000005-0000-4000-9000-000000000000",
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "effectiveCallNumberComponents": {
+      "callNumber": "QZ 380 N494 1979",
+      "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
+    }
+  },
+  {
+    "id": "f0000012-0000-4000-a000-000000000000",
+    "instanceId": "f0000005-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000005-0000-4000-9000-000000000000",
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "effectiveCallNumberComponents": {
+      "callNumber": "Y 4.En 2/3:99-96",
+      "typeId": "6b368b19-01af-4a44-a0d3-09ec5d1e3e19"
+    }
+  },
+  {
+    "id": "f0000013-0000-4000-a000-000000000000",
+    "instanceId": "f0000006-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000006-0000-4000-9000-000000000000",
+    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "effectiveCallNumberComponents": {
+      "callNumber": "FICTION HART",
+      "typeId": "cf74a451-5b9e-4a58-8c5c-2eff9fb4db67",
+      "prefix": "LARGE PRINT"
+    }
+  },
+  {
+    "id": "f0000014-0000-4000-a000-000000000000",
+    "instanceId": "f0000006-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000006-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "Z997.S93",
+      "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
+    }
+  },
+  {
+    "id": "f0000015-0000-4000-a000-000000000000",
+    "instanceId": "f0000007-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000007-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "748.5",
+      "typeId": "0b5d15ad-7f08-45f1-8504-7bab31a2b4e5",
+      "prefix": "DVD",
+      "suffix": "STA"
+    }
+  },
+  {
+    "id": "f0000016-0000-4000-a000-000000000000",
+    "instanceId": "f0000008-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000008-0000-4000-9000-000000000000",
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "effectiveCallNumberComponents": {
+      "callNumber": "QZ 380 N494 1979",
+      "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
+    }
+  },
+  {
+    "id": "f0000017-0000-4000-a000-000000000000",
+    "instanceId": "f0000008-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000008-0000-4000-9000-000000000000",
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "effectiveCallNumberComponents": {
+      "callNumber": "WG140 H719b",
+      "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
+    }
+  },
+  {
+    "id": "f0000018-0000-4000-a000-000000000000",
+    "instanceId": "f0000008-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000008-0000-4000-9000-000000000000",
+    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "effectiveCallNumberComponents": {
+      "callNumber": "HE 20.315/2: 96-4",
+      "typeId": "6b368b19-01af-4a44-a0d3-09ec5d1e3e19",
+      "prefix": "US MicFiche"
+    }
+  },
+  {
+    "id": "f0000019-0000-4000-a000-000000000000",
+    "instanceId": "f0000009-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000009-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "BLUE",
+      "typeId": "cf74a451-5b9e-4a58-8c5c-2eff9fb4db67",
+      "prefix": "POP/ROCK",
+      "suffix": "CD"
+    }
+  },
+  {
+    "id": "f0000020-0000-4000-a000-000000000000",
+    "instanceId": "f0000010-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000010-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "RJ421 .D3",
+      "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
+    }
+  },
+  {
+    "id": "f0000021-0000-4000-a000-000000000000",
+    "instanceId": "f0000011-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000011-0000-4000-9000-000000000000",
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "effectiveCallNumberComponents": {
+      "callNumber": "818/.309 19",
+      "typeId": "0b5d15ad-7f08-45f1-8504-7bab31a2b4e5"
+    }
+  },
+  {
+    "id": "f0000022-0000-4000-a000-000000000000",
+    "instanceId": "f0000012-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000012-0000-4000-9000-000000000000",
+    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "effectiveCallNumberComponents": {
+      "callNumber": "WL 500 I61p",
+      "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
+    }
+  },
+  {
+    "id": "f0000023-0000-4000-a000-000000000000",
+    "instanceId": "f0000012-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000012-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "Y 4.En2/3:99th 99-96",
+      "typeId": "6b368b19-01af-4a44-a0d3-09ec5d1e3e19",
+      "prefix": "US"
+    }
+  },
+  {
+    "id": "f0000024-0000-4000-a000-000000000000",
+    "instanceId": "f0000012-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000012-0000-4000-9000-000000000000",
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "effectiveCallNumberComponents": {
+      "callNumber": "CHOPIN",
+      "typeId": "cf74a451-5b9e-4a58-8c5c-2eff9fb4db67",
+      "prefix": "CD PIANO"
+    }
+  },
+  {
+    "id": "f0000025-0000-4000-a000-000000000000",
+    "instanceId": "f0000013-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000013-0000-4000-9000-000000000000",
+    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "effectiveCallNumberComponents": {
+      "callNumber": "QP363 .N6 1965",
+      "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014",
+      "suffix": "FT MEADE"
+    }
+  },
+  {
+    "id": "f0000026-0000-4000-a000-000000000000",
+    "instanceId": "f0000014-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000014-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "929.1973",
+      "typeId": "0b5d15ad-7f08-45f1-8504-7bab31a2b4e5",
+      "prefix": "GEN",
+      "suffix": "MCH"
+    }
+  },
+  {
+    "id": "f0000027-0000-4000-a000-000000000000",
+    "instanceId": "f0000015-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000015-0000-4000-9000-000000000000",
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "effectiveCallNumberComponents": {
+      "callNumber": "WK 385 P973e 1969",
+      "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
+    }
+  },
+  {
+    "id": "f0000028-0000-4000-a000-000000000000",
+    "instanceId": "f0000016-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000016-0000-4000-9000-000000000000",
+    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "effectiveCallNumberComponents": {
+      "callNumber": "GS1.2:So2/4",
+      "typeId": "6b368b19-01af-4a44-a0d3-09ec5d1e3e19"
+    }
+  },
+  {
+    "id": "f0000029-0000-4000-a000-000000000000",
+    "instanceId": "f0000016-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000016-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "SYLY-12",
+      "typeId": "cf74a451-5b9e-4a58-8c5c-2eff9fb4db67"
+    }
+  },
+  {
+    "id": "f0000030-0000-4000-a000-000000000000",
+    "instanceId": "f0000016-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000016-0000-4000-9000-000000000000",
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "effectiveCallNumberComponents": {
+      "callNumber": "RC280.N4 N49",
+      "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
+    }
+  },
+  {
+    "id": "f0000031-0000-4000-a000-000000000000",
+    "instanceId": "f0000016-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000016-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "912.773",
+      "typeId": "0b5d15ad-7f08-45f1-8504-7bab31a2b4e5",
+      "prefix": "LH "
+    }
+  },
+  {
+    "id": "f0000032-0000-4000-a000-000000000000",
+    "instanceId": "f0000016-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000016-0000-4000-9000-000000000000",
+    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "effectiveCallNumberComponents": {
+      "callNumber": "WS105 O52m 1929f",
+      "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
+    }
+  },
+  {
+    "id": "f0000033-0000-4000-a000-000000000000",
+    "instanceId": "f0000016-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000016-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "J29.2:D84/2",
+      "typeId": "6b368b19-01af-4a44-a0d3-09ec5d1e3e19"
+    }
+  },
+  {
+    "id": "f0000034-0000-4000-a000-000000000000",
+    "instanceId": "f0000016-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000016-0000-4000-9000-000000000000",
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "effectiveCallNumberComponents": {
+      "callNumber": "M653-202",
+      "typeId": "cf74a451-5b9e-4a58-8c5c-2eff9fb4db67",
+      "prefix": "MICROFILM"
+    }
+  },
+  {
+    "id": "f0000035-0000-4000-a000-000000000000",
+    "instanceId": "f0000017-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000017-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "929.1973",
+      "typeId": "0b5d15ad-7f08-45f1-8504-7bab31a2b4e5",
+      "prefix": "GEN",
+      "suffix": "MCH"
+    }
+  },
+  {
+    "id": "f0000036-0000-4000-a000-000000000000",
+    "instanceId": "f0000017-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000017-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "J29.2:D84/2",
+      "typeId": "6b368b19-01af-4a44-a0d3-09ec5d1e3e19"
+    }
+  },
+  {
+    "id": "f0000037-0000-4000-a000-000000000000",
+    "instanceId": "f0000017-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000017-0000-4000-9000-000000000000",
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "effectiveCallNumberComponents": {
+      "callNumber": "GV837 .F92",
+      "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
+    }
+  },
+  {
+    "id": "f0000038-0000-4000-a000-000000000000",
+    "instanceId": "f0000017-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000017-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "977.322",
+      "typeId": "0b5d15ad-7f08-45f1-8504-7bab31a2b4e5",
+      "prefix": "LH DVD",
+      "suffix": "MCH"
+    }
+  },
+  {
+    "id": "f0000039-0000-4000-a000-000000000000",
+    "instanceId": "f0000018-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000018-0000-4000-9000-000000000000",
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "effectiveCallNumberComponents": {
+      "callNumber": "WB 100 M4891",
+      "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
+    }
+  },
+  {
+    "id": "f0000040-0000-4000-a000-000000000000",
+    "instanceId": "f0000018-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000018-0000-4000-9000-000000000000",
+    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "effectiveCallNumberComponents": {
+      "callNumber": "EP 1.8: Ac 7/2",
+      "typeId": "6b368b19-01af-4a44-a0d3-09ec5d1e3e19"
+    }
+  },
+  {
+    "id": "f0000041-0000-4000-a000-000000000000",
+    "instanceId": "f0000019-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000019-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "Rowling",
+      "typeId": "cf74a451-5b9e-4a58-8c5c-2eff9fb4db67",
+      "prefix": "jFICTION"
+    }
+  },
+  {
+    "id": "f0000042-0000-4000-a000-000000000000",
+    "instanceId": "f0000019-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000019-0000-4000-9000-000000000000",
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "effectiveCallNumberComponents": {
+      "callNumber": "AN2.I45 C48",
+      "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
+    }
+  },
+  {
+    "id": "f0000043-0000-4000-a000-000000000000",
+    "instanceId": "f0000020-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000020-0000-4000-9000-000000000000",
+    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "effectiveCallNumberComponents": {
+      "callNumber": "616.99/383",
+      "typeId": "0b5d15ad-7f08-45f1-8504-7bab31a2b4e5"
+    }
+  },
+  {
+    "id": "f0000044-0000-4000-a000-000000000000",
+    "instanceId": "f0000020-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000020-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "QX 4 J647m",
+      "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
+    }
+  },
+  {
+    "id": "f0000045-0000-4000-a000-000000000000",
+    "instanceId": "f0000020-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000020-0000-4000-9000-000000000000",
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "effectiveCallNumberComponents": {
+      "callNumber": "Y 4.C 73/8:115-85",
+      "typeId": "6b368b19-01af-4a44-a0d3-09ec5d1e3e19",
+      "prefix": "USG"
+    }
+  },
+  {
+    "id": "f0000046-0000-4000-a000-000000000000",
+    "instanceId": "f0000020-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000020-0000-4000-9000-000000000000",
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "effectiveCallNumberComponents": {
+      "callNumber": "0634V",
+      "typeId": "cf74a451-5b9e-4a58-8c5c-2eff9fb4db67"
+    }
+  },
+  {
+    "id": "f0000047-0000-4000-a000-000000000000",
+    "instanceId": "f0000021-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000021-0000-4000-9000-000000000000",
+    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "effectiveCallNumberComponents": {
+      "callNumber": "QP363 .N6 1965",
+      "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014",
+      "suffix": "FT MEADE"
+    }
+  },
+  {
+    "id": "f0000048-0000-4000-a000-000000000000",
+    "instanceId": "f0000021-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000021-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "929.1973",
+      "typeId": "0b5d15ad-7f08-45f1-8504-7bab31a2b4e5",
+      "prefix": "GEN",
+      "suffix": "MCH"
+    }
+  },
+  {
+    "id": "f0000049-0000-4000-a000-000000000000",
+    "instanceId": "f0000021-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000021-0000-4000-9000-000000000000",
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "effectiveCallNumberComponents": {
+      "callNumber": "WK 385 P973e 1969",
+      "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
+    }
+  },
+  {
+    "id": "f0000050-0000-4000-a000-000000000000",
+    "instanceId": "f0000022-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000022-0000-4000-9000-000000000000",
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "effectiveCallNumberComponents": {
+      "callNumber": "RC667 .N47 2010",
+      "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
+    }
+  },
+  {
+    "id": "f0000051-0000-4000-a000-000000000000",
+    "instanceId": "f0000023-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000023-0000-4000-9000-000000000000",
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "effectiveCallNumberComponents": {
+      "callNumber": "912.773",
+      "typeId": "0b5d15ad-7f08-45f1-8504-7bab31a2b4e5",
+      "prefix": "R",
+      "suffix": "(LOCAL HISTORY)"
+    }
+  },
+  {
+    "id": "f0000052-0000-4000-a000-000000000000",
+    "instanceId": "f0000024-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000024-0000-4000-9000-000000000000",
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "effectiveCallNumberComponents": {
+      "callNumber": "WC 450 R47 2012",
+      "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
+    }
+  },
+  {
+    "id": "f0000053-0000-4000-a000-000000000000",
+    "instanceId": "f0000025-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000025-0000-4000-9000-000000000000",
+    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "effectiveCallNumberComponents": {
+      "callNumber": "Y4.J89/2:R53",
+      "typeId": "6b368b19-01af-4a44-a0d3-09ec5d1e3e19"
+    }
+  },
+  {
+    "id": "f0000054-0000-4000-a000-000000000000",
+    "instanceId": "f0000026-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000026-0000-4000-9000-000000000000",
+    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "effectiveCallNumberComponents": {
+      "callNumber": "DKLY-12",
+      "typeId": "cf74a451-5b9e-4a58-8c5c-2eff9fb4db67"
+    }
+  },
+  {
+    "id": "f0000055-0000-4000-a000-000000000000",
+    "instanceId": "f0000026-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000026-0000-4000-9000-000000000000",
+    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "effectiveCallNumberComponents": {
+      "callNumber": "PJ4.J8",
+      "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
+    }
+  },
+  {
+    "id": "f0000056-0000-4000-a000-000000000000",
+    "instanceId": "f0000027-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000027-0000-4000-9000-000000000000",
+    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "effectiveCallNumberComponents": {
+      "callNumber": "929.31",
+      "typeId": "0b5d15ad-7f08-45f1-8504-7bab31a2b4e5",
+      "prefix": "REF"
+    }
+  },
+  {
+    "id": "f0000057-0000-4000-a000-000000000000",
+    "instanceId": "f0000027-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000027-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "WL 11 AA1 J64 2016",
+      "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
+    }
+  },
+  {
+    "id": "f0000058-0000-4000-a000-000000000000",
+    "instanceId": "f0000027-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000027-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "Y10.2:P38",
+      "typeId": "6b368b19-01af-4a44-a0d3-09ec5d1e3e19",
+      "prefix": "microfc"
+    }
+  },
+  {
+    "id": "f0000059-0000-4000-a000-000000000000",
+    "instanceId": "f0000027-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000027-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "0.257638889",
+      "typeId": "cf74a451-5b9e-4a58-8c5c-2eff9fb4db67",
+      "prefix": "Oversize"
+    }
+  },
+  {
+    "id": "f0000060-0000-4000-a000-000000000000",
+    "instanceId": "f0000028-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000028-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "QR1.I6",
+      "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
+    }
+  },
+  {
+    "id": "f0000061-0000-4000-a000-000000000000",
+    "instanceId": "f0000028-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000028-0000-4000-9000-000000000000",
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "effectiveCallNumberComponents": {
+      "callNumber": "370.977",
+      "typeId": "0b5d15ad-7f08-45f1-8504-7bab31a2b4e5",
+      "suffix": "DEK"
+    }
+  },
+  {
+    "id": "f0000062-0000-4000-a000-000000000000",
+    "instanceId": "f0000028-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000028-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "WS 420 F1985 2015",
+      "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
+    }
+  },
+  {
+    "id": "f0000063-0000-4000-a000-000000000000",
+    "instanceId": "f0000029-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000029-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "I 29.6/6:F 75/988",
+      "typeId": "6b368b19-01af-4a44-a0d3-09ec5d1e3e19"
+    }
+  },
+  {
+    "id": "f0000064-0000-4000-a000-000000000000",
+    "instanceId": "f0000029-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000029-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "977",
+      "typeId": "cf74a451-5b9e-4a58-8c5c-2eff9fb4db67",
+      "suffix": "1987 ED."
+    }
+  },
+  {
+    "id": "f0000065-0000-4000-a000-000000000000",
+    "instanceId": "f0000029-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000029-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "EMI 458",
+      "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014",
+      "prefix": "AudCD"
+    }
+  },
+  {
+    "id": "f0000066-0000-4000-a000-000000000000",
+    "instanceId": "f0000030-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000030-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "338.1",
+      "typeId": "0b5d15ad-7f08-45f1-8504-7bab31a2b4e5",
+      "prefix": "R",
+      "suffix": "MOG"
+    }
+  },
+  {
+    "id": "f0000067-0000-4000-a000-000000000000",
+    "instanceId": "f0000030-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000030-0000-4000-9000-000000000000",
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "effectiveCallNumberComponents": {
+      "callNumber": "WY 11 AA1 J92h 2010",
+      "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
+    }
+  },
+  {
+    "id": "f0000068-0000-4000-a000-000000000000",
+    "instanceId": "f0000030-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000030-0000-4000-9000-000000000000",
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "effectiveCallNumberComponents": {
+      "callNumber": "A 1.68: 1461/991",
+      "typeId": "6b368b19-01af-4a44-a0d3-09ec5d1e3e19"
+    }
+  },
+  {
+    "id": "f0000069-0000-4000-a000-000000000000",
+    "instanceId": "f0000030-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000030-0000-4000-9000-000000000000",
+    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "effectiveCallNumberComponents": {
+      "callNumber": "Fiction Rowling",
+      "typeId": "cf74a451-5b9e-4a58-8c5c-2eff9fb4db67",
+      "prefix": "Teen Spanish"
+    }
+  },
+  {
+    "id": "f0000070-0000-4000-a000-000000000000",
+    "instanceId": "f0000031-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000031-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "D848 .A1934 2018",
+      "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
+    }
+  },
+  {
+    "id": "f0000071-0000-4000-a000-000000000000",
+    "instanceId": "f0000031-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000031-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "929.377328",
+      "typeId": "0b5d15ad-7f08-45f1-8504-7bab31a2b4e5",
+      "prefix": "R",
+      "suffix": "GSDC"
+    }
+  },
+  {
+    "id": "f0000072-0000-4000-a000-000000000000",
+    "instanceId": "f0000031-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000031-0000-4000-9000-000000000000",
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "effectiveCallNumberComponents": {
+      "callNumber": "WK 850 D5363 2010",
+      "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
+    }
+  },
+  {
+    "id": "f0000073-0000-4000-a000-000000000000",
+    "instanceId": "f0000031-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000031-0000-4000-9000-000000000000",
+    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "effectiveCallNumberComponents": {
+      "callNumber": "J 1.8/2:R 11/988",
+      "typeId": "6b368b19-01af-4a44-a0d3-09ec5d1e3e19"
+    }
+  },
+  {
+    "id": "f0000074-0000-4000-a000-000000000000",
+    "instanceId": "f0000032-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000032-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "Meyer ",
+      "typeId": "cf74a451-5b9e-4a58-8c5c-2eff9fb4db67",
+      "prefix": "Teen Graphic Novel"
+    }
+  },
+  {
+    "id": "f0000075-0000-4000-a000-000000000000",
+    "instanceId": "f0000033-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000033-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "HV6021 .W55 2018",
+      "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
+    }
+  },
+  {
+    "id": "f0000076-0000-4000-a000-000000000000",
+    "instanceId": "f0000034-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000034-0000-4000-9000-000000000000",
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "effectiveCallNumberComponents": {
+      "callNumber": "929.5",
+      "typeId": "0b5d15ad-7f08-45f1-8504-7bab31a2b4e5",
+      "prefix": "LOCAL ",
+      "suffix": "CEM"
+    }
+  },
+  {
+    "id": "f0000077-0000-4000-a000-000000000000",
+    "instanceId": "f0000035-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000035-0000-4000-9000-000000000000",
+    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "effectiveCallNumberComponents": {
+      "callNumber": "WA 900.AA1 I55h 1996",
+      "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
+    }
+  },
+  {
+    "id": "f0000078-0000-4000-a000-000000000000",
+    "instanceId": "f0000035-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000035-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "A 1.28:823",
+      "typeId": "6b368b19-01af-4a44-a0d3-09ec5d1e3e19",
+      "prefix": "U S Doc"
+    }
+  },
+  {
+    "id": "f0000079-0000-4000-a000-000000000000",
+    "instanceId": "f0000035-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000035-0000-4000-9000-000000000000",
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "effectiveCallNumberComponents": {
+      "callNumber": "Twilight Breaking",
+      "typeId": "cf74a451-5b9e-4a58-8c5c-2eff9fb4db67",
+      "prefix": "DVD",
+      "suffix": "pt. 1"
+    }
+  },
+  {
+    "id": "f0000080-0000-4000-a000-000000000000",
+    "instanceId": "f0000036-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000036-0000-4000-9000-000000000000",
+    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "effectiveCallNumberComponents": {
+      "callNumber": "SB1.P71",
+      "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
+    }
+  },
+  {
+    "id": "f0000081-0000-4000-a000-000000000000",
+    "instanceId": "f0000036-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000036-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "977.328",
+      "typeId": "0b5d15ad-7f08-45f1-8504-7bab31a2b4e5",
+      "suffix": "BIG"
+    }
+  },
+  {
+    "id": "f0000082-0000-4000-a000-000000000000",
+    "instanceId": "f0000036-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000036-0000-4000-9000-000000000000",
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "effectiveCallNumberComponents": {
+      "callNumber": "QV 18.2 L765 2015",
+      "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e",
+      "prefix": "Stacks"
+    }
+  },
+  {
+    "id": "f0000083-0000-4000-a000-000000000000",
+    "instanceId": "f0000036-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000036-0000-4000-9000-000000000000",
+    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "effectiveCallNumberComponents": {
+      "callNumber": "I 1.98:M 77",
+      "typeId": "6b368b19-01af-4a44-a0d3-09ec5d1e3e19",
+      "suffix": "Final"
+    }
+  },
+  {
+    "id": "f0000084-0000-4000-a000-000000000000",
+    "instanceId": "f0000036-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000036-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "King",
+      "typeId": "cf74a451-5b9e-4a58-8c5c-2eff9fb4db67",
+      "prefix": "CD Horror"
+    }
+  },
+  {
+    "id": "f0000085-0000-4000-a000-000000000000",
+    "instanceId": "f0000037-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000037-0000-4000-9000-000000000000",
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "effectiveCallNumberComponents": {
+      "callNumber": "BJ1499.S65",
+      "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
+    }
+  },
+  {
+    "id": "f0000086-0000-4000-a000-000000000000",
+    "instanceId": "f0000038-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000038-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "371.782",
+      "typeId": "0b5d15ad-7f08-45f1-8504-7bab31a2b4e5",
+      "prefix": "SOCIAL SCIENCE",
+      "suffix": "ARC"
+    }
+  },
+  {
+    "id": "f0000087-0000-4000-a000-000000000000",
+    "instanceId": "f0000039-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000039-0000-4000-9000-000000000000",
+    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "effectiveCallNumberComponents": {
+      "callNumber": "Wv 4 B311 2018",
+      "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e",
+      "prefix": "Reserve"
+    }
+  },
+  {
+    "id": "f0000088-0000-4000-a000-000000000000",
+    "instanceId": "f0000040-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000040-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "Y 4.Ag 8/3:H 91",
+      "typeId": "6b368b19-01af-4a44-a0d3-09ec5d1e3e19"
+    }
+  },
+  {
+    "id": "f0000089-0000-4000-a000-000000000000",
+    "instanceId": "f0000040-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000040-0000-4000-9000-000000000000",
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "effectiveCallNumberComponents": {
+      "callNumber": "Collins",
+      "typeId": "cf74a451-5b9e-4a58-8c5c-2eff9fb4db67",
+      "prefix": "Picture Book"
+    }
+  },
+  {
+    "id": "f0000090-0000-4000-a000-000000000000",
+    "instanceId": "f0000041-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000041-0000-4000-9000-000000000000",
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "effectiveCallNumberComponents": {
+      "callNumber": "E99.I7 P4",
+      "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
+    }
+  },
+  {
+    "id": "f0000091-0000-4000-a000-000000000000",
+    "instanceId": "f0000041-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000041-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "363.41",
+      "typeId": "0b5d15ad-7f08-45f1-8504-7bab31a2b4e5",
+      "prefix": "YA",
+      "suffix": "WAT"
+    }
+  },
+  {
+    "id": "f0000092-0000-4000-a000-000000000000",
+    "instanceId": "f0000042-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000042-0000-4000-9000-000000000000",
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "effectiveCallNumberComponents": {
+      "callNumber": "WV 11.1 L435h 1975",
+      "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e",
+      "prefix": "History"
+    }
+  },
+  {
+    "id": "f0000093-0000-4000-a000-000000000000",
+    "instanceId": "f0000042-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000042-0000-4000-9000-000000000000",
+    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "effectiveCallNumberComponents": {
+      "callNumber": "Y 1.1/8:98-588/pt.1",
+      "typeId": "6b368b19-01af-4a44-a0d3-09ec5d1e3e19"
+    }
+  },
+  {
+    "id": "f0000094-0000-4000-a000-000000000000",
+    "instanceId": "f0000043-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000043-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "MMC-3625",
+      "typeId": "cf74a451-5b9e-4a58-8c5c-2eff9fb4db67"
+    }
+  },
+  {
+    "id": "f0000095-0000-4000-a000-000000000000",
+    "instanceId": "f0000043-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000043-0000-4000-9000-000000000000",
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "effectiveCallNumberComponents": {
+      "callNumber": "Q127.U6U49",
+      "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
+    }
+  },
+  {
+    "id": "f0000096-0000-4000-a000-000000000000",
+    "instanceId": "f0000044-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000044-0000-4000-9000-000000000000",
+    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "effectiveCallNumberComponents": {
+      "callNumber": "553.7",
+      "typeId": "0b5d15ad-7f08-45f1-8504-7bab31a2b4e5",
+      "prefix": "J",
+      "suffix": "STE"
+    }
+  },
+  {
+    "id": "f0000097-0000-4000-a000-000000000000",
+    "instanceId": "f0000044-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000044-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "WF 11.1 J13a 2009",
+      "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
+    }
+  },
+  {
+    "id": "f0000098-0000-4000-a000-000000000000",
+    "instanceId": "f0000045-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000045-0000-4000-9000-000000000000",
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "effectiveCallNumberComponents": {
+      "callNumber": "A 1.38:290/1945",
+      "typeId": "6b368b19-01af-4a44-a0d3-09ec5d1e3e19"
+    }
+  },
+  {
+    "id": "f0000099-0000-4000-a000-000000000000",
+    "instanceId": "f0000045-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000045-0000-4000-9000-000000000000",
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "effectiveCallNumberComponents": {
+      "callNumber": "9200 4683",
+      "typeId": "cf74a451-5b9e-4a58-8c5c-2eff9fb4db67",
+      "prefix": "f"
+    }
+  },
+  {
+    "id": "f0000100-0000-4000-a000-000000000000",
+    "instanceId": "f0000046-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000046-0000-4000-9000-000000000000",
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "effectiveCallNumberComponents": {
+      "callNumber": "SDD 66727",
+      "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
+    }
+  },
+  {
+    "id": "f0000101-0000-4000-a000-000000000000",
+    "instanceId": "f0000046-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000046-0000-4000-9000-000000000000",
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "effectiveCallNumberComponents": {
+      "callNumber": "791.4502",
+      "typeId": "0b5d15ad-7f08-45f1-8504-7bab31a2b4e5",
+      "prefix": "CD"
+    }
+  },
+  {
+    "id": "f0000102-0000-4000-a000-000000000000",
+    "instanceId": "f0000047-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000047-0000-4000-9000-000000000000",
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "effectiveCallNumberComponents": {
+      "callNumber": "WD 308 1993",
+      "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
+    }
+  },
+  {
+    "id": "f0000103-0000-4000-a000-000000000000",
+    "instanceId": "f0000047-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000047-0000-4000-9000-000000000000",
+    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "effectiveCallNumberComponents": {
+      "callNumber": "Y 3.T 22/2:2 F 76/Sum",
+      "typeId": "6b368b19-01af-4a44-a0d3-09ec5d1e3e19"
+    }
+  },
+  {
+    "id": "f0000104-0000-4000-a000-000000000000",
+    "instanceId": "f0000048-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000048-0000-4000-9000-000000000000",
+    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "effectiveCallNumberComponents": {
+      "callNumber": "BR\\140 .J\\\\86",
+      "typeId": "cf74a451-5b9e-4a58-8c5c-2eff9fb4db67"
+    }
+  },
+  {
+    "id": "f0000105-0000-4000-a000-000000000000",
+    "instanceId": "f0000048-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000048-0000-4000-9000-000000000000",
+    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "effectiveCallNumberComponents": {
+      "callNumber": "JZ1720 .C75 2019",
+      "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
+    }
+  },
+  {
+    "id": "f0000106-0000-4000-a000-000000000000",
+    "instanceId": "f0000049-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000049-0000-4000-9000-000000000000",
+    "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "effectiveCallNumberComponents": {
+      "callNumber": "015/.73",
+      "typeId": "0b5d15ad-7f08-45f1-8504-7bab31a2b4e5"
+    }
+  },
+  {
+    "id": "f0000107-0000-4000-a000-000000000000",
+    "instanceId": "f0000049-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000049-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "WY 153.5 P467",
+      "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
+    }
+  },
+  {
+    "id": "f0000108-0000-4000-a000-000000000000",
+    "instanceId": "f0000050-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000050-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "Y 3.T 22/2:2 St 8/2",
+      "typeId": "6b368b19-01af-4a44-a0d3-09ec5d1e3e19"
+    }
+  },
+  {
+    "id": "f0000109-0000-4000-a000-000000000000",
+    "instanceId": "f0000050-0000-4000-8000-000000000000",
+    "holdingsRecordId": "f0000050-0000-4000-9000-000000000000",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "effectiveCallNumberComponents": {
+      "callNumber": "15,747-12N-12P",
+      "typeId": "cf74a451-5b9e-4a58-8c5c-2eff9fb4db67",
+      "prefix": "Microfilm "
+    }
+  },
+  {
+    "id": "7212ba6a-8dcf-45a1-be9a-ffaa847c4423",
+    "hrid": "item000000000014",
+    "accessionNumber": "item_accession_number",
+    "holdingsRecordId": "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19",
+    "instanceId": "5bf370e0-8cca-4d9c-82e4-5170ab2a0a39",
+    "formerIds": [
+      "207b9372-127f-4bdd-83e0-147c9fe9bc16",
+      "81ae0f60-f2bc-450c-84c8-5a21096daed9"
+    ],
+    "itemIdentifier": "itemIdentifierFieldValue",
+    "barcode": "10101",
+    "itemLevelCallNumber": "TK5105.88815 . A58 2004 FT MEADE",
+    "itemLevelCallNumberTypeId": "5ba6b62e-6858-490a-8102-5b1369873835",
+    "effectiveCallNumberComponents": {
+      "suffix": "suffix-10101",
+      "callNumber": "TK5105.88815 . A58 2004 FT MEADE",
+      "prefix": "prefix-10101",
+      "typeId": "512173a7-bd09-490e-b773-17d83f2b63fe"
+    },
+    "volume": "v1",
+    "enumeration": "",
+    "chronology": "",
+    "yearCaption": [],
+    "copyNumber": "Copy 2",
+    "administrativeNotes": [
+      "v1.1",
+      "need attention"
+    ],
+    "notes": [],
+    "circulationNotes": [
+      {
+        "note": "testCirculationNote"
+      }
+    ],
+    "status": {
+      "name": "Available",
+      "date": "2020-12-08T15:47:21.327+00:00"
+    },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
+    "permanentLoanTypeId": "2b94c631-fca9-4892-a730-03ee529ffe27",
+    "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
+    "effectiveLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
+    "electronicAccess": [
+      {
+        "uri": "https://www.loc.gov/catdir/toc/ecip0718/2007020429.html",
+        "linkText": "Links available",
+        "materialsSpecification": "Table of contents",
+        "publicNote": "Table of contents only",
+        "relationshipId": "3b430592-2e09-4b48-9a0c-0636d66b9fb3"
+      }
+    ],
+    "statisticalCodeIds": [
+      "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
+    ],
+    "tags": {
+      "tagList": [
+        "item-tag"
+      ]
+    },
+    "metadata": {
+      "createdDate": "2020-12-08T15:47:21.327+00:00",
+      "updatedDate": "2021-01-18T08:17:56.752+00:00",
+      "updatedByUserId": "d2533d6c-a42c-5bff-ad77-22f87c297925"
+    }
+  },
+  {
+    "id": "100d10bf-2f06-4aa0-be15-0b95b2d9f9e3",
+    "hrid": "item000000000015",
+    "holdingsRecordId": "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19",
+    "instanceId": "5bf370e0-8cca-4d9c-82e4-5170ab2a0a39",
+    "formerIds": [],
+    "barcode": "90000",
+    "itemLevelCallNumber": "TK5105.88815 . A58 2004 FT MEADE",
+    "effectiveCallNumberComponents": {
+      "prefix": "prefix-90000",
+      "callNumber": "TK5105.88815 . A58 2004 FT MEADE",
+      "suffix": "suffix-90000",
+      "typeId": "512173a7-bd09-490e-b773-17d83f2b63fe"
+    },
+    "enumeration": "",
+    "chronology": "",
+    "yearCaption": [],
+    "administrativeNotes": [
+      "v1.2"
+    ],
+    "notes": [
+      {
+        "note": "Includes bibliographical references and index of item.",
+        "staffOnly": false,
+        "itemNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
+      },
+      {
+        "note": "Librarian public note for item",
+        "staffOnly": false,
+        "itemNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
+      },
+      {
+        "note": "Librarian private note for item",
+        "staffOnly": true,
+        "itemNoteTypeId": "6a2533a7-4de2-4e64-8466-074c2fa9308c"
+      }
+    ],
+    "circulationNotes": [
+      {
+        "note": "private circulation note",
+        "staffOnly": true
+      },
+      {
+        "note": "public circulation note"
+      }
+    ],
+    "status": {
+      "name": "Available",
+      "date": "2020-12-08T15:47:22.827+00:00"
+    },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
+    "permanentLoanTypeId": "2b94c631-fca9-4892-a730-03ee529ffe27",
+    "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
+    "effectiveLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
+    "electronicAccess": [
+      {
+        "uri": "http://www.loc.gov/catdir/toc/ecip0718/2007020429.html",
+        "linkText": "Links available",
+        "materialsSpecification": "Table of contents",
+        "publicNote": "Table of contents only",
+        "relationshipId": "3b430592-2e09-4b48-9a0c-0636d66b9fb3"
+      }
+    ],
+    "statisticalCodeIds": [
+      "615e9911-edb1-4ab3-a9c3-a461a3de02f8"
+    ],
+    "metadata": {
+      "createdDate": "2020-12-08T15:47:22.827+00:00",
+      "updatedDate": "2020-12-08T15:47:22.827+00:00"
+    }
+  },
+  {
+    "id": "49347f02-69ac-4c12-b6f2-2afb6059c94b",
+    "hrid": "it00000000001",
+    "holdingsRecordId": "9550c935-401a-4a85-875e-4d1fe7678870",
+    "instanceId": "5bf370e0-8cca-4d9c-82e4-5170ab2a0a39",
+    "formerIds": [],
+    "barcode": "12345",
+    "effectiveCallNumberComponents": {
+      "callNumber": "332. 2",
+      "prefix": "prefix 2",
+      "suffix": "suff 2",
+      "typeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35"
+    },
+    "yearCaption": [],
+    "administrativeNotes": [],
+    "notes": [],
+    "circulationNotes": [],
+    "status": {
+      "name": "Available",
+      "date": "2024-03-14T13:05:09.407+00:00"
+    },
+    "materialTypeId": "5ee11d91-f7e8-481d-b079-65d708582ccc",
+    "permanentLoanTypeId": "e8b311a6-3b21-43f2-a269-dd9310cb2d0e",
+    "effectiveLocationId": "cdd60388-0c75-4969-b3c5-2d04621ed26f",
+    "electronicAccess": [],
+    "statisticalCodeIds": [],
+    "tags": {
+      "tagList": []
+    },
+    "metadata": {
+      "createdDate": "2024-03-14T13:05:09.406+00:00",
+      "createdByUserId": "93fc1367-7321-4836-b2a7-cbc7ffe8c20e",
+      "updatedDate": "2024-03-14T13:05:09.406+00:00",
+      "updatedByUserId": "93fc1367-7321-4836-b2a7-cbc7ffe8c20e"
+    }
   }
 ]

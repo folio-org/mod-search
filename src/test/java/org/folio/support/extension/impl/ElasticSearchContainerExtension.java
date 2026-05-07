@@ -30,8 +30,7 @@ public class ElasticSearchContainerExtension implements BeforeAllCallback, After
 
   @Override
   public void afterAll(ExtensionContext context) {
-    // no-op: container remains alive for the full JVM run;
-    // the property must not be cleared because the shared Spring context still uses it.
+    System.clearProperty(SPRING_PROPERTY_NAME);
   }
 
   private static GenericContainer<?> buildSearchContainer(String dockerfile, String imageTag) {

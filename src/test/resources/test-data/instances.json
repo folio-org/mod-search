@@ -4,6 +4,7 @@
     "source": "FOLIO",
     "title": "A sem\\ntic web primer :0747-0850 & wolves",
     "indexTitle": "Semantic web primer",
+    "hrid": "in00000000001",
     "alternativeTitles": [
       {
         "alternativeTitle": "An Uniform title",
@@ -116,8 +117,17 @@
     "instanceFormatIds": [
       "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
     ],
+    "natureOfContentTermIds": [
+      "2fec23f6-6bbc-4fa2-a736-b64a8c06a47a"
+    ],
     "languages": [
       "eng"
+    ],
+    "notes": [
+      {
+        "note": "Revised edition.",
+        "staffOnly": false
+      }
     ],
     "discoverySuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
@@ -127,6 +137,7 @@
     "source": "FOLIO",
     "title": "Urban Planning and Environmental Design",
     "indexTitle": "Urban Planning and Environmental Design",
+    "hrid": "in00000000002",
     "identifiers": [
       {
         "value": "978-453-016782-871-2",
@@ -169,8 +180,24 @@
     "instanceFormatIds": [
       "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
     ],
+    "statisticalCodeIds": [
+      "b6b46869-f3c1-4370-b603-29774a1e42b1"
+    ],
+    "natureOfContentTermIds": [
+      "526aa04d-9289-4511-8866-349299592c18"
+    ],
     "languages": [
       "eng"
+    ],
+    "notes": [
+      {
+        "note": "Companion volume to work published by same publisher.",
+        "staffOnly": true
+      },
+      {
+        "note": "Title from cover.",
+        "staffOnly": true
+      }
     ],
     "discoverySuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
@@ -180,6 +207,7 @@
     "source": "FOLIO",
     "title": "Agricultural Economics and Rural Development",
     "indexTitle": "Agricultural Economics and Rural Development",
+    "hrid": "in00000000003",
     "identifiers": [
       {
         "value": "978-135-984066-006-6",
@@ -221,8 +249,17 @@
     "instanceFormatIds": [
       "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
     ],
+    "natureOfContentTermIds": [
+      "2fec23f6-6bbc-4fa2-a736-b64a8c06a47a"
+    ],
     "languages": [
       "eng"
+    ],
+    "notes": [
+      {
+        "note": "Cataloged from PDF version of text.",
+        "staffOnly": false
+      }
     ],
     "discoverySuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
@@ -232,6 +269,7 @@
     "source": "FOLIO",
     "title": "Introduction to Quantum Mechanics",
     "indexTitle": "Introduction to Quantum Mechanics",
+    "hrid": "in00000000004",
     "alternativeTitles": [
       {
         "alternativeTitle": "Intro to Quantum Mechanics",
@@ -286,6 +324,9 @@
     "instanceFormatIds": [
       "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
     ],
+    "statisticalCodeIds": [
+      "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
+    ],
     "languages": [
       "eng"
     ],
@@ -297,6 +338,7 @@
     "source": "FOLIO",
     "title": "Comparative Literature: European Traditions",
     "indexTitle": "Comparative Literature: European Traditions",
+    "hrid": "in00000000005",
     "series": [
       {
         "value": "Studies in Environmental Planning",
@@ -355,6 +397,7 @@
     "source": "FOLIO",
     "title": "Animal farm",
     "indexTitle": "B1 Animal farm",
+    "hrid": "in00000000006",
     "alternativeTitles": [
       {
         "alternativeTitle": "An alternative title",
@@ -460,6 +503,10 @@
     "instanceFormatIds": [
       "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
     ],
+    "statisticalCodeIds": [
+      "9d8abbe2-1a94-4866-8731-4d12ac09f7a8",
+      "d9acad2f-d9ac-4b48-9097-e6ab85000001"
+    ],
     "languages": [
       "eng"
     ],
@@ -471,6 +518,7 @@
     "source": "FOLIO",
     "title": "Zero Minus Ten",
     "indexTitle": "Zero Minus Ten",
+    "hrid": "in00000000007",
     "alternativeTitles": [
       {
         "alternativeTitle": "Der Preis der Verführung : die gesetzliche Schadensersatzklage wegen Ehebruchs in England zwischen 1857 und 1970 / Eike Götz Hosemann.",
@@ -585,6 +633,11 @@
     "languages": [
       "eng"
     ],
+    "tags": {
+      "tagList": [
+        "digitization-candidate"
+      ]
+    },
     "discoverySuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
@@ -593,6 +646,7 @@
     "source": "FOLIO",
     "title": "Calling Me Home",
     "indexTitle": "A1 Calling Me Home",
+    "hrid": "in00000000008",
     "alternativeTitles": [
       {
         "alternativeTitle": "Le parler arabe de Cherchell, Algérie.",
@@ -698,6 +752,9 @@
     "instanceFormatIds": [
       "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
     ],
+    "natureOfContentTermIds": [
+      "9ef56f0c-fa7b-44dc-ab7c-15a8e7a0ab2b"
+    ],
     "languages": [
       "eng"
     ],
@@ -709,6 +766,7 @@
     "source": "FOLIO",
     "title": "Walk in My Soul",
     "indexTitle": "Walk in My Soul",
+    "hrid": "in00000000009",
     "alternativeTitles": [
       {
         "alternativeTitle": "Pang'ok bangk'asyurangsŭ",
@@ -816,6 +874,10 @@
     "instanceFormatIds": [
       "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
     ],
+    "natureOfContentTermIds": [
+      "9f0a2cf0-7a9b-45a2-a403-f68d2850d07c",
+      "aef4d369-1571-419c-8cf8-7e596f6f535c"
+    ],
     "languages": [
       "eng"
     ],
@@ -827,6 +889,7 @@
     "source": "FOLIO",
     "title": "Star Wars",
     "indexTitle": "Star Wars",
+    "hrid": "in00000000010",
     "alternativeTitles": [
       {
         "alternativeTitle": "déjà vu",
@@ -933,9 +996,18 @@
     "instanceFormatIds": [
       "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
     ],
+    "natureOfContentTermIds": [
+      "9ef56f0c-fa7b-44dc-ab7c-15a8e7a0ab2b"
+    ],
     "languages": [
       "eng"
     ],
+    "tags": {
+      "tagList": [
+        "ebook-available",
+        "recommended"
+      ]
+    },
     "discoverySuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
@@ -944,6 +1016,7 @@
     "source": "FOLIO",
     "title": "Ground water in Africa.",
     "indexTitle": "Ground water in Africa.",
+    "hrid": "in00000000011",
     "identifiers": [
       {
         "value": "978-965-244787-341-2",
@@ -996,6 +1069,16 @@
     "languages": [
       "eng"
     ],
+    "notes": [
+      {
+        "note": "Text in English; abstract also in French.",
+        "staffOnly": false
+      },
+      {
+        "note": "Includes bibliographical references.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
@@ -1004,6 +1087,7 @@
     "source": "FOLIO",
     "title": "Ground water in North and West Africa.",
     "indexTitle": "Ground water in North and West Africa.",
+    "hrid": "in00000000012",
     "series": [
       {
         "value": "International studies in political economy"
@@ -1068,6 +1152,7 @@
     "source": "FOLIO",
     "title": "Ground-water hydrology of the Chad Basin in Bornu and Dikwa Emirates, Northeastern Nigeria :with special emphasis on the flow life of the Artesian system  /by R. E. Miller [and three others].",
     "indexTitle": "Ground-water hydrology of the Chad Basin in Bornu and Dikwa Emirates, Northeastern Nigeria :with special emphasis on the flow life of the Artesian system  /by R. E. Miller [and three others].",
+    "hrid": "in00000000013",
     "series": [
       {
         "value": "International studies in political economy"
@@ -1118,8 +1203,17 @@
     "instanceFormatIds": [
       "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
     ],
+    "natureOfContentTermIds": [
+      "9f0a2cf0-7a9b-45a2-a403-f68d2850d07c"
+    ],
     "languages": [
       "eng"
+    ],
+    "notes": [
+      {
+        "note": "Description based on print version record.",
+        "staffOnly": false
+      }
     ],
     "discoverySuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
@@ -1129,6 +1223,7 @@
     "source": "FOLIO",
     "title": "Ground-water resources of the Bengasi area, Cyrenaica, United Kingdom of Libya / by W.W. Doyel and F.J. Maguire.",
     "indexTitle": "Ground-water resources of the Bengasi area, Cyrenaica, United Kingdom of Libya / by W.W. Doyel and F.J. Maguire.",
+    "hrid": "in00000000014",
     "identifiers": [
       {
         "value": "978-740-097567-521-1",
@@ -1175,9 +1270,17 @@
     "instanceFormatIds": [
       "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
     ],
+    "natureOfContentTermIds": [
+      "2fec23f6-6bbc-4fa2-a736-b64a8c06a47a"
+    ],
     "languages": [
       "eng"
     ],
+    "tags": {
+      "tagList": [
+        "recommended"
+      ]
+    },
     "discoverySuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
@@ -1186,6 +1289,7 @@
     "source": "FOLIO",
     "title": "Ground-water exploration in Al Marj area, Cyrenaica, United Kingdom of Libya / by T.G. Newport and Yousef Haddor.",
     "indexTitle": "Ground-water exploration in Al Marj area, Cyrenaica, United Kingdom of Libya / by T.G. Newport and Yousef Haddor.",
+    "hrid": "in00000000015",
     "identifiers": [
       {
         "value": "978-434-475354-688-7",
@@ -1230,6 +1334,16 @@
     "languages": [
       "eng"
     ],
+    "notes": [
+      {
+        "note": "Description based on print version record.",
+        "staffOnly": true
+      },
+      {
+        "note": "Cataloged from PDF version of text.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
@@ -1238,6 +1352,7 @@
     "source": "FOLIO",
     "title": "Regional geology and ground-water hydrology of the SaÌhÌʹil SuÌsah area, Tunisia / by L.C. Dutcher and H.E. Thomas.",
     "indexTitle": "Regional geology and ground-water hydrology of the SaÌhÌʹil SuÌsah area, Tunisia / by L.C. Dutcher and H.E. Thomas.",
+    "hrid": "in00000000016",
     "identifiers": [
       {
         "value": "978-540-854378-122-9",
@@ -1285,6 +1400,9 @@
     "instanceFormatIds": [
       "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
     ],
+    "natureOfContentTermIds": [
+      "aef4d369-1571-419c-8cf8-7e596f6f535c"
+    ],
     "languages": [
       "eng"
     ],
@@ -1296,6 +1414,7 @@
     "source": "FOLIO",
     "title": "The occurrence, chemical quality and use of ground water in the TÌʹabulbah area, Tunisia by L.C. Dutcher and H.E. Thomas.",
     "indexTitle": "occurrence, chemical quality and use of ground water in the TÌʹabulbah area, Tunisia by L.C. Dutcher and H.E. Thomas.",
+    "hrid": "in00000000017",
     "identifiers": [
       {
         "value": "978-072-901724-027-7",
@@ -1349,6 +1468,9 @@
     "instanceFormatIds": [
       "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
     ],
+    "natureOfContentTermIds": [
+      "2fec23f6-6bbc-4fa2-a736-b64a8c06a47a"
+    ],
     "languages": [
       "eng"
     ],
@@ -1360,6 +1482,7 @@
     "source": "FOLIO",
     "title": "Evaluation of baseline ground-water conditions in the Mosteiros, Ribeira Paul, and Ribeira Fajã Basins, Republic of Cape Verde, West Africa, 2005-06by Victor M. Heilweil ... [et al.] ; prepared in cooperation with the Millennium Challenge Corporation, Millennium Challenge Account, and Instituto Nacional de Gestão dos Recursos Hídricos.",
     "indexTitle": "Evaluation of baseline ground-water conditions in the Mosteiros, Ribeira Paul, and Ribeira Fajã Basins, Republic of Cape Verde, West Africa, 2005-06by Victor M. Heilweil ... [et al.] ; prepared in cooperation with the Millennium Challenge Corporation, Millennium Challenge Account, and Instituto Nacional de Gestão dos Recursos Hídricos.",
+    "hrid": "in00000000018",
     "identifiers": [
       {
         "value": "978-549-863386-365-2",
@@ -1408,6 +1531,11 @@
     "languages": [
       "eng"
     ],
+    "tags": {
+      "tagList": [
+        "special-order"
+      ]
+    },
     "discoverySuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
@@ -1416,6 +1544,7 @@
     "source": "FOLIO",
     "title": "Significance of ground-water chemistry in performance of North Sahara tube wells in Algeria and Tunisia by Frank E. Clarke and Blair F. Jones.",
     "indexTitle": "Significance of ground-water chemistry in performance of North Sahara tube wells in Algeria and Tunisia by Frank E. Clarke and Blair F. Jones.",
+    "hrid": "in00000000019",
     "identifiers": [
       {
         "value": "978-108-084806-475-3",
@@ -1469,8 +1598,21 @@
     "instanceFormatIds": [
       "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
     ],
+    "natureOfContentTermIds": [
+      "a1d70ca5-67aa-4824-b3af-55c8cf47a427"
+    ],
     "languages": [
       "eng"
+    ],
+    "notes": [
+      {
+        "note": "Description based on print version record.",
+        "staffOnly": false
+      },
+      {
+        "note": "Includes bibliographical references and index.",
+        "staffOnly": false
+      }
     ],
     "discoverySuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
@@ -1480,6 +1622,12 @@
     "source": "FOLIO",
     "title": "The occurrence, chemical quality and use of ground water in the TÌʹabulbah area, Tunisia / by L.C. Dutcher and H.E. Thomas.",
     "indexTitle": "occurrence, chemical quality and use of ground water in the TÌʹabulbah area, Tunisia / by L.C. Dutcher and H.E. Thomas.",
+    "hrid": "in00000000020",
+    "series": [
+      {
+        "value": "Contributions to economics"
+      }
+    ],
     "identifiers": [
       {
         "value": "978-490-671978-809-2",
@@ -1521,8 +1669,24 @@
     "instanceFormatIds": [
       "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
     ],
+    "statisticalCodeIds": [
+      "c4073462-6144-4b69-a543-dd131e241799"
+    ],
+    "natureOfContentTermIds": [
+      "9ef56f0c-fa7b-44dc-ab7c-15a8e7a0ab2b"
+    ],
     "languages": [
       "eng"
+    ],
+    "notes": [
+      {
+        "note": "Description based on print version record.",
+        "staffOnly": false
+      },
+      {
+        "note": "Text in English; abstract also in French.",
+        "staffOnly": false
+      }
     ],
     "discoverySuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
@@ -1532,6 +1696,7 @@
     "source": "FOLIO",
     "title": "Ground water in the Sirte area, Tripolitania United Kingdom of Libya  /by William Ogilbee.",
     "indexTitle": "Ground water in the Sirte area, Tripolitania United Kingdom of Libya  /by William Ogilbee.",
+    "hrid": "in00000000021",
     "identifiers": [
       {
         "value": "978-198-798779-595-4",
@@ -1595,6 +1760,7 @@
     "source": "FOLIO",
     "title": "Ground water in Eastern, Central and Southern Africa /United Nations, Department of Technical Co-operation for Development.",
     "indexTitle": "Ground water in Eastern, Central and Southern Africa /United Nations, Department of Technical Co-operation for Development.",
+    "hrid": "in00000000022",
     "series": [
       {
         "value": "Advances in computer science"
@@ -1645,6 +1811,11 @@
     "languages": [
       "eng"
     ],
+    "tags": {
+      "tagList": [
+        "preservation-needed"
+      ]
+    },
     "discoverySuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
@@ -1653,6 +1824,7 @@
     "source": "FOLIO",
     "title": "Ground-water exploration in Al Marj area, Cyrenaica, United Kingdom of Libya by T.G. Newport and Yousef Haddor.",
     "indexTitle": "Ground-water exploration in Al Marj area, Cyrenaica, United Kingdom of Libya by T.G. Newport and Yousef Haddor.",
+    "hrid": "in00000000023",
     "series": [
       {
         "value": "Cambridge studies in publishing and printing history"
@@ -1713,6 +1885,7 @@
     "source": "FOLIO",
     "title": "Biomedical Ethics: Principles and Cases",
     "indexTitle": "Biomedical Ethics",
+    "hrid": "in00000000024",
     "identifiers": [
       {
         "value": "978-543-783970-088-0",
@@ -1753,6 +1926,12 @@
     "instanceFormatIds": [
       "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
     ],
+    "statisticalCodeIds": [
+      "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
+    ],
+    "natureOfContentTermIds": [
+      "a1d70ca5-67aa-4824-b3af-55c8cf47a427"
+    ],
     "languages": [
       "eng"
     ],
@@ -1764,6 +1943,7 @@
     "source": "FOLIO",
     "title": "Environmental Law and Policy",
     "indexTitle": "Environmental Law and Policy",
+    "hrid": "in00000000025",
     "identifiers": [
       {
         "value": "978-425-683331-651-1",
@@ -1805,9 +1985,18 @@
     "instanceFormatIds": [
       "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
     ],
+    "statisticalCodeIds": [
+      "b5968c9e-cddc-4576-99e3-8e60aed8b0dd",
+      "b6b46869-f3c1-4370-b603-29774a1e42b1"
+    ],
     "languages": [
       "eng"
     ],
+    "tags": {
+      "tagList": [
+        "reserve"
+      ]
+    },
     "discoverySuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
@@ -1816,6 +2005,12 @@
     "source": "MARC",
     "title": "Resource0",
     "indexTitle": "Resource0",
+    "hrid": "in00000000026",
+    "series": [
+      {
+        "value": "Monographs in library and information science"
+      }
+    ],
     "identifiers": [
       {
         "value": "978-039-933254-823-7",
@@ -1860,6 +2055,9 @@
       "25a81102-a2a9-4576-85ff-133ebcbcef2c",
       "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
     ],
+    "natureOfContentTermIds": [
+      "9ef56f0c-fa7b-44dc-ab7c-15a8e7a0ab2b"
+    ],
     "languages": [
       "eng",
       "ita"
@@ -1872,6 +2070,7 @@
     "source": "MARC",
     "title": "Resource1",
     "indexTitle": "Resource1",
+    "hrid": "in00000000027",
     "identifiers": [
       {
         "value": "978-922-997176-736-6",
@@ -1917,6 +2116,13 @@
     "instanceFormatIds": [
       "25a81102-a2a9-4576-85ff-133ebcbcef2c"
     ],
+    "statisticalCodeIds": [
+      "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
+    ],
+    "natureOfContentTermIds": [
+      "9f0a2cf0-7a9b-45a2-a403-f68d2850d07c",
+      "2fec23f6-6bbc-4fa2-a736-b64a8c06a47a"
+    ],
     "languages": [
       "eng",
       "ger",
@@ -1930,6 +2136,7 @@
     "source": "FOLIO",
     "title": "Resource2",
     "indexTitle": "Resource2",
+    "hrid": "in00000000028",
     "identifiers": [
       {
         "value": "978-630-227928-741-5",
@@ -1980,6 +2187,12 @@
       "rus",
       "ukr"
     ],
+    "tags": {
+      "tagList": [
+        "recommended",
+        "withdrawn-review"
+      ]
+    },
     "discoverySuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
@@ -1988,6 +2201,7 @@
     "source": "MARC",
     "title": "Resource3",
     "indexTitle": "Resource3",
+    "hrid": "in00000000029",
     "series": [
       {
         "value": "International studies in political economy"
@@ -2052,6 +2266,7 @@
     "source": "FOLIO",
     "title": "Resource4",
     "indexTitle": "Resource4",
+    "hrid": "in00000000030",
     "series": [
       {
         "value": "Cambridge studies in publishing and printing history"
@@ -2106,6 +2321,10 @@
     "instanceFormatIds": [
       "25a81102-a2a9-4576-85ff-133ebcbcef2c"
     ],
+    "statisticalCodeIds": [
+      "6899291f-0d18-4f8d-a269-42706a5d0e27",
+      "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
+    ],
     "languages": [
       "eng",
       "fra"
@@ -2118,6 +2337,7 @@
     "source": "FOLIO",
     "title": "Death of the Price Jackal",
     "indexTitle": "Death of the Price Jackal",
+    "hrid": "in00000000031",
     "identifiers": [
       {
         "value": "978-981-922588-252-7",
@@ -2165,6 +2385,12 @@
     "languages": [
       "eng"
     ],
+    "notes": [
+      {
+        "note": "Cataloged from PDF version of text.",
+        "staffOnly": true
+      }
+    ],
     "discoverySuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
@@ -2173,6 +2399,7 @@
     "source": "FOLIO",
     "title": "Wild and Wicked",
     "indexTitle": "Wild and Wicked",
+    "hrid": "in00000000032",
     "identifiers": [
       {
         "value": "978-730-195418-451-2",
@@ -2217,6 +2444,9 @@
     "instanceFormatIds": [
       "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
     ],
+    "natureOfContentTermIds": [
+      "526aa04d-9289-4511-8866-349299592c18"
+    ],
     "languages": [
       "eng"
     ],
@@ -2228,6 +2458,7 @@
     "source": "FOLIO",
     "title": "Sword of Gruko",
     "indexTitle": "Sword of Gruko",
+    "hrid": "in00000000033",
     "identifiers": [
       {
         "value": "978-312-548891-528-2",
@@ -2273,6 +2504,9 @@
     "instanceFormatIds": [
       "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
     ],
+    "natureOfContentTermIds": [
+      "9f0a2cf0-7a9b-45a2-a403-f68d2850d07c"
+    ],
     "languages": [
       "eng"
     ],
@@ -2284,6 +2518,12 @@
     "source": "FOLIO",
     "title": "The Blade in the Ice",
     "indexTitle": "Blade in the Ice",
+    "hrid": "in00000000034",
+    "series": [
+      {
+        "value": "Texts in applied mathematics"
+      }
+    ],
     "identifiers": [
       {
         "value": "978-034-569503-467-2",
@@ -2343,6 +2583,12 @@
     "source": "FOLIO",
     "title": "The Raven Crystal",
     "indexTitle": "Raven Crystal",
+    "hrid": "in00000000035",
+    "series": [
+      {
+        "value": "Topics in modern biology"
+      }
+    ],
     "identifiers": [
       {
         "value": "978-794-461003-312-2",
@@ -2390,6 +2636,9 @@
     "instanceFormatIds": [
       "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
     ],
+    "natureOfContentTermIds": [
+      "2fec23f6-6bbc-4fa2-a736-b64a8c06a47a"
+    ],
     "languages": [
       "eng"
     ],
@@ -2401,6 +2650,7 @@
     "source": "FOLIO",
     "title": "Instance 1",
     "indexTitle": "Instance 1",
+    "hrid": "in00000000036",
     "identifiers": [
       {
         "value": "978-749-872789-799-8",
@@ -2448,6 +2698,9 @@
     "instanceFormatIds": [
       "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
     ],
+    "natureOfContentTermIds": [
+      "526aa04d-9289-4511-8866-349299592c18"
+    ],
     "languages": [
       "eng"
     ],
@@ -2459,6 +2712,12 @@
     "source": "FOLIO",
     "title": "Instance 2",
     "indexTitle": "Instance 2",
+    "hrid": "in00000000037",
+    "series": [
+      {
+        "value": "Perspectives on urban and regional development"
+      }
+    ],
     "identifiers": [
       {
         "value": "978-010-453766-202-8",
@@ -2522,6 +2781,7 @@
     "source": "FOLIO",
     "title": "Instance 3",
     "indexTitle": "Instance 3",
+    "hrid": "in00000000038",
     "series": [
       {
         "value": "Springer series in solid-state sciences"
@@ -2579,6 +2839,7 @@
     "source": "FOLIO",
     "title": "Instance 4",
     "indexTitle": "Instance 4",
+    "hrid": "in00000000039",
     "series": [
       {
         "value": "Interdisciplinary studies in knowledge management"
@@ -2626,6 +2887,12 @@
     "instanceFormatIds": [
       "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
     ],
+    "statisticalCodeIds": [
+      "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
+    ],
+    "natureOfContentTermIds": [
+      "9f0a2cf0-7a9b-45a2-a403-f68d2850d07c"
+    ],
     "languages": [
       "eng"
     ],
@@ -2637,6 +2904,12 @@
     "source": "FOLIO",
     "title": "Instance 5",
     "indexTitle": "Instance 5",
+    "hrid": "in00000000040",
+    "series": [
+      {
+        "value": "MIT Press series in cognitive science"
+      }
+    ],
     "identifiers": [
       {
         "value": "978-935-784608-546-5",
@@ -2694,6 +2967,7 @@
     "source": "FOLIO",
     "title": "Instance 6",
     "indexTitle": "Instance 6",
+    "hrid": "in00000000041",
     "identifiers": [
       {
         "value": "978-599-251286-441-4",
@@ -2738,6 +3012,10 @@
     "instanceFormatIds": [
       "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
     ],
+    "natureOfContentTermIds": [
+      "9f0a2cf0-7a9b-45a2-a403-f68d2850d07c",
+      "a1d70ca5-67aa-4824-b3af-55c8cf47a427"
+    ],
     "languages": [
       "eng"
     ],
@@ -2749,6 +3027,12 @@
     "source": "FOLIO",
     "title": "Instance 7",
     "indexTitle": "Instance 7",
+    "hrid": "in00000000042",
+    "series": [
+      {
+        "value": "Topics in modern biology"
+      }
+    ],
     "identifiers": [
       {
         "value": "978-007-777513-312-7",
@@ -2796,6 +3080,13 @@
     "instanceFormatIds": [
       "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
     ],
+    "statisticalCodeIds": [
+      "6899291f-0d18-4f8d-a269-42706a5d0e27",
+      "c4073462-6144-4b69-a543-dd131e241799"
+    ],
+    "natureOfContentTermIds": [
+      "aef4d369-1571-419c-8cf8-7e596f6f535c"
+    ],
     "languages": [
       "eng"
     ],
@@ -2807,6 +3098,7 @@
     "source": "FOLIO",
     "title": "Instance 8",
     "indexTitle": "Instance 8",
+    "hrid": "in00000000043",
     "identifiers": [
       {
         "value": "978-739-938210-596-4",
@@ -2868,6 +3160,7 @@
     "source": "FOLIO",
     "title": "Instance 9",
     "indexTitle": "Instance 9",
+    "hrid": "in00000000044",
     "series": [
       {
         "value": "Studies in information science"
@@ -2936,6 +3229,7 @@
     "source": "FOLIO",
     "title": "Instance 10",
     "indexTitle": "Instance 10",
+    "hrid": "in00000000045",
     "identifiers": [
       {
         "value": "978-420-788219-198-7",
@@ -2985,6 +3279,12 @@
     "languages": [
       "eng"
     ],
+    "notes": [
+      {
+        "note": "Originally presented as the author's thesis.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
@@ -2993,6 +3293,12 @@
     "source": "FOLIO",
     "title": "Instance 11",
     "indexTitle": "Instance 11",
+    "hrid": "in00000000046",
+    "series": [
+      {
+        "value": "MIT Press series in cognitive science"
+      }
+    ],
     "identifiers": [
       {
         "value": "978-726-736260-739-8",
@@ -3045,6 +3351,13 @@
     "instanceFormatIds": [
       "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
     ],
+    "statisticalCodeIds": [
+      "d9acad2f-d9ac-4b48-9097-e6ab85000001",
+      "6899291f-0d18-4f8d-a269-42706a5d0e27"
+    ],
+    "natureOfContentTermIds": [
+      "2fec23f6-6bbc-4fa2-a736-b64a8c06a47a"
+    ],
     "languages": [
       "eng"
     ],
@@ -3056,6 +3369,7 @@
     "source": "FOLIO",
     "title": "Instance 12",
     "indexTitle": "Instance 12",
+    "hrid": "in00000000047",
     "series": [
       {
         "value": "MIT Press series in cognitive science"
@@ -3124,6 +3438,7 @@
     "source": "FOLIO",
     "title": "Instance 13",
     "indexTitle": "Instance 13",
+    "hrid": "in00000000048",
     "identifiers": [
       {
         "value": "978-430-843217-893-6",
@@ -3182,6 +3497,7 @@
     "source": "FOLIO",
     "title": "Instance 14",
     "indexTitle": "Instance 14",
+    "hrid": "in00000000049",
     "series": [
       {
         "value": "International studies in political economy"
@@ -3228,8 +3544,18 @@
     "instanceFormatIds": [
       "25a81102-a2a9-4576-85ff-133ebcbcef2c"
     ],
+    "natureOfContentTermIds": [
+      "9f0a2cf0-7a9b-45a2-a403-f68d2850d07c",
+      "a1d70ca5-67aa-4824-b3af-55c8cf47a427"
+    ],
     "languages": [
       "eng"
+    ],
+    "notes": [
+      {
+        "note": "Also available online.",
+        "staffOnly": true
+      }
     ],
     "discoverySuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
@@ -3239,6 +3565,7 @@
     "source": "FOLIO",
     "title": "Instance 15",
     "indexTitle": "Instance 15",
+    "hrid": "in00000000050",
     "identifiers": [
       {
         "value": "978-809-511811-528-1",
@@ -3284,9 +3611,21 @@
     "instanceFormatIds": [
       "25a81102-a2a9-4576-85ff-133ebcbcef2c"
     ],
+    "statisticalCodeIds": [
+      "c4073462-6144-4b69-a543-dd131e241799"
+    ],
+    "natureOfContentTermIds": [
+      "44cd89f3-2e76-469f-a955-cc57cb9e0395"
+    ],
     "languages": [
       "eng"
     ],
+    "tags": {
+      "tagList": [
+        "reserve",
+        "new-addition"
+      ]
+    },
     "discoverySuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
@@ -3295,6 +3634,12 @@
     "source": "FOLIO",
     "title": "Instance 16",
     "indexTitle": "Instance 16",
+    "hrid": "in00000000051",
+    "series": [
+      {
+        "value": "Perspectives on urban and regional development"
+      }
+    ],
     "identifiers": [
       {
         "value": "978-624-214564-944-5",
@@ -3342,6 +3687,10 @@
     "instanceFormatIds": [
       "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
     ],
+    "natureOfContentTermIds": [
+      "a1d70ca5-67aa-4824-b3af-55c8cf47a427",
+      "526aa04d-9289-4511-8866-349299592c18"
+    ],
     "languages": [
       "eng"
     ],
@@ -3353,6 +3702,7 @@
     "source": "FOLIO",
     "title": "Instance 17",
     "indexTitle": "Instance 17",
+    "hrid": "in00000000052",
     "identifiers": [
       {
         "value": "978-586-814563-288-4",
@@ -3397,6 +3747,9 @@
     "instanceFormatIds": [
       "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
     ],
+    "natureOfContentTermIds": [
+      "44cd89f3-2e76-469f-a955-cc57cb9e0395"
+    ],
     "languages": [
       "eng"
     ],
@@ -3408,6 +3761,7 @@
     "source": "FOLIO",
     "title": "Instance 18",
     "indexTitle": "Instance 18",
+    "hrid": "in00000000053",
     "identifiers": [
       {
         "value": "978-921-122611-092-8",
@@ -3452,6 +3806,9 @@
     "instanceFormatIds": [
       "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
     ],
+    "statisticalCodeIds": [
+      "d9acad2f-d9ac-4b48-9097-e6ab85000001"
+    ],
     "languages": [
       "eng"
     ],
@@ -3463,6 +3820,7 @@
     "source": "FOLIO",
     "title": "Instance 19",
     "indexTitle": "Instance 19",
+    "hrid": "in00000000054",
     "identifiers": [
       {
         "value": "978-163-169763-896-3",
@@ -3510,6 +3868,9 @@
     "instanceFormatIds": [
       "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
     ],
+    "statisticalCodeIds": [
+      "c4073462-6144-4b69-a543-dd131e241799"
+    ],
     "languages": [
       "eng"
     ],
@@ -3521,6 +3882,7 @@
     "source": "FOLIO",
     "title": "Instance 20",
     "indexTitle": "Instance 20",
+    "hrid": "in00000000055",
     "identifiers": [
       {
         "value": "978-992-853651-010-1",
@@ -3568,6 +3930,9 @@
     "languages": [
       "eng"
     ],
+    "administrativeNotes": [
+      "Includes bibliographical references."
+    ],
     "discoverySuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
@@ -3576,6 +3941,7 @@
     "source": "FOLIO",
     "title": "Instance 21",
     "indexTitle": "Instance 21",
+    "hrid": "in00000000056",
     "identifiers": [
       {
         "value": "978-738-444372-321-8",
@@ -3625,6 +3991,9 @@
     "instanceFormatIds": [
       "25a81102-a2a9-4576-85ff-133ebcbcef2c"
     ],
+    "statisticalCodeIds": [
+      "d9acad2f-d9ac-4b48-9097-e6ab85000001"
+    ],
     "languages": [
       "eng"
     ],
@@ -3636,6 +4005,7 @@
     "source": "FOLIO",
     "title": "Instance 22",
     "indexTitle": "Instance 22",
+    "hrid": "in00000000057",
     "identifiers": [
       {
         "value": "978-619-324644-304-6",
@@ -3691,6 +4061,7 @@
     "source": "FOLIO",
     "title": "Instance 23",
     "indexTitle": "Instance 23",
+    "hrid": "in00000000058",
     "series": [
       {
         "value": "Texts in applied mathematics"
@@ -3742,8 +4113,29 @@
     "instanceFormatIds": [
       "25a81102-a2a9-4576-85ff-133ebcbcef2c"
     ],
+    "statisticalCodeIds": [
+      "c4073462-6144-4b69-a543-dd131e241799"
+    ],
+    "natureOfContentTermIds": [
+      "0abeaebb-4166-483d-9f62-3bdf6aae7a93"
+    ],
     "languages": [
       "eng"
+    ],
+    "tags": {
+      "tagList": [
+        "high-demand"
+      ]
+    },
+    "notes": [
+      {
+        "note": "Previously published under title: Introduction to the subject.",
+        "staffOnly": true
+      },
+      {
+        "note": "Also available online.",
+        "staffOnly": false
+      }
     ],
     "discoverySuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
@@ -3753,6 +4145,7 @@
     "source": "FOLIO",
     "title": "Instance 24",
     "indexTitle": "Instance 24",
+    "hrid": "in00000000059",
     "identifiers": [
       {
         "value": "978-850-410286-982-1",
@@ -3811,6 +4204,7 @@
     "source": "FOLIO",
     "title": "Instance 25",
     "indexTitle": "Instance 25",
+    "hrid": "in00000000060",
     "identifiers": [
       {
         "value": "978-821-451753-821-1",
@@ -3860,6 +4254,18 @@
     "languages": [
       "eng"
     ],
+    "tags": {
+      "tagList": [
+        "review-needed",
+        "reserve"
+      ]
+    },
+    "notes": [
+      {
+        "note": "Previously published under title: Introduction to the subject.",
+        "staffOnly": true
+      }
+    ],
     "discoverySuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
@@ -3868,6 +4274,7 @@
     "source": "FOLIO",
     "title": "Instance 26",
     "indexTitle": "Instance 26",
+    "hrid": "in00000000061",
     "identifiers": [
       {
         "value": "978-565-303882-010-9",
@@ -3912,6 +4319,10 @@
     "instanceFormatIds": [
       "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
     ],
+    "natureOfContentTermIds": [
+      "a1d70ca5-67aa-4824-b3af-55c8cf47a427",
+      "9ef56f0c-fa7b-44dc-ab7c-15a8e7a0ab2b"
+    ],
     "languages": [
       "eng"
     ],
@@ -3923,6 +4334,7 @@
     "source": "FOLIO",
     "title": "Instance 27",
     "indexTitle": "Instance 27",
+    "hrid": "in00000000062",
     "series": [
       {
         "value": "Research in applied linguistics"
@@ -3976,6 +4388,9 @@
     "languages": [
       "eng"
     ],
+    "administrativeNotes": [
+      "Includes bibliographical references and index."
+    ],
     "discoverySuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
@@ -3984,6 +4399,7 @@
     "source": "FOLIO",
     "title": "Instance 28",
     "indexTitle": "Instance 28",
+    "hrid": "in00000000063",
     "identifiers": [
       {
         "value": "978-652-430519-680-9",
@@ -4035,6 +4451,11 @@
     "languages": [
       "eng"
     ],
+    "tags": {
+      "tagList": [
+        "preservation-needed"
+      ]
+    },
     "discoverySuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
@@ -4043,6 +4464,7 @@
     "source": "FOLIO",
     "title": "Instance 29",
     "indexTitle": "Instance 29",
+    "hrid": "in00000000064",
     "series": [
       {
         "value": "MIT Press series in cognitive science"
@@ -4098,6 +4520,18 @@
     "languages": [
       "eng"
     ],
+    "tags": {
+      "tagList": [
+        "new-addition",
+        "review-needed"
+      ]
+    },
+    "notes": [
+      {
+        "note": "Also available online.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
@@ -4106,6 +4540,7 @@
     "source": "FOLIO",
     "title": "Instance 30",
     "indexTitle": "Instance 30",
+    "hrid": "in00000000065",
     "identifiers": [
       {
         "value": "978-955-848010-358-8",
@@ -4154,6 +4589,9 @@
     "instanceFormatIds": [
       "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
     ],
+    "statisticalCodeIds": [
+      "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
+    ],
     "languages": [
       "eng"
     ],
@@ -4165,6 +4603,7 @@
     "source": "FOLIO",
     "title": "Instance 31",
     "indexTitle": "Instance 31",
+    "hrid": "in00000000066",
     "identifiers": [
       {
         "value": "978-224-367758-043-9",
@@ -4211,6 +4650,10 @@
     "instanceFormatIds": [
       "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
     ],
+    "natureOfContentTermIds": [
+      "aef4d369-1571-419c-8cf8-7e596f6f535c",
+      "0abeaebb-4166-483d-9f62-3bdf6aae7a93"
+    ],
     "languages": [
       "eng"
     ],
@@ -4222,6 +4665,7 @@
     "source": "FOLIO",
     "title": "Instance 32",
     "indexTitle": "Instance 32",
+    "hrid": "in00000000067",
     "identifiers": [
       {
         "value": "978-871-222163-020-2",
@@ -4269,6 +4713,13 @@
     "instanceFormatIds": [
       "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
     ],
+    "statisticalCodeIds": [
+      "d9acad2f-d9ac-4b48-9097-e6ab85000001"
+    ],
+    "natureOfContentTermIds": [
+      "2fec23f6-6bbc-4fa2-a736-b64a8c06a47a",
+      "9f0a2cf0-7a9b-45a2-a403-f68d2850d07c"
+    ],
     "languages": [
       "eng"
     ],
@@ -4280,6 +4731,7 @@
     "source": "FOLIO",
     "title": "Instance 33",
     "indexTitle": "Instance 33",
+    "hrid": "in00000000068",
     "series": [
       {
         "value": "Studies in information science"
@@ -4332,6 +4784,9 @@
     "instanceFormatIds": [
       "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
     ],
+    "natureOfContentTermIds": [
+      "526aa04d-9289-4511-8866-349299592c18"
+    ],
     "languages": [
       "eng"
     ],
@@ -4343,6 +4798,7 @@
     "source": "FOLIO",
     "title": "Instance 34",
     "indexTitle": "Instance 34",
+    "hrid": "in00000000069",
     "series": [
       {
         "value": "MIT Press series in cognitive science"
@@ -4395,6 +4851,12 @@
     "instanceFormatIds": [
       "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
     ],
+    "statisticalCodeIds": [
+      "f47b773a-bd5f-4246-ac1e-fa4adcd0dcdf"
+    ],
+    "natureOfContentTermIds": [
+      "aef4d369-1571-419c-8cf8-7e596f6f535c"
+    ],
     "languages": [
       "eng"
     ],
@@ -4406,6 +4868,7 @@
     "source": "FOLIO",
     "title": "Instance 35",
     "indexTitle": "Instance 35",
+    "hrid": "in00000000070",
     "identifiers": [
       {
         "value": "978-449-242584-062-4",
@@ -4469,6 +4932,7 @@
     "source": "FOLIO",
     "title": "Instance 36",
     "indexTitle": "Instance 36",
+    "hrid": "in00000000071",
     "identifiers": [
       {
         "value": "978-649-246448-092-6",
@@ -4515,6 +4979,9 @@
     "instanceFormatIds": [
       "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
     ],
+    "natureOfContentTermIds": [
+      "2fec23f6-6bbc-4fa2-a736-b64a8c06a47a"
+    ],
     "languages": [
       "eng"
     ],
@@ -4526,6 +4993,7 @@
     "source": "FOLIO",
     "title": "Instance 37",
     "indexTitle": "Instance 37",
+    "hrid": "in00000000072",
     "identifiers": [
       {
         "value": "978-516-285923-327-7",
@@ -4576,6 +5044,12 @@
     "instanceFormatIds": [
       "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
     ],
+    "statisticalCodeIds": [
+      "6899291f-0d18-4f8d-a269-42706a5d0e27"
+    ],
+    "natureOfContentTermIds": [
+      "0abeaebb-4166-483d-9f62-3bdf6aae7a93"
+    ],
     "languages": [
       "eng"
     ],
@@ -4587,6 +5061,7 @@
     "source": "FOLIO",
     "title": "Instance 38",
     "indexTitle": "Instance 38",
+    "hrid": "in00000000073",
     "identifiers": [
       {
         "value": "978-093-002435-061-7",
@@ -4636,8 +5111,17 @@
     "instanceFormatIds": [
       "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
     ],
+    "statisticalCodeIds": [
+      "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
+    ],
     "languages": [
       "eng"
+    ],
+    "notes": [
+      {
+        "note": "Description based on print version record.",
+        "staffOnly": false
+      }
     ],
     "discoverySuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
@@ -4647,6 +5131,7 @@
     "source": "FOLIO",
     "title": "Instance 39",
     "indexTitle": "Instance 39",
+    "hrid": "in00000000074",
     "series": [
       {
         "value": "Contributions to economics"
@@ -4700,8 +5185,20 @@
     "instanceFormatIds": [
       "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
     ],
+    "natureOfContentTermIds": [
+      "526aa04d-9289-4511-8866-349299592c18"
+    ],
     "languages": [
       "eng"
+    ],
+    "tags": {
+      "tagList": [
+        "reserve",
+        "special-order"
+      ]
+    },
+    "administrativeNotes": [
+      "Also available online."
     ],
     "discoverySuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
@@ -4711,6 +5208,12 @@
     "source": "FOLIO",
     "title": "Instance 40",
     "indexTitle": "Instance 40",
+    "hrid": "in00000000075",
+    "series": [
+      {
+        "value": "Monographs in library and information science"
+      }
+    ],
     "identifiers": [
       {
         "value": "978-848-989064-429-7",
@@ -4766,6 +5269,7 @@
     "source": "FOLIO",
     "title": "Instance 41",
     "indexTitle": "Instance 41",
+    "hrid": "in00000000076",
     "series": [
       {
         "value": "Cambridge studies in publishing and printing history"
@@ -4812,6 +5316,9 @@
     "instanceFormatIds": [
       "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
     ],
+    "statisticalCodeIds": [
+      "6899291f-0d18-4f8d-a269-42706a5d0e27"
+    ],
     "languages": [
       "eng"
     ],
@@ -4823,6 +5330,7 @@
     "source": "FOLIO",
     "title": "Instance 42",
     "indexTitle": "Instance 42",
+    "hrid": "in00000000077",
     "identifiers": [
       {
         "value": "978-375-390412-846-8",
@@ -4864,8 +5372,18 @@
     "instanceFormatIds": [
       "25a81102-a2a9-4576-85ff-133ebcbcef2c"
     ],
+    "natureOfContentTermIds": [
+      "2fec23f6-6bbc-4fa2-a736-b64a8c06a47a",
+      "44cd89f3-2e76-469f-a955-cc57cb9e0395"
+    ],
     "languages": [
       "eng"
+    ],
+    "notes": [
+      {
+        "note": "Translation of the 3rd German edition.",
+        "staffOnly": false
+      }
     ],
     "discoverySuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
@@ -4875,6 +5393,7 @@
     "source": "FOLIO",
     "title": "Instance 43",
     "indexTitle": "Instance 43",
+    "hrid": "in00000000078",
     "identifiers": [
       {
         "value": "978-109-723257-969-4",
@@ -4927,6 +5446,7 @@
     "source": "FOLIO",
     "title": "Instance 44",
     "indexTitle": "Instance 44",
+    "hrid": "in00000000079",
     "series": [
       {
         "value": "Texts in applied mathematics"
@@ -4984,6 +5504,7 @@
     "source": "FOLIO",
     "title": "Instance 45",
     "indexTitle": "Instance 45",
+    "hrid": "in00000000080",
     "identifiers": [
       {
         "value": "978-843-748836-759-2",
@@ -5036,6 +5557,12 @@
     "source": "FOLIO",
     "title": "Instance 46",
     "indexTitle": "Instance 46",
+    "hrid": "in00000000081",
+    "series": [
+      {
+        "value": "Contemporary issues in education"
+      }
+    ],
     "identifiers": [
       {
         "value": "978-140-723980-358-4",
@@ -5096,6 +5623,7 @@
     "source": "FOLIO",
     "title": "Instance 47",
     "indexTitle": "Instance 47",
+    "hrid": "in00000000082",
     "identifiers": [
       {
         "value": "978-588-265538-409-5",
@@ -5159,6 +5687,7 @@
     "source": "FOLIO",
     "title": "Instance 48",
     "indexTitle": "Instance 48",
+    "hrid": "in00000000083",
     "identifiers": [
       {
         "value": "978-946-934640-232-8",
@@ -5200,9 +5729,18 @@
     "instanceFormatIds": [
       "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
     ],
+    "natureOfContentTermIds": [
+      "aef4d369-1571-419c-8cf8-7e596f6f535c",
+      "44cd89f3-2e76-469f-a955-cc57cb9e0395"
+    ],
     "languages": [
       "eng"
     ],
+    "tags": {
+      "tagList": [
+        "preservation-needed"
+      ]
+    },
     "discoverySuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
@@ -5211,6 +5749,7 @@
     "source": "FOLIO",
     "title": "Instance 49",
     "indexTitle": "Instance 49",
+    "hrid": "in00000000084",
     "identifiers": [
       {
         "value": "978-371-916152-063-6",
@@ -5269,6 +5808,7 @@
     "source": "FOLIO",
     "title": "Instance 50",
     "indexTitle": "Instance 50",
+    "hrid": "in00000000085",
     "identifiers": [
       {
         "value": "978-514-700573-460-0",
@@ -5325,6 +5865,12 @@
     "languages": [
       "eng"
     ],
+    "notes": [
+      {
+        "note": "Text in English; abstract also in French.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
@@ -5333,6 +5879,7 @@
     "source": "FOLIO",
     "title": "Foundations of Information Retrieval",
     "indexTitle": "Foundations of Information Retrieval",
+    "hrid": "in00000000086",
     "identifiers": [
       {
         "value": "978-393-071437-384-8",
@@ -5397,6 +5944,7 @@
     "source": "FOLIO",
     "title": "Advanced Topics in Computer Science",
     "indexTitle": "Advanced Topics in Computer Science",
+    "hrid": "in00000000087",
     "identifiers": [
       {
         "value": "978-821-849021-870-2",
@@ -5449,6 +5997,13 @@
     "instanceFormatIds": [
       "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
     ],
+    "statisticalCodeIds": [
+      "9d8abbe2-1a94-4866-8731-4d12ac09f7a8",
+      "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
+    ],
+    "natureOfContentTermIds": [
+      "0abeaebb-4166-483d-9f62-3bdf6aae7a93"
+    ],
     "languages": [
       "eng"
     ],
@@ -5460,6 +6015,7 @@
     "source": "FOLIO",
     "title": "Introduction to Library Science",
     "indexTitle": "Introduction to Library Science",
+    "hrid": "in00000000088",
     "identifiers": [
       {
         "value": "978-615-962846-510-5",
@@ -5508,8 +6064,18 @@
     "instanceFormatIds": [
       "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
     ],
+    "natureOfContentTermIds": [
+      "0abeaebb-4166-483d-9f62-3bdf6aae7a93",
+      "a1d70ca5-67aa-4824-b3af-55c8cf47a427"
+    ],
     "languages": [
       "eng"
+    ],
+    "notes": [
+      {
+        "note": "Includes bibliographical references and index.",
+        "staffOnly": true
+      }
     ],
     "discoverySuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
@@ -5519,6 +6085,7 @@
     "source": "FOLIO",
     "title": "Cataloguing and Classification Standards",
     "indexTitle": "Cataloguing and Classification Standards",
+    "hrid": "in00000000089",
     "identifiers": [
       {
         "value": "978-917-871135-643-1",
@@ -5566,6 +6133,9 @@
     "instanceFormatIds": [
       "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
     ],
+    "natureOfContentTermIds": [
+      "2fec23f6-6bbc-4fa2-a736-b64a8c06a47a"
+    ],
     "languages": [
       "eng"
     ],
@@ -5577,6 +6147,12 @@
     "source": "FOLIO",
     "title": "Network Protocols and Architectures",
     "indexTitle": "Network Protocols and Architectures",
+    "hrid": "in00000000090",
+    "series": [
+      {
+        "value": "Perspectives on urban and regional development"
+      }
+    ],
     "identifiers": [
       {
         "value": "978-515-174398-787-7",
@@ -5633,6 +6209,7 @@
     "source": "FOLIO",
     "title": "Digital Preservation and Archiving",
     "indexTitle": "Digital Preservation and Archiving",
+    "hrid": "in00000000091",
     "series": [
       {
         "value": "Monographs in library and information science"
@@ -5683,8 +6260,17 @@
     "instanceFormatIds": [
       "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
     ],
+    "natureOfContentTermIds": [
+      "aef4d369-1571-419c-8cf8-7e596f6f535c"
+    ],
     "languages": [
       "eng"
+    ],
+    "notes": [
+      {
+        "note": "Also available online.",
+        "staffOnly": false
+      }
     ],
     "discoverySuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
@@ -5694,6 +6280,7 @@
     "source": "FOLIO",
     "title": "Special Collections Management",
     "indexTitle": "Special Collections Management",
+    "hrid": "in00000000092",
     "series": [
       {
         "value": "Contemporary issues in education"
@@ -5744,6 +6331,10 @@
     "instanceFormatIds": [
       "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
     ],
+    "statisticalCodeIds": [
+      "6899291f-0d18-4f8d-a269-42706a5d0e27",
+      "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
+    ],
     "languages": [
       "eng"
     ],
@@ -5755,6 +6346,12 @@
     "source": "FOLIO",
     "title": "Metadata Standards in Digital Libraries",
     "indexTitle": "Metadata Standards in Digital Libraries",
+    "hrid": "in00000000093",
+    "series": [
+      {
+        "value": "Studies in information science"
+      }
+    ],
     "identifiers": [
       {
         "value": "978-791-457041-917-5",
@@ -5804,8 +6401,21 @@
     "instanceFormatIds": [
       "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
     ],
+    "natureOfContentTermIds": [
+      "0abeaebb-4166-483d-9f62-3bdf6aae7a93"
+    ],
     "languages": [
       "eng"
+    ],
+    "notes": [
+      {
+        "note": "Text in English; abstract also in French.",
+        "staffOnly": false
+      },
+      {
+        "note": "Revised edition.",
+        "staffOnly": true
+      }
     ],
     "discoverySuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
@@ -5815,6 +6425,7 @@
     "source": "FOLIO",
     "title": "Knowledge Organization and Representation",
     "indexTitle": "Knowledge Organization and Representation",
+    "hrid": "in00000000094",
     "series": [
       {
         "value": "Springer series in solid-state sciences"
@@ -5870,8 +6481,17 @@
     "instanceFormatIds": [
       "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
     ],
+    "natureOfContentTermIds": [
+      "9f0a2cf0-7a9b-45a2-a403-f68d2850d07c"
+    ],
     "languages": [
       "eng"
+    ],
+    "notes": [
+      {
+        "note": "Translation of the 3rd German edition.",
+        "staffOnly": true
+      }
     ],
     "discoverySuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
@@ -5881,6 +6501,7 @@
     "source": "FOLIO",
     "title": "Geographic Information Systems: Principles and Applications",
     "indexTitle": "Geographic Information Systems: Principles and Applications",
+    "hrid": "in00000000095",
     "identifiers": [
       {
         "value": "978-506-067352-535-9",
@@ -5938,6 +6559,12 @@
     "languages": [
       "eng"
     ],
+    "tags": {
+      "tagList": [
+        "review-needed",
+        "withdrawn-review"
+      ]
+    },
     "discoverySuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
@@ -5946,6 +6573,7 @@
     "source": "FOLIO",
     "title": "Open Access and Scholarly Communication",
     "indexTitle": "Open Access and Scholarly Communication",
+    "hrid": "in00000000096",
     "identifiers": [
       {
         "value": "978-247-693870-350-0",
@@ -5991,6 +6619,12 @@
     "instanceFormatIds": [
       "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
     ],
+    "statisticalCodeIds": [
+      "e10796e0-a594-47b7-b748-3a81b69b3d9b"
+    ],
+    "natureOfContentTermIds": [
+      "9ef56f0c-fa7b-44dc-ab7c-15a8e7a0ab2b"
+    ],
     "languages": [
       "eng"
     ],
@@ -6002,6 +6636,7 @@
     "source": "FOLIO",
     "title": "Digital Humanities: Methods and Practice",
     "indexTitle": "Digital Humanities: Methods and Practice",
+    "hrid": "in00000000097",
     "identifiers": [
       {
         "value": "978-780-978781-839-5",
@@ -6060,6 +6695,12 @@
     "source": "FOLIO",
     "title": "The Galactic Empire: A Political History",
     "indexTitle": "Galactic Empire: A Political History",
+    "hrid": "in00000000098",
+    "series": [
+      {
+        "value": "International studies in political economy"
+      }
+    ],
     "identifiers": [
       {
         "value": "978-458-699929-395-2",
@@ -6107,6 +6748,9 @@
     "instanceFormatIds": [
       "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
     ],
+    "statisticalCodeIds": [
+      "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
+    ],
     "languages": [
       "eng"
     ],
@@ -6118,6 +6762,12 @@
     "source": "FOLIO",
     "title": "Rock Legends: Stadium Anthems and Arena Rock",
     "indexTitle": "Rock Legends: Stadium Anthems and Arena Rock",
+    "hrid": "in00000000099",
+    "series": [
+      {
+        "value": "Texts in applied mathematics"
+      }
+    ],
     "identifiers": [
       {
         "value": "978-940-275678-628-2",
@@ -6174,6 +6824,9 @@
     "instanceFormatIds": [
       "25a81102-a2a9-4576-85ff-133ebcbcef2c"
     ],
+    "statisticalCodeIds": [
+      "f47b773a-bd5f-4246-ac1e-fa4adcd0dcdf"
+    ],
     "languages": [
       "eng"
     ],
@@ -6185,6 +6838,12 @@
     "source": "FOLIO",
     "title": "Hard Rock Chronicles: From Heavy Metal to Alternative",
     "indexTitle": "Hard Rock Chronicles: From Heavy Metal to Alternative",
+    "hrid": "in00000000100",
+    "series": [
+      {
+        "value": "Studies in information science"
+      }
+    ],
     "identifiers": [
       {
         "value": "978-880-259068-995-3",
@@ -6242,6 +6901,9 @@
     "instanceFormatIds": [
       "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
     ],
+    "natureOfContentTermIds": [
+      "9ef56f0c-fa7b-44dc-ab7c-15a8e7a0ab2b"
+    ],
     "languages": [
       "eng"
     ],
@@ -6253,6 +6915,12 @@
     "source": "FOLIO",
     "title": "Blaze of Glory: The Bon Jovi Story",
     "indexTitle": "Blaze of Glory: The Bon Jovi Story",
+    "hrid": "in00000000101",
+    "series": [
+      {
+        "value": "Cambridge studies in publishing and printing history"
+      }
+    ],
     "identifiers": [
       {
         "value": "978-948-926236-931-4",
@@ -6306,8 +6974,26 @@
     "instanceFormatIds": [
       "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
     ],
+    "natureOfContentTermIds": [
+      "0abeaebb-4166-483d-9f62-3bdf6aae7a93"
+    ],
     "languages": [
       "eng"
+    ],
+    "tags": {
+      "tagList": [
+        "digitization-candidate",
+        "high-demand"
+      ]
+    },
+    "administrativeNotes": [
+      "Includes bibliographical references and index."
+    ],
+    "notes": [
+      {
+        "note": "Revised edition.",
+        "staffOnly": false
+      }
     ],
     "discoverySuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
@@ -6317,6 +7003,7 @@
     "source": "FOLIO",
     "title": "The Beatles Complete Works",
     "indexTitle": "Beatles Complete Works",
+    "hrid": "in00000000102",
     "identifiers": [
       {
         "value": "978-134-735055-789-1",
@@ -6376,6 +7063,13 @@
     "instanceFormatIds": [
       "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
     ],
+    "statisticalCodeIds": [
+      "d9acad2f-d9ac-4b48-9097-e6ab85000001",
+      "c4073462-6144-4b69-a543-dd131e241799"
+    ],
+    "natureOfContentTermIds": [
+      "2fec23f6-6bbc-4fa2-a736-b64a8c06a47a"
+    ],
     "languages": [
       "eng"
     ],
@@ -6387,6 +7081,7 @@
     "source": "FOLIO",
     "title": "The Fab Four: A Musical Biography",
     "indexTitle": "Fab Four: A Musical Biography",
+    "hrid": "in00000000103",
     "identifiers": [
       {
         "value": "978-845-611382-816-1",
@@ -6450,6 +7145,9 @@
     "instanceFormatIds": [
       "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
     ],
+    "natureOfContentTermIds": [
+      "2fec23f6-6bbc-4fa2-a736-b64a8c06a47a"
+    ],
     "languages": [
       "eng"
     ],
@@ -6461,6 +7159,7 @@
     "source": "FOLIO",
     "title": "Yesterday and Today: Songs of Lennon and McCartney",
     "indexTitle": "Yesterday and Today: Songs of Lennon and McCartney",
+    "hrid": "in00000000104",
     "identifiers": [
       {
         "value": "978-375-471035-513-0",
@@ -6521,6 +7220,12 @@
     "languages": [
       "eng"
     ],
+    "notes": [
+      {
+        "note": "Includes bibliographical references and index.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
@@ -6529,6 +7234,12 @@
     "source": "FOLIO",
     "title": "Music Through the Ages: A Historical Survey",
     "indexTitle": "Music Through the Ages: A Historical Survey",
+    "hrid": "in00000000105",
+    "series": [
+      {
+        "value": "Texts in applied mathematics"
+      }
+    ],
     "identifiers": [
       {
         "value": "978-278-980336-361-8",
@@ -6597,6 +7308,7 @@
     "source": "FOLIO",
     "title": "The Symphony of Middle-Earth: Fantasy and Music",
     "indexTitle": "Symphony of Middle-Earth: Fantasy and Music",
+    "hrid": "in00000000106",
     "series": [
       {
         "value": "Springer series in solid-state sciences"
@@ -6659,6 +7371,7 @@
     "source": "FOLIO",
     "title": "Constitutional History of the United States",
     "indexTitle": "Constitutional History of the United States",
+    "hrid": "in00000000107",
     "identifiers": [
       {
         "value": "978-287-386307-539-7",
@@ -6711,6 +7424,10 @@
     "instanceFormatIds": [
       "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
     ],
+    "natureOfContentTermIds": [
+      "0abeaebb-4166-483d-9f62-3bdf6aae7a93",
+      "9ef56f0c-fa7b-44dc-ab7c-15a8e7a0ab2b"
+    ],
     "languages": [
       "eng"
     ],
@@ -6722,6 +7439,7 @@
     "source": "FOLIO",
     "title": "European Musical Traditions: Baroque to Romantic",
     "indexTitle": "European Musical Traditions: Baroque to Romantic",
+    "hrid": "in00000000108",
     "identifiers": [
       {
         "value": "978-664-625104-806-0",
@@ -6766,9 +7484,20 @@
     "instanceFormatIds": [
       "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
     ],
+    "statisticalCodeIds": [
+      "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
+    ],
+    "natureOfContentTermIds": [
+      "a1d70ca5-67aa-4824-b3af-55c8cf47a427"
+    ],
     "languages": [
       "eng"
     ],
+    "tags": {
+      "tagList": [
+        "special-order"
+      ]
+    },
     "discoverySuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
@@ -6777,6 +7506,12 @@
     "source": "FOLIO",
     "title": "Lives of the Great Authors: A Literary Biography",
     "indexTitle": "Lives of the Great Authors: A Literary Biography",
+    "hrid": "in00000000109",
+    "series": [
+      {
+        "value": "Monographs in library and information science"
+      }
+    ],
     "identifiers": [
       {
         "value": "978-531-292828-126-9",
@@ -6828,6 +7563,17 @@
     "languages": [
       "eng"
     ],
+    "tags": {
+      "tagList": [
+        "withdrawn-review"
+      ]
+    },
+    "notes": [
+      {
+        "note": "Includes bibliographical references and index.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
@@ -6836,6 +7582,7 @@
     "source": "FOLIO",
     "title": "Faith and Reason: History of Western Philosophy",
     "indexTitle": "Faith and Reason: History of Western Philosophy",
+    "hrid": "in00000000110",
     "identifiers": [
       {
         "value": "978-639-468476-235-9",
@@ -6899,6 +7646,7 @@
     "source": "FOLIO",
     "title": "The Philosophy of Scientific Method",
     "indexTitle": "Philosophy of Scientific Method",
+    "hrid": "in00000000111",
     "identifiers": [
       {
         "value": "978-478-242995-569-2",
@@ -6947,6 +7695,9 @@
     "instanceFormatIds": [
       "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
     ],
+    "natureOfContentTermIds": [
+      "aef4d369-1571-419c-8cf8-7e596f6f535c"
+    ],
     "languages": [
       "eng"
     ],
@@ -6958,6 +7709,7 @@
     "source": "FOLIO",
     "title": "Freshwater Resources and Supply Management",
     "indexTitle": "Freshwater Resources and Supply Management",
+    "hrid": "in00000000112",
     "identifiers": [
       {
         "value": "978-140-138658-883-7",
@@ -7003,9 +7755,17 @@
     "instanceFormatIds": [
       "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
     ],
+    "natureOfContentTermIds": [
+      "2fec23f6-6bbc-4fa2-a736-b64a8c06a47a"
+    ],
     "languages": [
       "eng"
     ],
+    "tags": {
+      "tagList": [
+        "new-addition"
+      ]
+    },
     "discoverySuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
@@ -7014,6 +7774,7 @@
     "source": "FOLIO",
     "title": "Drinking Water: Treatment and Microbiological Safety",
     "indexTitle": "Drinking Water: Treatment and Microbiological Safety",
+    "hrid": "in00000000113",
     "series": [
       {
         "value": "Contributions to economics"
@@ -7069,6 +7830,9 @@
     "languages": [
       "eng"
     ],
+    "administrativeNotes": [
+      "Also available online."
+    ],
     "discoverySuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
@@ -7077,6 +7841,7 @@
     "source": "FOLIO",
     "title": "Principles of Database Systems: Design and Management",
     "indexTitle": "Principles of Database Systems: Design and Management",
+    "hrid": "in00000000114",
     "series": [
       {
         "value": "Texts in applied mathematics"
@@ -7129,8 +7894,26 @@
     "instanceFormatIds": [
       "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
     ],
+    "natureOfContentTermIds": [
+      "a1d70ca5-67aa-4824-b3af-55c8cf47a427"
+    ],
     "languages": [
       "eng"
+    ],
+    "tags": {
+      "tagList": [
+        "high-demand"
+      ]
+    },
+    "notes": [
+      {
+        "note": "Includes bibliographical references and index.",
+        "staffOnly": false
+      },
+      {
+        "note": "Translation of the 3rd German edition.",
+        "staffOnly": false
+      }
     ],
     "discoverySuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
@@ -7140,6 +7923,7 @@
     "source": "FOLIO",
     "title": "Beethoven: Life, Letters, and Legacy",
     "indexTitle": "Beethoven: Life, Letters, and Legacy",
+    "hrid": "in00000000115",
     "series": [
       {
         "value": "Studies in information science"
@@ -7196,6 +7980,16 @@
     "languages": [
       "eng"
     ],
+    "notes": [
+      {
+        "note": "Title from cover.",
+        "staffOnly": false
+      },
+      {
+        "note": "Includes bibliographical references and index.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
@@ -7204,6 +7998,7 @@
     "source": "FOLIO",
     "title": "Mozart: The Wonder Child and His Music",
     "indexTitle": "Mozart: The Wonder Child and His Music",
+    "hrid": "in00000000116",
     "series": [
       {
         "value": "MIT Press series in cognitive science"
@@ -7257,6 +8052,10 @@
     "instanceFormatIds": [
       "25a81102-a2a9-4576-85ff-133ebcbcef2c"
     ],
+    "statisticalCodeIds": [
+      "c4073462-6144-4b69-a543-dd131e241799",
+      "d9acad2f-d9ac-4b48-9097-e6ab85000001"
+    ],
     "languages": [
       "eng"
     ],
@@ -7268,6 +8067,7 @@
     "source": "FOLIO",
     "title": "Brahms and the German Romantic Tradition",
     "indexTitle": "Brahms and the German Romantic Tradition",
+    "hrid": "in00000000117",
     "identifiers": [
       {
         "value": "978-060-585785-033-6",
@@ -7327,6 +8127,7 @@
     "source": "FOLIO",
     "title": "Chopin: A Life in Music and Exile",
     "indexTitle": "Chopin: A Life in Music and Exile",
+    "hrid": "in00000000118",
     "identifiers": [
       {
         "value": "978-504-913372-759-5",
@@ -7383,6 +8184,12 @@
     "languages": [
       "eng"
     ],
+    "notes": [
+      {
+        "note": "Companion volume to work published by same publisher.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
@@ -7391,6 +8198,7 @@
     "source": "FOLIO",
     "title": "Schubert: The Wanderer and His Songs",
     "indexTitle": "Schubert: The Wanderer and His Songs",
+    "hrid": "in00000000119",
     "identifiers": [
       {
         "value": "978-449-869818-347-5",

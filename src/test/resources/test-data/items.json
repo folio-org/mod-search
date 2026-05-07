@@ -3,6 +3,8 @@
     "id": "fd37e8d3-adf3-44f8-8b10-658ad8ba8319",
     "holdingsRecordId": "c9ee975f-ea3e-461d-b190-d1f3c11a35b0",
     "instanceId": "1353873c-0e5e-4d64-a2f9-6c444dc4cd46",
+    "hrid": "it00000000001",
+    "barcode": "39007353218079",
     "itemLevelCallNumber": "QP4989 .U16 1991",
     "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "status": {
@@ -10,23 +12,41 @@
     },
     "materialTypeId": "c898029e-9a02-4b61-bedb-6956cff21bc2",
     "effectiveLocationId": "ce23dfa1-17e8-4a1f-ad6b-34ce6ab352c2",
+    "statisticalCodeIds": [
+      "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
+    ],
+    "notes": [
+      {
+        "note": "Binding repaired.",
+        "staffOnly": true
+      }
+    ],
     "discoverySuppress": true
   },
   {
     "id": "712d0875-e57f-43f3-83be-41020ed51ecb",
     "holdingsRecordId": "fe11e2b9-3751-48d4-8c2f-faa83f903931",
     "instanceId": "cc6bbc19-3f54-43c5-8736-b85688619641",
+    "hrid": "it00000000002",
+    "barcode": "39007976291534",
     "status": {
       "name": "Available"
     },
     "materialTypeId": "3d413322-1dee-431b-bd73-b1e399063260",
     "effectiveLocationId": "f1a49577-5096-4771-a8a0-d07d642241eb",
+    "tags": {
+      "tagList": [
+        "digitization-candidate"
+      ]
+    },
     "discoverySuppress": false
   },
   {
     "id": "fae9b380-d48e-4fb8-8a6a-f810449973af",
     "holdingsRecordId": "0cd836aa-4415-40a4-b6fe-35b5a1454669",
     "instanceId": "39a52d91-8dbb-4348-ab06-5c6115e600cd",
+    "hrid": "it00000000003",
+    "barcode": "39002601493177",
     "itemLevelCallNumber": "P4274 .X87 1974",
     "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "status": {
@@ -35,12 +55,17 @@
     },
     "materialTypeId": "c898029e-9a02-4b61-bedb-6956cff21bc2",
     "effectiveLocationId": "ce23dfa1-17e8-4a1f-ad6b-34ce6ab352c2",
+    "statisticalCodeIds": [
+      "e10796e0-a594-47b7-b748-3a81b69b3d9b"
+    ],
     "discoverySuppress": true
   },
   {
     "id": "8b3afe85-0887-4f53-9104-1302e881bf25",
     "holdingsRecordId": "0cd836aa-4415-40a4-b6fe-35b5a1454669",
     "instanceId": "39a52d91-8dbb-4348-ab06-5c6115e600cd",
+    "hrid": "it00000000004",
+    "barcode": "39005366195315",
     "itemLevelCallNumber": "154.12",
     "itemLevelCallNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "status": {
@@ -55,6 +80,8 @@
     "id": "b2895b5d-c1eb-47e8-9402-90119104d765",
     "holdingsRecordId": "2b134022-85f0-4ebf-bc57-58b76b6b8e7a",
     "instanceId": "62f72eeb-ed5a-4619-b01f-1750d5528d25",
+    "hrid": "it00000000005",
+    "barcode": "39005815174490",
     "itemLevelCallNumber": "TR2894 .Y31 2012",
     "itemLevelCallNumberTypeId": "054d460d-d6b9-4469-9e37-7a78a2266655",
     "status": {
@@ -69,41 +96,67 @@
     "id": "d44bc80e-ed6e-4c34-a24b-2cdbbc48b083",
     "holdingsRecordId": "8ba03578-5c1f-4dcd-a49f-107882124f99",
     "instanceId": "6d9ccc82-8142-4fbc-b6ba-8e3429fd9aca",
+    "hrid": "it00000000006",
+    "barcode": "39008823422330",
     "status": {
       "name": "Checked out",
       "date": "2024-01-31T00:00:00.000+00:00"
     },
     "materialTypeId": "30b3e36a-d3b2-415e-98c2-47fbdf878862",
     "effectiveLocationId": "ce23dfa1-17e8-4a1f-ad6b-34ce6ab352c2",
+    "notes": [
+      {
+        "note": "Missing index pages.",
+        "staffOnly": true
+      }
+    ],
     "discoverySuppress": false
   },
   {
     "id": "ec4833b1-69c2-465d-8bc2-dcf4cd527d8c",
     "holdingsRecordId": "8ba03578-5c1f-4dcd-a49f-107882124f99",
     "instanceId": "6d9ccc82-8142-4fbc-b6ba-8e3429fd9aca",
+    "hrid": "it00000000007",
+    "barcode": "39003679207019",
     "status": {
       "name": "Available"
     },
     "materialTypeId": "3d413322-1dee-431b-bd73-b1e399063260",
     "effectiveLocationId": "f1a49577-5096-4771-a8a0-d07d642241eb",
+    "notes": [
+      {
+        "note": "Missing index pages.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
     "id": "ec4833b1-69c2-465d-8bc2-dcf4cd527d8d",
     "holdingsRecordId": "91274edf-0a9d-4cf7-82f3-9ee0c36e83e2",
     "instanceId": "62f72eeb-ed5a-4619-b01f-1750d5528d25",
+    "hrid": "it00000000008",
+    "barcode": "39001137816933",
     "status": {
       "name": "Missing",
       "date": "2024-02-02T00:00:00.000+00:00"
     },
     "materialTypeId": "3d413322-1dee-431b-bd73-b1e399063260",
     "effectiveLocationId": "ce23dfa1-17e8-4a1f-ad6b-34ce6ab352c2",
+    "notes": [
+      {
+        "note": "Cover worn.",
+        "staffOnly": true
+      }
+    ],
     "discoverySuppress": false
   },
   {
     "id": "e0000001-0000-4000-a000-000000000000",
     "holdingsRecordId": "7ac8e203-defb-4bf9-9f87-4ffd67823ad8",
     "instanceId": "497a920b-225f-44c2-9a48-964c52fb5cc3",
+    "hrid": "it00000000009",
+    "barcode": "39009317673369",
     "itemLevelCallNumber": "HV5323 .M30 2024",
     "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "status": {
@@ -117,6 +170,8 @@
     "id": "e0000002-0000-4000-a000-000000000000",
     "holdingsRecordId": "7ac8e203-defb-4bf9-9f87-4ffd67823ad8",
     "instanceId": "497a920b-225f-44c2-9a48-964c52fb5cc3",
+    "hrid": "it00000000010",
+    "barcode": "39009114686545",
     "itemLevelCallNumber": "QH5678 .N12 2002",
     "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "status": {
@@ -124,12 +179,20 @@
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "53cf956f-c1df-410b-8bea-27f712cca7c0",
+    "notes": [
+      {
+        "note": "Stamps on pages.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
     "id": "e0000003-0000-4000-a000-000000000000",
     "holdingsRecordId": "7ac8e203-defb-4bf9-9f87-4ffd67823ad8",
     "instanceId": "497a920b-225f-44c2-9a48-964c52fb5cc3",
+    "hrid": "it00000000011",
+    "barcode": "39003760934742",
     "itemLevelCallNumber": "TA6747 .L20 2019",
     "itemLevelCallNumberTypeId": "6caca63e-5651-4db6-9247-3205156e9699",
     "status": {
@@ -137,23 +200,45 @@
     },
     "materialTypeId": "615b8413-82d5-4203-aa6e-e37984cb5ac3",
     "effectiveLocationId": "184aae84-a5bf-4c6a-85ba-4a7c73026cd5",
+    "administrativeNotes": [
+      "Weeding review due 2026."
+    ],
+    "notes": [
+      {
+        "note": "Spine faded.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
     "id": "e0000004-0000-4000-a000-000000000000",
     "holdingsRecordId": "7ac8e203-defb-4bf9-9f87-4ffd67823ad8",
     "instanceId": "497a920b-225f-44c2-9a48-964c52fb5cc3",
+    "hrid": "it00000000012",
+    "barcode": "39005806245566",
     "status": {
       "name": "Unknown"
     },
     "materialTypeId": "d9acad2f-2aac-4b48-9097-e6ab85906b25",
     "effectiveLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
+    "statisticalCodeIds": [
+      "c4073462-6144-4b69-a543-dd131e241799"
+    ],
+    "notes": [
+      {
+        "note": "Disk attached to inside back cover.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
     "id": "e0000005-0000-4000-a000-000000000000",
     "holdingsRecordId": "8a3f2f3a-ecf4-49fd-b58f-5129ae5a128d",
     "instanceId": "b3122ab1-8745-43a9-8b31-8a248bef387b",
+    "hrid": "it00000000013",
+    "barcode": "39004672012272",
     "status": {
       "name": "Missing",
       "date": "2023-04-01T00:00:00.000+00:00"
@@ -166,29 +251,50 @@
     "id": "e0000006-0000-4000-a000-000000000000",
     "holdingsRecordId": "8a3f2f3a-ecf4-49fd-b58f-5129ae5a128d",
     "instanceId": "b3122ab1-8745-43a9-8b31-8a248bef387b",
+    "hrid": "it00000000014",
+    "barcode": "39000908574926",
     "status": {
       "name": "Available"
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
+    "statisticalCodeIds": [
+      "c4073462-6144-4b69-a543-dd131e241799"
+    ],
+    "notes": [
+      {
+        "note": "Disk attached to inside back cover.",
+        "staffOnly": true
+      }
+    ],
     "discoverySuppress": false
   },
   {
     "id": "e0000007-0000-4000-a000-000000000000",
     "holdingsRecordId": "8a3f2f3a-ecf4-49fd-b58f-5129ae5a128d",
     "instanceId": "b3122ab1-8745-43a9-8b31-8a248bef387b",
+    "hrid": "it00000000015",
+    "barcode": "39005630896842",
     "status": {
       "name": "Awaiting pickup",
       "date": "2023-03-27T00:00:00.000+00:00"
     },
     "materialTypeId": "5ee11d91-f7e8-481d-b079-65d708582ccc",
     "effectiveLocationId": "184aae84-a5bf-4c6a-85ba-4a7c73026cd5",
+    "notes": [
+      {
+        "note": "Slight water damage on top edge.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
     "id": "e0000008-0000-4000-a000-000000000000",
     "holdingsRecordId": "8a3f2f3a-ecf4-49fd-b58f-5129ae5a128d",
     "instanceId": "b3122ab1-8745-43a9-8b31-8a248bef387b",
+    "hrid": "it00000000016",
+    "barcode": "39003714069038",
     "status": {
       "name": "In process"
     },
@@ -200,17 +306,27 @@
     "id": "e0000009-0000-4000-a000-000000000000",
     "holdingsRecordId": "1650bee3-1e90-4815-ac12-31d1a12bd7c2",
     "instanceId": "9e20dd36-e46e-4e12-b35e-f3339a947966",
+    "hrid": "it00000000017",
+    "barcode": "39006931643151",
     "status": {
       "name": "In progress"
     },
     "materialTypeId": "615b8413-82d5-4203-aa6e-e37984cb5ac3",
     "effectiveLocationId": "f34d27c6-a8eb-461b-acd6-5dea81771e70",
+    "notes": [
+      {
+        "note": "Cover worn.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
     "id": "e0000010-0000-4000-a000-000000000000",
     "holdingsRecordId": "1650bee3-1e90-4815-ac12-31d1a12bd7c2",
     "instanceId": "9e20dd36-e46e-4e12-b35e-f3339a947966",
+    "hrid": "it00000000018",
+    "barcode": "39005107493990",
     "itemLevelCallNumber": "PN3582 .V87 1998",
     "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "status": {
@@ -219,12 +335,23 @@
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "53cf956f-c1df-410b-8bea-27f712cca7c0",
+    "administrativeNotes": [
+      "Acquired via interlibrary transfer."
+    ],
+    "notes": [
+      {
+        "note": "Cover worn.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
     "id": "e0000011-0000-4000-a000-000000000000",
     "holdingsRecordId": "1650bee3-1e90-4815-ac12-31d1a12bd7c2",
     "instanceId": "9e20dd36-e46e-4e12-b35e-f3339a947966",
+    "hrid": "it00000000019",
+    "barcode": "39003389729968",
     "status": {
       "name": "In progress"
     },
@@ -236,6 +363,8 @@
     "id": "e0000012-0000-4000-a000-000000000000",
     "holdingsRecordId": "1650bee3-1e90-4815-ac12-31d1a12bd7c2",
     "instanceId": "9e20dd36-e46e-4e12-b35e-f3339a947966",
+    "hrid": "it00000000020",
+    "barcode": "39005107147183",
     "status": {
       "name": "In process"
     },
@@ -247,6 +376,10 @@
     "id": "e0000013-0000-4000-a000-000000000000",
     "holdingsRecordId": "1650bee3-1e90-4815-ac12-31d1a12bd7c2",
     "instanceId": "9e20dd36-e46e-4e12-b35e-f3339a947966",
+    "hrid": "it00000000021",
+    "barcode": "39003524969189",
+    "itemLevelCallNumber": "HD2835 .X71 1974",
+    "itemLevelCallNumberTypeId": "054d460d-d6b9-4469-9e37-7a78a2266655",
     "status": {
       "name": "In transit",
       "date": "2024-06-30T00:00:00.000+00:00"
@@ -259,6 +392,8 @@
     "id": "e0000014-0000-4000-a000-000000000000",
     "holdingsRecordId": "0646ce7c-efcd-4449-ba29-f5aba3ec7690",
     "instanceId": "36805693-dd16-400e-be24-7e9a362f79fe",
+    "hrid": "it00000000022",
+    "barcode": "39009025442639",
     "status": {
       "name": "Awaiting delivery"
     },
@@ -270,63 +405,114 @@
     "id": "e0000015-0000-4000-a000-000000000000",
     "holdingsRecordId": "0646ce7c-efcd-4449-ba29-f5aba3ec7690",
     "instanceId": "36805693-dd16-400e-be24-7e9a362f79fe",
+    "hrid": "it00000000023",
+    "barcode": "39009624030794",
     "status": {
       "name": "Checked out",
       "date": "2024-06-23T00:00:00.000+00:00"
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
+    "notes": [
+      {
+        "note": "Slight water damage on top edge.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
     "id": "e0000016-0000-4000-a000-000000000000",
     "holdingsRecordId": "0646ce7c-efcd-4449-ba29-f5aba3ec7690",
     "instanceId": "36805693-dd16-400e-be24-7e9a362f79fe",
+    "hrid": "it00000000024",
+    "barcode": "39008424604355",
     "status": {
       "name": "Awaiting pickup",
       "date": "2024-04-17T00:00:00.000+00:00"
     },
     "materialTypeId": "30b3e36a-d3b2-415e-98c2-47fbdf878862",
     "effectiveLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
+    "administrativeNotes": [
+      "Duplicate copy retained per policy."
+    ],
     "discoverySuppress": false
   },
   {
     "id": "e0000017-0000-4000-a000-000000000000",
     "holdingsRecordId": "0646ce7c-efcd-4449-ba29-f5aba3ec7690",
     "instanceId": "36805693-dd16-400e-be24-7e9a362f79fe",
+    "hrid": "it00000000025",
+    "barcode": "39008155938306",
+    "itemLevelCallNumber": "HM9063 .K56 1994",
+    "itemLevelCallNumberTypeId": "054d460d-d6b9-4469-9e37-7a78a2266655",
     "status": {
       "name": "Unavailable"
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "notes": [
+      {
+        "note": "Spine faded.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
     "id": "e0000018-0000-4000-a000-000000000000",
     "holdingsRecordId": "bafb734e-88f4-4fbe-bd78-119630d225bb",
     "instanceId": "414f663b-b97b-42ed-8a96-3195067126ff",
+    "hrid": "it00000000026",
+    "barcode": "39000137802878",
     "status": {
       "name": "Unavailable"
     },
     "materialTypeId": "615b8413-82d5-4203-aa6e-e37984cb5ac3",
     "effectiveLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
+    "statisticalCodeIds": [
+      "f47b773a-bd5f-4246-ac1e-fa4adcd0dcdf"
+    ],
+    "tags": {
+      "tagList": [
+        "preservation-needed"
+      ]
+    },
+    "notes": [
+      {
+        "note": "Cover worn.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
     "id": "e0000019-0000-4000-a000-000000000000",
     "holdingsRecordId": "bafb734e-88f4-4fbe-bd78-119630d225bb",
     "instanceId": "414f663b-b97b-42ed-8a96-3195067126ff",
+    "hrid": "it00000000027",
+    "barcode": "39001661657990",
     "status": {
       "name": "Unknown"
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "b241764c-1466-4e1d-a028-1a3684a5da87",
+    "notes": [
+      {
+        "note": "Missing index pages.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
     "id": "e0000020-0000-4000-a000-000000000000",
     "holdingsRecordId": "bafb734e-88f4-4fbe-bd78-119630d225bb",
     "instanceId": "414f663b-b97b-42ed-8a96-3195067126ff",
+    "hrid": "it00000000028",
+    "barcode": "39002327558316",
+    "itemLevelCallNumber": "866.31",
+    "itemLevelCallNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "status": {
       "name": "Restricted",
       "date": "2023-07-09T00:00:00.000+00:00"
@@ -339,17 +525,27 @@
     "id": "e0000021-0000-4000-a000-000000000000",
     "holdingsRecordId": "bafb734e-88f4-4fbe-bd78-119630d225bb",
     "instanceId": "414f663b-b97b-42ed-8a96-3195067126ff",
+    "hrid": "it00000000029",
+    "barcode": "39002693928278",
     "status": {
       "name": "On order"
     },
     "materialTypeId": "d9acad2f-2aac-4b48-9097-e6ab85906b25",
     "effectiveLocationId": "b241764c-1466-4e1d-a028-1a3684a5da87",
+    "notes": [
+      {
+        "note": "Bookplate on inside front cover.",
+        "staffOnly": true
+      }
+    ],
     "discoverySuppress": false
   },
   {
     "id": "f0000050-0001-4000-a000-000000000000",
     "holdingsRecordId": "f0000050-0000-4000-9000-000000000000",
     "instanceId": "f0000050-0000-4000-8000-000000000000",
+    "hrid": "it00000000030",
+    "barcode": "39004921590649",
     "effectiveCallNumberComponents": {
       "callNumber": "Y 3.T 22/2:2 St 8/2",
       "typeId": "6b368b19-0d18-4689-8d15-cf904e15b3f0"
@@ -365,6 +561,8 @@
     "id": "f0000050-0002-4000-a000-000000000000",
     "holdingsRecordId": "f0000050-0000-4000-9000-000000000000",
     "instanceId": "f0000050-0000-4000-8000-000000000000",
+    "hrid": "it00000000031",
+    "barcode": "39005670249116",
     "itemLevelCallNumber": "QH3613 .M99 2005",
     "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
@@ -383,6 +581,8 @@
     "id": "f0000001-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000001-0000-4000-9000-000000000000",
     "instanceId": "f0000001-0000-4000-8000-000000000000",
+    "hrid": "it00000000032",
+    "barcode": "39002626392632",
     "effectiveCallNumberComponents": {
       "callNumber": "TA357 .A78 2010",
       "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
@@ -393,12 +593,20 @@
     },
     "materialTypeId": "fd6c6515-d470-4561-9c32-3e3290d4ca98",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "notes": [
+      {
+        "note": "Cover worn.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
     "id": "f0000002-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000001-0000-4000-9000-000000000000",
     "instanceId": "f0000001-0000-4000-8000-000000000000",
+    "hrid": "it00000000033",
+    "barcode": "39006938490472",
     "itemLevelCallNumber": "HD6624 .G25 1999",
     "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
@@ -410,12 +618,19 @@
     },
     "materialTypeId": "dd0bf600-dbd9-44ab-9ff2-e2a61a6539f1",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "tags": {
+      "tagList": [
+        "review-needed"
+      ]
+    },
     "discoverySuppress": false
   },
   {
     "id": "f0000003-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000002-0000-4000-9000-000000000000",
     "instanceId": "f0000002-0000-4000-8000-000000000000",
+    "hrid": "it00000000034",
+    "barcode": "39006236545158",
     "effectiveCallNumberComponents": {
       "callNumber": "TA357 .A78 2010",
       "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
@@ -432,6 +647,8 @@
     "id": "f0000004-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000003-0000-4000-9000-000000000000",
     "instanceId": "f0000003-0000-4000-8000-000000000000",
+    "hrid": "it00000000035",
+    "barcode": "39008880267336",
     "itemLevelCallNumber": "LB7535 .Z37 1967",
     "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
@@ -443,12 +660,20 @@
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "statisticalCodeIds": [
+      "6899291f-0d18-4f8d-a269-42706a5d0e27"
+    ],
+    "administrativeNotes": [
+      "Duplicate copy retained per policy."
+    ],
     "discoverySuppress": false
   },
   {
     "id": "f0000005-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000003-0000-4000-9000-000000000000",
     "instanceId": "f0000003-0000-4000-8000-000000000000",
+    "hrid": "it00000000036",
+    "barcode": "39001264534284",
     "itemLevelCallNumber": "619.88",
     "itemLevelCallNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "effectiveCallNumberComponents": {
@@ -461,12 +686,21 @@
     },
     "materialTypeId": "dd0bf600-dbd9-44ab-9ff2-e2a61a6539f1",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "tags": {
+      "tagList": [
+        "review-needed"
+      ]
+    },
     "discoverySuppress": false
   },
   {
     "id": "f0000006-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000004-0000-4000-9000-000000000000",
     "instanceId": "f0000004-0000-4000-8000-000000000000",
+    "hrid": "it00000000037",
+    "barcode": "39002764583401",
+    "itemLevelCallNumber": "HM6934 .X74 1979",
+    "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
       "callNumber": "PICOULT",
       "prefix": "FIC",
@@ -483,6 +717,8 @@
     "id": "f0000007-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000004-0000-4000-9000-000000000000",
     "instanceId": "f0000004-0000-4000-8000-000000000000",
+    "hrid": "it00000000038",
+    "barcode": "39002946601556",
     "effectiveCallNumberComponents": {
       "callNumber": "HB30.G64 1974",
       "prefix": "microfm",
@@ -494,12 +730,21 @@
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "tags": {
+      "tagList": [
+        "high-demand"
+      ]
+    },
     "discoverySuppress": false
   },
   {
     "id": "f0000008-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000004-0000-4000-9000-000000000000",
     "instanceId": "f0000004-0000-4000-8000-000000000000",
+    "hrid": "it00000000039",
+    "barcode": "39009977322413",
+    "itemLevelCallNumber": "496.78",
+    "itemLevelCallNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "effectiveCallNumberComponents": {
       "callNumber": "618.92/12",
       "typeId": "0b5d15ad-7f08-45f1-8504-7bab31a2b4e5"
@@ -516,6 +761,10 @@
     "id": "f0000009-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000004-0000-4000-9000-000000000000",
     "instanceId": "f0000004-0000-4000-8000-000000000000",
+    "hrid": "it00000000040",
+    "barcode": "39008140614951",
+    "itemLevelCallNumber": "256.25",
+    "itemLevelCallNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "effectiveCallNumberComponents": {
       "callNumber": "QZ 380 N494 1979",
       "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
@@ -531,6 +780,8 @@
     "id": "f0000010-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000005-0000-4000-9000-000000000000",
     "instanceId": "f0000005-0000-4000-8000-000000000000",
+    "hrid": "it00000000041",
+    "barcode": "39005427987993",
     "effectiveCallNumberComponents": {
       "callNumber": "TA357 .A78 2010",
       "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
@@ -546,6 +797,8 @@
     "id": "f0000011-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000005-0000-4000-9000-000000000000",
     "instanceId": "f0000005-0000-4000-8000-000000000000",
+    "hrid": "it00000000042",
+    "barcode": "39000663643005",
     "effectiveCallNumberComponents": {
       "callNumber": "QZ 380 N494 1979",
       "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
@@ -561,6 +814,8 @@
     "id": "f0000012-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000005-0000-4000-9000-000000000000",
     "instanceId": "f0000005-0000-4000-8000-000000000000",
+    "hrid": "it00000000043",
+    "barcode": "39002493132320",
     "itemLevelCallNumber": "HV4466 .Y90 1961",
     "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
@@ -572,12 +827,21 @@
     },
     "materialTypeId": "d9acad2f-2aac-4b48-9097-e6ab85906b25",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "tags": {
+      "tagList": [
+        "high-demand"
+      ]
+    },
     "discoverySuppress": false
   },
   {
     "id": "f0000013-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000006-0000-4000-9000-000000000000",
     "instanceId": "f0000006-0000-4000-8000-000000000000",
+    "hrid": "it00000000044",
+    "barcode": "39006280471087",
+    "itemLevelCallNumber": "035.29",
+    "itemLevelCallNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "effectiveCallNumberComponents": {
       "callNumber": "FICTION HART",
       "prefix": "LARGE PRINT",
@@ -595,6 +859,8 @@
     "id": "f0000014-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000006-0000-4000-9000-000000000000",
     "instanceId": "f0000006-0000-4000-8000-000000000000",
+    "hrid": "it00000000045",
+    "barcode": "39007026461581",
     "effectiveCallNumberComponents": {
       "callNumber": "Z997.S93",
       "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
@@ -611,6 +877,8 @@
     "id": "f0000015-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000007-0000-4000-9000-000000000000",
     "instanceId": "f0000007-0000-4000-8000-000000000000",
+    "hrid": "it00000000046",
+    "barcode": "39003984703599",
     "itemLevelCallNumber": "TR5757 .F18 2004",
     "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
@@ -631,6 +899,8 @@
     "id": "f0000016-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000008-0000-4000-9000-000000000000",
     "instanceId": "f0000008-0000-4000-8000-000000000000",
+    "hrid": "it00000000047",
+    "barcode": "39004489803237",
     "effectiveCallNumberComponents": {
       "callNumber": "QZ 380 N494 1979",
       "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
@@ -646,6 +916,8 @@
     "id": "f0000017-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000008-0000-4000-9000-000000000000",
     "instanceId": "f0000008-0000-4000-8000-000000000000",
+    "hrid": "it00000000048",
+    "barcode": "39001949252333",
     "effectiveCallNumberComponents": {
       "callNumber": "WG140 H719b",
       "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
@@ -661,6 +933,8 @@
     "id": "f0000018-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000008-0000-4000-9000-000000000000",
     "instanceId": "f0000008-0000-4000-8000-000000000000",
+    "hrid": "it00000000049",
+    "barcode": "39002839239814",
     "effectiveCallNumberComponents": {
       "callNumber": "HE 20.315/2: 96-4",
       "prefix": "US MicFiche",
@@ -672,12 +946,20 @@
     },
     "materialTypeId": "d9acad2f-2aac-4b48-9097-e6ab85906b25",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "notes": [
+      {
+        "note": "Disk attached to inside back cover.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
     "id": "f0000019-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000009-0000-4000-9000-000000000000",
     "instanceId": "f0000009-0000-4000-8000-000000000000",
+    "hrid": "it00000000050",
+    "barcode": "39008337141945",
     "effectiveCallNumberComponents": {
       "suffix": "CD",
       "callNumber": "BLUE",
@@ -689,12 +971,21 @@
     },
     "materialTypeId": "5ee11d91-f7e8-481d-b079-65d708582ccc",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "tags": {
+      "tagList": [
+        "review-needed"
+      ]
+    },
     "discoverySuppress": false
   },
   {
     "id": "f0000020-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000010-0000-4000-9000-000000000000",
     "instanceId": "f0000010-0000-4000-8000-000000000000",
+    "hrid": "it00000000051",
+    "barcode": "39001995407020",
+    "itemLevelCallNumber": "096.81",
+    "itemLevelCallNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "effectiveCallNumberComponents": {
       "callNumber": "RJ421 .D3",
       "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
@@ -705,12 +996,20 @@
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "notes": [
+      {
+        "note": "Spine faded.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
     "id": "f0000021-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000011-0000-4000-9000-000000000000",
     "instanceId": "f0000011-0000-4000-8000-000000000000",
+    "hrid": "it00000000052",
+    "barcode": "39002582161826",
     "itemLevelCallNumber": "TR9808 .T85 2018",
     "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
@@ -723,12 +1022,25 @@
     },
     "materialTypeId": "d9acad2f-2aac-4b48-9097-e6ab85906b25",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "tags": {
+      "tagList": [
+        "digitization-candidate"
+      ]
+    },
+    "notes": [
+      {
+        "note": "Missing index pages.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
     "id": "f0000022-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000012-0000-4000-9000-000000000000",
     "instanceId": "f0000012-0000-4000-8000-000000000000",
+    "hrid": "it00000000053",
+    "barcode": "39000880781034",
     "itemLevelCallNumber": "HD6855 .T37 1999",
     "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
@@ -741,12 +1053,19 @@
     },
     "materialTypeId": "615b8413-82d5-4203-aa6e-e37984cb5ac3",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "tags": {
+      "tagList": [
+        "high-demand"
+      ]
+    },
     "discoverySuppress": false
   },
   {
     "id": "f0000023-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000012-0000-4000-9000-000000000000",
     "instanceId": "f0000012-0000-4000-8000-000000000000",
+    "hrid": "it00000000054",
+    "barcode": "39004382869858",
     "effectiveCallNumberComponents": {
       "callNumber": "Y 4.En2/3:99th 99-96",
       "prefix": "US",
@@ -764,6 +1083,8 @@
     "id": "f0000024-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000012-0000-4000-9000-000000000000",
     "instanceId": "f0000012-0000-4000-8000-000000000000",
+    "hrid": "it00000000055",
+    "barcode": "39005097779989",
     "effectiveCallNumberComponents": {
       "callNumber": "CHOPIN",
       "prefix": "CD PIANO",
@@ -781,6 +1102,10 @@
     "id": "f0000025-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000013-0000-4000-9000-000000000000",
     "instanceId": "f0000013-0000-4000-8000-000000000000",
+    "hrid": "it00000000056",
+    "barcode": "39009528336928",
+    "itemLevelCallNumber": "RJ8529 .S43 1970",
+    "itemLevelCallNumberTypeId": "6caca63e-5651-4db6-9247-3205156e9699",
     "effectiveCallNumberComponents": {
       "suffix": "FT MEADE",
       "callNumber": "QP363 .N6 1965",
@@ -797,6 +1122,8 @@
     "id": "f0000026-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000014-0000-4000-9000-000000000000",
     "instanceId": "f0000014-0000-4000-8000-000000000000",
+    "hrid": "it00000000057",
+    "barcode": "39000945522455",
     "itemLevelCallNumber": "LB9780 .D41 1961",
     "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
@@ -810,12 +1137,22 @@
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "statisticalCodeIds": [
+      "6899291f-0d18-4f8d-a269-42706a5d0e27"
+    ],
+    "administrativeNotes": [
+      "Condition reviewed and acceptable."
+    ],
     "discoverySuppress": false
   },
   {
     "id": "f0000027-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000015-0000-4000-9000-000000000000",
     "instanceId": "f0000015-0000-4000-8000-000000000000",
+    "hrid": "it00000000058",
+    "barcode": "39006580115971",
+    "itemLevelCallNumber": "113.27",
+    "itemLevelCallNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "effectiveCallNumberComponents": {
       "callNumber": "WK 385 P973e 1969",
       "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
@@ -826,12 +1163,23 @@
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "statisticalCodeIds": [
+      "b6b46869-f3c1-4370-b603-29774a1e42b1"
+    ],
+    "notes": [
+      {
+        "note": "Previous owner's name on title page.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
     "id": "f0000028-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000016-0000-4000-9000-000000000000",
     "instanceId": "f0000016-0000-4000-8000-000000000000",
+    "hrid": "it00000000059",
+    "barcode": "39009475836779",
     "effectiveCallNumberComponents": {
       "callNumber": "GS1.2:So2/4",
       "typeId": "6b368b19-01af-4a44-a0d3-09ec5d1e3e19"
@@ -847,6 +1195,8 @@
     "id": "f0000029-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000016-0000-4000-9000-000000000000",
     "instanceId": "f0000016-0000-4000-8000-000000000000",
+    "hrid": "it00000000060",
+    "barcode": "39000561768520",
     "itemLevelCallNumber": "P5557 .Y52 1980",
     "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
@@ -858,12 +1208,19 @@
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "tags": {
+      "tagList": [
+        "new-addition"
+      ]
+    },
     "discoverySuppress": false
   },
   {
     "id": "f0000030-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000016-0000-4000-9000-000000000000",
     "instanceId": "f0000016-0000-4000-8000-000000000000",
+    "hrid": "it00000000061",
+    "barcode": "39005904054513",
     "effectiveCallNumberComponents": {
       "callNumber": "RC280.N4 N49",
       "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
@@ -880,6 +1237,8 @@
     "id": "f0000031-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000016-0000-4000-9000-000000000000",
     "instanceId": "f0000016-0000-4000-8000-000000000000",
+    "hrid": "it00000000062",
+    "barcode": "39000149584484",
     "effectiveCallNumberComponents": {
       "callNumber": "912.773",
       "prefix": "LH ",
@@ -897,6 +1256,8 @@
     "id": "f0000032-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000016-0000-4000-9000-000000000000",
     "instanceId": "f0000016-0000-4000-8000-000000000000",
+    "hrid": "it00000000063",
+    "barcode": "39004494406912",
     "itemLevelCallNumber": "362.28",
     "itemLevelCallNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "effectiveCallNumberComponents": {
@@ -914,6 +1275,10 @@
     "id": "f0000033-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000016-0000-4000-9000-000000000000",
     "instanceId": "f0000016-0000-4000-8000-000000000000",
+    "hrid": "it00000000064",
+    "barcode": "39006793174111",
+    "itemLevelCallNumber": "QP1787 .T54 1989",
+    "itemLevelCallNumberTypeId": "054d460d-d6b9-4469-9e37-7a78a2266655",
     "effectiveCallNumberComponents": {
       "callNumber": "J29.2:D84/2",
       "typeId": "6b368b19-01af-4a44-a0d3-09ec5d1e3e19"
@@ -929,6 +1294,8 @@
     "id": "f0000034-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000016-0000-4000-9000-000000000000",
     "instanceId": "f0000016-0000-4000-8000-000000000000",
+    "hrid": "it00000000065",
+    "barcode": "39000429373124",
     "effectiveCallNumberComponents": {
       "callNumber": "M653-202",
       "prefix": "MICROFILM",
@@ -946,6 +1313,8 @@
     "id": "f0000035-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000017-0000-4000-9000-000000000000",
     "instanceId": "f0000017-0000-4000-8000-000000000000",
+    "hrid": "it00000000066",
+    "barcode": "39003780594060",
     "effectiveCallNumberComponents": {
       "suffix": "MCH",
       "callNumber": "929.1973",
@@ -964,6 +1333,8 @@
     "id": "f0000036-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000017-0000-4000-9000-000000000000",
     "instanceId": "f0000017-0000-4000-8000-000000000000",
+    "hrid": "it00000000067",
+    "barcode": "39000227847559",
     "itemLevelCallNumber": "S862 .V67 1974",
     "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
@@ -976,12 +1347,23 @@
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "statisticalCodeIds": [
+      "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
+    ],
+    "notes": [
+      {
+        "note": "Disk attached to inside back cover.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
     "id": "f0000037-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000017-0000-4000-9000-000000000000",
     "instanceId": "f0000017-0000-4000-8000-000000000000",
+    "hrid": "it00000000068",
+    "barcode": "39006264386211",
     "effectiveCallNumberComponents": {
       "callNumber": "GV837 .F92",
       "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
@@ -992,12 +1374,20 @@
     },
     "materialTypeId": "d9acad2f-2aac-4b48-9097-e6ab85906b25",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "notes": [
+      {
+        "note": "Missing index pages.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
     "id": "f0000038-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000017-0000-4000-9000-000000000000",
     "instanceId": "f0000017-0000-4000-8000-000000000000",
+    "hrid": "it00000000069",
+    "barcode": "39002610904435",
     "effectiveCallNumberComponents": {
       "suffix": "MCH",
       "callNumber": "977.322",
@@ -1015,6 +1405,8 @@
     "id": "f0000039-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000018-0000-4000-9000-000000000000",
     "instanceId": "f0000018-0000-4000-8000-000000000000",
+    "hrid": "it00000000070",
+    "barcode": "39001685358009",
     "itemLevelCallNumber": "S9133 .K85 1969",
     "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
@@ -1026,12 +1418,19 @@
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "tags": {
+      "tagList": [
+        "review-needed"
+      ]
+    },
     "discoverySuppress": false
   },
   {
     "id": "f0000040-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000018-0000-4000-9000-000000000000",
     "instanceId": "f0000018-0000-4000-8000-000000000000",
+    "hrid": "it00000000071",
+    "barcode": "39004432018944",
     "effectiveCallNumberComponents": {
       "callNumber": "EP 1.8: Ac 7/2",
       "typeId": "6b368b19-01af-4a44-a0d3-09ec5d1e3e19"
@@ -1042,12 +1441,20 @@
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "notes": [
+      {
+        "note": "Disk attached to inside back cover.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
     "id": "f0000041-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000019-0000-4000-9000-000000000000",
     "instanceId": "f0000019-0000-4000-8000-000000000000",
+    "hrid": "it00000000072",
+    "barcode": "39003038312956",
     "effectiveCallNumberComponents": {
       "callNumber": "Rowling",
       "prefix": "jFICTION",
@@ -1065,6 +1472,8 @@
     "id": "f0000042-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000019-0000-4000-9000-000000000000",
     "instanceId": "f0000019-0000-4000-8000-000000000000",
+    "hrid": "it00000000073",
+    "barcode": "39006080882592",
     "effectiveCallNumberComponents": {
       "callNumber": "AN2.I45 C48",
       "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
@@ -1074,12 +1483,19 @@
     },
     "materialTypeId": "615b8413-82d5-4203-aa6e-e37984cb5ac3",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "tags": {
+      "tagList": [
+        "withdrawn-review"
+      ]
+    },
     "discoverySuppress": false
   },
   {
     "id": "f0000043-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000020-0000-4000-9000-000000000000",
     "instanceId": "f0000020-0000-4000-8000-000000000000",
+    "hrid": "it00000000074",
+    "barcode": "39000864959679",
     "effectiveCallNumberComponents": {
       "callNumber": "616.99/383",
       "typeId": "0b5d15ad-7f08-45f1-8504-7bab31a2b4e5"
@@ -1096,6 +1512,8 @@
     "id": "f0000044-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000020-0000-4000-9000-000000000000",
     "instanceId": "f0000020-0000-4000-8000-000000000000",
+    "hrid": "it00000000075",
+    "barcode": "39000567895196",
     "effectiveCallNumberComponents": {
       "callNumber": "QX 4 J647m",
       "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
@@ -1105,12 +1523,17 @@
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "administrativeNotes": [
+      "Condition reviewed and acceptable."
+    ],
     "discoverySuppress": false
   },
   {
     "id": "f0000045-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000020-0000-4000-9000-000000000000",
     "instanceId": "f0000020-0000-4000-8000-000000000000",
+    "hrid": "it00000000076",
+    "barcode": "39004134205768",
     "itemLevelCallNumber": "852.30",
     "itemLevelCallNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "effectiveCallNumberComponents": {
@@ -1123,12 +1546,17 @@
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "statisticalCodeIds": [
+      "e10796e0-a594-47b7-b748-3a81b69b3d9b"
+    ],
     "discoverySuppress": false
   },
   {
     "id": "f0000046-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000020-0000-4000-9000-000000000000",
     "instanceId": "f0000020-0000-4000-8000-000000000000",
+    "hrid": "it00000000077",
+    "barcode": "39003547827488",
     "effectiveCallNumberComponents": {
       "callNumber": "0634V",
       "typeId": "cf74a451-5b9e-4a58-8c5c-2eff9fb4db67"
@@ -1138,12 +1566,25 @@
     },
     "materialTypeId": "5ee11d91-f7e8-481d-b079-65d708582ccc",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "tags": {
+      "tagList": [
+        "digitization-candidate"
+      ]
+    },
+    "notes": [
+      {
+        "note": "Bookplate on inside front cover.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
     "id": "f0000047-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000021-0000-4000-9000-000000000000",
     "instanceId": "f0000021-0000-4000-8000-000000000000",
+    "hrid": "it00000000078",
+    "barcode": "39002001715559",
     "effectiveCallNumberComponents": {
       "suffix": "FT MEADE",
       "callNumber": "QP363 .N6 1965",
@@ -1161,6 +1602,8 @@
     "id": "f0000048-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000021-0000-4000-9000-000000000000",
     "instanceId": "f0000021-0000-4000-8000-000000000000",
+    "hrid": "it00000000079",
+    "barcode": "39001268758690",
     "effectiveCallNumberComponents": {
       "suffix": "MCH",
       "callNumber": "929.1973",
@@ -1172,12 +1615,20 @@
     },
     "materialTypeId": "615b8413-82d5-4203-aa6e-e37984cb5ac3",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "notes": [
+      {
+        "note": "Previous owner's name on title page.",
+        "staffOnly": true
+      }
+    ],
     "discoverySuppress": false
   },
   {
     "id": "f0000049-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000021-0000-4000-9000-000000000000",
     "instanceId": "f0000021-0000-4000-8000-000000000000",
+    "hrid": "it00000000080",
+    "barcode": "39000895710733",
     "effectiveCallNumberComponents": {
       "callNumber": "WK 385 P973e 1969",
       "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
@@ -1194,6 +1645,8 @@
     "id": "f0000050-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000022-0000-4000-9000-000000000000",
     "instanceId": "f0000022-0000-4000-8000-000000000000",
+    "hrid": "it00000000081",
+    "barcode": "39001157916957",
     "effectiveCallNumberComponents": {
       "callNumber": "RC667 .N47 2010",
       "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
@@ -1209,6 +1662,8 @@
     "id": "f0000051-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000023-0000-4000-9000-000000000000",
     "instanceId": "f0000023-0000-4000-8000-000000000000",
+    "hrid": "it00000000082",
+    "barcode": "39009516354544",
     "effectiveCallNumberComponents": {
       "suffix": "(LOCAL HISTORY)",
       "callNumber": "912.773",
@@ -1227,6 +1682,10 @@
     "id": "f0000052-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000024-0000-4000-9000-000000000000",
     "instanceId": "f0000024-0000-4000-8000-000000000000",
+    "hrid": "it00000000083",
+    "barcode": "39006203086250",
+    "itemLevelCallNumber": "Q6380 .S43 1971",
+    "itemLevelCallNumberTypeId": "054d460d-d6b9-4469-9e37-7a78a2266655",
     "effectiveCallNumberComponents": {
       "callNumber": "WC 450 R47 2012",
       "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
@@ -1242,6 +1701,8 @@
     "id": "f0000053-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000025-0000-4000-9000-000000000000",
     "instanceId": "f0000025-0000-4000-8000-000000000000",
+    "hrid": "it00000000084",
+    "barcode": "39009528891456",
     "effectiveCallNumberComponents": {
       "callNumber": "Y4.J89/2:R53",
       "typeId": "6b368b19-01af-4a44-a0d3-09ec5d1e3e19"
@@ -1257,6 +1718,8 @@
     "id": "f0000054-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000026-0000-4000-9000-000000000000",
     "instanceId": "f0000026-0000-4000-8000-000000000000",
+    "hrid": "it00000000085",
+    "barcode": "39003355384354",
     "effectiveCallNumberComponents": {
       "callNumber": "DKLY-12",
       "typeId": "cf74a451-5b9e-4a58-8c5c-2eff9fb4db67"
@@ -1272,6 +1735,10 @@
     "id": "f0000055-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000026-0000-4000-9000-000000000000",
     "instanceId": "f0000026-0000-4000-8000-000000000000",
+    "hrid": "it00000000086",
+    "barcode": "39006245284786",
+    "itemLevelCallNumber": "Z1304 .U39 2001",
+    "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
       "callNumber": "PJ4.J8",
       "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
@@ -1281,12 +1748,20 @@
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "notes": [
+      {
+        "note": "Bookplate on inside front cover.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
     "id": "f0000056-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000027-0000-4000-9000-000000000000",
     "instanceId": "f0000027-0000-4000-8000-000000000000",
+    "hrid": "it00000000087",
+    "barcode": "39000249426546",
     "effectiveCallNumberComponents": {
       "callNumber": "929.31",
       "prefix": "REF",
@@ -1303,6 +1778,8 @@
     "id": "f0000057-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000027-0000-4000-9000-000000000000",
     "instanceId": "f0000027-0000-4000-8000-000000000000",
+    "hrid": "it00000000088",
+    "barcode": "39001453555649",
     "itemLevelCallNumber": "204.25",
     "itemLevelCallNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "effectiveCallNumberComponents": {
@@ -1314,12 +1791,17 @@
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "statisticalCodeIds": [
+      "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
+    ],
     "discoverySuppress": false
   },
   {
     "id": "f0000058-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000027-0000-4000-9000-000000000000",
     "instanceId": "f0000027-0000-4000-8000-000000000000",
+    "hrid": "it00000000089",
+    "barcode": "39000139877709",
     "effectiveCallNumberComponents": {
       "callNumber": "Y10.2:P38",
       "prefix": "microfc",
@@ -1337,6 +1819,8 @@
     "id": "f0000059-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000027-0000-4000-9000-000000000000",
     "instanceId": "f0000027-0000-4000-8000-000000000000",
+    "hrid": "it00000000090",
+    "barcode": "39002819988865",
     "effectiveCallNumberComponents": {
       "callNumber": "0.257638889",
       "prefix": "Oversize",
@@ -1353,6 +1837,8 @@
     "id": "f0000060-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000028-0000-4000-9000-000000000000",
     "instanceId": "f0000028-0000-4000-8000-000000000000",
+    "hrid": "it00000000091",
+    "barcode": "39005320581584",
     "effectiveCallNumberComponents": {
       "callNumber": "QR1.I6",
       "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
@@ -1363,12 +1849,20 @@
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "notes": [
+      {
+        "note": "Slight water damage on top edge.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
     "id": "f0000061-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000028-0000-4000-9000-000000000000",
     "instanceId": "f0000028-0000-4000-8000-000000000000",
+    "hrid": "it00000000092",
+    "barcode": "39001268062191",
     "effectiveCallNumberComponents": {
       "suffix": "DEK",
       "callNumber": "370.977",
@@ -1385,6 +1879,8 @@
     "id": "f0000062-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000028-0000-4000-9000-000000000000",
     "instanceId": "f0000028-0000-4000-8000-000000000000",
+    "hrid": "it00000000093",
+    "barcode": "39002115299897",
     "itemLevelCallNumber": "QP2857 .Y67 1999",
     "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
@@ -1396,12 +1892,19 @@
     },
     "materialTypeId": "d9acad2f-2aac-4b48-9097-e6ab85906b25",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "tags": {
+      "tagList": [
+        "special-order"
+      ]
+    },
     "discoverySuppress": false
   },
   {
     "id": "f0000063-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000029-0000-4000-9000-000000000000",
     "instanceId": "f0000029-0000-4000-8000-000000000000",
+    "hrid": "it00000000094",
+    "barcode": "39006656434582",
     "effectiveCallNumberComponents": {
       "callNumber": "I 29.6/6:F 75/988",
       "typeId": "6b368b19-01af-4a44-a0d3-09ec5d1e3e19"
@@ -1417,6 +1920,8 @@
     "id": "f0000064-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000029-0000-4000-9000-000000000000",
     "instanceId": "f0000029-0000-4000-8000-000000000000",
+    "hrid": "it00000000095",
+    "barcode": "39007299307206",
     "effectiveCallNumberComponents": {
       "suffix": "1987 ED.",
       "callNumber": "977",
@@ -1433,6 +1938,8 @@
     "id": "f0000065-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000029-0000-4000-9000-000000000000",
     "instanceId": "f0000029-0000-4000-8000-000000000000",
+    "hrid": "it00000000096",
+    "barcode": "39005980621292",
     "effectiveCallNumberComponents": {
       "callNumber": "EMI 458",
       "prefix": "AudCD",
@@ -1449,6 +1956,10 @@
     "id": "f0000066-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000030-0000-4000-9000-000000000000",
     "instanceId": "f0000030-0000-4000-8000-000000000000",
+    "hrid": "it00000000097",
+    "barcode": "39009137734582",
+    "itemLevelCallNumber": "240.86",
+    "itemLevelCallNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "effectiveCallNumberComponents": {
       "suffix": "MOG",
       "callNumber": "338.1",
@@ -1466,6 +1977,8 @@
     "id": "f0000067-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000030-0000-4000-9000-000000000000",
     "instanceId": "f0000030-0000-4000-8000-000000000000",
+    "hrid": "it00000000098",
+    "barcode": "39005584384756",
     "effectiveCallNumberComponents": {
       "callNumber": "WY 11 AA1 J92h 2010",
       "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
@@ -1475,12 +1988,19 @@
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "tags": {
+      "tagList": [
+        "special-order"
+      ]
+    },
     "discoverySuppress": false
   },
   {
     "id": "f0000068-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000030-0000-4000-9000-000000000000",
     "instanceId": "f0000030-0000-4000-8000-000000000000",
+    "hrid": "it00000000099",
+    "barcode": "39001425646225",
     "effectiveCallNumberComponents": {
       "callNumber": "A 1.68: 1461/991",
       "typeId": "6b368b19-01af-4a44-a0d3-09ec5d1e3e19"
@@ -1490,12 +2010,20 @@
     },
     "materialTypeId": "fd6c6515-d470-4561-9c32-3e3290d4ca98",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "notes": [
+      {
+        "note": "Cover worn.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
     "id": "f0000069-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000030-0000-4000-9000-000000000000",
     "instanceId": "f0000030-0000-4000-8000-000000000000",
+    "hrid": "it00000000100",
+    "barcode": "39004673913520",
     "effectiveCallNumberComponents": {
       "callNumber": "Fiction Rowling",
       "prefix": "Teen Spanish",
@@ -1512,6 +2040,8 @@
     "id": "f0000070-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000031-0000-4000-9000-000000000000",
     "instanceId": "f0000031-0000-4000-8000-000000000000",
+    "hrid": "it00000000101",
+    "barcode": "39005685118186",
     "effectiveCallNumberComponents": {
       "callNumber": "D848 .A1934 2018",
       "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
@@ -1528,6 +2058,10 @@
     "id": "f0000071-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000031-0000-4000-9000-000000000000",
     "instanceId": "f0000031-0000-4000-8000-000000000000",
+    "hrid": "it00000000102",
+    "barcode": "39009278761316",
+    "itemLevelCallNumber": "PS7598 .B21 2006",
+    "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
       "suffix": "GSDC",
       "callNumber": "929.377328",
@@ -1546,6 +2080,8 @@
     "id": "f0000072-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000031-0000-4000-9000-000000000000",
     "instanceId": "f0000031-0000-4000-8000-000000000000",
+    "hrid": "it00000000103",
+    "barcode": "39005172956143",
     "effectiveCallNumberComponents": {
       "callNumber": "WK 850 D5363 2010",
       "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
@@ -1556,12 +2092,20 @@
     },
     "materialTypeId": "fd6c6515-d470-4561-9c32-3e3290d4ca98",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "notes": [
+      {
+        "note": "Pages slightly yellowed.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
     "id": "f0000073-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000031-0000-4000-9000-000000000000",
     "instanceId": "f0000031-0000-4000-8000-000000000000",
+    "hrid": "it00000000104",
+    "barcode": "39005983322139",
     "itemLevelCallNumber": "QA6302 .P61 1976",
     "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
@@ -1574,12 +2118,20 @@
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "statisticalCodeIds": [
+      "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
+    ],
+    "administrativeNotes": [
+      "Item requires repair before circulation."
+    ],
     "discoverySuppress": false
   },
   {
     "id": "f0000074-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000032-0000-4000-9000-000000000000",
     "instanceId": "f0000032-0000-4000-8000-000000000000",
+    "hrid": "it00000000105",
+    "barcode": "39007204407656",
     "effectiveCallNumberComponents": {
       "callNumber": "Meyer ",
       "prefix": "Teen Graphic Novel",
@@ -1597,6 +2149,8 @@
     "id": "f0000075-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000033-0000-4000-9000-000000000000",
     "instanceId": "f0000033-0000-4000-8000-000000000000",
+    "hrid": "it00000000106",
+    "barcode": "39006137536687",
     "effectiveCallNumberComponents": {
       "callNumber": "HV6021 .W55 2018",
       "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
@@ -1613,6 +2167,8 @@
     "id": "f0000076-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000034-0000-4000-9000-000000000000",
     "instanceId": "f0000034-0000-4000-8000-000000000000",
+    "hrid": "it00000000107",
+    "barcode": "39000834504449",
     "itemLevelCallNumber": "PR1957 .Y37 2006",
     "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
@@ -1627,12 +2183,27 @@
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "tags": {
+      "tagList": [
+        "review-needed"
+      ]
+    },
+    "notes": [
+      {
+        "note": "Disk attached to inside back cover.",
+        "staffOnly": true
+      }
+    ],
     "discoverySuppress": false
   },
   {
     "id": "f0000077-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000035-0000-4000-9000-000000000000",
     "instanceId": "f0000035-0000-4000-8000-000000000000",
+    "hrid": "it00000000108",
+    "barcode": "39005419920924",
+    "itemLevelCallNumber": "PN422 .D88 1961",
+    "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
       "callNumber": "WA 900.AA1 I55h 1996",
       "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
@@ -1642,12 +2213,20 @@
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "notes": [
+      {
+        "note": "Bookplate on inside front cover.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
     "id": "f0000078-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000035-0000-4000-9000-000000000000",
     "instanceId": "f0000035-0000-4000-8000-000000000000",
+    "hrid": "it00000000109",
+    "barcode": "39001737841866",
     "itemLevelCallNumber": "QP8255 .P24 2010",
     "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
@@ -1660,12 +2239,17 @@
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "administrativeNotes": [
+      "Item requires repair before circulation."
+    ],
     "discoverySuppress": false
   },
   {
     "id": "f0000079-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000035-0000-4000-9000-000000000000",
     "instanceId": "f0000035-0000-4000-8000-000000000000",
+    "hrid": "it00000000110",
+    "barcode": "39001803377326",
     "effectiveCallNumberComponents": {
       "suffix": "pt. 1",
       "callNumber": "Twilight Breaking",
@@ -1678,12 +2262,20 @@
     },
     "materialTypeId": "615b8413-82d5-4203-aa6e-e37984cb5ac3",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "notes": [
+      {
+        "note": "Disk attached to inside back cover.",
+        "staffOnly": true
+      }
+    ],
     "discoverySuppress": false
   },
   {
     "id": "f0000080-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000036-0000-4000-9000-000000000000",
     "instanceId": "f0000036-0000-4000-8000-000000000000",
+    "hrid": "it00000000111",
+    "barcode": "39005077727985",
     "itemLevelCallNumber": "PN469 .E68 1992",
     "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
@@ -1695,12 +2287,27 @@
     },
     "materialTypeId": "615b8413-82d5-4203-aa6e-e37984cb5ac3",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "tags": {
+      "tagList": [
+        "reserve"
+      ]
+    },
+    "notes": [
+      {
+        "note": "Spine faded.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
     "id": "f0000081-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000036-0000-4000-9000-000000000000",
     "instanceId": "f0000036-0000-4000-8000-000000000000",
+    "hrid": "it00000000112",
+    "barcode": "39007385816222",
+    "itemLevelCallNumber": "GE3733 .V79 2014",
+    "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
       "suffix": "BIG",
       "callNumber": "977.328",
@@ -1717,6 +2324,8 @@
     "id": "f0000082-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000036-0000-4000-9000-000000000000",
     "instanceId": "f0000036-0000-4000-8000-000000000000",
+    "hrid": "it00000000113",
+    "barcode": "39001019772271",
     "effectiveCallNumberComponents": {
       "callNumber": "QV 18.2 L765 2015",
       "prefix": "Stacks",
@@ -1733,6 +2342,8 @@
     "id": "f0000083-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000036-0000-4000-9000-000000000000",
     "instanceId": "f0000036-0000-4000-8000-000000000000",
+    "hrid": "it00000000114",
+    "barcode": "39006133800142",
     "effectiveCallNumberComponents": {
       "suffix": "Final",
       "callNumber": "I 1.98:M 77",
@@ -1743,12 +2354,22 @@
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "tags": {
+      "tagList": [
+        "preservation-needed"
+      ]
+    },
+    "administrativeNotes": [
+      "Condition reviewed and acceptable."
+    ],
     "discoverySuppress": false
   },
   {
     "id": "f0000084-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000036-0000-4000-9000-000000000000",
     "instanceId": "f0000036-0000-4000-8000-000000000000",
+    "hrid": "it00000000115",
+    "barcode": "39008061378830",
     "effectiveCallNumberComponents": {
       "callNumber": "King",
       "prefix": "CD Horror",
@@ -1765,6 +2386,10 @@
     "id": "f0000085-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000037-0000-4000-9000-000000000000",
     "instanceId": "f0000037-0000-4000-8000-000000000000",
+    "hrid": "it00000000116",
+    "barcode": "39000194678584",
+    "itemLevelCallNumber": "LB6806 .T52 1974",
+    "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
       "callNumber": "BJ1499.S65",
       "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
@@ -1775,12 +2400,17 @@
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "statisticalCodeIds": [
+      "e10796e0-a594-47b7-b748-3a81b69b3d9b"
+    ],
     "discoverySuppress": false
   },
   {
     "id": "f0000086-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000038-0000-4000-9000-000000000000",
     "instanceId": "f0000038-0000-4000-8000-000000000000",
+    "hrid": "it00000000117",
+    "barcode": "39007637261236",
     "effectiveCallNumberComponents": {
       "suffix": "ARC",
       "callNumber": "371.782",
@@ -1798,6 +2428,8 @@
     "id": "f0000087-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000039-0000-4000-9000-000000000000",
     "instanceId": "f0000039-0000-4000-8000-000000000000",
+    "hrid": "it00000000118",
+    "barcode": "39001707782916",
     "effectiveCallNumberComponents": {
       "callNumber": "Wv 4 B311 2018",
       "prefix": "Reserve",
@@ -1814,6 +2446,10 @@
     "id": "f0000088-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000040-0000-4000-9000-000000000000",
     "instanceId": "f0000040-0000-4000-8000-000000000000",
+    "hrid": "it00000000119",
+    "barcode": "39009247628503",
+    "itemLevelCallNumber": "LB5354 .X52 2016",
+    "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
       "callNumber": "Y 4.Ag 8/3:H 91",
       "typeId": "6b368b19-01af-4a44-a0d3-09ec5d1e3e19"
@@ -1829,6 +2465,8 @@
     "id": "f0000089-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000040-0000-4000-9000-000000000000",
     "instanceId": "f0000040-0000-4000-8000-000000000000",
+    "hrid": "it00000000120",
+    "barcode": "39009527471328",
     "effectiveCallNumberComponents": {
       "callNumber": "Collins",
       "prefix": "Picture Book",
@@ -1839,12 +2477,20 @@
     },
     "materialTypeId": "d9acad2f-2aac-4b48-9097-e6ab85906b25",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "notes": [
+      {
+        "note": "Binding repaired.",
+        "staffOnly": true
+      }
+    ],
     "discoverySuppress": false
   },
   {
     "id": "f0000090-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000041-0000-4000-9000-000000000000",
     "instanceId": "f0000041-0000-4000-8000-000000000000",
+    "hrid": "it00000000121",
+    "barcode": "39007649600811",
     "itemLevelCallNumber": "LB4812 .R15 1974",
     "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
@@ -1863,6 +2509,8 @@
     "id": "f0000091-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000041-0000-4000-9000-000000000000",
     "instanceId": "f0000041-0000-4000-8000-000000000000",
+    "hrid": "it00000000122",
+    "barcode": "39002089718910",
     "itemLevelCallNumber": "RJ1974 .H81 1994",
     "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
@@ -1877,12 +2525,19 @@
     },
     "materialTypeId": "30b3e36a-d3b2-415e-98c2-47fbdf878862",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "tags": {
+      "tagList": [
+        "review-needed"
+      ]
+    },
     "discoverySuppress": false
   },
   {
     "id": "f0000092-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000042-0000-4000-9000-000000000000",
     "instanceId": "f0000042-0000-4000-8000-000000000000",
+    "hrid": "it00000000123",
+    "barcode": "39007865064468",
     "effectiveCallNumberComponents": {
       "callNumber": "WV 11.1 L435h 1975",
       "prefix": "History",
@@ -1893,12 +2548,20 @@
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "notes": [
+      {
+        "note": "Disk attached to inside back cover.",
+        "staffOnly": true
+      }
+    ],
     "discoverySuppress": false
   },
   {
     "id": "f0000093-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000042-0000-4000-9000-000000000000",
     "instanceId": "f0000042-0000-4000-8000-000000000000",
+    "hrid": "it00000000124",
+    "barcode": "39000362223910",
     "effectiveCallNumberComponents": {
       "callNumber": "Y 1.1/8:98-588/pt.1",
       "typeId": "6b368b19-01af-4a44-a0d3-09ec5d1e3e19"
@@ -1908,12 +2571,17 @@
     },
     "materialTypeId": "d9acad2f-2aac-4b48-9097-e6ab85906b25",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "administrativeNotes": [
+      "Weeding review due 2026."
+    ],
     "discoverySuppress": false
   },
   {
     "id": "f0000094-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000043-0000-4000-9000-000000000000",
     "instanceId": "f0000043-0000-4000-8000-000000000000",
+    "hrid": "it00000000125",
+    "barcode": "39008574520597",
     "effectiveCallNumberComponents": {
       "callNumber": "MMC-3625",
       "typeId": "cf74a451-5b9e-4a58-8c5c-2eff9fb4db67"
@@ -1923,12 +2591,22 @@
     },
     "materialTypeId": "fd6c6515-d470-4561-9c32-3e3290d4ca98",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "tags": {
+      "tagList": [
+        "preservation-needed"
+      ]
+    },
+    "administrativeNotes": [
+      "Item requires repair before circulation."
+    ],
     "discoverySuppress": false
   },
   {
     "id": "f0000095-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000043-0000-4000-9000-000000000000",
     "instanceId": "f0000043-0000-4000-8000-000000000000",
+    "hrid": "it00000000126",
+    "barcode": "39006442227304",
     "itemLevelCallNumber": "QH7547 .S68 1995",
     "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
@@ -1941,12 +2619,22 @@
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "tags": {
+      "tagList": [
+        "high-demand"
+      ]
+    },
+    "administrativeNotes": [
+      "Weeding review due 2026."
+    ],
     "discoverySuppress": false
   },
   {
     "id": "f0000096-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000044-0000-4000-9000-000000000000",
     "instanceId": "f0000044-0000-4000-8000-000000000000",
+    "hrid": "it00000000127",
+    "barcode": "39002319460289",
     "effectiveCallNumberComponents": {
       "suffix": "STE",
       "callNumber": "553.7",
@@ -1964,6 +2652,8 @@
     "id": "f0000097-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000044-0000-4000-9000-000000000000",
     "instanceId": "f0000044-0000-4000-8000-000000000000",
+    "hrid": "it00000000128",
+    "barcode": "39001450891340",
     "effectiveCallNumberComponents": {
       "callNumber": "WF 11.1 J13a 2009",
       "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
@@ -1973,12 +2663,20 @@
     },
     "materialTypeId": "615b8413-82d5-4203-aa6e-e37984cb5ac3",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "notes": [
+      {
+        "note": "Bookplate on inside front cover.",
+        "staffOnly": true
+      }
+    ],
     "discoverySuppress": false
   },
   {
     "id": "f0000098-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000045-0000-4000-9000-000000000000",
     "instanceId": "f0000045-0000-4000-8000-000000000000",
+    "hrid": "it00000000129",
+    "barcode": "39003435382478",
     "effectiveCallNumberComponents": {
       "callNumber": "A 1.38:290/1945",
       "typeId": "6b368b19-01af-4a44-a0d3-09ec5d1e3e19"
@@ -1988,12 +2686,17 @@
     },
     "materialTypeId": "615b8413-82d5-4203-aa6e-e37984cb5ac3",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "administrativeNotes": [
+      "Item requires repair before circulation."
+    ],
     "discoverySuppress": false
   },
   {
     "id": "f0000099-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000045-0000-4000-9000-000000000000",
     "instanceId": "f0000045-0000-4000-8000-000000000000",
+    "hrid": "it00000000130",
+    "barcode": "39008654784966",
     "effectiveCallNumberComponents": {
       "callNumber": "9200 4683",
       "prefix": "f",
@@ -2011,6 +2714,8 @@
     "id": "f0000100-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000046-0000-4000-9000-000000000000",
     "instanceId": "f0000046-0000-4000-8000-000000000000",
+    "hrid": "it00000000131",
+    "barcode": "39003190278307",
     "itemLevelCallNumber": "HV2263 .P65 2007",
     "itemLevelCallNumberTypeId": "054d460d-d6b9-4469-9e37-7a78a2266655",
     "effectiveCallNumberComponents": {
@@ -2028,6 +2733,8 @@
     "id": "f0000101-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000046-0000-4000-9000-000000000000",
     "instanceId": "f0000046-0000-4000-8000-000000000000",
+    "hrid": "it00000000132",
+    "barcode": "39007655917711",
     "effectiveCallNumberComponents": {
       "callNumber": "791.4502",
       "prefix": "CD",
@@ -2044,6 +2751,8 @@
     "id": "f0000102-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000047-0000-4000-9000-000000000000",
     "instanceId": "f0000047-0000-4000-8000-000000000000",
+    "hrid": "it00000000133",
+    "barcode": "39006827103144",
     "effectiveCallNumberComponents": {
       "callNumber": "WD 308 1993",
       "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
@@ -2059,6 +2768,8 @@
     "id": "f0000103-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000047-0000-4000-9000-000000000000",
     "instanceId": "f0000047-0000-4000-8000-000000000000",
+    "hrid": "it00000000134",
+    "barcode": "39005731684288",
     "effectiveCallNumberComponents": {
       "callNumber": "Y 3.T 22/2:2 F 76/Sum",
       "typeId": "6b368b19-01af-4a44-a0d3-09ec5d1e3e19"
@@ -2075,6 +2786,8 @@
     "id": "f0000104-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000048-0000-4000-9000-000000000000",
     "instanceId": "f0000048-0000-4000-8000-000000000000",
+    "hrid": "it00000000135",
+    "barcode": "39007609423142",
     "itemLevelCallNumber": "619.86",
     "itemLevelCallNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "effectiveCallNumberComponents": {
@@ -2086,12 +2799,25 @@
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "tags": {
+      "tagList": [
+        "digitization-candidate"
+      ]
+    },
+    "notes": [
+      {
+        "note": "Spine faded.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
     "id": "f0000105-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000048-0000-4000-9000-000000000000",
     "instanceId": "f0000048-0000-4000-8000-000000000000",
+    "hrid": "it00000000136",
+    "barcode": "39000956165961",
     "effectiveCallNumberComponents": {
       "callNumber": "JZ1720 .C75 2019",
       "typeId": "cbc422b0-1d17-4d43-9cc0-6c89b2efd014"
@@ -2108,6 +2834,8 @@
     "id": "f0000106-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000049-0000-4000-9000-000000000000",
     "instanceId": "f0000049-0000-4000-8000-000000000000",
+    "hrid": "it00000000137",
+    "barcode": "39001711634998",
     "effectiveCallNumberComponents": {
       "callNumber": "015/.73",
       "typeId": "0b5d15ad-7f08-45f1-8504-7bab31a2b4e5"
@@ -2123,6 +2851,8 @@
     "id": "f0000107-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000049-0000-4000-9000-000000000000",
     "instanceId": "f0000049-0000-4000-8000-000000000000",
+    "hrid": "it00000000138",
+    "barcode": "39006436641484",
     "effectiveCallNumberComponents": {
       "callNumber": "WY 153.5 P467",
       "typeId": "530b84ea-c8b3-4a90-a2cd-2e4a7bb5f18e"
@@ -2138,6 +2868,8 @@
     "id": "f0000108-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000050-0000-4000-9000-000000000000",
     "instanceId": "f0000050-0000-4000-8000-000000000000",
+    "hrid": "it00000000139",
+    "barcode": "39004141352837",
     "effectiveCallNumberComponents": {
       "callNumber": "Y 3.T 22/2:2 St 8/2",
       "typeId": "6b368b19-01af-4a44-a0d3-09ec5d1e3e19"
@@ -2154,6 +2886,8 @@
     "id": "f0000109-0000-4000-a000-000000000000",
     "holdingsRecordId": "f0000050-0000-4000-9000-000000000000",
     "instanceId": "f0000050-0000-4000-8000-000000000000",
+    "hrid": "it00000000140",
+    "barcode": "39007340113938",
     "effectiveCallNumberComponents": {
       "callNumber": "15,747-12N-12P",
       "prefix": "Microfilm ",
@@ -2170,6 +2904,8 @@
     "id": "7212ba6a-8dcf-45a1-be9a-ffaa847c4423",
     "holdingsRecordId": "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19",
     "instanceId": "5bf370e0-8cca-4d9c-82e4-5170ab2a0a39",
+    "hrid": "it00000000141",
+    "barcode": "39006673198930",
     "itemLevelCallNumber": "TK5105.88815 . A58 2004 FT MEADE",
     "itemLevelCallNumberTypeId": "5ba6b62e-6858-490a-8102-5b1369873835",
     "effectiveCallNumberComponents": {
@@ -2190,6 +2926,8 @@
     "id": "100d10bf-2f06-4aa0-be15-0b95b2d9f9e3",
     "holdingsRecordId": "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19",
     "instanceId": "5bf370e0-8cca-4d9c-82e4-5170ab2a0a39",
+    "hrid": "it00000000142",
+    "barcode": "39006441908806",
     "itemLevelCallNumber": "TK5105.88815 . A58 2004 FT MEADE",
     "effectiveCallNumberComponents": {
       "suffix": "c.2",
@@ -2209,6 +2947,8 @@
     "id": "49347f02-69ac-4c12-b6f2-2afb6059c94b",
     "holdingsRecordId": "9550c935-401a-4a85-875e-4d1fe7678870",
     "instanceId": "5bf370e0-8cca-4d9c-82e4-5170ab2a0a39",
+    "hrid": "it00000000143",
+    "barcode": "39002896505804",
     "effectiveCallNumberComponents": {
       "callNumber": "332.2",
       "typeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35"

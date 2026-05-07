@@ -7,6 +7,7 @@
     "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
     "callNumberTypeId": "512173a7-bd09-490e-b773-17d83f2b63fe",
     "callNumber": "TK5105.88815 . A58 2004 FT MEADE",
+    "hrid": "ho00000000001",
     "copyNumber": "3"
   },
   {
@@ -19,6 +20,7 @@
     "callNumber": "332.2",
     "callNumberPrefix": "GEN",
     "callNumberSuffix": "c.1",
+    "hrid": "ho00000000002",
     "copyNumber": "Copy 1"
   },
   {
@@ -31,6 +33,7 @@
     "callNumber": "TK5105.88815 .B74 2004",
     "callNumberPrefix": "REF",
     "callNumberSuffix": "c.2",
+    "hrid": "ho00000000003",
     "copyNumber": "Copy 2"
   },
   {
@@ -41,6 +44,7 @@
     "permanentLocationId": "765b4c3b-485c-4ce4-a117-f99c01ac49fe",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "HV7674 .E75 1975",
+    "hrid": "ho00000000004",
     "copyNumber": "4"
   },
   {
@@ -50,7 +54,9 @@
     "instanceId": "cc6bbc19-3f54-43c5-8736-b85688619641",
     "permanentLocationId": "4fdca025-1629-4688-aeb7-9c5fe5c73549",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
-    "callNumber": "RC2067 .X72 1978"
+    "callNumber": "RC2067 .X72 1978",
+    "hrid": "ho00000000005",
+    "copyNumber": "4"
   },
   {
     "id": "0cd836aa-4415-40a4-b6fe-35b5a1454669",
@@ -59,7 +65,13 @@
     "instanceId": "39a52d91-8dbb-4348-ab06-5c6115e600cd",
     "permanentLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
-    "callNumber": "QH6107 .D53 2001"
+    "callNumber": "QH6107 .D53 2001",
+    "hrid": "ho00000000006",
+    "tags": {
+      "tagList": [
+        "ebook-available"
+      ]
+    }
   },
   {
     "id": "2b134022-85f0-4ebf-bc57-58b76b6b8e7a",
@@ -68,7 +80,16 @@
     "instanceId": "62f72eeb-ed5a-4619-b01f-1750d5528d25",
     "permanentLocationId": "765b4c3b-485c-4ce4-a117-f99c01ac49fe",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
-    "callNumber": "GE4986 .Y77 1981"
+    "callNumber": "GE4986 .Y77 1981",
+    "hrid": "ho00000000007",
+    "tags": {
+      "tagList": [
+        "new-addition"
+      ]
+    },
+    "administrativeNotes": [
+      "Last inventory check: 2024-01."
+    ]
   },
   {
     "id": "91274edf-0a9d-4cf7-82f3-9ee0c36e83e2",
@@ -78,6 +99,7 @@
     "permanentLocationId": "4fdca025-1629-4688-aeb7-9c5fe5c73549",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "PS6499 .Q83 1996",
+    "hrid": "ho00000000008",
     "copyNumber": "1"
   },
   {
@@ -87,7 +109,8 @@
     "instanceId": "62f72eeb-ed5a-4619-b01f-1750d5528d25",
     "permanentLocationId": "81f1ab2c-83c5-4a90-a8b7-c8c8179c0697",
     "callNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
-    "callNumber": "933.87"
+    "callNumber": "933.87",
+    "hrid": "ho00000000009"
   },
   {
     "id": "8ba03578-5c1f-4dcd-a49f-107882124f99",
@@ -97,7 +120,11 @@
     "permanentLocationId": "81f1ab2c-83c5-4a90-a8b7-c8c8179c0697",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "LB7868 .B76 1973",
-    "copyNumber": "5"
+    "hrid": "ho00000000010",
+    "copyNumber": "5",
+    "statisticalCodeIds": [
+      "6899291f-0d18-4f8d-a269-42706a5d0e27"
+    ]
   },
   {
     "id": "7ac8e203-defb-4bf9-9f87-4ffd67823ad8",
@@ -106,7 +133,14 @@
     "instanceId": "497a920b-225f-44c2-9a48-964c52fb5cc3",
     "permanentLocationId": "b241764c-1466-4e1d-a028-1a3684a5da87",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
-    "callNumber": "TR4870 .J50 1975"
+    "callNumber": "TR4870 .J50 1975",
+    "hrid": "ho00000000011",
+    "notes": [
+      {
+        "note": "Copy acquired through donation.",
+        "staffOnly": true
+      }
+    ]
   },
   {
     "id": "8a3f2f3a-ecf4-49fd-b58f-5129ae5a128d",
@@ -115,7 +149,19 @@
     "instanceId": "b3122ab1-8745-43a9-8b31-8a248bef387b",
     "permanentLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
-    "callNumber": "PR7267 .U57 2001"
+    "callNumber": "PR7267 .U57 2001",
+    "hrid": "ho00000000012",
+    "tags": {
+      "tagList": [
+        "special-order"
+      ]
+    },
+    "notes": [
+      {
+        "note": "Available for 3-hour in-house use only.",
+        "staffOnly": false
+      }
+    ]
   },
   {
     "id": "1650bee3-1e90-4815-ac12-31d1a12bd7c2",
@@ -124,7 +170,8 @@
     "instanceId": "9e20dd36-e46e-4e12-b35e-f3339a947966",
     "permanentLocationId": "53cf956f-c1df-410b-8bea-27f712cca7c0",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
-    "callNumber": "P2719 .H61 2004"
+    "callNumber": "P2719 .H61 2004",
+    "hrid": "ho00000000013"
   },
   {
     "id": "0646ce7c-efcd-4449-ba29-f5aba3ec7690",
@@ -133,7 +180,8 @@
     "instanceId": "36805693-dd16-400e-be24-7e9a362f79fe",
     "permanentLocationId": "53cf956f-c1df-410b-8bea-27f712cca7c0",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
-    "callNumber": "P5327 .S51 1983"
+    "callNumber": "P5327 .S51 1983",
+    "hrid": "ho00000000014"
   },
   {
     "id": "bafb734e-88f4-4fbe-bd78-119630d225bb",
@@ -143,7 +191,14 @@
     "permanentLocationId": "b241764c-1466-4e1d-a028-1a3684a5da87",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "JZ2786 .S36 1994",
-    "copyNumber": "3"
+    "hrid": "ho00000000015",
+    "copyNumber": "3",
+    "notes": [
+      {
+        "note": "Available for 3-hour in-house use only.",
+        "staffOnly": false
+      }
+    ]
   },
   {
     "id": "f0000050-0000-4000-9000-000000000000",
@@ -153,7 +208,14 @@
     "permanentLocationId": "53cf956f-c1df-410b-8bea-27f712cca7c0",
     "callNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "callNumber": "722.67",
-    "copyNumber": "4"
+    "hrid": "ho00000000016",
+    "copyNumber": "4",
+    "notes": [
+      {
+        "note": "Bound with: companion volume.",
+        "staffOnly": true
+      }
+    ]
   },
   {
     "id": "f0000001-0000-4000-9000-000000000000",
@@ -163,6 +225,7 @@
     "permanentLocationId": "53cf956f-c1df-410b-8bea-27f712cca7c0",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "QA4014 .R75 1983",
+    "hrid": "ho00000000017",
     "copyNumber": "1"
   },
   {
@@ -173,7 +236,17 @@
     "permanentLocationId": "758258bc-ecc1-41b8-abca-f7b610822ffd",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "HM3134 .M40 2018",
-    "copyNumber": "2"
+    "hrid": "ho00000000018",
+    "copyNumber": "2",
+    "statisticalCodeIds": [
+      "b6b46869-f3c1-4370-b603-29774a1e42b1"
+    ],
+    "notes": [
+      {
+        "note": "Transferred from branch library.",
+        "staffOnly": false
+      }
+    ]
   },
   {
     "id": "f0000003-0000-4000-9000-000000000000",
@@ -183,7 +256,14 @@
     "permanentLocationId": "f34d27c6-a8eb-461b-acd6-5dea81771e70",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "HD7469 .X85 2003",
-    "copyNumber": "4"
+    "hrid": "ho00000000019",
+    "copyNumber": "4",
+    "notes": [
+      {
+        "note": "Bound with: companion volume.",
+        "staffOnly": false
+      }
+    ]
   },
   {
     "id": "f0000004-0000-4000-9000-000000000000",
@@ -192,7 +272,8 @@
     "instanceId": "f0000004-0000-4000-8000-000000000000",
     "permanentLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
     "callNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
-    "callNumber": "054.25"
+    "callNumber": "054.25",
+    "hrid": "ho00000000020"
   },
   {
     "id": "f0000005-0000-4000-9000-000000000000",
@@ -201,7 +282,8 @@
     "instanceId": "f0000005-0000-4000-8000-000000000000",
     "permanentLocationId": "b241764c-1466-4e1d-a028-1a3684a5da87",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
-    "callNumber": "HD7799 .X78 1973"
+    "callNumber": "HD7799 .X78 1973",
+    "hrid": "ho00000000021"
   },
   {
     "id": "f0000006-0000-4000-9000-000000000000",
@@ -210,7 +292,12 @@
     "instanceId": "f0000006-0000-4000-8000-000000000000",
     "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
     "callNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
-    "callNumber": "283.49"
+    "callNumber": "283.49",
+    "hrid": "ho00000000022",
+    "copyNumber": "1",
+    "statisticalCodeIds": [
+      "6899291f-0d18-4f8d-a269-42706a5d0e27"
+    ]
   },
   {
     "id": "f0000007-0000-4000-9000-000000000000",
@@ -219,7 +306,8 @@
     "instanceId": "f0000007-0000-4000-8000-000000000000",
     "permanentLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
-    "callNumber": "TR3033 .J62 1998"
+    "callNumber": "TR3033 .J62 1998",
+    "hrid": "ho00000000023"
   },
   {
     "id": "f0000008-0000-4000-9000-000000000000",
@@ -228,7 +316,14 @@
     "instanceId": "f0000008-0000-4000-8000-000000000000",
     "permanentLocationId": "758258bc-ecc1-41b8-abca-f7b610822ffd",
     "callNumberTypeId": "054d460d-d6b9-4469-9e37-7a78a2266655",
-    "callNumber": "PS5110 .R20 1976"
+    "callNumber": "PS5110 .R20 1976",
+    "hrid": "ho00000000024",
+    "notes": [
+      {
+        "note": "Bound with: companion volume.",
+        "staffOnly": true
+      }
+    ]
   },
   {
     "id": "f0000009-0000-4000-9000-000000000000",
@@ -237,7 +332,13 @@
     "instanceId": "f0000009-0000-4000-8000-000000000000",
     "permanentLocationId": "f34d27c6-a8eb-461b-acd6-5dea81771e70",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
-    "callNumber": "RJ4111 .R61 1963"
+    "callNumber": "RJ4111 .R61 1963",
+    "hrid": "ho00000000025",
+    "tags": {
+      "tagList": [
+        "reserve"
+      ]
+    }
   },
   {
     "id": "f0000010-0000-4000-9000-000000000000",
@@ -247,7 +348,11 @@
     "permanentLocationId": "f34d27c6-a8eb-461b-acd6-5dea81771e70",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "S5229 .B69 2005",
-    "copyNumber": "4"
+    "hrid": "ho00000000026",
+    "copyNumber": "4",
+    "statisticalCodeIds": [
+      "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
+    ]
   },
   {
     "id": "f0000011-0000-4000-9000-000000000000",
@@ -256,7 +361,9 @@
     "instanceId": "f0000011-0000-4000-8000-000000000000",
     "permanentLocationId": "53cf956f-c1df-410b-8bea-27f712cca7c0",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
-    "callNumber": "HV5233 .K86 1962"
+    "callNumber": "HV5233 .K86 1962",
+    "hrid": "ho00000000027",
+    "copyNumber": "4"
   },
   {
     "id": "f0000012-0000-4000-9000-000000000000",
@@ -265,7 +372,9 @@
     "instanceId": "f0000012-0000-4000-8000-000000000000",
     "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
-    "callNumber": "QH8886 .M64 1970"
+    "callNumber": "QH8886 .M64 1970",
+    "hrid": "ho00000000028",
+    "copyNumber": "3"
   },
   {
     "id": "f0000013-0000-4000-9000-000000000000",
@@ -274,7 +383,9 @@
     "instanceId": "f0000013-0000-4000-8000-000000000000",
     "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
-    "callNumber": "QH3604 .X14 2018"
+    "callNumber": "QH3604 .X14 2018",
+    "hrid": "ho00000000029",
+    "copyNumber": "2"
   },
   {
     "id": "f0000014-0000-4000-9000-000000000000",
@@ -283,7 +394,9 @@
     "instanceId": "f0000014-0000-4000-8000-000000000000",
     "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
-    "callNumber": "P5606 .Q32 1983"
+    "callNumber": "P5606 .Q32 1983",
+    "hrid": "ho00000000030",
+    "copyNumber": "1"
   },
   {
     "id": "f0000015-0000-4000-9000-000000000000",
@@ -292,7 +405,8 @@
     "instanceId": "f0000015-0000-4000-8000-000000000000",
     "permanentLocationId": "184aae84-a5bf-4c6a-85ba-4a7c73026cd5",
     "callNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
-    "callNumber": "466.82"
+    "callNumber": "466.82",
+    "hrid": "ho00000000031"
   },
   {
     "id": "f0000016-0000-4000-9000-000000000000",
@@ -301,7 +415,8 @@
     "instanceId": "f0000016-0000-4000-8000-000000000000",
     "permanentLocationId": "53cf956f-c1df-410b-8bea-27f712cca7c0",
     "callNumberTypeId": "6caca63e-5651-4db6-9247-3205156e9699",
-    "callNumber": "LB8143 .H96 1999"
+    "callNumber": "LB8143 .H96 1999",
+    "hrid": "ho00000000032"
   },
   {
     "id": "f0000017-0000-4000-9000-000000000000",
@@ -310,7 +425,9 @@
     "instanceId": "f0000017-0000-4000-8000-000000000000",
     "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
-    "callNumber": "HM7570 .S40 1966"
+    "callNumber": "HM7570 .S40 1966",
+    "hrid": "ho00000000033",
+    "copyNumber": "1"
   },
   {
     "id": "f0000018-0000-4000-9000-000000000000",
@@ -319,7 +436,8 @@
     "instanceId": "f0000018-0000-4000-8000-000000000000",
     "permanentLocationId": "b241764c-1466-4e1d-a028-1a3684a5da87",
     "callNumberTypeId": "054d460d-d6b9-4469-9e37-7a78a2266655",
-    "callNumber": "Q3017 .Z16 1973"
+    "callNumber": "Q3017 .Z16 1973",
+    "hrid": "ho00000000034"
   },
   {
     "id": "f0000019-0000-4000-9000-000000000000",
@@ -328,7 +446,8 @@
     "instanceId": "f0000019-0000-4000-8000-000000000000",
     "permanentLocationId": "81f1ab2c-83c5-4a90-a8b7-c8c8179c0697",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
-    "callNumber": "PS992 .E17 1966"
+    "callNumber": "PS992 .E17 1966",
+    "hrid": "ho00000000035"
   },
   {
     "id": "f0000020-0000-4000-9000-000000000000",
@@ -337,7 +456,11 @@
     "instanceId": "f0000020-0000-4000-8000-000000000000",
     "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
-    "callNumber": "PR7550 .R14 2001"
+    "callNumber": "PR7550 .R14 2001",
+    "hrid": "ho00000000036",
+    "statisticalCodeIds": [
+      "c4073462-6144-4b69-a543-dd131e241799"
+    ]
   },
   {
     "id": "f0000021-0000-4000-9000-000000000000",
@@ -346,7 +469,8 @@
     "instanceId": "f0000021-0000-4000-8000-000000000000",
     "permanentLocationId": "53cf956f-c1df-410b-8bea-27f712cca7c0",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
-    "callNumber": "HV3951 .K98 2006"
+    "callNumber": "HV3951 .K98 2006",
+    "hrid": "ho00000000037"
   },
   {
     "id": "f0000022-0000-4000-9000-000000000000",
@@ -356,6 +480,7 @@
     "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "LB9205 .V91 1980",
+    "hrid": "ho00000000038",
     "copyNumber": "4"
   },
   {
@@ -366,7 +491,14 @@
     "permanentLocationId": "f34d27c6-a8eb-461b-acd6-5dea81771e70",
     "callNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "callNumber": "043.15",
-    "copyNumber": "2"
+    "hrid": "ho00000000039",
+    "copyNumber": "2",
+    "notes": [
+      {
+        "note": "Transferred from branch library.",
+        "staffOnly": false
+      }
+    ]
   },
   {
     "id": "f0000024-0000-4000-9000-000000000000",
@@ -375,7 +507,9 @@
     "instanceId": "f0000024-0000-4000-8000-000000000000",
     "permanentLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
-    "callNumber": "HV4381 .V99 1983"
+    "callNumber": "HV4381 .V99 1983",
+    "hrid": "ho00000000040",
+    "copyNumber": "5"
   },
   {
     "id": "f0000025-0000-4000-9000-000000000000",
@@ -384,7 +518,12 @@
     "instanceId": "f0000025-0000-4000-8000-000000000000",
     "permanentLocationId": "81f1ab2c-83c5-4a90-a8b7-c8c8179c0697",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
-    "callNumber": "Q8887 .J85 1970"
+    "callNumber": "Q8887 .J85 1970",
+    "hrid": "ho00000000041",
+    "copyNumber": "1",
+    "statisticalCodeIds": [
+      "6899291f-0d18-4f8d-a269-42706a5d0e27"
+    ]
   },
   {
     "id": "f0000026-0000-4000-9000-000000000000",
@@ -394,6 +533,7 @@
     "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
     "callNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "callNumber": "439.69",
+    "hrid": "ho00000000042",
     "copyNumber": "5"
   },
   {
@@ -403,7 +543,9 @@
     "instanceId": "f0000027-0000-4000-8000-000000000000",
     "permanentLocationId": "f34d27c6-a8eb-461b-acd6-5dea81771e70",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
-    "callNumber": "RC5074 .G19 1999"
+    "callNumber": "RC5074 .G19 1999",
+    "hrid": "ho00000000043",
+    "copyNumber": "5"
   },
   {
     "id": "f0000028-0000-4000-9000-000000000000",
@@ -412,7 +554,8 @@
     "instanceId": "f0000028-0000-4000-8000-000000000000",
     "permanentLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
-    "callNumber": "JZ9286 .K18 1999"
+    "callNumber": "JZ9286 .K18 1999",
+    "hrid": "ho00000000044"
   },
   {
     "id": "f0000029-0000-4000-9000-000000000000",
@@ -422,7 +565,14 @@
     "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "JZ382 .M14 2004",
-    "copyNumber": "1"
+    "hrid": "ho00000000045",
+    "copyNumber": "1",
+    "notes": [
+      {
+        "note": "Purchased from special collections fund.",
+        "staffOnly": true
+      }
+    ]
   },
   {
     "id": "f0000030-0000-4000-9000-000000000000",
@@ -432,7 +582,14 @@
     "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "Q6349 .V76 2011",
-    "copyNumber": "3"
+    "hrid": "ho00000000046",
+    "copyNumber": "3",
+    "notes": [
+      {
+        "note": "Gift of the library association.",
+        "staffOnly": true
+      }
+    ]
   },
   {
     "id": "f0000031-0000-4000-9000-000000000000",
@@ -442,6 +599,7 @@
     "permanentLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
     "callNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "callNumber": "150.89",
+    "hrid": "ho00000000047",
     "copyNumber": "3"
   },
   {
@@ -452,7 +610,11 @@
     "permanentLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "callNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "callNumber": "420.88",
-    "copyNumber": "5"
+    "hrid": "ho00000000048",
+    "copyNumber": "5",
+    "statisticalCodeIds": [
+      "6899291f-0d18-4f8d-a269-42706a5d0e27"
+    ]
   },
   {
     "id": "f0000033-0000-4000-9000-000000000000",
@@ -462,7 +624,14 @@
     "permanentLocationId": "f34d27c6-a8eb-461b-acd6-5dea81771e70",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "QH9144 .W14 1971",
-    "copyNumber": "3"
+    "hrid": "ho00000000049",
+    "copyNumber": "3",
+    "notes": [
+      {
+        "note": "Available for 3-hour in-house use only.",
+        "staffOnly": false
+      }
+    ]
   },
   {
     "id": "f0000034-0000-4000-9000-000000000000",
@@ -471,7 +640,9 @@
     "instanceId": "f0000034-0000-4000-8000-000000000000",
     "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
-    "callNumber": "Z1853 .H41 1963"
+    "callNumber": "Z1853 .H41 1963",
+    "hrid": "ho00000000050",
+    "copyNumber": "1"
   },
   {
     "id": "f0000035-0000-4000-9000-000000000000",
@@ -480,7 +651,12 @@
     "instanceId": "f0000035-0000-4000-8000-000000000000",
     "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
-    "callNumber": "HV3229 .J40 2019"
+    "callNumber": "HV3229 .J40 2019",
+    "hrid": "ho00000000051",
+    "copyNumber": "2",
+    "statisticalCodeIds": [
+      "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
+    ]
   },
   {
     "id": "f0000036-0000-4000-9000-000000000000",
@@ -489,7 +665,11 @@
     "instanceId": "f0000036-0000-4000-8000-000000000000",
     "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
-    "callNumber": "RJ1375 .M79 1988"
+    "callNumber": "RJ1375 .M79 1988",
+    "hrid": "ho00000000052",
+    "statisticalCodeIds": [
+      "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
+    ]
   },
   {
     "id": "f0000037-0000-4000-9000-000000000000",
@@ -498,7 +678,8 @@
     "instanceId": "f0000037-0000-4000-8000-000000000000",
     "permanentLocationId": "b241764c-1466-4e1d-a028-1a3684a5da87",
     "callNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
-    "callNumber": "841.97"
+    "callNumber": "841.97",
+    "hrid": "ho00000000053"
   },
   {
     "id": "f0000038-0000-4000-9000-000000000000",
@@ -507,7 +688,8 @@
     "instanceId": "f0000038-0000-4000-8000-000000000000",
     "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
     "callNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
-    "callNumber": "349.71"
+    "callNumber": "349.71",
+    "hrid": "ho00000000054"
   },
   {
     "id": "f0000039-0000-4000-9000-000000000000",
@@ -516,7 +698,8 @@
     "instanceId": "f0000039-0000-4000-8000-000000000000",
     "permanentLocationId": "b241764c-1466-4e1d-a028-1a3684a5da87",
     "callNumberTypeId": "054d460d-d6b9-4469-9e37-7a78a2266655",
-    "callNumber": "GE2084 .D30 1960"
+    "callNumber": "GE2084 .D30 1960",
+    "hrid": "ho00000000055"
   },
   {
     "id": "f0000040-0000-4000-9000-000000000000",
@@ -526,7 +709,13 @@
     "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
     "callNumberTypeId": "054d460d-d6b9-4469-9e37-7a78a2266655",
     "callNumber": "HV4393 .F21 2010",
-    "copyNumber": "5"
+    "hrid": "ho00000000056",
+    "copyNumber": "5",
+    "tags": {
+      "tagList": [
+        "ebook-available"
+      ]
+    }
   },
   {
     "id": "f0000041-0000-4000-9000-000000000000",
@@ -535,7 +724,11 @@
     "instanceId": "f0000041-0000-4000-8000-000000000000",
     "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
-    "callNumber": "HM9005 .U83 1971"
+    "callNumber": "HM9005 .U83 1971",
+    "hrid": "ho00000000057",
+    "statisticalCodeIds": [
+      "d9acad2f-d9ac-4b48-9097-e6ab85000001"
+    ]
   },
   {
     "id": "f0000042-0000-4000-9000-000000000000",
@@ -545,7 +738,14 @@
     "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "GE6469 .K65 1974",
-    "copyNumber": "5"
+    "hrid": "ho00000000058",
+    "copyNumber": "5",
+    "notes": [
+      {
+        "note": "Formerly in reference collection.",
+        "staffOnly": true
+      }
+    ]
   },
   {
     "id": "f0000043-0000-4000-9000-000000000000",
@@ -554,7 +754,8 @@
     "instanceId": "f0000043-0000-4000-8000-000000000000",
     "permanentLocationId": "758258bc-ecc1-41b8-abca-f7b610822ffd",
     "callNumberTypeId": "054d460d-d6b9-4469-9e37-7a78a2266655",
-    "callNumber": "PR9123 .A66 2008"
+    "callNumber": "PR9123 .A66 2008",
+    "hrid": "ho00000000059"
   },
   {
     "id": "f0000044-0000-4000-9000-000000000000",
@@ -563,7 +764,8 @@
     "instanceId": "f0000044-0000-4000-8000-000000000000",
     "permanentLocationId": "4fdca025-1629-4688-aeb7-9c5fe5c73549",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
-    "callNumber": "HD9551 .K39 1966"
+    "callNumber": "HD9551 .K39 1966",
+    "hrid": "ho00000000060"
   },
   {
     "id": "f0000045-0000-4000-9000-000000000000",
@@ -572,7 +774,8 @@
     "instanceId": "f0000045-0000-4000-8000-000000000000",
     "permanentLocationId": "184aae84-a5bf-4c6a-85ba-4a7c73026cd5",
     "callNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
-    "callNumber": "860.20"
+    "callNumber": "860.20",
+    "hrid": "ho00000000061"
   },
   {
     "id": "f0000046-0000-4000-9000-000000000000",
@@ -581,7 +784,8 @@
     "instanceId": "f0000046-0000-4000-8000-000000000000",
     "permanentLocationId": "b241764c-1466-4e1d-a028-1a3684a5da87",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
-    "callNumber": "TK8603 .B29 1964"
+    "callNumber": "TK8603 .B29 1964",
+    "hrid": "ho00000000062"
   },
   {
     "id": "f0000047-0000-4000-9000-000000000000",
@@ -591,7 +795,14 @@
     "permanentLocationId": "81f1ab2c-83c5-4a90-a8b7-c8c8179c0697",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "TK9848 .S67 2008",
-    "copyNumber": "1"
+    "hrid": "ho00000000063",
+    "copyNumber": "1",
+    "notes": [
+      {
+        "note": "Purchased from special collections fund.",
+        "staffOnly": true
+      }
+    ]
   },
   {
     "id": "f0000048-0000-4000-9000-000000000000",
@@ -601,7 +812,14 @@
     "permanentLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "S4712 .H25 1963",
-    "copyNumber": "5"
+    "hrid": "ho00000000064",
+    "copyNumber": "5",
+    "notes": [
+      {
+        "note": "Available for 3-hour in-house use only.",
+        "staffOnly": false
+      }
+    ]
   },
   {
     "id": "f0000049-0000-4000-9000-000000000000",
@@ -611,6 +829,10 @@
     "permanentLocationId": "758258bc-ecc1-41b8-abca-f7b610822ffd",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "RC6432 .Y93 2022",
-    "copyNumber": "1"
+    "hrid": "ho00000000065",
+    "copyNumber": "1",
+    "statisticalCodeIds": [
+      "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
+    ]
   }
 ]

@@ -166,6 +166,90 @@ SERIES_POOL = [
     "Springer series in solid-state sciences",
 ]
 
+# Statistical code UUIDs — stored as-is, no ref-table validation
+STATISTICAL_CODE_POOL = [
+    "6899291f-0d18-4f8d-a269-42706a5d0e27",  # ARL
+    "b5968c9e-cddc-4576-99e3-8e60aed8b0dd",  # IPEDS-eBk
+    "9d8abbe2-1a94-4866-8731-4d12ac09f7a8",  # IPEDS-Per
+    "e10796e0-a594-47b7-b748-3a81b69b3d9b",  # IPEDS-AV
+    "b6b46869-f3c1-4370-b603-29774a1e42b1",  # IPEDS-Map
+    "f47b773a-bd5f-4246-ac1e-fa4adcd0dcdf",  # IPEDS-Other
+    "c4073462-6144-4b69-a543-dd131e241799",  # govt-doc
+    "d9acad2f-d9ac-4b48-9097-e6ab85000001",  # music-score
+]
+
+# Nature-of-content term UUIDs (FOLIO standard)
+NATURE_OF_CONTENT_POOL = [
+    "aef4d369-1571-419c-8cf8-7e596f6f535c",  # bibliography
+    "44cd89f3-2e76-469f-a955-cc57cb9e0395",  # catalog
+    "9f0a2cf0-7a9b-45a2-a403-f68d2850d07c",  # textbook
+    "2fec23f6-6bbc-4fa2-a736-b64a8c06a47a",  # biography
+    "526aa04d-9289-4511-8866-349299592c18",  # conference publication
+    "0abeaebb-4166-483d-9f62-3bdf6aae7a93",  # research report
+    "9ef56f0c-fa7b-44dc-ab7c-15a8e7a0ab2b",  # primary source
+    "a1d70ca5-67aa-4824-b3af-55c8cf47a427",  # legal article
+]
+
+TAG_POOL = [
+    "new-addition", "recommended", "withdrawn-review", "high-demand",
+    "preservation-needed", "digitization-candidate", "ebook-available",
+    "review-needed", "reserve", "special-order",
+]
+
+INSTANCE_NOTE_POOL = [
+    "Includes bibliographical references.",
+    "Includes bibliographical references and index.",
+    "Also available online.",
+    "Originally presented as the author's thesis.",
+    "Translation of the 3rd German edition.",
+    "Revised edition.",
+    "Title from cover.",
+    "Cataloged from PDF version of text.",
+    "Description based on print version record.",
+    "Companion volume to work published by same publisher.",
+    "Text in English; abstract also in French.",
+    "Previously published under title: Introduction to the subject.",
+]
+
+HOLDINGS_NOTE_POOL = [
+    "Copy acquired through donation.",
+    "Purchased from special collections fund.",
+    "Transferred from branch library.",
+    "Formerly in reference collection.",
+    "Available for 3-hour in-house use only.",
+    "Gift of the library association.",
+    "Received as part of standing order.",
+    "Bound with: companion volume.",
+]
+
+HOLDINGS_ADMIN_NOTE_POOL = [
+    "Last inventory check: 2024-01.",
+    "Condition reviewed — acceptable.",
+    "Acquired via consortium purchase.",
+    "Duplicate copy retained per policy.",
+]
+
+ITEM_NOTE_POOL = [
+    "Binding repaired.",
+    "Cover worn.",
+    "Pages slightly yellowed.",
+    "Bookplate on inside front cover.",
+    "Previous owner's name on title page.",
+    "Stamps on pages.",
+    "Slight water damage on top edge.",
+    "Spine faded.",
+    "Missing index pages.",
+    "Disk attached to inside back cover.",
+]
+
+ITEM_ADMIN_NOTE_POOL = [
+    "Weeding review due 2026.",
+    "Condition reviewed and acceptable.",
+    "Duplicate copy retained per policy.",
+    "Acquired via interlibrary transfer.",
+    "Item requires repair before circulation.",
+]
+
 LC_CLASS_PREFIXES = [
     "QA", "Q", "Z", "HM", "HV", "HD", "P", "PN", "PS", "PR", "LB",
     "JZ", "GE", "QH", "QP", "RC", "RJ", "S", "TA", "TK", "TR",
@@ -233,11 +317,25 @@ def make_call_number(rnd: random.Random, cn_type_id: str) -> str:
 
 
 # ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+def make_barcode(rnd: random.Random) -> str:
+    """Generate a realistic 14-digit library barcode (prefix 3900)."""
+    suffix = rnd.randint(0, 10 ** 10 - 1)
+    return f"3900{suffix:010d}"
+
+
+def make_hrid(prefix: str, idx: int) -> str:
+    """FOLIO-style HRID, e.g. in00000000001."""
+    return f"{prefix}{idx + 1:011d}"
+
+
+# ---------------------------------------------------------------------------
 # Populate instances
 # ---------------------------------------------------------------------------
 def populate_instances(records: list) -> list:
     out = []
-    for r in records:
+    for idx, r in enumerate(records):
         r = dict(r)
         rid  = r["id"]
         rnd  = rng(rid)
@@ -343,6 +441,35 @@ def populate_instances(records: list) -> list:
         if "series" not in r and rnd.random() < 0.35:
             r["series"] = [{"value": rnd.choice(SERIES_POOL)}]
 
+        # hrid
+        if not r.get("hrid"):
+            r["hrid"] = make_hrid("in", idx)
+
+        # statisticalCodeIds
+        if "statisticalCodeIds" not in r and rnd.random() < 0.20:
+            n = rnd.choice([1, 1, 2])
+            r["statisticalCodeIds"] = rnd.sample(STATISTICAL_CODE_POOL, n)
+
+        # natureOfContentTermIds
+        if "natureOfContentTermIds" not in r and rnd.random() < 0.45:
+            n = rnd.choice([1, 1, 1, 2])
+            r["natureOfContentTermIds"] = rnd.sample(NATURE_OF_CONTENT_POOL, n)
+
+        # tags
+        if "tags" not in r and rnd.random() < 0.15:
+            n = rnd.choice([1, 1, 2])
+            r["tags"] = {"tagList": rnd.sample(TAG_POOL, n)}
+
+        # administrativeNotes
+        if "administrativeNotes" not in r and rnd.random() < 0.08:
+            r["administrativeNotes"] = [rnd.choice(INSTANCE_NOTE_POOL[:4])]
+
+        # notes
+        if "notes" not in r and rnd.random() < 0.25:
+            n = rnd.choice([1, 1, 2])
+            chosen = rnd.sample(INSTANCE_NOTE_POOL, n)
+            r["notes"] = [{"note": t, "staffOnly": rnd.random() < 0.3} for t in chosen]
+
         out.append(r)
     return out
 
@@ -352,7 +479,7 @@ def populate_instances(records: list) -> list:
 # ---------------------------------------------------------------------------
 def populate_holdings(records: list) -> list:
     out = []
-    for r in records:
+    for idx, r in enumerate(records):
         r = dict(r)
         rid = r["id"]
         rnd = rng(rid)
@@ -372,6 +499,27 @@ def populate_holdings(records: list) -> list:
         if "copyNumber" not in r and rnd.random() < 0.4:
             r["copyNumber"] = str(rnd.randint(1, 5))
 
+        # hrid
+        if not r.get("hrid"):
+            r["hrid"] = make_hrid("ho", idx)
+
+        # statisticalCodeIds
+        if "statisticalCodeIds" not in r and rnd.random() < 0.15:
+            r["statisticalCodeIds"] = [rnd.choice(STATISTICAL_CODE_POOL)]
+
+        # tags
+        if "tags" not in r and rnd.random() < 0.10:
+            r["tags"] = {"tagList": [rnd.choice(TAG_POOL)]}
+
+        # administrativeNotes
+        if "administrativeNotes" not in r and rnd.random() < 0.06:
+            r["administrativeNotes"] = [rnd.choice(HOLDINGS_ADMIN_NOTE_POOL)]
+
+        # notes
+        if "notes" not in r and rnd.random() < 0.20:
+            note = rnd.choice(HOLDINGS_NOTE_POOL)
+            r["notes"] = [{"note": note, "staffOnly": rnd.random() < 0.25}]
+
         out.append(r)
     return out
 
@@ -381,7 +529,7 @@ def populate_holdings(records: list) -> list:
 # ---------------------------------------------------------------------------
 def populate_items(records: list, holdings_by_id: dict) -> list:
     out = []
-    for r in records:
+    for idx, r in enumerate(records):
         r = dict(r)
         rid = r["id"]
         rnd = rng(rid)
@@ -405,6 +553,31 @@ def populate_items(records: list, holdings_by_id: dict) -> list:
             cn_type = weighted_choice(rnd, CALL_NUMBER_TYPE_POOL)
             r["itemLevelCallNumberTypeId"] = cn_type
             r["itemLevelCallNumber"] = make_call_number(rng(rid, "icn"), cn_type)
+
+        # hrid
+        if not r.get("hrid"):
+            r["hrid"] = make_hrid("it", idx)
+
+        # barcode — unique, deterministic
+        if not r.get("barcode"):
+            r["barcode"] = make_barcode(rng(rid, "bc"))
+
+        # statisticalCodeIds
+        if "statisticalCodeIds" not in r and rnd.random() < 0.12:
+            r["statisticalCodeIds"] = [rnd.choice(STATISTICAL_CODE_POOL)]
+
+        # tags
+        if "tags" not in r and rnd.random() < 0.10:
+            r["tags"] = {"tagList": [rnd.choice(TAG_POOL)]}
+
+        # administrativeNotes
+        if "administrativeNotes" not in r and rnd.random() < 0.06:
+            r["administrativeNotes"] = [rnd.choice(ITEM_ADMIN_NOTE_POOL)]
+
+        # notes
+        if "notes" not in r and rnd.random() < 0.20:
+            note = rnd.choice(ITEM_NOTE_POOL)
+            r["notes"] = [{"note": note, "staffOnly": rnd.random() < 0.2}]
 
         out.append(r)
     return out

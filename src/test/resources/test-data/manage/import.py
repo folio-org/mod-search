@@ -34,7 +34,6 @@ _REF_NAMES: dict[str, dict[str, str]] = {
         "24da24dd-03ae-4e34-bad6-c79e342baeb9": "computer file",
         "2022aa2e-bdde-4dc4-90bc-115e8894b8b3": "cartographic three-dimensional form",
         "225faa14-f9bf-4ecd-990d-69433c912434": "two-dimensional moving image",
-        "2022aa2e-bdde-4dc4-90bc-115e8894b8b3": "cartographic three-dimensional form",
         "3363cdb1-e644-446c-82a4-dc3a1d4395b9": "cartographic dataset",
         "3be24c14-3551-4180-9292-26a786649c8b": "performed music",
         "3e3039b7-fda0-4ac4-885a-022d457cb99c": "three-dimensional moving image",
@@ -191,12 +190,18 @@ def load_ref_names(con):
 
 
 def upsert_ref(cur, table, id_val):
-    """Insert a UUID into a lookup table if not already present."""
-    if id_val:
-        cur.execute(
-            f"INSERT OR IGNORE INTO {table} (id, name) VALUES (?, ?)",
-            (id_val, id_val),
+    """Insert a UUID into a lookup table; abort if it has no known name."""
+    if not id_val:
+        return
+    if id_val not in _REF_NAMES.get(table, {}):
+        raise ValueError(
+            f"Unknown ref ID {id_val!r} for table '{table}'. "
+            f"Add it to _REF_NAMES['{table}'] in import.py."
         )
+    cur.execute(
+        f"INSERT OR IGNORE INTO {table} (id, name) VALUES (?, ?)",
+        (id_val, _REF_NAMES[table][id_val]),
+    )
 
 
 def import_instances(cur, records):

@@ -19,6 +19,10 @@ CREATE TABLE IF NOT EXISTS instances (
   statusId          TEXT,
   discoverySuppress INTEGER DEFAULT 0,
   staffSuppress     INTEGER DEFAULT 0,
+  hrid              TEXT,
+  modeOfIssuanceId  TEXT,
+  isBoundWith       INTEGER DEFAULT 0,
+  shared            INTEGER DEFAULT 0,
   -- dates object (single, not array)
   dateTypeId        TEXT,
   date1             TEXT,
@@ -34,6 +38,8 @@ CREATE TABLE IF NOT EXISTS holdings (
   callNumberTypeId    TEXT REFERENCES ref_call_number_types(id),
   permanentLocationId TEXT REFERENCES ref_locations(id),
   holdingsTypeId      TEXT REFERENCES ref_holdings_types(id),
+  hrid                TEXT,
+  sourceId            TEXT,
   copyNumber          TEXT,
   shelvingTitle       TEXT,
   discoverySuppress   INTEGER DEFAULT 0
@@ -43,6 +49,10 @@ CREATE TABLE IF NOT EXISTS items (
   id                          TEXT PRIMARY KEY,
   holdingsRecordId            TEXT REFERENCES holdings(id),
   instanceId                  TEXT REFERENCES instances(id),
+  hrid                        TEXT,
+  barcode                     TEXT,
+  accessionNumber             TEXT,
+  itemIdentifier              TEXT,
   itemLevelCallNumber         TEXT,
   itemLevelCallNumberTypeId   TEXT REFERENCES ref_call_number_types(id),
   effectiveLocationId         TEXT REFERENCES ref_locations(id),
@@ -74,7 +84,9 @@ CREATE TABLE IF NOT EXISTS instance_subjects (
   id          INTEGER PRIMARY KEY AUTOINCREMENT,
   instanceId  TEXT REFERENCES instances(id),
   value       TEXT,
-  authorityId TEXT
+  authorityId TEXT,
+  sourceId    TEXT,
+  typeId      TEXT
 );
 
 CREATE TABLE IF NOT EXISTS instance_classifications (
@@ -133,8 +145,165 @@ CREATE TABLE IF NOT EXISTS instance_format_ids (
   formatId   TEXT
 );
 
+CREATE TABLE IF NOT EXISTS instance_statistical_code_ids (
+  id                INTEGER PRIMARY KEY AUTOINCREMENT,
+  instanceId        TEXT REFERENCES instances(id),
+  statisticalCodeId TEXT
+);
+
+CREATE TABLE IF NOT EXISTS instance_nature_of_content_term_ids (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  instanceId TEXT REFERENCES instances(id),
+  termId     TEXT
+);
+
+CREATE TABLE IF NOT EXISTS instance_tags (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  instanceId TEXT REFERENCES instances(id),
+  tagValue   TEXT
+);
+
+CREATE TABLE IF NOT EXISTS instance_administrative_notes (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  instanceId TEXT REFERENCES instances(id),
+  note       TEXT
+);
+
+CREATE TABLE IF NOT EXISTS instance_notes (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  instanceId TEXT REFERENCES instances(id),
+  note       TEXT,
+  staffOnly  INTEGER DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS instance_electronic_access (
+  id                     INTEGER PRIMARY KEY AUTOINCREMENT,
+  instanceId             TEXT REFERENCES instances(id),
+  uri                    TEXT,
+  linkText               TEXT,
+  materialsSpecification TEXT,
+  publicNote             TEXT,
+  relationshipId         TEXT
+);
+
+CREATE TABLE IF NOT EXISTS instance_metadata (
+  instanceId      TEXT PRIMARY KEY REFERENCES instances(id),
+  createdDate     TEXT,
+  createdByUserId TEXT,
+  updatedDate     TEXT,
+  updatedByUserId TEXT
+);
+
+-- Junction tables for holdings arrays
+CREATE TABLE IF NOT EXISTS holdings_statistical_code_ids (
+  id                INTEGER PRIMARY KEY AUTOINCREMENT,
+  holdingsId        TEXT REFERENCES holdings(id),
+  statisticalCodeId TEXT
+);
+
+CREATE TABLE IF NOT EXISTS holdings_former_ids (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  holdingsId TEXT REFERENCES holdings(id),
+  formerId   TEXT
+);
+
+CREATE TABLE IF NOT EXISTS holdings_tags (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  holdingsId TEXT REFERENCES holdings(id),
+  tagValue   TEXT
+);
+
+CREATE TABLE IF NOT EXISTS holdings_administrative_notes (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  holdingsId TEXT REFERENCES holdings(id),
+  note       TEXT
+);
+
+CREATE TABLE IF NOT EXISTS holdings_notes (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  holdingsId TEXT REFERENCES holdings(id),
+  note       TEXT,
+  staffOnly  INTEGER DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS holdings_electronic_access (
+  id                     INTEGER PRIMARY KEY AUTOINCREMENT,
+  holdingsId             TEXT REFERENCES holdings(id),
+  uri                    TEXT,
+  linkText               TEXT,
+  materialsSpecification TEXT,
+  publicNote             TEXT,
+  relationshipId         TEXT
+);
+
+CREATE TABLE IF NOT EXISTS holdings_metadata (
+  holdingsId      TEXT PRIMARY KEY REFERENCES holdings(id),
+  createdDate     TEXT,
+  createdByUserId TEXT,
+  updatedDate     TEXT,
+  updatedByUserId TEXT
+);
+
+-- Junction tables for items arrays
+CREATE TABLE IF NOT EXISTS items_former_ids (
+  id       INTEGER PRIMARY KEY AUTOINCREMENT,
+  itemId   TEXT REFERENCES items(id),
+  formerId TEXT
+);
+
+CREATE TABLE IF NOT EXISTS items_statistical_code_ids (
+  id                INTEGER PRIMARY KEY AUTOINCREMENT,
+  itemId            TEXT REFERENCES items(id),
+  statisticalCodeId TEXT
+);
+
+CREATE TABLE IF NOT EXISTS items_tags (
+  id       INTEGER PRIMARY KEY AUTOINCREMENT,
+  itemId   TEXT REFERENCES items(id),
+  tagValue TEXT
+);
+
+CREATE TABLE IF NOT EXISTS items_administrative_notes (
+  id     INTEGER PRIMARY KEY AUTOINCREMENT,
+  itemId TEXT REFERENCES items(id),
+  note   TEXT
+);
+
+CREATE TABLE IF NOT EXISTS items_notes (
+  id        INTEGER PRIMARY KEY AUTOINCREMENT,
+  itemId    TEXT REFERENCES items(id),
+  note      TEXT,
+  staffOnly INTEGER DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS items_circulation_notes (
+  id        INTEGER PRIMARY KEY AUTOINCREMENT,
+  itemId    TEXT REFERENCES items(id),
+  note      TEXT,
+  staffOnly INTEGER DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS items_electronic_access (
+  id                     INTEGER PRIMARY KEY AUTOINCREMENT,
+  itemId                 TEXT REFERENCES items(id),
+  uri                    TEXT,
+  linkText               TEXT,
+  materialsSpecification TEXT,
+  publicNote             TEXT,
+  relationshipId         TEXT
+);
+
+CREATE TABLE IF NOT EXISTS items_metadata (
+  itemId          TEXT PRIMARY KEY REFERENCES items(id),
+  createdDate     TEXT,
+  createdByUserId TEXT,
+  updatedDate     TEXT,
+  updatedByUserId TEXT
+);
+
 -- Convenience views
-CREATE VIEW IF NOT EXISTS v_instance_full AS
+DROP VIEW IF EXISTS v_instance_full;
+CREATE VIEW v_instance_full AS
 SELECT
   i.*,
   (SELECT json_group_array(json_object(
@@ -145,7 +314,7 @@ SELECT
       'authorityId', c.authorityId,
       'isPrimary', c.isPrimary))
    FROM instance_contributors c WHERE c.instanceId = i.id) AS contributors,
-  (SELECT json_group_array(json_object('value', s.value, 'authorityId', s.authorityId))
+  (SELECT json_group_array(json_object('value', s.value, 'authorityId', s.authorityId, 'sourceId', s.sourceId, 'typeId', s.typeId))
    FROM instance_subjects s WHERE s.instanceId = i.id) AS subjects,
   (SELECT json_group_array(json_object('languageCode', l.languageCode))
    FROM instance_languages l WHERE l.instanceId = i.id) AS languages,
@@ -163,31 +332,52 @@ SELECT
    FROM instance_editions e WHERE e.instanceId = i.id) AS editions,
   (SELECT json_group_array(json_object('formatId', f.formatId))
    FROM instance_format_ids f WHERE f.instanceId = i.id) AS formatIds,
+  (SELECT json_group_array(statisticalCodeId) FROM instance_statistical_code_ids sc WHERE sc.instanceId = i.id) AS statisticalCodeIds,
+  (SELECT json_group_array(termId) FROM instance_nature_of_content_term_ids nc WHERE nc.instanceId = i.id) AS natureOfContentTermIds,
+  (SELECT json_group_array(tagValue) FROM instance_tags tg WHERE tg.instanceId = i.id) AS tags,
+  (SELECT json_group_array(note) FROM instance_administrative_notes an WHERE an.instanceId = i.id) AS administrativeNotes,
+  (SELECT json_group_array(json_object('note', n.note, 'staffOnly', n.staffOnly)) FROM instance_notes n WHERE n.instanceId = i.id) AS notes,
+  (SELECT json_group_array(json_object('uri', ea.uri, 'linkText', ea.linkText, 'materialsSpecification', ea.materialsSpecification, 'publicNote', ea.publicNote, 'relationshipId', ea.relationshipId)) FROM instance_electronic_access ea WHERE ea.instanceId = i.id) AS electronicAccess,
   rit.name AS instanceTypeName
 FROM instances i
 LEFT JOIN ref_instance_types rit ON rit.id = i.instanceTypeId;
 
-CREATE VIEW IF NOT EXISTS v_holdings_full AS
+DROP VIEW IF EXISTS v_holdings_full;
+CREATE VIEW v_holdings_full AS
 SELECT
   h.*,
   rl.name  AS permanentLocationName,
   rht.name AS holdingsTypeName,
   rct.name AS callNumberTypeName,
-  i.title  AS instanceTitle
+  i.title  AS instanceTitle,
+  (SELECT json_group_array(statisticalCodeId) FROM holdings_statistical_code_ids sc WHERE sc.holdingsId = h.id) AS statisticalCodeIds,
+  (SELECT json_group_array(formerId) FROM holdings_former_ids fi WHERE fi.holdingsId = h.id) AS formerIds,
+  (SELECT json_group_array(tagValue) FROM holdings_tags tg WHERE tg.holdingsId = h.id) AS tags,
+  (SELECT json_group_array(note) FROM holdings_administrative_notes an WHERE an.holdingsId = h.id) AS administrativeNotes,
+  (SELECT json_group_array(json_object('note', n.note, 'staffOnly', n.staffOnly)) FROM holdings_notes n WHERE n.holdingsId = h.id) AS notes,
+  (SELECT json_group_array(json_object('uri', ea.uri, 'linkText', ea.linkText, 'materialsSpecification', ea.materialsSpecification, 'publicNote', ea.publicNote, 'relationshipId', ea.relationshipId)) FROM holdings_electronic_access ea WHERE ea.holdingsId = h.id) AS electronicAccess
 FROM holdings h
 LEFT JOIN ref_locations      rl  ON rl.id  = h.permanentLocationId
 LEFT JOIN ref_holdings_types rht ON rht.id = h.holdingsTypeId
 LEFT JOIN ref_call_number_types rct ON rct.id = h.callNumberTypeId
 LEFT JOIN instances          i   ON i.id   = h.instanceId;
 
-CREATE VIEW IF NOT EXISTS v_items_full AS
+DROP VIEW IF EXISTS v_items_full;
+CREATE VIEW v_items_full AS
 SELECT
   it.*,
   rl.name   AS effectiveLocationName,
   rmt.name  AS materialTypeName,
   rct.name  AS effectiveCallNumberTypeName,
   h.callNumber AS holdingsCallNumber,
-  i.title   AS instanceTitle
+  i.title   AS instanceTitle,
+  (SELECT json_group_array(formerId) FROM items_former_ids fi WHERE fi.itemId = it.id) AS formerIds,
+  (SELECT json_group_array(statisticalCodeId) FROM items_statistical_code_ids sc WHERE sc.itemId = it.id) AS statisticalCodeIds,
+  (SELECT json_group_array(tagValue) FROM items_tags tg WHERE tg.itemId = it.id) AS tags,
+  (SELECT json_group_array(note) FROM items_administrative_notes an WHERE an.itemId = it.id) AS administrativeNotes,
+  (SELECT json_group_array(json_object('note', n.note, 'staffOnly', n.staffOnly)) FROM items_notes n WHERE n.itemId = it.id) AS notes,
+  (SELECT json_group_array(json_object('note', cn.note, 'staffOnly', cn.staffOnly)) FROM items_circulation_notes cn WHERE cn.itemId = it.id) AS circulationNotes,
+  (SELECT json_group_array(json_object('uri', ea.uri, 'linkText', ea.linkText, 'materialsSpecification', ea.materialsSpecification, 'publicNote', ea.publicNote, 'relationshipId', ea.relationshipId)) FROM items_electronic_access ea WHERE ea.itemId = it.id) AS electronicAccess
 FROM items it
 LEFT JOIN ref_locations         rl  ON rl.id  = it.effectiveLocationId
 LEFT JOIN ref_material_types    rmt ON rmt.id = it.materialTypeId

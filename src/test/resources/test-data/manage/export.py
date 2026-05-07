@@ -38,10 +38,15 @@ def export_instances(cur):
             if c["isPrimary"]:                 obj["primary"]               = True
             contributors.append(obj)
 
-        subjects = [
-            {k: v for k, v in {"value": s["value"], "authorityId": s.get("authorityId")}.items() if v is not None}
-            for s in rows_as_dicts(cur, "SELECT * FROM instance_subjects WHERE instanceId=? ORDER BY id", (iid,))
-        ]
+        subjects = []
+        for s in rows_as_dicts(cur, "SELECT * FROM instance_subjects WHERE instanceId=? ORDER BY id", (iid,)):
+            o = {k: v for k, v in {
+                "value": s["value"],
+                "authorityId": s.get("authorityId"),
+                "sourceId": s.get("sourceId"),
+                "typeId": s.get("typeId"),
+            }.items() if v is not None}
+            subjects.append(o)
 
         classifications = [
             {"classificationNumber": cl["classificationNumber"], "classificationTypeId": cl["classificationTypeId"]}
@@ -92,6 +97,55 @@ def export_instances(cur):
             for r in rows_as_dicts(cur, "SELECT * FROM instance_format_ids WHERE instanceId=? ORDER BY id", (iid,))
         ]
 
+        statistical_code_ids = [
+            r["statisticalCodeId"]
+            for r in rows_as_dicts(cur, "SELECT * FROM instance_statistical_code_ids WHERE instanceId=? ORDER BY id", (iid,))
+        ]
+
+        nature_of_content_term_ids = [
+            r["termId"]
+            for r in rows_as_dicts(cur, "SELECT * FROM instance_nature_of_content_term_ids WHERE instanceId=? ORDER BY id", (iid,))
+        ]
+
+        tag_list = [
+            r["tagValue"]
+            for r in rows_as_dicts(cur, "SELECT * FROM instance_tags WHERE instanceId=? ORDER BY id", (iid,))
+        ]
+
+        administrative_notes = [
+            r["note"]
+            for r in rows_as_dicts(cur, "SELECT * FROM instance_administrative_notes WHERE instanceId=? ORDER BY id", (iid,))
+        ]
+
+        notes = [
+            {k: v for k, v in {"note": n["note"], "staffOnly": bool(n["staffOnly"])}.items() if v is not None}
+            for n in rows_as_dicts(cur, "SELECT * FROM instance_notes WHERE instanceId=? ORDER BY id", (iid,))
+        ]
+
+        electronic_access = []
+        for ea in rows_as_dicts(cur, "SELECT * FROM instance_electronic_access WHERE instanceId=? ORDER BY id", (iid,)):
+            o = {k: v for k, v in {
+                "uri": ea.get("uri"),
+                "linkText": ea.get("linkText"),
+                "materialsSpecification": ea.get("materialsSpecification"),
+                "publicNote": ea.get("publicNote"),
+                "relationshipId": ea.get("relationshipId"),
+            }.items() if v is not None}
+            electronic_access.append(o)
+
+        meta_rows = rows_as_dicts(cur, "SELECT * FROM instance_metadata WHERE instanceId=?", (iid,))
+        metadata = None
+        if meta_rows:
+            m = meta_rows[0]
+            metadata = {k: v for k, v in {
+                "createdDate": m.get("createdDate"),
+                "createdByUserId": m.get("createdByUserId"),
+                "updatedDate": m.get("updatedDate"),
+                "updatedByUserId": m.get("updatedByUserId"),
+            }.items() if v is not None}
+            if not metadata:
+                metadata = None
+
         # Build dates object (only if any field is set)
         dates = None
         if inst.get("dateTypeId") or inst.get("date1") or inst.get("date2"):
@@ -105,6 +159,10 @@ def export_instances(cur):
         obj["source"]       = inst.get("source")
         obj["title"]        = inst.get("title")
         obj["indexTitle"]   = inst.get("indexTitle")
+        if inst.get("hrid"):             obj["hrid"]             = inst["hrid"]
+        if inst.get("modeOfIssuanceId"): obj["modeOfIssuanceId"] = inst["modeOfIssuanceId"]
+        if inst.get("isBoundWith"):      obj["isBoundWith"]      = bool(inst["isBoundWith"])
+        if inst.get("shared"):           obj["shared"]           = bool(inst["shared"])
         if alt_titles:   obj["alternativeTitles"]  = alt_titles
         if editions:     obj["editions"]           = editions
         if series:       obj["series"]             = series
@@ -115,10 +173,17 @@ def export_instances(cur):
         if publications: obj["publication"]        = publications
         if dates:        obj["dates"]              = dates
         obj["instanceTypeId"]    = inst.get("instanceTypeId")
-        if format_ids:   obj["instanceFormatIds"]  = format_ids
-        if languages:    obj["languages"]          = languages
+        if format_ids:              obj["instanceFormatIds"]        = format_ids
+        if statistical_code_ids:    obj["statisticalCodeIds"]       = statistical_code_ids
+        if nature_of_content_term_ids: obj["natureOfContentTermIds"] = nature_of_content_term_ids
+        if languages:               obj["languages"]               = languages
+        if tag_list:                obj["tags"]                    = {"tagList": tag_list}
+        if administrative_notes:    obj["administrativeNotes"]     = administrative_notes
+        if notes:                   obj["notes"]                   = notes
+        if electronic_access:       obj["electronicAccess"]        = electronic_access
         obj["discoverySuppress"] = bool(inst["discoverySuppress"])
         if inst.get("statusId"): obj["statusId"]   = inst["statusId"]
+        if metadata:             obj["metadata"]   = metadata
 
         result.append(obj)
 
@@ -129,7 +194,58 @@ def export_holdings(cur):
     holdings = rows_as_dicts(cur, "SELECT * FROM holdings ORDER BY rowid")
     result = []
     for h in holdings:
-        obj = {"id": h["id"]}
+        hid = h["id"]
+
+        statistical_code_ids = [
+            r["statisticalCodeId"]
+            for r in rows_as_dicts(cur, "SELECT * FROM holdings_statistical_code_ids WHERE holdingsId=? ORDER BY id", (hid,))
+        ]
+
+        former_ids = [
+            r["formerId"]
+            for r in rows_as_dicts(cur, "SELECT * FROM holdings_former_ids WHERE holdingsId=? ORDER BY id", (hid,))
+        ]
+
+        tag_list = [
+            r["tagValue"]
+            for r in rows_as_dicts(cur, "SELECT * FROM holdings_tags WHERE holdingsId=? ORDER BY id", (hid,))
+        ]
+
+        administrative_notes = [
+            r["note"]
+            for r in rows_as_dicts(cur, "SELECT * FROM holdings_administrative_notes WHERE holdingsId=? ORDER BY id", (hid,))
+        ]
+
+        notes = [
+            {k: v for k, v in {"note": n["note"], "staffOnly": bool(n["staffOnly"])}.items() if v is not None}
+            for n in rows_as_dicts(cur, "SELECT * FROM holdings_notes WHERE holdingsId=? ORDER BY id", (hid,))
+        ]
+
+        electronic_access = []
+        for ea in rows_as_dicts(cur, "SELECT * FROM holdings_electronic_access WHERE holdingsId=? ORDER BY id", (hid,)):
+            o = {k: v for k, v in {
+                "uri": ea.get("uri"),
+                "linkText": ea.get("linkText"),
+                "materialsSpecification": ea.get("materialsSpecification"),
+                "publicNote": ea.get("publicNote"),
+                "relationshipId": ea.get("relationshipId"),
+            }.items() if v is not None}
+            electronic_access.append(o)
+
+        meta_rows = rows_as_dicts(cur, "SELECT * FROM holdings_metadata WHERE holdingsId=?", (hid,))
+        metadata = None
+        if meta_rows:
+            m = meta_rows[0]
+            metadata = {k: v for k, v in {
+                "createdDate": m.get("createdDate"),
+                "createdByUserId": m.get("createdByUserId"),
+                "updatedDate": m.get("updatedDate"),
+                "updatedByUserId": m.get("updatedByUserId"),
+            }.items() if v is not None}
+            if not metadata:
+                metadata = None
+
+        obj = {"id": hid}
         obj["discoverySuppress"]    = bool(h["discoverySuppress"])
         if h.get("holdingsTypeId"):      obj["holdingsTypeId"]      = h["holdingsTypeId"]
         obj["instanceId"]               = h["instanceId"]
@@ -138,8 +254,17 @@ def export_holdings(cur):
         if h.get("callNumber"):          obj["callNumber"]          = h["callNumber"]
         if h.get("callNumberPrefix"):    obj["callNumberPrefix"]    = h["callNumberPrefix"]
         if h.get("callNumberSuffix"):    obj["callNumberSuffix"]    = h["callNumberSuffix"]
+        if h.get("hrid"):                obj["hrid"]                = h["hrid"]
+        if h.get("sourceId"):            obj["sourceId"]            = h["sourceId"]
         if h.get("copyNumber"):          obj["copyNumber"]          = h["copyNumber"]
         if h.get("shelvingTitle"):       obj["shelvingTitle"]       = h["shelvingTitle"]
+        if former_ids:              obj["formerIds"]           = former_ids
+        if statistical_code_ids:    obj["statisticalCodeIds"]  = statistical_code_ids
+        if tag_list:                obj["tags"]                = {"tagList": tag_list}
+        if administrative_notes:    obj["administrativeNotes"] = administrative_notes
+        if notes:                   obj["notes"]               = notes
+        if electronic_access:       obj["electronicAccess"]    = electronic_access
+        if metadata:                obj["metadata"]            = metadata
         result.append(obj)
     return result
 
@@ -148,6 +273,8 @@ def export_items(cur):
     items = rows_as_dicts(cur, "SELECT * FROM items ORDER BY rowid")
     result = []
     for it in items:
+        iid = it["id"]
+
         enc = {}
         if it.get("effectiveCallNumberSuffix"): enc["suffix"]     = it["effectiveCallNumberSuffix"]
         if it.get("effectiveCallNumber"):       enc["callNumber"] = it["effectiveCallNumber"]
@@ -158,16 +285,82 @@ def export_items(cur):
         if it.get("status_name"): status["name"] = it["status_name"]
         if it.get("status_date"): status["date"] = it["status_date"]
 
-        obj = {"id": it["id"]}
+        former_ids = [
+            r["formerId"]
+            for r in rows_as_dicts(cur, "SELECT * FROM items_former_ids WHERE itemId=? ORDER BY id", (iid,))
+        ]
+
+        statistical_code_ids = [
+            r["statisticalCodeId"]
+            for r in rows_as_dicts(cur, "SELECT * FROM items_statistical_code_ids WHERE itemId=? ORDER BY id", (iid,))
+        ]
+
+        tag_list = [
+            r["tagValue"]
+            for r in rows_as_dicts(cur, "SELECT * FROM items_tags WHERE itemId=? ORDER BY id", (iid,))
+        ]
+
+        administrative_notes = [
+            r["note"]
+            for r in rows_as_dicts(cur, "SELECT * FROM items_administrative_notes WHERE itemId=? ORDER BY id", (iid,))
+        ]
+
+        notes = [
+            {k: v for k, v in {"note": n["note"], "staffOnly": bool(n["staffOnly"])}.items() if v is not None}
+            for n in rows_as_dicts(cur, "SELECT * FROM items_notes WHERE itemId=? ORDER BY id", (iid,))
+        ]
+
+        circulation_notes = [
+            {k: v for k, v in {"note": cn["note"], "staffOnly": bool(cn["staffOnly"])}.items() if v is not None}
+            for cn in rows_as_dicts(cur, "SELECT * FROM items_circulation_notes WHERE itemId=? ORDER BY id", (iid,))
+        ]
+
+        electronic_access = []
+        for ea in rows_as_dicts(cur, "SELECT * FROM items_electronic_access WHERE itemId=? ORDER BY id", (iid,)):
+            o = {k: v for k, v in {
+                "uri": ea.get("uri"),
+                "linkText": ea.get("linkText"),
+                "materialsSpecification": ea.get("materialsSpecification"),
+                "publicNote": ea.get("publicNote"),
+                "relationshipId": ea.get("relationshipId"),
+            }.items() if v is not None}
+            electronic_access.append(o)
+
+        meta_rows = rows_as_dicts(cur, "SELECT * FROM items_metadata WHERE itemId=?", (iid,))
+        metadata = None
+        if meta_rows:
+            m = meta_rows[0]
+            metadata = {k: v for k, v in {
+                "createdDate": m.get("createdDate"),
+                "createdByUserId": m.get("createdByUserId"),
+                "updatedDate": m.get("updatedDate"),
+                "updatedByUserId": m.get("updatedByUserId"),
+            }.items() if v is not None}
+            if not metadata:
+                metadata = None
+
+        obj = {"id": iid}
         obj["holdingsRecordId"] = it["holdingsRecordId"]
         obj["instanceId"]       = it["instanceId"]
+        if it.get("hrid"):            obj["hrid"]            = it["hrid"]
+        if it.get("barcode"):         obj["barcode"]         = it["barcode"]
+        if it.get("accessionNumber"): obj["accessionNumber"] = it["accessionNumber"]
+        if it.get("itemIdentifier"):  obj["itemIdentifier"]  = it["itemIdentifier"]
         if it.get("itemLevelCallNumber"):       obj["itemLevelCallNumber"]       = it["itemLevelCallNumber"]
         if it.get("itemLevelCallNumberTypeId"): obj["itemLevelCallNumberTypeId"] = it["itemLevelCallNumberTypeId"]
         if enc:    obj["effectiveCallNumberComponents"] = enc
         if status: obj["status"]              = status
         if it.get("materialTypeId"):   obj["materialTypeId"]   = it["materialTypeId"]
         if it.get("effectiveLocationId"): obj["effectiveLocationId"] = it["effectiveLocationId"]
+        if former_ids:           obj["formerIds"]           = former_ids
+        if statistical_code_ids: obj["statisticalCodeIds"]  = statistical_code_ids
+        if tag_list:             obj["tags"]                = {"tagList": tag_list}
+        if administrative_notes: obj["administrativeNotes"] = administrative_notes
+        if notes:                obj["notes"]               = notes
+        if circulation_notes:    obj["circulationNotes"]    = circulation_notes
+        if electronic_access:    obj["electronicAccess"]    = electronic_access
         obj["discoverySuppress"] = bool(it["discoverySuppress"])
+        if metadata:             obj["metadata"]            = metadata
         result.append(obj)
     return result
 

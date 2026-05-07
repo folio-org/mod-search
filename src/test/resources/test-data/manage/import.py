@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 import.py — Seed test-data.db from instances.json, holdings.json, items.json.
-Run from any directory. Idempotent: drops and recreates all data tables.
+Run from any directory. Always recreates DB from scratch.
 
 Usage:
     python manage/import.py
@@ -34,8 +34,9 @@ def import_instances(cur, records):
             """INSERT OR REPLACE INTO instances
                (id, title, indexTitle, source, instanceTypeId, statusId,
                 discoverySuppress, staffSuppress,
+                hrid, modeOfIssuanceId, isBoundWith, shared,
                 dateTypeId, date1, date2)
-               VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
+               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             (
                 r["id"],
                 r.get("title"),
@@ -45,6 +46,10 @@ def import_instances(cur, records):
                 r.get("statusId"),
                 1 if r.get("discoverySuppress") else 0,
                 1 if r.get("staffSuppress") else 0,
+                r.get("hrid"),
+                r.get("modeOfIssuanceId"),
+                1 if r.get("isBoundWith") else 0,
+                1 if r.get("shared") else 0,
                 dates.get("dateTypeId"),
                 dates.get("date1"),
                 dates.get("date2"),
@@ -74,8 +79,10 @@ def import_instances(cur, records):
 
         for s in r.get("subjects", []):
             cur.execute(
-                "INSERT INTO instance_subjects (instanceId, value, authorityId) VALUES (?,?,?)",
-                (iid, s.get("value"), s.get("authorityId")),
+                """INSERT INTO instance_subjects
+                   (instanceId, value, authorityId, sourceId, typeId)
+                   VALUES (?,?,?,?,?)""",
+                (iid, s.get("value"), s.get("authorityId"), s.get("sourceId"), s.get("typeId")),
             )
 
         for cl in r.get("classifications", []):
@@ -128,6 +135,55 @@ def import_instances(cur, records):
                 (iid, fid),
             )
 
+        for sc in r.get("statisticalCodeIds", []):
+            cur.execute(
+                "INSERT INTO instance_statistical_code_ids (instanceId, statisticalCodeId) VALUES (?,?)",
+                (iid, sc),
+            )
+
+        for term in r.get("natureOfContentTermIds", []):
+            cur.execute(
+                "INSERT INTO instance_nature_of_content_term_ids (instanceId, termId) VALUES (?,?)",
+                (iid, term),
+            )
+
+        for tag in (r.get("tags") or {}).get("tagList", []):
+            cur.execute(
+                "INSERT INTO instance_tags (instanceId, tagValue) VALUES (?,?)",
+                (iid, tag),
+            )
+
+        for note in r.get("administrativeNotes", []):
+            cur.execute(
+                "INSERT INTO instance_administrative_notes (instanceId, note) VALUES (?,?)",
+                (iid, note),
+            )
+
+        for n in r.get("notes", []):
+            cur.execute(
+                "INSERT INTO instance_notes (instanceId, note, staffOnly) VALUES (?,?,?)",
+                (iid, n.get("note"), 1 if n.get("staffOnly") else 0),
+            )
+
+        for ea in r.get("electronicAccess", []):
+            cur.execute(
+                """INSERT INTO instance_electronic_access
+                   (instanceId, uri, linkText, materialsSpecification, publicNote, relationshipId)
+                   VALUES (?,?,?,?,?,?)""",
+                (iid, ea.get("uri"), ea.get("linkText"), ea.get("materialsSpecification"),
+                 ea.get("publicNote"), ea.get("relationshipId")),
+            )
+
+        meta = r.get("metadata")
+        if meta:
+            cur.execute(
+                """INSERT OR REPLACE INTO instance_metadata
+                   (instanceId, createdDate, createdByUserId, updatedDate, updatedByUserId)
+                   VALUES (?,?,?,?,?)""",
+                (iid, meta.get("createdDate"), meta.get("createdByUserId"),
+                 meta.get("updatedDate"), meta.get("updatedByUserId")),
+            )
+
 
 def import_holdings(cur, records):
     for r in records:
@@ -138,8 +194,9 @@ def import_holdings(cur, records):
             """INSERT OR REPLACE INTO holdings
                (id, instanceId, callNumber, callNumberPrefix, callNumberSuffix,
                 callNumberTypeId, permanentLocationId, holdingsTypeId,
+                hrid, sourceId,
                 copyNumber, shelvingTitle, discoverySuppress)
-               VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
+               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             (
                 r["id"],
                 r.get("instanceId"),
@@ -149,11 +206,64 @@ def import_holdings(cur, records):
                 r.get("callNumberTypeId"),
                 r.get("permanentLocationId"),
                 r.get("holdingsTypeId"),
+                r.get("hrid"),
+                r.get("sourceId"),
                 r.get("copyNumber"),
                 r.get("shelvingTitle"),
                 1 if r.get("discoverySuppress") else 0,
             ),
         )
+
+        hid = r["id"]
+
+        for sc in r.get("statisticalCodeIds", []):
+            cur.execute(
+                "INSERT INTO holdings_statistical_code_ids (holdingsId, statisticalCodeId) VALUES (?,?)",
+                (hid, sc),
+            )
+
+        for fid in r.get("formerIds", []):
+            cur.execute(
+                "INSERT INTO holdings_former_ids (holdingsId, formerId) VALUES (?,?)",
+                (hid, fid),
+            )
+
+        for tag in (r.get("tags") or {}).get("tagList", []):
+            cur.execute(
+                "INSERT INTO holdings_tags (holdingsId, tagValue) VALUES (?,?)",
+                (hid, tag),
+            )
+
+        for note in r.get("administrativeNotes", []):
+            cur.execute(
+                "INSERT INTO holdings_administrative_notes (holdingsId, note) VALUES (?,?)",
+                (hid, note),
+            )
+
+        for n in r.get("notes", []):
+            cur.execute(
+                "INSERT INTO holdings_notes (holdingsId, note, staffOnly) VALUES (?,?,?)",
+                (hid, n.get("note"), 1 if n.get("staffOnly") else 0),
+            )
+
+        for ea in r.get("electronicAccess", []):
+            cur.execute(
+                """INSERT INTO holdings_electronic_access
+                   (holdingsId, uri, linkText, materialsSpecification, publicNote, relationshipId)
+                   VALUES (?,?,?,?,?,?)""",
+                (hid, ea.get("uri"), ea.get("linkText"), ea.get("materialsSpecification"),
+                 ea.get("publicNote"), ea.get("relationshipId")),
+            )
+
+        meta = r.get("metadata")
+        if meta:
+            cur.execute(
+                """INSERT OR REPLACE INTO holdings_metadata
+                   (holdingsId, createdDate, createdByUserId, updatedDate, updatedByUserId)
+                   VALUES (?,?,?,?,?)""",
+                (hid, meta.get("createdDate"), meta.get("createdByUserId"),
+                 meta.get("updatedDate"), meta.get("updatedByUserId")),
+            )
 
 
 def import_items(cur, records):
@@ -167,16 +277,21 @@ def import_items(cur, records):
         cur.execute(
             """INSERT OR REPLACE INTO items
                (id, holdingsRecordId, instanceId,
+                hrid, barcode, accessionNumber, itemIdentifier,
                 itemLevelCallNumber, itemLevelCallNumberTypeId,
                 effectiveLocationId,
                 effectiveCallNumber, effectiveCallNumberPrefix,
                 effectiveCallNumberSuffix, effectiveCallNumberTypeId,
                 materialTypeId, status_name, status_date, discoverySuppress)
-               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             (
                 r["id"],
                 r.get("holdingsRecordId"),
                 r.get("instanceId"),
+                r.get("hrid"),
+                r.get("barcode"),
+                r.get("accessionNumber"),
+                r.get("itemIdentifier"),
                 r.get("itemLevelCallNumber"),
                 r.get("itemLevelCallNumberTypeId"),
                 r.get("effectiveLocationId"),
@@ -191,8 +306,66 @@ def import_items(cur, records):
             ),
         )
 
+        iid = r["id"]
+
+        for fid in r.get("formerIds", []):
+            cur.execute(
+                "INSERT INTO items_former_ids (itemId, formerId) VALUES (?,?)",
+                (iid, fid),
+            )
+
+        for sc in r.get("statisticalCodeIds", []):
+            cur.execute(
+                "INSERT INTO items_statistical_code_ids (itemId, statisticalCodeId) VALUES (?,?)",
+                (iid, sc),
+            )
+
+        for tag in (r.get("tags") or {}).get("tagList", []):
+            cur.execute(
+                "INSERT INTO items_tags (itemId, tagValue) VALUES (?,?)",
+                (iid, tag),
+            )
+
+        for note in r.get("administrativeNotes", []):
+            cur.execute(
+                "INSERT INTO items_administrative_notes (itemId, note) VALUES (?,?)",
+                (iid, note),
+            )
+
+        for n in r.get("notes", []):
+            cur.execute(
+                "INSERT INTO items_notes (itemId, note, staffOnly) VALUES (?,?,?)",
+                (iid, n.get("note"), 1 if n.get("staffOnly") else 0),
+            )
+
+        for cn in r.get("circulationNotes", []):
+            cur.execute(
+                "INSERT INTO items_circulation_notes (itemId, note, staffOnly) VALUES (?,?,?)",
+                (iid, cn.get("note"), 1 if cn.get("staffOnly") else 0),
+            )
+
+        for ea in r.get("electronicAccess", []):
+            cur.execute(
+                """INSERT INTO items_electronic_access
+                   (itemId, uri, linkText, materialsSpecification, publicNote, relationshipId)
+                   VALUES (?,?,?,?,?,?)""",
+                (iid, ea.get("uri"), ea.get("linkText"), ea.get("materialsSpecification"),
+                 ea.get("publicNote"), ea.get("relationshipId")),
+            )
+
+        meta = r.get("metadata")
+        if meta:
+            cur.execute(
+                """INSERT OR REPLACE INTO items_metadata
+                   (itemId, createdDate, createdByUserId, updatedDate, updatedByUserId)
+                   VALUES (?,?,?,?,?)""",
+                (iid, meta.get("createdDate"), meta.get("createdByUserId"),
+                 meta.get("updatedDate"), meta.get("updatedByUserId")),
+            )
+
 
 def main():
+    DB_PATH.unlink(missing_ok=True)
     con = sqlite3.connect(DB_PATH)
     con.execute("PRAGMA foreign_keys = ON")
 
@@ -205,6 +378,15 @@ def main():
         "instance_languages", "instance_identifiers", "instance_series",
         "instance_alternative_titles", "instance_publications",
         "instance_editions", "instance_format_ids",
+        "instance_statistical_code_ids", "instance_nature_of_content_term_ids",
+        "instance_tags", "instance_administrative_notes", "instance_notes",
+        "instance_electronic_access", "instance_metadata",
+        "holdings_statistical_code_ids", "holdings_former_ids",
+        "holdings_tags", "holdings_administrative_notes", "holdings_notes",
+        "holdings_electronic_access", "holdings_metadata",
+        "items_former_ids", "items_statistical_code_ids",
+        "items_tags", "items_administrative_notes", "items_notes",
+        "items_circulation_notes", "items_electronic_access", "items_metadata",
     ]
     for t in junction_tables:
         con.execute(f"DELETE FROM {t}")

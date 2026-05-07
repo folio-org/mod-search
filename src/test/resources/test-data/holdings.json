@@ -10,280 +10,342 @@
   },
   {
     "id": "9550c935-401a-4a85-875e-4d1fe7678870",
+    "discoverySuppress": false,
     "instanceId": "5bf370e0-8cca-4d9c-82e4-5170ab2a0a39",
     "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
     "callNumber": "call number",
-    "callNumberSuffix": "suffix",
     "callNumberPrefix": "prefix",
+    "callNumberSuffix": "suffix",
     "copyNumber": "copy number"
   },
   {
     "id": "a663dea9-6547-4b2d-9daa-76cadd662272",
+    "discoverySuppress": false,
     "instanceId": "5bf370e0-8cca-4d9c-82e4-5170ab2a0a39",
     "permanentLocationId": "758258bc-ecc1-41b8-abca-f7b610822ffd",
     "callNumber": "call number1",
-    "callNumberSuffix": "suffix1",
     "callNumberPrefix": "prefix1",
+    "callNumberSuffix": "suffix1",
     "copyNumber": "copy number1"
   },
   {
     "id": "c9ee975f-ea3e-461d-b190-d1f3c11a35b0",
-    "instanceId": "1353873c-0e5e-4d64-a2f9-6c444dc4cd46",
+    "discoverySuppress": false,
     "holdingsTypeId": "eb003b9d-86f2-4bdf-9f8e-28851122617d",
+    "instanceId": "1353873c-0e5e-4d64-a2f9-6c444dc4cd46",
     "permanentLocationId": "765b4c3b-485c-4ce4-a117-f99c01ac49fe"
   },
   {
     "id": "fe11e2b9-3751-48d4-8c2f-faa83f903931",
-    "instanceId": "cc6bbc19-3f54-43c5-8736-b85688619641",
-    "holdingsTypeId": "d02bb1e2-fa7f-4354-a9f4-1ca9b81510a2",
     "discoverySuppress": true,
+    "holdingsTypeId": "d02bb1e2-fa7f-4354-a9f4-1ca9b81510a2",
+    "instanceId": "cc6bbc19-3f54-43c5-8736-b85688619641",
     "permanentLocationId": "4fdca025-1629-4688-aeb7-9c5fe5c73549"
   },
   {
     "id": "0cd836aa-4415-40a4-b6fe-35b5a1454669",
-    "instanceId": "39a52d91-8dbb-4348-ab06-5c6115e600cd",
-    "discoverySuppress": true
+    "discoverySuppress": true,
+    "instanceId": "39a52d91-8dbb-4348-ab06-5c6115e600cd"
   },
   {
     "id": "2b134022-85f0-4ebf-bc57-58b76b6b8e7a",
-    "instanceId": "62f72eeb-ed5a-4619-b01f-1750d5528d25",
+    "discoverySuppress": false,
     "holdingsTypeId": "d02bb1e2-fa7f-4354-a9f4-1ca9b81510a2",
+    "instanceId": "62f72eeb-ed5a-4619-b01f-1750d5528d25",
     "permanentLocationId": "765b4c3b-485c-4ce4-a117-f99c01ac49fe"
   },
   {
     "id": "91274edf-0a9d-4cf7-82f3-9ee0c36e83e2",
-    "instanceId": "62f72eeb-ed5a-4619-b01f-1750d5528d25",
+    "discoverySuppress": false,
     "holdingsTypeId": "eb003b9d-86f2-4bdf-9f8e-28851122617d",
+    "instanceId": "62f72eeb-ed5a-4619-b01f-1750d5528d25",
     "permanentLocationId": "4fdca025-1629-4688-aeb7-9c5fe5c73549"
   },
   {
     "id": "d231a4ac-eac1-4eac-bc6d-baceb64a4984",
+    "discoverySuppress": false,
     "instanceId": "62f72eeb-ed5a-4619-b01f-1750d5528d25",
     "permanentLocationId": "81f1ab2c-83c5-4a90-a8b7-c8c8179c0697"
   },
   {
     "id": "8ba03578-5c1f-4dcd-a49f-107882124f99",
+    "discoverySuppress": false,
     "instanceId": "6d9ccc82-8142-4fbc-b6ba-8e3429fd9aca",
     "permanentLocationId": "81f1ab2c-83c5-4a90-a8b7-c8c8179c0697"
   },
   {
     "id": "7ac8e203-defb-4bf9-9f87-4ffd67823ad8",
+    "discoverySuppress": false,
     "instanceId": "497a920b-225f-44c2-9a48-964c52fb5cc3"
   },
   {
     "id": "8a3f2f3a-ecf4-49fd-b58f-5129ae5a128d",
+    "discoverySuppress": false,
     "instanceId": "b3122ab1-8745-43a9-8b31-8a248bef387b"
   },
   {
     "id": "1650bee3-1e90-4815-ac12-31d1a12bd7c2",
+    "discoverySuppress": false,
     "instanceId": "9e20dd36-e46e-4e12-b35e-f3339a947966"
   },
   {
     "id": "0646ce7c-efcd-4449-ba29-f5aba3ec7690",
+    "discoverySuppress": false,
     "instanceId": "36805693-dd16-400e-be24-7e9a362f79fe"
   },
   {
     "id": "bafb734e-88f4-4fbe-bd78-119630d225bb",
+    "discoverySuppress": false,
     "instanceId": "414f663b-b97b-42ed-8a96-3195067126ff"
   },
   {
     "id": "f0000050-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000050-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000001-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000001-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000002-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000002-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000003-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000003-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000004-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000004-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000005-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000005-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000006-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000006-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000007-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000007-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000008-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000008-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000009-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000009-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000010-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000010-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000011-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000011-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000012-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000012-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000013-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000013-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000014-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000014-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000015-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000015-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000016-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000016-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000017-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000017-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000018-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000018-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000019-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000019-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000020-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000020-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000021-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000021-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000022-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000022-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000023-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000023-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000024-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000024-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000025-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000025-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000026-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000026-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000027-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000027-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000028-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000028-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000029-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000029-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000030-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000030-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000031-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000031-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000032-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000032-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000033-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000033-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000034-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000034-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000035-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000035-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000036-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000036-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000037-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000037-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000038-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000038-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000039-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000039-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000040-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000040-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000041-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000041-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000042-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000042-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000043-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000043-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000044-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000044-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000045-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000045-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000046-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000046-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000047-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000047-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000048-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000048-0000-4000-8000-000000000000"
   },
   {
     "id": "f0000049-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
     "instanceId": "f0000049-0000-4000-8000-000000000000"
   }
 ]

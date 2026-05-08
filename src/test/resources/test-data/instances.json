@@ -354,6 +354,9 @@
         "withdrawn-review"
       ]
     },
+    "administrativeNotes": [
+      "Includes bibliographical references."
+    ],
     "notes": [
       {
         "note": "Companion volume to work published by same publisher.",
@@ -2786,6 +2789,16 @@
     "languages": [
       "eng"
     ],
+    "notes": [
+      {
+        "note": "Also available online.",
+        "staffOnly": false
+      },
+      {
+        "note": "Includes bibliographical references and index.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
@@ -2868,7 +2881,7 @@
     "id": "f0000001-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "The Art of Scientific Inquiry",
-    "indexTitle": "Instance 1",
+    "indexTitle": "Art of Scientific Inquiry",
     "hrid": "in00000000036",
     "identifiers": [
       {
@@ -2931,6 +2944,12 @@
     "administrativeNotes": [
       "Also available online."
     ],
+    "notes": [
+      {
+        "note": "Translation of the 3rd German edition.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
@@ -2938,7 +2957,7 @@
     "id": "f0000002-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Principles of Macroeconomics",
-    "indexTitle": "Instance 2",
+    "indexTitle": "Principles of Macroeconomics",
     "hrid": "in00000000037",
     "series": [
       {
@@ -3007,7 +3026,7 @@
     "id": "f0000003-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Taxation and Fiscal Policy",
-    "indexTitle": "Instance 3",
+    "indexTitle": "Taxation and Fiscal Policy",
     "hrid": "in00000000038",
     "series": [
       {
@@ -3065,7 +3084,7 @@
     "id": "f0000004-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "The Dynamics of Social Movements",
-    "indexTitle": "Instance 4",
+    "indexTitle": "Dynamics of Social Movements",
     "hrid": "in00000000039",
     "series": [
       {
@@ -3144,7 +3163,7 @@
     "id": "f0000005-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Statistical Methods in Social Research",
-    "indexTitle": "Instance 5",
+    "indexTitle": "Statistical Methods in Social Research",
     "hrid": "in00000000040",
     "series": [
       {
@@ -3227,7 +3246,7 @@
     "id": "f0000006-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Quantum Mechanics: Concepts and Applications",
-    "indexTitle": "Instance 6",
+    "indexTitle": "Quantum Mechanics: Concepts and Applications",
     "hrid": "in00000000041",
     "identifiers": [
       {
@@ -3301,7 +3320,7 @@
     "id": "f0000007-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Theories of International Relations",
-    "indexTitle": "Instance 7",
+    "indexTitle": "Theories of International Relations",
     "hrid": "in00000000042",
     "series": [
       {
@@ -3372,7 +3391,7 @@
     "id": "f0000008-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Applied Ethics in Engineering",
-    "indexTitle": "Instance 8",
+    "indexTitle": "Applied Ethics in Engineering",
     "hrid": "in00000000043",
     "identifiers": [
       {
@@ -3434,7 +3453,7 @@
     "id": "f0000009-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "The Psychology of Human Decision-Making",
-    "indexTitle": "Instance 9",
+    "indexTitle": "Psychology of Human Decision-Making",
     "hrid": "in00000000044",
     "series": [
       {
@@ -3503,7 +3522,7 @@
     "id": "f0000010-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "The Ethics of Artificial Intelligence",
-    "indexTitle": "Instance 10",
+    "indexTitle": "Ethics of Artificial Intelligence",
     "hrid": "in00000000045",
     "identifiers": [
       {
@@ -3567,7 +3586,7 @@
     "id": "f0000011-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Criminology and Criminal Justice",
-    "indexTitle": "Instance 11",
+    "indexTitle": "Criminology and Criminal Justice",
     "hrid": "in00000000046",
     "series": [
       {
@@ -3649,7 +3668,7 @@
     "id": "f0000012-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Foundations of Quantum Computing",
-    "indexTitle": "Instance 12",
+    "indexTitle": "Foundations of Quantum Computing",
     "hrid": "in00000000047",
     "series": [
       {
@@ -3718,7 +3737,7 @@
     "id": "f0000013-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "The Sociology of Work and Organizations",
-    "indexTitle": "Instance 13",
+    "indexTitle": "Sociology of Work and Organizations",
     "hrid": "in00000000048",
     "identifiers": [
       {
@@ -3777,7 +3796,7 @@
     "id": "f0000014-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Applied Ethics in Engineering",
-    "indexTitle": "Instance 14",
+    "indexTitle": "Applied Ethics in Engineering",
     "hrid": "in00000000049",
     "series": [
       {
@@ -3845,7 +3864,7 @@
     "id": "f0000015-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Taxation and Fiscal Policy",
-    "indexTitle": "Instance 15",
+    "indexTitle": "Taxation and Fiscal Policy",
     "hrid": "in00000000050",
     "identifiers": [
       {
@@ -3914,7 +3933,7 @@
     "id": "f0000016-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Game Theory and Strategic Behavior",
-    "indexTitle": "Instance 16",
+    "indexTitle": "Game Theory and Strategic Behavior",
     "hrid": "in00000000051",
     "series": [
       {
@@ -3992,7 +4011,7 @@
     "id": "f0000017-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "The Ethics of Artificial Intelligence",
-    "indexTitle": "Instance 17",
+    "indexTitle": "Ethics of Artificial Intelligence",
     "hrid": "in00000000052",
     "identifiers": [
       {
@@ -4061,7 +4080,7 @@
     "id": "f0000018-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Quantum Mechanics: Concepts and Applications",
-    "indexTitle": "Instance 18",
+    "indexTitle": "Quantum Mechanics: Concepts and Applications",
     "hrid": "in00000000053",
     "identifiers": [
       {
@@ -4129,7 +4148,7 @@
     "id": "f0000019-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Media Studies and Public Discourse",
-    "indexTitle": "Instance 19",
+    "indexTitle": "Media Studies and Public Discourse",
     "hrid": "in00000000054",
     "identifiers": [
       {
@@ -4192,6 +4211,15 @@
         "ebook-available"
       ]
     },
+    "administrativeNotes": [
+      "Includes bibliographical references."
+    ],
+    "notes": [
+      {
+        "note": "Title from cover.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
@@ -4199,7 +4227,7 @@
     "id": "f0000020-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Monetary Theory and Central Banking",
-    "indexTitle": "Instance 20",
+    "indexTitle": "Monetary Theory and Central Banking",
     "hrid": "in00000000055",
     "identifiers": [
       {
@@ -4268,7 +4296,7 @@
     "id": "f0000021-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "The History of Art and Visual Culture",
-    "indexTitle": "Instance 21",
+    "indexTitle": "History of Art and Visual Culture",
     "hrid": "in00000000056",
     "identifiers": [
       {
@@ -4334,6 +4362,15 @@
         "review-needed"
       ]
     },
+    "administrativeNotes": [
+      "Originally presented as the author's thesis."
+    ],
+    "notes": [
+      {
+        "note": "Cataloged from PDF version of text.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
@@ -4341,7 +4378,7 @@
     "id": "f0000022-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Environmental Policy and Governance",
-    "indexTitle": "Instance 22",
+    "indexTitle": "Environmental Policy and Governance",
     "hrid": "in00000000057",
     "identifiers": [
       {
@@ -4397,7 +4434,7 @@
     "id": "f0000023-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Postcolonial Studies: Theory and Practice",
-    "indexTitle": "Instance 23",
+    "indexTitle": "Postcolonial Studies: Theory and Practice",
     "hrid": "in00000000058",
     "series": [
       {
@@ -4484,7 +4521,7 @@
     "id": "f0000024-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Introduction to Cognitive Science",
-    "indexTitle": "Instance 24",
+    "indexTitle": "Introduction to Cognitive Science",
     "hrid": "in00000000059",
     "identifiers": [
       {
@@ -4543,7 +4580,7 @@
     "id": "f0000025-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Philosophy of Science: An Introduction",
-    "indexTitle": "Instance 25",
+    "indexTitle": "Philosophy of Science: An Introduction",
     "hrid": "in00000000060",
     "identifiers": [
       {
@@ -4613,7 +4650,7 @@
     "id": "f0000026-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Gender and Society: Feminist Perspectives",
-    "indexTitle": "Instance 26",
+    "indexTitle": "Gender and Society: Feminist Perspectives",
     "hrid": "in00000000061",
     "identifiers": [
       {
@@ -4673,7 +4710,7 @@
     "id": "f0000027-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "The Digital Transformation of Libraries",
-    "indexTitle": "Instance 27",
+    "indexTitle": "Digital Transformation of Libraries",
     "hrid": "in00000000062",
     "series": [
       {
@@ -4744,7 +4781,7 @@
     "id": "f0000028-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Sociology of Education and Schooling",
-    "indexTitle": "Instance 28",
+    "indexTitle": "Sociology of Education and Schooling",
     "hrid": "in00000000063",
     "identifiers": [
       {
@@ -4818,7 +4855,7 @@
     "id": "f0000029-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Democratic Theory and Practice",
-    "indexTitle": "Instance 29",
+    "indexTitle": "Democratic Theory and Practice",
     "hrid": "in00000000064",
     "series": [
       {
@@ -4894,7 +4931,7 @@
     "id": "f0000030-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Classics of Western Philosophy",
-    "indexTitle": "Instance 30",
+    "indexTitle": "Classics of Western Philosophy",
     "hrid": "in00000000065",
     "identifiers": [
       {
@@ -4966,7 +5003,7 @@
     "id": "f0000031-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Advances in Renewable Energy Systems",
-    "indexTitle": "Instance 31",
+    "indexTitle": "Advances in Renewable Energy Systems",
     "hrid": "in00000000066",
     "identifiers": [
       {
@@ -5028,7 +5065,7 @@
     "id": "f0000032-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Computational Methods in Bioinformatics",
-    "indexTitle": "Instance 32",
+    "indexTitle": "Computational Methods in Bioinformatics",
     "hrid": "in00000000067",
     "identifiers": [
       {
@@ -5112,7 +5149,7 @@
     "id": "f0000033-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Bioethics: Principles and Cases",
-    "indexTitle": "Instance 33",
+    "indexTitle": "Bioethics: Principles and Cases",
     "hrid": "in00000000068",
     "series": [
       {
@@ -5179,7 +5216,7 @@
     "id": "f0000034-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Cognitive Behavioral Approaches in Therapy",
-    "indexTitle": "Instance 34",
+    "indexTitle": "Cognitive Behavioral Approaches in Therapy",
     "hrid": "in00000000069",
     "series": [
       {
@@ -5249,7 +5286,7 @@
     "id": "f0000035-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Foundations of Modern Linguistics",
-    "indexTitle": "Instance 35",
+    "indexTitle": "Foundations of Modern Linguistics",
     "hrid": "in00000000070",
     "identifiers": [
       {
@@ -5313,7 +5350,7 @@
     "id": "f0000036-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Structural Analysis in Civil Engineering",
-    "indexTitle": "Instance 36",
+    "indexTitle": "Structural Analysis in Civil Engineering",
     "hrid": "in00000000071",
     "identifiers": [
       {
@@ -5380,7 +5417,7 @@
     "id": "f0000037-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Ecology of Freshwater Systems",
-    "indexTitle": "Instance 37",
+    "indexTitle": "Ecology of Freshwater Systems",
     "hrid": "in00000000072",
     "identifiers": [
       {
@@ -5454,7 +5491,7 @@
     "id": "f0000038-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Comparative Constitutional Law",
-    "indexTitle": "Instance 38",
+    "indexTitle": "Comparative Constitutional Law",
     "hrid": "in00000000073",
     "identifiers": [
       {
@@ -5519,6 +5556,9 @@
         "withdrawn-review"
       ]
     },
+    "administrativeNotes": [
+      "Includes bibliographical references."
+    ],
     "notes": [
       {
         "note": "Description based on print version record.",
@@ -5532,7 +5572,7 @@
     "id": "f0000039-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Heritage Conservation and Museum Studies",
-    "indexTitle": "Instance 39",
+    "indexTitle": "Heritage Conservation and Museum Studies",
     "hrid": "in00000000074",
     "series": [
       {
@@ -5609,7 +5649,7 @@
     "id": "f0000040-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Foundations of Modern Linguistics",
-    "indexTitle": "Instance 40",
+    "indexTitle": "Foundations of Modern Linguistics",
     "hrid": "in00000000075",
     "series": [
       {
@@ -5676,7 +5716,7 @@
     "id": "f0000041-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Classics of Western Philosophy",
-    "indexTitle": "Instance 41",
+    "indexTitle": "Classics of Western Philosophy",
     "hrid": "in00000000076",
     "series": [
       {
@@ -5738,6 +5778,15 @@
         "new-addition"
       ]
     },
+    "administrativeNotes": [
+      "Includes bibliographical references and index."
+    ],
+    "notes": [
+      {
+        "note": "Includes bibliographical references.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
@@ -5745,7 +5794,7 @@
     "id": "f0000042-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Computational Methods in Bioinformatics",
-    "indexTitle": "Instance 42",
+    "indexTitle": "Computational Methods in Bioinformatics",
     "hrid": "in00000000077",
     "identifiers": [
       {
@@ -5808,7 +5857,7 @@
     "id": "f0000043-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Heritage Conservation and Museum Studies",
-    "indexTitle": "Instance 43",
+    "indexTitle": "Heritage Conservation and Museum Studies",
     "hrid": "in00000000078",
     "identifiers": [
       {
@@ -5861,7 +5910,7 @@
     "id": "f0000044-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Language Acquisition and Development",
-    "indexTitle": "Instance 44",
+    "indexTitle": "Language Acquisition and Development",
     "hrid": "in00000000079",
     "series": [
       {
@@ -5919,7 +5968,7 @@
     "id": "f0000045-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Human Rights in International Law",
-    "indexTitle": "Instance 45",
+    "indexTitle": "Human Rights in International Law",
     "hrid": "in00000000080",
     "identifiers": [
       {
@@ -5972,7 +6021,7 @@
     "id": "f0000046-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Cognitive Behavioral Approaches in Therapy",
-    "indexTitle": "Instance 46",
+    "indexTitle": "Cognitive Behavioral Approaches in Therapy",
     "hrid": "in00000000081",
     "series": [
       {
@@ -6038,6 +6087,11 @@
     "languages": [
       "eng"
     ],
+    "tags": {
+      "tagList": [
+        "digitization-candidate"
+      ]
+    },
     "notes": [
       {
         "note": "Includes bibliographical references.",
@@ -6055,7 +6109,7 @@
     "id": "f0000047-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "The Art of Scientific Inquiry",
-    "indexTitle": "Instance 47",
+    "indexTitle": "Art of Scientific Inquiry",
     "hrid": "in00000000082",
     "identifiers": [
       {
@@ -6119,7 +6173,7 @@
     "id": "f0000048-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "The Rise of Global Financial Markets",
-    "indexTitle": "Instance 48",
+    "indexTitle": "Rise of Global Financial Markets",
     "hrid": "in00000000083",
     "identifiers": [
       {
@@ -6181,7 +6235,7 @@
     "id": "f0000049-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Advanced Topics in Molecular Biology",
-    "indexTitle": "Instance 49",
+    "indexTitle": "Advanced Topics in Molecular Biology",
     "hrid": "in00000000084",
     "identifiers": [
       {
@@ -6240,7 +6294,7 @@
     "id": "f0000050-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "The Psychology of Human Decision-Making",
-    "indexTitle": "Instance 50",
+    "indexTitle": "Psychology of Human Decision-Making",
     "hrid": "in00000000085",
     "identifiers": [
       {
@@ -6978,6 +7032,15 @@
     "languages": [
       "eng"
     ],
+    "tags": {
+      "tagList": [
+        "ebook-available",
+        "high-demand"
+      ]
+    },
+    "administrativeNotes": [
+      "Originally presented as the author's thesis."
+    ],
     "notes": [
       {
         "note": "Text in English; abstract also in French.",
@@ -7126,6 +7189,9 @@
         "review-needed"
       ]
     },
+    "administrativeNotes": [
+      "Originally presented as the author's thesis."
+    ],
     "notes": [
       {
         "note": "Includes bibliographical references.",

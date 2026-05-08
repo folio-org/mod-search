@@ -415,6 +415,11 @@ def populate_instances(records: list) -> list:
         # Replace placeholder "Instance N" titles with realistic ones
         if re.match(r"^Instance \d+$", r.get("title", "")):
             r["title"] = rng(rid, "title").choice(PLACEHOLDER_TITLE_POOL)
+            r.pop("indexTitle", None)  # force recompute below
+
+        # Fix stale "Instance N" indexTitle left from a prior populate run
+        if re.match(r"^Instance \d+$", r.get("indexTitle", "")):
+            r.pop("indexTitle", None)
 
         # indexTitle — strip leading article from title
         if not r.get("indexTitle"):

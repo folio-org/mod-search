@@ -59,6 +59,20 @@
     "copyNumber": "4",
     "statisticalCodeIds": [
       "c4073462-6144-4b69-a543-dd131e241799"
+    ],
+    "tags": {
+      "tagList": [
+        "ebook-available"
+      ]
+    },
+    "administrativeNotes": [
+      "Duplicate copy retained per policy."
+    ],
+    "notes": [
+      {
+        "note": "Available for 3-hour in-house use only.",
+        "staffOnly": false
+      }
     ]
   },
   {
@@ -77,6 +91,12 @@
     },
     "administrativeNotes": [
       "Duplicate copy retained per policy."
+    ],
+    "notes": [
+      {
+        "note": "Received as part of standing order.",
+        "staffOnly": false
+      }
     ]
   },
   {
@@ -141,7 +161,13 @@
       "tagList": [
         "new-addition"
       ]
-    }
+    },
+    "notes": [
+      {
+        "note": "Formerly in reference collection.",
+        "staffOnly": false
+      }
+    ]
   },
   {
     "id": "7ac8e203-defb-4bf9-9f87-4ffd67823ad8",
@@ -317,6 +343,12 @@
     ],
     "administrativeNotes": [
       "Last inventory check: 2024-01."
+    ],
+    "notes": [
+      {
+        "note": "Copy acquired through donation.",
+        "staffOnly": false
+      }
     ]
   },
   {
@@ -361,6 +393,12 @@
     },
     "administrativeNotes": [
       "Last inventory check: 2024-01."
+    ],
+    "notes": [
+      {
+        "note": "Purchased from special collections fund.",
+        "staffOnly": false
+      }
     ]
   },
   {
@@ -405,6 +443,20 @@
     "copyNumber": "3",
     "statisticalCodeIds": [
       "b6b46869-f3c1-4370-b603-29774a1e42b1"
+    ],
+    "tags": {
+      "tagList": [
+        "preservation-needed"
+      ]
+    },
+    "administrativeNotes": [
+      "Acquired via consortium purchase."
+    ],
+    "notes": [
+      {
+        "note": "Available for 3-hour in-house use only.",
+        "staffOnly": false
+      }
     ]
   },
   {
@@ -419,6 +471,12 @@
     "copyNumber": "2",
     "administrativeNotes": [
       "Last inventory check: 2024-01."
+    ],
+    "notes": [
+      {
+        "note": "Purchased from special collections fund.",
+        "staffOnly": false
+      }
     ]
   },
   {
@@ -433,6 +491,20 @@
     "copyNumber": "1",
     "statisticalCodeIds": [
       "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
+    ],
+    "tags": {
+      "tagList": [
+        "recommended"
+      ]
+    },
+    "administrativeNotes": [
+      "Last inventory check: 2024-01."
+    ],
+    "notes": [
+      {
+        "note": "Gift of the library association.",
+        "staffOnly": false
+      }
     ]
   },
   {
@@ -502,7 +574,16 @@
       "tagList": [
         "ebook-available"
       ]
-    }
+    },
+    "administrativeNotes": [
+      "Duplicate copy retained per policy."
+    ],
+    "notes": [
+      {
+        "note": "Received as part of standing order.",
+        "staffOnly": false
+      }
+    ]
   },
   {
     "id": "f0000021-0000-4000-9000-000000000000",
@@ -573,6 +654,12 @@
     },
     "administrativeNotes": [
       "Last inventory check: 2024-01."
+    ],
+    "notes": [
+      {
+        "note": "Purchased from special collections fund.",
+        "staffOnly": true
+      }
     ]
   },
   {
@@ -707,6 +794,14 @@
     "statisticalCodeIds": [
       "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
     ],
+    "tags": {
+      "tagList": [
+        "recommended"
+      ]
+    },
+    "administrativeNotes": [
+      "Last inventory check: 2024-01."
+    ],
     "notes": [
       {
         "note": "Purchased from special collections fund.",
@@ -751,6 +846,9 @@
         "reserve"
       ]
     },
+    "administrativeNotes": [
+      "Last inventory check: 2024-01."
+    ],
     "notes": [
       {
         "note": "Received as part of standing order.",
@@ -829,7 +927,16 @@
       "tagList": [
         "review-needed"
       ]
-    }
+    },
+    "administrativeNotes": [
+      "Duplicate copy retained per policy."
+    ],
+    "notes": [
+      {
+        "note": "Bound with: companion volume.",
+        "staffOnly": false
+      }
+    ]
   },
   {
     "id": "f0000042-0000-4000-9000-000000000000",
@@ -940,6 +1047,9 @@
         "recommended"
       ]
     },
+    "administrativeNotes": [
+      "Last inventory check: 2024-01."
+    ],
     "notes": [
       {
         "note": "Copy acquired through donation.",

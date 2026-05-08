@@ -290,6 +290,9 @@
         "ebook-available"
       ]
     },
+    "administrativeNotes": [
+      "Acquired via interlibrary transfer."
+    ],
     "notes": [
       {
         "note": "Disk attached to inside back cover.",
@@ -418,6 +421,11 @@
     "statisticalCodeIds": [
       "6899291f-0d18-4f8d-a269-42706a5d0e27"
     ],
+    "tags": {
+      "tagList": [
+        "new-addition"
+      ]
+    },
     "discoverySuppress": false
   },
   {
@@ -721,6 +729,12 @@
     "administrativeNotes": [
       "Duplicate copy retained per policy."
     ],
+    "notes": [
+      {
+        "note": "Binding repaired.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
@@ -749,6 +763,12 @@
     "administrativeNotes": [
       "Acquired via interlibrary transfer."
     ],
+    "notes": [
+      {
+        "note": "Spine faded.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
@@ -771,6 +791,20 @@
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "statisticalCodeIds": [
       "b6b46869-f3c1-4370-b603-29774a1e42b1"
+    ],
+    "tags": {
+      "tagList": [
+        "preservation-needed"
+      ]
+    },
+    "administrativeNotes": [
+      "Duplicate copy retained per policy."
+    ],
+    "notes": [
+      {
+        "note": "Previous owner's name on title page.",
+        "staffOnly": false
+      }
     ],
     "discoverySuppress": false
   },
@@ -838,6 +872,11 @@
     "statisticalCodeIds": [
       "6899291f-0d18-4f8d-a269-42706a5d0e27"
     ],
+    "tags": {
+      "tagList": [
+        "new-addition"
+      ]
+    },
     "discoverySuppress": false
   },
   {
@@ -920,6 +959,11 @@
     "statisticalCodeIds": [
       "f47b773a-bd5f-4246-ac1e-fa4adcd0dcdf"
     ],
+    "tags": {
+      "tagList": [
+        "reserve"
+      ]
+    },
     "discoverySuppress": false
   },
   {
@@ -1046,6 +1090,12 @@
     "administrativeNotes": [
       "Acquired via interlibrary transfer."
     ],
+    "notes": [
+      {
+        "note": "Spine faded.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
@@ -1069,6 +1119,11 @@
     "statisticalCodeIds": [
       "f47b773a-bd5f-4246-ac1e-fa4adcd0dcdf"
     ],
+    "tags": {
+      "tagList": [
+        "digitization-candidate"
+      ]
+    },
     "notes": [
       {
         "note": "Spine faded.",
@@ -1195,6 +1250,11 @@
     "statisticalCodeIds": [
       "6899291f-0d18-4f8d-a269-42706a5d0e27"
     ],
+    "tags": {
+      "tagList": [
+        "reserve"
+      ]
+    },
     "discoverySuppress": false
   },
   {
@@ -1226,6 +1286,12 @@
     },
     "administrativeNotes": [
       "Condition reviewed and acceptable."
+    ],
+    "notes": [
+      {
+        "note": "Binding repaired.",
+        "staffOnly": false
+      }
     ],
     "discoverySuppress": false
   },
@@ -1830,6 +1896,11 @@
     "statisticalCodeIds": [
       "c4073462-6144-4b69-a543-dd131e241799"
     ],
+    "tags": {
+      "tagList": [
+        "ebook-available"
+      ]
+    },
     "discoverySuppress": false
   },
   {
@@ -1886,6 +1957,14 @@
     "statisticalCodeIds": [
       "d9acad2f-d9ac-4b48-9097-e6ab85000001"
     ],
+    "tags": {
+      "tagList": [
+        "reserve"
+      ]
+    },
+    "administrativeNotes": [
+      "Item requires repair before circulation."
+    ],
     "notes": [
       {
         "note": "Bookplate on inside front cover.",
@@ -1937,6 +2016,12 @@
         "withdrawn-review"
       ]
     },
+    "notes": [
+      {
+        "note": "Disk attached to inside back cover.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
@@ -2042,6 +2127,12 @@
     },
     "administrativeNotes": [
       "Item requires repair before circulation."
+    ],
+    "notes": [
+      {
+        "note": "Disk attached to inside back cover.",
+        "staffOnly": false
+      }
     ],
     "discoverySuppress": false
   },
@@ -2232,6 +2323,20 @@
     "statisticalCodeIds": [
       "d9acad2f-d9ac-4b48-9097-e6ab85000001"
     ],
+    "tags": {
+      "tagList": [
+        "review-needed"
+      ]
+    },
+    "administrativeNotes": [
+      "Acquired via interlibrary transfer."
+    ],
+    "notes": [
+      {
+        "note": "Spine faded.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
@@ -2286,6 +2391,12 @@
     },
     "administrativeNotes": [
       "Item requires repair before circulation."
+    ],
+    "notes": [
+      {
+        "note": "Pages slightly yellowed.",
+        "staffOnly": false
+      }
     ],
     "discoverySuppress": false
   },
@@ -2649,6 +2760,11 @@
     "statisticalCodeIds": [
       "e10796e0-a594-47b7-b748-3a81b69b3d9b"
     ],
+    "tags": {
+      "tagList": [
+        "high-demand"
+      ]
+    },
     "discoverySuppress": false
   },
   {
@@ -2722,6 +2838,12 @@
     },
     "administrativeNotes": [
       "Acquired via interlibrary transfer."
+    ],
+    "notes": [
+      {
+        "note": "Spine faded.",
+        "staffOnly": false
+      }
     ],
     "discoverySuppress": false
   },

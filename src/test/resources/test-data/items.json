@@ -1,36 +1,43 @@
 [
   {
-    "id": "00000143-0000-4000-a000-000000000000",
-    "holdingsRecordId": "00000012-0000-4000-9000-000000000000",
-    "instanceId": "00000001-0000-4000-8000-000000000000",
-    "hrid": "it00000000143",
-    "barcode": "39007353218079",
-    "itemLevelCallNumber": "QP4989 .U16 1991",
-    "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
+    "id": "00000001-0000-4000-a000-000000000000",
+    "holdingsRecordId": "00000014-0000-4000-9000-000000000000",
+    "instanceId": "00000008-0000-4000-8000-000000000000",
+    "hrid": "it00000000001",
+    "barcode": "39006441908806",
+    "itemLevelCallNumber": "TK5105.88815 . A58 2004 FT MEADE",
     "effectiveCallNumberComponents": {
-      "callNumber": "HV7674 .E75 1975",
-      "typeId": "95467209-6d7b-468b-94df-0f5d7ad2747d"
+      "suffix": "c.2",
+      "callNumber": "TK5105.88815 . A58 2004 FT MEADE",
+      "prefix": "REF",
+      "typeId": "512173a7-bd09-490e-b773-17d83f2b63fe"
     },
     "status": {
-      "name": "Available"
+      "name": "Available",
+      "date": "2020-12-08T15:47:22.827+00:00"
     },
-    "materialTypeId": "c898029e-9a02-4b61-bedb-6956cff21bc2",
-    "effectiveLocationId": "ce23dfa1-17e8-4a1f-ad6b-34ce6ab352c2",
-    "statisticalCodeIds": [
-      "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
-    ],
-    "tags": {
-      "tagList": [
-        "withdrawn-review"
-      ]
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
+    "effectiveLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
+    "discoverySuppress": false,
+    "yearCaption": "2016"
+  },
+  {
+    "id": "00000002-0000-4000-a000-000000000000",
+    "holdingsRecordId": "00000009-0000-4000-9000-000000000000",
+    "instanceId": "00000008-0000-4000-8000-000000000000",
+    "hrid": "it00000000002",
+    "barcode": "39002896505804",
+    "effectiveCallNumberComponents": {
+      "callNumber": "332.2",
+      "typeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35"
     },
-    "notes": [
-      {
-        "note": "Binding repaired.",
-        "staffOnly": true
-      }
-    ],
-    "discoverySuppress": true
+    "status": {
+      "name": "Available",
+      "date": "2024-03-14T13:05:09.407+00:00"
+    },
+    "materialTypeId": "5ee11d91-f7e8-481d-b079-65d708582ccc",
+    "effectiveLocationId": "cdd60388-0c75-4969-b3c5-2d04621ed26f",
+    "discoverySuppress": false
   },
   {
     "id": "00000003-0000-4000-a000-000000000000",
@@ -64,38 +71,41 @@
     "discoverySuppress": false
   },
   {
-    "id": "00000142-0000-4000-a000-000000000000",
-    "holdingsRecordId": "00000002-0000-4000-9000-000000000000",
-    "instanceId": "00000005-0000-4000-8000-000000000000",
-    "hrid": "it00000000142",
-    "barcode": "39002601493177",
-    "itemLevelCallNumber": "P4274 .X87 1974",
-    "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
+    "id": "00000004-0000-4000-a000-000000000000",
+    "holdingsRecordId": "00000014-0000-4000-9000-000000000000",
+    "instanceId": "00000008-0000-4000-8000-000000000000",
+    "hrid": "it00000000004",
+    "barcode": "39006673198930",
+    "itemLevelCallNumber": "TK5105.88815 . A58 2004 FT MEADE",
+    "itemLevelCallNumberTypeId": "5ba6b62e-6858-490a-8102-5b1369873835",
     "effectiveCallNumberComponents": {
-      "callNumber": "QH6107 .D53 2001",
-      "typeId": "95467209-6d7b-468b-94df-0f5d7ad2747d"
+      "suffix": "c.1",
+      "callNumber": "TK5105.88815 . A58 2004 FT MEADE",
+      "prefix": "Oversize",
+      "typeId": "512173a7-bd09-490e-b773-17d83f2b63fe"
     },
     "status": {
-      "name": "Missing",
-      "date": "2024-05-27T00:00:00.000+00:00"
+      "name": "Available",
+      "date": "2020-12-08T15:47:21.327+00:00"
     },
-    "materialTypeId": "c898029e-9a02-4b61-bedb-6956cff21bc2",
-    "effectiveLocationId": "ce23dfa1-17e8-4a1f-ad6b-34ce6ab352c2",
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
+    "effectiveLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
     "statisticalCodeIds": [
-      "e10796e0-a594-47b7-b748-3a81b69b3d9b"
+      "6899291f-0d18-4f8d-a269-42706a5d0e27"
     ],
     "tags": {
       "tagList": [
-        "high-demand"
+        "new-addition"
       ]
     },
-    "circulationNotes": [
+    "notes": [
       {
-        "note": "Three-day loan; no renewal allowed.",
-        "staffOnly": true
+        "note": "Stamps on pages.",
+        "staffOnly": false
       }
     ],
-    "discoverySuppress": true
+    "discoverySuppress": false,
+    "yearCaption": "2020"
   },
   {
     "id": "00000005-0000-4000-a000-000000000000",
@@ -173,83 +183,6 @@
     "circulationNotes": [
       {
         "note": "Renew at circulation desk only.",
-        "staffOnly": true
-      }
-    ],
-    "discoverySuppress": false
-  },
-  {
-    "id": "00000029-0000-4000-a000-000000000000",
-    "holdingsRecordId": "00000007-0000-4000-9000-000000000000",
-    "instanceId": "00000010-0000-4000-8000-000000000000",
-    "hrid": "it00000000029",
-    "barcode": "39003679207019",
-    "effectiveCallNumberComponents": {
-      "callNumber": "LB7868 .B76 1973",
-      "typeId": "95467209-6d7b-468b-94df-0f5d7ad2747d"
-    },
-    "status": {
-      "name": "Available"
-    },
-    "materialTypeId": "3d413322-1dee-431b-bd73-b1e399063260",
-    "effectiveLocationId": "f1a49577-5096-4771-a8a0-d07d642241eb",
-    "statisticalCodeIds": [
-      "6899291f-0d18-4f8d-a269-42706a5d0e27"
-    ],
-    "tags": {
-      "tagList": [
-        "new-addition"
-      ]
-    },
-    "administrativeNotes": [
-      "Weeding review due 2026."
-    ],
-    "notes": [
-      {
-        "note": "Missing index pages.",
-        "staffOnly": false
-      }
-    ],
-    "circulationNotes": [
-      {
-        "note": "Patron requested special packaging.",
-        "staffOnly": false
-      }
-    ],
-    "discoverySuppress": false
-  },
-  {
-    "id": "00000030-0000-4000-a000-000000000000",
-    "holdingsRecordId": "00000008-0000-4000-9000-000000000000",
-    "instanceId": "00000009-0000-4000-8000-000000000000",
-    "hrid": "it00000000030",
-    "barcode": "39001137816933",
-    "itemLevelCallNumber": "LB3724 .M23 2021",
-    "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
-    "effectiveCallNumberComponents": {
-      "callNumber": "PS6499 .Q83 1996",
-      "typeId": "95467209-6d7b-468b-94df-0f5d7ad2747d"
-    },
-    "status": {
-      "name": "Missing",
-      "date": "2024-02-02T00:00:00.000+00:00"
-    },
-    "materialTypeId": "3d413322-1dee-431b-bd73-b1e399063260",
-    "effectiveLocationId": "ce23dfa1-17e8-4a1f-ad6b-34ce6ab352c2",
-    "statisticalCodeIds": [
-      "b6b46869-f3c1-4370-b603-29774a1e42b1"
-    ],
-    "tags": {
-      "tagList": [
-        "special-order"
-      ]
-    },
-    "administrativeNotes": [
-      "Item requires repair before circulation."
-    ],
-    "notes": [
-      {
-        "note": "Cover worn.",
         "staffOnly": true
       }
     ],
@@ -878,64 +811,78 @@
     "discoverySuppress": false
   },
   {
-    "id": "00000081-0000-4000-a000-000000000000",
-    "holdingsRecordId": "00000064-0000-4000-9000-000000000000",
-    "instanceId": "00000096-0000-4000-8000-000000000000",
-    "hrid": "it00000000081",
-    "barcode": "39004921590649",
+    "id": "00000029-0000-4000-a000-000000000000",
+    "holdingsRecordId": "00000007-0000-4000-9000-000000000000",
+    "instanceId": "00000010-0000-4000-8000-000000000000",
+    "hrid": "it00000000029",
+    "barcode": "39003679207019",
     "effectiveCallNumberComponents": {
-      "callNumber": "Y 3.T 22/2:2 St 8/2",
-      "typeId": "6b368b19-0d18-4689-8d15-cf904e15b3f0"
+      "callNumber": "LB7868 .B76 1973",
+      "typeId": "95467209-6d7b-468b-94df-0f5d7ad2747d"
     },
     "status": {
       "name": "Available"
     },
-    "materialTypeId": "d9acad2f-2aac-4b48-9097-e6ab85906b25",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "materialTypeId": "3d413322-1dee-431b-bd73-b1e399063260",
+    "effectiveLocationId": "f1a49577-5096-4771-a8a0-d07d642241eb",
+    "statisticalCodeIds": [
+      "6899291f-0d18-4f8d-a269-42706a5d0e27"
+    ],
     "tags": {
       "tagList": [
-        "high-demand"
+        "new-addition"
       ]
     },
     "administrativeNotes": [
-      "Condition reviewed and acceptable."
+      "Weeding review due 2026."
     ],
     "notes": [
       {
-        "note": "Bookplate on inside front cover.",
+        "note": "Missing index pages.",
+        "staffOnly": false
+      }
+    ],
+    "circulationNotes": [
+      {
+        "note": "Patron requested special packaging.",
         "staffOnly": false
       }
     ],
     "discoverySuppress": false
   },
   {
-    "id": "00000082-0000-4000-a000-000000000000",
-    "holdingsRecordId": "00000064-0000-4000-9000-000000000000",
-    "instanceId": "00000096-0000-4000-8000-000000000000",
-    "hrid": "it00000000082",
-    "barcode": "39005670249116",
-    "itemLevelCallNumber": "QH3613 .M99 2005",
+    "id": "00000030-0000-4000-a000-000000000000",
+    "holdingsRecordId": "00000008-0000-4000-9000-000000000000",
+    "instanceId": "00000009-0000-4000-8000-000000000000",
+    "hrid": "it00000000030",
+    "barcode": "39001137816933",
+    "itemLevelCallNumber": "LB3724 .M23 2021",
     "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
-      "callNumber": "15,747-12N-12P",
-      "prefix": "Microfilm ",
-      "typeId": "cf74a451-41ad-49aa-aa2b-21d2d2f2e235"
+      "callNumber": "PS6499 .Q83 1996",
+      "typeId": "95467209-6d7b-468b-94df-0f5d7ad2747d"
     },
     "status": {
-      "name": "Available"
+      "name": "Missing",
+      "date": "2024-02-02T00:00:00.000+00:00"
     },
-    "materialTypeId": "fd6c6515-d470-4561-9c32-3e3290d4ca98",
-    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "materialTypeId": "3d413322-1dee-431b-bd73-b1e399063260",
+    "effectiveLocationId": "ce23dfa1-17e8-4a1f-ad6b-34ce6ab352c2",
+    "statisticalCodeIds": [
+      "b6b46869-f3c1-4370-b603-29774a1e42b1"
+    ],
+    "tags": {
+      "tagList": [
+        "special-order"
+      ]
+    },
+    "administrativeNotes": [
+      "Item requires repair before circulation."
+    ],
     "notes": [
       {
-        "note": "Pages slightly yellowed.",
-        "staffOnly": false
-      }
-    ],
-    "circulationNotes": [
-      {
-        "note": "Renew at circulation desk only.",
-        "staffOnly": false
+        "note": "Cover worn.",
+        "staffOnly": true
       }
     ],
     "discoverySuppress": false
@@ -2400,6 +2347,69 @@
     },
     "materialTypeId": "fd6c6515-d470-4561-9c32-3e3290d4ca98",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "discoverySuppress": false
+  },
+  {
+    "id": "00000081-0000-4000-a000-000000000000",
+    "holdingsRecordId": "00000064-0000-4000-9000-000000000000",
+    "instanceId": "00000096-0000-4000-8000-000000000000",
+    "hrid": "it00000000081",
+    "barcode": "39004921590649",
+    "effectiveCallNumberComponents": {
+      "callNumber": "Y 3.T 22/2:2 St 8/2",
+      "typeId": "6b368b19-0d18-4689-8d15-cf904e15b3f0"
+    },
+    "status": {
+      "name": "Available"
+    },
+    "materialTypeId": "d9acad2f-2aac-4b48-9097-e6ab85906b25",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "tags": {
+      "tagList": [
+        "high-demand"
+      ]
+    },
+    "administrativeNotes": [
+      "Condition reviewed and acceptable."
+    ],
+    "notes": [
+      {
+        "note": "Bookplate on inside front cover.",
+        "staffOnly": false
+      }
+    ],
+    "discoverySuppress": false
+  },
+  {
+    "id": "00000082-0000-4000-a000-000000000000",
+    "holdingsRecordId": "00000064-0000-4000-9000-000000000000",
+    "instanceId": "00000096-0000-4000-8000-000000000000",
+    "hrid": "it00000000082",
+    "barcode": "39005670249116",
+    "itemLevelCallNumber": "QH3613 .M99 2005",
+    "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
+    "effectiveCallNumberComponents": {
+      "callNumber": "15,747-12N-12P",
+      "prefix": "Microfilm ",
+      "typeId": "cf74a451-41ad-49aa-aa2b-21d2d2f2e235"
+    },
+    "status": {
+      "name": "Available"
+    },
+    "materialTypeId": "fd6c6515-d470-4561-9c32-3e3290d4ca98",
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "notes": [
+      {
+        "note": "Pages slightly yellowed.",
+        "staffOnly": false
+      }
+    ],
+    "circulationNotes": [
+      {
+        "note": "Renew at circulation desk only.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
@@ -4127,80 +4137,70 @@
     "yearCaption": "v.4-6 (2019-2022)"
   },
   {
-    "id": "00000004-0000-4000-a000-000000000000",
-    "holdingsRecordId": "00000014-0000-4000-9000-000000000000",
-    "instanceId": "00000008-0000-4000-8000-000000000000",
-    "hrid": "it00000000004",
-    "barcode": "39006673198930",
-    "itemLevelCallNumber": "TK5105.88815 . A58 2004 FT MEADE",
-    "itemLevelCallNumberTypeId": "5ba6b62e-6858-490a-8102-5b1369873835",
+    "id": "00000142-0000-4000-a000-000000000000",
+    "holdingsRecordId": "00000002-0000-4000-9000-000000000000",
+    "instanceId": "00000005-0000-4000-8000-000000000000",
+    "hrid": "it00000000142",
+    "barcode": "39002601493177",
+    "itemLevelCallNumber": "P4274 .X87 1974",
+    "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "effectiveCallNumberComponents": {
-      "suffix": "c.1",
-      "callNumber": "TK5105.88815 . A58 2004 FT MEADE",
-      "prefix": "Oversize",
-      "typeId": "512173a7-bd09-490e-b773-17d83f2b63fe"
+      "callNumber": "QH6107 .D53 2001",
+      "typeId": "95467209-6d7b-468b-94df-0f5d7ad2747d"
     },
     "status": {
-      "name": "Available",
-      "date": "2020-12-08T15:47:21.327+00:00"
+      "name": "Missing",
+      "date": "2024-05-27T00:00:00.000+00:00"
     },
-    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
-    "effectiveLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
+    "materialTypeId": "c898029e-9a02-4b61-bedb-6956cff21bc2",
+    "effectiveLocationId": "ce23dfa1-17e8-4a1f-ad6b-34ce6ab352c2",
     "statisticalCodeIds": [
-      "6899291f-0d18-4f8d-a269-42706a5d0e27"
+      "e10796e0-a594-47b7-b748-3a81b69b3d9b"
     ],
     "tags": {
       "tagList": [
-        "new-addition"
+        "high-demand"
+      ]
+    },
+    "circulationNotes": [
+      {
+        "note": "Three-day loan; no renewal allowed.",
+        "staffOnly": true
+      }
+    ],
+    "discoverySuppress": true
+  },
+  {
+    "id": "00000143-0000-4000-a000-000000000000",
+    "holdingsRecordId": "00000012-0000-4000-9000-000000000000",
+    "instanceId": "00000001-0000-4000-8000-000000000000",
+    "hrid": "it00000000143",
+    "barcode": "39007353218079",
+    "itemLevelCallNumber": "QP4989 .U16 1991",
+    "itemLevelCallNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
+    "effectiveCallNumberComponents": {
+      "callNumber": "HV7674 .E75 1975",
+      "typeId": "95467209-6d7b-468b-94df-0f5d7ad2747d"
+    },
+    "status": {
+      "name": "Available"
+    },
+    "materialTypeId": "c898029e-9a02-4b61-bedb-6956cff21bc2",
+    "effectiveLocationId": "ce23dfa1-17e8-4a1f-ad6b-34ce6ab352c2",
+    "statisticalCodeIds": [
+      "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
+    ],
+    "tags": {
+      "tagList": [
+        "withdrawn-review"
       ]
     },
     "notes": [
       {
-        "note": "Stamps on pages.",
-        "staffOnly": false
+        "note": "Binding repaired.",
+        "staffOnly": true
       }
     ],
-    "discoverySuppress": false,
-    "yearCaption": "2020"
-  },
-  {
-    "id": "00000001-0000-4000-a000-000000000000",
-    "holdingsRecordId": "00000014-0000-4000-9000-000000000000",
-    "instanceId": "00000008-0000-4000-8000-000000000000",
-    "hrid": "it00000000001",
-    "barcode": "39006441908806",
-    "itemLevelCallNumber": "TK5105.88815 . A58 2004 FT MEADE",
-    "effectiveCallNumberComponents": {
-      "suffix": "c.2",
-      "callNumber": "TK5105.88815 . A58 2004 FT MEADE",
-      "prefix": "REF",
-      "typeId": "512173a7-bd09-490e-b773-17d83f2b63fe"
-    },
-    "status": {
-      "name": "Available",
-      "date": "2020-12-08T15:47:22.827+00:00"
-    },
-    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
-    "effectiveLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
-    "discoverySuppress": false,
-    "yearCaption": "2016"
-  },
-  {
-    "id": "00000002-0000-4000-a000-000000000000",
-    "holdingsRecordId": "00000009-0000-4000-9000-000000000000",
-    "instanceId": "00000008-0000-4000-8000-000000000000",
-    "hrid": "it00000000002",
-    "barcode": "39002896505804",
-    "effectiveCallNumberComponents": {
-      "callNumber": "332.2",
-      "typeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35"
-    },
-    "status": {
-      "name": "Available",
-      "date": "2024-03-14T13:05:09.407+00:00"
-    },
-    "materialTypeId": "5ee11d91-f7e8-481d-b079-65d708582ccc",
-    "effectiveLocationId": "cdd60388-0c75-4969-b3c5-2d04621ed26f",
-    "discoverySuppress": false
+    "discoverySuppress": true
   }
 ]

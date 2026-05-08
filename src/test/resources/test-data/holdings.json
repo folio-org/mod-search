@@ -1,100 +1,21 @@
 [
   {
-    "id": "00000014-0000-4000-9000-000000000000",
+    "id": "00000001-0000-4000-9000-000000000000",
     "discoverySuppress": false,
     "holdingsTypeId": "03c9c400-b9e3-4a07-ac0e-05ab470233ed",
-    "instanceId": "00000008-0000-4000-8000-000000000000",
-    "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
-    "callNumberTypeId": "512173a7-bd09-490e-b773-17d83f2b63fe",
-    "callNumber": "TK5105.88815 . A58 2004 FT MEADE",
-    "callNumberPrefix": "suppl.",
-    "hrid": "ho00000000014",
-    "copyNumber": "3"
-  },
-  {
-    "id": "00000009-0000-4000-9000-000000000000",
-    "discoverySuppress": false,
-    "holdingsTypeId": "0c422f92-0f4d-4d32-8cbe-390ebc33a3e5",
-    "instanceId": "00000008-0000-4000-8000-000000000000",
-    "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
+    "instanceId": "00000004-0000-4000-8000-000000000000",
+    "permanentLocationId": "53cf956f-c1df-410b-8bea-27f712cca7c0",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
-    "callNumber": "332.2",
-    "callNumberPrefix": "GEN",
-    "callNumberSuffix": "c.1",
-    "hrid": "ho00000000009",
-    "copyNumber": "Copy 1"
-  },
-  {
-    "id": "00000010-0000-4000-9000-000000000000",
-    "discoverySuppress": false,
-    "holdingsTypeId": "996f93e2-5b5e-4cf2-9168-33ced1f95eed",
-    "instanceId": "00000008-0000-4000-8000-000000000000",
-    "permanentLocationId": "758258bc-ecc1-41b8-abca-f7b610822ffd",
-    "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
-    "callNumber": "TK5105.88815 .B74 2004",
-    "callNumberPrefix": "REF",
-    "callNumberSuffix": "c.2",
-    "hrid": "ho00000000010",
-    "copyNumber": "Copy 2",
-    "temporaryLocationId": "53cf956f-c1df-410b-8bea-27f712cca7c0",
-    "statisticalCodeIds": [
-      "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
-    ],
-    "tags": {
-      "tagList": [
-        "withdrawn-review"
-      ]
-    },
-    "notes": [
-      {
-        "note": "Transferred from branch library.",
-        "staffOnly": false
-      }
-    ]
-  },
-  {
-    "id": "00000012-0000-4000-9000-000000000000",
-    "discoverySuppress": false,
-    "holdingsTypeId": "eb003b9d-86f2-4bdf-9f8e-28851122617d",
-    "instanceId": "00000001-0000-4000-8000-000000000000",
-    "permanentLocationId": "765b4c3b-485c-4ce4-a117-f99c01ac49fe",
-    "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
-    "callNumber": "HV7674 .E75 1975",
-    "callNumberSuffix": "4",
-    "hrid": "ho00000000012",
-    "copyNumber": "4",
-    "notes": [
-      {
-        "note": "Received as part of standing order.",
-        "staffOnly": false
-      }
-    ]
-  },
-  {
-    "id": "00000065-0000-4000-9000-000000000000",
-    "discoverySuppress": false,
-    "holdingsTypeId": "d02bb1e2-fa7f-4354-a9f4-1ca9b81510a2",
-    "instanceId": "00000046-0000-4000-8000-000000000000",
-    "permanentLocationId": "4fdca025-1629-4688-aeb7-9c5fe5c73549",
-    "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
-    "callNumber": "RC2067 .X72 1978",
-    "callNumberSuffix": "3",
-    "hrid": "ho00000000065",
-    "copyNumber": "4",
-    "statisticalCodeIds": [
-      "c4073462-6144-4b69-a543-dd131e241799"
-    ],
-    "tags": {
-      "tagList": [
-        "ebook-available"
-      ]
-    },
+    "callNumber": "P5327 .S51 1983",
+    "callNumberPrefix": "copy",
+    "callNumberSuffix": "1",
+    "hrid": "ho00000000001",
     "administrativeNotes": [
       "Duplicate copy retained per policy."
     ],
     "notes": [
       {
-        "note": "Available for 3-hour in-house use only.",
+        "note": "Purchased from special collections fund.",
         "staffOnly": false
       }
     ]
@@ -130,6 +51,25 @@
     ]
   },
   {
+    "id": "00000003-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
+    "holdingsTypeId": "03c9c400-b9e3-4a07-ac0e-05ab470233ed",
+    "instanceId": "00000011-0000-4000-8000-000000000000",
+    "permanentLocationId": "53cf956f-c1df-410b-8bea-27f712cca7c0",
+    "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
+    "callNumber": "P2719 .H61 2004",
+    "hrid": "ho00000000003",
+    "temporaryLocationId": "f34d27c6-a8eb-461b-acd6-5dea81771e70",
+    "statisticalCodeIds": [
+      "b6b46869-f3c1-4370-b603-29774a1e42b1"
+    ],
+    "tags": {
+      "tagList": [
+        "preservation-needed"
+      ]
+    }
+  },
+  {
     "id": "00000004-0000-4000-9000-000000000000",
     "discoverySuppress": false,
     "holdingsTypeId": "d02bb1e2-fa7f-4354-a9f4-1ca9b81510a2",
@@ -153,56 +93,6 @@
       {
         "note": "Copy acquired through donation.",
         "staffOnly": true
-      }
-    ]
-  },
-  {
-    "id": "00000008-0000-4000-9000-000000000000",
-    "discoverySuppress": true,
-    "holdingsTypeId": "eb003b9d-86f2-4bdf-9f8e-28851122617d",
-    "instanceId": "00000009-0000-4000-8000-000000000000",
-    "permanentLocationId": "4fdca025-1629-4688-aeb7-9c5fe5c73549",
-    "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
-    "callNumber": "PS6499 .Q83 1996",
-    "callNumberPrefix": "suppl.",
-    "hrid": "ho00000000008",
-    "copyNumber": "1",
-    "illPolicy": "Will lend hard copy only"
-  },
-  {
-    "id": "00000013-0000-4000-9000-000000000000",
-    "discoverySuppress": false,
-    "holdingsTypeId": "e6da6c98-6dd0-41bc-8b4b-cfd4bbd9c3ae",
-    "instanceId": "00000009-0000-4000-8000-000000000000",
-    "permanentLocationId": "81f1ab2c-83c5-4a90-a8b7-c8c8179c0697",
-    "callNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
-    "callNumber": "933.87",
-    "hrid": "ho00000000013",
-    "copyNumber": "3"
-  },
-  {
-    "id": "00000007-0000-4000-9000-000000000000",
-    "discoverySuppress": true,
-    "holdingsTypeId": "0c422f92-0f4d-4d32-8cbe-390ebc33a3e5",
-    "instanceId": "00000010-0000-4000-8000-000000000000",
-    "permanentLocationId": "81f1ab2c-83c5-4a90-a8b7-c8c8179c0697",
-    "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
-    "callNumber": "LB7868 .B76 1973",
-    "hrid": "ho00000000007",
-    "copyNumber": "5",
-    "illPolicy": "Will lend",
-    "statisticalCodeIds": [
-      "6899291f-0d18-4f8d-a269-42706a5d0e27"
-    ],
-    "tags": {
-      "tagList": [
-        "new-addition"
-      ]
-    },
-    "notes": [
-      {
-        "note": "Formerly in reference collection.",
-        "staffOnly": false
       }
     ]
   },
@@ -252,41 +142,81 @@
     ]
   },
   {
-    "id": "00000003-0000-4000-9000-000000000000",
-    "discoverySuppress": false,
-    "holdingsTypeId": "03c9c400-b9e3-4a07-ac0e-05ab470233ed",
-    "instanceId": "00000011-0000-4000-8000-000000000000",
-    "permanentLocationId": "53cf956f-c1df-410b-8bea-27f712cca7c0",
+    "id": "00000007-0000-4000-9000-000000000000",
+    "discoverySuppress": true,
+    "holdingsTypeId": "0c422f92-0f4d-4d32-8cbe-390ebc33a3e5",
+    "instanceId": "00000010-0000-4000-8000-000000000000",
+    "permanentLocationId": "81f1ab2c-83c5-4a90-a8b7-c8c8179c0697",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
-    "callNumber": "P2719 .H61 2004",
-    "hrid": "ho00000000003",
-    "temporaryLocationId": "f34d27c6-a8eb-461b-acd6-5dea81771e70",
+    "callNumber": "LB7868 .B76 1973",
+    "hrid": "ho00000000007",
+    "copyNumber": "5",
+    "illPolicy": "Will lend",
     "statisticalCodeIds": [
-      "b6b46869-f3c1-4370-b603-29774a1e42b1"
+      "6899291f-0d18-4f8d-a269-42706a5d0e27"
     ],
     "tags": {
       "tagList": [
-        "preservation-needed"
+        "new-addition"
       ]
-    }
-  },
-  {
-    "id": "00000001-0000-4000-9000-000000000000",
-    "discoverySuppress": false,
-    "holdingsTypeId": "03c9c400-b9e3-4a07-ac0e-05ab470233ed",
-    "instanceId": "00000004-0000-4000-8000-000000000000",
-    "permanentLocationId": "53cf956f-c1df-410b-8bea-27f712cca7c0",
-    "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
-    "callNumber": "P5327 .S51 1983",
-    "callNumberPrefix": "copy",
-    "callNumberSuffix": "1",
-    "hrid": "ho00000000001",
-    "administrativeNotes": [
-      "Duplicate copy retained per policy."
-    ],
+    },
     "notes": [
       {
-        "note": "Purchased from special collections fund.",
+        "note": "Formerly in reference collection.",
+        "staffOnly": false
+      }
+    ]
+  },
+  {
+    "id": "00000008-0000-4000-9000-000000000000",
+    "discoverySuppress": true,
+    "holdingsTypeId": "eb003b9d-86f2-4bdf-9f8e-28851122617d",
+    "instanceId": "00000009-0000-4000-8000-000000000000",
+    "permanentLocationId": "4fdca025-1629-4688-aeb7-9c5fe5c73549",
+    "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
+    "callNumber": "PS6499 .Q83 1996",
+    "callNumberPrefix": "suppl.",
+    "hrid": "ho00000000008",
+    "copyNumber": "1",
+    "illPolicy": "Will lend hard copy only"
+  },
+  {
+    "id": "00000009-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
+    "holdingsTypeId": "0c422f92-0f4d-4d32-8cbe-390ebc33a3e5",
+    "instanceId": "00000008-0000-4000-8000-000000000000",
+    "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
+    "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
+    "callNumber": "332.2",
+    "callNumberPrefix": "GEN",
+    "callNumberSuffix": "c.1",
+    "hrid": "ho00000000009",
+    "copyNumber": "Copy 1"
+  },
+  {
+    "id": "00000010-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
+    "holdingsTypeId": "996f93e2-5b5e-4cf2-9168-33ced1f95eed",
+    "instanceId": "00000008-0000-4000-8000-000000000000",
+    "permanentLocationId": "758258bc-ecc1-41b8-abca-f7b610822ffd",
+    "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
+    "callNumber": "TK5105.88815 .B74 2004",
+    "callNumberPrefix": "REF",
+    "callNumberSuffix": "c.2",
+    "hrid": "ho00000000010",
+    "copyNumber": "Copy 2",
+    "temporaryLocationId": "53cf956f-c1df-410b-8bea-27f712cca7c0",
+    "statisticalCodeIds": [
+      "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
+    ],
+    "tags": {
+      "tagList": [
+        "withdrawn-review"
+      ]
+    },
+    "notes": [
+      {
+        "note": "Transferred from branch library.",
         "staffOnly": false
       }
     ]
@@ -316,31 +246,45 @@
     ]
   },
   {
-    "id": "00000064-0000-4000-9000-000000000000",
+    "id": "00000012-0000-4000-9000-000000000000",
     "discoverySuppress": false,
-    "holdingsTypeId": "dc35d0ae-e877-488b-8e97-6e41444e6d0a",
-    "instanceId": "00000096-0000-4000-8000-000000000000",
-    "permanentLocationId": "53cf956f-c1df-410b-8bea-27f712cca7c0",
-    "callNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
-    "callNumber": "722.67",
-    "hrid": "ho00000000064",
+    "holdingsTypeId": "eb003b9d-86f2-4bdf-9f8e-28851122617d",
+    "instanceId": "00000001-0000-4000-8000-000000000000",
+    "permanentLocationId": "765b4c3b-485c-4ce4-a117-f99c01ac49fe",
+    "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
+    "callNumber": "HV7674 .E75 1975",
+    "callNumberSuffix": "4",
+    "hrid": "ho00000000012",
     "copyNumber": "4",
-    "temporaryLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
-    "illPolicy": "Will lend",
-    "statisticalCodeIds": [
-      "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
-    ],
-    "tags": {
-      "tagList": [
-        "recommended"
-      ]
-    },
     "notes": [
       {
-        "note": "Bound with: companion volume.",
-        "staffOnly": true
+        "note": "Received as part of standing order.",
+        "staffOnly": false
       }
     ]
+  },
+  {
+    "id": "00000013-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
+    "holdingsTypeId": "e6da6c98-6dd0-41bc-8b4b-cfd4bbd9c3ae",
+    "instanceId": "00000009-0000-4000-8000-000000000000",
+    "permanentLocationId": "81f1ab2c-83c5-4a90-a8b7-c8c8179c0697",
+    "callNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
+    "callNumber": "933.87",
+    "hrid": "ho00000000013",
+    "copyNumber": "3"
+  },
+  {
+    "id": "00000014-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
+    "holdingsTypeId": "03c9c400-b9e3-4a07-ac0e-05ab470233ed",
+    "instanceId": "00000008-0000-4000-8000-000000000000",
+    "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
+    "callNumberTypeId": "512173a7-bd09-490e-b773-17d83f2b63fe",
+    "callNumber": "TK5105.88815 . A58 2004 FT MEADE",
+    "callNumberPrefix": "suppl.",
+    "hrid": "ho00000000014",
+    "copyNumber": "3"
   },
   {
     "id": "00000015-0000-4000-9000-000000000000",
@@ -1343,6 +1287,62 @@
       {
         "note": "Copy acquired through donation.",
         "staffOnly": true
+      }
+    ]
+  },
+  {
+    "id": "00000064-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
+    "holdingsTypeId": "dc35d0ae-e877-488b-8e97-6e41444e6d0a",
+    "instanceId": "00000096-0000-4000-8000-000000000000",
+    "permanentLocationId": "53cf956f-c1df-410b-8bea-27f712cca7c0",
+    "callNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
+    "callNumber": "722.67",
+    "hrid": "ho00000000064",
+    "copyNumber": "4",
+    "temporaryLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
+    "illPolicy": "Will lend",
+    "statisticalCodeIds": [
+      "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
+    ],
+    "tags": {
+      "tagList": [
+        "recommended"
+      ]
+    },
+    "notes": [
+      {
+        "note": "Bound with: companion volume.",
+        "staffOnly": true
+      }
+    ]
+  },
+  {
+    "id": "00000065-0000-4000-9000-000000000000",
+    "discoverySuppress": false,
+    "holdingsTypeId": "d02bb1e2-fa7f-4354-a9f4-1ca9b81510a2",
+    "instanceId": "00000046-0000-4000-8000-000000000000",
+    "permanentLocationId": "4fdca025-1629-4688-aeb7-9c5fe5c73549",
+    "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
+    "callNumber": "RC2067 .X72 1978",
+    "callNumberSuffix": "3",
+    "hrid": "ho00000000065",
+    "copyNumber": "4",
+    "statisticalCodeIds": [
+      "c4073462-6144-4b69-a543-dd131e241799"
+    ],
+    "tags": {
+      "tagList": [
+        "ebook-available"
+      ]
+    },
+    "administrativeNotes": [
+      "Duplicate copy retained per policy."
+    ],
+    "notes": [
+      {
+        "note": "Available for 3-hour in-house use only.",
+        "staffOnly": false
       }
     ]
   }

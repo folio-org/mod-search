@@ -1,5 +1,561 @@
 [
   {
+    "id": "00000001-0000-4000-8000-000000000000",
+    "source": "MARC",
+    "title": "Cultural Anthropology: A Global Perspective",
+    "indexTitle": "Cultural Anthropology: A Global Perspective",
+    "hrid": "in00000000001",
+    "series": [
+      {
+        "value": "Monographs in library and information science"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-039-933254-823-7",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Moore, Nancy W.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Clinical psychology"
+      },
+      {
+        "value": "Natural language processing"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "QA76.73.C15",
+        "classificationTypeId": "5af5cb9d-063f-48ea-8148-7da3ecaafd7d"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Yale University Press",
+        "place": "New Haven",
+        "dateOfPublication": "2021",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "date1": "2021"
+    },
+    "instanceTypeId": "de9e38bb-89a8-43ee-922f-c973b122cbb3",
+    "instanceFormatIds": [
+      "25a81102-a2a9-4576-85ff-133ebcbcef2c",
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "natureOfContentTermIds": [
+      "9ef56f0c-fa7b-44dc-ab7c-15a8e7a0ab2b"
+    ],
+    "languages": [
+      "eng",
+      "ita"
+    ],
+    "tags": {
+      "tagList": [
+        "special-order"
+      ]
+    },
+    "notes": [
+      {
+        "note": "Companion volume to work published by same publisher.",
+        "staffOnly": false
+      }
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
+  },
+  {
+    "id": "00000002-0000-4000-8000-000000000000",
+    "source": "FOLIO",
+    "title": "Environmental Law and Policy",
+    "indexTitle": "Environmental Law and Policy",
+    "hrid": "in00000000002",
+    "identifiers": [
+      {
+        "value": "978-425-683331-651-1",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Brown, Patricia K.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "9deb29d1-3e71-4951-9413-a80adac703d0",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Operations research"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "TA5656 .C45 2005",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Routledge",
+        "place": "London",
+        "dateOfPublication": "1958",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1958"
+    },
+    "instanceTypeId": "de9e38bb-89a8-43ee-922f-c973b122cbb3",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "statisticalCodeIds": [
+      "b5968c9e-cddc-4576-99e3-8e60aed8b0dd",
+      "b6b46869-f3c1-4370-b603-29774a1e42b1"
+    ],
+    "natureOfContentTermIds": [
+      "aef4d369-1571-419c-8cf8-7e596f6f535c"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "tags": {
+      "tagList": [
+        "reserve"
+      ]
+    },
+    "administrativeNotes": [
+      "Originally presented as the author's thesis."
+    ],
+    "notes": [
+      {
+        "note": "Includes bibliographical references and index.",
+        "staffOnly": false
+      },
+      {
+        "note": "Description based on print version record.",
+        "staffOnly": true
+      }
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
+  },
+  {
+    "id": "00000003-0000-4000-8000-000000000000",
+    "source": "FOLIO",
+    "title": "Biomedical Ethics: Principles and Cases",
+    "indexTitle": "Biomedical Ethics: Principles and Cases",
+    "hrid": "in00000000003",
+    "identifiers": [
+      {
+        "value": "978-543-783970-088-0",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Marcus Webb",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Political theory"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "218.70",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Routledge",
+        "place": "London",
+        "dateOfPublication": "1955",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1955"
+    },
+    "instanceTypeId": "a2c91e87-6bab-44d6-8adb-1fd02481fc4f",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "statisticalCodeIds": [
+      "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
+    ],
+    "natureOfContentTermIds": [
+      "a1d70ca5-67aa-4824-b3af-55c8cf47a427"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "tags": {
+      "tagList": [
+        "recommended"
+      ]
+    },
+    "administrativeNotes": [
+      "Includes bibliographical references and index."
+    ],
+    "notes": [
+      {
+        "note": "Translation of the 3rd German edition.",
+        "staffOnly": false
+      }
+    ],
+    "discoverySuppress": true,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
+  },
+  {
+    "id": "00000004-0000-4000-8000-000000000000",
+    "source": "FOLIO",
+    "title": "The Blade in the Ice",
+    "indexTitle": "Blade in the Ice",
+    "hrid": "in00000000004",
+    "series": [
+      {
+        "value": "Texts in applied mathematics"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-034-569503-467-2",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Hernandez, Carlos M.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Machine learning"
+      },
+      {
+        "value": "Artificial intelligence"
+      },
+      {
+        "value": "Digital humanities"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "QP7124 .M32 1979",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Routledge",
+        "place": "London",
+        "dateOfPublication": "1970",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1970",
+      "date2": "1980"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
+    ],
+    "statisticalCodeIds": [
+      "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
+    ],
+    "natureOfContentTermIds": [
+      "9f0a2cf0-7a9b-45a2-a403-f68d2850d07c",
+      "526aa04d-9289-4511-8866-349299592c18"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "tags": {
+      "tagList": [
+        "review-needed"
+      ]
+    },
+    "administrativeNotes": [
+      "Also available online."
+    ],
+    "notes": [
+      {
+        "note": "Also available online.",
+        "staffOnly": false
+      },
+      {
+        "note": "Includes bibliographical references and index.",
+        "staffOnly": false
+      }
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
+  },
+  {
+    "id": "00000005-0000-4000-8000-000000000000",
+    "source": "FOLIO",
+    "title": "Gender and Society: Feminist Perspectives",
+    "indexTitle": "Gender and Society: Feminist Perspectives",
+    "hrid": "in00000000005",
+    "identifiers": [
+      {
+        "value": "978-630-227928-741-5",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "1080-8119",
+        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Green, Deborah O.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Economic development"
+      },
+      {
+        "value": "Public administration"
+      },
+      {
+        "value": "Quantum computing"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "412.98",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "MIT Press",
+        "place": "Cambridge, Mass.",
+        "dateOfPublication": "2020",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "date1": "2020"
+    },
+    "instanceTypeId": "24da24dd-03ae-4e34-bad6-c79e342baeb9",
+    "instanceFormatIds": [
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "languages": [
+      "rus",
+      "ukr"
+    ],
+    "tags": {
+      "tagList": [
+        "recommended",
+        "withdrawn-review"
+      ]
+    },
+    "administrativeNotes": [
+      "Includes bibliographical references."
+    ],
+    "notes": [
+      {
+        "note": "Title from cover.",
+        "staffOnly": true
+      },
+      {
+        "note": "Cataloged from PDF version of text.",
+        "staffOnly": false
+      }
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
+  },
+  {
+    "id": "00000006-0000-4000-8000-000000000000",
+    "source": "FOLIO",
+    "title": "The Raven Crystal",
+    "indexTitle": "Raven Crystal",
+    "hrid": "in00000000006",
+    "series": [
+      {
+        "value": "Topics in modern biology"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-794-461003-312-2",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "1969-941204",
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Lee, Christopher Z.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Library science"
+      },
+      {
+        "value": "Database systems"
+      },
+      {
+        "value": "Urban planning"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "TK9223 .E73 2011",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Harvard University Press",
+        "place": "Cambridge, Mass.",
+        "dateOfPublication": "1951",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1951"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
+    ],
+    "statisticalCodeIds": [
+      "e10796e0-a594-47b7-b748-3a81b69b3d9b"
+    ],
+    "natureOfContentTermIds": [
+      "2fec23f6-6bbc-4fa2-a736-b64a8c06a47a"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "tags": {
+      "tagList": [
+        "high-demand"
+      ]
+    },
+    "notes": [
+      {
+        "note": "Translation of the 3rd German edition.",
+        "staffOnly": false
+      }
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
+  },
+  {
+    "id": "00000007-0000-4000-8000-000000000000",
+    "source": "FOLIO",
+    "title": "Death of the Price Jackal",
+    "indexTitle": "Death of the Price Jackal",
+    "hrid": "in00000000007",
+    "identifiers": [
+      {
+        "value": "978-981-922588-252-7",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Thompson, Betty N.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Communication theory"
+      },
+      {
+        "value": "Clinical psychology"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "142.11",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Routledge",
+        "place": "London",
+        "dateOfPublication": "1976",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1976"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "statisticalCodeIds": [
+      "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
+    ],
+    "natureOfContentTermIds": [
+      "44cd89f3-2e76-469f-a955-cc57cb9e0395"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "tags": {
+      "tagList": [
+        "special-order"
+      ]
+    },
+    "notes": [
+      {
+        "note": "Cataloged from PDF version of text.",
+        "staffOnly": true
+      }
+    ],
+    "discoverySuppress": true,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
+  },
+  {
     "id": "00000008-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "A sem\\ntic web primer :0747-0850 & wolves",
@@ -135,6 +691,1520 @@
     "discoverySuppress": true,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
     "_comment": "Intentionally garbled title and contributor for escape-character search testing"
+  },
+  {
+    "id": "00000009-0000-4000-8000-000000000000",
+    "source": "MARC",
+    "title": "Ethics in Medical Research",
+    "indexTitle": "Ethics in Medical Research",
+    "hrid": "in00000000009",
+    "series": [
+      {
+        "value": "International studies in political economy"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-446-552250-314-3",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Robinson, Paul D.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Statistics"
+      },
+      {
+        "value": "Machine learning"
+      },
+      {
+        "value": "Education reform"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "162.04",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Palgrave Macmillan",
+        "place": "Basingstoke",
+        "dateOfPublication": "1995",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "date1": "1995"
+    },
+    "instanceTypeId": "de9e38bb-89a8-43ee-922f-c973b122cbb3",
+    "instanceFormatIds": [
+      "89f6d4f0-9cd2-4015-828d-331dc3adb47a",
+      "25a81102-a2a9-4576-85ff-133ebcbcef2c",
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "languages": [
+      "ita"
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
+  },
+  {
+    "id": "00000010-0000-4000-8000-000000000000",
+    "source": "FOLIO",
+    "title": "Foundations of Modern Linguistics",
+    "indexTitle": "Foundations of Modern Linguistics",
+    "hrid": "in00000000010",
+    "series": [
+      {
+        "value": "Cambridge studies in publishing and printing history"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-610-215587-229-8",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "(OCoLC)72193932",
+        "identifierTypeId": "439bfbae-75bc-4f74-9fc7-b2a2d47ce3ef"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Davis, Barbara E.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      },
+      {
+        "name": "Parker, George D.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Computer vision"
+      },
+      {
+        "value": "Database systems"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "RC9211 .R19 1972",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "MIT Press",
+        "place": "Cambridge, Mass.",
+        "dateOfPublication": "2023",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "date1": "2023",
+      "date2": "2023"
+    },
+    "instanceTypeId": "de9e38bb-89a8-43ee-922f-c973b122cbb3",
+    "instanceFormatIds": [
+      "25a81102-a2a9-4576-85ff-133ebcbcef2c"
+    ],
+    "statisticalCodeIds": [
+      "6899291f-0d18-4f8d-a269-42706a5d0e27",
+      "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
+    ],
+    "natureOfContentTermIds": [
+      "0abeaebb-4166-483d-9f62-3bdf6aae7a93"
+    ],
+    "languages": [
+      "eng",
+      "fra"
+    ],
+    "tags": {
+      "tagList": [
+        "new-addition",
+        "digitization-candidate"
+      ]
+    },
+    "notes": [
+      {
+        "note": "Translation of the 3rd German edition.",
+        "staffOnly": false
+      }
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
+  },
+  {
+    "id": "00000011-0000-4000-8000-000000000000",
+    "source": "FOLIO",
+    "title": "Sword of Gruko",
+    "indexTitle": "Sword of Gruko",
+    "hrid": "in00000000011",
+    "identifiers": [
+      {
+        "value": "978-312-548891-528-2",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "(OCoLC)99877044",
+        "identifierTypeId": "439bfbae-75bc-4f74-9fc7-b2a2d47ce3ef"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Gomez, Rachel Y.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Artificial intelligence"
+      },
+      {
+        "value": "Network security"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "205.05",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Princeton University Press",
+        "place": "Princeton",
+        "dateOfPublication": "1968",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1968",
+      "date2": "1971"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
+    ],
+    "natureOfContentTermIds": [
+      "9f0a2cf0-7a9b-45a2-a403-f68d2850d07c"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
+  },
+  {
+    "id": "00000012-0000-4000-8000-000000000000",
+    "source": "FOLIO",
+    "title": "Animal farm",
+    "indexTitle": "B1 Animal farm",
+    "hrid": "in00000000012",
+    "alternativeTitles": [
+      {
+        "alternativeTitle": "An alternative title",
+        "alternativeTitleTypeId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
+      }
+    ],
+    "series": [
+      {
+        "value": "Cooperative information systems",
+        "authorityId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "0262012103",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "9781609383657",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "9780262012102",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "978-0-471-44250-9 (cloth : alk. paper)",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "047144250X",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "2003065165",
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
+      },
+      {
+        "value": "n 2003075732",
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
+      },
+      {
+        "value": "canceled LCCN",
+        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9"
+      },
+      {
+        "value": "0317-8471",
+        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
+      },
+      {
+        "value": "0040-781X",
+        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
+      },
+      {
+        "value": "(OCoLC)ocm0060710867",
+        "identifierTypeId": "c3c651c7-96b4-416c-a1af-17146ce0a409"
+      },
+      {
+        "value": "ocm0012345 800630",
+        "identifierTypeId": "82fb97e1-f460-4099-9ac8-97518341ed1a"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "yyy zzz",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Semantic Web",
+        "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72d"
+      },
+      {
+        "value": "backslash\\ \"double\\-quotes\\\" te\\st"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "025.04",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      },
+      {
+        "classificationNumber": "HD1691 .I5 1967",
+        "classificationTypeId": "ce176ace-a53e-4b4d-aa89-725ed7b2edac"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "MIT Press",
+        "place": "Cambridge, Mass. ",
+        "dateOfPublication": "c2004",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1999",
+      "date2": "2000"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "statisticalCodeIds": [
+      "9d8abbe2-1a94-4866-8731-4d12ac09f7a8",
+      "d9acad2f-d9ac-4b48-9097-e6ab85000001"
+    ],
+    "natureOfContentTermIds": [
+      "526aa04d-9289-4511-8866-349299592c18"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "administrativeNotes": [
+      "Includes bibliographical references."
+    ],
+    "notes": [
+      {
+        "note": "Description based on print version record.",
+        "staffOnly": false
+      }
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
+  },
+  {
+    "id": "00000013-0000-4000-8000-000000000000",
+    "source": "FOLIO",
+    "title": "The Galactic Empire: A Political History",
+    "indexTitle": "Galactic Empire: A Political History",
+    "hrid": "in00000000013",
+    "series": [
+      {
+        "value": "International studies in political economy"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-458-699929-395-2",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Darth Vader",
+        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
+        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299",
+        "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Education reform"
+      },
+      {
+        "value": "Architectural design"
+      },
+      {
+        "value": "Clinical psychology"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "828.19",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Elsevier",
+        "place": "Amsterdam",
+        "dateOfPublication": "1992",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1992"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
+    ],
+    "statisticalCodeIds": [
+      "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
+    ],
+    "natureOfContentTermIds": [
+      "9f0a2cf0-7a9b-45a2-a403-f68d2850d07c",
+      "a1d70ca5-67aa-4824-b3af-55c8cf47a427"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "notes": [
+      {
+        "note": "Also available online.",
+        "staffOnly": false
+      },
+      {
+        "note": "Includes bibliographical references.",
+        "staffOnly": false
+      }
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
+  },
+  {
+    "id": "00000014-0000-4000-8000-000000000000",
+    "source": "FOLIO",
+    "title": "Zero Minus Ten",
+    "indexTitle": "Zero Minus Ten",
+    "hrid": "in00000000014",
+    "alternativeTitles": [
+      {
+        "alternativeTitle": "Der Preis der Verführung : die gesetzliche Schadensersatzklage wegen Ehebruchs in England zwischen 1857 und 1970 / Eike Götz Hosemann.",
+        "alternativeTitleTypeId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
+      }
+    ],
+    "series": [
+      {
+        "value": "Cooperative information systems",
+        "authorityId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "0262012103",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "9781609383657",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "9780262012102",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "978-0-471-44250-9 (cloth : alk. paper)",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "047144250X",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "2003065165",
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
+      },
+      {
+        "value": "n 2003075732",
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
+      },
+      {
+        "value": "canceled LCCN",
+        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9"
+      },
+      {
+        "value": "0317-8471",
+        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
+      },
+      {
+        "value": "0040-781X",
+        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
+      },
+      {
+        "value": "(OCoLC)ocm0060710867",
+        "identifierTypeId": "c3c651c7-96b4-416c-a1af-17146ce0a409"
+      },
+      {
+        "value": "ocm0012345 800630",
+        "identifierTypeId": "82fb97e1-f460-4099-9ac8-97518341ed1a"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "aaa bbb",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      },
+      {
+        "name": "bbb ccc",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Semantic Web",
+        "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72d"
+      },
+      {
+        "value": "backslash\\ \"double\\-quotes\\\" te\\st"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "025.04",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      },
+      {
+        "classificationNumber": "HD1691 .I5 1967",
+        "classificationTypeId": "ce176ace-a53e-4b4d-aa89-725ed7b2edac"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "MIT Press",
+        "place": "Cambridge, Mass. ",
+        "dateOfPublication": "c2004",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "199u",
+      "date2": "2000"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "statisticalCodeIds": [
+      "c4073462-6144-4b69-a543-dd131e241799"
+    ],
+    "natureOfContentTermIds": [
+      "9ef56f0c-fa7b-44dc-ab7c-15a8e7a0ab2b",
+      "526aa04d-9289-4511-8866-349299592c18"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "tags": {
+      "tagList": [
+        "digitization-candidate"
+      ]
+    },
+    "administrativeNotes": [
+      "Also available online."
+    ],
+    "notes": [
+      {
+        "note": "Revised edition.",
+        "staffOnly": true
+      }
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
+  },
+  {
+    "id": "00000015-0000-4000-8000-000000000000",
+    "source": "FOLIO",
+    "title": "Rock Legends: Stadium Anthems and Arena Rock",
+    "indexTitle": "Rock Legends: Stadium Anthems and Arena Rock",
+    "hrid": "in00000000015",
+    "series": [
+      {
+        "value": "Texts in applied mathematics"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-940-275678-628-2",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "(OCoLC)4993092",
+        "identifierTypeId": "439bfbae-75bc-4f74-9fc7-b2a2d47ce3ef"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Bon Jovi",
+        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
+        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299",
+        "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9"
+      },
+      {
+        "name": "Klaus Meine",
+        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
+        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299",
+        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d"
+      },
+      {
+        "name": "Anthony Kiedis",
+        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
+        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299",
+        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Data analysis"
+      },
+      {
+        "value": "Metadata"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "703.95",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "University of Chicago Press",
+        "place": "Chicago",
+        "dateOfPublication": "1995",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1995"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "25a81102-a2a9-4576-85ff-133ebcbcef2c"
+    ],
+    "statisticalCodeIds": [
+      "f47b773a-bd5f-4246-ac1e-fa4adcd0dcdf"
+    ],
+    "natureOfContentTermIds": [
+      "a1d70ca5-67aa-4824-b3af-55c8cf47a427"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "tags": {
+      "tagList": [
+        "ebook-available",
+        "high-demand"
+      ]
+    },
+    "notes": [
+      {
+        "note": "Revised edition.",
+        "staffOnly": false
+      }
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
+  },
+  {
+    "id": "00000016-0000-4000-8000-000000000000",
+    "source": "FOLIO",
+    "title": "Calling Me Home",
+    "indexTitle": "A1 Calling Me Home",
+    "hrid": "in00000000016",
+    "alternativeTitles": [
+      {
+        "alternativeTitle": "Le parler arabe de Cherchell, Algérie.",
+        "alternativeTitleTypeId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
+      }
+    ],
+    "series": [
+      {
+        "value": "Cooperative information systems",
+        "authorityId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "0262012103",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "9781609383657",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "9780262012102",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "978-0-471-44250-9 (cloth : alk. paper)",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "047144250X",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "2003065165",
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
+      },
+      {
+        "value": "n 2003075732",
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
+      },
+      {
+        "value": "canceled LCCN",
+        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9"
+      },
+      {
+        "value": "0317-8471",
+        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
+      },
+      {
+        "value": "0040-781X",
+        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
+      },
+      {
+        "value": "(OCoLC)ocm0060710867",
+        "identifierTypeId": "c3c651c7-96b4-416c-a1af-17146ce0a409"
+      },
+      {
+        "value": "ocm0012345 800630",
+        "identifierTypeId": "82fb97e1-f460-4099-9ac8-97518341ed1a"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "bcc ccc",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Semantic Web",
+        "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72d"
+      },
+      {
+        "value": "backslash\\ \"double\\-quotes\\\" te\\st"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "025.04",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      },
+      {
+        "classificationNumber": "HD1691 .I5 1967",
+        "classificationTypeId": "ce176ace-a53e-4b4d-aa89-725ed7b2edac"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "MIT Press",
+        "place": "Cambridge, Mass. ",
+        "dateOfPublication": "c2004",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2021",
+      "date2": "2022"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "natureOfContentTermIds": [
+      "9ef56f0c-fa7b-44dc-ab7c-15a8e7a0ab2b"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "notes": [
+      {
+        "note": "Previously published under title: Introduction to the subject.",
+        "staffOnly": false
+      }
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
+  },
+  {
+    "id": "00000017-0000-4000-8000-000000000000",
+    "source": "FOLIO",
+    "title": "Hard Rock Chronicles: From Heavy Metal to Alternative",
+    "indexTitle": "Hard Rock Chronicles: From Heavy Metal to Alternative",
+    "hrid": "in00000000017",
+    "series": [
+      {
+        "value": "Studies in information science"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-880-259068-995-3",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "(OCoLC)62598333",
+        "identifierTypeId": "439bfbae-75bc-4f74-9fc7-b2a2d47ce3ef"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Bon Jovi",
+        "contributorNameTypeId": "0ad0a89a-741d-4f1a-85a6-ada214751013",
+        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299",
+        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d"
+      },
+      {
+        "name": "Klaus Meine",
+        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
+        "contributorTypeId": "3ae36e29-e38f-457c-8fcf-1974a6cb63d3",
+        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d"
+      },
+      {
+        "name": "Anthony Kiedis",
+        "contributorNameTypeId": "0ad0a89a-741d-4f1a-85a6-ada214751013",
+        "contributorTypeId": "653ffe66-aa3f-4f1c-a090-c42c4011ef40",
+        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Social sciences"
+      },
+      {
+        "value": "Library science"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "PR5302 .X77 2017",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Columbia University Press",
+        "place": "New York",
+        "dateOfPublication": "1983",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1983",
+      "date2": "1984"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
+    ],
+    "statisticalCodeIds": [
+      "e10796e0-a594-47b7-b748-3a81b69b3d9b"
+    ],
+    "natureOfContentTermIds": [
+      "9ef56f0c-fa7b-44dc-ab7c-15a8e7a0ab2b"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "administrativeNotes": [
+      "Includes bibliographical references and index."
+    ],
+    "notes": [
+      {
+        "note": "Title from cover.",
+        "staffOnly": true
+      }
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
+  },
+  {
+    "id": "00000018-0000-4000-8000-000000000000",
+    "source": "FOLIO",
+    "title": "Walk in My Soul",
+    "indexTitle": "Walk in My Soul",
+    "hrid": "in00000000018",
+    "alternativeTitles": [
+      {
+        "alternativeTitle": "Pang'ok bangk'asyurangsŭ",
+        "alternativeTitleTypeId": "9d968396-0cce-4e9f-8867-c4d04c01f535",
+        "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72c"
+      }
+    ],
+    "series": [
+      {
+        "value": "Cooperative information systems",
+        "authorityId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "0262012103",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "9781609383657",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "9780262012102",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "978-0-471-44250-9 (cloth : alk. paper)",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "047144250X",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "2003065165",
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
+      },
+      {
+        "value": "n 2003075732",
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
+      },
+      {
+        "value": "canceled LCCN",
+        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9"
+      },
+      {
+        "value": "0317-8471",
+        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
+      },
+      {
+        "value": "0040-781X",
+        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
+      },
+      {
+        "value": "(OCoLC)ocm0060710867",
+        "identifierTypeId": "c3c651c7-96b4-416c-a1af-17146ce0a409"
+      },
+      {
+        "value": "ocm0012345 800630",
+        "identifierTypeId": "82fb97e1-f460-4099-9ac8-97518341ed1a"
+      },
+      {
+        "value": "(OCoLC)87183221",
+        "identifierTypeId": "439bfbae-75bc-4f74-9fc7-b2a2d47ce3ef"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "1111 2222",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Semantic Web",
+        "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72d"
+      },
+      {
+        "value": "backslash\\ \"double\\-quotes\\\" te\\st"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "025.04",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      },
+      {
+        "classificationNumber": "HD1691 .I5 1967",
+        "classificationTypeId": "ce176ace-a53e-4b4d-aa89-725ed7b2edac"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "MIT Press",
+        "place": "Cambridge, Mass. ",
+        "dateOfPublication": "c2004",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2001",
+      "date2": "2002"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "natureOfContentTermIds": [
+      "9f0a2cf0-7a9b-45a2-a403-f68d2850d07c",
+      "aef4d369-1571-419c-8cf8-7e596f6f535c"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
+  },
+  {
+    "id": "00000019-0000-4000-8000-000000000000",
+    "source": "FOLIO",
+    "title": "Blaze of Glory: The Bon Jovi Story",
+    "indexTitle": "Blaze of Glory: The Bon Jovi Story",
+    "hrid": "in00000000019",
+    "series": [
+      {
+        "value": "Cambridge studies in publishing and printing history"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-948-926236-931-4",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Bon Jovi",
+        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
+        "contributorTypeId": "3ae36e29-e38f-457c-8fcf-1974a6cb63d3",
+        "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9"
+      },
+      {
+        "name": "Bon Jovi",
+        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
+        "contributorTypeId": "653ffe66-aa3f-4f1c-a090-c42c4011ef40",
+        "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9"
+      },
+      {
+        "name": "Klaus Meine",
+        "contributorNameTypeId": "0ad0a89a-741d-4f1a-85a6-ada214751013",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Social sciences"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "639.07",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Oxford University Press",
+        "place": "Oxford",
+        "dateOfPublication": "1995",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1995"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "natureOfContentTermIds": [
+      "0abeaebb-4166-483d-9f62-3bdf6aae7a93"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "tags": {
+      "tagList": [
+        "digitization-candidate",
+        "high-demand"
+      ]
+    },
+    "administrativeNotes": [
+      "Includes bibliographical references and index."
+    ],
+    "notes": [
+      {
+        "note": "Revised edition.",
+        "staffOnly": false
+      }
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
+  },
+  {
+    "id": "00000020-0000-4000-8000-000000000000",
+    "source": "FOLIO",
+    "title": "Star Wars",
+    "indexTitle": "Star Wars",
+    "hrid": "in00000000020",
+    "alternativeTitles": [
+      {
+        "alternativeTitle": "déjà vu",
+        "alternativeTitleTypeId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
+      }
+    ],
+    "series": [
+      {
+        "value": "Cooperative information systems",
+        "authorityId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "0262012103",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "9781609383657",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "9780262012102",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "978-0-471-44250-9 (cloth : alk. paper)",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "047144250X",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "2003065165",
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
+      },
+      {
+        "value": "n 2003075732",
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
+      },
+      {
+        "value": "canceled LCCN",
+        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9"
+      },
+      {
+        "value": "0317-8471",
+        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
+      },
+      {
+        "value": "0040-781X",
+        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
+      },
+      {
+        "value": "(OCoLC)ocm0060710867",
+        "identifierTypeId": "c3c651c7-96b4-416c-a1af-17146ce0a409"
+      },
+      {
+        "value": "ocm0012345 800630",
+        "identifierTypeId": "82fb97e1-f460-4099-9ac8-97518341ed1a"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Śląsk",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Semantic Web",
+        "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72d"
+      },
+      {
+        "value": "backslash\\ \"double\\-quotes\\\" te\\st"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "025.04",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      },
+      {
+        "classificationNumber": "HD1691 .I5 1967",
+        "classificationTypeId": "ce176ace-a53e-4b4d-aa89-725ed7b2edac"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "MIT Press",
+        "place": "Cambridge, Mass. ",
+        "dateOfPublication": "c2004",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "19u5",
+      "date2": "1998"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "natureOfContentTermIds": [
+      "9ef56f0c-fa7b-44dc-ab7c-15a8e7a0ab2b"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "tags": {
+      "tagList": [
+        "ebook-available",
+        "recommended"
+      ]
+    },
+    "notes": [
+      {
+        "note": "Includes bibliographical references.",
+        "staffOnly": true
+      }
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
+  },
+  {
+    "id": "00000021-0000-4000-8000-000000000000",
+    "source": "FOLIO",
+    "title": "The Beatles Complete Works",
+    "indexTitle": "Beatles Complete Works",
+    "hrid": "in00000000021",
+    "identifiers": [
+      {
+        "value": "978-134-735055-789-1",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "9936-3201",
+        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "John Lennon",
+        "contributorNameTypeId": "1f857623-89ca-4f0b-ab56-5c30f706df3e",
+        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299",
+        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d"
+      },
+      {
+        "name": "Paul McCartney",
+        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
+        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299",
+        "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9"
+      },
+      {
+        "name": "George Harrison",
+        "contributorNameTypeId": "0ad0a89a-741d-4f1a-85a6-ada214751013",
+        "contributorTypeId": "653ffe66-aa3f-4f1c-a090-c42c4011ef40",
+        "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9"
+      },
+      {
+        "name": "Ringo Starr",
+        "contributorNameTypeId": "0ad0a89a-741d-4f1a-85a6-ada214751013",
+        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299",
+        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Genetics"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "HV8362 .H56 1991",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Routledge",
+        "place": "London",
+        "dateOfPublication": "2014",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2014"
+    },
+    "instanceTypeId": "9bce18bd-45bf-4949-8fa8-63163e4b7d7f",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "statisticalCodeIds": [
+      "d9acad2f-d9ac-4b48-9097-e6ab85000001",
+      "c4073462-6144-4b69-a543-dd131e241799"
+    ],
+    "natureOfContentTermIds": [
+      "2fec23f6-6bbc-4fa2-a736-b64a8c06a47a"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "tags": {
+      "tagList": [
+        "review-needed",
+        "high-demand"
+      ]
+    },
+    "administrativeNotes": [
+      "Originally presented as the author's thesis."
+    ],
+    "notes": [
+      {
+        "note": "Revised edition.",
+        "staffOnly": false
+      },
+      {
+        "note": "Includes bibliographical references and index.",
+        "staffOnly": false
+      }
+    ],
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
+  },
+  {
+    "id": "00000022-0000-4000-8000-000000000000",
+    "source": "FOLIO",
+    "title": "The Fab Four: A Musical Biography",
+    "indexTitle": "Fab Four: A Musical Biography",
+    "hrid": "in00000000022",
+    "identifiers": [
+      {
+        "value": "978-845-611382-816-1",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "John Lennon",
+        "contributorNameTypeId": "1f857623-89ca-4f0b-ab56-5c30f706df3e",
+        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299",
+        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d"
+      },
+      {
+        "name": "Paul McCartney",
+        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
+        "contributorTypeId": "3ae36e29-e38f-457c-8fcf-1974a6cb63d3",
+        "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9"
+      },
+      {
+        "name": "George Harrison",
+        "contributorNameTypeId": "0ad0a89a-741d-4f1a-85a6-ada214751013",
+        "contributorTypeId": "653ffe66-aa3f-4f1c-a090-c42c4011ef40",
+        "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9"
+      },
+      {
+        "name": "Ringo Starr",
+        "contributorNameTypeId": "0ad0a89a-741d-4f1a-85a6-ada214751013",
+        "contributorTypeId": "3ae36e29-e38f-457c-8fcf-1974a6cb63d3",
+        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Information management"
+      },
+      {
+        "value": "Operations research"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "569.95",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Palgrave Macmillan",
+        "place": "Basingstoke",
+        "dateOfPublication": "1950",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1950",
+      "date2": "1959"
+    },
+    "instanceTypeId": "535e3160-763a-42f9-b0c0-d8ed7df6e2a2",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "natureOfContentTermIds": [
+      "2fec23f6-6bbc-4fa2-a736-b64a8c06a47a"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "tags": {
+      "tagList": [
+        "special-order",
+        "high-demand"
+      ]
+    },
+    "administrativeNotes": [
+      "Includes bibliographical references and index."
+    ],
+    "notes": [
+      {
+        "note": "Text in English; abstract also in French.",
+        "staffOnly": false
+      }
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
+  },
+  {
+    "id": "00000023-0000-4000-8000-000000000000",
+    "source": "FOLIO",
+    "title": "Yesterday and Today: Songs of Lennon and McCartney",
+    "indexTitle": "Yesterday and Today: Songs of Lennon and McCartney",
+    "hrid": "in00000000023",
+    "identifiers": [
+      {
+        "value": "978-375-471035-513-0",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Paul McCartney",
+        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
+        "contributorTypeId": "653ffe66-aa3f-4f1c-a090-c42c4011ef40",
+        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d"
+      },
+      {
+        "name": "John Lennon",
+        "contributorNameTypeId": "1f857623-89ca-4f0b-ab56-5c30f706df3e",
+        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299"
+      },
+      {
+        "name": "Wi\\lly \\ Wonka",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Knowledge organization"
+      },
+      {
+        "value": "Economic development"
+      },
+      {
+        "value": "Genetics"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "P1366 .U59 2020",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Columbia University Press",
+        "place": "New York",
+        "dateOfPublication": "2001",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2001"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "natureOfContentTermIds": [
+      "2fec23f6-6bbc-4fa2-a736-b64a8c06a47a"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "administrativeNotes": [
+      "Originally presented as the author's thesis."
+    ],
+    "notes": [
+      {
+        "note": "Includes bibliographical references and index.",
+        "staffOnly": false
+      }
+    ],
+    "discoverySuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
     "id": "00000024-0000-4000-8000-000000000000",
@@ -448,669 +2518,6 @@
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
-    "id": "00000012-0000-4000-8000-000000000000",
-    "source": "FOLIO",
-    "title": "Animal farm",
-    "indexTitle": "B1 Animal farm",
-    "hrid": "in00000000012",
-    "alternativeTitles": [
-      {
-        "alternativeTitle": "An alternative title",
-        "alternativeTitleTypeId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
-      }
-    ],
-    "series": [
-      {
-        "value": "Cooperative information systems",
-        "authorityId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
-      }
-    ],
-    "identifiers": [
-      {
-        "value": "0262012103",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "9781609383657",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "9780262012102",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "978-0-471-44250-9 (cloth : alk. paper)",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "047144250X",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "2003065165",
-        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
-      },
-      {
-        "value": "n 2003075732",
-        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
-      },
-      {
-        "value": "canceled LCCN",
-        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9"
-      },
-      {
-        "value": "0317-8471",
-        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
-      },
-      {
-        "value": "0040-781X",
-        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
-      },
-      {
-        "value": "(OCoLC)ocm0060710867",
-        "identifierTypeId": "c3c651c7-96b4-416c-a1af-17146ce0a409"
-      },
-      {
-        "value": "ocm0012345 800630",
-        "identifierTypeId": "82fb97e1-f460-4099-9ac8-97518341ed1a"
-      }
-    ],
-    "contributors": [
-      {
-        "name": "yyy zzz",
-        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
-        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
-      }
-    ],
-    "subjects": [
-      {
-        "value": "Semantic Web",
-        "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72d"
-      },
-      {
-        "value": "backslash\\ \"double\\-quotes\\\" te\\st"
-      }
-    ],
-    "classifications": [
-      {
-        "classificationNumber": "025.04",
-        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
-      },
-      {
-        "classificationNumber": "HD1691 .I5 1967",
-        "classificationTypeId": "ce176ace-a53e-4b4d-aa89-725ed7b2edac"
-      }
-    ],
-    "publication": [
-      {
-        "publisher": "MIT Press",
-        "place": "Cambridge, Mass. ",
-        "dateOfPublication": "c2004",
-        "role": "Publisher"
-      }
-    ],
-    "dates": {
-      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
-      "date1": "1999",
-      "date2": "2000"
-    },
-    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
-    "instanceFormatIds": [
-      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
-    ],
-    "statisticalCodeIds": [
-      "9d8abbe2-1a94-4866-8731-4d12ac09f7a8",
-      "d9acad2f-d9ac-4b48-9097-e6ab85000001"
-    ],
-    "natureOfContentTermIds": [
-      "526aa04d-9289-4511-8866-349299592c18"
-    ],
-    "languages": [
-      "eng"
-    ],
-    "administrativeNotes": [
-      "Includes bibliographical references."
-    ],
-    "notes": [
-      {
-        "note": "Description based on print version record.",
-        "staffOnly": false
-      }
-    ],
-    "discoverySuppress": false,
-    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
-  },
-  {
-    "id": "00000014-0000-4000-8000-000000000000",
-    "source": "FOLIO",
-    "title": "Zero Minus Ten",
-    "indexTitle": "Zero Minus Ten",
-    "hrid": "in00000000014",
-    "alternativeTitles": [
-      {
-        "alternativeTitle": "Der Preis der Verführung : die gesetzliche Schadensersatzklage wegen Ehebruchs in England zwischen 1857 und 1970 / Eike Götz Hosemann.",
-        "alternativeTitleTypeId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
-      }
-    ],
-    "series": [
-      {
-        "value": "Cooperative information systems",
-        "authorityId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
-      }
-    ],
-    "identifiers": [
-      {
-        "value": "0262012103",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "9781609383657",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "9780262012102",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "978-0-471-44250-9 (cloth : alk. paper)",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "047144250X",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "2003065165",
-        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
-      },
-      {
-        "value": "n 2003075732",
-        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
-      },
-      {
-        "value": "canceled LCCN",
-        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9"
-      },
-      {
-        "value": "0317-8471",
-        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
-      },
-      {
-        "value": "0040-781X",
-        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
-      },
-      {
-        "value": "(OCoLC)ocm0060710867",
-        "identifierTypeId": "c3c651c7-96b4-416c-a1af-17146ce0a409"
-      },
-      {
-        "value": "ocm0012345 800630",
-        "identifierTypeId": "82fb97e1-f460-4099-9ac8-97518341ed1a"
-      }
-    ],
-    "contributors": [
-      {
-        "name": "aaa bbb",
-        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
-        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
-      },
-      {
-        "name": "bbb ccc",
-        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
-        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
-        "primary": true
-      }
-    ],
-    "subjects": [
-      {
-        "value": "Semantic Web",
-        "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72d"
-      },
-      {
-        "value": "backslash\\ \"double\\-quotes\\\" te\\st"
-      }
-    ],
-    "classifications": [
-      {
-        "classificationNumber": "025.04",
-        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
-      },
-      {
-        "classificationNumber": "HD1691 .I5 1967",
-        "classificationTypeId": "ce176ace-a53e-4b4d-aa89-725ed7b2edac"
-      }
-    ],
-    "publication": [
-      {
-        "publisher": "MIT Press",
-        "place": "Cambridge, Mass. ",
-        "dateOfPublication": "c2004",
-        "role": "Publisher"
-      }
-    ],
-    "dates": {
-      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
-      "date1": "199u",
-      "date2": "2000"
-    },
-    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
-    "instanceFormatIds": [
-      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
-    ],
-    "statisticalCodeIds": [
-      "c4073462-6144-4b69-a543-dd131e241799"
-    ],
-    "natureOfContentTermIds": [
-      "9ef56f0c-fa7b-44dc-ab7c-15a8e7a0ab2b",
-      "526aa04d-9289-4511-8866-349299592c18"
-    ],
-    "languages": [
-      "eng"
-    ],
-    "tags": {
-      "tagList": [
-        "digitization-candidate"
-      ]
-    },
-    "administrativeNotes": [
-      "Also available online."
-    ],
-    "notes": [
-      {
-        "note": "Revised edition.",
-        "staffOnly": true
-      }
-    ],
-    "discoverySuppress": false,
-    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
-  },
-  {
-    "id": "00000016-0000-4000-8000-000000000000",
-    "source": "FOLIO",
-    "title": "Calling Me Home",
-    "indexTitle": "A1 Calling Me Home",
-    "hrid": "in00000000016",
-    "alternativeTitles": [
-      {
-        "alternativeTitle": "Le parler arabe de Cherchell, Algérie.",
-        "alternativeTitleTypeId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
-      }
-    ],
-    "series": [
-      {
-        "value": "Cooperative information systems",
-        "authorityId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
-      }
-    ],
-    "identifiers": [
-      {
-        "value": "0262012103",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "9781609383657",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "9780262012102",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "978-0-471-44250-9 (cloth : alk. paper)",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "047144250X",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "2003065165",
-        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
-      },
-      {
-        "value": "n 2003075732",
-        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
-      },
-      {
-        "value": "canceled LCCN",
-        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9"
-      },
-      {
-        "value": "0317-8471",
-        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
-      },
-      {
-        "value": "0040-781X",
-        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
-      },
-      {
-        "value": "(OCoLC)ocm0060710867",
-        "identifierTypeId": "c3c651c7-96b4-416c-a1af-17146ce0a409"
-      },
-      {
-        "value": "ocm0012345 800630",
-        "identifierTypeId": "82fb97e1-f460-4099-9ac8-97518341ed1a"
-      }
-    ],
-    "contributors": [
-      {
-        "name": "bcc ccc",
-        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
-        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
-      }
-    ],
-    "subjects": [
-      {
-        "value": "Semantic Web",
-        "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72d"
-      },
-      {
-        "value": "backslash\\ \"double\\-quotes\\\" te\\st"
-      }
-    ],
-    "classifications": [
-      {
-        "classificationNumber": "025.04",
-        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
-      },
-      {
-        "classificationNumber": "HD1691 .I5 1967",
-        "classificationTypeId": "ce176ace-a53e-4b4d-aa89-725ed7b2edac"
-      }
-    ],
-    "publication": [
-      {
-        "publisher": "MIT Press",
-        "place": "Cambridge, Mass. ",
-        "dateOfPublication": "c2004",
-        "role": "Publisher"
-      }
-    ],
-    "dates": {
-      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
-      "date1": "2021",
-      "date2": "2022"
-    },
-    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
-    "instanceFormatIds": [
-      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
-    ],
-    "natureOfContentTermIds": [
-      "9ef56f0c-fa7b-44dc-ab7c-15a8e7a0ab2b"
-    ],
-    "languages": [
-      "eng"
-    ],
-    "notes": [
-      {
-        "note": "Previously published under title: Introduction to the subject.",
-        "staffOnly": false
-      }
-    ],
-    "discoverySuppress": false,
-    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
-  },
-  {
-    "id": "00000018-0000-4000-8000-000000000000",
-    "source": "FOLIO",
-    "title": "Walk in My Soul",
-    "indexTitle": "Walk in My Soul",
-    "hrid": "in00000000018",
-    "alternativeTitles": [
-      {
-        "alternativeTitle": "Pang'ok bangk'asyurangsŭ",
-        "alternativeTitleTypeId": "9d968396-0cce-4e9f-8867-c4d04c01f535",
-        "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72c"
-      }
-    ],
-    "series": [
-      {
-        "value": "Cooperative information systems",
-        "authorityId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
-      }
-    ],
-    "identifiers": [
-      {
-        "value": "0262012103",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "9781609383657",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "9780262012102",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "978-0-471-44250-9 (cloth : alk. paper)",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "047144250X",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "2003065165",
-        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
-      },
-      {
-        "value": "n 2003075732",
-        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
-      },
-      {
-        "value": "canceled LCCN",
-        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9"
-      },
-      {
-        "value": "0317-8471",
-        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
-      },
-      {
-        "value": "0040-781X",
-        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
-      },
-      {
-        "value": "(OCoLC)ocm0060710867",
-        "identifierTypeId": "c3c651c7-96b4-416c-a1af-17146ce0a409"
-      },
-      {
-        "value": "ocm0012345 800630",
-        "identifierTypeId": "82fb97e1-f460-4099-9ac8-97518341ed1a"
-      },
-      {
-        "value": "(OCoLC)87183221",
-        "identifierTypeId": "439bfbae-75bc-4f74-9fc7-b2a2d47ce3ef"
-      }
-    ],
-    "contributors": [
-      {
-        "name": "1111 2222",
-        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
-        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
-        "primary": true
-      }
-    ],
-    "subjects": [
-      {
-        "value": "Semantic Web",
-        "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72d"
-      },
-      {
-        "value": "backslash\\ \"double\\-quotes\\\" te\\st"
-      }
-    ],
-    "classifications": [
-      {
-        "classificationNumber": "025.04",
-        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
-      },
-      {
-        "classificationNumber": "HD1691 .I5 1967",
-        "classificationTypeId": "ce176ace-a53e-4b4d-aa89-725ed7b2edac"
-      }
-    ],
-    "publication": [
-      {
-        "publisher": "MIT Press",
-        "place": "Cambridge, Mass. ",
-        "dateOfPublication": "c2004",
-        "role": "Publisher"
-      }
-    ],
-    "dates": {
-      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
-      "date1": "2001",
-      "date2": "2002"
-    },
-    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
-    "instanceFormatIds": [
-      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
-    ],
-    "natureOfContentTermIds": [
-      "9f0a2cf0-7a9b-45a2-a403-f68d2850d07c",
-      "aef4d369-1571-419c-8cf8-7e596f6f535c"
-    ],
-    "languages": [
-      "eng"
-    ],
-    "discoverySuppress": false,
-    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
-  },
-  {
-    "id": "00000020-0000-4000-8000-000000000000",
-    "source": "FOLIO",
-    "title": "Star Wars",
-    "indexTitle": "Star Wars",
-    "hrid": "in00000000020",
-    "alternativeTitles": [
-      {
-        "alternativeTitle": "déjà vu",
-        "alternativeTitleTypeId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
-      }
-    ],
-    "series": [
-      {
-        "value": "Cooperative information systems",
-        "authorityId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
-      }
-    ],
-    "identifiers": [
-      {
-        "value": "0262012103",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "9781609383657",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "9780262012102",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "978-0-471-44250-9 (cloth : alk. paper)",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "047144250X",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "2003065165",
-        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
-      },
-      {
-        "value": "n 2003075732",
-        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
-      },
-      {
-        "value": "canceled LCCN",
-        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9"
-      },
-      {
-        "value": "0317-8471",
-        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
-      },
-      {
-        "value": "0040-781X",
-        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
-      },
-      {
-        "value": "(OCoLC)ocm0060710867",
-        "identifierTypeId": "c3c651c7-96b4-416c-a1af-17146ce0a409"
-      },
-      {
-        "value": "ocm0012345 800630",
-        "identifierTypeId": "82fb97e1-f460-4099-9ac8-97518341ed1a"
-      }
-    ],
-    "contributors": [
-      {
-        "name": "Śląsk",
-        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
-        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
-        "primary": true
-      }
-    ],
-    "subjects": [
-      {
-        "value": "Semantic Web",
-        "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72d"
-      },
-      {
-        "value": "backslash\\ \"double\\-quotes\\\" te\\st"
-      }
-    ],
-    "classifications": [
-      {
-        "classificationNumber": "025.04",
-        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
-      },
-      {
-        "classificationNumber": "HD1691 .I5 1967",
-        "classificationTypeId": "ce176ace-a53e-4b4d-aa89-725ed7b2edac"
-      }
-    ],
-    "publication": [
-      {
-        "publisher": "MIT Press",
-        "place": "Cambridge, Mass. ",
-        "dateOfPublication": "c2004",
-        "role": "Publisher"
-      }
-    ],
-    "dates": {
-      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
-      "date1": "19u5",
-      "date2": "1998"
-    },
-    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
-    "instanceFormatIds": [
-      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
-    ],
-    "natureOfContentTermIds": [
-      "9ef56f0c-fa7b-44dc-ab7c-15a8e7a0ab2b"
-    ],
-    "languages": [
-      "eng"
-    ],
-    "tags": {
-      "tagList": [
-        "ebook-available",
-        "recommended"
-      ]
-    },
-    "notes": [
-      {
-        "note": "Includes bibliographical references.",
-        "staffOnly": true
-      }
-    ],
-    "discoverySuppress": false,
-    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
-  },
-  {
     "id": "00000028-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Ground water in Africa.",
@@ -1185,6 +2592,103 @@
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
+    "id": "00000029-0000-4000-8000-000000000000",
+    "source": "FOLIO",
+    "title": "Music Through the Ages: A Historical Survey",
+    "indexTitle": "Music Through the Ages: A Historical Survey",
+    "hrid": "in00000000029",
+    "series": [
+      {
+        "value": "Texts in applied mathematics"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-278-980336-361-8",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Phillips, Frank Z.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      },
+      {
+        "name": "Carter, Julie W.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
+      }
+    ],
+    "subjects": [
+      {
+        "value": "History"
+      },
+      {
+        "value": "Music",
+        "authorityId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a"
+      },
+      {
+        "value": "Music",
+        "authorityId": "308c950f-8209-4f2e-9702-0c004a9f21bc"
+      },
+      {
+        "value": "Biography"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "HV4326 .C54 1981",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Cambridge University Press",
+        "place": "Cambridge",
+        "dateOfPublication": "1977",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1977"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "25a81102-a2a9-4576-85ff-133ebcbcef2c"
+    ],
+    "statisticalCodeIds": [
+      "c4073462-6144-4b69-a543-dd131e241799",
+      "d9acad2f-d9ac-4b48-9097-e6ab85000001"
+    ],
+    "natureOfContentTermIds": [
+      "2fec23f6-6bbc-4fa2-a736-b64a8c06a47a",
+      "0abeaebb-4166-483d-9f62-3bdf6aae7a93"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "tags": {
+      "tagList": [
+        "ebook-available",
+        "high-demand"
+      ]
+    },
+    "administrativeNotes": [
+      "Originally presented as the author's thesis."
+    ],
+    "notes": [
+      {
+        "note": "Text in English; abstract also in French.",
+        "staffOnly": true
+      }
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
+  },
+  {
     "id": "00000030-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Ground water in North and West Africa.",
@@ -1252,6 +2756,81 @@
     ],
     "discoverySuppress": true,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
+  },
+  {
+    "id": "00000031-0000-4000-8000-000000000000",
+    "source": "FOLIO",
+    "title": "The Symphony of Middle-Earth: Fantasy and Music",
+    "indexTitle": "Symphony of Middle-Earth: Fantasy and Music",
+    "hrid": "in00000000031",
+    "series": [
+      {
+        "value": "Springer series in solid-state sciences"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-228-424484-706-7",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Nelson, Virginia Q.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "9deb29d1-3e71-4951-9413-a80adac703d0",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Fantasy"
+      },
+      {
+        "value": "Music",
+        "authorityId": "308c950f-8209-4f2e-9702-0c004a9f21bc"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "664.42",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Columbia University Press",
+        "place": "New York",
+        "dateOfPublication": "2012",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2012",
+      "date2": "2019"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
+    ],
+    "statisticalCodeIds": [
+      "9d8abbe2-1a94-4866-8731-4d12ac09f7a8",
+      "f47b773a-bd5f-4246-ac1e-fa4adcd0dcdf"
+    ],
+    "natureOfContentTermIds": [
+      "aef4d369-1571-419c-8cf8-7e596f6f535c"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "tags": {
+      "tagList": [
+        "withdrawn-review"
+      ]
+    },
+    "discoverySuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
     "id": "00000032-0000-4000-8000-000000000000",
@@ -2101,6 +3680,98 @@
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
+    "id": "00000042-0000-4000-8000-000000000000",
+    "source": "FOLIO",
+    "title": "Mozart: The Wonder Child and His Music",
+    "indexTitle": "Mozart: The Wonder Child and His Music",
+    "hrid": "in00000000042",
+    "series": [
+      {
+        "value": "MIT Press series in cognitive science"
+      }
+    ],
+    "identifiers": [
+      {
+        "value": "978-849-188842-402-6",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Anderson, Susan G.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "History"
+      },
+      {
+        "value": "Music",
+        "authorityId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a"
+      },
+      {
+        "value": "Biography"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "207.69",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Harvard University Press",
+        "place": "Cambridge, Mass.",
+        "dateOfPublication": "2008",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "2008"
+    },
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "instanceFormatIds": [
+      "25a81102-a2a9-4576-85ff-133ebcbcef2c"
+    ],
+    "statisticalCodeIds": [
+      "c4073462-6144-4b69-a543-dd131e241799",
+      "d9acad2f-d9ac-4b48-9097-e6ab85000001"
+    ],
+    "natureOfContentTermIds": [
+      "a1d70ca5-67aa-4824-b3af-55c8cf47a427",
+      "9ef56f0c-fa7b-44dc-ab7c-15a8e7a0ab2b"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "tags": {
+      "tagList": [
+        "ebook-available",
+        "review-needed"
+      ]
+    },
+    "administrativeNotes": [
+      "Originally presented as the author's thesis."
+    ],
+    "notes": [
+      {
+        "note": "Includes bibliographical references.",
+        "staffOnly": false
+      },
+      {
+        "note": "Translation of the 3rd German edition.",
+        "staffOnly": false
+      }
+    ],
+    "discoverySuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
+  },
+  {
     "id": "00000043-0000-4000-8000-000000000000",
     "source": "FOLIO",
     "title": "Ground-water exploration in Al Marj area, Cyrenaica, United Kingdom of Libya by T.G. Newport and Yousef Haddor.",
@@ -2172,175 +3843,98 @@
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
-    "id": "00000003-0000-4000-8000-000000000000",
+    "id": "00000044-0000-4000-8000-000000000000",
     "source": "FOLIO",
-    "title": "Biomedical Ethics: Principles and Cases",
-    "indexTitle": "Biomedical Ethics: Principles and Cases",
-    "hrid": "in00000000003",
+    "title": "Chopin: A Life in Music and Exile",
+    "indexTitle": "Chopin: A Life in Music and Exile",
+    "hrid": "in00000000044",
     "identifiers": [
       {
-        "value": "978-543-783970-088-0",
+        "value": "978-504-913372-759-5",
         "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
       }
     ],
     "contributors": [
       {
-        "name": "Marcus Webb",
+        "name": "Thomas, Dorothy C.",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      },
+      {
+        "name": "Parker, George D.",
         "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
         "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
       }
     ],
     "subjects": [
       {
-        "value": "Political theory"
-      }
-    ],
-    "classifications": [
-      {
-        "classificationNumber": "218.70",
-        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
-      }
-    ],
-    "publication": [
-      {
-        "publisher": "Routledge",
-        "place": "London",
-        "dateOfPublication": "1955",
-        "role": "Publisher"
-      }
-    ],
-    "dates": {
-      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
-      "date1": "1955"
-    },
-    "instanceTypeId": "a2c91e87-6bab-44d6-8adb-1fd02481fc4f",
-    "instanceFormatIds": [
-      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
-    ],
-    "statisticalCodeIds": [
-      "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
-    ],
-    "natureOfContentTermIds": [
-      "a1d70ca5-67aa-4824-b3af-55c8cf47a427"
-    ],
-    "languages": [
-      "eng"
-    ],
-    "tags": {
-      "tagList": [
-        "recommended"
-      ]
-    },
-    "administrativeNotes": [
-      "Includes bibliographical references and index."
-    ],
-    "notes": [
-      {
-        "note": "Translation of the 3rd German edition.",
-        "staffOnly": false
-      }
-    ],
-    "discoverySuppress": true,
-    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
-  },
-  {
-    "id": "00000002-0000-4000-8000-000000000000",
-    "source": "FOLIO",
-    "title": "Environmental Law and Policy",
-    "indexTitle": "Environmental Law and Policy",
-    "hrid": "in00000000002",
-    "identifiers": [
-      {
-        "value": "978-425-683331-651-1",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      }
-    ],
-    "contributors": [
-      {
-        "name": "Brown, Patricia K.",
-        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
-        "contributorTypeId": "9deb29d1-3e71-4951-9413-a80adac703d0",
-        "primary": true
-      }
-    ],
-    "subjects": [
-      {
-        "value": "Operations research"
-      }
-    ],
-    "classifications": [
-      {
-        "classificationNumber": "TA5656 .C45 2005",
-        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
-      }
-    ],
-    "publication": [
-      {
-        "publisher": "Routledge",
-        "place": "London",
-        "dateOfPublication": "1958",
-        "role": "Publisher"
-      }
-    ],
-    "dates": {
-      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
-      "date1": "1958"
-    },
-    "instanceTypeId": "de9e38bb-89a8-43ee-922f-c973b122cbb3",
-    "instanceFormatIds": [
-      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
-    ],
-    "statisticalCodeIds": [
-      "b5968c9e-cddc-4576-99e3-8e60aed8b0dd",
-      "b6b46869-f3c1-4370-b603-29774a1e42b1"
-    ],
-    "natureOfContentTermIds": [
-      "aef4d369-1571-419c-8cf8-7e596f6f535c"
-    ],
-    "languages": [
-      "eng"
-    ],
-    "tags": {
-      "tagList": [
-        "reserve"
-      ]
-    },
-    "administrativeNotes": [
-      "Originally presented as the author's thesis."
-    ],
-    "notes": [
-      {
-        "note": "Includes bibliographical references and index.",
-        "staffOnly": false
+        "value": "History"
       },
       {
-        "note": "Description based on print version record.",
-        "staffOnly": true
+        "value": "Music",
+        "authorityId": "308c950f-8209-4f2e-9702-0c004a9f21bc"
+      },
+      {
+        "value": "Biography"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "Z4056 .U98 1999",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Duke University Press",
+        "place": "Durham",
+        "dateOfPublication": "1979",
+        "role": "Publisher"
+      }
+    ],
+    "dates": {
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1979"
+    },
+    "instanceTypeId": "535e3160-763a-42f9-b0c0-d8ed7df6e2a2",
+    "instanceFormatIds": [
+      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
+    ],
+    "natureOfContentTermIds": [
+      "44cd89f3-2e76-469f-a955-cc57cb9e0395"
+    ],
+    "languages": [
+      "eng"
+    ],
+    "notes": [
+      {
+        "note": "Companion volume to work published by same publisher.",
+        "staffOnly": false
       }
     ],
     "discoverySuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
-    "id": "00000001-0000-4000-8000-000000000000",
-    "source": "MARC",
-    "title": "Cultural Anthropology: A Global Perspective",
-    "indexTitle": "Cultural Anthropology: A Global Perspective",
-    "hrid": "in00000000001",
-    "series": [
-      {
-        "value": "Monographs in library and information science"
-      }
-    ],
+    "id": "00000045-0000-4000-8000-000000000000",
+    "source": "FOLIO",
+    "title": "Wild and Wicked",
+    "indexTitle": "Wild and Wicked",
+    "hrid": "in00000000045",
     "identifiers": [
       {
-        "value": "978-039-933254-823-7",
+        "value": "978-730-195418-451-2",
         "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      },
+      {
+        "value": "8403-9933",
+        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
       }
     ],
     "contributors": [
       {
-        "name": "Moore, Nancy W.",
+        "name": "Hernandez, Carlos M.",
         "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
         "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
         "primary": true
@@ -2348,49 +3942,46 @@
     ],
     "subjects": [
       {
-        "value": "Clinical psychology"
+        "value": "Computer vision"
       },
       {
-        "value": "Natural language processing"
+        "value": "Knowledge organization"
       }
     ],
     "classifications": [
       {
-        "classificationNumber": "QA76.73.C15",
-        "classificationTypeId": "5af5cb9d-063f-48ea-8148-7da3ecaafd7d"
+        "classificationNumber": "Q2446 .G87 1964",
+        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
       }
     ],
     "publication": [
       {
-        "publisher": "Yale University Press",
-        "place": "New Haven",
-        "dateOfPublication": "2021",
+        "publisher": "University of Chicago Press",
+        "place": "Chicago",
+        "dateOfPublication": "1983",
         "role": "Publisher"
       }
     ],
     "dates": {
-      "date1": "2021"
+      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
+      "date1": "1983"
     },
-    "instanceTypeId": "de9e38bb-89a8-43ee-922f-c973b122cbb3",
+    "instanceTypeId": "df5dddff-9c30-4507-8b82-119ff972d4d7",
     "instanceFormatIds": [
-      "25a81102-a2a9-4576-85ff-133ebcbcef2c",
       "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
     ],
     "natureOfContentTermIds": [
-      "9ef56f0c-fa7b-44dc-ab7c-15a8e7a0ab2b"
+      "526aa04d-9289-4511-8866-349299592c18"
     ],
     "languages": [
-      "eng",
-      "ita"
+      "eng"
     ],
-    "tags": {
-      "tagList": [
-        "special-order"
-      ]
-    },
+    "administrativeNotes": [
+      "Also available online."
+    ],
     "notes": [
       {
-        "note": "Companion volume to work published by same publisher.",
+        "note": "Includes bibliographical references.",
         "staffOnly": false
       }
     ],
@@ -2479,627 +4070,6 @@
       }
     ],
     "discoverySuppress": true,
-    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
-  },
-  {
-    "id": "00000005-0000-4000-8000-000000000000",
-    "source": "FOLIO",
-    "title": "Gender and Society: Feminist Perspectives",
-    "indexTitle": "Gender and Society: Feminist Perspectives",
-    "hrid": "in00000000005",
-    "identifiers": [
-      {
-        "value": "978-630-227928-741-5",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "1080-8119",
-        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
-      }
-    ],
-    "contributors": [
-      {
-        "name": "Green, Deborah O.",
-        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
-        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
-        "primary": true
-      }
-    ],
-    "subjects": [
-      {
-        "value": "Economic development"
-      },
-      {
-        "value": "Public administration"
-      },
-      {
-        "value": "Quantum computing"
-      }
-    ],
-    "classifications": [
-      {
-        "classificationNumber": "412.98",
-        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
-      }
-    ],
-    "publication": [
-      {
-        "publisher": "MIT Press",
-        "place": "Cambridge, Mass.",
-        "dateOfPublication": "2020",
-        "role": "Publisher"
-      }
-    ],
-    "dates": {
-      "date1": "2020"
-    },
-    "instanceTypeId": "24da24dd-03ae-4e34-bad6-c79e342baeb9",
-    "instanceFormatIds": [
-      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
-    ],
-    "languages": [
-      "rus",
-      "ukr"
-    ],
-    "tags": {
-      "tagList": [
-        "recommended",
-        "withdrawn-review"
-      ]
-    },
-    "administrativeNotes": [
-      "Includes bibliographical references."
-    ],
-    "notes": [
-      {
-        "note": "Title from cover.",
-        "staffOnly": true
-      },
-      {
-        "note": "Cataloged from PDF version of text.",
-        "staffOnly": false
-      }
-    ],
-    "discoverySuppress": false,
-    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
-  },
-  {
-    "id": "00000009-0000-4000-8000-000000000000",
-    "source": "MARC",
-    "title": "Ethics in Medical Research",
-    "indexTitle": "Ethics in Medical Research",
-    "hrid": "in00000000009",
-    "series": [
-      {
-        "value": "International studies in political economy"
-      }
-    ],
-    "identifiers": [
-      {
-        "value": "978-446-552250-314-3",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      }
-    ],
-    "contributors": [
-      {
-        "name": "Robinson, Paul D.",
-        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
-        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
-        "primary": true
-      }
-    ],
-    "subjects": [
-      {
-        "value": "Statistics"
-      },
-      {
-        "value": "Machine learning"
-      },
-      {
-        "value": "Education reform"
-      }
-    ],
-    "classifications": [
-      {
-        "classificationNumber": "162.04",
-        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
-      }
-    ],
-    "publication": [
-      {
-        "publisher": "Palgrave Macmillan",
-        "place": "Basingstoke",
-        "dateOfPublication": "1995",
-        "role": "Publisher"
-      }
-    ],
-    "dates": {
-      "date1": "1995"
-    },
-    "instanceTypeId": "de9e38bb-89a8-43ee-922f-c973b122cbb3",
-    "instanceFormatIds": [
-      "89f6d4f0-9cd2-4015-828d-331dc3adb47a",
-      "25a81102-a2a9-4576-85ff-133ebcbcef2c",
-      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
-    ],
-    "languages": [
-      "ita"
-    ],
-    "discoverySuppress": false,
-    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
-  },
-  {
-    "id": "00000010-0000-4000-8000-000000000000",
-    "source": "FOLIO",
-    "title": "Foundations of Modern Linguistics",
-    "indexTitle": "Foundations of Modern Linguistics",
-    "hrid": "in00000000010",
-    "series": [
-      {
-        "value": "Cambridge studies in publishing and printing history"
-      }
-    ],
-    "identifiers": [
-      {
-        "value": "978-610-215587-229-8",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "(OCoLC)72193932",
-        "identifierTypeId": "439bfbae-75bc-4f74-9fc7-b2a2d47ce3ef"
-      }
-    ],
-    "contributors": [
-      {
-        "name": "Davis, Barbara E.",
-        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
-        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
-        "primary": true
-      },
-      {
-        "name": "Parker, George D.",
-        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
-        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
-      }
-    ],
-    "subjects": [
-      {
-        "value": "Computer vision"
-      },
-      {
-        "value": "Database systems"
-      }
-    ],
-    "classifications": [
-      {
-        "classificationNumber": "RC9211 .R19 1972",
-        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
-      }
-    ],
-    "publication": [
-      {
-        "publisher": "MIT Press",
-        "place": "Cambridge, Mass.",
-        "dateOfPublication": "2023",
-        "role": "Publisher"
-      }
-    ],
-    "dates": {
-      "date1": "2023",
-      "date2": "2023"
-    },
-    "instanceTypeId": "de9e38bb-89a8-43ee-922f-c973b122cbb3",
-    "instanceFormatIds": [
-      "25a81102-a2a9-4576-85ff-133ebcbcef2c"
-    ],
-    "statisticalCodeIds": [
-      "6899291f-0d18-4f8d-a269-42706a5d0e27",
-      "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
-    ],
-    "natureOfContentTermIds": [
-      "0abeaebb-4166-483d-9f62-3bdf6aae7a93"
-    ],
-    "languages": [
-      "eng",
-      "fra"
-    ],
-    "tags": {
-      "tagList": [
-        "new-addition",
-        "digitization-candidate"
-      ]
-    },
-    "notes": [
-      {
-        "note": "Translation of the 3rd German edition.",
-        "staffOnly": false
-      }
-    ],
-    "discoverySuppress": false,
-    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
-  },
-  {
-    "id": "00000007-0000-4000-8000-000000000000",
-    "source": "FOLIO",
-    "title": "Death of the Price Jackal",
-    "indexTitle": "Death of the Price Jackal",
-    "hrid": "in00000000007",
-    "identifiers": [
-      {
-        "value": "978-981-922588-252-7",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      }
-    ],
-    "contributors": [
-      {
-        "name": "Thompson, Betty N.",
-        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
-        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
-        "primary": true
-      }
-    ],
-    "subjects": [
-      {
-        "value": "Communication theory"
-      },
-      {
-        "value": "Clinical psychology"
-      }
-    ],
-    "classifications": [
-      {
-        "classificationNumber": "142.11",
-        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
-      }
-    ],
-    "publication": [
-      {
-        "publisher": "Routledge",
-        "place": "London",
-        "dateOfPublication": "1976",
-        "role": "Publisher"
-      }
-    ],
-    "dates": {
-      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
-      "date1": "1976"
-    },
-    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
-    "instanceFormatIds": [
-      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
-    ],
-    "statisticalCodeIds": [
-      "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
-    ],
-    "natureOfContentTermIds": [
-      "44cd89f3-2e76-469f-a955-cc57cb9e0395"
-    ],
-    "languages": [
-      "eng"
-    ],
-    "tags": {
-      "tagList": [
-        "special-order"
-      ]
-    },
-    "notes": [
-      {
-        "note": "Cataloged from PDF version of text.",
-        "staffOnly": true
-      }
-    ],
-    "discoverySuppress": true,
-    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
-  },
-  {
-    "id": "00000045-0000-4000-8000-000000000000",
-    "source": "FOLIO",
-    "title": "Wild and Wicked",
-    "indexTitle": "Wild and Wicked",
-    "hrid": "in00000000045",
-    "identifiers": [
-      {
-        "value": "978-730-195418-451-2",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "8403-9933",
-        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
-      }
-    ],
-    "contributors": [
-      {
-        "name": "Hernandez, Carlos M.",
-        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
-        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
-        "primary": true
-      }
-    ],
-    "subjects": [
-      {
-        "value": "Computer vision"
-      },
-      {
-        "value": "Knowledge organization"
-      }
-    ],
-    "classifications": [
-      {
-        "classificationNumber": "Q2446 .G87 1964",
-        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
-      }
-    ],
-    "publication": [
-      {
-        "publisher": "University of Chicago Press",
-        "place": "Chicago",
-        "dateOfPublication": "1983",
-        "role": "Publisher"
-      }
-    ],
-    "dates": {
-      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
-      "date1": "1983"
-    },
-    "instanceTypeId": "df5dddff-9c30-4507-8b82-119ff972d4d7",
-    "instanceFormatIds": [
-      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
-    ],
-    "natureOfContentTermIds": [
-      "526aa04d-9289-4511-8866-349299592c18"
-    ],
-    "languages": [
-      "eng"
-    ],
-    "administrativeNotes": [
-      "Also available online."
-    ],
-    "notes": [
-      {
-        "note": "Includes bibliographical references.",
-        "staffOnly": false
-      }
-    ],
-    "discoverySuppress": false,
-    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
-  },
-  {
-    "id": "00000011-0000-4000-8000-000000000000",
-    "source": "FOLIO",
-    "title": "Sword of Gruko",
-    "indexTitle": "Sword of Gruko",
-    "hrid": "in00000000011",
-    "identifiers": [
-      {
-        "value": "978-312-548891-528-2",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "(OCoLC)99877044",
-        "identifierTypeId": "439bfbae-75bc-4f74-9fc7-b2a2d47ce3ef"
-      }
-    ],
-    "contributors": [
-      {
-        "name": "Gomez, Rachel Y.",
-        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
-        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
-        "primary": true
-      }
-    ],
-    "subjects": [
-      {
-        "value": "Artificial intelligence"
-      },
-      {
-        "value": "Network security"
-      }
-    ],
-    "classifications": [
-      {
-        "classificationNumber": "205.05",
-        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
-      }
-    ],
-    "publication": [
-      {
-        "publisher": "Princeton University Press",
-        "place": "Princeton",
-        "dateOfPublication": "1968",
-        "role": "Publisher"
-      }
-    ],
-    "dates": {
-      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
-      "date1": "1968",
-      "date2": "1971"
-    },
-    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
-    "instanceFormatIds": [
-      "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
-    ],
-    "natureOfContentTermIds": [
-      "9f0a2cf0-7a9b-45a2-a403-f68d2850d07c"
-    ],
-    "languages": [
-      "eng"
-    ],
-    "discoverySuppress": false,
-    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
-  },
-  {
-    "id": "00000004-0000-4000-8000-000000000000",
-    "source": "FOLIO",
-    "title": "The Blade in the Ice",
-    "indexTitle": "Blade in the Ice",
-    "hrid": "in00000000004",
-    "series": [
-      {
-        "value": "Texts in applied mathematics"
-      }
-    ],
-    "identifiers": [
-      {
-        "value": "978-034-569503-467-2",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      }
-    ],
-    "contributors": [
-      {
-        "name": "Hernandez, Carlos M.",
-        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
-        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
-        "primary": true
-      }
-    ],
-    "subjects": [
-      {
-        "value": "Machine learning"
-      },
-      {
-        "value": "Artificial intelligence"
-      },
-      {
-        "value": "Digital humanities"
-      }
-    ],
-    "classifications": [
-      {
-        "classificationNumber": "QP7124 .M32 1979",
-        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
-      }
-    ],
-    "publication": [
-      {
-        "publisher": "Routledge",
-        "place": "London",
-        "dateOfPublication": "1970",
-        "role": "Publisher"
-      }
-    ],
-    "dates": {
-      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
-      "date1": "1970",
-      "date2": "1980"
-    },
-    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
-    "instanceFormatIds": [
-      "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
-    ],
-    "statisticalCodeIds": [
-      "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
-    ],
-    "natureOfContentTermIds": [
-      "9f0a2cf0-7a9b-45a2-a403-f68d2850d07c",
-      "526aa04d-9289-4511-8866-349299592c18"
-    ],
-    "languages": [
-      "eng"
-    ],
-    "tags": {
-      "tagList": [
-        "review-needed"
-      ]
-    },
-    "administrativeNotes": [
-      "Also available online."
-    ],
-    "notes": [
-      {
-        "note": "Also available online.",
-        "staffOnly": false
-      },
-      {
-        "note": "Includes bibliographical references and index.",
-        "staffOnly": false
-      }
-    ],
-    "discoverySuppress": false,
-    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
-  },
-  {
-    "id": "00000006-0000-4000-8000-000000000000",
-    "source": "FOLIO",
-    "title": "The Raven Crystal",
-    "indexTitle": "Raven Crystal",
-    "hrid": "in00000000006",
-    "series": [
-      {
-        "value": "Topics in modern biology"
-      }
-    ],
-    "identifiers": [
-      {
-        "value": "978-794-461003-312-2",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "1969-941204",
-        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
-      }
-    ],
-    "contributors": [
-      {
-        "name": "Lee, Christopher Z.",
-        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
-        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
-        "primary": true
-      }
-    ],
-    "subjects": [
-      {
-        "value": "Library science"
-      },
-      {
-        "value": "Database systems"
-      },
-      {
-        "value": "Urban planning"
-      }
-    ],
-    "classifications": [
-      {
-        "classificationNumber": "TK9223 .E73 2011",
-        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
-      }
-    ],
-    "publication": [
-      {
-        "publisher": "Harvard University Press",
-        "place": "Cambridge, Mass.",
-        "dateOfPublication": "1951",
-        "role": "Publisher"
-      }
-    ],
-    "dates": {
-      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
-      "date1": "1951"
-    },
-    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
-    "instanceFormatIds": [
-      "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
-    ],
-    "statisticalCodeIds": [
-      "e10796e0-a594-47b7-b748-3a81b69b3d9b"
-    ],
-    "natureOfContentTermIds": [
-      "2fec23f6-6bbc-4fa2-a736-b64a8c06a47a"
-    ],
-    "languages": [
-      "eng"
-    ],
-    "tags": {
-      "tagList": [
-        "high-demand"
-      ]
-    },
-    "notes": [
-      {
-        "note": "Translation of the 3rd German edition.",
-        "staffOnly": false
-      }
-    ],
-    "discoverySuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
@@ -6993,975 +7963,5 @@
     ],
     "discoverySuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
-  },
-  {
-    "id": "00000013-0000-4000-8000-000000000000",
-    "source": "FOLIO",
-    "title": "The Galactic Empire: A Political History",
-    "indexTitle": "Galactic Empire: A Political History",
-    "hrid": "in00000000013",
-    "series": [
-      {
-        "value": "International studies in political economy"
-      }
-    ],
-    "identifiers": [
-      {
-        "value": "978-458-699929-395-2",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      }
-    ],
-    "contributors": [
-      {
-        "name": "Darth Vader",
-        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
-        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299",
-        "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9"
-      }
-    ],
-    "subjects": [
-      {
-        "value": "Education reform"
-      },
-      {
-        "value": "Architectural design"
-      },
-      {
-        "value": "Clinical psychology"
-      }
-    ],
-    "classifications": [
-      {
-        "classificationNumber": "828.19",
-        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
-      }
-    ],
-    "publication": [
-      {
-        "publisher": "Elsevier",
-        "place": "Amsterdam",
-        "dateOfPublication": "1992",
-        "role": "Publisher"
-      }
-    ],
-    "dates": {
-      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
-      "date1": "1992"
-    },
-    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
-    "instanceFormatIds": [
-      "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
-    ],
-    "statisticalCodeIds": [
-      "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
-    ],
-    "natureOfContentTermIds": [
-      "9f0a2cf0-7a9b-45a2-a403-f68d2850d07c",
-      "a1d70ca5-67aa-4824-b3af-55c8cf47a427"
-    ],
-    "languages": [
-      "eng"
-    ],
-    "notes": [
-      {
-        "note": "Also available online.",
-        "staffOnly": false
-      },
-      {
-        "note": "Includes bibliographical references.",
-        "staffOnly": false
-      }
-    ],
-    "discoverySuppress": false,
-    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
-  },
-  {
-    "id": "00000015-0000-4000-8000-000000000000",
-    "source": "FOLIO",
-    "title": "Rock Legends: Stadium Anthems and Arena Rock",
-    "indexTitle": "Rock Legends: Stadium Anthems and Arena Rock",
-    "hrid": "in00000000015",
-    "series": [
-      {
-        "value": "Texts in applied mathematics"
-      }
-    ],
-    "identifiers": [
-      {
-        "value": "978-940-275678-628-2",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "(OCoLC)4993092",
-        "identifierTypeId": "439bfbae-75bc-4f74-9fc7-b2a2d47ce3ef"
-      }
-    ],
-    "contributors": [
-      {
-        "name": "Bon Jovi",
-        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
-        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299",
-        "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9"
-      },
-      {
-        "name": "Klaus Meine",
-        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
-        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299",
-        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d"
-      },
-      {
-        "name": "Anthony Kiedis",
-        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
-        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299",
-        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d"
-      }
-    ],
-    "subjects": [
-      {
-        "value": "Data analysis"
-      },
-      {
-        "value": "Metadata"
-      }
-    ],
-    "classifications": [
-      {
-        "classificationNumber": "703.95",
-        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
-      }
-    ],
-    "publication": [
-      {
-        "publisher": "University of Chicago Press",
-        "place": "Chicago",
-        "dateOfPublication": "1995",
-        "role": "Publisher"
-      }
-    ],
-    "dates": {
-      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
-      "date1": "1995"
-    },
-    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
-    "instanceFormatIds": [
-      "25a81102-a2a9-4576-85ff-133ebcbcef2c"
-    ],
-    "statisticalCodeIds": [
-      "f47b773a-bd5f-4246-ac1e-fa4adcd0dcdf"
-    ],
-    "natureOfContentTermIds": [
-      "a1d70ca5-67aa-4824-b3af-55c8cf47a427"
-    ],
-    "languages": [
-      "eng"
-    ],
-    "tags": {
-      "tagList": [
-        "ebook-available",
-        "high-demand"
-      ]
-    },
-    "notes": [
-      {
-        "note": "Revised edition.",
-        "staffOnly": false
-      }
-    ],
-    "discoverySuppress": false,
-    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
-  },
-  {
-    "id": "00000017-0000-4000-8000-000000000000",
-    "source": "FOLIO",
-    "title": "Hard Rock Chronicles: From Heavy Metal to Alternative",
-    "indexTitle": "Hard Rock Chronicles: From Heavy Metal to Alternative",
-    "hrid": "in00000000017",
-    "series": [
-      {
-        "value": "Studies in information science"
-      }
-    ],
-    "identifiers": [
-      {
-        "value": "978-880-259068-995-3",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "(OCoLC)62598333",
-        "identifierTypeId": "439bfbae-75bc-4f74-9fc7-b2a2d47ce3ef"
-      }
-    ],
-    "contributors": [
-      {
-        "name": "Bon Jovi",
-        "contributorNameTypeId": "0ad0a89a-741d-4f1a-85a6-ada214751013",
-        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299",
-        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d"
-      },
-      {
-        "name": "Klaus Meine",
-        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
-        "contributorTypeId": "3ae36e29-e38f-457c-8fcf-1974a6cb63d3",
-        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d"
-      },
-      {
-        "name": "Anthony Kiedis",
-        "contributorNameTypeId": "0ad0a89a-741d-4f1a-85a6-ada214751013",
-        "contributorTypeId": "653ffe66-aa3f-4f1c-a090-c42c4011ef40",
-        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d"
-      }
-    ],
-    "subjects": [
-      {
-        "value": "Social sciences"
-      },
-      {
-        "value": "Library science"
-      }
-    ],
-    "classifications": [
-      {
-        "classificationNumber": "PR5302 .X77 2017",
-        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
-      }
-    ],
-    "publication": [
-      {
-        "publisher": "Columbia University Press",
-        "place": "New York",
-        "dateOfPublication": "1983",
-        "role": "Publisher"
-      }
-    ],
-    "dates": {
-      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
-      "date1": "1983",
-      "date2": "1984"
-    },
-    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
-    "instanceFormatIds": [
-      "89f6d4f0-9cd2-4015-828d-331dc3adb47a"
-    ],
-    "statisticalCodeIds": [
-      "e10796e0-a594-47b7-b748-3a81b69b3d9b"
-    ],
-    "natureOfContentTermIds": [
-      "9ef56f0c-fa7b-44dc-ab7c-15a8e7a0ab2b"
-    ],
-    "languages": [
-      "eng"
-    ],
-    "administrativeNotes": [
-      "Includes bibliographical references and index."
-    ],
-    "notes": [
-      {
-        "note": "Title from cover.",
-        "staffOnly": true
-      }
-    ],
-    "discoverySuppress": false,
-    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
-  },
-  {
-    "id": "00000019-0000-4000-8000-000000000000",
-    "source": "FOLIO",
-    "title": "Blaze of Glory: The Bon Jovi Story",
-    "indexTitle": "Blaze of Glory: The Bon Jovi Story",
-    "hrid": "in00000000019",
-    "series": [
-      {
-        "value": "Cambridge studies in publishing and printing history"
-      }
-    ],
-    "identifiers": [
-      {
-        "value": "978-948-926236-931-4",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      }
-    ],
-    "contributors": [
-      {
-        "name": "Bon Jovi",
-        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
-        "contributorTypeId": "3ae36e29-e38f-457c-8fcf-1974a6cb63d3",
-        "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9"
-      },
-      {
-        "name": "Bon Jovi",
-        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
-        "contributorTypeId": "653ffe66-aa3f-4f1c-a090-c42c4011ef40",
-        "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9"
-      },
-      {
-        "name": "Klaus Meine",
-        "contributorNameTypeId": "0ad0a89a-741d-4f1a-85a6-ada214751013",
-        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
-        "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9"
-      }
-    ],
-    "subjects": [
-      {
-        "value": "Social sciences"
-      }
-    ],
-    "classifications": [
-      {
-        "classificationNumber": "639.07",
-        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
-      }
-    ],
-    "publication": [
-      {
-        "publisher": "Oxford University Press",
-        "place": "Oxford",
-        "dateOfPublication": "1995",
-        "role": "Publisher"
-      }
-    ],
-    "dates": {
-      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
-      "date1": "1995"
-    },
-    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
-    "instanceFormatIds": [
-      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
-    ],
-    "natureOfContentTermIds": [
-      "0abeaebb-4166-483d-9f62-3bdf6aae7a93"
-    ],
-    "languages": [
-      "eng"
-    ],
-    "tags": {
-      "tagList": [
-        "digitization-candidate",
-        "high-demand"
-      ]
-    },
-    "administrativeNotes": [
-      "Includes bibliographical references and index."
-    ],
-    "notes": [
-      {
-        "note": "Revised edition.",
-        "staffOnly": false
-      }
-    ],
-    "discoverySuppress": false,
-    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
-  },
-  {
-    "id": "00000021-0000-4000-8000-000000000000",
-    "source": "FOLIO",
-    "title": "The Beatles Complete Works",
-    "indexTitle": "Beatles Complete Works",
-    "hrid": "in00000000021",
-    "identifiers": [
-      {
-        "value": "978-134-735055-789-1",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "9936-3201",
-        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
-      }
-    ],
-    "contributors": [
-      {
-        "name": "John Lennon",
-        "contributorNameTypeId": "1f857623-89ca-4f0b-ab56-5c30f706df3e",
-        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299",
-        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d"
-      },
-      {
-        "name": "Paul McCartney",
-        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
-        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299",
-        "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9"
-      },
-      {
-        "name": "George Harrison",
-        "contributorNameTypeId": "0ad0a89a-741d-4f1a-85a6-ada214751013",
-        "contributorTypeId": "653ffe66-aa3f-4f1c-a090-c42c4011ef40",
-        "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9"
-      },
-      {
-        "name": "Ringo Starr",
-        "contributorNameTypeId": "0ad0a89a-741d-4f1a-85a6-ada214751013",
-        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299",
-        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d"
-      }
-    ],
-    "subjects": [
-      {
-        "value": "Genetics"
-      }
-    ],
-    "classifications": [
-      {
-        "classificationNumber": "HV8362 .H56 1991",
-        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
-      }
-    ],
-    "publication": [
-      {
-        "publisher": "Routledge",
-        "place": "London",
-        "dateOfPublication": "2014",
-        "role": "Publisher"
-      }
-    ],
-    "dates": {
-      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
-      "date1": "2014"
-    },
-    "instanceTypeId": "9bce18bd-45bf-4949-8fa8-63163e4b7d7f",
-    "instanceFormatIds": [
-      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
-    ],
-    "statisticalCodeIds": [
-      "d9acad2f-d9ac-4b48-9097-e6ab85000001",
-      "c4073462-6144-4b69-a543-dd131e241799"
-    ],
-    "natureOfContentTermIds": [
-      "2fec23f6-6bbc-4fa2-a736-b64a8c06a47a"
-    ],
-    "languages": [
-      "eng"
-    ],
-    "tags": {
-      "tagList": [
-        "review-needed",
-        "high-demand"
-      ]
-    },
-    "administrativeNotes": [
-      "Originally presented as the author's thesis."
-    ],
-    "notes": [
-      {
-        "note": "Revised edition.",
-        "staffOnly": false
-      },
-      {
-        "note": "Includes bibliographical references and index.",
-        "staffOnly": false
-      }
-    ],
-    "discoverySuppress": false,
-    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
-  },
-  {
-    "id": "00000022-0000-4000-8000-000000000000",
-    "source": "FOLIO",
-    "title": "The Fab Four: A Musical Biography",
-    "indexTitle": "Fab Four: A Musical Biography",
-    "hrid": "in00000000022",
-    "identifiers": [
-      {
-        "value": "978-845-611382-816-1",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      }
-    ],
-    "contributors": [
-      {
-        "name": "John Lennon",
-        "contributorNameTypeId": "1f857623-89ca-4f0b-ab56-5c30f706df3e",
-        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299",
-        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d"
-      },
-      {
-        "name": "Paul McCartney",
-        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
-        "contributorTypeId": "3ae36e29-e38f-457c-8fcf-1974a6cb63d3",
-        "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9"
-      },
-      {
-        "name": "George Harrison",
-        "contributorNameTypeId": "0ad0a89a-741d-4f1a-85a6-ada214751013",
-        "contributorTypeId": "653ffe66-aa3f-4f1c-a090-c42c4011ef40",
-        "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9"
-      },
-      {
-        "name": "Ringo Starr",
-        "contributorNameTypeId": "0ad0a89a-741d-4f1a-85a6-ada214751013",
-        "contributorTypeId": "3ae36e29-e38f-457c-8fcf-1974a6cb63d3",
-        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d"
-      }
-    ],
-    "subjects": [
-      {
-        "value": "Information management"
-      },
-      {
-        "value": "Operations research"
-      }
-    ],
-    "classifications": [
-      {
-        "classificationNumber": "569.95",
-        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
-      }
-    ],
-    "publication": [
-      {
-        "publisher": "Palgrave Macmillan",
-        "place": "Basingstoke",
-        "dateOfPublication": "1950",
-        "role": "Publisher"
-      }
-    ],
-    "dates": {
-      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
-      "date1": "1950",
-      "date2": "1959"
-    },
-    "instanceTypeId": "535e3160-763a-42f9-b0c0-d8ed7df6e2a2",
-    "instanceFormatIds": [
-      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
-    ],
-    "natureOfContentTermIds": [
-      "2fec23f6-6bbc-4fa2-a736-b64a8c06a47a"
-    ],
-    "languages": [
-      "eng"
-    ],
-    "tags": {
-      "tagList": [
-        "special-order",
-        "high-demand"
-      ]
-    },
-    "administrativeNotes": [
-      "Includes bibliographical references and index."
-    ],
-    "notes": [
-      {
-        "note": "Text in English; abstract also in French.",
-        "staffOnly": false
-      }
-    ],
-    "discoverySuppress": false,
-    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
-  },
-  {
-    "id": "00000023-0000-4000-8000-000000000000",
-    "source": "FOLIO",
-    "title": "Yesterday and Today: Songs of Lennon and McCartney",
-    "indexTitle": "Yesterday and Today: Songs of Lennon and McCartney",
-    "hrid": "in00000000023",
-    "identifiers": [
-      {
-        "value": "978-375-471035-513-0",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      }
-    ],
-    "contributors": [
-      {
-        "name": "Paul McCartney",
-        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
-        "contributorTypeId": "653ffe66-aa3f-4f1c-a090-c42c4011ef40",
-        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d"
-      },
-      {
-        "name": "John Lennon",
-        "contributorNameTypeId": "1f857623-89ca-4f0b-ab56-5c30f706df3e",
-        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299"
-      },
-      {
-        "name": "Wi\\lly \\ Wonka",
-        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
-        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
-      }
-    ],
-    "subjects": [
-      {
-        "value": "Knowledge organization"
-      },
-      {
-        "value": "Economic development"
-      },
-      {
-        "value": "Genetics"
-      }
-    ],
-    "classifications": [
-      {
-        "classificationNumber": "P1366 .U59 2020",
-        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
-      }
-    ],
-    "publication": [
-      {
-        "publisher": "Columbia University Press",
-        "place": "New York",
-        "dateOfPublication": "2001",
-        "role": "Publisher"
-      }
-    ],
-    "dates": {
-      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
-      "date1": "2001"
-    },
-    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
-    "instanceFormatIds": [
-      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
-    ],
-    "natureOfContentTermIds": [
-      "2fec23f6-6bbc-4fa2-a736-b64a8c06a47a"
-    ],
-    "languages": [
-      "eng"
-    ],
-    "administrativeNotes": [
-      "Originally presented as the author's thesis."
-    ],
-    "notes": [
-      {
-        "note": "Includes bibliographical references and index.",
-        "staffOnly": false
-      }
-    ],
-    "discoverySuppress": false,
-    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
-  },
-  {
-    "id": "00000029-0000-4000-8000-000000000000",
-    "source": "FOLIO",
-    "title": "Music Through the Ages: A Historical Survey",
-    "indexTitle": "Music Through the Ages: A Historical Survey",
-    "hrid": "in00000000029",
-    "series": [
-      {
-        "value": "Texts in applied mathematics"
-      }
-    ],
-    "identifiers": [
-      {
-        "value": "978-278-980336-361-8",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      }
-    ],
-    "contributors": [
-      {
-        "name": "Phillips, Frank Z.",
-        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
-        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
-        "primary": true
-      },
-      {
-        "name": "Carter, Julie W.",
-        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
-        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
-      }
-    ],
-    "subjects": [
-      {
-        "value": "History"
-      },
-      {
-        "value": "Music",
-        "authorityId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a"
-      },
-      {
-        "value": "Music",
-        "authorityId": "308c950f-8209-4f2e-9702-0c004a9f21bc"
-      },
-      {
-        "value": "Biography"
-      }
-    ],
-    "classifications": [
-      {
-        "classificationNumber": "HV4326 .C54 1981",
-        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
-      }
-    ],
-    "publication": [
-      {
-        "publisher": "Cambridge University Press",
-        "place": "Cambridge",
-        "dateOfPublication": "1977",
-        "role": "Publisher"
-      }
-    ],
-    "dates": {
-      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
-      "date1": "1977"
-    },
-    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
-    "instanceFormatIds": [
-      "25a81102-a2a9-4576-85ff-133ebcbcef2c"
-    ],
-    "statisticalCodeIds": [
-      "c4073462-6144-4b69-a543-dd131e241799",
-      "d9acad2f-d9ac-4b48-9097-e6ab85000001"
-    ],
-    "natureOfContentTermIds": [
-      "2fec23f6-6bbc-4fa2-a736-b64a8c06a47a",
-      "0abeaebb-4166-483d-9f62-3bdf6aae7a93"
-    ],
-    "languages": [
-      "eng"
-    ],
-    "tags": {
-      "tagList": [
-        "ebook-available",
-        "high-demand"
-      ]
-    },
-    "administrativeNotes": [
-      "Originally presented as the author's thesis."
-    ],
-    "notes": [
-      {
-        "note": "Text in English; abstract also in French.",
-        "staffOnly": true
-      }
-    ],
-    "discoverySuppress": false,
-    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
-  },
-  {
-    "id": "00000031-0000-4000-8000-000000000000",
-    "source": "FOLIO",
-    "title": "The Symphony of Middle-Earth: Fantasy and Music",
-    "indexTitle": "Symphony of Middle-Earth: Fantasy and Music",
-    "hrid": "in00000000031",
-    "series": [
-      {
-        "value": "Springer series in solid-state sciences"
-      }
-    ],
-    "identifiers": [
-      {
-        "value": "978-228-424484-706-7",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      }
-    ],
-    "contributors": [
-      {
-        "name": "Nelson, Virginia Q.",
-        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
-        "contributorTypeId": "9deb29d1-3e71-4951-9413-a80adac703d0",
-        "primary": true
-      }
-    ],
-    "subjects": [
-      {
-        "value": "Fantasy"
-      },
-      {
-        "value": "Music",
-        "authorityId": "308c950f-8209-4f2e-9702-0c004a9f21bc"
-      }
-    ],
-    "classifications": [
-      {
-        "classificationNumber": "664.42",
-        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
-      }
-    ],
-    "publication": [
-      {
-        "publisher": "Columbia University Press",
-        "place": "New York",
-        "dateOfPublication": "2012",
-        "role": "Publisher"
-      }
-    ],
-    "dates": {
-      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
-      "date1": "2012",
-      "date2": "2019"
-    },
-    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
-    "instanceFormatIds": [
-      "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
-    ],
-    "statisticalCodeIds": [
-      "9d8abbe2-1a94-4866-8731-4d12ac09f7a8",
-      "f47b773a-bd5f-4246-ac1e-fa4adcd0dcdf"
-    ],
-    "natureOfContentTermIds": [
-      "aef4d369-1571-419c-8cf8-7e596f6f535c"
-    ],
-    "languages": [
-      "eng"
-    ],
-    "tags": {
-      "tagList": [
-        "withdrawn-review"
-      ]
-    },
-    "discoverySuppress": false,
-    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
-  },
-  {
-    "id": "00000042-0000-4000-8000-000000000000",
-    "source": "FOLIO",
-    "title": "Mozart: The Wonder Child and His Music",
-    "indexTitle": "Mozart: The Wonder Child and His Music",
-    "hrid": "in00000000042",
-    "series": [
-      {
-        "value": "MIT Press series in cognitive science"
-      }
-    ],
-    "identifiers": [
-      {
-        "value": "978-849-188842-402-6",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      }
-    ],
-    "contributors": [
-      {
-        "name": "Anderson, Susan G.",
-        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
-        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
-        "primary": true
-      }
-    ],
-    "subjects": [
-      {
-        "value": "History"
-      },
-      {
-        "value": "Music",
-        "authorityId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a"
-      },
-      {
-        "value": "Biography"
-      }
-    ],
-    "classifications": [
-      {
-        "classificationNumber": "207.69",
-        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
-      }
-    ],
-    "publication": [
-      {
-        "publisher": "Harvard University Press",
-        "place": "Cambridge, Mass.",
-        "dateOfPublication": "2008",
-        "role": "Publisher"
-      }
-    ],
-    "dates": {
-      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
-      "date1": "2008"
-    },
-    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
-    "instanceFormatIds": [
-      "25a81102-a2a9-4576-85ff-133ebcbcef2c"
-    ],
-    "statisticalCodeIds": [
-      "c4073462-6144-4b69-a543-dd131e241799",
-      "d9acad2f-d9ac-4b48-9097-e6ab85000001"
-    ],
-    "natureOfContentTermIds": [
-      "a1d70ca5-67aa-4824-b3af-55c8cf47a427",
-      "9ef56f0c-fa7b-44dc-ab7c-15a8e7a0ab2b"
-    ],
-    "languages": [
-      "eng"
-    ],
-    "tags": {
-      "tagList": [
-        "ebook-available",
-        "review-needed"
-      ]
-    },
-    "administrativeNotes": [
-      "Originally presented as the author's thesis."
-    ],
-    "notes": [
-      {
-        "note": "Includes bibliographical references.",
-        "staffOnly": false
-      },
-      {
-        "note": "Translation of the 3rd German edition.",
-        "staffOnly": false
-      }
-    ],
-    "discoverySuppress": false,
-    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
-  },
-  {
-    "id": "00000044-0000-4000-8000-000000000000",
-    "source": "FOLIO",
-    "title": "Chopin: A Life in Music and Exile",
-    "indexTitle": "Chopin: A Life in Music and Exile",
-    "hrid": "in00000000044",
-    "identifiers": [
-      {
-        "value": "978-504-913372-759-5",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      }
-    ],
-    "contributors": [
-      {
-        "name": "Thomas, Dorothy C.",
-        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
-        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
-        "primary": true
-      },
-      {
-        "name": "Parker, George D.",
-        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
-        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
-      }
-    ],
-    "subjects": [
-      {
-        "value": "History"
-      },
-      {
-        "value": "Music",
-        "authorityId": "308c950f-8209-4f2e-9702-0c004a9f21bc"
-      },
-      {
-        "value": "Biography"
-      }
-    ],
-    "classifications": [
-      {
-        "classificationNumber": "Z4056 .U98 1999",
-        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
-      }
-    ],
-    "publication": [
-      {
-        "publisher": "Duke University Press",
-        "place": "Durham",
-        "dateOfPublication": "1979",
-        "role": "Publisher"
-      }
-    ],
-    "dates": {
-      "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
-      "date1": "1979"
-    },
-    "instanceTypeId": "535e3160-763a-42f9-b0c0-d8ed7df6e2a2",
-    "instanceFormatIds": [
-      "7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da"
-    ],
-    "natureOfContentTermIds": [
-      "44cd89f3-2e76-469f-a955-cc57cb9e0395"
-    ],
-    "languages": [
-      "eng"
-    ],
-    "notes": [
-      {
-        "note": "Companion volume to work published by same publisher.",
-        "staffOnly": false
-      }
-    ],
-    "discoverySuppress": false,
-    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   }
 ]

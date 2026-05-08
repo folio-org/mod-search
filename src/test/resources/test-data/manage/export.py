@@ -23,7 +23,7 @@ def rows_as_dicts(cur, query, params=()):
 
 
 def export_instances(cur):
-    instances = rows_as_dicts(cur, "SELECT * FROM instances ORDER BY rowid")
+    instances = rows_as_dicts(cur, "SELECT * FROM instances ORDER BY id")
     result = []
     for inst in instances:
         iid = inst["id"]
@@ -192,7 +192,7 @@ def export_instances(cur):
 
 
 def export_holdings(cur):
-    holdings = rows_as_dicts(cur, "SELECT * FROM holdings ORDER BY rowid")
+    holdings = rows_as_dicts(cur, "SELECT * FROM holdings ORDER BY id")
     result = []
     for h in holdings:
         hid = h["id"]
@@ -273,7 +273,7 @@ def export_holdings(cur):
 
 
 def export_items(cur):
-    items = rows_as_dicts(cur, "SELECT * FROM items ORDER BY rowid")
+    items = rows_as_dicts(cur, "SELECT * FROM items ORDER BY id")
     result = []
     for it in items:
         iid = it["id"]

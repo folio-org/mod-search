@@ -412,13 +412,13 @@ def populate_instances(records: list) -> list:
         if not r.get("instanceTypeId"):
             r["instanceTypeId"] = weighted_choice(rnd, INSTANCE_TYPE_POOL)
 
-        # Replace placeholder "Instance N" titles with realistic ones
-        if re.match(r"^Instance \d+$", r.get("title", "")):
+        # Replace placeholder "Instance N" / "ResourceN" titles with realistic ones
+        if re.match(r"^(Instance \d+|Resource\d+)$", r.get("title", "")):
             r["title"] = rng(rid, "title").choice(PLACEHOLDER_TITLE_POOL)
             r.pop("indexTitle", None)  # force recompute below
 
-        # Fix stale "Instance N" indexTitle left from a prior populate run
-        if re.match(r"^Instance \d+$", r.get("indexTitle", "")):
+        # Fix stale placeholder indexTitle left from a prior populate run
+        if re.match(r"^(Instance \d+|Resource\d+)$", r.get("indexTitle", "")):
             r.pop("indexTitle", None)
 
         # indexTitle — strip leading article from title

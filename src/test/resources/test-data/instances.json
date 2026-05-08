@@ -2153,8 +2153,8 @@
   {
     "id": "1353873c-0e5e-4d64-a2f9-6c444dc4cd46",
     "source": "MARC",
-    "title": "Resource0",
-    "indexTitle": "Resource0",
+    "title": "Cultural Anthropology: A Global Perspective",
+    "indexTitle": "Cultural Anthropology: A Global Perspective",
     "hrid": "in00000000026",
     "series": [
       {
@@ -2229,8 +2229,8 @@
   {
     "id": "cc6bbc19-3f54-43c5-8736-b85688619641",
     "source": "MARC",
-    "title": "Resource1",
-    "indexTitle": "Resource1",
+    "title": "Environmental Policy and Governance",
+    "indexTitle": "Environmental Policy and Governance",
     "hrid": "in00000000027",
     "identifiers": [
       {
@@ -2313,8 +2313,8 @@
   {
     "id": "39a52d91-8dbb-4348-ab06-5c6115e600cd",
     "source": "FOLIO",
-    "title": "Resource2",
-    "indexTitle": "Resource2",
+    "title": "Gender and Society: Feminist Perspectives",
+    "indexTitle": "Gender and Society: Feminist Perspectives",
     "hrid": "in00000000028",
     "identifiers": [
       {
@@ -2391,8 +2391,8 @@
   {
     "id": "62f72eeb-ed5a-4619-b01f-1750d5528d25",
     "source": "MARC",
-    "title": "Resource3",
-    "indexTitle": "Resource3",
+    "title": "Ethics in Medical Research",
+    "indexTitle": "Ethics in Medical Research",
     "hrid": "in00000000029",
     "series": [
       {
@@ -2456,8 +2456,8 @@
   {
     "id": "6d9ccc82-8142-4fbc-b6ba-8e3429fd9aca",
     "source": "FOLIO",
-    "title": "Resource4",
-    "indexTitle": "Resource4",
+    "title": "Foundations of Modern Linguistics",
+    "indexTitle": "Foundations of Modern Linguistics",
     "hrid": "in00000000030",
     "series": [
       {

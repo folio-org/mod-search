@@ -1094,6 +1094,11 @@
       "createdByUserId": "a3b4c5d6-e7f8-4901-b2c3-d4e5f6a7b8c9",
       "updatedDate": "2022-08-06T23:19:10.000Z",
       "updatedByUserId": "7b5f7e3d-9f6b-43a5-b1c9-5a8c4e9b2e3f"
+    },
+    "tags": {
+      "tagList": [
+        "sort-instance"
+      ]
     }
   },
   {
@@ -1231,7 +1236,8 @@
     ],
     "tags": {
       "tagList": [
-        "digitization-candidate"
+        "digitization-candidate",
+        "sort-instance"
       ]
     },
     "administrativeNotes": [
@@ -1424,6 +1430,11 @@
       "createdByUserId": "00000000-1111-2222-3333-444444444444",
       "updatedDate": "2021-07-16T23:21:01.000Z",
       "updatedByUserId": "1ad737b0-d847-11e6-bf26-cec0c932ce01"
+    },
+    "tags": {
+      "tagList": [
+        "sort-instance"
+      ]
     }
   },
   {
@@ -1571,7 +1582,18 @@
       "eng"
     ],
     "discoverySuppress": false,
-    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
+    "tags": {
+      "tagList": [
+        "sort-instance"
+      ]
+    },
+    "metadata": {
+      "createdDate": "2021-06-01T12:00:00.000Z",
+      "createdByUserId": "00000000-1111-2222-3333-444444444444",
+      "updatedDate": "2021-09-01T12:00:00.000Z",
+      "updatedByUserId": "00000000-1111-2222-3333-444444444444"
+    }
   },
   {
     "id": "00000019-0000-4000-8000-000000000000",
@@ -1713,7 +1735,8 @@
     "tags": {
       "tagList": [
         "ebook-available",
-        "recommended"
+        "recommended",
+        "sort-instance"
       ]
     },
     "notes": [

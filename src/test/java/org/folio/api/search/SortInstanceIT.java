@@ -13,11 +13,11 @@ import org.junit.jupiter.api.Test;
 @IntegrationTest
 public abstract class SortInstanceIT extends BaseSharedTest {
 
-  public static final String ID_ANIMAL_FARM     = "00000012-0000-4000-8000-000000000000";
-  public static final String ID_ZERO_MINUS_TEN  = "00000014-0000-4000-8000-000000000000";
-  public static final String ID_CALLING_ME_HOME = "00000016-0000-4000-8000-000000000000";
-  public static final String ID_WALK_IN_MY_SOUL = "00000018-0000-4000-8000-000000000000";
-  public static final String ID_STAR_WARS       = "00000020-0000-4000-8000-000000000000";
+  private static final String ID_ANIMAL_FARM = "00000012-0000-4000-8000-000000000000";
+  private static final String ID_ZERO_MINUS_TEN = "00000014-0000-4000-8000-000000000000";
+  private static final String ID_CALLING_ME_HOME = "00000016-0000-4000-8000-000000000000";
+  private static final String ID_WALK_IN_MY_SOUL = "00000018-0000-4000-8000-000000000000";
+  private static final String ID_STAR_WARS = "00000020-0000-4000-8000-000000000000";
 
   private static final String TAG_FILTER = "tags.tagList==\"sort-instance\"";
 
@@ -48,7 +48,7 @@ public abstract class SortInstanceIT extends BaseSharedTest {
     doSearchByInstances(TAG_FILTER + " sortBy normalizedDate1/sort." + ASCENDING)
       .andExpect(jsonPath("totalRecords", is(5)))
       .andExpect(jsonPath("instances[0].dates.date1", is("19u5")))
-      .andExpect(jsonPath("instances[1].dates.date1", is("199u")))
+      .andExpect(jsonPath("instances[1].dates.date1", is("198u")))
       .andExpect(jsonPath("instances[2].dates.date1", is("1999")))
       .andExpect(jsonPath("instances[3].dates.date1", is("2001")))
       .andExpect(jsonPath("instances[4].dates.date1", is("2021")));
@@ -61,7 +61,7 @@ public abstract class SortInstanceIT extends BaseSharedTest {
       .andExpect(jsonPath("instances[0].dates.date1", is("2021")))
       .andExpect(jsonPath("instances[1].dates.date1", is("2001")))
       .andExpect(jsonPath("instances[2].dates.date1", is("1999")))
-      .andExpect(jsonPath("instances[3].dates.date1", is("199u")))
+      .andExpect(jsonPath("instances[3].dates.date1", is("198u")))
       .andExpect(jsonPath("instances[4].dates.date1", is("19u5")));
   }
 
@@ -91,44 +91,44 @@ public abstract class SortInstanceIT extends BaseSharedTest {
   void canSortInstancesByMetadataCreatedDate_asc() throws Exception {
     doSearchByInstances(TAG_FILTER + " sortBy metadata.createdDate/sort." + ASCENDING)
       .andExpect(jsonPath("totalRecords", is(5)))
-      .andExpect(jsonPath("instances[0].id", is(ID_ANIMAL_FARM)))
+      .andExpect(jsonPath("instances[0].id", is(ID_STAR_WARS)))
       .andExpect(jsonPath("instances[1].id", is(ID_ZERO_MINUS_TEN)))
       .andExpect(jsonPath("instances[2].id", is(ID_CALLING_ME_HOME)))
       .andExpect(jsonPath("instances[3].id", is(ID_WALK_IN_MY_SOUL)))
-      .andExpect(jsonPath("instances[4].id", is(ID_STAR_WARS)));
+      .andExpect(jsonPath("instances[4].id", is(ID_ANIMAL_FARM)));
   }
 
   @Test
   void canSortInstancesByMetadataCreatedDate_desc() throws Exception {
     doSearchByInstances(TAG_FILTER + " sortBy metadata.createdDate/sort." + DESCENDING)
       .andExpect(jsonPath("totalRecords", is(5)))
-      .andExpect(jsonPath("instances[0].id", is(ID_STAR_WARS)))
+      .andExpect(jsonPath("instances[0].id", is(ID_ANIMAL_FARM)))
       .andExpect(jsonPath("instances[1].id", is(ID_WALK_IN_MY_SOUL)))
       .andExpect(jsonPath("instances[2].id", is(ID_CALLING_ME_HOME)))
       .andExpect(jsonPath("instances[3].id", is(ID_ZERO_MINUS_TEN)))
-      .andExpect(jsonPath("instances[4].id", is(ID_ANIMAL_FARM)));
+      .andExpect(jsonPath("instances[4].id", is(ID_STAR_WARS)));
   }
 
   @Test
   void canSortInstancesByMetadataUpdatedDate_asc() throws Exception {
     doSearchByInstances(TAG_FILTER + " sortBy metadata.updatedDate/sort." + ASCENDING)
       .andExpect(jsonPath("totalRecords", is(5)))
-      .andExpect(jsonPath("instances[0].id", is(ID_ANIMAL_FARM)))
+      .andExpect(jsonPath("instances[0].id", is(ID_STAR_WARS)))
       .andExpect(jsonPath("instances[1].id", is(ID_ZERO_MINUS_TEN)))
       .andExpect(jsonPath("instances[2].id", is(ID_CALLING_ME_HOME)))
       .andExpect(jsonPath("instances[3].id", is(ID_WALK_IN_MY_SOUL)))
-      .andExpect(jsonPath("instances[4].id", is(ID_STAR_WARS)));
+      .andExpect(jsonPath("instances[4].id", is(ID_ANIMAL_FARM)));
   }
 
   @Test
   void canSortInstancesByMetadataUpdatedDate_desc() throws Exception {
     doSearchByInstances(TAG_FILTER + " sortBy metadata.updatedDate/sort." + DESCENDING)
       .andExpect(jsonPath("totalRecords", is(5)))
-      .andExpect(jsonPath("instances[0].id", is(ID_STAR_WARS)))
+      .andExpect(jsonPath("instances[0].id", is(ID_ANIMAL_FARM)))
       .andExpect(jsonPath("instances[1].id", is(ID_WALK_IN_MY_SOUL)))
       .andExpect(jsonPath("instances[2].id", is(ID_CALLING_ME_HOME)))
       .andExpect(jsonPath("instances[3].id", is(ID_ZERO_MINUS_TEN)))
-      .andExpect(jsonPath("instances[4].id", is(ID_ANIMAL_FARM)));
+      .andExpect(jsonPath("instances[4].id", is(ID_STAR_WARS)));
   }
 
   @Test

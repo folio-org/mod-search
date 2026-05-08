@@ -39,7 +39,7 @@ import org.folio.search.domain.dto.ShelvingOrderAlgorithmType;
 import org.folio.search.model.index.CallNumberResource;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.TestRailCase;
-import org.folio.support.base.BaseIntegrationTest;
+import org.folio.support.base.BaseSharedTest;
 import org.folio.support.utils.CallNumberTestData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -49,7 +49,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @IntegrationTest
-public abstract class BrowseCallNumberIT extends BaseIntegrationTest {
+public abstract class BrowseCallNumberIT extends BaseSharedTest {
 
   public static final Instance[] INSTANCES = CallNumberTestData.instances().toArray(new Instance[0]);
 

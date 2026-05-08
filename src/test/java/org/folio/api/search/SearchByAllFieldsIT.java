@@ -5,12 +5,12 @@ import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import org.folio.spring.testing.type.IntegrationTest;
-import org.folio.support.base.BaseIntegrationTest;
+import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 @IntegrationTest
-public abstract class SearchByAllFieldsIT extends BaseIntegrationTest {
+public abstract class SearchByAllFieldsIT extends BaseSharedTest {
 
   @ValueSource(strings = {
     // instance field values

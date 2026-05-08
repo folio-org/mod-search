@@ -24,7 +24,7 @@ import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.RecordType;
-import org.folio.support.base.BaseIntegrationTest;
+import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -32,7 +32,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @SuppressWarnings("checkstyle:DeclarationOrder")
-public abstract class BrowseContributorIT extends BaseIntegrationTest {
+public abstract class BrowseContributorIT extends BaseSharedTest {
 
   private static final String[] NAME_TYPE_IDS =
     array("e2ef4075-310a-4447-a231-712bf10cc985", "0ad0a89a-741d-4f1a-85a6-ada214751013",

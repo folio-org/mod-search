@@ -4,7 +4,7 @@
     "source": "MARC",
     "title": "Cultural Anthropology: A Global Perspective",
     "indexTitle": "Cultural Anthropology: A Global Perspective",
-    "hrid": "in00000000001",
+    "hrid": "in00010000001",
     "editions": [
       "1st edition"
     ],
@@ -322,7 +322,7 @@
       ]
     },
     "administrativeNotes": [
-      "Also original + pcc available online."
+      "Also available in revised edition online."
     ],
     "notes": [
       {
@@ -386,8 +386,8 @@
     ],
     "publication": [
       {
-        "publisher": "MIT Press",
-        "place": "Cambridge, Mass.",
+        "publisher": "Oxford University Press",
+        "place": "Oxford",
         "dateOfPublication": "2020",
         "role": "Publisher"
       }
@@ -482,7 +482,7 @@
     "publication": [
       {
         "publisher": "Harvard University Press",
-        "place": "Cambridge, Mass.",
+        "place": "Cambridge",
         "dateOfPublication": "1951",
         "role": "Publisher"
       }
@@ -630,7 +630,7 @@
       },
       {
         "alternativeTitle": "Pang'ok bangk'asyurangsŭ",
-        "authorityId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
+        "authorityId": "4d56bbff-f18c-45de-bf87-2dcbfad3b821"
       },
       {
         "alternativeTitle": "Der Preis der Verführung : die gesetzliche Schadensersatzklage wegen Ehebruchs in England zwischen 1857 und 1970 / Eike Götz Hosemann."
@@ -728,7 +728,7 @@
     "publication": [
       {
         "publisher": "MIT Press",
-        "place": "Cambridge, Mass. ",
+        "place": "Cambridge, Mass.",
         "dateOfPublication": "c2004",
         "role": "Publisher"
       }
@@ -760,7 +760,11 @@
     ],
     "notes": [
       {
-        "note": "Revised edition.",
+        "note": "Librarian private note",
+        "staffOnly": true
+      },
+      {
+        "note": "The development of the Semantic Web",
         "staffOnly": false
       }
     ],
@@ -898,8 +902,8 @@
     ],
     "publication": [
       {
-        "publisher": "MIT Press",
-        "place": "Cambridge, Mass.",
+        "publisher": "Routledge",
+        "place": "London",
         "dateOfPublication": "2023",
         "role": "Publisher"
       }
@@ -1030,68 +1034,12 @@
     "hrid": "in00000000012",
     "alternativeTitles": [
       {
-        "alternativeTitle": "An alternative title",
+        "alternativeTitle": "A Fairy Story",
         "alternativeTitleTypeId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
       }
     ],
     "editions": [
       "3rd edition"
-    ],
-    "series": [
-      {
-        "value": "Cooperative information systems",
-        "authorityId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
-      }
-    ],
-    "identifiers": [
-      {
-        "value": "0262012103",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "9781609383657",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "9780262012102",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "978-0-471-44250-9 (cloth : alk. paper)",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "047144250X",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "2003065165",
-        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
-      },
-      {
-        "value": "n 2003075732",
-        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
-      },
-      {
-        "value": "canceled LCCN",
-        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9"
-      },
-      {
-        "value": "0317-8471",
-        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
-      },
-      {
-        "value": "0040-781X",
-        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
-      },
-      {
-        "value": "(OCoLC)ocm0060710867",
-        "identifierTypeId": "c3c651c7-96b4-416c-a1af-17146ce0a409"
-      },
-      {
-        "value": "ocm0012345 800630",
-        "identifierTypeId": "82fb97e1-f460-4099-9ac8-97518341ed1a"
-      }
     ],
     "contributors": [
       {
@@ -1100,29 +1048,10 @@
         "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
       }
     ],
-    "subjects": [
-      {
-        "value": "Semantic Web",
-        "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72d"
-      },
-      {
-        "value": "backslash\\ \"double\\-quotes\\\" te\\st"
-      }
-    ],
-    "classifications": [
-      {
-        "classificationNumber": "025.04",
-        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
-      },
-      {
-        "classificationNumber": "HD1691 .I5 1967",
-        "classificationTypeId": "ce176ace-a53e-4b4d-aa89-725ed7b2edac"
-      }
-    ],
     "publication": [
       {
-        "publisher": "MIT Press",
-        "place": "Cambridge, Mass. ",
+        "publisher": "Wiley-Blackwell",
+        "place": "Hoboken, N.J.",
         "dateOfPublication": "c2004",
         "role": "Publisher"
       }
@@ -1253,64 +1182,8 @@
     "hrid": "in00000000014",
     "alternativeTitles": [
       {
-        "alternativeTitle": "Der Preis der Verführung : die gesetzliche Schadensersatzklage wegen Ehebruchs in England zwischen 1857 und 1970 / Eike Götz Hosemann.",
+        "alternativeTitle": "James Bond adventure series",
         "alternativeTitleTypeId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
-      }
-    ],
-    "series": [
-      {
-        "value": "Cooperative information systems",
-        "authorityId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
-      }
-    ],
-    "identifiers": [
-      {
-        "value": "0262012103",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "9781609383657",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "9780262012102",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "978-0-471-44250-9 (cloth : alk. paper)",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "047144250X",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "2003065165",
-        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
-      },
-      {
-        "value": "n 2003075732",
-        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
-      },
-      {
-        "value": "canceled LCCN",
-        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9"
-      },
-      {
-        "value": "0317-8471",
-        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
-      },
-      {
-        "value": "0040-781X",
-        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
-      },
-      {
-        "value": "(OCoLC)ocm0060710867",
-        "identifierTypeId": "c3c651c7-96b4-416c-a1af-17146ce0a409"
-      },
-      {
-        "value": "ocm0012345 800630",
-        "identifierTypeId": "82fb97e1-f460-4099-9ac8-97518341ed1a"
       }
     ],
     "contributors": [
@@ -1326,37 +1199,18 @@
         "primary": true
       }
     ],
-    "subjects": [
-      {
-        "value": "Semantic Web",
-        "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72d"
-      },
-      {
-        "value": "backslash\\ \"double\\-quotes\\\" te\\st"
-      }
-    ],
-    "classifications": [
-      {
-        "classificationNumber": "025.04",
-        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
-      },
-      {
-        "classificationNumber": "HD1691 .I5 1967",
-        "classificationTypeId": "ce176ace-a53e-4b4d-aa89-725ed7b2edac"
-      }
-    ],
     "publication": [
       {
-        "publisher": "MIT Press",
-        "place": "Cambridge, Mass. ",
+        "publisher": "Springer",
+        "place": "Berlin",
         "dateOfPublication": "c2004",
         "role": "Publisher"
       }
     ],
     "dates": {
       "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
-      "date1": "199u",
-      "date2": "2000"
+      "date1": "198u",
+      "date2": "1333"
     },
     "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
     "instanceFormatIds": [
@@ -1512,64 +1366,8 @@
     "hrid": "in00000000016",
     "alternativeTitles": [
       {
-        "alternativeTitle": "Le parler arabe de Cherchell, Algérie.",
+        "alternativeTitle": "Going back home",
         "alternativeTitleTypeId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
-      }
-    ],
-    "series": [
-      {
-        "value": "Cooperative information systems",
-        "authorityId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
-      }
-    ],
-    "identifiers": [
-      {
-        "value": "0262012103",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "9781609383657",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "9780262012102",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "978-0-471-44250-9 (cloth : alk. paper)",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "047144250X",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "2003065165",
-        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
-      },
-      {
-        "value": "n 2003075732",
-        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
-      },
-      {
-        "value": "canceled LCCN",
-        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9"
-      },
-      {
-        "value": "0317-8471",
-        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
-      },
-      {
-        "value": "0040-781X",
-        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
-      },
-      {
-        "value": "(OCoLC)ocm0060710867",
-        "identifierTypeId": "c3c651c7-96b4-416c-a1af-17146ce0a409"
-      },
-      {
-        "value": "ocm0012345 800630",
-        "identifierTypeId": "82fb97e1-f460-4099-9ac8-97518341ed1a"
       }
     ],
     "contributors": [
@@ -1579,29 +1377,10 @@
         "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81"
       }
     ],
-    "subjects": [
-      {
-        "value": "Semantic Web",
-        "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72d"
-      },
-      {
-        "value": "backslash\\ \"double\\-quotes\\\" te\\st"
-      }
-    ],
-    "classifications": [
-      {
-        "classificationNumber": "025.04",
-        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
-      },
-      {
-        "classificationNumber": "HD1691 .I5 1967",
-        "classificationTypeId": "ce176ace-a53e-4b4d-aa89-725ed7b2edac"
-      }
-    ],
     "publication": [
       {
-        "publisher": "MIT Press",
-        "place": "Cambridge, Mass. ",
+        "publisher": "Yale University Press",
+        "place": "New Haven",
         "dateOfPublication": "c2004",
         "role": "Publisher"
       }
@@ -1751,69 +1530,9 @@
     "hrid": "in00000000018",
     "alternativeTitles": [
       {
-        "alternativeTitle": "Pang'ok bangk'asyurangsŭ",
+        "alternativeTitle": "Cherokee spirit journey",
         "alternativeTitleTypeId": "9d968396-0cce-4e9f-8867-c4d04c01f535",
-        "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72c"
-      }
-    ],
-    "series": [
-      {
-        "value": "Cooperative information systems",
-        "authorityId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
-      }
-    ],
-    "identifiers": [
-      {
-        "value": "0262012103",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "9781609383657",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "9780262012102",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "978-0-471-44250-9 (cloth : alk. paper)",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "047144250X",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "2003065165",
-        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
-      },
-      {
-        "value": "n 2003075732",
-        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
-      },
-      {
-        "value": "canceled LCCN",
-        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9"
-      },
-      {
-        "value": "0317-8471",
-        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
-      },
-      {
-        "value": "0040-781X",
-        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
-      },
-      {
-        "value": "(OCoLC)ocm0060710867",
-        "identifierTypeId": "c3c651c7-96b4-416c-a1af-17146ce0a409"
-      },
-      {
-        "value": "ocm0012345 800630",
-        "identifierTypeId": "82fb97e1-f460-4099-9ac8-97518341ed1a"
-      },
-      {
-        "value": "(OCoLC)87183221",
-        "identifierTypeId": "439bfbae-75bc-4f74-9fc7-b2a2d47ce3ef"
+        "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72e"
       }
     ],
     "contributors": [
@@ -1824,29 +1543,10 @@
         "primary": true
       }
     ],
-    "subjects": [
-      {
-        "value": "Semantic Web",
-        "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72d"
-      },
-      {
-        "value": "backslash\\ \"double\\-quotes\\\" te\\st"
-      }
-    ],
-    "classifications": [
-      {
-        "classificationNumber": "025.04",
-        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
-      },
-      {
-        "classificationNumber": "HD1691 .I5 1967",
-        "classificationTypeId": "ce176ace-a53e-4b4d-aa89-725ed7b2edac"
-      }
-    ],
     "publication": [
       {
-        "publisher": "MIT Press",
-        "place": "Cambridge, Mass. ",
+        "publisher": "Princeton University Press",
+        "place": "Princeton, N.J.",
         "dateOfPublication": "c2004",
         "role": "Publisher"
       }
@@ -1972,64 +1672,8 @@
     "hrid": "in00000000020",
     "alternativeTitles": [
       {
-        "alternativeTitle": "déjà vu",
+        "alternativeTitle": "Star Wars episode four",
         "alternativeTitleTypeId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
-      }
-    ],
-    "series": [
-      {
-        "value": "Cooperative information systems",
-        "authorityId": "9d968396-0cce-4e9f-8867-c4d04c01f535"
-      }
-    ],
-    "identifiers": [
-      {
-        "value": "0262012103",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "9781609383657",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "9780262012102",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "978-0-471-44250-9 (cloth : alk. paper)",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "047144250X",
-        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-      },
-      {
-        "value": "2003065165",
-        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
-      },
-      {
-        "value": "n 2003075732",
-        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
-      },
-      {
-        "value": "canceled LCCN",
-        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9"
-      },
-      {
-        "value": "0317-8471",
-        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
-      },
-      {
-        "value": "0040-781X",
-        "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
-      },
-      {
-        "value": "(OCoLC)ocm0060710867",
-        "identifierTypeId": "c3c651c7-96b4-416c-a1af-17146ce0a409"
-      },
-      {
-        "value": "ocm0012345 800630",
-        "identifierTypeId": "82fb97e1-f460-4099-9ac8-97518341ed1a"
       }
     ],
     "contributors": [
@@ -2040,29 +1684,10 @@
         "primary": true
       }
     ],
-    "subjects": [
-      {
-        "value": "Semantic Web",
-        "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72d"
-      },
-      {
-        "value": "backslash\\ \"double\\-quotes\\\" te\\st"
-      }
-    ],
-    "classifications": [
-      {
-        "classificationNumber": "025.04",
-        "classificationTypeId": "42471af9-7d25-4f3a-bf78-60d29dcf463b"
-      },
-      {
-        "classificationNumber": "HD1691 .I5 1967",
-        "classificationTypeId": "ce176ace-a53e-4b4d-aa89-725ed7b2edac"
-      }
-    ],
     "publication": [
       {
-        "publisher": "MIT Press",
-        "place": "Cambridge, Mass. ",
+        "publisher": "University of Chicago Press",
+        "place": "Chicago",
         "dateOfPublication": "c2004",
         "role": "Publisher"
       }
@@ -2407,7 +2032,7 @@
     "subjects": [
       {
         "value": "Environmental design",
-        "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72c"
+        "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72e"
       }
     ],
     "classifications": [
@@ -2483,7 +2108,7 @@
         "name": "Jane Kowalski",
         "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
         "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
-        "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72c"
+        "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72e"
       }
     ],
     "subjects": [
@@ -2552,7 +2177,7 @@
       {
         "alternativeTitle": "Intro to Quantum Mechanics",
         "alternativeTitleTypeId": "9d968396-0cce-4e9f-8867-c4d04c01f535",
-        "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72c"
+        "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72e"
       }
     ],
     "identifiers": [
@@ -2681,8 +2306,8 @@
     ],
     "publication": [
       {
-        "publisher": "MIT Press",
-        "place": "Cambridge, Mass.",
+        "publisher": "Palgrave Macmillan",
+        "place": "New York",
         "dateOfPublication": "2004",
         "role": "Publisher"
       }
@@ -2812,7 +2437,7 @@
     ],
     "contributors": [
       {
-        "name": "Phillips, Frank Z.",
+        "name": "Phillips, Rachel Z.",
         "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
         "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
         "primary": true
@@ -4036,7 +3661,7 @@
     "publication": [
       {
         "publisher": "Harvard University Press",
-        "place": "Cambridge, Mass.",
+        "place": "Cambridge",
         "dateOfPublication": "2008",
         "role": "Publisher"
       }
@@ -4379,8 +4004,8 @@
     ],
     "publication": [
       {
-        "publisher": "MIT Press",
-        "place": "Cambridge, Mass.",
+        "publisher": "University of California Press",
+        "place": "Berkeley",
         "dateOfPublication": "1999",
         "role": "Publisher"
       }
@@ -5283,7 +4908,7 @@
     ],
     "contributors": [
       {
-        "name": "Phillips, Frank Z.",
+        "name": "Phillips, Rachel Z.",
         "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
         "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
         "primary": true
@@ -5717,7 +5342,7 @@
     "publication": [
       {
         "publisher": "Harvard University Press",
-        "place": "Cambridge, Mass.",
+        "place": "Cambridge",
         "dateOfPublication": "2011",
         "role": "Publisher"
       }
@@ -7158,7 +6783,7 @@
     "publication": [
       {
         "publisher": "Harvard University Press",
-        "place": "Cambridge, Mass.",
+        "place": "Cambridge",
         "dateOfPublication": "1986",
         "role": "Publisher"
       }
@@ -7568,7 +7193,7 @@
     ],
     "contributors": [
       {
-        "name": "Phillips, Frank Z.",
+        "name": "Phillips, Rachel Z.",
         "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
         "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
         "primary": true
@@ -7596,7 +7221,7 @@
     "publication": [
       {
         "publisher": "Harvard University Press",
-        "place": "Cambridge, Mass.",
+        "place": "Cambridge",
         "dateOfPublication": "1972",
         "role": "Publisher"
       }
@@ -7924,8 +7549,8 @@
     ],
     "publication": [
       {
-        "publisher": "MIT Press",
-        "place": "Cambridge, Mass.",
+        "publisher": "Columbia University Press",
+        "place": "New York",
         "dateOfPublication": "1974",
         "role": "Publisher"
       }
@@ -8293,7 +7918,7 @@
     ],
     "contributors": [
       {
-        "name": "Phillips, Frank Z.",
+        "name": "Phillips, Rachel Z.",
         "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
         "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
         "primary": true

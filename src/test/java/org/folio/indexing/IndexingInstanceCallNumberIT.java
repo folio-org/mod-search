@@ -11,6 +11,7 @@ import static org.folio.search.service.reindex.ReindexConstants.ITEM_TABLE;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.support.utils.TestUtils.randomId;
+import static org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_CLASS;
 
 import java.util.List;
 import java.util.Map;
@@ -25,11 +26,13 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 
 @IntegrationTest
 @TestPropertySource(properties = "folio.search-config.indexing.instance-children-index-enabled=true")
 @DatabaseCleanup(tenants = TENANT_ID, tables = {CALL_NUMBER_TABLE, INSTANCE_CALL_NUMBER_TABLE, ITEM_TABLE})
+@DirtiesContext(classMode = AFTER_CLASS)
 class IndexingInstanceCallNumberIT extends BaseIntegrationTest {
 
   private static final String INSTANCE_ID_1 = randomId();

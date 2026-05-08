@@ -27,7 +27,7 @@ import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.RecordType;
 import org.folio.search.domain.dto.Subject;
 import org.folio.search.domain.dto.SubjectBrowseResult;
-import org.folio.support.base.BaseIntegrationTest;
+import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -35,7 +35,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @SuppressWarnings("checkstyle:DeclarationOrder")
-public abstract class BrowseSubjectIT extends BaseIntegrationTest {
+public abstract class BrowseSubjectIT extends BaseSharedTest {
 
   private static final String MUSIC_AUTHORITY_ID_1 = "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a";
   private static final String MUSIC_AUTHORITY_ID_2 = "308c950f-8209-4f2e-9702-0c004a9f21bc";

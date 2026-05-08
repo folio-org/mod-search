@@ -274,10 +274,17 @@
     "callNumberSuffix": "c.1",
     "hrid": "ho00000000006",
     "copyNumber": "Copy 1",
+    "formerIds": [
+      "1d76ee84-d776-48d2-ab96-140c24e39ac5"
+    ],
+    "administrativeNotes": [
+      "for deletion",
+      "admin note v2.0 update"
+    ],
     "electronicAccess": [
       {
         "uri": "https://testlibrary.sample.com/holdings?hrid=ho0000006",
-        "linkText": "Holding's electronicAccess link Text",
+        "linkText": "Catalog link text entry",
         "materialsSpecification": "Holding's electronicAccess material specification",
         "publicNote": "Holding's electronicAccess public note",
         "relationshipId": "3b430592-2e09-4b48-9a0c-0636d66b9fb3"
@@ -298,17 +305,28 @@
     "copyNumber": "Copy 2",
     "temporaryLocationId": "53cf956f-c1df-410b-8bea-27f712cca7c0",
     "illPolicy": "Limited lending policy",
+    "formerIds": [
+      "9b8ec096-fa2e-451b-8e7a-6d1c977ee946"
+    ],
     "statisticalCodeIds": [
       "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
     ],
     "tags": {
       "tagList": [
-        "withdrawn-review"
+        "holdings-tag"
       ]
     },
     "notes": [
       {
-        "note": "Transferred from branch library.",
+        "note": "Librarian private note for holding",
+        "staffOnly": true
+      },
+      {
+        "note": "Librarian public note for holding",
+        "staffOnly": false
+      },
+      {
+        "note": "Contains bibliographical references",
         "staffOnly": false
       }
     ],
@@ -414,6 +432,9 @@
     "callNumberSuffix": "3",
     "hrid": "hold000000000009",
     "copyNumber": "3",
+    "formerIds": [
+      "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19"
+    ],
     "metadata": {
       "createdDate": "2018-07-11T17:51:25.000Z",
       "createdByUserId": "58d0aaf6-dcda-4d5e-92da-012e6b7dd766",
@@ -444,7 +465,7 @@
       {
         "uri": "https://link.springer.com/book/10.1007/978-3-000021",
         "linkText": "Full text (SpringerLink)",
-        "relationshipId": "3b430592-2e09-4b48-9a0c-0636d66b9fb3"
+        "relationshipId": "f5d0068e-6272-458e-8a81-b85e7b9a14aa"
       }
     ],
     "metadata": {

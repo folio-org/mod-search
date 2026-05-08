@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.support.sample.SampleInstances.getSemanticWebAsMap;
 import static org.folio.support.sample.SampleInstances.getSemanticWebId;
 import static org.hamcrest.Matchers.is;
+import static org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_CLASS;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import org.folio.search.domain.dto.Instance;
@@ -18,10 +19,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 
 @IntegrationTest
 @TestPropertySource(properties = "folio.system-user.enabled=false")
+@DirtiesContext(classMode = AFTER_CLASS)
 class IndexingDisabledSystemUserIT extends BaseIntegrationTest {
 
   @BeforeAll

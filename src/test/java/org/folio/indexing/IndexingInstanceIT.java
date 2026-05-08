@@ -3,6 +3,7 @@ package org.folio.indexing;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.support.utils.TestUtils.randomId;
+import static org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_CLASS;
 
 import java.util.List;
 import java.util.stream.IntStream;
@@ -14,8 +15,10 @@ import org.folio.support.base.BaseIntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.annotation.DirtiesContext;
 
 @IntegrationTest
+@DirtiesContext(classMode = AFTER_CLASS)
 class IndexingInstanceIT extends BaseIntegrationTest {
 
   private static final List<String> INSTANCE_IDS = getRandomIds(3);

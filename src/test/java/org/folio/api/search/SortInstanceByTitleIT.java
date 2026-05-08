@@ -5,11 +5,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.List;
 import org.folio.spring.testing.type.IntegrationTest;
-import org.folio.support.base.BaseIntegrationTest;
+import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.Test;
 
 @IntegrationTest
-public abstract class SortInstanceByTitleIT extends BaseIntegrationTest {
+public abstract class SortInstanceByTitleIT extends BaseSharedTest {
 
   public static final List<String> TITLES = List.of(
     "Ground water in Africa.",

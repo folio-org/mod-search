@@ -5,12 +5,12 @@ import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import org.folio.spring.testing.type.IntegrationTest;
-import org.folio.support.base.BaseIntegrationTest;
+import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 @IntegrationTest
-public abstract class SearchHoldingsIT extends BaseIntegrationTest {
+public abstract class SearchHoldingsIT extends BaseSharedTest {
 
   @ParameterizedTest(name = "[{index}] {0}: {1}")
   @CsvSource({

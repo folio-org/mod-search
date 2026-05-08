@@ -141,7 +141,7 @@ _REF_NAMES: dict[str, dict[str, str]] = {
         "0fe58901-183e-4678-a3aa-0b4751174ba8": "No type specified",
         "2584943f-36ad-4037-a7fa-3bdebb09f452": "Other title",
         "2ca8538d-a2fd-4e60-b967-1cb220101e22": "Added title page title",
-        "30512027-cdc9-4c79-af75-1565b3bd888d": "Uniform title",
+        "30512027-cdc9-4c79-af75-1565b3bd888d": "Key title",
         "35bbe7f2-1a49-11ed-861d-0242ac120002": "Variant title",
         "432ca81a-fe4d-4249-bfd3-53388725647d": "Caption title",
         "4bb300a4-04c9-414b-bfbc-9c032f74b7b2": "Parallel title",
@@ -150,7 +150,7 @@ _REF_NAMES: dict[str, dict[str, str]] = {
         "a8b45056-2223-43ca-8514-4dd88ece984b": "Portion of title",
         "ab26d2e4-1a4a-11ed-861d-0242ac120002": "Former title",
         "dae08d04-8c4e-4ab2-b6bb-99edbf252231": "Spine title",
-        "9d968396-0cce-4e9f-8867-c4d04c01f535": "Key title",
+        "9d968396-0cce-4e9f-8867-c4d04c01f535": "Uniform Title",
     },
     "ref_locations": {
         "0d106980-1789-42ac-b355-a6c7a74ddea3": "Annex Stacks",

@@ -33,13 +33,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.List;
 import java.util.Map;
 import org.folio.spring.testing.type.IntegrationTest;
-import org.folio.support.base.BaseIntegrationTest;
+import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 @IntegrationTest
-public abstract class SearchLinkedDataInstanceIT extends BaseIntegrationTest {
+public abstract class SearchLinkedDataInstanceIT extends BaseSharedTest {
 
   public static final List<Map<String, Object>> INSTANCE_SAMPLES =
     List.of(getInstanceSampleAsMap(), getInstance2SampleAsMap());

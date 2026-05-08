@@ -25,7 +25,7 @@ import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.ShelvingOrderAlgorithmType;
 import org.folio.search.model.Pair;
 import org.folio.spring.testing.type.IntegrationTest;
-import org.folio.support.base.BaseIntegrationTest;
+import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,7 +35,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 @IntegrationTest
 @SuppressWarnings("checkstyle:DeclarationOrder")
-public abstract class BrowseClassificationIT extends BaseIntegrationTest {
+public abstract class BrowseClassificationIT extends BaseSharedTest {
 
   private static final String LC_TYPE_ID = "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a";
   private static final String LC2_TYPE_ID = "308c950f-8209-4f2e-9702-0c004a9f21bc";

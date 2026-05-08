@@ -13,14 +13,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthoritySearchResult;
-import org.folio.support.base.BaseIntegrationTest;
+import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 import org.junit.jupiter.params.provider.CsvSource;
 
-public abstract class SearchAuthorityIT extends BaseIntegrationTest {
+public abstract class SearchAuthorityIT extends BaseSharedTest {
 
   private static final String AUTHORIZED_TYPE = "Authorized";
   private static final String REFERENCE_TYPE = "Reference";

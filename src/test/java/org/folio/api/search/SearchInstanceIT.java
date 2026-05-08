@@ -4,6 +4,7 @@ import static org.folio.support.sample.SampleInstances.getSemanticWebId;
 import static org.folio.support.sample.SampleInstancesResponse.getInstanceBasicResponseSample;
 import static org.folio.support.sample.SampleInstancesResponse.getInstanceFullResponseSample;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -12,7 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.assertj.core.api.Assertions;
 import org.folio.search.domain.dto.InstanceSearchResult;
 import org.folio.spring.testing.type.IntegrationTest;
-import org.folio.support.base.BaseIntegrationTest;
+import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -20,7 +21,7 @@ import org.junit.jupiter.params.provider.CsvFileSource;
 import org.junit.jupiter.params.provider.CsvSource;
 
 @IntegrationTest
-public abstract class SearchInstanceIT extends BaseIntegrationTest {
+public abstract class SearchInstanceIT extends BaseSharedTest {
 
   @CsvFileSource(resources = "/test-resources/instance-search-test-queries.csv",
                  useHeadersInDisplayName = true)
@@ -69,6 +70,35 @@ public abstract class SearchInstanceIT extends BaseIntegrationTest {
   @DisplayName("can search by instances (nothing found)")
   void searchByInstances_parameterized_zeroResults(String query, String value) throws Throwable {
     doSearchByInstances(prepareQuery(query, '"' + value + '"')).andExpect(jsonPath("$.totalRecords", is(0)));
+  }
+
+  @ParameterizedTest(name = "[{index}] {0}, {1}")
+  @CsvSource({
+    "cql.allRecords = 1, ''",
+    "keyword = *, ''",
+    "indexTitle <> {value}, unknown value",
+    "indexTitle <> {value}, UNKNOWN VALUE",
+    "title <> {value}, unknown value",
+    "title <> {value}, UNKNOWN VALUE",
+    "shared == {value}, false",
+    "publication.place all {value}, cambridge",
+    "publication.place all {value}, Cambridge",
+    "publication.place any {value}, Cambridge mass",
+    "publication.place == {value}, Cambridge",
+    "publisher all {value}, press",
+    "publisher all {value}, PRESS",
+    "administrativeNotes any {value}, original pcc",
+    "administrativeNotes any {value}, ORIGINAL PCC",
+    "instanceFormatIds == {value}, 7f9c4ac0-fa3d-43b7-b978-3bf0be38c4da",
+    "instanceFormatIds == {value}, 7F9C4AC0-FA3D-43B7-B978-3BF0BE38C4DA",
+    "tenantId = {value}, test_tenant",
+    "title any {value}, systems alternative semantic",
+    "title any {value}, SYSTEMS ALTERNATIVE SEMANTIC"
+  })
+  @DisplayName("can search by instances (multiple results found)")
+  void searchByInstances_parameterized_multipleResults(String query, String value) throws Throwable {
+    doSearchByInstances(prepareQuery(query, '"' + value + '"'))
+      .andExpect(jsonPath("$.totalRecords", greaterThan(1)));
   }
 
   @Test

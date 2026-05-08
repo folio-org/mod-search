@@ -5,12 +5,12 @@ import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import org.folio.spring.testing.type.IntegrationTest;
-import org.folio.support.base.BaseIntegrationTest;
+import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 @IntegrationTest
-public abstract class SearchItemIT extends BaseIntegrationTest {
+public abstract class SearchItemIT extends BaseSharedTest {
 
   @CsvSource({
     "items.fullCallNumber=={value}, prefix-90000 TK51*",

@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 import org.folio.spring.testing.type.IntegrationTest;
-import org.folio.support.base.BaseIntegrationTest;
+import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -18,7 +18,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 @IntegrationTest
 @SuppressWarnings("checkstyle:DeclarationOrder")
-public abstract class SortItemIT extends BaseIntegrationTest {
+public abstract class SortItemIT extends BaseSharedTest {
 
   private static final String[] IDS = array(
     "00000007-0000-4000-8000-000000000000",

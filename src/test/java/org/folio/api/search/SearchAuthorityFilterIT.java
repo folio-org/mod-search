@@ -20,14 +20,14 @@ import java.util.stream.Stream;
 import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.domain.dto.RecordType;
-import org.folio.support.base.BaseIntegrationTest;
+import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-public abstract class SearchAuthorityFilterIT extends BaseIntegrationTest {
+public abstract class SearchAuthorityFilterIT extends BaseSharedTest {
 
   private static final int RECORDS_COUNT = 15;
   private static final String[] IDS = {

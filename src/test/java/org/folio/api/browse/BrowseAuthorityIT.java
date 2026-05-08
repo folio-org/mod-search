@@ -13,14 +13,14 @@ import java.util.stream.Stream;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthorityBrowseItem;
 import org.folio.search.domain.dto.AuthorityBrowseResult;
-import org.folio.support.base.BaseIntegrationTest;
+import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-public abstract class BrowseAuthorityIT extends BaseIntegrationTest {
+public abstract class BrowseAuthorityIT extends BaseSharedTest {
 
   private static final String REFERENCE = "Reference";
   private static final String AUTHORIZED = "Authorized";

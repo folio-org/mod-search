@@ -6,10 +6,10 @@ import static org.folio.support.base.ApiEndpoints.allRecordsSortedBy;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-import org.folio.support.base.BaseIntegrationTest;
+import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.Test;
 
-public abstract class SortAuthorityIT extends BaseIntegrationTest {
+public abstract class SortAuthorityIT extends BaseSharedTest {
 
   private static final int RECORDS_COUNT = 5;
   private static final String[] IDS = {

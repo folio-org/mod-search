@@ -60,13 +60,12 @@ import org.springframework.test.context.TestPropertySource;
 @TestPropertySource(properties = "folio.search-config.indexing.instance-children-index-enabled=true")
 class SearchBrowseIT extends BaseIntegrationTest {
 
-  // 119 instances from instances.json
-  private static final int TOTAL_INSTANCES       = 96;
-  private static final int TOTAL_AUTHORITIES     = 117; // 51 sample + 15 filter + 5 sort + 45 browse
-  private static final int EXPECTED_CALL_NUMBER_COUNT    = 116;
-  private static final int EXPECTED_CONTRIBUTOR_COUNT    = 68;
+  private static final int TOTAL_INSTANCES = 96;
+  private static final int TOTAL_AUTHORITIES = 117;
+  private static final int EXPECTED_CALL_NUMBER_COUNT = 116;
+  private static final int EXPECTED_CONTRIBUTOR_COUNT = 68;
   private static final int EXPECTED_CLASSIFICATION_COUNT = 92;
-  private static final int EXPECTED_SUBJECT_COUNT        = 50;
+  private static final int EXPECTED_SUBJECT_COUNT = 50;
 
   @BeforeAll
   static void setUpSharedTenant(
@@ -85,6 +84,11 @@ class SearchBrowseIT extends BaseIntegrationTest {
     checkThatEventsFromKafkaAreIndexed(TENANT_ID, instanceSearchPath(), TOTAL_INSTANCES, emptyList());
     checkThatEventsFromKafkaAreIndexed(TENANT_ID, authoritySearchPath(), TOTAL_AUTHORITIES, emptyList());
     loadLinkedData();
+  }
+
+  @AfterAll
+  static void cleanUpSharedTenant() {
+    removeTenant(TENANT_ID);
   }
 
   private static SharedTestDataManager.LockManager createLockManager(SubResourcesLockRepository lockRepo) {
@@ -125,10 +129,67 @@ class SearchBrowseIT extends BaseIntegrationTest {
     }
   }
 
-  @AfterAll
-  static void cleanUpSharedTenant() {
-    removeTenant(TENANT_ID);
-  }
+  @Nested
+  class SearchInstance extends SearchInstanceIT { }
+
+  // ─── Nested stubs — each extends the corresponding *IT class ────────────────
+
+  @Nested
+  class SearchHoldings extends SearchHoldingsIT { }
+
+  @Nested
+  class SearchItem extends SearchItemIT { }
+
+  @Nested
+  class SearchByAllFields extends SearchByAllFieldsIT { }
+
+  @Nested
+  class SortInstance extends SortInstanceIT { }
+
+  @Nested
+  class SortInstanceByTitle extends SortInstanceByTitleIT { }
+
+  @Nested
+  class SearchByEmptyValues extends SearchByEmptyValuesIT { }
+
+  @Nested
+  class SearchInstanceFilter extends SearchInstanceFilterIT { }
+
+  @Nested
+  class SortItem extends SortItemIT { }
+
+  @Nested
+  class BrowseCallNumber extends BrowseCallNumberIT { }
+
+  @Nested
+  class BrowseClassification extends BrowseClassificationIT { }
+
+  @Nested
+  class BrowseContributor extends BrowseContributorIT { }
+
+  @Nested
+  class BrowseSubject extends BrowseSubjectIT { }
+
+  @Nested
+  class SearchAuthority extends SearchAuthorityIT { }
+
+  @Nested
+  class SearchAuthorityFilter extends SearchAuthorityFilterIT { }
+
+  @Nested
+  class SortAuthority extends SortAuthorityIT { }
+
+  @Nested
+  class BrowseAuthority extends BrowseAuthorityIT { }
+
+  @Nested
+  class SearchLinkedDataInstance extends SearchLinkedDataInstanceIT { }
+
+  @Nested
+  class SearchLinkedDataWork extends SearchLinkedDataWorkIT { }
+
+  @Nested
+  class SearchLinkedDataHub extends SearchLinkedDataHubIT { }
 
   private static final class BrowseLockManager implements SharedTestDataManager.LockManager {
 
@@ -162,46 +223,4 @@ class SearchBrowseIT extends BaseIntegrationTest {
       lockRepo.unlockSubResource(ReindexEntityType.SUBJECT, subjLock, TENANT_ID);
     }
   }
-
-  // ─── Nested stubs — each extends the corresponding *IT class ────────────────
-
-  @Nested class SearchInstance extends SearchInstanceIT {}
-
-  @Nested class SearchHoldings extends SearchHoldingsIT {}
-
-  @Nested class SearchItem extends SearchItemIT {}
-
-  @Nested class SearchByAllFields extends SearchByAllFieldsIT {}
-
-  @Nested class SortInstance extends SortInstanceIT {}
-
-  @Nested class SortInstanceByTitle extends SortInstanceByTitleIT {}
-
-  @Nested class SearchByEmptyValues extends SearchByEmptyValuesIT {}
-
-  @Nested class SearchInstanceFilter extends SearchInstanceFilterIT {}
-
-  @Nested class SortItem extends SortItemIT {}
-
-  @Nested class BrowseCallNumber extends BrowseCallNumberIT {}
-
-  @Nested class BrowseClassification extends BrowseClassificationIT {}
-
-  @Nested class BrowseContributor extends BrowseContributorIT {}
-
-  @Nested class BrowseSubject extends BrowseSubjectIT {}
-
-  @Nested class SearchAuthority extends SearchAuthorityIT {}
-
-  @Nested class SearchAuthorityFilter extends SearchAuthorityFilterIT {}
-
-  @Nested class SortAuthority extends SortAuthorityIT {}
-
-  @Nested class BrowseAuthority extends BrowseAuthorityIT {}
-
-  @Nested class SearchLinkedDataInstance extends SearchLinkedDataInstanceIT {}
-
-  @Nested class SearchLinkedDataWork extends SearchLinkedDataWorkIT {}
-
-  @Nested class SearchLinkedDataHub extends SearchLinkedDataHubIT {}
 }

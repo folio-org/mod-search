@@ -6,12 +6,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.apache.commons.lang3.StringUtils;
 import org.folio.spring.testing.type.IntegrationTest;
-import org.folio.support.base.BaseIntegrationTest;
+import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 @IntegrationTest
-public abstract class SearchByEmptyValuesIT extends BaseIntegrationTest {
+public abstract class SearchByEmptyValuesIT extends BaseSharedTest {
 
   public static final String INSTANCE_ID_1 = "00000003-0000-4000-8000-000000000000";
   public static final String INSTANCE_ID_2 = "00000002-0000-4000-8000-000000000000";

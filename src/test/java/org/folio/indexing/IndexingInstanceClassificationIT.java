@@ -6,6 +6,7 @@ import static org.folio.search.model.types.ResourceType.INSTANCE_CLASSIFICATION;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.support.utils.TestUtils.randomId;
+import static org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_CLASS;
 
 import java.util.List;
 import java.util.Map;
@@ -17,10 +18,12 @@ import org.folio.support.base.BaseIntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 
 @IntegrationTest
 @TestPropertySource(properties = "folio.search-config.indexing.instance-children-index-enabled=true")
+@DirtiesContext(classMode = AFTER_CLASS)
 class IndexingInstanceClassificationIT extends BaseIntegrationTest {
 
   @BeforeAll

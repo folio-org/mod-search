@@ -10,6 +10,14 @@
     "callNumberPrefix": "copy",
     "callNumberSuffix": "1",
     "hrid": "ho00000000001",
+    "statisticalCodeIds": [
+      "c4073462-6144-4b69-a543-dd131e241799"
+    ],
+    "tags": {
+      "tagList": [
+        "recommended"
+      ]
+    },
     "administrativeNotes": [
       "Duplicate copy retained per policy."
     ],
@@ -18,7 +26,13 @@
         "note": "Purchased from special collections fund.",
         "staffOnly": false
       }
-    ]
+    ],
+    "metadata": {
+      "createdDate": "2018-11-21T09:36:31.000Z",
+      "createdByUserId": "a3b4c5d6-e7f8-4901-b2c3-d4e5f6a7b8c9",
+      "updatedDate": "2018-12-12T02:54:14.000Z",
+      "updatedByUserId": "7b5f7e3d-9f6b-43a5-b1c9-5a8c4e9b2e3f"
+    }
   },
   {
     "id": "00000002-0000-4000-9000-000000000000",
@@ -28,6 +42,7 @@
     "permanentLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "QH6107 .D53 2001",
+    "callNumberPrefix": "v.",
     "hrid": "ho00000000002",
     "copyNumber": "1",
     "temporaryLocationId": "758258bc-ecc1-41b8-abca-f7b610822ffd",
@@ -48,7 +63,13 @@
         "note": "Received as part of standing order.",
         "staffOnly": false
       }
-    ]
+    ],
+    "metadata": {
+      "createdDate": "2018-05-15T13:31:24.000Z",
+      "createdByUserId": "00000000-1111-2222-3333-444444444444",
+      "updatedDate": "2018-10-01T08:57:15.000Z",
+      "updatedByUserId": "a3b4c5d6-e7f8-4901-b2c3-d4e5f6a7b8c9"
+    }
   },
   {
     "id": "00000003-0000-4000-9000-000000000000",
@@ -60,6 +81,7 @@
     "callNumber": "P2719 .H61 2004",
     "hrid": "ho00000000003",
     "temporaryLocationId": "f34d27c6-a8eb-461b-acd6-5dea81771e70",
+    "illPolicy": "Will not lend",
     "statisticalCodeIds": [
       "b6b46869-f3c1-4370-b603-29774a1e42b1"
     ],
@@ -67,6 +89,18 @@
       "tagList": [
         "preservation-needed"
       ]
+    },
+    "notes": [
+      {
+        "note": "Copy acquired through donation.",
+        "staffOnly": false
+      }
+    ],
+    "metadata": {
+      "createdDate": "2021-10-30T19:24:21.000Z",
+      "createdByUserId": "a3b4c5d6-e7f8-4901-b2c3-d4e5f6a7b8c9",
+      "updatedDate": "2021-11-23T10:37:13.000Z",
+      "updatedByUserId": "00000000-1111-2222-3333-444444444444"
     }
   },
   {
@@ -94,7 +128,13 @@
         "note": "Copy acquired through donation.",
         "staffOnly": true
       }
-    ]
+    ],
+    "metadata": {
+      "createdDate": "2022-01-11T10:52:00.000Z",
+      "createdByUserId": "00000000-1111-2222-3333-444444444444",
+      "updatedDate": "2022-06-09T10:18:26.000Z",
+      "updatedByUserId": "a3b4c5d6-e7f8-4901-b2c3-d4e5f6a7b8c9"
+    }
   },
   {
     "id": "00000005-0000-4000-9000-000000000000",
@@ -104,6 +144,7 @@
     "permanentLocationId": "b241764c-1466-4e1d-a028-1a3684a5da87",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "TR4870 .J50 1975",
+    "callNumberPrefix": "v.",
     "callNumberSuffix": "4",
     "hrid": "ho00000000005",
     "illPolicy": "Will lend",
@@ -117,7 +158,13 @@
         "note": "Copy acquired through donation.",
         "staffOnly": true
       }
-    ]
+    ],
+    "metadata": {
+      "createdDate": "2021-05-16T08:23:52.000Z",
+      "createdByUserId": "58d0aaf6-dcda-4d5e-92da-012e6b7dd766",
+      "updatedDate": "2021-07-10T23:26:50.000Z",
+      "updatedByUserId": "7b5f7e3d-9f6b-43a5-b1c9-5a8c4e9b2e3f"
+    }
   },
   {
     "id": "00000006-0000-4000-9000-000000000000",
@@ -139,6 +186,13 @@
         "note": "Available for 3-hour in-house use only.",
         "staffOnly": false
       }
+    ],
+    "electronicAccess": [
+      {
+        "uri": "https://doi.org/10.7551/mitpress/9780262000006",
+        "linkText": "Full text (MIT Press)",
+        "relationshipId": "ece85fa8-b6e0-4b44-b3bf-4c2d7d8b0afe"
+      }
     ]
   },
   {
@@ -149,6 +203,7 @@
     "permanentLocationId": "81f1ab2c-83c5-4a90-a8b7-c8c8179c0697",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "LB7868 .B76 1973",
+    "callNumberPrefix": "v.",
     "hrid": "ho00000000007",
     "copyNumber": "5",
     "illPolicy": "Will lend",
@@ -165,7 +220,21 @@
         "note": "Formerly in reference collection.",
         "staffOnly": false
       }
-    ]
+    ],
+    "electronicAccess": [
+      {
+        "uri": "https://ebookcentral.proquest.com/lib/catalog/detail.action?docID=7",
+        "linkText": "Available via ProQuest Ebook Central",
+        "publicNote": "Access via library subscription",
+        "relationshipId": "338e25b5-8e8f-4ed9-9b55-55f8c59fefbe"
+      }
+    ],
+    "metadata": {
+      "createdDate": "2019-05-29T07:43:44.000Z",
+      "createdByUserId": "1ad737b0-d847-11e6-bf26-cec0c932ce01",
+      "updatedDate": "2019-05-29T21:49:07.000Z",
+      "updatedByUserId": "1ad737b0-d847-11e6-bf26-cec0c932ce01"
+    }
   },
   {
     "id": "00000008-0000-4000-9000-000000000000",
@@ -178,7 +247,20 @@
     "callNumberPrefix": "suppl.",
     "hrid": "ho00000000008",
     "copyNumber": "1",
-    "illPolicy": "Will lend hard copy only"
+    "illPolicy": "Will lend hard copy only",
+    "electronicAccess": [
+      {
+        "uri": "https://link.springer.com/book/10.1007/978-3-000008",
+        "linkText": "Full text (SpringerLink)",
+        "relationshipId": "f5d0068e-6272-458e-8a81-b85e7b9a14aa"
+      }
+    ],
+    "metadata": {
+      "createdDate": "2020-09-28T07:13:25.000Z",
+      "createdByUserId": "7b5f7e3d-9f6b-43a5-b1c9-5a8c4e9b2e3f",
+      "updatedDate": "2021-01-17T21:16:32.000Z",
+      "updatedByUserId": "00000000-1111-2222-3333-444444444444"
+    }
   },
   {
     "id": "00000009-0000-4000-9000-000000000000",
@@ -206,6 +288,7 @@
     "hrid": "ho00000000010",
     "copyNumber": "Copy 2",
     "temporaryLocationId": "53cf956f-c1df-410b-8bea-27f712cca7c0",
+    "illPolicy": "Limited lending policy",
     "statisticalCodeIds": [
       "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
     ],
@@ -219,7 +302,13 @@
         "note": "Transferred from branch library.",
         "staffOnly": false
       }
-    ]
+    ],
+    "metadata": {
+      "createdDate": "2022-04-11T16:20:21.000Z",
+      "createdByUserId": "00000000-1111-2222-3333-444444444444",
+      "updatedDate": "2022-06-11T20:21:25.000Z",
+      "updatedByUserId": "00000000-1111-2222-3333-444444444444"
+    }
   },
   {
     "id": "00000011-0000-4000-9000-000000000000",
@@ -230,6 +319,7 @@
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "JZ2786 .S36 1994",
     "callNumberPrefix": "suppl.",
+    "callNumberSuffix": "3",
     "hrid": "ho00000000011",
     "copyNumber": "3",
     "statisticalCodeIds": [
@@ -243,7 +333,13 @@
         "note": "Available for 3-hour in-house use only.",
         "staffOnly": false
       }
-    ]
+    ],
+    "metadata": {
+      "createdDate": "2019-05-20T10:51:08.000Z",
+      "createdByUserId": "58d0aaf6-dcda-4d5e-92da-012e6b7dd766",
+      "updatedDate": "2019-08-18T10:45:55.000Z",
+      "updatedByUserId": "58d0aaf6-dcda-4d5e-92da-012e6b7dd766"
+    }
   },
   {
     "id": "00000012-0000-4000-9000-000000000000",
@@ -261,7 +357,21 @@
         "note": "Received as part of standing order.",
         "staffOnly": false
       }
-    ]
+    ],
+    "electronicAccess": [
+      {
+        "uri": "https://www.cambridge.org/core/books/0000000018",
+        "linkText": "Full text (Cambridge Core)",
+        "publicNote": "Requires institutional login",
+        "relationshipId": "f5d0068e-6272-458e-8a81-b85e7b9a14aa"
+      }
+    ],
+    "metadata": {
+      "createdDate": "2022-09-21T13:27:25.000Z",
+      "createdByUserId": "a3b4c5d6-e7f8-4901-b2c3-d4e5f6a7b8c9",
+      "updatedDate": "2023-02-11T23:21:34.000Z",
+      "updatedByUserId": "58d0aaf6-dcda-4d5e-92da-012e6b7dd766"
+    }
   },
   {
     "id": "00000013-0000-4000-9000-000000000000",
@@ -272,7 +382,16 @@
     "callNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "callNumber": "933.87",
     "hrid": "ho00000000013",
-    "copyNumber": "3"
+    "copyNumber": "3",
+    "formerIds": [
+      "old-f3504c11-3633"
+    ],
+    "metadata": {
+      "createdDate": "2018-06-09T16:35:56.000Z",
+      "createdByUserId": "58d0aaf6-dcda-4d5e-92da-012e6b7dd766",
+      "updatedDate": "2018-11-07T03:11:28.000Z",
+      "updatedByUserId": "58d0aaf6-dcda-4d5e-92da-012e6b7dd766"
+    }
   },
   {
     "id": "00000014-0000-4000-9000-000000000000",
@@ -283,8 +402,15 @@
     "callNumberTypeId": "512173a7-bd09-490e-b773-17d83f2b63fe",
     "callNumber": "TK5105.88815 . A58 2004 FT MEADE",
     "callNumberPrefix": "suppl.",
+    "callNumberSuffix": "3",
     "hrid": "ho00000000014",
-    "copyNumber": "3"
+    "copyNumber": "3",
+    "metadata": {
+      "createdDate": "2018-07-11T17:51:25.000Z",
+      "createdByUserId": "58d0aaf6-dcda-4d5e-92da-012e6b7dd766",
+      "updatedDate": "2018-09-26T13:08:16.000Z",
+      "updatedByUserId": "58d0aaf6-dcda-4d5e-92da-012e6b7dd766"
+    }
   },
   {
     "id": "00000015-0000-4000-9000-000000000000",
@@ -304,7 +430,20 @@
         "note": "Copy acquired through donation.",
         "staffOnly": true
       }
-    ]
+    ],
+    "electronicAccess": [
+      {
+        "uri": "https://link.springer.com/book/10.1007/978-3-000021",
+        "linkText": "Full text (SpringerLink)",
+        "relationshipId": "3b430592-2e09-4b48-9a0c-0636d66b9fb3"
+      }
+    ],
+    "metadata": {
+      "createdDate": "2018-12-03T20:34:49.000Z",
+      "createdByUserId": "58d0aaf6-dcda-4d5e-92da-012e6b7dd766",
+      "updatedDate": "2019-03-25T00:26:08.000Z",
+      "updatedByUserId": "58d0aaf6-dcda-4d5e-92da-012e6b7dd766"
+    }
   },
   {
     "id": "00000016-0000-4000-9000-000000000000",
@@ -317,6 +456,7 @@
     "hrid": "ho00000000016",
     "copyNumber": "2",
     "temporaryLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
+    "illPolicy": "Will lend hard copy only",
     "statisticalCodeIds": [
       "b6b46869-f3c1-4370-b603-29774a1e42b1"
     ],
@@ -325,7 +465,13 @@
         "note": "Transferred from branch library.",
         "staffOnly": false
       }
-    ]
+    ],
+    "metadata": {
+      "createdDate": "2024-02-19T13:42:03.000Z",
+      "createdByUserId": "00000000-1111-2222-3333-444444444444",
+      "updatedDate": "2024-05-31T13:05:15.000Z",
+      "updatedByUserId": "a3b4c5d6-e7f8-4901-b2c3-d4e5f6a7b8c9"
+    }
   },
   {
     "id": "00000017-0000-4000-9000-000000000000",
@@ -335,6 +481,7 @@
     "permanentLocationId": "f34d27c6-a8eb-461b-acd6-5dea81771e70",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "HD7469 .X85 2003",
+    "callNumberPrefix": "v.",
     "hrid": "ho00000000017",
     "copyNumber": "4",
     "illPolicy": "Will lend",
@@ -354,7 +501,14 @@
     "callNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "callNumber": "054.25",
     "callNumberPrefix": "suppl.",
-    "hrid": "ho00000000018"
+    "callNumberSuffix": "3",
+    "hrid": "ho00000000018",
+    "metadata": {
+      "createdDate": "2023-07-24T04:23:11.000Z",
+      "createdByUserId": "1ad737b0-d847-11e6-bf26-cec0c932ce01",
+      "updatedDate": "2023-07-27T19:36:32.000Z",
+      "updatedByUserId": "58d0aaf6-dcda-4d5e-92da-012e6b7dd766"
+    }
   },
   {
     "id": "00000019-0000-4000-9000-000000000000",
@@ -364,13 +518,20 @@
     "permanentLocationId": "b241764c-1466-4e1d-a028-1a3684a5da87",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "HD7799 .X78 1973",
+    "callNumberPrefix": "pt.",
     "hrid": "ho00000000019",
     "copyNumber": "2",
     "temporaryLocationId": "758258bc-ecc1-41b8-abca-f7b610822ffd",
     "illPolicy": "Will lend",
     "statisticalCodeIds": [
       "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
-    ]
+    ],
+    "metadata": {
+      "createdDate": "2023-08-13T09:00:51.000Z",
+      "createdByUserId": "00000000-1111-2222-3333-444444444444",
+      "updatedDate": "2024-01-04T06:44:32.000Z",
+      "updatedByUserId": "a3b4c5d6-e7f8-4901-b2c3-d4e5f6a7b8c9"
+    }
   },
   {
     "id": "00000020-0000-4000-9000-000000000000",
@@ -380,6 +541,7 @@
     "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
     "callNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "callNumber": "283.49",
+    "callNumberPrefix": "pt.",
     "hrid": "ho00000000020",
     "copyNumber": "1",
     "illPolicy": "Will lend hard copy only",
@@ -404,7 +566,23 @@
     "permanentLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "TR3033 .J62 1998",
-    "hrid": "ho00000000021"
+    "hrid": "ho00000000021",
+    "formerIds": [
+      "old-daa6fb54-2995"
+    ],
+    "electronicAccess": [
+      {
+        "uri": "https://doi.org/10.7551/mitpress/9780262000033",
+        "linkText": "Full text (MIT Press)",
+        "relationshipId": "f5d0068e-6272-458e-8a81-b85e7b9a14aa"
+      }
+    ],
+    "metadata": {
+      "createdDate": "2020-09-03T08:21:48.000Z",
+      "createdByUserId": "1ad737b0-d847-11e6-bf26-cec0c932ce01",
+      "updatedDate": "2021-01-12T07:58:13.000Z",
+      "updatedByUserId": "1ad737b0-d847-11e6-bf26-cec0c932ce01"
+    }
   },
   {
     "id": "00000022-0000-4000-9000-000000000000",
@@ -426,7 +604,13 @@
         "note": "Bound with: companion volume.",
         "staffOnly": true
       }
-    ]
+    ],
+    "metadata": {
+      "createdDate": "2021-04-21T22:07:23.000Z",
+      "createdByUserId": "7b5f7e3d-9f6b-43a5-b1c9-5a8c4e9b2e3f",
+      "updatedDate": "2021-08-29T16:46:26.000Z",
+      "updatedByUserId": "1ad737b0-d847-11e6-bf26-cec0c932ce01"
+    }
   },
   {
     "id": "00000023-0000-4000-9000-000000000000",
@@ -451,7 +635,13 @@
         "note": "Purchased from special collections fund.",
         "staffOnly": false
       }
-    ]
+    ],
+    "metadata": {
+      "createdDate": "2022-12-16T12:51:55.000Z",
+      "createdByUserId": "1ad737b0-d847-11e6-bf26-cec0c932ce01",
+      "updatedDate": "2023-01-10T07:21:14.000Z",
+      "updatedByUserId": "7b5f7e3d-9f6b-43a5-b1c9-5a8c4e9b2e3f"
+    }
   },
   {
     "id": "00000024-0000-4000-9000-000000000000",
@@ -461,9 +651,11 @@
     "permanentLocationId": "f34d27c6-a8eb-461b-acd6-5dea81771e70",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "S5229 .B69 2005",
+    "callNumberSuffix": "2",
     "hrid": "ho00000000024",
     "copyNumber": "4",
     "temporaryLocationId": "53cf956f-c1df-410b-8bea-27f712cca7c0",
+    "illPolicy": "Copy only",
     "statisticalCodeIds": [
       "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
     ],
@@ -491,6 +683,7 @@
     "hrid": "ho00000000025",
     "copyNumber": "4",
     "temporaryLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
+    "illPolicy": "Copy only",
     "statisticalCodeIds": [
       "d9acad2f-d9ac-4b48-9097-e6ab85000001"
     ],
@@ -526,7 +719,13 @@
         "note": "Available for 3-hour in-house use only.",
         "staffOnly": false
       }
-    ]
+    ],
+    "metadata": {
+      "createdDate": "2022-01-16T08:02:53.000Z",
+      "createdByUserId": "7b5f7e3d-9f6b-43a5-b1c9-5a8c4e9b2e3f",
+      "updatedDate": "2022-07-09T16:20:26.000Z",
+      "updatedByUserId": "1ad737b0-d847-11e6-bf26-cec0c932ce01"
+    }
   },
   {
     "id": "00000027-0000-4000-9000-000000000000",
@@ -589,7 +788,25 @@
     "hrid": "ho00000000029",
     "statisticalCodeIds": [
       "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
-    ]
+    ],
+    "tags": {
+      "tagList": [
+        "withdrawn-review"
+      ]
+    },
+    "electronicAccess": [
+      {
+        "uri": "https://link.springer.com/book/10.1007/978-3-000041",
+        "linkText": "Full text (SpringerLink)",
+        "relationshipId": "f5d0068e-6272-458e-8a81-b85e7b9a14aa"
+      }
+    ],
+    "metadata": {
+      "createdDate": "2020-07-27T04:12:25.000Z",
+      "createdByUserId": "1ad737b0-d847-11e6-bf26-cec0c932ce01",
+      "updatedDate": "2020-09-21T14:22:45.000Z",
+      "updatedByUserId": "7b5f7e3d-9f6b-43a5-b1c9-5a8c4e9b2e3f"
+    }
   },
   {
     "id": "00000030-0000-4000-9000-000000000000",
@@ -612,7 +829,13 @@
         "note": "Gift of the library association.",
         "staffOnly": false
       }
-    ]
+    ],
+    "metadata": {
+      "createdDate": "2024-05-08T09:52:40.000Z",
+      "createdByUserId": "1ad737b0-d847-11e6-bf26-cec0c932ce01",
+      "updatedDate": "2024-10-24T08:44:32.000Z",
+      "updatedByUserId": "a3b4c5d6-e7f8-4901-b2c3-d4e5f6a7b8c9"
+    }
   },
   {
     "id": "00000031-0000-4000-9000-000000000000",
@@ -623,8 +846,15 @@
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "HM7570 .S40 1966",
     "callNumberPrefix": "v.",
+    "callNumberSuffix": "1",
     "hrid": "ho00000000031",
-    "copyNumber": "1"
+    "copyNumber": "1",
+    "metadata": {
+      "createdDate": "2023-12-13T13:20:39.000Z",
+      "createdByUserId": "00000000-1111-2222-3333-444444444444",
+      "updatedDate": "2024-02-17T21:24:20.000Z",
+      "updatedByUserId": "00000000-1111-2222-3333-444444444444"
+    }
   },
   {
     "id": "00000032-0000-4000-9000-000000000000",
@@ -638,12 +868,19 @@
     "hrid": "ho00000000032",
     "copyNumber": "4",
     "temporaryLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
+    "illPolicy": "Copy only",
     "notes": [
       {
         "note": "Copy acquired through donation.",
         "staffOnly": false
       }
-    ]
+    ],
+    "metadata": {
+      "createdDate": "2018-08-28T02:08:34.000Z",
+      "createdByUserId": "7b5f7e3d-9f6b-43a5-b1c9-5a8c4e9b2e3f",
+      "updatedDate": "2018-10-29T20:20:34.000Z",
+      "updatedByUserId": "1ad737b0-d847-11e6-bf26-cec0c932ce01"
+    }
   },
   {
     "id": "00000033-0000-4000-9000-000000000000",
@@ -653,17 +890,30 @@
     "permanentLocationId": "81f1ab2c-83c5-4a90-a8b7-c8c8179c0697",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "PS992 .E17 1966",
+    "callNumberSuffix": "3",
     "hrid": "ho00000000033",
     "temporaryLocationId": "184aae84-a5bf-4c6a-85ba-4a7c73026cd5",
+    "illPolicy": "Unknown lending policy",
     "statisticalCodeIds": [
       "6899291f-0d18-4f8d-a269-42706a5d0e27"
     ],
+    "tags": {
+      "tagList": [
+        "preservation-needed"
+      ]
+    },
     "notes": [
       {
         "note": "Available for 3-hour in-house use only.",
         "staffOnly": false
       }
-    ]
+    ],
+    "metadata": {
+      "createdDate": "2018-01-04T20:13:46.000Z",
+      "createdByUserId": "00000000-1111-2222-3333-444444444444",
+      "updatedDate": "2018-05-06T08:46:44.000Z",
+      "updatedByUserId": "a3b4c5d6-e7f8-4901-b2c3-d4e5f6a7b8c9"
+    }
   },
   {
     "id": "00000034-0000-4000-9000-000000000000",
@@ -676,6 +926,7 @@
     "hrid": "ho00000000034",
     "copyNumber": "5",
     "temporaryLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "illPolicy": "Unknown lending policy",
     "statisticalCodeIds": [
       "c4073462-6144-4b69-a543-dd131e241799"
     ],
@@ -692,6 +943,14 @@
         "note": "Received as part of standing order.",
         "staffOnly": false
       }
+    ],
+    "electronicAccess": [
+      {
+        "uri": "https://ebookcentral.proquest.com/lib/catalog/detail.action?docID=52",
+        "linkText": "Available via ProQuest Ebook Central",
+        "publicNote": "Access via library subscription",
+        "relationshipId": "f5d0068e-6272-458e-8a81-b85e7b9a14aa"
+      }
     ]
   },
   {
@@ -702,6 +961,7 @@
     "permanentLocationId": "53cf956f-c1df-410b-8bea-27f712cca7c0",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "HV3951 .K98 2006",
+    "callNumberPrefix": "v.",
     "hrid": "ho00000000035",
     "copyNumber": "1",
     "temporaryLocationId": "184aae84-a5bf-4c6a-85ba-4a7c73026cd5",
@@ -713,6 +973,14 @@
       {
         "note": "Received as part of standing order.",
         "staffOnly": false
+      }
+    ],
+    "electronicAccess": [
+      {
+        "uri": "https://ebookcentral.proquest.com/lib/catalog/detail.action?docID=53",
+        "linkText": "Available via ProQuest Ebook Central",
+        "publicNote": "Access via library subscription",
+        "relationshipId": "338e25b5-8e8f-4ed9-9b55-55f8c59fefbe"
       }
     ]
   },
@@ -755,6 +1023,9 @@
     "callNumberSuffix": "5",
     "hrid": "ho00000000037",
     "copyNumber": "2",
+    "statisticalCodeIds": [
+      "d9acad2f-d9ac-4b48-9097-e6ab85000001"
+    ],
     "tags": {
       "tagList": [
         "review-needed"
@@ -765,7 +1036,13 @@
         "note": "Transferred from branch library.",
         "staffOnly": false
       }
-    ]
+    ],
+    "metadata": {
+      "createdDate": "2018-07-20T16:38:37.000Z",
+      "createdByUserId": "a3b4c5d6-e7f8-4901-b2c3-d4e5f6a7b8c9",
+      "updatedDate": "2019-01-09T06:17:14.000Z",
+      "updatedByUserId": "7b5f7e3d-9f6b-43a5-b1c9-5a8c4e9b2e3f"
+    }
   },
   {
     "id": "00000038-0000-4000-9000-000000000000",
@@ -815,7 +1092,13 @@
     "callNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "callNumber": "439.69",
     "hrid": "ho00000000040",
-    "copyNumber": "5"
+    "copyNumber": "5",
+    "metadata": {
+      "createdDate": "2019-03-18T20:21:31.000Z",
+      "createdByUserId": "58d0aaf6-dcda-4d5e-92da-012e6b7dd766",
+      "updatedDate": "2019-03-18T21:14:40.000Z",
+      "updatedByUserId": "1ad737b0-d847-11e6-bf26-cec0c932ce01"
+    }
   },
   {
     "id": "00000041-0000-4000-9000-000000000000",
@@ -829,7 +1112,26 @@
     "copyNumber": "5",
     "administrativeNotes": [
       "Duplicate copy retained per policy."
-    ]
+    ],
+    "notes": [
+      {
+        "note": "Bound with: companion volume.",
+        "staffOnly": false
+      }
+    ],
+    "electronicAccess": [
+      {
+        "uri": "https://link.springer.com/book/10.1007/978-3-000065",
+        "linkText": "Full text (SpringerLink)",
+        "relationshipId": "338e25b5-8e8f-4ed9-9b55-55f8c59fefbe"
+      }
+    ],
+    "metadata": {
+      "createdDate": "2022-05-05T04:15:25.000Z",
+      "createdByUserId": "58d0aaf6-dcda-4d5e-92da-012e6b7dd766",
+      "updatedDate": "2022-06-14T01:33:17.000Z",
+      "updatedByUserId": "a3b4c5d6-e7f8-4901-b2c3-d4e5f6a7b8c9"
+    }
   },
   {
     "id": "00000042-0000-4000-9000-000000000000",
@@ -840,7 +1142,13 @@
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "JZ9286 .K18 1999",
     "hrid": "ho00000000042",
-    "copyNumber": "4"
+    "copyNumber": "4",
+    "metadata": {
+      "createdDate": "2023-04-15T00:04:11.000Z",
+      "createdByUserId": "7b5f7e3d-9f6b-43a5-b1c9-5a8c4e9b2e3f",
+      "updatedDate": "2023-06-26T19:17:37.000Z",
+      "updatedByUserId": "00000000-1111-2222-3333-444444444444"
+    }
   },
   {
     "id": "00000043-0000-4000-9000-000000000000",
@@ -864,7 +1172,13 @@
         "note": "Purchased from special collections fund.",
         "staffOnly": true
       }
-    ]
+    ],
+    "metadata": {
+      "createdDate": "2019-11-25T12:11:18.000Z",
+      "createdByUserId": "7b5f7e3d-9f6b-43a5-b1c9-5a8c4e9b2e3f",
+      "updatedDate": "2019-12-09T21:47:23.000Z",
+      "updatedByUserId": "00000000-1111-2222-3333-444444444444"
+    }
   },
   {
     "id": "00000044-0000-4000-9000-000000000000",
@@ -875,6 +1189,7 @@
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "Q6349 .V76 2011",
     "callNumberPrefix": "no.",
+    "callNumberSuffix": "5",
     "hrid": "ho00000000044",
     "copyNumber": "3",
     "notes": [
@@ -882,7 +1197,13 @@
         "note": "Gift of the library association.",
         "staffOnly": true
       }
-    ]
+    ],
+    "metadata": {
+      "createdDate": "2019-07-10T12:19:15.000Z",
+      "createdByUserId": "7b5f7e3d-9f6b-43a5-b1c9-5a8c4e9b2e3f",
+      "updatedDate": "2019-08-13T19:13:49.000Z",
+      "updatedByUserId": "7b5f7e3d-9f6b-43a5-b1c9-5a8c4e9b2e3f"
+    }
   },
   {
     "id": "00000045-0000-4000-9000-000000000000",
@@ -894,6 +1215,9 @@
     "callNumber": "150.89",
     "hrid": "ho00000000045",
     "copyNumber": "3",
+    "formerIds": [
+      "old-c731d82f-3087"
+    ],
     "administrativeNotes": [
       "Acquired via consortium purchase."
     ],
@@ -902,7 +1226,21 @@
         "note": "Received as part of standing order.",
         "staffOnly": false
       }
-    ]
+    ],
+    "electronicAccess": [
+      {
+        "uri": "https://www.cambridge.org/core/books/0000000069",
+        "linkText": "Full text (Cambridge Core)",
+        "publicNote": "Requires institutional login",
+        "relationshipId": "f5d0068e-6272-458e-8a81-b85e7b9a14aa"
+      }
+    ],
+    "metadata": {
+      "createdDate": "2018-10-14T22:29:23.000Z",
+      "createdByUserId": "a3b4c5d6-e7f8-4901-b2c3-d4e5f6a7b8c9",
+      "updatedDate": "2018-10-26T20:01:45.000Z",
+      "updatedByUserId": "a3b4c5d6-e7f8-4901-b2c3-d4e5f6a7b8c9"
+    }
   },
   {
     "id": "00000046-0000-4000-9000-000000000000",
@@ -913,6 +1251,7 @@
     "callNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "callNumber": "420.88",
     "callNumberPrefix": "pt.",
+    "callNumberSuffix": "1",
     "hrid": "ho00000000046",
     "copyNumber": "5",
     "illPolicy": "Limited lending policy",
@@ -929,7 +1268,13 @@
         "note": "Formerly in reference collection.",
         "staffOnly": false
       }
-    ]
+    ],
+    "metadata": {
+      "createdDate": "2024-01-16T17:10:29.000Z",
+      "createdByUserId": "7b5f7e3d-9f6b-43a5-b1c9-5a8c4e9b2e3f",
+      "updatedDate": "2024-03-06T09:06:40.000Z",
+      "updatedByUserId": "00000000-1111-2222-3333-444444444444"
+    }
   },
   {
     "id": "00000047-0000-4000-9000-000000000000",
@@ -946,7 +1291,13 @@
         "note": "Available for 3-hour in-house use only.",
         "staffOnly": false
       }
-    ]
+    ],
+    "metadata": {
+      "createdDate": "2021-07-19T10:31:47.000Z",
+      "createdByUserId": "1ad737b0-d847-11e6-bf26-cec0c932ce01",
+      "updatedDate": "2021-12-21T11:11:51.000Z",
+      "updatedByUserId": "00000000-1111-2222-3333-444444444444"
+    }
   },
   {
     "id": "00000048-0000-4000-9000-000000000000",
@@ -974,7 +1325,13 @@
         "note": "Purchased from special collections fund.",
         "staffOnly": true
       }
-    ]
+    ],
+    "metadata": {
+      "createdDate": "2018-02-10T21:37:19.000Z",
+      "createdByUserId": "00000000-1111-2222-3333-444444444444",
+      "updatedDate": "2018-04-05T06:00:46.000Z",
+      "updatedByUserId": "58d0aaf6-dcda-4d5e-92da-012e6b7dd766"
+    }
   },
   {
     "id": "00000049-0000-4000-9000-000000000000",
@@ -1007,6 +1364,7 @@
     "hrid": "ho00000000050",
     "copyNumber": "2",
     "temporaryLocationId": "b241764c-1466-4e1d-a028-1a3684a5da87",
+    "illPolicy": "Will lend hard copy only",
     "statisticalCodeIds": [
       "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
     ],
@@ -1023,7 +1381,13 @@
         "note": "Received as part of standing order.",
         "staffOnly": true
       }
-    ]
+    ],
+    "metadata": {
+      "createdDate": "2021-01-21T14:50:55.000Z",
+      "createdByUserId": "00000000-1111-2222-3333-444444444444",
+      "updatedDate": "2021-06-23T02:39:42.000Z",
+      "updatedByUserId": "a3b4c5d6-e7f8-4901-b2c3-d4e5f6a7b8c9"
+    }
   },
   {
     "id": "00000051-0000-4000-9000-000000000000",
@@ -1033,7 +1397,23 @@
     "permanentLocationId": "b241764c-1466-4e1d-a028-1a3684a5da87",
     "callNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "callNumber": "841.97",
-    "hrid": "ho00000000051"
+    "hrid": "ho00000000051",
+    "formerIds": [
+      "old-0613a566-7342"
+    ],
+    "electronicAccess": [
+      {
+        "uri": "https://doi.org/10.7551/mitpress/9780262000081",
+        "linkText": "Full text (MIT Press)",
+        "relationshipId": "f5d0068e-6272-458e-8a81-b85e7b9a14aa"
+      }
+    ],
+    "metadata": {
+      "createdDate": "2018-07-04T20:59:22.000Z",
+      "createdByUserId": "00000000-1111-2222-3333-444444444444",
+      "updatedDate": "2018-10-15T00:18:28.000Z",
+      "updatedByUserId": "00000000-1111-2222-3333-444444444444"
+    }
   },
   {
     "id": "00000052-0000-4000-9000-000000000000",
@@ -1043,7 +1423,16 @@
     "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
     "callNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "callNumber": "349.71",
-    "hrid": "ho00000000052"
+    "hrid": "ho00000000052",
+    "formerIds": [
+      "old-3db668ab-9888"
+    ],
+    "metadata": {
+      "createdDate": "2024-06-14T03:50:18.000Z",
+      "createdByUserId": "a3b4c5d6-e7f8-4901-b2c3-d4e5f6a7b8c9",
+      "updatedDate": "2024-10-19T10:42:57.000Z",
+      "updatedByUserId": "00000000-1111-2222-3333-444444444444"
+    }
   },
   {
     "id": "00000053-0000-4000-9000-000000000000",
@@ -1063,6 +1452,19 @@
       "tagList": [
         "ebook-available"
       ]
+    },
+    "electronicAccess": [
+      {
+        "uri": "https://doi.org/10.7551/mitpress/9780262000083",
+        "linkText": "Full text (MIT Press)",
+        "relationshipId": "f5d0068e-6272-458e-8a81-b85e7b9a14aa"
+      }
+    ],
+    "metadata": {
+      "createdDate": "2022-09-23T15:27:41.000Z",
+      "createdByUserId": "1ad737b0-d847-11e6-bf26-cec0c932ce01",
+      "updatedDate": "2022-11-30T03:29:08.000Z",
+      "updatedByUserId": "00000000-1111-2222-3333-444444444444"
     }
   },
   {
@@ -1077,6 +1479,10 @@
     "hrid": "ho00000000054",
     "copyNumber": "5",
     "temporaryLocationId": "53cf956f-c1df-410b-8bea-27f712cca7c0",
+    "illPolicy": "Limited lending policy",
+    "formerIds": [
+      "old-da2615a2-6474"
+    ],
     "statisticalCodeIds": [
       "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
     ],
@@ -1093,7 +1499,13 @@
         "note": "Bound with: companion volume.",
         "staffOnly": false
       }
-    ]
+    ],
+    "metadata": {
+      "createdDate": "2020-11-09T05:55:28.000Z",
+      "createdByUserId": "a3b4c5d6-e7f8-4901-b2c3-d4e5f6a7b8c9",
+      "updatedDate": "2021-05-05T02:09:18.000Z",
+      "updatedByUserId": "00000000-1111-2222-3333-444444444444"
+    }
   },
   {
     "id": "00000055-0000-4000-9000-000000000000",
@@ -1104,6 +1516,9 @@
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "HM9005 .U83 1971",
     "hrid": "ho00000000055",
+    "formerIds": [
+      "old-9a19639e-6495"
+    ],
     "statisticalCodeIds": [
       "d9acad2f-d9ac-4b48-9097-e6ab85000001"
     ],
@@ -1120,7 +1535,13 @@
         "note": "Bound with: companion volume.",
         "staffOnly": false
       }
-    ]
+    ],
+    "metadata": {
+      "createdDate": "2023-05-15T07:32:36.000Z",
+      "createdByUserId": "58d0aaf6-dcda-4d5e-92da-012e6b7dd766",
+      "updatedDate": "2023-09-26T13:13:53.000Z",
+      "updatedByUserId": "a3b4c5d6-e7f8-4901-b2c3-d4e5f6a7b8c9"
+    }
   },
   {
     "id": "00000056-0000-4000-9000-000000000000",
@@ -1150,7 +1571,18 @@
     "hrid": "ho00000000057",
     "statisticalCodeIds": [
       "e10796e0-a594-47b7-b748-3a81b69b3d9b"
-    ]
+    ],
+    "tags": {
+      "tagList": [
+        "high-demand"
+      ]
+    },
+    "metadata": {
+      "createdDate": "2023-02-13T04:35:18.000Z",
+      "createdByUserId": "1ad737b0-d847-11e6-bf26-cec0c932ce01",
+      "updatedDate": "2023-02-26T18:20:51.000Z",
+      "updatedByUserId": "1ad737b0-d847-11e6-bf26-cec0c932ce01"
+    }
   },
   {
     "id": "00000058-0000-4000-9000-000000000000",
@@ -1160,9 +1592,19 @@
     "permanentLocationId": "4fdca025-1629-4688-aeb7-9c5fe5c73549",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "HD9551 .K39 1966",
+    "callNumberPrefix": "suppl.",
     "hrid": "ho00000000058",
     "copyNumber": "2",
-    "illPolicy": "Will not lend"
+    "illPolicy": "Will not lend",
+    "formerIds": [
+      "old-7066de1b-8963"
+    ],
+    "metadata": {
+      "createdDate": "2018-04-21T17:54:16.000Z",
+      "createdByUserId": "58d0aaf6-dcda-4d5e-92da-012e6b7dd766",
+      "updatedDate": "2018-06-29T18:46:27.000Z",
+      "updatedByUserId": "a3b4c5d6-e7f8-4901-b2c3-d4e5f6a7b8c9"
+    }
   },
   {
     "id": "00000059-0000-4000-9000-000000000000",
@@ -1174,6 +1616,7 @@
     "callNumber": "860.20",
     "hrid": "ho00000000059",
     "temporaryLocationId": "4fdca025-1629-4688-aeb7-9c5fe5c73549",
+    "illPolicy": "Unknown lending policy",
     "statisticalCodeIds": [
       "c4073462-6144-4b69-a543-dd131e241799"
     ],
@@ -1192,6 +1635,7 @@
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "TK8603 .B29 1964",
     "callNumberPrefix": "pt.",
+    "callNumberSuffix": "2",
     "hrid": "ho00000000060",
     "statisticalCodeIds": [
       "e10796e0-a594-47b7-b748-3a81b69b3d9b"
@@ -1201,7 +1645,13 @@
         "note": "Purchased from special collections fund.",
         "staffOnly": true
       }
-    ]
+    ],
+    "metadata": {
+      "createdDate": "2023-05-25T17:46:22.000Z",
+      "createdByUserId": "58d0aaf6-dcda-4d5e-92da-012e6b7dd766",
+      "updatedDate": "2023-06-16T07:24:42.000Z",
+      "updatedByUserId": "7b5f7e3d-9f6b-43a5-b1c9-5a8c4e9b2e3f"
+    }
   },
   {
     "id": "00000061-0000-4000-9000-000000000000",
@@ -1214,6 +1664,7 @@
     "hrid": "ho00000000061",
     "copyNumber": "1",
     "temporaryLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
+    "illPolicy": "Limited lending policy",
     "statisticalCodeIds": [
       "c4073462-6144-4b69-a543-dd131e241799"
     ],
@@ -1240,6 +1691,7 @@
     "permanentLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "S4712 .H25 1963",
+    "callNumberPrefix": "v.",
     "hrid": "ho00000000062",
     "copyNumber": "5",
     "temporaryLocationId": "f34d27c6-a8eb-461b-acd6-5dea81771e70",
@@ -1257,7 +1709,13 @@
         "note": "Available for 3-hour in-house use only.",
         "staffOnly": false
       }
-    ]
+    ],
+    "metadata": {
+      "createdDate": "2021-12-16T20:58:06.000Z",
+      "createdByUserId": "a3b4c5d6-e7f8-4901-b2c3-d4e5f6a7b8c9",
+      "updatedDate": "2022-01-26T21:55:43.000Z",
+      "updatedByUserId": "a3b4c5d6-e7f8-4901-b2c3-d4e5f6a7b8c9"
+    }
   },
   {
     "id": "00000063-0000-4000-9000-000000000000",
@@ -1288,7 +1746,13 @@
         "note": "Copy acquired through donation.",
         "staffOnly": true
       }
-    ]
+    ],
+    "metadata": {
+      "createdDate": "2022-12-18T06:52:48.000Z",
+      "createdByUserId": "1ad737b0-d847-11e6-bf26-cec0c932ce01",
+      "updatedDate": "2023-05-23T17:33:34.000Z",
+      "updatedByUserId": "a3b4c5d6-e7f8-4901-b2c3-d4e5f6a7b8c9"
+    }
   },
   {
     "id": "00000064-0000-4000-9000-000000000000",
@@ -1298,6 +1762,7 @@
     "permanentLocationId": "53cf956f-c1df-410b-8bea-27f712cca7c0",
     "callNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "callNumber": "722.67",
+    "callNumberPrefix": "v.",
     "hrid": "ho00000000064",
     "copyNumber": "4",
     "temporaryLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
@@ -1315,7 +1780,13 @@
         "note": "Bound with: companion volume.",
         "staffOnly": true
       }
-    ]
+    ],
+    "metadata": {
+      "createdDate": "2022-10-30T15:42:25.000Z",
+      "createdByUserId": "7b5f7e3d-9f6b-43a5-b1c9-5a8c4e9b2e3f",
+      "updatedDate": "2023-04-10T15:32:53.000Z",
+      "updatedByUserId": "7b5f7e3d-9f6b-43a5-b1c9-5a8c4e9b2e3f"
+    }
   },
   {
     "id": "00000065-0000-4000-9000-000000000000",
@@ -1328,6 +1799,9 @@
     "callNumberSuffix": "3",
     "hrid": "ho00000000065",
     "copyNumber": "4",
+    "formerIds": [
+      "old-ff5826af-5114"
+    ],
     "statisticalCodeIds": [
       "c4073462-6144-4b69-a543-dd131e241799"
     ],
@@ -1344,6 +1818,12 @@
         "note": "Available for 3-hour in-house use only.",
         "staffOnly": false
       }
-    ]
+    ],
+    "metadata": {
+      "createdDate": "2023-01-19T20:46:24.000Z",
+      "createdByUserId": "a3b4c5d6-e7f8-4901-b2c3-d4e5f6a7b8c9",
+      "updatedDate": "2023-01-27T15:54:46.000Z",
+      "updatedByUserId": "a3b4c5d6-e7f8-4901-b2c3-d4e5f6a7b8c9"
+    }
   }
 ]

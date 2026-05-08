@@ -287,6 +287,51 @@ ITEM_ADMIN_NOTE_POOL = [
     "Item requires repair before circulation.",
 ]
 
+EDITIONS_POOL = [
+    "1st edition", "2nd edition", "3rd edition", "4th edition",
+    "5th edition", "Revised edition", "Updated edition",
+    "New edition", "Abridged edition", "Expanded edition",
+    "Anniversary edition", "Critical edition",
+]
+
+# Electronic access relationship UUIDs (FOLIO standard)
+EA_RELATIONSHIP_RESOURCE    = "f5d0068e-6272-458e-8a81-b85e7b9a14aa"
+EA_RELATIONSHIP_VERSION     = "338e25b5-8e8f-4ed9-9b55-55f8c59fefbe"
+EA_RELATIONSHIP_RELATED     = "3b430592-2e09-4b48-9a0c-0636d66b9fb3"
+EA_RELATIONSHIP_NONE        = "ece85fa8-b6e0-4b44-b3bf-4c2d7d8b0afe"
+EA_RELATIONSHIP_POOL = [
+    (EA_RELATIONSHIP_RESOURCE, 50),
+    (EA_RELATIONSHIP_VERSION,  25),
+    (EA_RELATIONSHIP_RELATED,  15),
+    (EA_RELATIONSHIP_NONE,     10),
+]
+
+ELECTRONIC_ACCESS_URLS = [
+    ("https://doi.org/10.7551/mitpress/9780262{n:06d}", "Full text (MIT Press)", None),
+    ("https://ebookcentral.proquest.com/lib/catalog/detail.action?docID={n}", "Available via ProQuest Ebook Central", "Access via library subscription"),
+    ("https://www.cambridge.org/core/books/{n:010d}", "Full text (Cambridge Core)", "Requires institutional login"),
+    ("https://link.springer.com/book/10.1007/978-3-{n:06d}", "Full text (SpringerLink)", None),
+    ("https://www.jstor.org/stable/{n:07d}", "Available via JSTOR", "Access via library subscription"),
+    ("https://www.wiley.com/en-us/ISBN/{n:013d}", "Full text (Wiley Online Library)", None),
+    ("https://www.taylorfrancis.com/books/mono/{n:010d}", "Full text (Taylor & Francis)", "Requires institutional login"),
+    ("https://muse.jhu.edu/book/{n:05d}", "Full text (Project MUSE)", None),
+    ("https://search.ebscohost.com/login.aspx?direct=true&db=nlebk&AN={n:07d}", "Full text (EBSCOhost)", "Access via library subscription"),
+    ("https://www.degruyter.com/document/doi/10.1515/{n}/html", "Full text (De Gruyter)", None),
+]
+
+# Fake but realistic system user UUIDs (catalogers/system accounts)
+SYSTEM_USER_IDS = [
+    "58d0aaf6-dcda-4d5e-92da-012e6b7dd766",
+    "1ad737b0-d847-11e6-bf26-cec0c932ce01",
+    "7b5f7e3d-9f6b-43a5-b1c9-5a8c4e9b2e3f",
+    "a3b4c5d6-e7f8-4901-b2c3-d4e5f6a7b8c9",
+    "00000000-1111-2222-3333-444444444444",
+]
+
+# Base date for metadata (records span 2018-2024)
+_METADATA_EPOCH_DAYS_MIN = 17532  # 2018-01-01
+_METADATA_EPOCH_DAYS_MAX = 20089  # 2024-12-31
+
 LC_CLASS_PREFIXES = [
     "QA", "Q", "Z", "HM", "HV", "HD", "P", "PN", "PS", "PR", "LB",
     "JZ", "GE", "QH", "QP", "RC", "RJ", "S", "TA", "TK", "TR",
@@ -439,6 +484,51 @@ def make_lccn(rnd: random.Random) -> str:
 def make_oclc(rnd: random.Random) -> str:
     """Generate a realistic OCLC control number."""
     return f"(OCoLC){rnd.randint(1000000, 99999999)}"
+
+
+def make_metadata(rnd: random.Random) -> dict:
+    """Generate realistic FOLIO metadata timestamps and user IDs."""
+    created_day = rnd.randint(_METADATA_EPOCH_DAYS_MIN, _METADATA_EPOCH_DAYS_MAX - 180)
+    updated_day = created_day + rnd.randint(0, 180)
+    def _ts(day: int) -> str:
+        import datetime
+        dt = datetime.date(1970, 1, 1) + datetime.timedelta(days=day)
+        h, m, s = rnd.randint(0, 23), rnd.randint(0, 59), rnd.randint(0, 59)
+        return f"{dt.isoformat()}T{h:02d}:{m:02d}:{s:02d}.000Z"
+    created_by = rnd.choice(SYSTEM_USER_IDS)
+    updated_by = rnd.choice(SYSTEM_USER_IDS)
+    m = {
+        "createdDate":    _ts(created_day),
+        "createdByUserId": created_by,
+        "updatedDate":    _ts(updated_day),
+        "updatedByUserId": updated_by,
+    }
+    return m
+
+
+def make_electronic_access(rnd: random.Random, n: int) -> list:
+    """Generate realistic electronic access entries."""
+    template, link_text, public_note = rnd.choice(ELECTRONIC_ACCESS_URLS)
+    uri = template.format(n=n)
+    rel = weighted_choice(rnd, EA_RELATIONSHIP_POOL)
+    entry = {"uri": uri, "linkText": link_text, "relationshipId": rel}
+    if public_note:
+        entry["publicNote"] = public_note
+    return [entry]
+
+
+def make_former_id(rnd: random.Random) -> str:
+    """Generate a realistic legacy/former system identifier."""
+    style = rnd.choice(["folio", "voyager", "aleph", "sirsi"])
+    if style == "voyager":
+        return f"voy{rnd.randint(100000, 9999999)}"
+    if style == "aleph":
+        return f"aleph{rnd.randint(10000, 999999)}"
+    if style == "sirsi":
+        return f"a{rnd.randint(1000000, 9999999)}"
+    # folio-style old UUID segment
+    seg = "%08x" % rnd.randint(0, 0xFFFFFFFF)
+    return f"old-{seg}-{rnd.randint(1000, 9999)}"
 
 
 def make_hrid(prefix: str, idx: int) -> str:
@@ -694,6 +784,19 @@ def populate_instances(records: list) -> list:
         # discoverySuppress — enforce ~12% suppressed using deterministic seed
         r["discoverySuppress"] = rng(rid, "suppress").random() < _DISCOVERY_SUPPRESS_INSTANCE_RATE
 
+        # editions — ~20% of instances
+        if "editions" not in r and rng(rid, "ed").random() < 0.20:
+            r["editions"] = [rng(rid, "ed").choice(EDITIONS_POOL)]
+
+        # electronicAccess — ~15% of instances
+        if "electronicAccess" not in r and rng(rid, "ea").random() < 0.15:
+            n = int(rid.replace("-", "")[:8], 16) % 1_000_000
+            r["electronicAccess"] = make_electronic_access(rng(rid, "ea"), n)
+
+        # metadata — ~70% of instances
+        if "metadata" not in r and rng(rid, "meta").random() < 0.70:
+            r["metadata"] = make_metadata(rng(rid, "meta"))
+
         out.append(r)
     return out
 
@@ -763,6 +866,19 @@ def populate_holdings(records: list) -> list:
 
         # discoverySuppress — enforce ~10% suppressed using deterministic seed
         r["discoverySuppress"] = rng(rid, "suppress").random() < _DISCOVERY_SUPPRESS_HOLDINGS_RATE
+
+        # formerIds — ~15% of holdings
+        if "formerIds" not in r and rng(rid, "fid").random() < 0.15:
+            r["formerIds"] = [make_former_id(rng(rid, "fid"))]
+
+        # electronicAccess — ~25% of holdings
+        if "electronicAccess" not in r and rng(rid, "ea").random() < 0.25:
+            n = int(rid.replace("-", "")[:8], 16) % 1_000_000
+            r["electronicAccess"] = make_electronic_access(rng(rid, "ea"), n)
+
+        # metadata — ~70% of holdings
+        if "metadata" not in r and rng(rid, "meta").random() < 0.70:
+            r["metadata"] = make_metadata(rng(rid, "meta"))
 
         out.append(r)
     return out
@@ -846,6 +962,19 @@ def populate_items(records: list, holdings_by_id: dict) -> list:
                 if h.get("callNumberTypeId"): enc["typeId"]     = h["callNumberTypeId"]
                 if enc:
                     r["effectiveCallNumberComponents"] = enc
+
+        # formerIds — ~10% of items
+        if "formerIds" not in r and rng(rid, "fid").random() < 0.10:
+            r["formerIds"] = [make_former_id(rng(rid, "fid"))]
+
+        # electronicAccess — ~5% of items
+        if "electronicAccess" not in r and rng(rid, "ea").random() < 0.05:
+            n = int(rid.replace("-", "")[:8], 16) % 1_000_000
+            r["electronicAccess"] = make_electronic_access(rng(rid, "ea"), n)
+
+        # metadata — ~70% of items
+        if "metadata" not in r and rng(rid, "meta").random() < 0.70:
+            r["metadata"] = make_metadata(rng(rid, "meta"))
 
         out.append(r)
     return out

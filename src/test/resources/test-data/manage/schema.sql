@@ -342,9 +342,11 @@ SELECT
   (SELECT json_group_array(note) FROM instance_administrative_notes an WHERE an.instanceId = i.id) AS administrativeNotes,
   (SELECT json_group_array(json_object('note', n.note, 'staffOnly', n.staffOnly)) FROM instance_notes n WHERE n.instanceId = i.id) AS notes,
   (SELECT json_group_array(json_object('uri', ea.uri, 'linkText', ea.linkText, 'materialsSpecification', ea.materialsSpecification, 'publicNote', ea.publicNote, 'relationshipId', ea.relationshipId)) FROM instance_electronic_access ea WHERE ea.instanceId = i.id) AS electronicAccess,
+  json_object('createdDate', im.createdDate, 'createdByUserId', im.createdByUserId, 'updatedDate', im.updatedDate, 'updatedByUserId', im.updatedByUserId) AS metadata,
   rit.name AS instanceTypeName
 FROM instances i
-LEFT JOIN ref_instance_types rit ON rit.id = i.instanceTypeId;
+LEFT JOIN ref_instance_types rit ON rit.id = i.instanceTypeId
+LEFT JOIN instance_metadata  im  ON im.instanceId = i.id;
 
 DROP VIEW IF EXISTS v_holdings_full;
 CREATE VIEW v_holdings_full AS
@@ -359,11 +361,15 @@ SELECT
   (SELECT json_group_array(tagValue) FROM holdings_tags tg WHERE tg.holdingsId = h.id) AS tags,
   (SELECT json_group_array(note) FROM holdings_administrative_notes an WHERE an.holdingsId = h.id) AS administrativeNotes,
   (SELECT json_group_array(json_object('note', n.note, 'staffOnly', n.staffOnly)) FROM holdings_notes n WHERE n.holdingsId = h.id) AS notes,
-  (SELECT json_group_array(json_object('uri', ea.uri, 'linkText', ea.linkText, 'materialsSpecification', ea.materialsSpecification, 'publicNote', ea.publicNote, 'relationshipId', ea.relationshipId)) FROM holdings_electronic_access ea WHERE ea.holdingsId = h.id) AS electronicAccess
+  (SELECT json_group_array(json_object('uri', ea.uri, 'linkText', ea.linkText, 'materialsSpecification', ea.materialsSpecification, 'publicNote', ea.publicNote, 'relationshipId', ea.relationshipId)) FROM holdings_electronic_access ea WHERE ea.holdingsId = h.id) AS electronicAccess,
+  json_object('createdDate', hm.createdDate, 'createdByUserId', hm.createdByUserId, 'updatedDate', hm.updatedDate, 'updatedByUserId', hm.updatedByUserId) AS metadata,
+  rtl.name AS temporaryLocationName
 FROM holdings h
 LEFT JOIN ref_locations      rl  ON rl.id  = h.permanentLocationId
+LEFT JOIN ref_locations      rtl ON rtl.id = h.temporaryLocationId
 LEFT JOIN ref_holdings_types rht ON rht.id = h.holdingsTypeId
 LEFT JOIN ref_call_number_types rct ON rct.id = h.callNumberTypeId
+LEFT JOIN holdings_metadata  hm  ON hm.holdingsId = h.id
 LEFT JOIN instances          i   ON i.id   = h.instanceId;
 
 DROP VIEW IF EXISTS v_items_full;
@@ -381,10 +387,12 @@ SELECT
   (SELECT json_group_array(note) FROM items_administrative_notes an WHERE an.itemId = it.id) AS administrativeNotes,
   (SELECT json_group_array(json_object('note', n.note, 'staffOnly', n.staffOnly)) FROM items_notes n WHERE n.itemId = it.id) AS notes,
   (SELECT json_group_array(json_object('note', cn.note, 'staffOnly', cn.staffOnly)) FROM items_circulation_notes cn WHERE cn.itemId = it.id) AS circulationNotes,
-  (SELECT json_group_array(json_object('uri', ea.uri, 'linkText', ea.linkText, 'materialsSpecification', ea.materialsSpecification, 'publicNote', ea.publicNote, 'relationshipId', ea.relationshipId)) FROM items_electronic_access ea WHERE ea.itemId = it.id) AS electronicAccess
+  (SELECT json_group_array(json_object('uri', ea.uri, 'linkText', ea.linkText, 'materialsSpecification', ea.materialsSpecification, 'publicNote', ea.publicNote, 'relationshipId', ea.relationshipId)) FROM items_electronic_access ea WHERE ea.itemId = it.id) AS electronicAccess,
+  json_object('createdDate', itm.createdDate, 'createdByUserId', itm.createdByUserId, 'updatedDate', itm.updatedDate, 'updatedByUserId', itm.updatedByUserId) AS metadata
 FROM items it
 LEFT JOIN ref_locations         rl  ON rl.id  = it.effectiveLocationId
 LEFT JOIN ref_material_types    rmt ON rmt.id = it.materialTypeId
 LEFT JOIN ref_call_number_types rct ON rct.id = it.effectiveCallNumberTypeId
+LEFT JOIN items_metadata        itm ON itm.itemId = it.id
 LEFT JOIN holdings              h   ON h.id   = it.holdingsRecordId
 LEFT JOIN instances             i   ON i.id   = it.instanceId;

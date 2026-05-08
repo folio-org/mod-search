@@ -400,7 +400,74 @@ def make_hrid(prefix: str, idx: int) -> str:
 # ---------------------------------------------------------------------------
 # Populate instances
 # ---------------------------------------------------------------------------
+_PLACEHOLDER_RE = re.compile(r"^(Instance \d+|Resource\d+)$")
+
+
+def _assign_placeholder_titles(records: list) -> dict:
+    """Return {record_id: title} for all placeholder records, with no duplicates.
+
+    Uses a deterministic shuffle seeded by the sorted list of placeholder IDs
+    so the mapping is stable across re-runs with the same set of records.
+    """
+    placeholder_ids = [
+        r["id"] for r in records
+        if _PLACEHOLDER_RE.match(r.get("title", ""))
+        or _PLACEHOLDER_RE.match(r.get("indexTitle", ""))
+    ]
+    if not placeholder_ids:
+        return {}
+
+    seed_bytes = hashlib.sha256("|".join(sorted(placeholder_ids)).encode()).digest()
+    pool_rng = random.Random(int.from_bytes(seed_bytes[:8], "little"))
+
+    pool = list(PLACEHOLDER_TITLE_POOL)
+    i = 2
+    while len(pool) < len(placeholder_ids):
+        pool += [f"{t} (Vol. {i})" for t in PLACEHOLDER_TITLE_POOL]
+        i += 1
+
+    pool_rng.shuffle(pool)
+    return dict(zip(placeholder_ids, pool))
+
+
+def _find_duplicate_title_replacements(records: list) -> dict:
+    """Return {record_id: new_unique_title} for every non-first duplicate occurrence.
+
+    Keeps the first record in each duplicate group, replaces the rest with
+    unique titles drawn from pool entries not already in use.
+    """
+    from collections import defaultdict
+
+    title_to_ids: dict = defaultdict(list)
+    for r in records:
+        title_to_ids[r.get("title", "")].append(r["id"])
+
+    needs_new = []
+    for ids in title_to_ids.values():
+        if len(ids) > 1:
+            needs_new.extend(ids[1:])  # keep first, replace rest
+
+    if not needs_new:
+        return {}
+
+    used_titles = {r.get("title", "") for r in records}
+    available = [t for t in PLACEHOLDER_TITLE_POOL if t not in used_titles]
+    i = 2
+    while len(available) < len(needs_new):
+        available += [f"{t}, Volume {i}" for t in PLACEHOLDER_TITLE_POOL
+                      if f"{t}, Volume {i}" not in used_titles]
+        i += 1
+
+    seed_bytes = hashlib.sha256("|".join(sorted(needs_new)).encode()).digest()
+    pool_rng = random.Random(int.from_bytes(seed_bytes[:8], "little"))
+    pool_rng.shuffle(available)
+
+    return dict(zip(needs_new, available))
+
+
 def populate_instances(records: list) -> list:
+    placeholder_titles = _assign_placeholder_titles(records)
+    dedup_titles       = _find_duplicate_title_replacements(records)
     out = []
     for idx, r in enumerate(records):
         r = dict(r)
@@ -412,13 +479,18 @@ def populate_instances(records: list) -> list:
         if not r.get("instanceTypeId"):
             r["instanceTypeId"] = weighted_choice(rnd, INSTANCE_TYPE_POOL)
 
-        # Replace placeholder "Instance N" / "ResourceN" titles with realistic ones
-        if re.match(r"^(Instance \d+|Resource\d+)$", r.get("title", "")):
-            r["title"] = rng(rid, "title").choice(PLACEHOLDER_TITLE_POOL)
+        # Replace placeholder "Instance N" / "ResourceN" titles with unique realistic ones
+        if rid in placeholder_titles:
+            r["title"] = placeholder_titles[rid]
             r.pop("indexTitle", None)  # force recompute below
 
+        # Replace duplicate titles (non-first occurrences)
+        if rid in dedup_titles:
+            r["title"] = dedup_titles[rid]
+            r.pop("indexTitle", None)
+
         # Fix stale placeholder indexTitle left from a prior populate run
-        if re.match(r"^(Instance \d+|Resource\d+)$", r.get("indexTitle", "")):
+        if _PLACEHOLDER_RE.match(r.get("indexTitle", "")):
             r.pop("indexTitle", None)
 
         # indexTitle — strip leading article from title

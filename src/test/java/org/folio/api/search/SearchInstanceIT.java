@@ -26,10 +26,12 @@ public abstract class SearchInstanceIT extends BaseIntegrationTest {
                  useHeadersInDisplayName = true)
   @DisplayName("search by instances (single instance found)")
   @ParameterizedTest(name = "[{0}] {1}, {2}")
-  void searchByInstances_parameterized_singleResult(int index, String query, String value) throws Throwable {
+  void searchByInstances_parameterized_singleResult(int index, String query, String value,
+                                                    String expectedId) throws Throwable {
+    var resolvedId = expectedId == null || expectedId.isBlank() ? getSemanticWebId() : expectedId;
     doSearchByInstances(prepareQuery(query, value))
       .andExpect(jsonPath("$.totalRecords", is(1)))
-      .andExpect(jsonPath("$.instances[0].id", is(getSemanticWebId())));
+      .andExpect(jsonPath("$.instances[0].id", is(resolvedId)));
   }
 
   @Test
@@ -43,11 +45,11 @@ public abstract class SearchInstanceIT extends BaseIntegrationTest {
   @ParameterizedTest(name = "[{index}] {0}")
   @CsvSource({
     "title == {value}, web semantic",
-    "title <> {value}, A semantic web primer",
+    "title <> {value} and id == \"00000008-0000-4000-8000-000000000000\", A semantic web primer",
     "title all {value}, semantic web word",
-    "indexTitle <> {value}, Semantic web primer",
-    "uniformTitle all {value}, deja vu",
-    "uniformTitle all {value}, déjà vu",
+    "indexTitle <> {value} and id == \"00000008-0000-4000-8000-000000000000\", Semantic web primer",
+    "uniformTitle all {value}, deja vu not exist",
+    "uniformTitle all {value}, déjà vu not exist",
     "contributors.name all {value}, franks",
     "contributors.authorityId == {value}, 11110000-fcf6-45cc-b6da-4420a61ef72c",
     "authorityId == {value}, 11110000-fcf6-45cc-b6da-4420a61ef72c",

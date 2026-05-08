@@ -13,8 +13,6 @@ import static org.folio.support.utils.JsonTestUtils.readJsonFromFile;
 
 import java.util.List;
 import java.util.Map;
-import org.folio.search.domain.dto.Authority;
-import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.types.ResourceType;
 import tools.jackson.core.type.TypeReference;
@@ -113,7 +111,12 @@ public final class SharedTestDataManager {
   }
 
   private static ResourceEvent event(Map<String, Object> payload, ResourceType type, String tenantId) {
-    return new ResourceEvent().id(payload.get(ID_FIELD).toString()).resourceName(type.getName()).type(CREATE).tenant(tenantId)._new(payload);
+    return new ResourceEvent()
+      .id(payload.get(ID_FIELD).toString())
+      .resourceName(type.getName())
+      .type(CREATE)
+      .tenant(tenantId)
+      ._new(payload);
   }
 
   @FunctionalInterface

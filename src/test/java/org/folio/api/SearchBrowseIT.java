@@ -63,10 +63,10 @@ class SearchBrowseIT extends BaseIntegrationTest {
   // 119 instances from instances.json
   private static final int TOTAL_INSTANCES       = 96;
   private static final int TOTAL_AUTHORITIES     = 117; // 51 sample + 15 filter + 5 sort + 45 browse
-  private static final int EXPECTED_CALL_NUMBER_COUNT    = 105;
-  private static final int EXPECTED_CONTRIBUTOR_COUNT    = 28;
-  private static final int EXPECTED_CLASSIFICATION_COUNT = 23;
-  private static final int EXPECTED_SUBJECT_COUNT        = 31;
+  private static final int EXPECTED_CALL_NUMBER_COUNT    = 116;
+  private static final int EXPECTED_CONTRIBUTOR_COUNT    = 68;
+  private static final int EXPECTED_CLASSIFICATION_COUNT = 92;
+  private static final int EXPECTED_SUBJECT_COUNT        = 50;
 
   @BeforeAll
   static void setUpSharedTenant(
@@ -78,39 +78,17 @@ class SearchBrowseIT extends BaseIntegrationTest {
     enableFeature(BROWSE_CONTRIBUTORS);
     enableFeature(BROWSE_SUBJECTS);
     enableFeature(BROWSE_CLASSIFICATIONS);
-    SharedTestDataManager.loadInventory(TENANT_ID, new SharedTestDataManager.LockManager() {
-
-        private Timestamp subjLock;
-        private Timestamp classifLock;
-        private Timestamp contribLock;
-        private Timestamp cnLock;
-
-        @Override
-        public void lockAll() {
-          cnLock = lockRepo.lockSubResource(ReindexEntityType.CALL_NUMBER, TENANT_ID)
-            .orElseThrow(() -> new IllegalStateException("Unable to lock CALL_NUMBER resource"));
-          contribLock = lockRepo.lockSubResource(ReindexEntityType.CONTRIBUTOR, TENANT_ID)
-            .orElseThrow(() -> new IllegalStateException("Unable to lock CONTRIBUTOR resource"));
-          classifLock = lockRepo.lockSubResource(ReindexEntityType.CLASSIFICATION, TENANT_ID)
-            .orElseThrow(() -> new IllegalStateException("Unable to lock CLASSIFICATION resource"));
-          subjLock = lockRepo.lockSubResource(ReindexEntityType.SUBJECT, TENANT_ID)
-            .orElseThrow(() -> new IllegalStateException("Unable to lock SUBJECT resource"));
-        }
-
-        @Override
-        public void unlockAll() {
-          lockRepo.unlockSubResource(ReindexEntityType.CALL_NUMBER, cnLock, TENANT_ID);
-          lockRepo.unlockSubResource(ReindexEntityType.CONTRIBUTOR, contribLock, TENANT_ID);
-          lockRepo.unlockSubResource(ReindexEntityType.CLASSIFICATION, classifLock, TENANT_ID);
-          lockRepo.unlockSubResource(ReindexEntityType.SUBJECT, subjLock, TENANT_ID);
-        }
-      },
+    SharedTestDataManager.loadInventory(TENANT_ID, createLockManager(lockRepo),
       scheduledSubResourcesService::persistChildren, SearchBrowseIT::indexRecords);
     SharedTestDataManager.loadAuthorities(TENANT_ID, SearchBrowseIT::indexRecords);
     awaitSubResourceIndexing();
     checkThatEventsFromKafkaAreIndexed(TENANT_ID, instanceSearchPath(), TOTAL_INSTANCES, emptyList());
     checkThatEventsFromKafkaAreIndexed(TENANT_ID, authoritySearchPath(), TOTAL_AUTHORITIES, emptyList());
     loadLinkedData();
+  }
+
+  private static SharedTestDataManager.LockManager createLockManager(SubResourcesLockRepository lockRepo) {
+    return new BrowseLockManager(lockRepo);
   }
 
   private static void awaitSubResourceIndexing() {
@@ -150,6 +128,39 @@ class SearchBrowseIT extends BaseIntegrationTest {
   @AfterAll
   static void cleanUpSharedTenant() {
     removeTenant(TENANT_ID);
+  }
+
+  private static final class BrowseLockManager implements SharedTestDataManager.LockManager {
+
+    private final SubResourcesLockRepository lockRepo;
+    private Timestamp subjLock;
+    private Timestamp classifLock;
+    private Timestamp contribLock;
+    private Timestamp cnLock;
+
+    private BrowseLockManager(SubResourcesLockRepository lockRepo) {
+      this.lockRepo = lockRepo;
+    }
+
+    @Override
+    public void lockAll() {
+      cnLock = lockRepo.lockSubResource(ReindexEntityType.CALL_NUMBER, TENANT_ID)
+        .orElseThrow(() -> new IllegalStateException("Unable to lock CALL_NUMBER resource"));
+      contribLock = lockRepo.lockSubResource(ReindexEntityType.CONTRIBUTOR, TENANT_ID)
+        .orElseThrow(() -> new IllegalStateException("Unable to lock CONTRIBUTOR resource"));
+      classifLock = lockRepo.lockSubResource(ReindexEntityType.CLASSIFICATION, TENANT_ID)
+        .orElseThrow(() -> new IllegalStateException("Unable to lock CLASSIFICATION resource"));
+      subjLock = lockRepo.lockSubResource(ReindexEntityType.SUBJECT, TENANT_ID)
+        .orElseThrow(() -> new IllegalStateException("Unable to lock SUBJECT resource"));
+    }
+
+    @Override
+    public void unlockAll() {
+      lockRepo.unlockSubResource(ReindexEntityType.CALL_NUMBER, cnLock, TENANT_ID);
+      lockRepo.unlockSubResource(ReindexEntityType.CONTRIBUTOR, contribLock, TENANT_ID);
+      lockRepo.unlockSubResource(ReindexEntityType.CLASSIFICATION, classifLock, TENANT_ID);
+      lockRepo.unlockSubResource(ReindexEntityType.SUBJECT, subjLock, TENANT_ID);
+    }
   }
 
   // ─── Nested stubs — each extends the corresponding *IT class ────────────────

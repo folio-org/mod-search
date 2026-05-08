@@ -272,8 +272,17 @@
     "callNumber": "332.2",
     "callNumberPrefix": "GEN",
     "callNumberSuffix": "c.1",
-    "hrid": "ho00000000009",
-    "copyNumber": "Copy 1"
+    "hrid": "ho00000000006",
+    "copyNumber": "Copy 1",
+    "electronicAccess": [
+      {
+        "uri": "https://testlibrary.sample.com/holdings?hrid=ho0000006",
+        "linkText": "Holding's electronicAccess link Text",
+        "materialsSpecification": "Holding's electronicAccess material specification",
+        "publicNote": "Holding's electronicAccess public note",
+        "relationshipId": "3b430592-2e09-4b48-9a0c-0636d66b9fb3"
+      }
+    ]
   },
   {
     "id": "00000010-0000-4000-9000-000000000000",
@@ -285,7 +294,7 @@
     "callNumber": "TK5105.88815 .B74 2004",
     "callNumberPrefix": "REF",
     "callNumberSuffix": "c.2",
-    "hrid": "ho00000000010",
+    "hrid": "ho00000000007",
     "copyNumber": "Copy 2",
     "temporaryLocationId": "53cf956f-c1df-410b-8bea-27f712cca7c0",
     "illPolicy": "Limited lending policy",
@@ -403,7 +412,7 @@
     "callNumber": "TK5105.88815 . A58 2004 FT MEADE",
     "callNumberPrefix": "suppl.",
     "callNumberSuffix": "3",
-    "hrid": "ho00000000014",
+    "hrid": "hold000000000009",
     "copyNumber": "3",
     "metadata": {
       "createdDate": "2018-07-11T17:51:25.000Z",

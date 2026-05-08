@@ -2442,6 +2442,11 @@
       "createdByUserId": "7b5f7e3d-9f6b-43a5-b1c9-5a8c4e9b2e3f",
       "updatedDate": "2018-12-05T06:11:09.000Z",
       "updatedByUserId": "7b5f7e3d-9f6b-43a5-b1c9-5a8c4e9b2e3f"
+    },
+    "tags": {
+      "tagList": [
+        "sort-instance-by-title"
+      ]
     }
   },
   {
@@ -2636,6 +2641,11 @@
       "createdByUserId": "00000000-1111-2222-3333-444444444444",
       "updatedDate": "2024-07-28T13:15:09.000Z",
       "updatedByUserId": "58d0aaf6-dcda-4d5e-92da-012e6b7dd766"
+    },
+    "tags": {
+      "tagList": [
+        "sort-instance-by-title"
+      ]
     }
   },
   {
@@ -2777,7 +2787,8 @@
     ],
     "tags": {
       "tagList": [
-        "reserve"
+        "reserve",
+        "sort-instance-by-title"
       ]
     },
     "administrativeNotes": [
@@ -2860,7 +2871,8 @@
     ],
     "tags": {
       "tagList": [
-        "recommended"
+        "recommended",
+        "sort-instance-by-title"
       ]
     },
     "administrativeNotes": [
@@ -2955,7 +2967,8 @@
     ],
     "tags": {
       "tagList": [
-        "recommended"
+        "recommended",
+        "sort-instance-by-title"
       ]
     },
     "administrativeNotes": [
@@ -3055,7 +3068,8 @@
     "tags": {
       "tagList": [
         "high-demand",
-        "withdrawn-review"
+        "withdrawn-review",
+        "sort-instance-by-title"
       ]
     },
     "administrativeNotes": [
@@ -3157,7 +3171,8 @@
     "tags": {
       "tagList": [
         "special-order",
-        "high-demand"
+        "high-demand",
+        "sort-instance-by-title"
       ]
     },
     "administrativeNotes": [
@@ -3249,7 +3264,8 @@
     ],
     "tags": {
       "tagList": [
-        "special-order"
+        "special-order",
+        "sort-instance-by-title"
       ]
     },
     "administrativeNotes": [
@@ -3347,7 +3363,8 @@
     "tags": {
       "tagList": [
         "special-order",
-        "new-addition"
+        "new-addition",
+        "sort-instance-by-title"
       ]
     },
     "administrativeNotes": [
@@ -3461,6 +3478,11 @@
       "createdByUserId": "a3b4c5d6-e7f8-4901-b2c3-d4e5f6a7b8c9",
       "updatedDate": "2018-08-16T13:25:46.000Z",
       "updatedByUserId": "00000000-1111-2222-3333-444444444444"
+    },
+    "tags": {
+      "tagList": [
+        "sort-instance-by-title"
+      ]
     }
   },
   {
@@ -3538,7 +3560,8 @@
     ],
     "tags": {
       "tagList": [
-        "new-addition"
+        "new-addition",
+        "sort-instance-by-title"
       ]
     },
     "administrativeNotes": [
@@ -3621,7 +3644,8 @@
     ],
     "tags": {
       "tagList": [
-        "preservation-needed"
+        "preservation-needed",
+        "sort-instance-by-title"
       ]
     },
     "notes": [
@@ -3804,7 +3828,8 @@
     "tags": {
       "tagList": [
         "preservation-needed",
-        "ebook-available"
+        "ebook-available",
+        "sort-instance-by-title"
       ]
     },
     "electronicAccess": [

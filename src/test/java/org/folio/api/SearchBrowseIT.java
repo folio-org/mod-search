@@ -20,7 +20,6 @@ import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.support.base.ApiEndpoints.linkedDataHubSearchPath;
 import static org.folio.support.base.ApiEndpoints.linkedDataInstanceSearchPath;
 import static org.folio.support.base.ApiEndpoints.linkedDataWorkSearchPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -56,14 +55,13 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.web.servlet.MvcResult;
 
 @IntegrationTest
 @TestPropertySource(properties = "folio.search-config.indexing.instance-children-index-enabled=true")
 class SearchBrowseIT extends BaseIntegrationTest {
 
   // 119 instances from instances.json
-  private static final int TOTAL_INSTANCES       = 119;
+  private static final int TOTAL_INSTANCES       = 96;
   private static final int TOTAL_AUTHORITIES     = 117; // 51 sample + 15 filter + 5 sort + 45 browse
   private static final int EXPECTED_CALL_NUMBER_COUNT    = 105;
   private static final int EXPECTED_CONTRIBUTOR_COUNT    = 28;

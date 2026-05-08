@@ -56,7 +56,10 @@
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "RC2067 .X72 1978",
     "hrid": "ho00000000005",
-    "copyNumber": "4"
+    "copyNumber": "4",
+    "statisticalCodeIds": [
+      "c4073462-6144-4b69-a543-dd131e241799"
+    ]
   },
   {
     "id": "0cd836aa-4415-40a4-b6fe-35b5a1454669",
@@ -71,7 +74,10 @@
       "tagList": [
         "ebook-available"
       ]
-    }
+    },
+    "administrativeNotes": [
+      "Duplicate copy retained per policy."
+    ]
   },
   {
     "id": "2b134022-85f0-4ebf-bc57-58b76b6b8e7a",
@@ -89,6 +95,12 @@
     },
     "administrativeNotes": [
       "Last inventory check: 2024-01."
+    ],
+    "notes": [
+      {
+        "note": "Copy acquired through donation.",
+        "staffOnly": true
+      }
     ]
   },
   {
@@ -124,7 +136,12 @@
     "copyNumber": "5",
     "statisticalCodeIds": [
       "6899291f-0d18-4f8d-a269-42706a5d0e27"
-    ]
+    ],
+    "tags": {
+      "tagList": [
+        "new-addition"
+      ]
+    }
   },
   {
     "id": "7ac8e203-defb-4bf9-9f87-4ffd67823ad8",
@@ -297,6 +314,9 @@
     "copyNumber": "1",
     "statisticalCodeIds": [
       "6899291f-0d18-4f8d-a269-42706a5d0e27"
+    ],
+    "administrativeNotes": [
+      "Last inventory check: 2024-01."
     ]
   },
   {
@@ -338,7 +358,10 @@
       "tagList": [
         "reserve"
       ]
-    }
+    },
+    "administrativeNotes": [
+      "Last inventory check: 2024-01."
+    ]
   },
   {
     "id": "f0000010-0000-4000-9000-000000000000",
@@ -352,7 +375,12 @@
     "copyNumber": "4",
     "statisticalCodeIds": [
       "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
-    ]
+    ],
+    "tags": {
+      "tagList": [
+        "withdrawn-review"
+      ]
+    }
   },
   {
     "id": "f0000011-0000-4000-9000-000000000000",
@@ -374,7 +402,10 @@
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "QH8886 .M64 1970",
     "hrid": "ho00000000028",
-    "copyNumber": "3"
+    "copyNumber": "3",
+    "statisticalCodeIds": [
+      "b6b46869-f3c1-4370-b603-29774a1e42b1"
+    ]
   },
   {
     "id": "f0000013-0000-4000-9000-000000000000",
@@ -385,7 +416,10 @@
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "QH3604 .X14 2018",
     "hrid": "ho00000000029",
-    "copyNumber": "2"
+    "copyNumber": "2",
+    "administrativeNotes": [
+      "Last inventory check: 2024-01."
+    ]
   },
   {
     "id": "f0000014-0000-4000-9000-000000000000",
@@ -396,7 +430,10 @@
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "P5606 .Q32 1983",
     "hrid": "ho00000000030",
-    "copyNumber": "1"
+    "copyNumber": "1",
+    "statisticalCodeIds": [
+      "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
+    ]
   },
   {
     "id": "f0000015-0000-4000-9000-000000000000",
@@ -460,7 +497,12 @@
     "hrid": "ho00000000036",
     "statisticalCodeIds": [
       "c4073462-6144-4b69-a543-dd131e241799"
-    ]
+    ],
+    "tags": {
+      "tagList": [
+        "ebook-available"
+      ]
+    }
   },
   {
     "id": "f0000021-0000-4000-9000-000000000000",
@@ -523,6 +565,14 @@
     "copyNumber": "1",
     "statisticalCodeIds": [
       "6899291f-0d18-4f8d-a269-42706a5d0e27"
+    ],
+    "tags": {
+      "tagList": [
+        "recommended"
+      ]
+    },
+    "administrativeNotes": [
+      "Last inventory check: 2024-01."
     ]
   },
   {
@@ -614,6 +664,17 @@
     "copyNumber": "5",
     "statisticalCodeIds": [
       "6899291f-0d18-4f8d-a269-42706a5d0e27"
+    ],
+    "tags": {
+      "tagList": [
+        "special-order"
+      ]
+    },
+    "notes": [
+      {
+        "note": "Formerly in reference collection.",
+        "staffOnly": false
+      }
     ]
   },
   {
@@ -642,7 +703,16 @@
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "Z1853 .H41 1963",
     "hrid": "ho00000000050",
-    "copyNumber": "1"
+    "copyNumber": "1",
+    "statisticalCodeIds": [
+      "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
+    ],
+    "notes": [
+      {
+        "note": "Purchased from special collections fund.",
+        "staffOnly": true
+      }
+    ]
   },
   {
     "id": "f0000035-0000-4000-9000-000000000000",
@@ -656,6 +726,12 @@
     "copyNumber": "2",
     "statisticalCodeIds": [
       "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
+    ],
+    "notes": [
+      {
+        "note": "Formerly in reference collection.",
+        "staffOnly": true
+      }
     ]
   },
   {
@@ -669,6 +745,17 @@
     "hrid": "ho00000000052",
     "statisticalCodeIds": [
       "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
+    ],
+    "tags": {
+      "tagList": [
+        "reserve"
+      ]
+    },
+    "notes": [
+      {
+        "note": "Received as part of standing order.",
+        "staffOnly": true
+      }
     ]
   },
   {
@@ -715,7 +802,16 @@
       "tagList": [
         "ebook-available"
       ]
-    }
+    },
+    "administrativeNotes": [
+      "Duplicate copy retained per policy."
+    ],
+    "notes": [
+      {
+        "note": "Bound with: companion volume.",
+        "staffOnly": false
+      }
+    ]
   },
   {
     "id": "f0000041-0000-4000-9000-000000000000",
@@ -728,7 +824,12 @@
     "hrid": "ho00000000057",
     "statisticalCodeIds": [
       "d9acad2f-d9ac-4b48-9097-e6ab85000001"
-    ]
+    ],
+    "tags": {
+      "tagList": [
+        "review-needed"
+      ]
+    }
   },
   {
     "id": "f0000042-0000-4000-9000-000000000000",
@@ -833,6 +934,17 @@
     "copyNumber": "1",
     "statisticalCodeIds": [
       "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
+    ],
+    "tags": {
+      "tagList": [
+        "recommended"
+      ]
+    },
+    "notes": [
+      {
+        "note": "Copy acquired through donation.",
+        "staffOnly": true
+      }
     ]
   }
 ]

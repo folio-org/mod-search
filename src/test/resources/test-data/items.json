@@ -15,6 +15,11 @@
     "statisticalCodeIds": [
       "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
     ],
+    "tags": {
+      "tagList": [
+        "withdrawn-review"
+      ]
+    },
     "notes": [
       {
         "note": "Binding repaired.",
@@ -39,6 +44,15 @@
         "digitization-candidate"
       ]
     },
+    "administrativeNotes": [
+      "Duplicate copy retained per policy."
+    ],
+    "notes": [
+      {
+        "note": "Slight water damage on top edge.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
@@ -58,6 +72,11 @@
     "statisticalCodeIds": [
       "e10796e0-a594-47b7-b748-3a81b69b3d9b"
     ],
+    "tags": {
+      "tagList": [
+        "high-demand"
+      ]
+    },
     "discoverySuppress": true
   },
   {
@@ -225,6 +244,11 @@
     "statisticalCodeIds": [
       "c4073462-6144-4b69-a543-dd131e241799"
     ],
+    "tags": {
+      "tagList": [
+        "reserve"
+      ]
+    },
     "notes": [
       {
         "note": "Disk attached to inside back cover.",
@@ -261,6 +285,11 @@
     "statisticalCodeIds": [
       "c4073462-6144-4b69-a543-dd131e241799"
     ],
+    "tags": {
+      "tagList": [
+        "ebook-available"
+      ]
+    },
     "notes": [
       {
         "note": "Disk attached to inside back cover.",
@@ -386,6 +415,9 @@
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "4fdca025-1629-4688-aeb7-9c5fe5c73549",
+    "statisticalCodeIds": [
+      "6899291f-0d18-4f8d-a269-42706a5d0e27"
+    ],
     "discoverySuppress": false
   },
   {
@@ -436,6 +468,12 @@
     "administrativeNotes": [
       "Duplicate copy retained per policy."
     ],
+    "notes": [
+      {
+        "note": "Stamps on pages.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
@@ -478,6 +516,9 @@
         "preservation-needed"
       ]
     },
+    "administrativeNotes": [
+      "Duplicate copy retained per policy."
+    ],
     "notes": [
       {
         "note": "Cover worn.",
@@ -623,6 +664,15 @@
         "review-needed"
       ]
     },
+    "administrativeNotes": [
+      "Acquired via interlibrary transfer."
+    ],
+    "notes": [
+      {
+        "note": "Stamps on pages.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
@@ -663,6 +713,11 @@
     "statisticalCodeIds": [
       "6899291f-0d18-4f8d-a269-42706a5d0e27"
     ],
+    "tags": {
+      "tagList": [
+        "new-addition"
+      ]
+    },
     "administrativeNotes": [
       "Duplicate copy retained per policy."
     ],
@@ -691,6 +746,9 @@
         "review-needed"
       ]
     },
+    "administrativeNotes": [
+      "Acquired via interlibrary transfer."
+    ],
     "discoverySuppress": false
   },
   {
@@ -711,6 +769,9 @@
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "statisticalCodeIds": [
+      "b6b46869-f3c1-4370-b603-29774a1e42b1"
+    ],
     "discoverySuppress": false
   },
   {
@@ -774,6 +835,9 @@
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "statisticalCodeIds": [
+      "6899291f-0d18-4f8d-a269-42706a5d0e27"
+    ],
     "discoverySuppress": false
   },
   {
@@ -853,6 +917,9 @@
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "statisticalCodeIds": [
+      "f47b773a-bd5f-4246-ac1e-fa4adcd0dcdf"
+    ],
     "discoverySuppress": false
   },
   {
@@ -976,6 +1043,9 @@
         "review-needed"
       ]
     },
+    "administrativeNotes": [
+      "Acquired via interlibrary transfer."
+    ],
     "discoverySuppress": false
   },
   {
@@ -996,6 +1066,9 @@
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "statisticalCodeIds": [
+      "f47b773a-bd5f-4246-ac1e-fa4adcd0dcdf"
+    ],
     "notes": [
       {
         "note": "Spine faded.",
@@ -1027,6 +1100,9 @@
         "digitization-candidate"
       ]
     },
+    "administrativeNotes": [
+      "Duplicate copy retained per policy."
+    ],
     "notes": [
       {
         "note": "Missing index pages.",
@@ -1116,6 +1192,9 @@
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "statisticalCodeIds": [
+      "6899291f-0d18-4f8d-a269-42706a5d0e27"
+    ],
     "discoverySuppress": false
   },
   {
@@ -1140,6 +1219,11 @@
     "statisticalCodeIds": [
       "6899291f-0d18-4f8d-a269-42706a5d0e27"
     ],
+    "tags": {
+      "tagList": [
+        "new-addition"
+      ]
+    },
     "administrativeNotes": [
       "Condition reviewed and acceptable."
     ],
@@ -1165,6 +1249,14 @@
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "statisticalCodeIds": [
       "b6b46869-f3c1-4370-b603-29774a1e42b1"
+    ],
+    "tags": {
+      "tagList": [
+        "new-addition"
+      ]
+    },
+    "administrativeNotes": [
+      "Duplicate copy retained per policy."
     ],
     "notes": [
       {
@@ -1213,6 +1305,15 @@
         "new-addition"
       ]
     },
+    "administrativeNotes": [
+      "Weeding review due 2026."
+    ],
+    "notes": [
+      {
+        "note": "Missing index pages.",
+        "staffOnly": true
+      }
+    ],
     "discoverySuppress": false
   },
   {
@@ -1350,6 +1451,11 @@
     "statisticalCodeIds": [
       "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
     ],
+    "tags": {
+      "tagList": [
+        "recommended"
+      ]
+    },
     "notes": [
       {
         "note": "Disk attached to inside back cover.",
@@ -1488,6 +1594,12 @@
         "withdrawn-review"
       ]
     },
+    "notes": [
+      {
+        "note": "Spine faded.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
@@ -1526,6 +1638,12 @@
     "administrativeNotes": [
       "Condition reviewed and acceptable."
     ],
+    "notes": [
+      {
+        "note": "Pages slightly yellowed.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
@@ -1549,6 +1667,17 @@
     "statisticalCodeIds": [
       "e10796e0-a594-47b7-b748-3a81b69b3d9b"
     ],
+    "tags": {
+      "tagList": [
+        "high-demand"
+      ]
+    },
+    "notes": [
+      {
+        "note": "Bookplate on inside front cover.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
@@ -1571,6 +1700,9 @@
         "digitization-candidate"
       ]
     },
+    "administrativeNotes": [
+      "Duplicate copy retained per policy."
+    ],
     "notes": [
       {
         "note": "Bookplate on inside front cover.",
@@ -1695,6 +1827,9 @@
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "statisticalCodeIds": [
+      "c4073462-6144-4b69-a543-dd131e241799"
+    ],
     "discoverySuppress": false
   },
   {
@@ -1748,6 +1883,9 @@
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "statisticalCodeIds": [
+      "d9acad2f-d9ac-4b48-9097-e6ab85000001"
+    ],
     "notes": [
       {
         "note": "Bookplate on inside front cover.",
@@ -1794,6 +1932,11 @@
     "statisticalCodeIds": [
       "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
     ],
+    "tags": {
+      "tagList": [
+        "withdrawn-review"
+      ]
+    },
     "discoverySuppress": false
   },
   {
@@ -1897,6 +2040,9 @@
         "special-order"
       ]
     },
+    "administrativeNotes": [
+      "Item requires repair before circulation."
+    ],
     "discoverySuppress": false
   },
   {
@@ -1993,6 +2139,15 @@
         "special-order"
       ]
     },
+    "administrativeNotes": [
+      "Item requires repair before circulation."
+    ],
+    "notes": [
+      {
+        "note": "Pages slightly yellowed.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
@@ -2074,6 +2229,9 @@
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "statisticalCodeIds": [
+      "d9acad2f-d9ac-4b48-9097-e6ab85000001"
+    ],
     "discoverySuppress": false
   },
   {
@@ -2121,6 +2279,11 @@
     "statisticalCodeIds": [
       "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
     ],
+    "tags": {
+      "tagList": [
+        "withdrawn-review"
+      ]
+    },
     "administrativeNotes": [
       "Item requires repair before circulation."
     ],
@@ -2188,6 +2351,9 @@
         "review-needed"
       ]
     },
+    "administrativeNotes": [
+      "Acquired via interlibrary transfer."
+    ],
     "notes": [
       {
         "note": "Disk attached to inside back cover.",
@@ -2213,6 +2379,9 @@
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "0d106980-1789-42ac-b355-a6c7a74ddea3",
+    "statisticalCodeIds": [
+      "c4073462-6144-4b69-a543-dd131e241799"
+    ],
     "notes": [
       {
         "note": "Bookplate on inside front cover.",
@@ -2241,6 +2410,12 @@
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "administrativeNotes": [
       "Item requires repair before circulation."
+    ],
+    "notes": [
+      {
+        "note": "Disk attached to inside back cover.",
+        "staffOnly": false
+      }
     ],
     "discoverySuppress": false
   },
@@ -2362,6 +2537,12 @@
     "administrativeNotes": [
       "Condition reviewed and acceptable."
     ],
+    "notes": [
+      {
+        "note": "Previous owner's name on title page.",
+        "staffOnly": true
+      }
+    ],
     "discoverySuppress": false
   },
   {
@@ -2402,6 +2583,12 @@
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "statisticalCodeIds": [
       "e10796e0-a594-47b7-b748-3a81b69b3d9b"
+    ],
+    "notes": [
+      {
+        "note": "Bookplate on inside front cover.",
+        "staffOnly": false
+      }
     ],
     "discoverySuppress": false
   },
@@ -2459,6 +2646,9 @@
     },
     "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
     "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "statisticalCodeIds": [
+      "e10796e0-a594-47b7-b748-3a81b69b3d9b"
+    ],
     "discoverySuppress": false
   },
   {
@@ -2530,6 +2720,9 @@
         "review-needed"
       ]
     },
+    "administrativeNotes": [
+      "Acquired via interlibrary transfer."
+    ],
     "discoverySuppress": false
   },
   {
@@ -2574,6 +2767,12 @@
     "administrativeNotes": [
       "Weeding review due 2026."
     ],
+    "notes": [
+      {
+        "note": "Binding repaired.",
+        "staffOnly": false
+      }
+    ],
     "discoverySuppress": false
   },
   {
@@ -2598,6 +2797,12 @@
     },
     "administrativeNotes": [
       "Item requires repair before circulation."
+    ],
+    "notes": [
+      {
+        "note": "Previous owner's name on title page.",
+        "staffOnly": true
+      }
     ],
     "discoverySuppress": false
   },
@@ -2626,6 +2831,12 @@
     },
     "administrativeNotes": [
       "Weeding review due 2026."
+    ],
+    "notes": [
+      {
+        "note": "Bookplate on inside front cover.",
+        "staffOnly": true
+      }
     ],
     "discoverySuppress": false
   },
@@ -2688,6 +2899,12 @@
     "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
     "administrativeNotes": [
       "Item requires repair before circulation."
+    ],
+    "notes": [
+      {
+        "note": "Missing index pages.",
+        "staffOnly": false
+      }
     ],
     "discoverySuppress": false
   },
@@ -2804,6 +3021,9 @@
         "digitization-candidate"
       ]
     },
+    "administrativeNotes": [
+      "Duplicate copy retained per policy."
+    ],
     "notes": [
       {
         "note": "Spine faded.",

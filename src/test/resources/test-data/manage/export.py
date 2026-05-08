@@ -184,6 +184,7 @@ def export_instances(cur):
         obj["discoverySuppress"] = bool(inst["discoverySuppress"])
         if inst.get("statusId"): obj["statusId"]   = inst["statusId"]
         if metadata:             obj["metadata"]   = metadata
+        if inst.get("_comment"): obj["_comment"]   = inst["_comment"]
 
         result.append(obj)
 
@@ -258,6 +259,8 @@ def export_holdings(cur):
         if h.get("sourceId"):            obj["sourceId"]            = h["sourceId"]
         if h.get("copyNumber"):          obj["copyNumber"]          = h["copyNumber"]
         if h.get("shelvingTitle"):       obj["shelvingTitle"]       = h["shelvingTitle"]
+        if h.get("temporaryLocationId"): obj["temporaryLocationId"] = h["temporaryLocationId"]
+        if h.get("illPolicy"):           obj["illPolicy"]           = h["illPolicy"]
         if former_ids:              obj["formerIds"]           = former_ids
         if statistical_code_ids:    obj["statisticalCodeIds"]  = statistical_code_ids
         if tag_list:                obj["tags"]                = {"tagList": tag_list}
@@ -360,6 +363,7 @@ def export_items(cur):
         if circulation_notes:    obj["circulationNotes"]    = circulation_notes
         if electronic_access:    obj["electronicAccess"]    = electronic_access
         obj["discoverySuppress"] = bool(it["discoverySuppress"])
+        if it.get("yearCaption"):        obj["yearCaption"]         = it["yearCaption"]
         if metadata:             obj["metadata"]            = metadata
         result.append(obj)
     return result

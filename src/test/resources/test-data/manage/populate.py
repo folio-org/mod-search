@@ -229,6 +229,43 @@ HOLDINGS_ADMIN_NOTE_POOL = [
     "Duplicate copy retained per policy.",
 ]
 
+ILL_POLICY_POOL = [
+    "Will lend",
+    "Will lend hard copy only",
+    "Will not lend",
+    "Copy only",
+    "Unknown lending policy",
+    "Limited lending policy",
+]
+
+CIRCULATION_NOTE_POOL = [
+    "Handle with care — fragile spine.",
+    "Patron requested special packaging.",
+    "Returned with minor damage to cover.",
+    "Renew at circulation desk only.",
+    "Three-day loan; no renewal allowed.",
+    "Library use only during renovation period.",
+    "Must be used in supervised reading room.",
+    "Patron notified of outstanding fine.",
+    "Check for loose inserts before shelving.",
+    "Item last returned with loose pages.",
+]
+
+YEAR_CAPTION_POOL = [
+    "2023",
+    "2022",
+    "2021",
+    "2020",
+    "v.1 (2010)",
+    "v.2 (2012)",
+    "v.1-3 (2015-2018)",
+    "v.4-6 (2019-2022)",
+    "no.1-12 (2020)",
+    "Annual: 2019",
+    "2018-2020",
+    "2016",
+]
+
 ITEM_NOTE_POOL = [
     "Binding repaired.",
     "Cover worn.",
@@ -392,6 +429,18 @@ def make_barcode(rnd: random.Random) -> str:
     return f"3900{suffix:010d}"
 
 
+def make_lccn(rnd: random.Random) -> str:
+    """Generate a realistic Library of Congress Control Number."""
+    year = rnd.randint(1960, 2023)
+    num = rnd.randint(100000, 999999)
+    return f"{year}-{num}"
+
+
+def make_oclc(rnd: random.Random) -> str:
+    """Generate a realistic OCLC control number."""
+    return f"(OCoLC){rnd.randint(1000000, 99999999)}"
+
+
 def make_hrid(prefix: str, idx: int) -> str:
     """FOLIO-style HRID, e.g. in00000000001."""
     return f"{prefix}{idx + 1:011d}"
@@ -465,9 +514,22 @@ def _find_duplicate_title_replacements(records: list) -> dict:
     return dict(zip(needs_new, available))
 
 
+_FAKE_INSTANCE_TYPE_IDS = {
+    "c0000001-0000-4000-8000-000000000000",
+    "c0000002-0000-4000-8000-000000000000",
+}
+
+_DISCOVERY_SUPPRESS_INSTANCE_RATE = 0.12
+_DISCOVERY_SUPPRESS_HOLDINGS_RATE = 0.10
+
 def populate_instances(records: list) -> list:
     placeholder_titles = _assign_placeholder_titles(records)
     dedup_titles       = _find_duplicate_title_replacements(records)
+
+    # Fix 1: pre-compute contiguous HRIDs sorted by record ID
+    sorted_ids = sorted(r["id"] for r in records)
+    hrid_by_id = {rid: make_hrid("in", idx) for idx, rid in enumerate(sorted_ids)}
+
     out = []
     for idx, r in enumerate(records):
         r = dict(r)
@@ -475,8 +537,8 @@ def populate_instances(records: list) -> list:
         rnd  = rng(rid)
         rnd2 = rng(rid, "b")
 
-        # instanceTypeId
-        if not r.get("instanceTypeId"):
+        # instanceTypeId — replace fake UUIDs with valid ones
+        if not r.get("instanceTypeId") or r["instanceTypeId"] in _FAKE_INSTANCE_TYPE_IDS:
             r["instanceTypeId"] = weighted_choice(rnd, INSTANCE_TYPE_POOL)
 
         # Replace placeholder "Instance N" / "ResourceN" titles with unique realistic ones
@@ -562,13 +624,25 @@ def populate_instances(records: list) -> list:
                 "role": "Publisher",
             }]
 
-        # identifiers — add ISBN if none
+        # identifiers — add ISBN if none; add secondary LCCN/OCLC for ~40% of records
         if "identifiers" not in r:
             isbn = make_isbn(rnd2)
             r["identifiers"] = [{
                 "value": isbn,
                 "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422",  # ISBN
             }]
+        # Augment with a secondary identifier for diversity
+        if rnd2.random() < 0.40:
+            existing_types = {i.get("identifierTypeId") for i in r["identifiers"]}
+            candidate = rnd2.choice([
+                ("c858e4f2-2b6b-4385-842b-60732ee14abb", make_lccn(rng(rid, "lccn"))),   # LCCN
+                ("439bfbae-75bc-4f74-9fc7-b2a2d47ce3ef", make_oclc(rng(rid, "oclc"))),   # OCLC
+                ("913300b2-03ed-469a-8179-c1092c991227",                                  # ISSN
+                 f"{rng(rid,'issn').randint(1000,9999)}-{rng(rid,'issn2').randint(1000,9999)}"),
+            ])
+            type_id, value = candidate
+            if type_id not in existing_types:
+                r["identifiers"] = list(r["identifiers"]) + [{"value": value, "identifierTypeId": type_id}]
 
         # subjects
         if "subjects" not in r:
@@ -589,9 +663,8 @@ def populate_instances(records: list) -> list:
         if "series" not in r and rnd.random() < 0.35:
             r["series"] = [{"value": rnd.choice(SERIES_POOL)}]
 
-        # hrid
-        if not r.get("hrid"):
-            r["hrid"] = make_hrid("in", idx)
+        # hrid — always force contiguous assignment
+        r["hrid"] = hrid_by_id[rid]
 
         # statisticalCodeIds
         if "statisticalCodeIds" not in r and rnd.random() < 0.20:
@@ -618,6 +691,9 @@ def populate_instances(records: list) -> list:
             chosen = rnd.sample(INSTANCE_NOTE_POOL, n)
             r["notes"] = [{"note": t, "staffOnly": rnd.random() < 0.3} for t in chosen]
 
+        # discoverySuppress — enforce ~12% suppressed using deterministic seed
+        r["discoverySuppress"] = rng(rid, "suppress").random() < _DISCOVERY_SUPPRESS_INSTANCE_RATE
+
         out.append(r)
     return out
 
@@ -626,6 +702,10 @@ def populate_instances(records: list) -> list:
 # Populate holdings
 # ---------------------------------------------------------------------------
 def populate_holdings(records: list) -> list:
+    # Fix 1: pre-compute contiguous HRIDs sorted by record ID
+    sorted_ids = sorted(r["id"] for r in records)
+    hrid_by_id = {rid: make_hrid("ho", idx) for idx, rid in enumerate(sorted_ids)}
+
     out = []
     for idx, r in enumerate(records):
         r = dict(r)
@@ -647,9 +727,22 @@ def populate_holdings(records: list) -> list:
         if "copyNumber" not in r and rnd.random() < 0.4:
             r["copyNumber"] = str(rnd.randint(1, 5))
 
-        # hrid
-        if not r.get("hrid"):
-            r["hrid"] = make_hrid("ho", idx)
+        # hrid — always force contiguous assignment
+        r["hrid"] = hrid_by_id[rid]
+
+        # temporaryLocationId — ~20% of holdings
+        if "temporaryLocationId" not in r and rnd.random() < 0.20:
+            r["temporaryLocationId"] = weighted_choice(rng(rid, "tmploc"), LOCATION_POOL)
+
+        # illPolicy — ~30% of holdings
+        if "illPolicy" not in r and rnd.random() < 0.30:
+            r["illPolicy"] = rnd.choice(ILL_POLICY_POOL)
+
+        # callNumberPrefix / callNumberSuffix on more holdings
+        if "callNumberPrefix" not in r and rnd.random() < 0.25:
+            r["callNumberPrefix"] = rnd.choice(["v.", "pt.", "suppl.", "copy", "no."])
+        if "callNumberSuffix" not in r and rnd.random() < 0.20:
+            r["callNumberSuffix"] = str(rnd.randint(1, 5))
 
         # statisticalCodeIds
         if "statisticalCodeIds" not in r and rnd.random() < 0.15:
@@ -668,6 +761,9 @@ def populate_holdings(records: list) -> list:
             note = rnd.choice(HOLDINGS_NOTE_POOL)
             r["notes"] = [{"note": note, "staffOnly": rnd.random() < 0.25}]
 
+        # discoverySuppress — enforce ~10% suppressed using deterministic seed
+        r["discoverySuppress"] = rng(rid, "suppress").random() < _DISCOVERY_SUPPRESS_HOLDINGS_RATE
+
         out.append(r)
     return out
 
@@ -676,6 +772,10 @@ def populate_holdings(records: list) -> list:
 # Populate items — index holdings by id for location lookup
 # ---------------------------------------------------------------------------
 def populate_items(records: list, holdings_by_id: dict) -> list:
+    # Fix 1: pre-compute contiguous HRIDs sorted by record ID
+    sorted_ids = sorted(r["id"] for r in records)
+    hrid_by_id = {rid: make_hrid("it", idx) for idx, rid in enumerate(sorted_ids)}
+
     out = []
     for idx, r in enumerate(records):
         r = dict(r)
@@ -702,9 +802,8 @@ def populate_items(records: list, holdings_by_id: dict) -> list:
             r["itemLevelCallNumberTypeId"] = cn_type
             r["itemLevelCallNumber"] = make_call_number(rng(rid, "icn"), cn_type)
 
-        # hrid
-        if not r.get("hrid"):
-            r["hrid"] = make_hrid("it", idx)
+        # hrid — always force contiguous assignment
+        r["hrid"] = hrid_by_id[rid]
 
         # barcode — unique, deterministic
         if not r.get("barcode"):
@@ -726,6 +825,27 @@ def populate_items(records: list, holdings_by_id: dict) -> list:
         if "notes" not in r and rnd.random() < 0.20:
             note = rnd.choice(ITEM_NOTE_POOL)
             r["notes"] = [{"note": note, "staffOnly": rnd.random() < 0.2}]
+
+        # circulationNotes — ~20% of items
+        if "circulationNotes" not in r and rnd.random() < 0.20:
+            note = rng(rid, "circ").choice(CIRCULATION_NOTE_POOL)
+            r["circulationNotes"] = [{"note": note, "staffOnly": rng(rid, "circ2").random() < 0.3}]
+
+        # yearCaption — ~25% of items
+        if "yearCaption" not in r and rnd.random() < 0.25:
+            r["yearCaption"] = rng(rid, "yrcap").choice(YEAR_CAPTION_POOL)
+
+        # effectiveCallNumberComponents — derive for items missing it
+        if "effectiveCallNumberComponents" not in r:
+            h = holdings_by_id.get(r.get("holdingsRecordId", ""))
+            if h:
+                enc = {}
+                if h.get("callNumber"):       enc["callNumber"] = h["callNumber"]
+                if h.get("callNumberPrefix"): enc["prefix"]     = h["callNumberPrefix"]
+                if h.get("callNumberSuffix"): enc["suffix"]     = h["callNumberSuffix"]
+                if h.get("callNumberTypeId"): enc["typeId"]     = h["callNumberTypeId"]
+                if enc:
+                    r["effectiveCallNumberComponents"] = enc
 
         out.append(r)
     return out

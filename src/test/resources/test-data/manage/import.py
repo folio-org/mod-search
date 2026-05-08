@@ -213,8 +213,8 @@ def import_instances(cur, records):
                (id, title, indexTitle, source, instanceTypeId, statusId,
                 discoverySuppress, staffSuppress,
                 hrid, modeOfIssuanceId, isBoundWith, shared,
-                dateTypeId, date1, date2)
-               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                dateTypeId, date1, date2, _comment)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             (
                 r["id"],
                 r.get("title"),
@@ -231,6 +231,7 @@ def import_instances(cur, records):
                 dates.get("dateTypeId"),
                 dates.get("date1"),
                 dates.get("date2"),
+                r.get("_comment"),
             ),
         )
 
@@ -366,6 +367,7 @@ def import_instances(cur, records):
 def import_holdings(cur, records):
     for r in records:
         upsert_ref(cur, "ref_locations",         r.get("permanentLocationId"))
+        upsert_ref(cur, "ref_locations",         r.get("temporaryLocationId"))
         upsert_ref(cur, "ref_call_number_types",  r.get("callNumberTypeId"))
         upsert_ref(cur, "ref_holdings_types",     r.get("holdingsTypeId"))
         cur.execute(
@@ -373,8 +375,9 @@ def import_holdings(cur, records):
                (id, instanceId, callNumber, callNumberPrefix, callNumberSuffix,
                 callNumberTypeId, permanentLocationId, holdingsTypeId,
                 hrid, sourceId,
-                copyNumber, shelvingTitle, discoverySuppress)
-               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                copyNumber, shelvingTitle, discoverySuppress,
+                temporaryLocationId, illPolicy)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             (
                 r["id"],
                 r.get("instanceId"),
@@ -389,6 +392,8 @@ def import_holdings(cur, records):
                 r.get("copyNumber"),
                 r.get("shelvingTitle"),
                 1 if r.get("discoverySuppress") else 0,
+                r.get("temporaryLocationId"),
+                r.get("illPolicy"),
             ),
         )
 
@@ -460,8 +465,9 @@ def import_items(cur, records):
                 effectiveLocationId,
                 effectiveCallNumber, effectiveCallNumberPrefix,
                 effectiveCallNumberSuffix, effectiveCallNumberTypeId,
-                materialTypeId, status_name, status_date, discoverySuppress)
-               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                materialTypeId, status_name, status_date, discoverySuppress,
+                yearCaption)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             (
                 r["id"],
                 r.get("holdingsRecordId"),
@@ -481,6 +487,7 @@ def import_items(cur, records):
                 status.get("name"),
                 status.get("date"),
                 1 if r.get("discoverySuppress") else 0,
+                r.get("yearCaption"),
             ),
         )
 

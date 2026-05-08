@@ -26,7 +26,8 @@ CREATE TABLE IF NOT EXISTS instances (
   -- dates object (single, not array)
   dateTypeId        TEXT,
   date1             TEXT,
-  date2             TEXT
+  date2             TEXT,
+  _comment          TEXT
 );
 
 CREATE TABLE IF NOT EXISTS holdings (
@@ -42,7 +43,9 @@ CREATE TABLE IF NOT EXISTS holdings (
   sourceId            TEXT,
   copyNumber          TEXT,
   shelvingTitle       TEXT,
-  discoverySuppress   INTEGER DEFAULT 0
+  discoverySuppress   INTEGER DEFAULT 0,
+  temporaryLocationId TEXT REFERENCES ref_locations(id),
+  illPolicy           TEXT
 );
 
 CREATE TABLE IF NOT EXISTS items (
@@ -65,7 +68,8 @@ CREATE TABLE IF NOT EXISTS items (
   -- status (single object)
   status_name                 TEXT,
   status_date                 TEXT,
-  discoverySuppress           INTEGER DEFAULT 0
+  discoverySuppress           INTEGER DEFAULT 0,
+  yearCaption                 TEXT
 );
 
 -- Junction tables for instance arrays

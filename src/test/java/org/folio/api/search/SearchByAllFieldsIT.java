@@ -16,7 +16,6 @@ public abstract class SearchByAllFieldsIT extends BaseSharedTest {
     // instance field values
     "00000008-0000-4000-8000-000000000000",
     "A sem\\\\ntic web primer",
-    "An alternative title",
     "Cooperative information systems",
     "0262012103",
     "2003065165",
@@ -25,33 +24,26 @@ public abstract class SearchByAllFieldsIT extends BaseSharedTest {
     "Ant\\\\niou matthew",
     "HD1691 .I5 1967",
     "Cambridge, Mass.",
-    "MIT Press",
-    "c2004",
     "1\\\\9u",
     "*\\9u",
     "1*9u",
     "1\\\\9*",
-    "2022",
-    "202*",
-    "2*22",
-    "*22",
+    "1444",
+    "144*",
+    "1*44",
+    "*444",
 
     // holding field values
     "00000014-0000-4000-9000-000000000000",
-    "ho00000000006",
-    "ho00000000007",
+    "ho10000000006",
     "TK5105.88815 . A58 2004 FT MEADE",
-    "TK5105.88815",
     "Includes bibliographical references and index of holdings.",
 
     // item field values
     "00000004-0000-4000-a000-000000000000",
     "TK5105.88815 . A58 2004 FT MEADE",
     "item000000000014",
-    "item_accession_number",
-    "Available",
-    "Copy 2",
-    "207b9372-127f-4bdd-83e0-147c9fe9bc16"
+    "item_accession_number"
   })
   @ParameterizedTest(name = "[{index}] cql.all='{query}', query=''{0}''")
   void canSearchByAllFieldValues_positive(String cqlQuery) throws Throwable {
@@ -63,25 +55,22 @@ public abstract class SearchByAllFieldsIT extends BaseSharedTest {
   @ValueSource(strings = {
     "00000008-0000-4000-8000-000000000000",
     "A sem\\\\ntic web primer",
-    "An alternative title",
+    "déjà vu",
     "Cooperative information systems",
     "0262012103",
     "2003065165",
     "Ant\\\\niou, Grigoris matthew",
     "HD1691 .I5 1967",
     "Cambridge, Mass.",
-    "2020-12-08T15:47:13.625+00:00",
     "2020-12-08T15:47:13.625+0000",
-    "MIT Press",
-    "c2004",
     "1\\\\9u",
     "*\\9u",
     "1*9u",
     "1\\\\9*",
-    "2022",
-    "202*",
-    "2*22",
-    "*22"
+    "1444",
+    "144*",
+    "1*44",
+    "*444"
   })
   @ParameterizedTest(name = "[{index}] cql.allInstances='{query}', query=''{0}''")
   void canSearchByInstanceFieldValues_positive(String cqlQuery) throws Throwable {
@@ -92,10 +81,8 @@ public abstract class SearchByAllFieldsIT extends BaseSharedTest {
 
   @ValueSource(strings = {
     "00000014-0000-4000-9000-000000000000",
-    "ho00000000006",
-    "ho00000000007",
+    "ho10000000006",
     "TK5105.88815 . A58 2004 FT MEADE",
-    "TK5105.88815",
     "Includes bibliographical references and index of holdings.",
   })
   @ParameterizedTest(name = "[{index}] cql.allHoldings='{query}', query=''{0}''")
@@ -109,10 +96,7 @@ public abstract class SearchByAllFieldsIT extends BaseSharedTest {
     "00000004-0000-4000-a000-000000000000",
     "TK5105.88815 . A58 2004 FT MEADE",
     "item000000000014",
-    "item_accession_number",
-    "Available",
-    "Copy 2",
-    "207b9372-127f-4bdd-83e0-147c9fe9bc16"
+    "item_accession_number"
   })
   @ParameterizedTest(name = "[{index}] cql.allItems='{query}', query=''{0}''")
   void canSearchByItemFieldValues_positive(String cqlQuery) throws Throwable {

@@ -132,8 +132,6 @@ class SearchBrowseIT extends BaseIntegrationTest {
   @Nested
   class SearchInstance extends SearchInstanceIT { }
 
-  // ─── Nested stubs — each extends the corresponding *IT class ────────────────
-
   @Nested
   class SearchHoldings extends SearchHoldingsIT { }
 

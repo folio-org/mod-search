@@ -272,7 +272,7 @@
     "callNumber": "332.2",
     "callNumberPrefix": "GEN",
     "callNumberSuffix": "c.1",
-    "hrid": "ho00000000006",
+    "hrid": "ho10000000006",
     "copyNumber": "Copy 1",
     "formerIds": [
       "1d76ee84-d776-48d2-ab96-140c24e39ac5"
@@ -322,7 +322,7 @@
         "staffOnly": true
       },
       {
-        "note": "Librarian public note for holding",
+        "note": "Includes bibliographical references and index of holdings.",
         "staffOnly": false
       },
       {

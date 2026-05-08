@@ -268,6 +268,73 @@ ITEM_STATUSES = [
     ("Withdrawn", 2),
 ]
 
+PLACEHOLDER_TITLE_POOL = [
+    "The Art of Scientific Inquiry",
+    "Foundations of Modern Linguistics",
+    "Urban Ecology and Sustainable Cities",
+    "A History of Economic Thought",
+    "The Psychology of Human Decision-Making",
+    "Comparative Constitutional Law",
+    "Introduction to Cognitive Science",
+    "Environmental Policy and Governance",
+    "The Sociology of Work and Organizations",
+    "Cultural Anthropology: A Global Perspective",
+    "Advanced Topics in Molecular Biology",
+    "Information Systems in Healthcare",
+    "Political Economy of Development",
+    "The Ethics of Artificial Intelligence",
+    "Media Studies and Public Discourse",
+    "Principles of Macroeconomics",
+    "Theories of International Relations",
+    "Philosophy of Mind and Consciousness",
+    "Statistical Methods in Social Research",
+    "Architectural History of the Modern Era",
+    "Behavioral Finance and Investment",
+    "The Science of Climate Change",
+    "Legal Theory and Jurisprudence",
+    "Computational Methods in Bioinformatics",
+    "Public Health and Epidemiology",
+    "The Dynamics of Social Movements",
+    "Applied Ethics in Engineering",
+    "Language Acquisition and Development",
+    "Geopolitics in the Twenty-First Century",
+    "Organizational Behavior and Leadership",
+    "Advances in Renewable Energy Systems",
+    "Philosophy of Science: An Introduction",
+    "The History of Art and Visual Culture",
+    "Criminology and Criminal Justice",
+    "Quantum Mechanics: Concepts and Applications",
+    "Narrative Theory and Literary Criticism",
+    "Global Supply Chain Management",
+    "The Neuroscience of Learning and Memory",
+    "Democratic Theory and Practice",
+    "Ecology of Freshwater Systems",
+    "Human Rights in International Law",
+    "Data Structures and Algorithm Design",
+    "Postcolonial Studies: Theory and Practice",
+    "Gender and Society: Feminist Perspectives",
+    "Monetary Theory and Central Banking",
+    "Classics of Western Philosophy",
+    "Structural Analysis in Civil Engineering",
+    "Discourse Analysis and Communication",
+    "Migration, Identity, and Belonging",
+    "The Digital Transformation of Libraries",
+    "Evolutionary Biology: Mechanisms and Patterns",
+    "Taxation and Fiscal Policy",
+    "Sociology of Education and Schooling",
+    "Ethics in Medical Research",
+    "Game Theory and Strategic Behavior",
+    "The History of Science and Technology",
+    "Semantics and Pragmatics in Linguistics",
+    "Development Economics: Theory and Policy",
+    "Bioethics: Principles and Cases",
+    "Regional Planning and Land Use",
+    "Cognitive Behavioral Approaches in Therapy",
+    "The Rise of Global Financial Markets",
+    "Foundations of Quantum Computing",
+    "Heritage Conservation and Museum Studies",
+]
+
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -344,6 +411,10 @@ def populate_instances(records: list) -> list:
         # instanceTypeId
         if not r.get("instanceTypeId"):
             r["instanceTypeId"] = weighted_choice(rnd, INSTANCE_TYPE_POOL)
+
+        # Replace placeholder "Instance N" titles with realistic ones
+        if re.match(r"^Instance \d+$", r.get("title", "")):
+            r["title"] = rng(rid, "title").choice(PLACEHOLDER_TITLE_POOL)
 
         # indexTitle — strip leading article from title
         if not r.get("indexTitle"):

@@ -14,7 +14,7 @@ public abstract class SearchByAllFieldsIT extends BaseIntegrationTest {
 
   @ValueSource(strings = {
     // instance field values
-    "5bf370e0-8cca-4d9c-82e4-5170ab2a0a39",
+    "00000008-0000-4000-8000-000000000000",
     "A sem\\\\ntic web primer",
     "An alternative title",
     "Cooperative information systems",
@@ -37,7 +37,7 @@ public abstract class SearchByAllFieldsIT extends BaseIntegrationTest {
     "*22",
 
     // holding field values
-    "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19",
+    "00000014-0000-4000-9000-000000000000",
     "ho00000000006",
     "ho00000000007",
     "TK5105.88815 . A58 2004 FT MEADE",
@@ -45,7 +45,7 @@ public abstract class SearchByAllFieldsIT extends BaseIntegrationTest {
     "Includes bibliographical references and index of holdings.",
 
     // item field values
-    "7212ba6a-8dcf-45a1-be9a-ffaa847c4423",
+    "00000004-0000-4000-a000-000000000000",
     "TK5105.88815 . A58 2004 FT MEADE",
     "item000000000014",
     "item_accession_number",
@@ -61,7 +61,7 @@ public abstract class SearchByAllFieldsIT extends BaseIntegrationTest {
   }
 
   @ValueSource(strings = {
-    "5bf370e0-8cca-4d9c-82e4-5170ab2a0a39",
+    "00000008-0000-4000-8000-000000000000",
     "A sem\\\\ntic web primer",
     "An alternative title",
     "Cooperative information systems",
@@ -91,7 +91,7 @@ public abstract class SearchByAllFieldsIT extends BaseIntegrationTest {
   }
 
   @ValueSource(strings = {
-    "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19",
+    "00000014-0000-4000-9000-000000000000",
     "ho00000000006",
     "ho00000000007",
     "TK5105.88815 . A58 2004 FT MEADE",
@@ -106,7 +106,7 @@ public abstract class SearchByAllFieldsIT extends BaseIntegrationTest {
   }
 
   @ValueSource(strings = {
-    "7212ba6a-8dcf-45a1-be9a-ffaa847c4423",
+    "00000004-0000-4000-a000-000000000000",
     "TK5105.88815 . A58 2004 FT MEADE",
     "item000000000014",
     "item_accession_number",

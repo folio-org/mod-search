@@ -13,11 +13,11 @@ import org.junit.jupiter.api.Test;
 @IntegrationTest
 public abstract class SortInstanceIT extends BaseIntegrationTest {
 
-  public static final String ID_ANIMAL_FARM     = "a0000001-0000-4000-8000-000000000000";
-  public static final String ID_ZERO_MINUS_TEN  = "a0000002-0000-4000-8000-000000000000";
-  public static final String ID_CALLING_ME_HOME = "a0000003-0000-4000-8000-000000000000";
-  public static final String ID_WALK_IN_MY_SOUL = "a0000004-0000-4000-8000-000000000000";
-  public static final String ID_STAR_WARS       = "a0000005-0000-4000-8000-000000000000";
+  public static final String ID_ANIMAL_FARM     = "00000012-0000-4000-8000-000000000000";
+  public static final String ID_ZERO_MINUS_TEN  = "00000014-0000-4000-8000-000000000000";
+  public static final String ID_CALLING_ME_HOME = "00000016-0000-4000-8000-000000000000";
+  public static final String ID_WALK_IN_MY_SOUL = "00000018-0000-4000-8000-000000000000";
+  public static final String ID_STAR_WARS       = "00000020-0000-4000-8000-000000000000";
 
   private static final String TAG_FILTER = "tags.tagList==\"sort-instance\"";
 

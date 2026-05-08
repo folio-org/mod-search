@@ -70,7 +70,7 @@ class ConsortiumSearchItemsIT extends BaseConsortiumIntegrationTest {
     List<Pair<String, String>> queryParams = List.of(
       pair("instanceId", getSemanticWebId()),
       pair("tenantId", MEMBER_TENANT_ID),
-      pair("holdingsRecordId", "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19"),
+      pair("holdingsRecordId", "00000014-0000-4000-9000-000000000000"),
       pair("limit", "1"),
       pair("offset", "1"),
       pair("sortBy", "barcode"),

@@ -2,7 +2,7 @@
   "totalRecords": 1,
   "instances": [
     {
-      "id": "5bf370e0-8cca-4d9c-82e4-5170ab2a0a39",
+      "id": "00000008-0000-4000-8000-000000000000",
       "tenantId": "test_tenant",
       "shared": false,
       "hrid": "inst000000000022",
@@ -190,9 +190,9 @@
       ],
       "items": [
         {
-          "id": "49347f02-69ac-4c12-b6f2-2afb6059c94b",
+          "id": "00000002-0000-4000-a000-000000000000",
           "tenantId": "test_tenant",
-          "holdingsRecordId": "9550c935-401a-4a85-875e-4d1fe7678870",
+          "holdingsRecordId": "00000009-0000-4000-9000-000000000000",
           "hrid": "it00000000001",
           "barcode": "12345",
           "effectiveLocationId": "cdd60388-0c75-4969-b3c5-2d04621ed26f",
@@ -216,9 +216,9 @@
           }
         },
         {
-          "id": "7212ba6a-8dcf-45a1-be9a-ffaa847c4423",
+          "id": "00000004-0000-4000-a000-000000000000",
           "tenantId": "test_tenant",
-          "holdingsRecordId": "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19",
+          "holdingsRecordId": "00000014-0000-4000-9000-000000000000",
           "hrid": "item000000000014",
           "accessionNumber": "item_accession_number",
           "formerIds": [
@@ -273,9 +273,9 @@
           }
         },
         {
-          "id": "100d10bf-2f06-4aa0-be15-0b95b2d9f9e3",
+          "id": "00000001-0000-4000-a000-000000000000",
           "tenantId": "test_tenant",
-          "holdingsRecordId": "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19",
+          "holdingsRecordId": "00000014-0000-4000-9000-000000000000",
           "hrid": "item000000000015",
           "barcode": "90000",
           "effectiveLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
@@ -336,7 +336,7 @@
       ],
       "holdings": [
         {
-          "id": "a663dea9-6547-4b2d-9daa-76cadd662272",
+          "id": "00000010-0000-4000-9000-000000000000",
           "tenantId": "test_tenant",
           "permanentLocationId": "758258bc-ecc1-41b8-abca-f7b610822ffd",
           "callNumber": "call number1",
@@ -359,7 +359,7 @@
           }
         },
         {
-          "id": "9550c935-401a-4a85-875e-4d1fe7678870",
+          "id": "00000009-0000-4000-9000-000000000000",
           "tenantId": "test_tenant",
           "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
           "callNumber": "call number",
@@ -403,7 +403,7 @@
           }
         },
         {
-          "id": "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19",
+          "id": "00000014-0000-4000-9000-000000000000",
           "tenantId": "test_tenant",
           "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
           "callNumber": "TK5105.88815 . A58 2004 FT MEADE",

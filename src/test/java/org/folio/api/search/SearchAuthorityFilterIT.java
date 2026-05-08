@@ -31,10 +31,10 @@ public abstract class SearchAuthorityFilterIT extends BaseIntegrationTest {
 
   private static final int RECORDS_COUNT = 15;
   private static final String[] IDS = {
-    "1353873c-0e5e-4d64-a2f9-6c444dc4cd46",
-    "cc6bbc19-3f54-43c5-8736-b85688619641",
-    "39a52d91-8dbb-4348-ab06-5c6115e600cd",
-    "62f72eeb-ed5a-4619-b01f-1750d5528d25",
+    "00000001-0000-4000-8000-000000000000",
+    "00000046-0000-4000-8000-000000000000",
+    "00000005-0000-4000-8000-000000000000",
+    "00000009-0000-4000-8000-000000000000",
     "6edc7db0-5363-41ec-bf63-0242ac130002",
     "75b6e1e8-5363-41ec-bf63-0242ac130002",
     "62f72eeb-ed5a-4619-b01f-1750d5528d27",

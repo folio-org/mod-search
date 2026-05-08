@@ -139,11 +139,11 @@ class StreamResourceIdsIT extends BaseIntegrationTest {
 
   private static Stream<Arguments> testDataProvider() {
     return Stream.of(
-      arguments(EntityTypeEnum.INSTANCE, List.of("5bf370e0-8cca-4d9c-82e4-5170ab2a0a39")),
+      arguments(EntityTypeEnum.INSTANCE, List.of("00000008-0000-4000-8000-000000000000")),
       arguments(EntityTypeEnum.AUTHORITY, List.of("55294032-fcf6-45cc-b6da-4420a61ef72c")),
-      arguments(EntityTypeEnum.HOLDINGS, List.of("a663dea9-6547-4b2d-9daa-76cadd662272",
-        "9550c935-401a-4a85-875e-4d1fe7678870",
-        "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19"))
+      arguments(EntityTypeEnum.HOLDINGS, List.of("00000010-0000-4000-9000-000000000000",
+        "00000009-0000-4000-9000-000000000000",
+        "00000014-0000-4000-9000-000000000000"))
     );
   }
 }

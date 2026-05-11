@@ -11,6 +11,7 @@
 
 ### Bug fixes
 * Add retry for search operations ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))
+* Skip background processing on BadSqlGrammarException ([MSEARCH-1214](https://folio-org.atlassian.net/browse/MSEARCH-1214))
 
 ### Tech Dept
 * Add `@TestRailCase` annotation for linking integration tests to TestRail cases

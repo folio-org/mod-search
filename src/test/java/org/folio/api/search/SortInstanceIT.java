@@ -39,7 +39,6 @@ public abstract class SortInstanceIT extends BaseSharedTest {
     "Ground-water exploration in Al Marj (1966)"
   );
 
-
   @Test
   void canSortInstancesByTitles_asc() throws Exception {
     var expectedTitleOrder = TITLES.stream()

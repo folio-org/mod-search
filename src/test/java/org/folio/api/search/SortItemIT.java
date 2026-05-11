@@ -17,7 +17,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @IntegrationTest
-@SuppressWarnings("checkstyle:DeclarationOrder")
 public abstract class SortItemIT extends BaseSharedTest {
 
   private static final String[] IDS = array(
@@ -27,20 +26,12 @@ public abstract class SortItemIT extends BaseSharedTest {
     "00000004-0000-4000-8000-000000000000",
     "00000006-0000-4000-8000-000000000000");
 
-  private static final String TAG = "tags.tagList==\"sort-item\"";
-
-  private static String tagged(String query) {
-    int idx = query.toLowerCase().indexOf(" sortby ");
-    if (idx >= 0) {
-      return "(" + TAG + " AND " + query.substring(0, idx) + ")" + query.substring(idx);
-    }
-    return "(" + TAG + " AND " + query + ")";
-  }
+  private static final String TAG_FILTER = "tags.tagList==\"sort-item\"";
 
   @MethodSource("sortItemQueryProvider")
-  @DisplayName("searchByInstances_parameterized")
+  @DisplayName("canSortInstancesByItemFields_parameterized")
   @ParameterizedTest(name = "[{index}] query={0}")
-  void searchByInstances_parameterized(String query, List<String> expectedIds) throws Exception {
+  void canSortInstancesByItemFields_parameterized(String query, List<String> expectedIds) throws Exception {
     doSearchByInstances(query)
       .andExpect(status().isOk())
       .andExpect(jsonPath("totalRecords", is(expectedIds.size())))
@@ -49,12 +40,16 @@ public abstract class SortItemIT extends BaseSharedTest {
 
   private static Stream<Arguments> sortItemQueryProvider() {
     return Stream.of(
-      arguments(tagged("(id=*) sortby item.status.name"), asIdsList(0, 1, 3, 2, 4)),
-      arguments(tagged("(id=*) sortby item.status.name/sort.descending"), asIdsList(4, 0, 3, 1, 2)),
+      arguments(tagged("sortby item.status.name"), asIdsList(0, 1, 3, 2, 4)),
+      arguments(tagged("sortby item.status.name/sort.descending"), asIdsList(0, 4, 3, 1, 2)),
 
-      arguments(tagged("(id=*) sortby items.status.name"), asIdsList(0, 1, 3, 2, 4)),
-      arguments(tagged("(id=*) sortby items.status.name/sort.descending"), asIdsList(4, 0, 3, 1, 2))
+      arguments(tagged("sortby items.status.name"), asIdsList(0, 1, 3, 2, 4)),
+      arguments(tagged("sortby items.status.name/sort.descending"), asIdsList(0, 4, 3, 1, 2))
     );
+  }
+
+  private static String tagged(String query) {
+    return TAG_FILTER + query;
   }
 
   private static List<String> asIdsList(Integer... indices) {

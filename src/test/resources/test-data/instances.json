@@ -324,7 +324,8 @@
     ],
     "tags": {
       "tagList": [
-        "review-needed"
+        "review-needed",
+        "sort-item"
       ]
     },
     "administrativeNotes": [
@@ -518,7 +519,8 @@
     ],
     "tags": {
       "tagList": [
-        "high-demand"
+        "high-demand",
+        "sort-item"
       ]
     },
     "notes": [
@@ -601,7 +603,8 @@
     ],
     "tags": {
       "tagList": [
-        "special-order"
+        "special-order",
+        "sort-item"
       ]
     },
     "notes": [
@@ -1029,6 +1032,11 @@
       "createdByUserId": "a3b4c5d6-e7f8-4901-b2c3-d4e5f6a7b8c9",
       "updatedDate": "2021-04-20T09:55:12.000Z",
       "updatedByUserId": "1ad737b0-d847-11e6-bf26-cec0c932ce01"
+    },
+    "tags": {
+      "tagList": [
+        "sort-item"
+      ]
     }
   },
   {
@@ -4048,6 +4056,11 @@
       "createdByUserId": "a3b4c5d6-e7f8-4901-b2c3-d4e5f6a7b8c9",
       "updatedDate": "2021-07-06T11:58:39.000Z",
       "updatedByUserId": "7b5f7e3d-9f6b-43a5-b1c9-5a8c4e9b2e3f"
+    },
+    "tags": {
+      "tagList": [
+        "sort-item"
+      ]
     }
   },
   {

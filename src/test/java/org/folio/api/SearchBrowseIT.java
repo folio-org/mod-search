@@ -28,7 +28,8 @@ import org.folio.api.browse.BrowseCallNumberIT;
 import org.folio.api.browse.BrowseClassificationIT;
 import org.folio.api.browse.BrowseContributorIT;
 import org.folio.api.browse.BrowseSubjectIT;
-import org.folio.api.search.FacetInstanceIT;
+import org.folio.api.facet.FacetInstanceIT;
+import org.folio.api.facet.FacetInstanceSubjectIT;
 import org.folio.api.search.SearchAuthorityFilterIT;
 import org.folio.api.search.SearchAuthorityIT;
 import org.folio.api.search.SearchByEmptyValuesIT;
@@ -63,7 +64,7 @@ class SearchBrowseIT extends BaseIntegrationTest {
   private static final int EXPECTED_CALL_NUMBER_COUNT = 116;
   private static final int EXPECTED_CONTRIBUTOR_COUNT = 68;
   private static final int EXPECTED_CLASSIFICATION_COUNT = 92;
-  private static final int EXPECTED_SUBJECT_COUNT = 50;
+  private static final int EXPECTED_SUBJECT_COUNT = 52;
 
   @BeforeAll
   static void setUpSharedTenant(
@@ -159,6 +160,9 @@ class SearchBrowseIT extends BaseIntegrationTest {
 
   @Nested
   class BrowseSubject extends BrowseSubjectIT { }
+
+  @Nested
+  class FacetInstanceSubject extends FacetInstanceSubjectIT { }
 
   @Nested
   class SearchAuthority extends SearchAuthorityIT { }

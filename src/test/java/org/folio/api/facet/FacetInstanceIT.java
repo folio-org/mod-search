@@ -1,4 +1,4 @@
-package org.folio.api.search;
+package org.folio.api.facet;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.support.TestConstants.TENANT_ID;

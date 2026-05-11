@@ -1024,6 +1024,11 @@
     "languages": [
       "eng"
     ],
+    "tags": {
+      "tagList": [
+        "sort-item"
+      ]
+    },
     "discoverySuppress": false,
     "staffSuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
@@ -1032,11 +1037,6 @@
       "createdByUserId": "a3b4c5d6-e7f8-4901-b2c3-d4e5f6a7b8c9",
       "updatedDate": "2021-04-20T09:55:12.000Z",
       "updatedByUserId": "1ad737b0-d847-11e6-bf26-cec0c932ce01"
-    },
-    "tags": {
-      "tagList": [
-        "sort-item"
-      ]
     }
   },
   {
@@ -2516,7 +2516,9 @@
       },
       {
         "value": "Music",
-        "authorityId": "308c950f-8209-4f2e-9702-0c004a9f21bc"
+        "authorityId": "308c950f-8209-4f2e-9702-0c004a9f21bc",
+        "sourceId": "33e04938-720f-4814-82f6-416f91ac5795",
+        "typeId": "252681cd-2fa1-4c25-a5b8-a5213a99d073"
       },
       {
         "value": "Biography"
@@ -3736,7 +3738,8 @@
       },
       {
         "value": "Music",
-        "authorityId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a"
+        "authorityId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a",
+        "sourceId": "33e04938-720f-4814-82f6-416f91ac5795"
       },
       {
         "value": "Biography"
@@ -4032,6 +4035,11 @@
     "languages": [
       "eng"
     ],
+    "tags": {
+      "tagList": [
+        "sort-item"
+      ]
+    },
     "administrativeNotes": [
       "Also available online."
     ],
@@ -4056,11 +4064,6 @@
       "createdByUserId": "a3b4c5d6-e7f8-4901-b2c3-d4e5f6a7b8c9",
       "updatedDate": "2021-07-06T11:58:39.000Z",
       "updatedByUserId": "7b5f7e3d-9f6b-43a5-b1c9-5a8c4e9b2e3f"
-    },
-    "tags": {
-      "tagList": [
-        "sort-item"
-      ]
     }
   },
   {

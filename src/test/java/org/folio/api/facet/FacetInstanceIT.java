@@ -19,7 +19,6 @@ import java.util.stream.Stream;
 import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.domain.dto.RecordType;
-import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,7 +26,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-@IntegrationTest
 public abstract class FacetInstanceIT extends BaseSharedTest {
 
   private static final String DISCOVERY_SUPPRESS_FACET = "discoverySuppress";
@@ -135,7 +133,6 @@ public abstract class FacetInstanceIT extends BaseSharedTest {
         .containsExactlyInAnyOrderElementsOf(expectedFacet.getValues());
     });
   }
-
 
   @Test
   void searchByInstances_negative_invalidFacetName() throws Exception {

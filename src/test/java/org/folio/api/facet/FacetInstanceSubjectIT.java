@@ -15,18 +15,16 @@ import java.util.stream.Stream;
 import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.domain.dto.RecordType;
-import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-@IntegrationTest
 public abstract class FacetInstanceSubjectIT extends BaseSharedTest {
 
-  private static final String MUSIC_SOURCE_ID = "33e04938-720f-4814-82f6-416f91ac5795";
-  private static final String MUSIC_TYPE_ID = "252681cd-2fa1-4c25-a5b8-a5213a99d073";
+  private static final String SOURCE_ID = "33e04938-720f-4814-82f6-416f91ac5795";
+  private static final String TYPE_ID = "252681cd-2fa1-4c25-a5b8-a5213a99d073";
 
   @MethodSource("facetQueriesProvider")
   @ParameterizedTest(name = "[{index}] query={0}, facets={1}")
@@ -47,9 +45,9 @@ public abstract class FacetInstanceSubjectIT extends BaseSharedTest {
   private static Stream<Arguments> facetQueriesProvider() {
     return Stream.of(
       arguments("cql.allRecords=1", array("sourceId"), mapOf("sourceId",
-        facet(facetItem(MUSIC_SOURCE_ID, 2)))),
+        facet(facetItem(SOURCE_ID, 2)))),
       arguments("cql.allRecords=1", array("typeId"), mapOf("typeId",
-        facet(facetItem(MUSIC_TYPE_ID, 1))))
+        facet(facetItem(TYPE_ID, 1))))
     );
   }
 }

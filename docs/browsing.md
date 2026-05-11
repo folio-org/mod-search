@@ -194,6 +194,80 @@ The following fields on the subject index support filter and facet queries:
 
 ---
 
+## Contributor Browse
+
+Contributor browse operates on the **`INSTANCE_CONTRIBUTOR`** resource – a denormalized sub-index where each document
+represents one distinct `(name, contributorNameTypeId, authorityId)` combination. A single contributor name can yield
+**multiple browse items** when it appears with different name types or authority links (e.g. "John Lennon" linked to an
+authority record and "John Lennon" without one are two separate items).
+
+### Index document structure
+
+Each contributor document contains:
+
+| Field                   | Type              | Description                                                                 |
+|:------------------------|:------------------|:----------------------------------------------------------------------------|
+| `name`                  | `keyword_icu`     | Contributor name as stored on the instance (personal, corporate, or meeting) |
+| `contributorNameTypeId` | `keyword`         | Links the contributor to a MARC-defined name type (e.g. personal, corporate) |
+| `authorityId`           | `keyword`         | ID of the authority record that controls this heading (may be absent)        |
+| `instances`             | nested object     | One entry per contributing instance/tenant pair                              |
+| `instances.typeId`      | `keyword` (array) | Contributor role/type IDs attached to this contributor on that instance      |
+| `instances.tenantId`    | `keyword`         | Owning tenant (for consortium filtering)                                     |
+| `instances.shared`      | `bool`            | Whether the instance is shared across the consortium                         |
+| `instances.count`       | integer           | Number of instances from that tenant that share this `(name, nameTypeId, authorityId)` |
+
+### Sort order
+
+Results within a page are sorted by:
+
+1. `name` – ICU collation ascending (case-insensitive, language-aware). Digits sort before letters.
+2. `contributorNameTypeId` – ascending, missing values sort **last**.
+3. `authorityId` – ascending, missing values sort **last**.
+
+This means that a name such as "Bon Jovi" appears as **multiple consecutive browse items** when it has more than one
+`(nameTypeId, authorityId)` combination, ordered by those secondary/tertiary keys.
+
+### `totalRecords` per item
+
+The `totalRecords` on each browse item is the **sum of `instances.count`** across all sub-resources that belong to the
+requesting tenant. In consortium mode only sub-resources for the active affiliation are counted.
+
+### Response item fields
+
+In addition to the common `isAnchor` / `totalRecords` fields every contributor browse item carries:
+
+| Field                   | Description                                                                          |
+|:------------------------|:-------------------------------------------------------------------------------------|
+| `name`                  | Contributor name                                                                     |
+| `contributorNameTypeId` | The name type UUID of this browse entry                                              |
+| `authorityId`           | Authority record UUID (absent when the contributor has no authority link)            |
+| `contributorTypeId`     | Deduplicated, sorted list of contributor type/role IDs gathered from all instances that share this entry |
+
+### Filterable / facetable fields
+
+| Field                   | Example filter / facet query                                             |
+|:------------------------|:-------------------------------------------------------------------------|
+| `contributorNameTypeId` | `contributorNameTypeId=="e2ef4075-310a-4447-a231-712bf10cc985"`          |
+| `instances.tenantId`    | `instances.tenantId=="tenant_a"`                                         |
+| `instances.shared`      | `instances.shared==true`                                                 |
+
+Filtering by `contributorNameTypeId` is the most common use case – it restricts the browse index to only entries with a
+specific name type (e.g. show only personal names).
+
+### Example – browsing around a name with a name-type filter
+
+```
+GET /browse/instances/by-contributor
+  ?query=( name >= "John Lennon" or name < "John Lennon" )
+         and contributorNameTypeId=="e2ef4075-310a-4447-a231-712bf10cc985"
+  &limit=5
+```
+
+Only contributor documents whose `contributorNameTypeId` equals the given UUID are considered. "John Lennon" does not
+exist with that name type, so a placeholder is injected and `totalRecords` reflects the count within the filtered index.
+
+---
+
 ## Call Number Browse
 
 Call number browse operates on the **`INSTANCE_CALL_NUMBER`** resource and additionally requires a `browseOptionType`

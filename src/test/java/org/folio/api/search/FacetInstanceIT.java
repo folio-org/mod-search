@@ -28,7 +28,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @IntegrationTest
-public abstract class SearchInstanceFacetIT extends BaseSharedTest {
+public abstract class FacetInstanceIT extends BaseSharedTest {
 
   private static final String DISCOVERY_SUPPRESS_FACET = "discoverySuppress";
   private static final String HOLDINGS_DISCOVERY_SUPPRESS_FACET = "holdings.discoverySuppress";
@@ -224,7 +224,7 @@ public abstract class SearchInstanceFacetIT extends BaseSharedTest {
       arguments("id=*", array(INSTANCE_TAGS_FACET), mapOf(INSTANCE_TAGS_FACET, composeInstanceTagsFacet())),
 
       arguments("id=*", array(INSTANCE_TAGS_FACET + ":3"), mapOf(INSTANCE_TAGS_FACET, facet(
-        facetItem("sort-instance-by-title", 13), facetItem("ebook-available", 11), facetItem("high-demand", 11)))),
+        facetItem("sort-titles", 13), facetItem("ebook-available", 11), facetItem("high-demand", 11)))),
 
       arguments("id=*", array(INSTANCE_TYPE_ID_FACET), mapOf(INSTANCE_TYPE_ID_FACET, composeInstanceTypeFacet())),
 
@@ -470,7 +470,7 @@ public abstract class SearchInstanceFacetIT extends BaseSharedTest {
 
   private static Facet composeInstanceTagsFacet() {
     return facet(
-      facetItem("sort-instance-by-title", 13), facetItem("ebook-available", 11), facetItem("high-demand", 11),
+      facetItem("sort-titles", 13), facetItem("ebook-available", 11), facetItem("high-demand", 11),
       facetItem("reserve", 9), facetItem("review-needed", 9), facetItem("special-order", 9),
       facetItem("digitization-candidate", 8), facetItem("new-addition", 8), facetItem("recommended", 8),
       facetItem("withdrawn-review", 7), facetItem("preservation-needed", 6), facetItem("sort-instance", 5),

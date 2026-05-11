@@ -2445,7 +2445,7 @@
     ],
     "tags": {
       "tagList": [
-        "sort-instance-by-title"
+        "sort-titles"
       ]
     },
     "notes": [
@@ -2648,7 +2648,7 @@
     ],
     "tags": {
       "tagList": [
-        "sort-instance-by-title"
+        "sort-titles"
       ]
     },
     "electronicAccess": [
@@ -2810,7 +2810,7 @@
     "tags": {
       "tagList": [
         "reserve",
-        "sort-instance-by-title"
+        "sort-titles"
       ]
     },
     "administrativeNotes": [
@@ -2895,7 +2895,7 @@
     "tags": {
       "tagList": [
         "recommended",
-        "sort-instance-by-title"
+        "sort-titles"
       ]
     },
     "administrativeNotes": [
@@ -2992,7 +2992,7 @@
     "tags": {
       "tagList": [
         "recommended",
-        "sort-instance-by-title"
+        "sort-titles"
       ]
     },
     "administrativeNotes": [
@@ -3094,7 +3094,7 @@
       "tagList": [
         "high-demand",
         "withdrawn-review",
-        "sort-instance-by-title"
+        "sort-titles"
       ]
     },
     "administrativeNotes": [
@@ -3198,7 +3198,7 @@
       "tagList": [
         "special-order",
         "high-demand",
-        "sort-instance-by-title"
+        "sort-titles"
       ]
     },
     "administrativeNotes": [
@@ -3292,7 +3292,7 @@
     "tags": {
       "tagList": [
         "special-order",
-        "sort-instance-by-title"
+        "sort-titles"
       ]
     },
     "administrativeNotes": [
@@ -3392,7 +3392,7 @@
       "tagList": [
         "special-order",
         "new-addition",
-        "sort-instance-by-title"
+        "sort-titles"
       ]
     },
     "administrativeNotes": [
@@ -3492,7 +3492,7 @@
     ],
     "tags": {
       "tagList": [
-        "sort-instance-by-title"
+        "sort-titles"
       ]
     },
     "notes": [
@@ -3591,7 +3591,7 @@
     "tags": {
       "tagList": [
         "new-addition",
-        "sort-instance-by-title"
+        "sort-titles"
       ]
     },
     "administrativeNotes": [
@@ -3676,7 +3676,7 @@
     "tags": {
       "tagList": [
         "preservation-needed",
-        "sort-instance-by-title"
+        "sort-titles"
       ]
     },
     "notes": [
@@ -3862,7 +3862,7 @@
       "tagList": [
         "preservation-needed",
         "ebook-available",
-        "sort-instance-by-title"
+        "sort-titles"
       ]
     },
     "electronicAccess": [

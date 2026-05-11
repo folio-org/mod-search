@@ -28,19 +28,18 @@ import org.folio.api.browse.BrowseCallNumberIT;
 import org.folio.api.browse.BrowseClassificationIT;
 import org.folio.api.browse.BrowseContributorIT;
 import org.folio.api.browse.BrowseSubjectIT;
+import org.folio.api.search.FacetInstanceIT;
 import org.folio.api.search.SearchAuthorityFilterIT;
 import org.folio.api.search.SearchAuthorityIT;
 import org.folio.api.search.SearchByAllFieldsIT;
 import org.folio.api.search.SearchByEmptyValuesIT;
 import org.folio.api.search.SearchHoldingsIT;
-import org.folio.api.search.SearchInstanceFacetIT;
 import org.folio.api.search.SearchInstanceIT;
 import org.folio.api.search.SearchItemIT;
 import org.folio.api.search.SearchLinkedDataHubIT;
 import org.folio.api.search.SearchLinkedDataInstanceIT;
 import org.folio.api.search.SearchLinkedDataWorkIT;
 import org.folio.api.search.SortAuthorityIT;
-import org.folio.api.search.SortInstanceByTitleIT;
 import org.folio.api.search.SortInstanceIT;
 import org.folio.api.search.SortItemIT;
 import org.folio.search.domain.dto.ResourceEvent;
@@ -145,13 +144,10 @@ class SearchBrowseIT extends BaseIntegrationTest {
   class SortInstance extends SortInstanceIT { }
 
   @Nested
-  class SortInstanceByTitle extends SortInstanceByTitleIT { }
-
-  @Nested
   class SearchByEmptyValues extends SearchByEmptyValuesIT { }
 
   @Nested
-  class SearchInstanceFacet extends SearchInstanceFacetIT { }
+  class FacetInstance extends FacetInstanceIT { }
 
   @Nested
   class SortItem extends SortItemIT { }

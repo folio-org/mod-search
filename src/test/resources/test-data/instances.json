@@ -2,8 +2,8 @@
   {
     "id": "00000001-0000-4000-8000-000000000000",
     "source": "MARC",
-    "title": "Cultural Anthropology: A Global Perspective",
-    "indexTitle": "Cultural Anthropology: A Global Perspective",
+    "title": "Applied Linguistic Theory",
+    "indexTitle": "Applied Linguistic Theory",
     "hrid": "in00010000001",
     "editions": [
       "1st edition"
@@ -57,6 +57,9 @@
       "25a81102-a2a9-4576-85ff-133ebcbcef2c",
       "e57e36a3-80ff-46a6-ac2f-5c8bd79bc2bb"
     ],
+    "statisticalCodeIds": [
+      "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
+    ],
     "natureOfContentTermIds": [
       "9ef56f0c-fa7b-44dc-ab7c-15a8e7a0ab2b"
     ],
@@ -66,7 +69,9 @@
     ],
     "tags": {
       "tagList": [
-        "special-order"
+        "text",
+        "science",
+        "cooking"
       ]
     },
     "notes": [
@@ -82,13 +87,12 @@
         "relationshipId": "f5d0068e-6272-458e-8a81-b85e7b9a14aa"
       }
     ],
-    "discoverySuppress": false,
+    "discoverySuppress": true,
+    "staffSuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a",
     "metadata": {
-      "createdDate": "2020-02-16T09:07:40.000Z",
-      "createdByUserId": "58d0aaf6-dcda-4d5e-92da-012e6b7dd766",
-      "updatedDate": "2020-08-04T12:24:57.000Z",
-      "updatedByUserId": "00000000-1111-2222-3333-444444444444"
+      "createdDate": "2021-03-01T00:00:00.000Z",
+      "updatedDate": "2021-03-04T00:00:00.000Z"
     }
   },
   {
@@ -167,6 +171,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
@@ -239,6 +244,7 @@
       }
     ],
     "discoverySuppress": true,
+    "staffSuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a",
     "metadata": {
       "createdDate": "2019-06-06T07:38:34.000Z",
@@ -335,6 +341,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf",
     "metadata": {
       "createdDate": "2022-01-25T13:52:32.000Z",
@@ -346,8 +353,8 @@
   {
     "id": "00000005-0000-4000-8000-000000000000",
     "source": "FOLIO",
-    "title": "Gender and Society: Feminist Perspectives",
-    "indexTitle": "Gender and Society: Feminist Perspectives",
+    "title": "Cultural Methods in Social Science",
+    "indexTitle": "Cultural Methods in Social Science",
     "hrid": "in00000000005",
     "identifiers": [
       {
@@ -405,8 +412,8 @@
     ],
     "tags": {
       "tagList": [
-        "recommended",
-        "withdrawn-review"
+        "science",
+        "future"
       ]
     },
     "administrativeNotes": [
@@ -431,7 +438,12 @@
       }
     ],
     "discoverySuppress": false,
-    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
+    "staffSuppress": false,
+    "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a",
+    "metadata": {
+      "createdDate": "2021-03-05T00:00:00.000Z",
+      "updatedDate": "2021-03-15T00:00:00.000Z"
+    }
   },
   {
     "id": "00000006-0000-4000-8000-000000000000",
@@ -516,6 +528,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf",
     "metadata": {
       "createdDate": "2023-03-31T11:41:37.000Z",
@@ -598,6 +611,7 @@
       }
     ],
     "discoverySuppress": true,
+    "staffSuppress": true,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf",
     "metadata": {
       "createdDate": "2024-02-07T17:45:57.000Z",
@@ -778,6 +792,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
     "metadata": {
       "createdDate": "2020-12-08T15:47:13.625+0000"
@@ -787,8 +802,8 @@
   {
     "id": "00000009-0000-4000-8000-000000000000",
     "source": "MARC",
-    "title": "Ethics in Medical Research",
-    "indexTitle": "Ethics in Medical Research",
+    "title": "Digital Ethics in Medical Practice",
+    "indexTitle": "Digital Ethics in Medical Practice",
     "hrid": "in00000000009",
     "series": [
       {
@@ -847,6 +862,7 @@
       "ita"
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf",
     "metadata": {
       "createdDate": "2023-04-24T14:39:28.000Z",
@@ -858,8 +874,8 @@
   {
     "id": "00000010-0000-4000-8000-000000000000",
     "source": "FOLIO",
-    "title": "Foundations of Modern Linguistics",
-    "indexTitle": "Foundations of Modern Linguistics",
+    "title": "Environmental Studies and Policy",
+    "indexTitle": "Environmental Studies and Policy",
     "hrid": "in00000000010",
     "series": [
       {
@@ -919,10 +935,6 @@
     "instanceFormatIds": [
       "25a81102-a2a9-4576-85ff-133ebcbcef2c"
     ],
-    "statisticalCodeIds": [
-      "6899291f-0d18-4f8d-a269-42706a5d0e27",
-      "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
-    ],
     "natureOfContentTermIds": [
       "0abeaebb-4166-483d-9f62-3bdf6aae7a93"
     ],
@@ -930,12 +942,6 @@
       "eng",
       "fra"
     ],
-    "tags": {
-      "tagList": [
-        "new-addition",
-        "digitization-candidate"
-      ]
-    },
     "notes": [
       {
         "note": "Translation of the 3rd German edition.",
@@ -951,13 +957,8 @@
       }
     ],
     "discoverySuppress": false,
-    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf",
-    "metadata": {
-      "createdDate": "2024-01-24T07:35:20.000Z",
-      "createdByUserId": "58d0aaf6-dcda-4d5e-92da-012e6b7dd766",
-      "updatedDate": "2024-06-08T18:12:03.000Z",
-      "updatedByUserId": "a3b4c5d6-e7f8-4901-b2c3-d4e5f6a7b8c9"
-    }
+    "staffSuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
     "id": "00000011-0000-4000-8000-000000000000",
@@ -1021,6 +1022,7 @@
       "eng"
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
     "metadata": {
       "createdDate": "2021-02-25T03:56:09.000Z",
@@ -1078,6 +1080,11 @@
     "languages": [
       "eng"
     ],
+    "tags": {
+      "tagList": [
+        "sort-instance"
+      ]
+    },
     "administrativeNotes": [
       "Includes bibliographical references."
     ],
@@ -1088,17 +1095,13 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
     "metadata": {
       "createdDate": "2022-02-08T17:16:08.000Z",
       "createdByUserId": "a3b4c5d6-e7f8-4901-b2c3-d4e5f6a7b8c9",
       "updatedDate": "2022-08-06T23:19:10.000Z",
       "updatedByUserId": "7b5f7e3d-9f6b-43a5-b1c9-5a8c4e9b2e3f"
-    },
-    "tags": {
-      "tagList": [
-        "sort-instance"
-      ]
     }
   },
   {
@@ -1180,6 +1183,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
@@ -1258,6 +1262,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
     "metadata": {
       "createdDate": "2021-03-12T00:56:21.000Z",
@@ -1359,6 +1364,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
     "metadata": {
       "createdDate": "2020-08-15T00:33:21.000Z",
@@ -1409,6 +1415,11 @@
     "languages": [
       "eng"
     ],
+    "tags": {
+      "tagList": [
+        "sort-instance"
+      ]
+    },
     "notes": [
       {
         "note": "Previously published under title: Introduction to the subject.",
@@ -1424,17 +1435,13 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
     "metadata": {
       "createdDate": "2021-03-16T18:56:19.000Z",
       "createdByUserId": "00000000-1111-2222-3333-444444444444",
       "updatedDate": "2021-07-16T23:21:01.000Z",
       "updatedByUserId": "1ad737b0-d847-11e6-bf26-cec0c932ce01"
-    },
-    "tags": {
-      "tagList": [
-        "sort-instance"
-      ]
     }
   },
   {
@@ -1528,6 +1535,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": true,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
     "metadata": {
       "createdDate": "2021-02-12T18:50:46.000Z",
@@ -1581,13 +1589,14 @@
     "languages": [
       "eng"
     ],
-    "discoverySuppress": false,
-    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
     "tags": {
       "tagList": [
         "sort-instance"
       ]
     },
+    "discoverySuppress": false,
+    "staffSuppress": false,
+    "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
     "metadata": {
       "createdDate": "2021-06-01T12:00:00.000Z",
       "createdByUserId": "00000000-1111-2222-3333-444444444444",
@@ -1681,6 +1690,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a",
     "metadata": {
       "createdDate": "2022-09-03T02:34:45.000Z",
@@ -1746,6 +1756,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
     "metadata": {
       "createdDate": "2020-06-23T19:31:47.000Z",
@@ -1853,6 +1864,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
     "metadata": {
       "createdDate": "2019-07-21T13:18:31.000Z",
@@ -1952,6 +1964,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
@@ -2033,6 +2046,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
@@ -2111,6 +2125,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
@@ -2185,6 +2200,7 @@
       }
     ],
     "discoverySuppress": true,
+    "staffSuppress": true,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
     "metadata": {
       "createdDate": "2020-04-11T12:21:18.000Z",
@@ -2281,6 +2297,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
     "metadata": {
       "createdDate": "2019-11-28T18:33:22.000Z",
@@ -2356,6 +2373,7 @@
       ]
     },
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a",
     "metadata": {
       "createdDate": "2019-10-17T07:26:24.000Z",
@@ -2425,6 +2443,11 @@
     "languages": [
       "eng"
     ],
+    "tags": {
+      "tagList": [
+        "sort-instance-by-title"
+      ]
+    },
     "notes": [
       {
         "note": "Text in English; abstract also in French.",
@@ -2436,17 +2459,13 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf",
     "metadata": {
       "createdDate": "2018-10-05T20:39:03.000Z",
       "createdByUserId": "7b5f7e3d-9f6b-43a5-b1c9-5a8c4e9b2e3f",
       "updatedDate": "2018-12-05T06:11:09.000Z",
       "updatedByUserId": "7b5f7e3d-9f6b-43a5-b1c9-5a8c4e9b2e3f"
-    },
-    "tags": {
-      "tagList": [
-        "sort-instance-by-title"
-      ]
     }
   },
   {
@@ -2552,6 +2571,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a",
     "metadata": {
       "createdDate": "2019-09-24T23:59:59.000Z",
@@ -2626,6 +2646,11 @@
     "languages": [
       "eng"
     ],
+    "tags": {
+      "tagList": [
+        "sort-instance-by-title"
+      ]
+    },
     "electronicAccess": [
       {
         "uri": "https://ebookcentral.proquest.com/lib/catalog/detail.action?docID=48",
@@ -2635,17 +2660,13 @@
       }
     ],
     "discoverySuppress": true,
+    "staffSuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a",
     "metadata": {
       "createdDate": "2024-07-05T00:24:30.000Z",
       "createdByUserId": "00000000-1111-2222-3333-444444444444",
       "updatedDate": "2024-07-28T13:15:09.000Z",
       "updatedByUserId": "58d0aaf6-dcda-4d5e-92da-012e6b7dd766"
-    },
-    "tags": {
-      "tagList": [
-        "sort-instance-by-title"
-      ]
     }
   },
   {
@@ -2721,6 +2742,7 @@
       ]
     },
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
@@ -2801,6 +2823,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
@@ -2892,6 +2915,7 @@
       }
     ],
     "discoverySuppress": true,
+    "staffSuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a",
     "metadata": {
       "createdDate": "2018-01-14T11:59:26.000Z",
@@ -2985,6 +3009,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
     "metadata": {
       "createdDate": "2022-08-26T11:27:53.000Z",
@@ -3090,6 +3115,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf",
     "metadata": {
       "createdDate": "2021-03-15T04:23:17.000Z",
@@ -3185,6 +3211,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a",
     "metadata": {
       "createdDate": "2021-10-14T20:50:01.000Z",
@@ -3278,6 +3305,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf",
     "metadata": {
       "createdDate": "2024-01-07T01:25:15.000Z",
@@ -3388,6 +3416,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a",
     "metadata": {
       "createdDate": "2023-04-24T16:03:52.000Z",
@@ -3461,6 +3490,11 @@
     "languages": [
       "eng"
     ],
+    "tags": {
+      "tagList": [
+        "sort-instance-by-title"
+      ]
+    },
     "notes": [
       {
         "note": "Description based on print version record.",
@@ -3472,17 +3506,13 @@
       }
     ],
     "discoverySuppress": true,
+    "staffSuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a",
     "metadata": {
       "createdDate": "2018-05-26T01:35:05.000Z",
       "createdByUserId": "a3b4c5d6-e7f8-4901-b2c3-d4e5f6a7b8c9",
       "updatedDate": "2018-08-16T13:25:46.000Z",
       "updatedByUserId": "00000000-1111-2222-3333-444444444444"
-    },
-    "tags": {
-      "tagList": [
-        "sort-instance-by-title"
-      ]
     }
   },
   {
@@ -3578,6 +3608,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a",
     "metadata": {
       "createdDate": "2021-06-16T01:59:19.000Z",
@@ -3663,6 +3694,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
@@ -3755,6 +3787,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a",
     "metadata": {
       "createdDate": "2019-07-01T09:45:14.000Z",
@@ -3841,6 +3874,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a",
     "metadata": {
       "createdDate": "2019-04-06T21:23:03.000Z",
@@ -3921,6 +3955,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf",
     "metadata": {
       "createdDate": "2024-03-18T10:24:55.000Z",
@@ -4006,6 +4041,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a",
     "metadata": {
       "createdDate": "2021-02-22T01:21:39.000Z",
@@ -4082,7 +4118,8 @@
     ],
     "tags": {
       "tagList": [
-        "reserve"
+        "cooking",
+        "future"
       ]
     },
     "administrativeNotes": [
@@ -4099,7 +4136,12 @@
       }
     ],
     "discoverySuppress": true,
-    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
+    "staffSuppress": false,
+    "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf",
+    "metadata": {
+      "createdDate": "2021-03-10T00:00:00.000Z",
+      "updatedDate": "2021-03-10T00:00:00.000Z"
+    }
   },
   {
     "id": "00000047-0000-4000-8000-000000000000",
@@ -4182,6 +4224,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf",
     "metadata": {
       "createdDate": "2023-06-26T04:36:08.000Z",
@@ -4266,6 +4309,7 @@
       ]
     },
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a",
     "metadata": {
       "createdDate": "2018-04-10T21:56:30.000Z",
@@ -4353,6 +4397,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf",
     "metadata": {
       "createdDate": "2021-09-10T22:36:45.000Z",
@@ -4438,6 +4483,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
     "metadata": {
       "createdDate": "2023-07-14T13:25:51.000Z",
@@ -4531,6 +4577,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
@@ -4605,6 +4652,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf",
     "metadata": {
       "createdDate": "2019-05-22T10:19:32.000Z",
@@ -4690,6 +4738,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf",
     "metadata": {
       "createdDate": "2018-04-03T04:34:35.000Z",
@@ -4778,6 +4827,7 @@
       ]
     },
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
@@ -4853,6 +4903,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
@@ -4928,6 +4979,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a",
     "metadata": {
       "createdDate": "2020-12-28T23:49:39.000Z",
@@ -5020,6 +5072,7 @@
       ]
     },
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
@@ -5098,6 +5151,7 @@
       }
     ],
     "discoverySuppress": true,
+    "staffSuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
     "metadata": {
       "createdDate": "2019-08-17T11:34:40.000Z",
@@ -5174,6 +5228,7 @@
       "eng"
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
@@ -5248,6 +5303,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf",
     "metadata": {
       "createdDate": "2018-05-31T19:52:40.000Z",
@@ -5337,6 +5393,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
     "metadata": {
       "createdDate": "2020-10-23T03:50:35.000Z",
@@ -5430,6 +5487,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a",
     "metadata": {
       "createdDate": "2021-12-12T02:23:13.000Z",
@@ -5505,6 +5563,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
     "metadata": {
       "createdDate": "2022-04-08T08:42:29.000Z",
@@ -5598,6 +5657,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
     "metadata": {
       "createdDate": "2021-05-03T04:37:14.000Z",
@@ -5691,6 +5751,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
     "metadata": {
       "createdDate": "2021-10-01T17:56:02.000Z",
@@ -5787,6 +5848,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a",
     "metadata": {
       "createdDate": "2019-11-09T21:32:30.000Z",
@@ -5879,6 +5941,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
@@ -5960,6 +6023,7 @@
       }
     ],
     "discoverySuppress": true,
+    "staffSuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
@@ -6047,6 +6111,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
     "metadata": {
       "createdDate": "2024-03-11T07:29:05.000Z",
@@ -6121,6 +6186,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
@@ -6207,6 +6273,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
     "metadata": {
       "createdDate": "2022-10-14T03:40:39.000Z",
@@ -6277,6 +6344,7 @@
       "eng"
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a",
     "metadata": {
       "createdDate": "2019-12-25T22:05:05.000Z",
@@ -6360,6 +6428,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
@@ -6444,6 +6513,7 @@
       }
     ],
     "discoverySuppress": true,
+    "staffSuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a",
     "metadata": {
       "createdDate": "2021-08-10T05:53:08.000Z",
@@ -6532,6 +6602,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a",
     "metadata": {
       "createdDate": "2018-05-26T02:50:40.000Z",
@@ -6613,6 +6684,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
     "metadata": {
       "createdDate": "2024-01-14T21:53:26.000Z",
@@ -6691,6 +6763,7 @@
       ]
     },
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf",
     "metadata": {
       "createdDate": "2024-06-27T12:18:17.000Z",
@@ -6781,6 +6854,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
     "metadata": {
       "createdDate": "2021-07-06T05:40:06.000Z",
@@ -6858,6 +6932,7 @@
       "eng"
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
     "metadata": {
       "createdDate": "2022-05-11T09:35:57.000Z",
@@ -6965,6 +7040,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
     "metadata": {
       "createdDate": "2024-04-25T14:08:25.000Z",
@@ -7064,6 +7140,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf",
     "metadata": {
       "createdDate": "2021-04-01T08:21:34.000Z",
@@ -7142,6 +7219,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a",
     "metadata": {
       "createdDate": "2018-02-26T16:43:31.000Z",
@@ -7225,6 +7303,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
@@ -7309,6 +7388,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
     "metadata": {
       "createdDate": "2020-10-10T03:50:54.000Z",
@@ -7396,6 +7476,7 @@
       "Also available online."
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf",
     "metadata": {
       "createdDate": "2019-05-28T01:10:22.000Z",
@@ -7472,6 +7553,7 @@
       "eng"
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
     "metadata": {
       "createdDate": "2024-01-26T14:57:20.000Z",
@@ -7556,6 +7638,7 @@
       }
     ],
     "discoverySuppress": true,
+    "staffSuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56",
     "metadata": {
       "createdDate": "2022-06-18T06:34:52.000Z",
@@ -7628,6 +7711,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf",
     "metadata": {
       "createdDate": "2021-12-16T04:19:32.000Z",
@@ -7713,6 +7797,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   },
   {
@@ -7777,6 +7862,7 @@
       "Also available online."
     ],
     "discoverySuppress": true,
+    "staffSuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a"
   },
   {
@@ -7847,6 +7933,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "54cb0be0-2b5b-4da5-a687-32dec54b016a",
     "metadata": {
       "createdDate": "2021-05-29T13:20:50.000Z",
@@ -7949,6 +8036,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
@@ -8039,6 +8127,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
@@ -8116,6 +8205,7 @@
       }
     ],
     "discoverySuppress": true,
+    "staffSuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf"
   },
   {
@@ -8193,6 +8283,7 @@
       }
     ],
     "discoverySuppress": true,
+    "staffSuppress": false,
     "statusId": "1117f093-0bfd-4324-aa3f-96c77f43b2bf",
     "metadata": {
       "createdDate": "2022-08-08T03:46:18.000Z",
@@ -8286,6 +8377,7 @@
       }
     ],
     "discoverySuppress": false,
+    "staffSuppress": false,
     "statusId": "9634a5ab-9228-4703-baf2-4d12ebc77d56"
   }
 ]

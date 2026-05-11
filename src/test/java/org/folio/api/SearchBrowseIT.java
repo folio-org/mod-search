@@ -33,7 +33,7 @@ import org.folio.api.search.SearchAuthorityIT;
 import org.folio.api.search.SearchByAllFieldsIT;
 import org.folio.api.search.SearchByEmptyValuesIT;
 import org.folio.api.search.SearchHoldingsIT;
-import org.folio.api.search.SearchInstanceFilterIT;
+import org.folio.api.search.SearchInstanceFacetIT;
 import org.folio.api.search.SearchInstanceIT;
 import org.folio.api.search.SearchItemIT;
 import org.folio.api.search.SearchLinkedDataHubIT;
@@ -151,7 +151,7 @@ class SearchBrowseIT extends BaseIntegrationTest {
   class SearchByEmptyValues extends SearchByEmptyValuesIT { }
 
   @Nested
-  class SearchInstanceFilter extends SearchInstanceFilterIT { }
+  class SearchInstanceFacet extends SearchInstanceFacetIT { }
 
   @Nested
   class SortItem extends SortItemIT { }

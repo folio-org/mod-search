@@ -10,6 +10,7 @@
     "callNumberPrefix": "copy",
     "callNumberSuffix": "1",
     "hrid": "ho00000000001",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "statisticalCodeIds": [
       "c4073462-6144-4b69-a543-dd131e241799"
     ],
@@ -44,6 +45,7 @@
     "callNumber": "QH6107 .D53 2001",
     "callNumberPrefix": "v.",
     "hrid": "ho00000000002",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "1",
     "temporaryLocationId": "758258bc-ecc1-41b8-abca-f7b610822ffd",
     "illPolicy": "Will lend hard copy only",
@@ -80,6 +82,7 @@
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "P2719 .H61 2004",
     "hrid": "ho00000000003",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "temporaryLocationId": "f34d27c6-a8eb-461b-acd6-5dea81771e70",
     "illPolicy": "Will not lend",
     "statisticalCodeIds": [
@@ -112,6 +115,7 @@
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "GE4986 .Y77 1981",
     "hrid": "ho00000000004",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "statisticalCodeIds": [
       "d9acad2f-d9ac-4b48-9097-e6ab85000001"
     ],
@@ -147,6 +151,7 @@
     "callNumberPrefix": "v.",
     "callNumberSuffix": "4",
     "hrid": "ho00000000005",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "illPolicy": "Will lend",
     "tags": {
       "tagList": [
@@ -175,6 +180,7 @@
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "PR7267 .U57 2001",
     "hrid": "ho00000000006",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "4",
     "tags": {
       "tagList": [
@@ -205,6 +211,7 @@
     "callNumber": "LB7868 .B76 1973",
     "callNumberPrefix": "v.",
     "hrid": "ho00000000007",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "5",
     "illPolicy": "Will lend",
     "statisticalCodeIds": [
@@ -246,6 +253,7 @@
     "callNumber": "PS6499 .Q83 1996",
     "callNumberPrefix": "suppl.",
     "hrid": "ho00000000008",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "1",
     "illPolicy": "Will lend hard copy only",
     "electronicAccess": [
@@ -273,6 +281,7 @@
     "callNumberPrefix": "GEN",
     "callNumberSuffix": "c.1",
     "hrid": "ho10000000006",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "Copy 1",
     "formerIds": [
       "1d76ee84-d776-48d2-ab96-140c24e39ac5"
@@ -302,6 +311,7 @@
     "callNumberPrefix": "REF",
     "callNumberSuffix": "c.2",
     "hrid": "ho00000000007",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "Copy 2",
     "temporaryLocationId": "53cf956f-c1df-410b-8bea-27f712cca7c0",
     "illPolicy": "Limited lending policy",
@@ -322,7 +332,7 @@
         "staffOnly": true
       },
       {
-        "note": "Includes bibliographical references and index of holdings.",
+        "note": "Librarian public note for holding",
         "staffOnly": false
       },
       {
@@ -348,6 +358,7 @@
     "callNumberPrefix": "suppl.",
     "callNumberSuffix": "3",
     "hrid": "ho00000000011",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "3",
     "statisticalCodeIds": [
       "d9acad2f-d9ac-4b48-9097-e6ab85000001"
@@ -378,6 +389,7 @@
     "callNumber": "HV7674 .E75 1975",
     "callNumberSuffix": "4",
     "hrid": "ho00000000012",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "4",
     "notes": [
       {
@@ -409,6 +421,7 @@
     "callNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "callNumber": "933.87",
     "hrid": "ho00000000013",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "3",
     "formerIds": [
       "old-f3504c11-3633"
@@ -431,6 +444,7 @@
     "callNumberPrefix": "suppl.",
     "callNumberSuffix": "3",
     "hrid": "hold000000000009",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "3",
     "formerIds": [
       "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19"
@@ -451,6 +465,7 @@
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "QA4014 .R75 1983",
     "hrid": "ho00000000015",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "1",
     "statisticalCodeIds": [
       "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
@@ -484,6 +499,7 @@
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "HM3134 .M40 2018",
     "hrid": "ho00000000016",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "2",
     "temporaryLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
     "illPolicy": "Will lend hard copy only",
@@ -513,6 +529,7 @@
     "callNumber": "HD7469 .X85 2003",
     "callNumberPrefix": "v.",
     "hrid": "ho00000000017",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "4",
     "illPolicy": "Will lend",
     "notes": [
@@ -533,6 +550,7 @@
     "callNumberPrefix": "suppl.",
     "callNumberSuffix": "3",
     "hrid": "ho00000000018",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "metadata": {
       "createdDate": "2023-07-24T04:23:11.000Z",
       "createdByUserId": "1ad737b0-d847-11e6-bf26-cec0c932ce01",
@@ -550,6 +568,7 @@
     "callNumber": "HD7799 .X78 1973",
     "callNumberPrefix": "pt.",
     "hrid": "ho00000000019",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "2",
     "temporaryLocationId": "758258bc-ecc1-41b8-abca-f7b610822ffd",
     "illPolicy": "Will lend",
@@ -573,6 +592,7 @@
     "callNumber": "283.49",
     "callNumberPrefix": "pt.",
     "hrid": "ho00000000020",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "1",
     "illPolicy": "Will lend hard copy only",
     "statisticalCodeIds": [
@@ -597,6 +617,7 @@
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "TR3033 .J62 1998",
     "hrid": "ho00000000021",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "formerIds": [
       "old-daa6fb54-2995"
     ],
@@ -623,6 +644,7 @@
     "callNumberTypeId": "054d460d-d6b9-4469-9e37-7a78a2266655",
     "callNumber": "PS5110 .R20 1976",
     "hrid": "ho00000000022",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "4",
     "tags": {
       "tagList": [
@@ -652,6 +674,7 @@
     "callNumber": "RJ4111 .R61 1963",
     "callNumberSuffix": "1",
     "hrid": "ho00000000023",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "tags": {
       "tagList": [
         "reserve"
@@ -683,6 +706,7 @@
     "callNumber": "S5229 .B69 2005",
     "callNumberSuffix": "2",
     "hrid": "ho00000000024",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "4",
     "temporaryLocationId": "53cf956f-c1df-410b-8bea-27f712cca7c0",
     "illPolicy": "Copy only",
@@ -711,6 +735,7 @@
     "callNumber": "HV5233 .K86 1962",
     "callNumberPrefix": "v.",
     "hrid": "ho00000000025",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "4",
     "temporaryLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
     "illPolicy": "Copy only",
@@ -732,6 +757,7 @@
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "QH8886 .M64 1970",
     "hrid": "ho00000000026",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "3",
     "statisticalCodeIds": [
       "b6b46869-f3c1-4370-b603-29774a1e42b1"
@@ -766,6 +792,7 @@
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "QH3604 .X14 2018",
     "hrid": "ho00000000027",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "2",
     "administrativeNotes": [
       "Last inventory check: 2024-01."
@@ -787,6 +814,7 @@
     "callNumber": "P5606 .Q32 1983",
     "callNumberPrefix": "suppl.",
     "hrid": "ho00000000028",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "1",
     "illPolicy": "Limited lending policy",
     "statisticalCodeIds": [
@@ -816,6 +844,7 @@
     "callNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "callNumber": "466.82",
     "hrid": "ho00000000029",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "statisticalCodeIds": [
       "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
     ],
@@ -847,6 +876,7 @@
     "callNumberTypeId": "6caca63e-5651-4db6-9247-3205156e9699",
     "callNumber": "LB8143 .H96 1999",
     "hrid": "ho00000000030",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "4",
     "statisticalCodeIds": [
       "6899291f-0d18-4f8d-a269-42706a5d0e27"
@@ -878,6 +908,7 @@
     "callNumberPrefix": "v.",
     "callNumberSuffix": "1",
     "hrid": "ho00000000031",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "1",
     "metadata": {
       "createdDate": "2023-12-13T13:20:39.000Z",
@@ -896,6 +927,7 @@
     "callNumber": "Q3017 .Z16 1973",
     "callNumberSuffix": "1",
     "hrid": "ho00000000032",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "4",
     "temporaryLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
     "illPolicy": "Copy only",
@@ -922,6 +954,7 @@
     "callNumber": "PS992 .E17 1966",
     "callNumberSuffix": "3",
     "hrid": "ho00000000033",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "temporaryLocationId": "184aae84-a5bf-4c6a-85ba-4a7c73026cd5",
     "illPolicy": "Unknown lending policy",
     "statisticalCodeIds": [
@@ -954,6 +987,7 @@
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "PR7550 .R14 2001",
     "hrid": "ho00000000034",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "5",
     "temporaryLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
     "illPolicy": "Unknown lending policy",
@@ -993,6 +1027,7 @@
     "callNumber": "HV3951 .K98 2006",
     "callNumberPrefix": "v.",
     "hrid": "ho00000000035",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "1",
     "temporaryLocationId": "184aae84-a5bf-4c6a-85ba-4a7c73026cd5",
     "illPolicy": "Will lend",
@@ -1025,6 +1060,7 @@
     "callNumberPrefix": "pt.",
     "callNumberSuffix": "2",
     "hrid": "ho00000000036",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "4",
     "illPolicy": "Will lend",
     "tags": {
@@ -1052,6 +1088,7 @@
     "callNumber": "043.15",
     "callNumberSuffix": "5",
     "hrid": "ho00000000037",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "2",
     "statisticalCodeIds": [
       "d9acad2f-d9ac-4b48-9097-e6ab85000001"
@@ -1083,6 +1120,7 @@
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "HV4381 .V99 1983",
     "hrid": "ho00000000038",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "5"
   },
   {
@@ -1094,6 +1132,7 @@
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "Q8887 .J85 1970",
     "hrid": "ho00000000039",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "1",
     "statisticalCodeIds": [
       "6899291f-0d18-4f8d-a269-42706a5d0e27"
@@ -1122,6 +1161,7 @@
     "callNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "callNumber": "439.69",
     "hrid": "ho00000000040",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "5",
     "metadata": {
       "createdDate": "2019-03-18T20:21:31.000Z",
@@ -1139,6 +1179,7 @@
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "RC5074 .G19 1999",
     "hrid": "ho00000000041",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "5",
     "administrativeNotes": [
       "Duplicate copy retained per policy."
@@ -1172,6 +1213,7 @@
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "JZ9286 .K18 1999",
     "hrid": "ho00000000042",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "4",
     "metadata": {
       "createdDate": "2023-04-15T00:04:11.000Z",
@@ -1191,6 +1233,7 @@
     "callNumberPrefix": "suppl.",
     "callNumberSuffix": "4",
     "hrid": "ho00000000043",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "1",
     "tags": {
       "tagList": [
@@ -1221,6 +1264,7 @@
     "callNumberPrefix": "no.",
     "callNumberSuffix": "5",
     "hrid": "ho00000000044",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "3",
     "notes": [
       {
@@ -1244,6 +1288,7 @@
     "callNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "callNumber": "150.89",
     "hrid": "ho00000000045",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "3",
     "formerIds": [
       "old-c731d82f-3087"
@@ -1283,6 +1328,7 @@
     "callNumberPrefix": "pt.",
     "callNumberSuffix": "1",
     "hrid": "ho00000000046",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "5",
     "illPolicy": "Limited lending policy",
     "statisticalCodeIds": [
@@ -1315,6 +1361,7 @@
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "QH9144 .W14 1971",
     "hrid": "ho00000000047",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "3",
     "notes": [
       {
@@ -1338,6 +1385,7 @@
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "Z1853 .H41 1963",
     "hrid": "ho00000000048",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "1",
     "statisticalCodeIds": [
       "b5968c9e-cddc-4576-99e3-8e60aed8b0dd"
@@ -1372,6 +1420,7 @@
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "HV3229 .J40 2019",
     "hrid": "ho00000000049",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "2",
     "statisticalCodeIds": [
       "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
@@ -1392,6 +1441,7 @@
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "RJ1375 .M79 1988",
     "hrid": "ho00000000050",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "2",
     "temporaryLocationId": "b241764c-1466-4e1d-a028-1a3684a5da87",
     "illPolicy": "Will lend hard copy only",
@@ -1428,6 +1478,7 @@
     "callNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "callNumber": "841.97",
     "hrid": "ho00000000051",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "formerIds": [
       "old-0613a566-7342"
     ],
@@ -1454,6 +1505,7 @@
     "callNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "callNumber": "349.71",
     "hrid": "ho00000000052",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "formerIds": [
       "old-3db668ab-9888"
     ],
@@ -1475,6 +1527,7 @@
     "callNumberPrefix": "pt.",
     "callNumberSuffix": "4",
     "hrid": "ho00000000053",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "statisticalCodeIds": [
       "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
     ],
@@ -1507,6 +1560,7 @@
     "callNumber": "HV4393 .F21 2010",
     "callNumberPrefix": "pt.",
     "hrid": "ho00000000054",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "5",
     "temporaryLocationId": "53cf956f-c1df-410b-8bea-27f712cca7c0",
     "illPolicy": "Limited lending policy",
@@ -1546,6 +1600,7 @@
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "HM9005 .U83 1971",
     "hrid": "ho00000000055",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "formerIds": [
       "old-9a19639e-6495"
     ],
@@ -1582,6 +1637,7 @@
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "GE6469 .K65 1974",
     "hrid": "ho00000000056",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "5",
     "notes": [
       {
@@ -1599,6 +1655,7 @@
     "callNumberTypeId": "054d460d-d6b9-4469-9e37-7a78a2266655",
     "callNumber": "PR9123 .A66 2008",
     "hrid": "ho00000000057",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "statisticalCodeIds": [
       "e10796e0-a594-47b7-b748-3a81b69b3d9b"
     ],
@@ -1624,6 +1681,7 @@
     "callNumber": "HD9551 .K39 1966",
     "callNumberPrefix": "suppl.",
     "hrid": "ho00000000058",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "2",
     "illPolicy": "Will not lend",
     "formerIds": [
@@ -1645,6 +1703,7 @@
     "callNumberTypeId": "03dd64d0-5626-4ecd-8ece-4531e0069f35",
     "callNumber": "860.20",
     "hrid": "ho00000000059",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "temporaryLocationId": "4fdca025-1629-4688-aeb7-9c5fe5c73549",
     "illPolicy": "Unknown lending policy",
     "statisticalCodeIds": [
@@ -1667,6 +1726,7 @@
     "callNumberPrefix": "pt.",
     "callNumberSuffix": "2",
     "hrid": "ho00000000060",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "statisticalCodeIds": [
       "e10796e0-a594-47b7-b748-3a81b69b3d9b"
     ],
@@ -1692,6 +1752,7 @@
     "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
     "callNumber": "TK9848 .S67 2008",
     "hrid": "ho00000000061",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "1",
     "temporaryLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
     "illPolicy": "Limited lending policy",
@@ -1723,6 +1784,7 @@
     "callNumber": "S4712 .H25 1963",
     "callNumberPrefix": "v.",
     "hrid": "ho00000000062",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "5",
     "temporaryLocationId": "f34d27c6-a8eb-461b-acd6-5dea81771e70",
     "illPolicy": "Copy only",
@@ -1758,6 +1820,7 @@
     "callNumberPrefix": "no.",
     "callNumberSuffix": "3",
     "hrid": "ho00000000063",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "1",
     "illPolicy": "Will lend",
     "statisticalCodeIds": [
@@ -1794,6 +1857,7 @@
     "callNumber": "722.67",
     "callNumberPrefix": "v.",
     "hrid": "ho00000000064",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "4",
     "temporaryLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
     "illPolicy": "Will lend",
@@ -1828,6 +1892,7 @@
     "callNumber": "RC2067 .X72 1978",
     "callNumberSuffix": "3",
     "hrid": "ho00000000065",
+    "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
     "copyNumber": "4",
     "formerIds": [
       "old-ff5826af-5114"

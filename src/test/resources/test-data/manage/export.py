@@ -182,6 +182,7 @@ def export_instances(cur):
         if notes:                   obj["notes"]                   = notes
         if electronic_access:       obj["electronicAccess"]        = electronic_access
         obj["discoverySuppress"] = bool(inst["discoverySuppress"])
+        obj["staffSuppress"]     = bool(inst["staffSuppress"])
         if inst.get("statusId"): obj["statusId"]   = inst["statusId"]
         if metadata:             obj["metadata"]   = metadata
         if inst.get("_comment"): obj["_comment"]   = inst["_comment"]

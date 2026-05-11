@@ -327,8 +327,8 @@ Case,Query,Value,ExpectedId
 330,"title all ""{value}""",ALGÉRIE,00000008-0000-4000-8000-000000000000
 331,"title all ""{value}""",cherchell,00000008-0000-4000-8000-000000000000
 332,"title all ""{value}""",CHERCHELL,00000008-0000-4000-8000-000000000000
-333,"title all ""{value}""",Global Perspective,00000001-0000-4000-8000-000000000000
-334,"title all ""{value}""",GLOBAL PERSPECTIVE,00000001-0000-4000-8000-000000000000
+333,"title all ""{value}""",Applied Linguistic Theory,00000001-0000-4000-8000-000000000000
+334,"title all ""{value}""",APPLIED Linguistic THEORY,00000001-0000-4000-8000-000000000000
 337,"title all ""{value}""",deja vu,00000008-0000-4000-8000-000000000000
 338,"title all ""{value}""",DEJA VU,00000008-0000-4000-8000-000000000000
 339,"title all ""{value}""",Der Preis der Verfuhrung,00000008-0000-4000-8000-000000000000

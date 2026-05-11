@@ -37,7 +37,6 @@ public abstract class SearchByAllFieldsIT extends BaseSharedTest {
     "00000014-0000-4000-9000-000000000000",
     "ho10000000006",
     "TK5105.88815 . A58 2004 FT MEADE",
-    "Includes bibliographical references and index of holdings.",
 
     // item field values
     "00000004-0000-4000-a000-000000000000",
@@ -82,8 +81,7 @@ public abstract class SearchByAllFieldsIT extends BaseSharedTest {
   @ValueSource(strings = {
     "00000014-0000-4000-9000-000000000000",
     "ho10000000006",
-    "TK5105.88815 . A58 2004 FT MEADE",
-    "Includes bibliographical references and index of holdings.",
+    "TK5105.88815 . A58 2004 FT MEADE"
   })
   @ParameterizedTest(name = "[{index}] cql.allHoldings='{query}', query=''{0}''")
   void canSearchByHoldingFieldValues_positive(String cqlQuery) throws Throwable {

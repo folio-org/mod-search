@@ -191,9 +191,10 @@
             "1d76ee84-d776-48d2-ab96-140c24e39ac5"
           ],
           "holdingsTypeId": "0c422f92-0f4d-4d32-8cbe-390ebc33a3e5",
-          "hrid": "ho00000000006",
+          "hrid": "ho10000000006",
           "id": "00000009-0000-4000-9000-000000000000",
           "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
+          "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
           "tenantId": "test_tenant"
         },
         {
@@ -229,6 +230,7 @@
             "updatedDate": "2022-06-11T20:21:25.000Z"
           },
           "permanentLocationId": "758258bc-ecc1-41b8-abca-f7b610822ffd",
+          "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
           "statisticalCodeIds": [
             "9d8abbe2-1a94-4866-8731-4d12ac09f7a8"
           ],
@@ -258,6 +260,7 @@
             "updatedDate": "2018-09-26T13:08:16.000Z"
           },
           "permanentLocationId": "fcd64ce1-6995-48f0-840e-89ffa2288371",
+          "sourceId": "778cd9ab-1c63-461e-9186-cea096aa9e4c",
           "tenantId": "test_tenant"
         }
       ],
@@ -313,7 +316,7 @@
       ],
       "dates": {
         "date1": "1\\9u",
-        "date2": "2022"
+        "date2": "1444"
       },
       "discoverySuppress": false,
       "hrid": "inst000000000022",
@@ -377,6 +380,9 @@
       "languages": [
         "eng"
       ],
+      "metadata": {
+        "createdDate": "2020-12-08T15:47:13.625+0000"
+      },
       "modeOfIssuanceId": "9d18a02f-5897-4c31-9106-c9abb5c7ae8b",
       "natureOfContentTermIds": [
         "2fec23f6-6bbc-4fa2-a736-b64a8c06a47a"

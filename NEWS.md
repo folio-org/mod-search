@@ -7,13 +7,17 @@
 * Requires `API_NAME vX.Y`
 
 ### Features
-* Description ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))
+* Honor spring.cache.type=noop for cache manager ([MSEARCH-1204](https://folio-org.atlassian.net/browse/MSEARCH-1204))
 
 ### Bug fixes
-* Description ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))
+* Add retry for search operations ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))
 
 ### Tech Dept
-* Description ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))
+* Add `@TestRailCase` annotation for linking integration tests to TestRail cases
+* Add integration test coverage for SUDOC call-number browse type filtering (TestRail C627509)
+* Add integration test coverage for LC call-number browse with empty config returning all types (TestRail C627500)
+* Add integration test coverage for NLM call-number browse with empty config returning all types (TestRail C627501)
+* Add integration test coverage for Other scheme call-number browse with empty config returning all types (TestRail C627502)
 
 ### Dependencies
 * Bump `LIB_NAME` from `OLD_VERSION` to `NEW_VERSION`

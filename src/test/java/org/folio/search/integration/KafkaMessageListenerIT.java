@@ -34,6 +34,7 @@ import org.folio.search.configuration.RetryTemplateConfiguration;
 import org.folio.search.configuration.kafka.InstanceResourceEventKafkaConfiguration;
 import org.folio.search.configuration.kafka.InstanceSharingCompleteEventKafkaConfiguration;
 import org.folio.search.configuration.kafka.ResourceEventKafkaConfiguration;
+import org.folio.search.configuration.properties.OpensearchProperties;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.integration.KafkaMessageListenerIT.KafkaListenerTestConfiguration;
 import org.folio.search.integration.message.FolioMessageBatchProcessor;
@@ -85,7 +86,12 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 @Import({KafkaListenerTestConfiguration.class, DefaultErrorHandler.class})
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest(
-  classes = {KafkaMessageListener.class, FolioKafkaProperties.class, InstanceEventMapper.class},
+  classes = {
+    KafkaMessageListener.class,
+    FolioKafkaProperties.class,
+    InstanceEventMapper.class,
+    OpensearchProperties.class
+  },
   properties = {
     "ENV=kafka-listener-it",
     "folio.environment=${ENV:kafka-listener-it}",

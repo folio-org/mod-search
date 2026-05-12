@@ -423,9 +423,9 @@ public abstract class FacetInstanceIT extends BaseSharedTest {
       facetItem("Available", 40), facetItem("Checked out", 22), facetItem("Missing", 14),
       facetItem("In transit", 7), facetItem("On order", 7), facetItem("Restricted", 4),
       facetItem("Awaiting pickup", 3), facetItem("In process", 3),
-      facetItem("Declared lost", 2), facetItem("Unavailable", 2), facetItem("Unknown", 2),
+      facetItem("Declared lost", 2), facetItem("Unavailable", 2), facetItem("Withdrawn", 2),
       facetItem("Aged to lost", 1), facetItem("Awaiting delivery", 1),
-      facetItem("In progress", 1), facetItem("Withdrawn", 1));
+      facetItem("In progress", 1), facetItem("Unknown", 1));
   }
 
   private static Facet composeEffectiveLocationFacet() {
@@ -471,7 +471,7 @@ public abstract class FacetInstanceIT extends BaseSharedTest {
       facetItem("reserve", 9), facetItem("review-needed", 9), facetItem("special-order", 9),
       facetItem("digitization-candidate", 8), facetItem("new-addition", 8), facetItem("recommended", 8),
       facetItem("withdrawn-review", 7), facetItem("preservation-needed", 6), facetItem("sort-instance", 5),
-      facetItem("cooking", 2), facetItem("future", 2), facetItem("science", 2),
+      facetItem("sort-item", 5), facetItem("cooking", 2), facetItem("future", 2), facetItem("science", 2),
       facetItem("book", 1), facetItem("electronic", 1),
       facetItem("electronic book", 1), facetItem("text", 1));
   }

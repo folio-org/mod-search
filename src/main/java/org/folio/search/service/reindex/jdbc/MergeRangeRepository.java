@@ -12,6 +12,7 @@ import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexRangeStatus;
+import org.folio.search.service.reindex.ReindexContext;
 import org.folio.search.utils.JdbcUtils;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
@@ -107,7 +108,29 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
     return MERGE_RANGE_TABLE;
   }
 
-  public abstract void saveEntities(String tenantId, List<Map<String, Object>> entities);
+  public final void saveEntities(String tenantId, List<Map<String, Object>> entities) {
+    if (ReindexContext.isReindexMode() && ReindexContext.getMemberTenantId() != null) {
+      saveEntitiesToStaging(tenantId, entities);
+    } else {
+      saveEntitiesToMain(tenantId, entities);
+    }
+  }
+
+  public final void saveEntitiesRaw(String tenantId, List<RawLine> entities) {
+    if (ReindexContext.isReindexMode() && ReindexContext.getMemberTenantId() != null) {
+      saveEntitiesToStagingRaw(tenantId, entities);
+    } else {
+      saveEntitiesToMainRaw(tenantId, entities);
+    }
+  }
+
+  protected abstract void saveEntitiesToMain(String tenantId, List<Map<String, Object>> entities);
+
+  protected abstract void saveEntitiesToStaging(String tenantId, List<Map<String, Object>> entities);
+
+  protected abstract void saveEntitiesToMainRaw(String tenantId, List<RawLine> entities);
+
+  protected abstract void saveEntitiesToStagingRaw(String tenantId, List<RawLine> entities);
 
   @Transactional
   public void deleteEntitiesForTenant(List<String> ids, String tenantId) {

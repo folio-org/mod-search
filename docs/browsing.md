@@ -268,6 +268,111 @@ exist with that name type, so a placeholder is injected and `totalRecords` refle
 
 ---
 
+## Classification Browse
+
+Classification browse operates on the **`INSTANCE_CLASSIFICATION`** resource — a denormalized sub-index where each
+document represents one distinct `(classificationNumber, classificationTypeId)` combination.
+
+### Browse options and configuration
+
+Unlike subject or contributor browse, the classification endpoint requires a **`browseOptionType`** path segment (e.g.
+`LC`, `DEWEY`, `ALL`) that selects a pre-configured browse profile stored in the database. Each profile defines:
+
+| Field               | Description                                                                                                         |
+|:--------------------|:--------------------------------------------------------------------------------------------------------------------|
+| `shelvingAlgorithm` | Algorithm used to normalize the anchor before passing it to `search_after` (e.g. `LC`, `DEWEY`, `DEFAULT`)         |
+| `typeIds`           | List of classification type UUIDs to include. An **empty list means include all types** (`ALL` semantics).         |
+
+Multiple type UUIDs can be assigned to a single browse option (e.g. `LC` option covering two different LC-family types).
+The filter is expressed as a `bool.should` (OR) over the configured type IDs.
+
+The active configuration can be updated via:
+```
+PUT /browse/config/instance-classification/{browseOptionType}
+```
+
+### Sort order
+
+The browse index is sorted by a **pre-computed shelving-order field** — not by the raw classification number string.
+The shelving order is computed once at index time using `ShelvingOrderCalculationHelper` with the configured algorithm
+(e.g. LC shelf key). The `search_after` cursor at query time is seeded with:
+
+```
+[normalizedAnchor.toLowerCase(), rawAnchor.toLowerCase()]
+```
+
+This means two classification numbers that look alphabetically similar may be far apart in browse order (e.g.
+`QA76.73.C15` sorts before `QA100` which sorts before `QA1771` in LC shelving order, even though `76 < 100 < 1771` is
+not obvious from lexicographic comparison). Numeric sub-classes receive zero-padded shelf keys that preserve numeric
+ordering.
+
+Within the same browse option the secondary sort by raw classification number provides stable ordering when two entries
+have identical normalized keys.
+
+### `totalRecords` per item and instance context
+
+The `totalRecords` on a classification browse item is the **sum of instance counts** across all sub-resources visible to
+the requesting tenant (or active consortium affiliation).
+
+Instance title and contributors are populated **only when `totalRecords == 1`**:
+
+| `totalRecords` | `instanceTitle`     | `instanceContributors`  |
+|:---------------|:--------------------|:------------------------|
+| 1              | set from the single matching instance | set from the single matching instance |
+| > 1            | `null`              | `null` (ambiguous — multiple instances share this number) |
+| 0 (placeholder)| `null`              | `null` |
+
+### Response item fields
+
+| Field                   | Description                                                                                     |
+|:------------------------|:------------------------------------------------------------------------------------------------|
+| `id`                    | Stable hash of the classification number                                                        |
+| `classificationNumber`  | Raw classification number as stored on the instance                                             |
+| `classificationTypeId`  | UUID of the classification type (e.g. LC, Dewey)                                               |
+| `totalRecords`          | Number of instances that carry this classification number (tenant-scoped)                       |
+| `instanceTitle`         | Title of the matching instance — present only when `totalRecords == 1`                          |
+| `instanceContributors`  | Contributor names from the matching instance — present only when `totalRecords == 1`            |
+| `isAnchor`              | `true` only on the item matching the requested anchor in `aroundIncluding` queries              |
+
+### `isAnchor` flag behaviour
+
+`isAnchor` is set to `true` exclusively when an **`aroundIncluding`** query is used
+(`number < {value} or number >= {value}`). It is **never** set for forward-only or backward-only queries
+(including `forwardIncluding` / `backwardIncluding`), even though the anchor item appears in those results.
+
+When `highlightMatch=true` (the default) and the anchor value is not present in the index, the service injects a
+placeholder:
+
+```json
+{ "classificationNumber": "QA100 .X00 2000", "totalRecords": 0, "isAnchor": true }
+```
+
+`instanceTitle` and `instanceContributors` are `null` (not `[]`) on placeholder items.
+
+### Example — browsing around an anchor with LC option
+
+```
+GET /browse/instances/by-classification/lc
+  ?query=number < "QA76.73.C15" or number >= "QA76.73.C15"
+  &limit=5
+  &precedingRecordsCount=2
+```
+
+The LC option normalizes `QA76.73.C15` to its LC shelf key, seeds the `search_after` cursor, and returns the two
+preceding entries plus up to three succeeding entries, with the matched item tagged `isAnchor=true`.
+
+### Filterable fields
+
+Additional filter conditions can be appended with `and`:
+
+| Field                  | Example                                                     |
+|:-----------------------|:------------------------------------------------------------|
+| `classificationTypeId` | `classificationTypeId=="42471af9-7d25-4f3a-bf78-60d29dcf463b"` |
+| `instances.tenantId`   | `instances.tenantId=="tenant_a"`                            |
+| `instances.shared`     | `instances.shared==true`                                    |
+
+---
+
 ## Call Number Browse
 
 Call number browse operates on the **`INSTANCE_CALL_NUMBER`** resource and additionally requires a `browseOptionType`

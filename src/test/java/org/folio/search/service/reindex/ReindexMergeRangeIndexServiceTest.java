@@ -36,6 +36,7 @@ import org.folio.search.service.reindex.jdbc.HoldingRepository;
 import org.folio.search.service.reindex.jdbc.ItemRepository;
 import org.folio.search.service.reindex.jdbc.MergeInstanceRepository;
 import org.folio.search.service.reindex.jdbc.MergeRangeRepository;
+import org.folio.search.service.reindex.jdbc.RawLine;
 import org.folio.search.service.reindex.jdbc.ReindexJdbcRepository;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -200,6 +201,37 @@ class ReindexMergeRangeIndexServiceTest {
     serviceWithoutChildren.saveEntities(event);
 
     verify(repositoryMap.get(recordType.getEntityType())).saveEntities(TENANT_ID, List.of(entities));
+    verify(instanceChildrenResourceService, never()).persistChildrenOnReindex(any(), any(), any());
+  }
+
+  @EnumSource(value = ReindexRecordType.class)
+  @ParameterizedTest
+  void saveEntitiesRaw_savesViaRepositoryAndPersistsChildren(ReindexRecordType recordType) {
+    var rawJson = "{\"id\":\"" + UUID.randomUUID() + "\"}";
+    var data = Map.<String, Object>of("id", UUID.randomUUID().toString());
+    var rawLine = new RawLine(rawJson, data);
+
+    service.saveEntitiesRaw(TENANT_ID, recordType, List.of(rawLine));
+
+    verify(repositoryMap.get(recordType.getEntityType())).saveEntitiesRaw(TENANT_ID, List.of(rawLine));
+    verify(instanceChildrenResourceService).persistChildrenOnReindex(TENANT_ID,
+      RESOURCE_NAME_MAP.get(recordType.getEntityType()),
+      List.of(data));
+  }
+
+  @EnumSource(value = ReindexRecordType.class)
+  @ParameterizedTest
+  void saveEntitiesRaw_positive_withoutInstanceChildrenResourceService(ReindexRecordType recordType) {
+    var rawJson = "{\"id\":\"" + UUID.randomUUID() + "\"}";
+    var data = Map.<String, Object>of("id", UUID.randomUUID().toString());
+    var rawLine = new RawLine(rawJson, data);
+    var serviceWithoutChildren = new ReindexMergeRangeIndexService(
+      List.of(instanceRepository, itemRepository, holdingRepository),
+      inventoryService, config, stagingMigrationService);
+
+    serviceWithoutChildren.saveEntitiesRaw(TENANT_ID, recordType, List.of(rawLine));
+
+    verify(repositoryMap.get(recordType.getEntityType())).saveEntitiesRaw(TENANT_ID, List.of(rawLine));
     verify(instanceChildrenResourceService, never()).persistChildrenOnReindex(any(), any(), any());
   }
 

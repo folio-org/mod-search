@@ -14,6 +14,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.integration.folio.InventoryService;
+import org.folio.search.model.event.ReindexRecordType;
 import org.folio.search.model.event.ReindexRecordsEvent;
 import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.InventoryRecordType;
@@ -21,6 +22,7 @@ import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexRangeStatus;
 import org.folio.search.service.InstanceChildrenResourceService;
 import org.folio.search.service.reindex.jdbc.MergeRangeRepository;
+import org.folio.search.service.reindex.jdbc.RawLine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -114,6 +116,20 @@ public class ReindexMergeRangeIndexService {
       }
     } finally {
       // Only clear reindex mode, preserve member tenant context for outer scope
+      ReindexContext.setReindexMode(false);
+    }
+  }
+
+  public void saveEntitiesRaw(String tenant, ReindexRecordType recordType, List<RawLine> entities) {
+    var maps = entities.stream().map(RawLine::data).toList();
+    try {
+      ReindexContext.setReindexMode(true);
+      repositories.get(recordType.getEntityType()).saveEntitiesRaw(tenant, entities);
+      if (instanceChildrenResourceService != null) {
+        instanceChildrenResourceService.persistChildrenOnReindex(
+          tenant, RESOURCE_NAME_MAP.get(recordType.getEntityType()), maps);
+      }
+    } finally {
       ReindexContext.setReindexMode(false);
     }
   }

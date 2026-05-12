@@ -11,7 +11,6 @@ import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.consortium.ConsortiumTenantProvider;
 import org.folio.search.service.reindex.ReindexConstants;
-import org.folio.search.service.reindex.ReindexContext;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.springframework.dao.DataAccessException;
@@ -76,16 +75,49 @@ public class MergeInstanceRepository extends MergeRangeRepository {
   }
 
   @Override
-  public void saveEntities(String tenantId, List<Map<String, Object>> entities) {
-    if (ReindexContext.isReindexMode() && ReindexContext.getMemberTenantId() != null) {
-      saveEntitiesToStaging(tenantId, entities);
-    } else {
-      saveEntitiesToMain(tenantId, entities);
+  @SuppressWarnings("java:S2077")
+  protected void saveEntitiesToMainRaw(String tenantId, List<RawLine> entities) {
+    var fullTableName = getFullTableName(context, entityTable());
+    var sql = INSERT_SQL.formatted(fullTableName);
+    var shared = consortiumTenantProvider.isCentralTenant(tenantId);
+    try {
+      jdbcTemplate.batchUpdate(sql, entities, BATCH_OPERATION_SIZE,
+        (statement, entity) -> {
+          statement.setObject(1, entity.data().get("id"));
+          statement.setString(2, tenantId);
+          statement.setObject(3, shared);
+          statement.setObject(4, entity.data().getOrDefault("isBoundWith", false));
+          statement.setString(5, entity.rawJson());
+        });
+    } catch (DataAccessException e) {
+      log.warn("saveEntitiesToMainRaw::Failed to save batch. Starting processing one-by-one", e);
+      for (RawLine entity : entities) {
+        jdbcTemplate.update(sql, entity.data().get("id"), tenantId, shared,
+          entity.data().getOrDefault("isBoundWith", false), entity.rawJson());
+      }
     }
   }
 
+  @Override
   @SuppressWarnings("java:S2077")
-  private void saveEntitiesToMain(String tenantId, List<Map<String, Object>> entities) {
+  protected void saveEntitiesToStagingRaw(String tenantId, List<RawLine> entities) {
+    var fullTableName = getFullTableName(context, ReindexConstants.STAGING_INSTANCE_TABLE);
+    var sql = INSERT_STAGING_SQL.formatted(fullTableName);
+    var shared = consortiumTenantProvider.isCentralTenant(tenantId);
+    jdbcTemplate.batchUpdate(sql, entities, BATCH_OPERATION_SIZE,
+      (statement, entity) -> {
+        statement.setObject(1, entity.data().get("id"));
+        statement.setString(2, tenantId);
+        statement.setObject(3, shared);
+        statement.setObject(4, entity.data().getOrDefault("isBoundWith", false));
+        statement.setString(5, entity.rawJson());
+      });
+    log.debug("Saved {} entities to staging table {}", entities.size(), ReindexConstants.STAGING_INSTANCE_TABLE);
+  }
+
+  @Override
+  @SuppressWarnings("java:S2077")
+  protected void saveEntitiesToMain(String tenantId, List<Map<String, Object>> entities) {
     var fullTableName = getFullTableName(context, entityTable());
     var sql = INSERT_SQL.formatted(fullTableName);
     var shared = consortiumTenantProvider.isCentralTenant(tenantId);
@@ -111,8 +143,9 @@ public class MergeInstanceRepository extends MergeRangeRepository {
     }
   }
 
+  @Override
   @SuppressWarnings("java:S2077")
-  private void saveEntitiesToStaging(String tenantId, List<Map<String, Object>> entities) {
+  protected void saveEntitiesToStaging(String tenantId, List<Map<String, Object>> entities) {
     var fullTableName = getFullTableName(context, ReindexConstants.STAGING_INSTANCE_TABLE);
     var sql = INSERT_STAGING_SQL.formatted(fullTableName);
     var shared = consortiumTenantProvider.isCentralTenant(tenantId);

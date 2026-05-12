@@ -50,6 +50,8 @@ import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthorityBrowseItem;
+import org.folio.search.domain.dto.CallNumberBrowseItem;
+import org.folio.search.domain.dto.CallNumberBrowseResult;
 import org.folio.search.domain.dto.ClassificationNumberBrowseItem;
 import org.folio.search.domain.dto.ClassificationNumberBrowseResult;
 import org.folio.search.domain.dto.Facet;
@@ -213,6 +215,48 @@ public class TestUtils {
       .instanceTitle(instanceTitle)
       .isAnchor(isAnchor)
       .instanceContributors(contributors == null || contributors.length == 0 ? null : asList(contributors));
+  }
+
+  public static CallNumberBrowseResult cnBrowseResult(String prev, String next, int totalRecords,
+                                                      List<CallNumberBrowseItem> items) {
+    return new CallNumberBrowseResult().prev(prev).next(next).items(items).totalRecords(totalRecords);
+  }
+
+  public static CallNumberBrowseItem cnEmptyBrowseItem(String callNumber) {
+    return new CallNumberBrowseItem().fullCallNumber(callNumber).isAnchor(true).totalRecords(0);
+  }
+
+  public static CallNumberBrowseItem cnBrowseItem(String callNumber, String typeId, int count, String title) {
+    return cnBrowseItemInternal(callNumber, null, null, typeId, count, title, null);
+  }
+
+  public static CallNumberBrowseItem cnBrowseItem(String callNumber, String typeId, int count, String title,
+                                                  boolean isAnchor) {
+    return cnBrowseItemInternal(callNumber, null, null, typeId, count, title, isAnchor);
+  }
+
+  public static CallNumberBrowseItem cnBrowseItem(String callNumber, String prefix, String suffix, String typeId,
+                                                  int count, String title) {
+    return cnBrowseItemInternal(callNumber, prefix, suffix, typeId, count, title, null);
+  }
+
+  public static CallNumberBrowseItem cnBrowseItem(String callNumber, String prefix, String suffix, String typeId,
+                                                  int count, String title, boolean isAnchor) {
+    return cnBrowseItemInternal(callNumber, prefix, suffix, typeId, count, title, isAnchor);
+  }
+
+  private static CallNumberBrowseItem cnBrowseItemInternal(String callNumber, String prefix, String suffix,
+                                                           String typeId, int count, String title, Boolean isAnchor) {
+    var fullCallNumber = suffix != null ? callNumber + " " + suffix : callNumber;
+    return new CallNumberBrowseItem()
+      .fullCallNumber(fullCallNumber)
+      .callNumber(callNumber)
+      .callNumberPrefix(prefix)
+      .callNumberSuffix(suffix)
+      .callNumberTypeId(typeId)
+      .instanceTitle(title)
+      .totalRecords(count)
+      .isAnchor(isAnchor);
   }
 
   public static InstanceContributorBrowseItem contributorBrowseItem(Integer totalRecords, String name,

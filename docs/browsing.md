@@ -375,16 +375,161 @@ Additional filter conditions can be appended with `and`:
 
 ## Call Number Browse
 
-Call number browse operates on the **`INSTANCE_CALL_NUMBER`** resource and additionally requires a `browseOptionType`
-(e.g. `LC`, `DEWEY`, `NLM`, …) which selects the shelving algorithm to use when normalizing the anchor.
+Call number browse operates on the **`INSTANCE_CALL_NUMBER`** resource. Each document in this sub-index represents
+one distinct call number (across all its copies / holdings), identified by the combination of
+`callNumber`, `callNumberPrefix`, `callNumberSuffix`, and `callNumberTypeId`.
 
-The normalized call number is stored in a dedicated shelving-order field. The `search_after` cursor is seeded with
-the **normalized** anchor value so results are ordered by shelving position, not raw text.
+### Browse option types
 
-Each result item carries:
-- `fullCallNumber`, `callNumber`, `callNumberPrefix`, `callNumberSuffix`, `callNumberTypeId`
-- `instanceTitle` – populated only when exactly one instance has that call number (avoids ambiguity)
-- `totalRecords` – number of instances with that call number in the requesting tenant
+The browse endpoint path includes a `{browseOptionId}` segment that selects which shelving-order algorithm is used
+to normalize call numbers for ordering:
+
+| `browseOptionId` | Algorithm                    | Source data                          |
+|:-----------------|:-----------------------------|:-------------------------------------|
+| `all`            | Best-match across all types  | All call number types combined       |
+| `lc`             | LC shelving order            | Restricted to configured LC type IDs |
+| `dewey`          | Dewey decimal shelving order | Dewey type IDs                       |
+| `nlm`            | NLM (National Library of Medicine) | NLM type IDs                   |
+| `sudoc`          | SuDoc government document    | SuDoc type IDs                       |
+
+Each option type can be configured with a list of allowed call number type UUIDs. When a non-empty list is
+configured, **only records whose `callNumberTypeId` is in the list produce an exact-match anchor**; other types
+remain visible in surrounding pages but the anchor placeholder is shown instead. When the configuration list is
+empty, all types produce an exact match (useful for testing or permissive setups).
+
+### Source field
+
+Call numbers are sourced exclusively from **`items.effectiveCallNumberComponents`** — the resolved call number
+fields on each item, which combine the item's own values with its holding's values according to FOLIO's priority
+rules. Holdings-level or instance-level call numbers are not used directly.
+
+The components that form a call number document are:
+- `callNumber` — the base shelf number
+- `callNumberPrefix` — optional prefix (e.g. `"REF"`, `"Oversize"`)
+- `callNumberSuffix` — optional suffix (e.g. `"c.1"`, `"FT MEADE"`)
+- `callNumberTypeId` — UUID of the call number type
+
+The **full call number** that is displayed and used as the browse anchor is computed as:
+
+```
+fullCallNumber = callNumber + " " + suffix   (when suffix is non-null)
+fullCallNumber = callNumber                  (when suffix is null)
+```
+
+The prefix is stored and returned but is **not** part of the sort key or the `fullCallNumber` used for anchoring.
+
+### Sort order
+
+Results are sorted by:
+
+1. `callNumber.keyword` — the normalized shelving-order key (produced by the configured shelving algorithm)
+2. `callNumberSuffix.keyword` — ascending; missing values sort last
+3. `callNumberPrefix.keyword` — ascending; missing values sort last
+4. `callNumberTypeId.keyword` — ascending (tie-break for identical components with different types)
+
+The shelving-order normalization converts the raw call number into a zero-padded, case-folded key so that numeric
+sub-classes sort numerically rather than lexicographically (e.g. `QA9` sorts before `QA10`, not after).
+
+### `totalRecords` per item and instance context
+
+The `totalRecords` on a call number browse item is the **number of item records** (across all holdings) that share
+the same effective call number components, scoped to the requesting tenant.
+
+Instance title is populated **only when `totalRecords == 1`**:
+
+| `totalRecords` | `instanceTitle`                                |
+|:---------------|:-----------------------------------------------|
+| 1              | Set from the single matching instance          |
+| > 1            | `null` (multiple instances share this number)  |
+| 0 (placeholder)| `null`                                         |
+
+### Response item fields
+
+| Field                | Description                                                                                        |
+|:---------------------|:---------------------------------------------------------------------------------------------------|
+| `id`                 | Stable hash of the call number components                                                          |
+| `fullCallNumber`     | Display form: `callNumber [ + " " + suffix]`                                                       |
+| `callNumber`         | Base shelf number as stored on the item                                                            |
+| `callNumberPrefix`   | Optional prefix (e.g. `"REF"`, `"Oversize"`)                                                       |
+| `callNumberSuffix`   | Optional suffix (e.g. `"c.1"`, `"FT MEADE"`)                                                      |
+| `callNumberTypeId`   | UUID of the call number type                                                                       |
+| `totalRecords`       | Number of item records sharing this call number (tenant-scoped)                                    |
+| `instanceTitle`      | Title of the matching instance — present only when `totalRecords == 1`                             |
+| `isAnchor`           | `true` only on the item matching the requested anchor in `aroundIncluding` queries                 |
+
+### `isAnchor` flag behaviour
+
+`isAnchor` is set to `true` exclusively when an **`aroundIncluding`** query is used
+(`fullCallNumber >= {value} or fullCallNumber < {value}`). It is **never** set for forward-only or backward-only
+queries, even if the anchor item appears in the results.
+
+When `highlightMatch=true` (the default) and the anchor value is not present in the index, a placeholder is
+injected:
+
+```json
+{ "fullCallNumber": "QA100 .X00 2000", "totalRecords": 0, "isAnchor": true }
+```
+
+### Exact-match filtering by option type
+
+When browsing with the `lc` option, the service first checks whether the item under the anchor has a
+`callNumberTypeId` that belongs to the configured LC type list. If not, the anchor resolves to a placeholder even
+if the raw call number string is present in the index (e.g. a Dewey number that happens to match the query string).
+Other option types (`dewey`, `nlm`, `sudoc`) follow the same rule.
+
+The `all` option does not filter by type and always produces an exact match when the call number exists.
+
+### Example — browsing around an anchor with LC option
+
+```
+GET /browse/instances/by-call-number/lc
+  ?query=fullCallNumber >= "RC280.N4 N49" or fullCallNumber < "RC280.N4 N49"
+  &limit=5
+  &precedingRecordsCount=2
+```
+
+Response (only LC-type call numbers visible, 20 total in the LC sub-index):
+
+```json
+{
+  "totalRecords": 20,
+  "prev": "QP363 .N6 1965 FT MEADE",
+  "next": "RJ421 .D3",
+  "items": [
+    { "fullCallNumber": "QP363 .N6 1965 FT MEADE", "callNumberSuffix": "FT MEADE", "totalRecords": 2 },
+    { "fullCallNumber": "QR1.I6", "totalRecords": 1, "instanceTitle": "Sociology of Education and Schooling" },
+    { "fullCallNumber": "RC280.N4 N49", "totalRecords": 1, "instanceTitle": "Game Theory and Strategic Behavior", "isAnchor": true },
+    { "fullCallNumber": "RC667 .N47 2010", "totalRecords": 1, "instanceTitle": "Migration, Identity, and Belonging" },
+    { "fullCallNumber": "RJ421 .D3", "totalRecords": 1, "instanceTitle": "The Ethics of Artificial Intelligence" }
+  ]
+}
+```
+
+### Filterable fields
+
+Additional filter conditions can be appended with `and`:
+
+| Field                  | Example                                                     |
+|:-----------------------|:------------------------------------------------------------|
+| `callNumberTypeId`     | `callNumberTypeId=="cbc422b0-1d17-4d43-9cc0-6c89b2efd014"` |
+| `items.effectiveLocationId` | `items.effectiveLocationId=="65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7"` |
+| `instances.tenantId`   | `instances.tenantId=="tenant_a"`                            |
+| `instances.shared`     | `instances.shared==true`                                    |
+
+### Special characters in call numbers
+
+Call numbers that contain backslashes must be double-escaped in the CQL query. For example, the call number
+`BR\140 .J\\86` must be written in the query string as:
+
+```
+fullCallNumber >= "BR\\\\140 .J\\\\\\\\86" or fullCallNumber < "BR\\\\140 .J\\\\\\\\86"
+```
+
+And in a Java test string literal:
+
+```java
+"BR\\\\\\\\140 .J\\\\\\\\\\\\\\\86"
+```
 
 ---
 

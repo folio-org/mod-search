@@ -9,7 +9,6 @@ import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.reindex.ReindexConstants;
-import org.folio.search.service.reindex.ReindexContext;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -45,15 +44,8 @@ public class HoldingRepository extends MergeRangeRepository {
   }
 
   @Override
-  public void saveEntities(String tenantId, List<Map<String, Object>> entities) {
-    if (ReindexContext.isReindexMode() && ReindexContext.getMemberTenantId() != null) {
-      saveEntitiesToStaging(tenantId, entities);
-    } else {
-      saveEntitiesToMain(tenantId, entities);
-    }
-  }
-
-  private void saveEntitiesToMain(String tenantId, List<Map<String, Object>> entities) {
+  @SuppressWarnings("java:S2077")
+  protected void saveEntitiesToMain(String tenantId, List<Map<String, Object>> entities) {
     var fullTableName = getFullTableName(context, entityTable());
     var sql = INSERT_SQL.formatted(fullTableName);
 
@@ -66,8 +58,9 @@ public class HoldingRepository extends MergeRangeRepository {
       });
   }
 
+  @Override
   @SuppressWarnings("java:S2077")
-  private void saveEntitiesToStaging(String tenantId, List<Map<String, Object>> entities) {
+  protected void saveEntitiesToStaging(String tenantId, List<Map<String, Object>> entities) {
     var fullTableName = getFullTableName(context, ReindexConstants.STAGING_HOLDING_TABLE);
     var sql = INSERT_STAGING_SQL.formatted(fullTableName);
 
@@ -79,6 +72,35 @@ public class HoldingRepository extends MergeRangeRepository {
         statement.setString(4, jsonConverter.toJson(entity));
       });
 
+    log.debug("Saved {} entities to staging table {}", entities.size(), ReindexConstants.STAGING_HOLDING_TABLE);
+  }
+
+  @Override
+  @SuppressWarnings("java:S2077")
+  protected void saveEntitiesToMainRaw(String tenantId, List<RawLine> entities) {
+    var fullTableName = getFullTableName(context, entityTable());
+    var sql = INSERT_SQL.formatted(fullTableName);
+    jdbcTemplate.batchUpdate(sql, entities, BATCH_OPERATION_SIZE,
+      (statement, entity) -> {
+        statement.setObject(1, entity.data().get("id"));
+        statement.setString(2, tenantId);
+        statement.setObject(3, entity.data().get("instanceId"));
+        statement.setString(4, entity.rawJson());
+      });
+  }
+
+  @Override
+  @SuppressWarnings("java:S2077")
+  protected void saveEntitiesToStagingRaw(String tenantId, List<RawLine> entities) {
+    var fullTableName = getFullTableName(context, ReindexConstants.STAGING_HOLDING_TABLE);
+    var sql = INSERT_STAGING_SQL.formatted(fullTableName);
+    jdbcTemplate.batchUpdate(sql, entities, BATCH_OPERATION_SIZE,
+      (statement, entity) -> {
+        statement.setObject(1, entity.data().get("id"));
+        statement.setString(2, tenantId);
+        statement.setObject(3, entity.data().get("instanceId"));
+        statement.setString(4, entity.rawJson());
+      });
     log.debug("Saved {} entities to staging table {}", entities.size(), ReindexConstants.STAGING_HOLDING_TABLE);
   }
 

@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Stream;
 import org.assertj.core.api.Condition;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
@@ -30,6 +31,8 @@ import org.folio.support.config.TestNoOpCacheConfig;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.boot.jdbc.test.autoconfigure.JdbcTest;
@@ -166,9 +169,10 @@ class MergeRangeRepositoriesIT {
                          && "Some error".equals(range.getFailCause()));
   }
 
-  @Test
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("saveStrategies")
   @SuppressWarnings("checkstyle:MethodLength")
-  void saveEntities() {
+  void saveEntities_savesToMainTables(String label, SaveStrategy strategy) {
     var mainInstanceId = UUID.randomUUID();
     var holdingId1 = UUID.randomUUID();
     var holdingId2 = UUID.randomUUID();
@@ -183,9 +187,9 @@ class MergeRangeRepositoriesIT {
       Map.<String, Object>of("id", UUID.randomUUID(), "instanceId", mainInstanceId, "holdingsRecordId", holdingId2));
 
     // act
-    instanceRepository.saveEntities(TENANT_ID, instances);
-    holdingRepository.saveEntities(TENANT_ID, holdings);
-    itemRepository.saveEntities(TENANT_ID, items);
+    strategy.save(instanceRepository, TENANT_ID, instances);
+    strategy.save(holdingRepository, TENANT_ID, holdings);
+    strategy.save(itemRepository, TENANT_ID, items);
 
     // assert
     var instanceCount = instanceRepository.countEntities();
@@ -257,10 +261,11 @@ class MergeRangeRepositoriesIT {
     assertThat(itemRepository.countEntities()).isEqualTo(4);
   }
 
-  @Test
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("saveStrategies")
   @Sql("/sql/populate-instances.sql")
   @SuppressWarnings("checkstyle:MethodLength")
-  void saveEntities_savesToStagingTables_whenInReindexModeWithMemberTenant() {
+  void saveEntities_savesToStagingTables_whenInReindexModeWithMemberTenant(String label, SaveStrategy strategy) {
     var instanceId = UUID.randomUUID();
     var holdingId = UUID.randomUUID();
     var itemId = UUID.randomUUID();
@@ -272,9 +277,9 @@ class MergeRangeRepositoriesIT {
     ReindexContext.setReindexMode(true);
     ReindexContext.setMemberTenantId(MEMBER_TENANT_ID);
     try {
-      instanceRepository.saveEntities(TENANT_ID, instanceEntities);
-      holdingRepository.saveEntities(TENANT_ID, holdingEntities);
-      itemRepository.saveEntities(TENANT_ID, itemEntities);
+      strategy.save(instanceRepository, TENANT_ID, instanceEntities);
+      strategy.save(holdingRepository, TENANT_ID, holdingEntities);
+      strategy.save(itemRepository, TENANT_ID, itemEntities);
     } finally {
       ReindexContext.setReindexMode(false);
       ReindexContext.clearMemberTenantId();
@@ -288,6 +293,21 @@ class MergeRangeRepositoriesIT {
 
     assertThat(countById("staging_item", itemId)).isEqualTo(1);
     assertThat(countById("item", itemId)).isZero();
+  }
+
+  static Stream<Object[]> saveStrategies() {
+    var jsonConverter = new JsonConverter(new JsonMapper());
+    SaveStrategy mapStrategy = MergeRangeRepository::saveEntities;
+    SaveStrategy rawStrategy = (repo, tenantId, entities) -> {
+      var rawLines = entities.stream()
+        .map(e -> new RawLine(jsonConverter.toJson(e), e))
+        .toList();
+      repo.saveEntitiesRaw(tenantId, rawLines);
+    };
+    return Stream.of(
+      new Object[]{"map (saveEntities)", mapStrategy},
+      new Object[]{"raw (saveEntitiesRaw)", rawStrategy}
+    );
   }
 
   @Test
@@ -337,5 +357,10 @@ class MergeRangeRepositoriesIT {
 
   private List<String> extractMapValues(List<Map<String, Object>> maps) {
     return maps.stream().map(Map::values).flatMap(Collection::stream).map(String::valueOf).toList();
+  }
+
+  @FunctionalInterface
+  interface SaveStrategy {
+    void save(MergeRangeRepository repo, String tenantId, List<Map<String, Object>> entities);
   }
 }

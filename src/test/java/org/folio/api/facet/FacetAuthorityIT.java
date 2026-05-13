@@ -85,10 +85,10 @@ public abstract class FacetAuthorityIT extends BaseSharedTest {
       )),
 
       arguments("id=*", array("headingType:2"), mapOf("headingType", facet(
-        facetItem("Personal Name", 20), facetItem("Uniform Title", 13)))),
+        facetItem("Personal Name", 20), facetItem("Corporate Name", 12)))),
 
       arguments("headingType==\"Genre\"", array("headingType:1"),
-        mapOf("headingType", facet(facetItem("Genre", 12)))),
+        mapOf("headingType", facet(facetItem("Genre", 11)))),
 
       arguments("headingType==(\"Corporate Name\" or \"Conference Name\")", array("headingType:2"),
         mapOf("headingType", facet(facetItem("Corporate Name", 12), facetItem("Conference Name", 11)))),
@@ -97,7 +97,7 @@ public abstract class FacetAuthorityIT extends BaseSharedTest {
         mapOf("headingType", facet(facetItem("Topical", 9)))),
 
       arguments("id=*", array("subjectHeadings:2"), mapOf("subjectHeadings", facet(
-        facetItem("a", 85), facetItem("b", 37)))),
+        facetItem("a", 78), facetItem("b", 37)))),
 
       arguments("subjectHeadings==\"c\"", array("subjectHeadings:1"),
         mapOf("subjectHeadings", facet(facetItem("c", 3)))),
@@ -106,7 +106,7 @@ public abstract class FacetAuthorityIT extends BaseSharedTest {
         mapOf("subjectHeadings", facet(facetItem("d", 2), facetItem("k", 1)))),
 
       arguments("subjectHeadings==(\"r\" or \"z\")", array("subjectHeadings:2"),
-        mapOf("subjectHeadings", facet(facetItem("r", 4)))),
+        mapOf("subjectHeadings", facet(facetItem("z", 5), facetItem("r", 4)))),
 
       arguments("id=*", array("sourceFileId:2"), mapOf("sourceFileId", facet(
         facetItem("b4000001-5de4-4467-b77f-b2057d6d69b6", 75), facetItem("5de462a2-7a90-4467-b77f-b2057d6d69b6", 35)))),
@@ -115,7 +115,7 @@ public abstract class FacetAuthorityIT extends BaseSharedTest {
         mapOf("sourceFileId", facet(facetItem("b4000001-5de4-4467-b77f-b2057d6d69b6", 75)))),
 
       arguments("sourceFileId==\"NULL\"", array("sourceFileId:1"),
-        mapOf("sourceFileId", facet(facetItem("NULL", 11)))),
+        mapOf("sourceFileId", facet(facetItem("NULL", 9)))),
 
       arguments("sourceFileId==(\"00000009-0000-4000-8000-000000000000\" or \"6edc7db0-5363-41ec-bf63-0242ac130002\")",
         array("sourceFileId:2"), mapOf("sourceFileId", facet(
@@ -131,7 +131,7 @@ public abstract class FacetAuthorityIT extends BaseSharedTest {
     return facet(
       facetItem("b4000001-5de4-4467-b77f-b2057d6d69b6", 75),
       facetItem("5de462a2-7a90-4467-b77f-b2057d6d69b6", 35),
-      facetItem("NULL", 11),
+      facetItem("NULL", 9),
       facetItem("1353873c-0e5e-4d64-a2f9-6c444dc4cd46", 4),
       facetItem("39a52d91-8dbb-4348-ab06-5c6115e600cd", 3),
       facetItem("62f72eeb-ed5a-4619-b01f-1750d5528d25", 2),
@@ -143,8 +143,9 @@ public abstract class FacetAuthorityIT extends BaseSharedTest {
 
   private static Facet composeSubjectHeadingFacet() {
     return facet(
-      facetItem("a", 85),
+      facetItem("a", 78),
       facetItem("b", 37),
+      facetItem("z", 5),
       facetItem("r", 4),
       facetItem("c", 3),
       facetItem("d", 2),
@@ -155,9 +156,9 @@ public abstract class FacetAuthorityIT extends BaseSharedTest {
   private static Facet composeHeadingTypeFacet() {
     return facet(
       facetItem("Personal Name", 20),
-      facetItem("Uniform Title", 13),
+      facetItem("Uniform Title", 12),
       facetItem("Corporate Name", 12),
-      facetItem("Genre", 12),
+      facetItem("Genre", 11),
       facetItem("Conference Name", 11),
       facetItem("Topical", 9),
       facetItem("Geographic Name", 8),

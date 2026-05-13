@@ -2,25 +2,19 @@ package org.folio.api.browse;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.support.base.ApiEndpoints.browseConfigPath;
 import static org.folio.support.base.ApiEndpoints.instanceCallNumberBrowsePath;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
 import static org.folio.support.utils.TestUtils.cnBrowseItem;
 import static org.folio.support.utils.TestUtils.cnBrowseResult;
 import static org.folio.support.utils.TestUtils.cnEmptyBrowseItem;
-import static org.folio.support.utils.TestUtils.mockCallNumberTypes;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
-import org.folio.search.domain.dto.BrowseConfig;
 import org.folio.search.domain.dto.BrowseOptionType;
-import org.folio.search.domain.dto.BrowseType;
 import org.folio.search.domain.dto.CallNumberBrowseResult;
-import org.folio.search.domain.dto.ShelvingOrderAlgorithmType;
-import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.TestRailCase;
 import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,8 +24,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-@IntegrationTest
-@SuppressWarnings("checkstyle:DeclarationOrder")
 public abstract class BrowseCallNumberIT extends BaseSharedTest {
 
   private static final String LC_TYPE_ID = "cbc422b0-1d17-4d43-9cc0-6c89b2efd014";
@@ -44,8 +36,8 @@ public abstract class BrowseCallNumberIT extends BaseSharedTest {
 
   @BeforeEach
   void setUp() {
-    updateLcConfig(List.of(UUID.fromString(LC_TYPE_ID)));
-    updateSudocConfig(List.of(UUID.fromString(SUDOC_TYPE_ID)));
+    updateCnLcConfig(List.of(UUID.fromString(LC_TYPE_ID)));
+    updateCnSudocConfig(List.of(UUID.fromString(SUDOC_TYPE_ID)));
   }
 
   @MethodSource("callNumberBrowsingDataProvider")
@@ -96,7 +88,7 @@ public abstract class BrowseCallNumberIT extends BaseSharedTest {
   @Test
   @TestRailCase(627500)
   void browseByCallNumber_lcOption_emptyConfig_allTypesReturnExactMatch() {
-    updateLcConfig(emptyList());
+    updateCnLcConfig(emptyList());
 
     for (var callNumber : List.of("Q127.U6U49", "338.1 MOG", "QV 18.2 L765 2015", "Y 10.13:980", "SYLY-12")) {
       assertThat(browse(callNumber, BrowseOptionType.LC).getItems())
@@ -243,25 +235,5 @@ public abstract class BrowseCallNumberIT extends BaseSharedTest {
       .param("query", prepareQuery(query, '"' + fullCallNumber + '"'))
       .param("limit", "5");
     return parseResponse(doGet(request), CallNumberBrowseResult.class);
-  }
-
-  private static void updateSudocConfig(List<UUID> typeIds) {
-    updateCnConfig(typeIds, BrowseOptionType.SUDOC, ShelvingOrderAlgorithmType.SUDOC);
-  }
-
-  private static void updateLcConfig(List<UUID> typeIds) {
-    updateCnConfig(typeIds, BrowseOptionType.LC, ShelvingOrderAlgorithmType.LC);
-  }
-
-  private static void updateCnConfig(List<UUID> typeIds, BrowseOptionType browseOptionType,
-                                     ShelvingOrderAlgorithmType algorithmType) {
-    var config = new BrowseConfig()
-      .id(browseOptionType)
-      .shelvingAlgorithm(algorithmType)
-      .typeIds(typeIds);
-
-    var stub = mockCallNumberTypes(okapi.wireMockServer(), typeIds.toArray(new UUID[0]));
-    doPut(browseConfigPath(BrowseType.INSTANCE_CALL_NUMBER, browseOptionType), config);
-    okapi.wireMockServer().removeStub(stub);
   }
 }

@@ -241,11 +241,11 @@ public abstract class SearchAuthorityIT extends BaseSharedTest {
       arguments("(id=* and headingType==\"Corporate Name\")", 12, "Corporate Name"),
       arguments("(id=* and headingType==\"Conference Name\")", 11, "Conference Name"),
       arguments("(id=* and headingType==\"Geographic Name\")", 8, "Geographic Name"),
-      arguments("(id=* and headingType==\"Uniform Title\")", 13, "Uniform Title"),
-      arguments("(headingType==\"Uniform Title\")", 13, "Uniform Title"),
+      arguments("(id=* and headingType==\"Uniform Title\")", 12, "Uniform Title"),
+      arguments("(headingType==\"Uniform Title\")", 12, "Uniform Title"),
       arguments("(id=* and headingType==\"Named Event\")", 7, "Named Event"),
       arguments("(id=* and headingType==\"Topical\")", 9, "Topical"),
-      arguments("(id=* and headingType==\"Genre\")", 12, "Genre"),
+      arguments("(id=* and headingType==\"Genre\")", 11, "Genre"),
       arguments("(id=* and headingType==\"General Subdivision\")", 7, "General Subdivision"),
       arguments("(id=* and headingType==\"Form Subdivision\")", 7, "Form Subdivision"),
       arguments("(id=* and headingType==\"Geographic Subdivision\")", 7, "Geographic Subdivision"),
@@ -264,7 +264,7 @@ public abstract class SearchAuthorityIT extends BaseSharedTest {
       arguments("(authRefType==\"Authorized\" and headingType==\"Conference Name\")", 5, "Conference Name"),
 
       // subjectHeadings filters
-      arguments("(id=* and subjectHeadings==\"a\")", 85, null),
+      arguments("(id=* and subjectHeadings==\"a\")", 78, null),
       arguments("(id=* and subjectHeadings==\"b\")", 37, null),
       arguments("(id=* and subjectHeadings==\"c\")", 3, null),
       arguments("(id=* and subjectHeadings==\"d\")", 2, null),

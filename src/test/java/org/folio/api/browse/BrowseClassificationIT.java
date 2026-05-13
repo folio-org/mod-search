@@ -2,23 +2,18 @@ package org.folio.api.browse;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.folio.support.base.ApiEndpoints.browseConfigPath;
 import static org.folio.support.base.ApiEndpoints.instanceClassificationBrowsePath;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
 import static org.folio.support.utils.TestUtils.classificationBrowseItem;
 import static org.folio.support.utils.TestUtils.classificationBrowseResult;
-import static org.folio.support.utils.TestUtils.mockClassificationTypes;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
-import org.folio.search.domain.dto.BrowseConfig;
 import org.folio.search.domain.dto.BrowseOptionType;
-import org.folio.search.domain.dto.BrowseType;
 import org.folio.search.domain.dto.ClassificationNumberBrowseResult;
-import org.folio.search.domain.dto.ShelvingOrderAlgorithmType;
 import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -27,7 +22,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-@SuppressWarnings("checkstyle:DeclarationOrder")
 public abstract class BrowseClassificationIT extends BaseSharedTest {
 
   private static final String TYPE1_ID = "42471af9-7d25-4f3a-bf78-60d29dcf463b";
@@ -37,7 +31,7 @@ public abstract class BrowseClassificationIT extends BaseSharedTest {
 
   @BeforeEach
   void setUp() {
-    updateLcConfig(List.of(UUID.fromString(TYPE1_ID)));
+    updateClassLcConfig(List.of(UUID.fromString(TYPE1_ID)));
   }
 
   @MethodSource("classificationBrowsingDataProvider")
@@ -110,7 +104,7 @@ public abstract class BrowseClassificationIT extends BaseSharedTest {
 
   @Test
   void browseByClassification_lcOptionConfiguredWithTwoIds() {
-    updateLcConfig(List.of(UUID.fromString(TYPE1_ID), UUID.fromString(TYPE2_ID)));
+    updateClassLcConfig(List.of(UUID.fromString(TYPE1_ID), UUID.fromString(TYPE2_ID)));
 
     var request = get(instanceClassificationBrowsePath(BrowseOptionType.LC))
       .param("query", prepareQuery("number < {value} or number >= {value}", "\"HD8236 .Y68 2004\""))
@@ -132,17 +126,6 @@ public abstract class BrowseClassificationIT extends BaseSharedTest {
         classificationBrowseItem("HM3819 .L23 1998", TYPE1_ID, 1, "The Dynamics of Social Movements",
           "Anderson, Susan G.")
       )));
-  }
-
-  private static void updateLcConfig(List<UUID> typeIds) {
-    var config = new BrowseConfig()
-      .id(BrowseOptionType.LC)
-      .shelvingAlgorithm(ShelvingOrderAlgorithmType.LC)
-      .typeIds(typeIds);
-
-    var stub = mockClassificationTypes(okapi.wireMockServer(), typeIds.toArray(new UUID[0]));
-    doPut(browseConfigPath(BrowseType.INSTANCE_CLASSIFICATION, BrowseOptionType.LC), config);
-    okapi.wireMockServer().removeStub(stub);
   }
 
   @SuppressWarnings("checkstyle:MethodLength")

@@ -21,11 +21,14 @@ import static org.folio.support.TestConstants.linkedDataHubTopic;
 import static org.folio.support.TestConstants.linkedDataInstanceTopic;
 import static org.folio.support.TestConstants.linkedDataWorkTopic;
 import static org.folio.support.base.ApiEndpoints.authoritySearchPath;
+import static org.folio.support.base.ApiEndpoints.browseConfigPath;
 import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.support.base.ApiEndpoints.linkedDataHubSearchPath;
 import static org.folio.support.base.ApiEndpoints.linkedDataInstanceSearchPath;
 import static org.folio.support.base.ApiEndpoints.linkedDataWorkSearchPath;
 import static org.folio.support.utils.JsonTestUtils.asJsonString;
+import static org.folio.support.utils.TestUtils.mockCallNumberTypes;
+import static org.folio.support.utils.TestUtils.mockClassificationTypes;
 import static org.folio.support.utils.TestUtils.randomId;
 import static org.folio.support.utils.TestUtils.resourceEvent;
 import static org.hamcrest.Matchers.is;
@@ -40,21 +43,28 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import lombok.SneakyThrows;
 import org.awaitility.Awaitility;
 import org.awaitility.core.ThrowingRunnable;
 import org.folio.search.domain.dto.Authority;
+import org.folio.search.domain.dto.BrowseConfig;
+import org.folio.search.domain.dto.BrowseOptionType;
+import org.folio.search.domain.dto.BrowseType;
 import org.folio.search.domain.dto.FeatureConfig;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.LinkedDataHub;
 import org.folio.search.domain.dto.LinkedDataInstance;
 import org.folio.search.domain.dto.LinkedDataWork;
 import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.domain.dto.ShelvingOrderAlgorithmType;
 import org.folio.search.domain.dto.TenantConfiguredFeature;
 import org.folio.search.model.client.CqlQueryParam;
 import org.folio.search.model.types.ResourceType;
@@ -533,6 +543,38 @@ public abstract class BaseSharedTest {
 
   protected static ResourceEvent event(Object object, ResourceType resourceType, String tenant) {
     return resourceEvent(tenant, resourceType, CREATE, object);
+  }
+
+  protected static void updateCnSudocConfig(List<UUID> typeIds) {
+    updateCnConfig(typeIds, BrowseOptionType.SUDOC, ShelvingOrderAlgorithmType.SUDOC);
+  }
+
+  protected static void updateCnLcConfig(List<UUID> typeIds) {
+    updateCnConfig(typeIds, BrowseOptionType.LC, ShelvingOrderAlgorithmType.LC);
+  }
+
+  protected static void updateCnConfig(List<UUID> typeIds, BrowseOptionType browseOptionType,
+                                       ShelvingOrderAlgorithmType algorithmType) {
+    updateBrowseConfig(typeIds, BrowseType.INSTANCE_CALL_NUMBER, browseOptionType, algorithmType,
+      uuids -> mockCallNumberTypes(okapi.wireMockServer(), uuids.toArray(new UUID[0])));
+  }
+
+  protected static void updateClassLcConfig(List<UUID> typeIds) {
+    updateBrowseConfig(typeIds, BrowseType.INSTANCE_CLASSIFICATION, BrowseOptionType.LC, ShelvingOrderAlgorithmType.LC,
+      uuids -> mockClassificationTypes(okapi.wireMockServer(), uuids.toArray(new UUID[0])));
+  }
+
+  protected static void updateBrowseConfig(List<UUID> typeIds, BrowseType browseType,
+                                           BrowseOptionType browseOptionType, ShelvingOrderAlgorithmType algorithm,
+                                           Function<List<UUID>, MappingBuilder> mocker) {
+    var config = new BrowseConfig()
+      .id(browseOptionType)
+      .shelvingAlgorithm(algorithm)
+      .typeIds(typeIds);
+
+    var stub = mocker.apply(typeIds);
+    doPut(browseConfigPath(browseType, browseOptionType), config);
+    okapi.wireMockServer().removeStub(stub);
   }
 
   public record TestData(Class<?> type, List<Map<String, Object>> testRecords, int expectedCount) {

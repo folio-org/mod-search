@@ -9,12 +9,15 @@ import static org.folio.support.utils.TestUtils.facetItem;
 import static org.folio.support.utils.TestUtils.mapOf;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetResult;
 import org.folio.search.domain.dto.RecordType;
 import org.folio.support.base.BaseSharedTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -23,6 +26,11 @@ import org.junit.jupiter.params.provider.MethodSource;
 public abstract class FacetInstanceCallNumberIT extends BaseSharedTest {
 
   private static final String LC_TYPE_ID = "cbc422b0-1d17-4d43-9cc0-6c89b2efd014";
+
+  @BeforeEach
+  void setUp() {
+    updateCnLcConfig(List.of(UUID.fromString(LC_TYPE_ID)));
+  }
 
   @MethodSource("facetQueriesProvider")
   @ParameterizedTest(name = "[{index}] query={0}, facets={1}")

@@ -28,6 +28,7 @@ import org.folio.api.browse.BrowseCallNumberIT;
 import org.folio.api.browse.BrowseClassificationIT;
 import org.folio.api.browse.BrowseContributorIT;
 import org.folio.api.browse.BrowseSubjectIT;
+import org.folio.api.facet.FacetAuthorityIT;
 import org.folio.api.facet.FacetInstanceCallNumberIT;
 import org.folio.api.facet.FacetInstanceContributorIT;
 import org.folio.api.facet.FacetInstanceIT;
@@ -177,6 +178,9 @@ class SearchBrowseIT extends BaseIntegrationTest {
 
   @Nested
   class SearchAuthorityFilter extends SearchAuthorityFilterIT { }
+
+  @Nested
+  class FacetAuthority extends FacetAuthorityIT { }
 
   @Nested
   class SortAuthority extends SortAuthorityIT { }

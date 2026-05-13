@@ -1,6 +1,7 @@
 package org.folio.search.service.scheduled;
 
 import static org.folio.support.TestConstants.TENANT_ID;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.anyList;
@@ -14,6 +15,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +40,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.jdbc.BadSqlGrammarException;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -238,6 +241,23 @@ class ScheduledInstanceSubResourcesServiceTest {
     verify(subResourcesLockRepository, never()).unlockSubResource(any(), any(), any());
     verify(subjectRepository, never()).fetchByTimestamp(anyString(), any(), anyInt());
     verifyNoInteractions(instanceRepository, itemRepository, resourceService);
+  }
+
+  @Test
+  void persistChildren_ShouldLogWarnAndSkipCycleOnException() {
+    // Arrange
+    doAnswer(invocation -> invocation.<Callable<?>>getArgument(1).call())
+      .when(executionService).executeSystemUserScoped(anyString(), any());
+    when(tenantRepository.fetchDataTenantIds()).thenReturn(List.of(TENANT_ID));
+    when(subResourcesLockRepository.lockSubResource(any(), eq(TENANT_ID))).thenReturn(Optional.empty());
+    when(reindexStatusService.isReindexInProgressOrFailedNotForConsortiumMember())
+      .thenThrow(
+        new BadSqlGrammarException("SELECT", "SELECT * FROM reindex_status", new SQLException("column not found")));
+
+    // Act & Assert
+    assertDoesNotThrow(() -> service.persistChildren());
+    verify(subResourcesLockRepository, never()).checkAndReleaseStaleLock(any(), any(), anyLong());
+    verifyNoInteractions(resourceService);
   }
 
   private void mockSubResourceResult(String tenantId, Timestamp timestamp) {

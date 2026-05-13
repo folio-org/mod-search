@@ -3,10 +3,14 @@ package org.folio.api.search;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
+import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.stream.Stream;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthoritySearchResult;
@@ -14,7 +18,9 @@ import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 
 public abstract class SearchAuthorityIT extends BaseSharedTest {
 
@@ -104,17 +110,44 @@ public abstract class SearchAuthorityIT extends BaseSharedTest {
   @SuppressWarnings("checkstyle:MethodLength")
   @DisplayName("search by authority fields (single authority found)")
   @ParameterizedTest(name = "[{index}] query={0}, value=''{1}''")
-  void searchAuthorities_byField_singleResult(String query, String value) throws Exception {
+  void searchAuthorities_parameterized_singleResult(String query, String value) throws Exception {
     doSearchByAuthorities(prepareQuery(query, value))
       .andExpect(jsonPath("$.totalRecords", is(1)));
   }
 
+  @MethodSource("filteredSearchQueriesProvider")
+  @DisplayName("search by authority fields (several authorities found)")
+  @ParameterizedTest(name = "[{index}] query={0}")
+  void searchAuthorities_parameterized(String query, int expectedCount, String expectedHeadingType)
+    throws Exception {
+    var resultActions = doSearchByAuthorities(query)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("totalRecords", is(expectedCount)));
+    if (expectedHeadingType != null) {
+      resultActions.andExpect(jsonPath("authorities[*].headingType", everyItem(is(expectedHeadingType))));
+    }
+  }
+
   @Test
-  @DisplayName("search by authorities (no authority found)")
+  @DisplayName("search authorities (no authority found)")
   void searchAuthorities_noResult() throws Exception {
     doSearchByAuthorities(prepareQuery("id==\"{value}\"", "random-val"))
       .andExpect(jsonPath("$.totalRecords", is(0)))
       .andExpect(jsonPath("$.authorities", notNullValue()));
+  }
+
+  @MethodSource("invalidDateSearchQueriesProvider")
+  @DisplayName("search authorities by invalid date format")
+  @ParameterizedTest(name = "[{index}] value={1}")
+  void searchAuthorities_parameterized_invalidDateFormat(String name, String value) throws Exception {
+    attemptSearchByAuthorities("(" + name + "==" + value + ")")
+      .andExpect(status().isUnprocessableContent())
+      .andExpect(jsonPath("$.total_records", is(1)))
+      .andExpect(jsonPath("$.errors[0].message", is("Invalid date format")))
+      .andExpect(jsonPath("$.errors[0].type", is("ValidationException")))
+      .andExpect(jsonPath("$.errors[0].code", is("validation_error")))
+      .andExpect(jsonPath("$.errors[0].parameters[0].key", is(name)))
+      .andExpect(jsonPath("$.errors[0].parameters[0].value", is(value)));
   }
 
   @CsvSource({
@@ -197,6 +230,73 @@ public abstract class SearchAuthorityIT extends BaseSharedTest {
       // formSubdivision headings
       gary("Form Subdivision", REFERENCE_TYPE, "a sft form subdivision"),
       gary("Form Subdivision", AUTH_REF_TYPE, "a saft form subdivision")
+    );
+  }
+
+  @SuppressWarnings("checkstyle:MethodLength")
+  private static Stream<Arguments> filteredSearchQueriesProvider() {
+    return Stream.of(
+      // headingType filters — assert count and all returned docs have the expected headingType
+      arguments("(id=* and headingType==\"Personal Name\")", 20, "Personal Name"),
+      arguments("(id=* and headingType==\"Corporate Name\")", 12, "Corporate Name"),
+      arguments("(id=* and headingType==\"Conference Name\")", 11, "Conference Name"),
+      arguments("(id=* and headingType==\"Geographic Name\")", 8, "Geographic Name"),
+      arguments("(id=* and headingType==\"Uniform Title\")", 13, "Uniform Title"),
+      arguments("(headingType==\"Uniform Title\")", 13, "Uniform Title"),
+      arguments("(id=* and headingType==\"Named Event\")", 7, "Named Event"),
+      arguments("(id=* and headingType==\"Topical\")", 9, "Topical"),
+      arguments("(id=* and headingType==\"Genre\")", 12, "Genre"),
+      arguments("(id=* and headingType==\"General Subdivision\")", 7, "General Subdivision"),
+      arguments("(id=* and headingType==\"Form Subdivision\")", 7, "Form Subdivision"),
+      arguments("(id=* and headingType==\"Geographic Subdivision\")", 7, "Geographic Subdivision"),
+      arguments("(id=* and headingType==\"Chronological Term\")", 7, "Chronological Term"),
+      arguments("(id=* and headingType==\"Chronological Subdivision\")", 7, "Chronological Subdivision"),
+      arguments("(id=* and headingType==\"Medium of Performance Term\")", 7, "Medium of Performance Term"),
+
+      // isTitleHeadingRef filters
+      arguments("(isTitleHeadingRef==true)", 23, null),
+      arguments("(isTitleHeadingRef==false and headingType==\"Personal Name\")", 12, "Personal Name"),
+
+      // authRefType + headingType filter combinations
+      arguments("(id=* and authRefType==\"Auth/Ref\" and headingType==\"Other\")", 0, null),
+      arguments("(id=* and authRefType==\"Auth/Ref\" and headingType==\"Uniform Title\")", 3, "Uniform Title"),
+      arguments("(id=* and authRefType==\"Authorized\" and headingType==\"Personal Name\")", 13, "Personal Name"),
+      arguments("(authRefType==\"Authorized\" and headingType==\"Conference Name\")", 5, "Conference Name"),
+
+      // subjectHeadings filters
+      arguments("(id=* and subjectHeadings==\"a\")", 85, null),
+      arguments("(id=* and subjectHeadings==\"b\")", 37, null),
+      arguments("(id=* and subjectHeadings==\"c\")", 3, null),
+      arguments("(id=* and subjectHeadings==\"d\")", 2, null),
+      arguments("(id=* and subjectHeadings==\"k\")", 1, null),
+      arguments("(id=* and subjectHeadings==\"n\")", 2, null),
+      arguments("(subjectHeadings==\"n\")", 2, null),
+
+      // metadata createdDate filters
+      arguments("(metadata.createdDate >= 2021-03-01) ", 39, null),
+      arguments("(metadata.createdDate >= 2021-03-01T00:00:00.000) ", 39, null),
+      arguments("(metadata.createdDate >= 2021-03-01T00:00:00.000Z) ", 39, null),
+      arguments("(metadata.createdDate >= 2021-03-01T00:00:00.000+00:00) ", 39, null),
+      arguments("(metadata.createdDate > 2021-03-01) ", 38, null),
+      arguments("(metadata.createdDate >= 2021-03-01 and metadata.createdDate < 2021-03-10) ", 2, null),
+
+      // metadata updatedDate filters
+      arguments("(metadata.updatedDate >= 2021-03-14) ", 37, null),
+      arguments("(metadata.updatedDate > 2021-03-01) ", 39, null),
+      arguments("(metadata.updatedDate > 2021-03-11) ", 38, null),
+      arguments("(metadata.updatedDate < 2021-03-15) ", 2, null),
+      arguments("(metadata.updatedDate > 2021-03-14 and metadata.updatedDate < 2021-03-16) ", 2, null)
+    );
+  }
+
+  private static Stream<Arguments> invalidDateSearchQueriesProvider() {
+    return Stream.of(
+      arguments("metadata.createdDate", "12345"),
+      arguments("metadata.createdDate", "2022-6-27"),
+      arguments("metadata.createdDate", "2022-06-1"),
+      arguments("metadata.createdDate", "2022-06-40"),
+      arguments("metadata.updatedDate", "2022-15-01"),
+      arguments("metadata.updatedDate", "invalidDate")
     );
   }
 

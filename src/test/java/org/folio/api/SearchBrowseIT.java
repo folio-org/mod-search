@@ -33,7 +33,6 @@ import org.folio.api.facet.FacetInstanceCallNumberIT;
 import org.folio.api.facet.FacetInstanceContributorIT;
 import org.folio.api.facet.FacetInstanceIT;
 import org.folio.api.facet.FacetInstanceSubjectIT;
-import org.folio.api.search.SearchAuthorityFilterIT;
 import org.folio.api.search.SearchAuthorityIT;
 import org.folio.api.search.SearchByEmptyValuesIT;
 import org.folio.api.search.SearchHoldingsIT;
@@ -175,9 +174,6 @@ class SearchBrowseIT extends BaseIntegrationTest {
 
   @Nested
   class SearchAuthority extends SearchAuthorityIT { }
-
-  @Nested
-  class SearchAuthorityFilter extends SearchAuthorityFilterIT { }
 
   @Nested
   class FacetAuthority extends FacetAuthorityIT { }

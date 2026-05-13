@@ -62,7 +62,7 @@ import org.springframework.test.context.TestPropertySource;
 class SearchBrowseIT extends BaseIntegrationTest {
 
   private static final int TOTAL_INSTANCES = 96;
-  private static final int TOTAL_AUTHORITIES = 117;
+  private static final int TOTAL_AUTHORITIES = 134;
   private static final int EXPECTED_CALL_NUMBER_COUNT = 116;
   private static final int EXPECTED_CONTRIBUTOR_COUNT = 68;
   private static final int EXPECTED_CLASSIFICATION_COUNT = 92;

@@ -572,7 +572,7 @@
   },
   {
     "id": "00000012-0000-4000-a000-000000000000",
-    "corporateName": "Cambridge University Press",
+    "corporateName": "Cambridge Press",
     "subjectHeadings": "a",
     "identifiers": [
       {
@@ -1906,6 +1906,20 @@
       }
     ],
     "naturalId": "sh2021967097",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
+  },
+  {
+    "id": "00000043-0000-4000-a000-000000000000",
+    "meetingName": "DouDay conference",
+    "subjectHeadings": "a",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "sh2021967098"
+      }
+    ],
+    "naturalId": "sh2021967098",
     "source": "MARC",
     "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   }

@@ -370,6 +370,98 @@ def export_items(cur):
     return result
 
 
+# All recognized primary heading types in canonical order.
+_AUTHORITY_HEADING_TYPES = [
+    "personalName", "personalNameTitle",
+    "corporateName", "corporateNameTitle",
+    "meetingName", "meetingNameTitle",
+    "geographicName", "uniformTitle",
+    "namedEvent", "generalSubdivision",
+    "topicalTerm", "genreTerm",
+    "chronTerm", "mediumPerfTerm",
+    "geographicSubdivision", "chronSubdivision",
+    "formSubdivision",
+]
+
+
+def export_authorities(cur):
+    cur.execute("SELECT * FROM authorities ORDER BY rowid")
+    cols = [d[0] for d in cur.description]
+    rows = [dict(zip(cols, row)) for row in cur.fetchall()]
+
+    # Pre-fetch junction tables keyed by authorityId.
+    cur.execute("SELECT authorityId, headingType, value FROM authority_sft_headings ORDER BY id")
+    sft_map: dict = {}
+    for auth_id, ht, val in cur.fetchall():
+        sft_map.setdefault(auth_id, {}).setdefault(ht, []).append(val)
+
+    cur.execute("SELECT authorityId, headingType, value FROM authority_saft_headings ORDER BY id")
+    saft_map: dict = {}
+    for auth_id, ht, val in cur.fetchall():
+        saft_map.setdefault(auth_id, {}).setdefault(ht, []).append(val)
+
+    cur.execute("SELECT authorityId, identifierTypeId, value FROM authority_identifiers ORDER BY id")
+    ident_map: dict = {}
+    for auth_id, tid, val in cur.fetchall():
+        ident_map.setdefault(auth_id, []).append({"identifierTypeId": tid, "value": val})
+
+    cur.execute("SELECT authorityId, noteTypeId, value FROM authority_notes ORDER BY id")
+    note_map: dict = {}
+    for auth_id, ntid, val in cur.fetchall():
+        note_map.setdefault(auth_id, []).append({"noteTypeId": ntid, "value": val})
+
+    result = []
+    for a in rows:
+        aid = a["id"]
+        obj: dict = {"id": aid}
+
+        # Emit primary heading, sft, and saft fields interleaved in canonical type order.
+        for ht in _AUTHORITY_HEADING_TYPES:
+            if a.get("headingType") == ht and a.get("heading") is not None:
+                obj[ht] = a["heading"]
+
+            sft_key = "sft" + ht[0].upper() + ht[1:]
+            sft_vals = (sft_map.get(aid) or {}).get(ht)
+            if sft_vals:
+                obj[sft_key] = sft_vals
+
+            saft_key = "saft" + ht[0].upper() + ht[1:]
+            saft_vals = (saft_map.get(aid) or {}).get(ht)
+            if saft_vals:
+                obj[saft_key] = saft_vals
+
+        if a.get("subjectHeadings") is not None:
+            obj["subjectHeadings"] = a["subjectHeadings"]
+
+        identifiers = ident_map.get(aid)
+        if identifiers:
+            obj["identifiers"] = identifiers
+
+        notes = note_map.get(aid)
+        if notes:
+            obj["notes"] = notes
+
+        if a.get("naturalId") is not None:
+            obj["naturalId"] = a["naturalId"]
+
+        if a.get("source") is not None:
+            obj["source"] = a["source"]
+
+        if a.get("sourceFileId") is not None:
+            obj["sourceFileId"] = a["sourceFileId"]
+
+        meta = {}
+        if a.get("createdDate"):     meta["createdDate"]     = a["createdDate"]
+        if a.get("createdByUserId"): meta["createdByUserId"] = a["createdByUserId"]
+        if a.get("updatedDate"):     meta["updatedDate"]     = a["updatedDate"]
+        if a.get("updatedByUserId"): meta["updatedByUserId"] = a["updatedByUserId"]
+        if meta:
+            obj["metadata"] = meta
+
+        result.append(obj)
+    return result
+
+
 def main():
     if not DB_PATH.exists():
         print(f"ERROR: {DB_PATH} not found. Run import.py first.")
@@ -378,17 +470,20 @@ def main():
     con = sqlite3.connect(DB_PATH)
     cur = con.cursor()
 
-    instances = export_instances(cur)
-    holdings  = export_holdings(cur)
-    items     = export_items(cur)
+    instances   = export_instances(cur)
+    holdings    = export_holdings(cur)
+    items       = export_items(cur)
+    authorities = export_authorities(cur)
 
     con.close()
 
-    (DATA_DIR / "instances.json").write_text(json.dumps(instances, indent=2, ensure_ascii=False) + "\n")
-    (DATA_DIR / "holdings.json").write_text(json.dumps(holdings,  indent=2, ensure_ascii=False) + "\n")
-    (DATA_DIR / "items.json").write_text(json.dumps(items,        indent=2, ensure_ascii=False) + "\n")
+    (DATA_DIR / "instances.json").write_text(json.dumps(instances,    indent=2, ensure_ascii=False) + "\n")
+    (DATA_DIR / "holdings.json").write_text(json.dumps(holdings,      indent=2, ensure_ascii=False) + "\n")
+    (DATA_DIR / "items.json").write_text(json.dumps(items,            indent=2, ensure_ascii=False) + "\n")
+    (DATA_DIR / "authorities.json").write_text(json.dumps(authorities, indent=2, ensure_ascii=False) + "\n")
 
-    print(f"Exported {len(instances)} instances, {len(holdings)} holdings, {len(items)} items")
+    print(f"Exported {len(instances)} instances, {len(holdings)} holdings, "
+          f"{len(items)} items, {len(authorities)} authorities")
 
     # Integrity check
     orphan_items    = [it["id"] for it in items if not any(h["id"] == it["holdingsRecordId"] for h in holdings)]

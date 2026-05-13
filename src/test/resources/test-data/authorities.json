@@ -1,6 +1,6 @@
 [
   {
-    "id": "55294032-fcf6-45cc-b6da-4420a61ef72c",
+    "id": "00000001-0000-4000-a000-000000000000",
     "personalName": "Gary A. Wills",
     "sftPersonalName": [
       "a sft personal name"
@@ -8,1038 +8,1905 @@
     "saftPersonalName": [
       "a saft personal name"
     ],
-    "personalNameTitle": "a personal title",
     "sftPersonalNameTitle": [
       "a sft personal title"
     ],
     "saftPersonalNameTitle": [
       "a saft personal title"
     ],
-    "corporateName": "a corporate name",
     "sftCorporateName": [
       "a sft corporate name"
     ],
     "saftCorporateName": [
       "a saft corporate name"
     ],
-    "corporateNameTitle": "a corporate title",
     "sftCorporateNameTitle": [
       "a sft corporate title"
     ],
     "saftCorporateNameTitle": [
       "a saft corporate title"
     ],
-    "meetingName": "a conference name",
     "sftMeetingName": [
       "a sft conference name"
     ],
     "saftMeetingName": [
       "a saft conference name"
     ],
-    "meetingNameTitle": "a conference title",
     "sftMeetingNameTitle": [
       "a sft conference title"
     ],
     "saftMeetingNameTitle": [
       "a saft conference title"
     ],
-    "geographicName": "a geographic name",
     "sftGeographicName": [
       "a sft geographic name"
     ],
     "saftGeographicName": [
       "a saft geographic name"
     ],
-    "uniformTitle": "an uniform title",
     "sftUniformTitle": [
       "a sft uniform title"
     ],
     "saftUniformTitle": [
       "a saft uniform title"
     ],
-    "namedEvent": "a named event",
     "sftNamedEvent": [
       "a sft named event"
     ],
     "saftNamedEvent": [
       "a saft named event"
     ],
-    "generalSubdivision": "a general subdivision",
     "sftGeneralSubdivision": [
       "a sft general subdivision"
     ],
     "saftGeneralSubdivision": [
       "a saft general subdivision"
     ],
-    "topicalTerm": "a topical term",
     "sftTopicalTerm": [
       "a sft topical term"
     ],
     "saftTopicalTerm": [
       "a saft topical term"
     ],
-    "genreTerm": "a genre term",
     "sftGenreTerm": [
       "a sft genre term"
     ],
     "saftGenreTerm": [
       "a saft genre term"
     ],
-    "chronTerm": "a chron term",
     "sftChronTerm": [
       "a sft chron term"
     ],
     "saftChronTerm": [
       "a saft chron term"
     ],
-    "mediumPerfTerm": "a medium perf term",
     "sftMediumPerfTerm": [
       "a sft medium perf term"
     ],
     "saftMediumPerfTerm": [
       "a saft medium perf term"
     ],
-    "geographicSubdivision": "a geographic subdivision",
     "sftGeographicSubdivision": [
       "a sft geographic subdivision"
     ],
     "saftGeographicSubdivision": [
       "a saft geographic subdivision"
     ],
-    "chronSubdivision": "a chron subdivision",
     "sftChronSubdivision": [
       "a sft chron subdivision"
     ],
     "saftChronSubdivision": [
       "a saft chron subdivision"
     ],
-    "formSubdivision": "a form subdivision",
     "sftFormSubdivision": [
       "a sft form subdivision"
     ],
     "saftFormSubdivision": [
       "a saft form subdivision"
     ],
-    "subjectHeadings": "a subject heading",
+    "subjectHeadings": "a",
     "identifiers": [
       {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "nb1985670488"
+      },
+      {
         "identifierTypeId": "caaf835f-2037-46c5-9c62-71abaaaa78c5",
-        "value": "authority-identifier"
+        "value": "nb1985670488"
       },
       {
         "identifierTypeId": "d6f3c637-3969-4dc6-9146-6371063f049e",
-        "value": "3114176276"
+        "value": "nb1960216739"
       },
       {
-        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
-        "value": "3745-1086"
-      },
-      {
-        "value": "2003065165",
-        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
-      },
-      {
-        "value": "n 2003075732",
-        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
-      },
-      {
-        "value": "canceled LCCN",
-        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9"
+        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9",
+        "value": "(OCoLC)fst00010001"
       }
     ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Heading not found in reference sources"
+      },
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "See also related heading in name authority file"
+      }
+    ],
+    "naturalId": "nb1985670488",
+    "source": "MARC",
+    "sourceFileId": "5de462a2-7a90-4467-b77f-b2057d6d69b6",
     "metadata": {
       "createdDate": "2021-11-14T12:00:00.000+00:00",
       "createdByUserId": "09934b6d-2940-4c48-b96b-d2f5b439e50e",
       "updatedDate": "2021-11-15T15:00:00.000+00:00",
       "updatedByUserId": "f0f94ee3-eace-4670-84c9-99dee171d2c8"
-    },
-    "notes": [
-      {
-        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
-        "value": "an authority note"
-      }
-    ],
-    "sourceFileId": "5de462a2-7a90-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "numberOfTitles": 0,
-    "tags": {
-      "tagList": [
-        "search-authority"
-      ]
     }
   },
   {
-    "id": "1353873c-0e5e-4d64-a2f9-6c444dc4cd46",
-    "personalName": "Resource 0",
+    "id": "00000002-0000-4000-a000-000000000000",
+    "personalName": "Fitzgerald, F. Scott",
     "subjectHeadings": "a",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "no1998116740"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Sources consulted: Library of Congress authority file"
+      }
+    ],
+    "naturalId": "no1998116740",
+    "source": "MARC",
     "sourceFileId": "1353873c-0e5e-4d64-a2f9-6c444dc4cd46",
     "metadata": {
       "createdDate": "2021-03-01T00:00:00.000+00:00",
       "updatedDate": "2021-03-05T12:30:00.000+00:00"
-    },
-    "tags": {
-      "tagList": [
-        "search-authority-filter"
-      ]
     }
   },
   {
-    "id": "cc6bbc19-3f54-43c5-8736-b85688619641",
-    "personalName": "Resource 1",
+    "id": "00000003-0000-4000-a000-000000000000",
+    "personalName": "Hemingway, Ernest",
     "subjectHeadings": "a",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "no2019026226"
+      },
+      {
+        "identifierTypeId": "d6f3c637-3969-4dc6-9146-6371063f049e",
+        "value": "no2014877572"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Name changed; earlier form used as reference"
+      }
+    ],
+    "naturalId": "no2019026226",
+    "source": "MARC",
     "sourceFileId": "1353873c-0e5e-4d64-a2f9-6c444dc4cd46",
     "metadata": {
       "createdDate": "2021-03-10T01:00:00.000+00:00",
       "updatedDate": "2021-03-12T15:40:00.000+00:00"
-    },
-    "tags": {
-      "tagList": [
-        "search-authority-filter"
-      ]
     }
   },
   {
-    "id": "39a52d91-8dbb-4348-ab06-5c6115e600cd",
-    "personalNameTitle": "Resource 2",
+    "id": "00000004-0000-4000-a000-000000000000",
+    "personalNameTitle": "Orwell, George",
     "subjectHeadings": "a",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "nb2016777573"
+      },
+      {
+        "identifierTypeId": "caaf835f-2037-46c5-9c62-71abaaaa78c5",
+        "value": "nb2016777573"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Established from: AACR2"
+      },
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Found in: WorldCat authority record"
+      }
+    ],
+    "naturalId": "nb2016777573",
+    "source": "MARC",
     "sourceFileId": "1353873c-0e5e-4d64-a2f9-6c444dc4cd46",
     "metadata": {
       "createdDate": "2021-03-08T15:00:00.000+00:00",
       "updatedDate": "2021-03-15T22:30:00.000+00:00"
-    },
-    "tags": {
-      "tagList": [
-        "search-authority-filter"
-      ]
     }
   },
   {
-    "id": "62f72eeb-ed5a-4619-b01f-1750d5528d25",
-    "personalName": "Resource 3",
+    "id": "00000005-0000-4000-a000-000000000000",
+    "personalName": "Steinbeck, John",
     "subjectHeadings": "a",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "n 1984288390"
+      },
+      {
+        "identifierTypeId": "d6f3c637-3969-4dc6-9146-6371063f049e",
+        "value": "n 1971356787"
+      },
+      {
+        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9",
+        "value": "(OCoLC)fst00010002"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "This heading is not valid for use as a subject"
+      }
+    ],
+    "naturalId": "n 1984288390",
+    "source": "MARC",
     "sourceFileId": "1353873c-0e5e-4d64-a2f9-6c444dc4cd46",
     "metadata": {
       "createdDate": "2021-03-15T12:00:00.000+00:00",
       "updatedDate": "2021-03-15T12:00:00.000+00:00"
-    },
-    "tags": {
-      "tagList": [
-        "search-authority-filter"
-      ]
     }
   },
   {
-    "id": "6edc7db0-5363-41ec-bf63-0242ac130002",
-    "meetingNameTitle": "ConferenceName",
+    "id": "00000006-0000-4000-a000-000000000000",
+    "meetingNameTitle": "World Congress on Information Technology",
     "subjectHeadings": "b",
-    "sourceFileId": "cc6bbc19-3f54-43c5-8736-b85688619641",
-    "tags": {
-      "tagList": [
-        "search-authority-filter"
-      ]
-    }
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "n 2022256788"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "See also related heading in name authority file"
+      }
+    ],
+    "naturalId": "n 2022256788",
+    "source": "MARC",
+    "sourceFileId": "cc6bbc19-3f54-43c5-8736-b85688619641"
   },
   {
-    "id": "75b6e1e8-5363-41ec-bf63-0242ac130002",
-    "geographicName": "Eastern Region",
+    "id": "00000007-0000-4000-a000-000000000000",
+    "geographicName": "Baltic Sea Region",
     "subjectHeadings": "c",
-    "sourceFileId": "39a52d91-8dbb-4348-ab06-5c6115e600cd",
-    "tags": {
-      "tagList": [
-        "search-authority-filter"
-      ]
-    }
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "n 1998234054"
+      },
+      {
+        "identifierTypeId": "caaf835f-2037-46c5-9c62-71abaaaa78c5",
+        "value": "n 1998234054"
+      },
+      {
+        "identifierTypeId": "d6f3c637-3969-4dc6-9146-6371063f049e",
+        "value": "n 1986246316"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Usage note: prefer more specific heading when applicable"
+      },
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Used in conjunction with geographic subdivision"
+      }
+    ],
+    "naturalId": "n 1998234054",
+    "source": "MARC",
+    "sourceFileId": "39a52d91-8dbb-4348-ab06-5c6115e600cd"
   },
   {
-    "id": "62f72eeb-ed5a-4619-b01f-1750d5528d27",
-    "genreTerm": "GenreTerm",
+    "id": "00000008-0000-4000-a000-000000000000",
+    "genreTerm": "Science fiction",
     "subjectHeadings": "c",
-    "sourceFileId": "39a52d91-8dbb-4348-ab06-5c6115e600cd",
-    "tags": {
-      "tagList": [
-        "search-authority-filter"
-      ]
-    }
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "sh1985146317"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Cataloger note: used for works about and by this person"
+      }
+    ],
+    "naturalId": "sh1985146317",
+    "source": "MARC",
+    "sourceFileId": "39a52d91-8dbb-4348-ab06-5c6115e600cd"
   },
   {
-    "id": "62f72eeb-ed5a-4619-b01f-1750d5528d28",
-    "genreTerm": "GenreTerm",
+    "id": "00000009-0000-4000-a000-000000000000",
+    "genreTerm": "Science non-fiction",
     "subjectHeadings": "c",
-    "sourceFileId": "39a52d91-8dbb-4348-ab06-5c6115e600cd",
-    "tags": {
-      "tagList": [
-        "search-authority-filter"
-      ]
-    }
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "sh1994772247"
+      },
+      {
+        "identifierTypeId": "d6f3c637-3969-4dc6-9146-6371063f049e",
+        "value": "sh1966207473"
+      },
+      {
+        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9",
+        "value": "(OCoLC)fst00010003"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Found in: WorldCat authority record"
+      }
+    ],
+    "naturalId": "sh1994772247",
+    "source": "MARC",
+    "sourceFileId": "39a52d91-8dbb-4348-ab06-5c6115e600cd"
   },
   {
-    "id": "7bfb7550-5363-41ec-bf63-0242ac130002",
-    "corporateName": "BizEntity",
+    "id": "0000000a-0000-4000-a000-000000000000",
+    "corporateName": "Oxford University Press",
     "subjectHeadings": "d",
-    "sourceFileId": "62f72eeb-ed5a-4619-b01f-1750d5528d25",
-    "tags": {
-      "tagList": [
-        "search-authority-filter"
-      ]
-    }
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "n 2004107474"
+      },
+      {
+        "identifierTypeId": "caaf835f-2037-46c5-9c62-71abaaaa78c5",
+        "value": "n 2004107474"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Scope note: includes works on related topics"
+      },
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Name changed; earlier form used as reference"
+      }
+    ],
+    "naturalId": "n 2004107474",
+    "source": "MARC",
+    "sourceFileId": "62f72eeb-ed5a-4619-b01f-1750d5528d25"
   },
   {
-    "id": "3ec9be46-b002-472e-87c9-0e8a4c9eb8d2",
-    "corporateName": "BizEntity",
+    "id": "0000000b-0000-4000-a000-000000000000",
+    "corporateName": "Penguin Random House",
     "subjectHeadings": "d",
-    "sourceFileId": "62f72eeb-ed5a-4619-b01f-1750d5528d25",
-    "tags": {
-      "tagList": [
-        "search-authority-filter"
-      ]
-    }
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "nb2009709571"
+      },
+      {
+        "identifierTypeId": "d6f3c637-3969-4dc6-9146-6371063f049e",
+        "value": "nb1983876646"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "References verified against LC authority file"
+      }
+    ],
+    "naturalId": "nb2009709571",
+    "source": "MARC",
+    "sourceFileId": "62f72eeb-ed5a-4619-b01f-1750d5528d25"
   },
   {
-    "id": "74f97d56-37ce-44b8-9316-4e5dd4efc103",
-    "topicalTerm": "TopicalTerm",
+    "id": "0000000c-0000-4000-a000-000000000000",
+    "topicalTerm": "Political science",
     "subjectHeadings": "k",
-    "sourceFileId": "6edc7db0-5363-41ec-bf63-0242ac130002",
-    "tags": {
-      "tagList": [
-        "search-authority-filter"
-      ]
-    }
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "sh2020776647"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Used in conjunction with geographic subdivision"
+      }
+    ],
+    "naturalId": "sh2020776647",
+    "source": "MARC",
+    "sourceFileId": "6edc7db0-5363-41ec-bf63-0242ac130002"
   },
   {
-    "id": "62f72eeb-ed5a-4619-b01f-1750d5528d32",
-    "uniformTitle": "Classic Works",
+    "id": "0000000d-0000-4000-a000-000000000000",
+    "uniformTitle": "Canterbury Tales",
     "subjectHeadings": "n",
-    "sourceFileId": "75b6e1e8-5363-41ec-bf63-0242ac130002",
-    "tags": {
-      "tagList": [
-        "search-authority-filter"
-      ]
-    }
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "nb1990935519"
+      },
+      {
+        "identifierTypeId": "caaf835f-2037-46c5-9c62-71abaaaa78c5",
+        "value": "nb1990935519"
+      },
+      {
+        "identifierTypeId": "d6f3c637-3969-4dc6-9146-6371063f049e",
+        "value": "nb1968191161"
+      },
+      {
+        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9",
+        "value": "(OCoLC)fst00010004"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Heading not found in reference sources"
+      },
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "See also related heading in name authority file"
+      }
+    ],
+    "naturalId": "nb1990935519",
+    "source": "MARC",
+    "sourceFileId": "75b6e1e8-5363-41ec-bf63-0242ac130002"
   },
   {
-    "id": "8eb6625e-5363-41ec-bf63-0242ac130002",
-    "uniformTitle": "Classic Works",
+    "id": "0000000e-0000-4000-a000-000000000000",
+    "uniformTitle": "The Divine Comedy",
     "subjectHeadings": "n",
-    "sourceFileId": "75b6e1e8-5363-41ec-bf63-0242ac130002",
-    "tags": {
-      "tagList": [
-        "search-authority-filter"
-      ]
-    }
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "nb2002571859"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Sources consulted: Library of Congress authority file"
+      }
+    ],
+    "naturalId": "nb2002571859",
+    "source": "MARC",
+    "sourceFileId": "75b6e1e8-5363-41ec-bf63-0242ac130002"
   },
   {
-    "id": "0d4cfb3c-0d5d-4bab-8e99-8f077b09bd34",
+    "id": "0000000f-0000-4000-a000-000000000000",
+    "uniformTitle": "Crime and Punishment",
     "saftUniformTitle": [
-      "UniformTitle"
+      "The Brothers Karamazov"
     ],
     "subjectHeadings": "r",
-    "tags": {
-      "tagList": [
-        "search-authority-filter"
-      ]
-    }
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "n 2022091162"
+      },
+      {
+        "identifierTypeId": "d6f3c637-3969-4dc6-9146-6371063f049e",
+        "value": "n 1999542417"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Name changed; earlier form used as reference"
+      }
+    ],
+    "naturalId": "n 2022091162",
+    "source": "MARC"
   },
   {
-    "id": "2dfd4b30-8c45-4a2e-8779-05f338513584",
+    "id": "00000010-0000-4000-a000-000000000000",
+    "personalName": "Rockefeller, John D.",
     "saftPersonalName": [
-      "PersonalName"
+      "Jane D. Rockefeller"
     ],
     "subjectHeadings": "r",
-    "tags": {
-      "tagList": [
-        "search-authority-filter"
-      ]
-    }
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "nb2023619177"
+      },
+      {
+        "identifierTypeId": "caaf835f-2037-46c5-9c62-71abaaaa78c5",
+        "value": "nb2023619177"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Established from: AACR2"
+      },
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Found in: WorldCat authority record"
+      }
+    ],
+    "naturalId": "nb2023619177",
+    "source": "MARC"
   },
   {
-    "id": "50720001-0000-4000-8000-000000000001",
-    "personalName": "111",
-    "tags": {
-      "tagList": [
-        "sort-authority"
-      ]
-    }
+    "id": "00000011-0000-4000-a000-000000000000",
+    "personalName": "Bach, Johann Sebastian",
+    "subjectHeadings": "a",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "no1984442418"
+      },
+      {
+        "identifierTypeId": "d6f3c637-3969-4dc6-9146-6371063f049e",
+        "value": "no1978131244"
+      },
+      {
+        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9",
+        "value": "(OCoLC)fst00010005"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "This heading is not valid for use as a subject"
+      }
+    ],
+    "naturalId": "no1984442418",
+    "source": "MARC"
   },
   {
-    "id": "50720001-0000-4000-8000-000000000002",
-    "corporateName": "aaa",
-    "tags": {
-      "tagList": [
-        "sort-authority"
-      ]
-    }
+    "id": "00000012-0000-4000-a000-000000000000",
+    "corporateName": "Cambridge University Press",
+    "subjectHeadings": "a",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "no2020033327"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "See also related heading in name authority file"
+      }
+    ],
+    "naturalId": "no2020033327",
+    "source": "MARC"
   },
   {
-    "id": "50720001-0000-4000-8000-000000000003",
+    "id": "00000013-0000-4000-a000-000000000000",
+    "uniformTitle": "Śpiewnik polski",
     "sftUniformTitle": [
-      "ŚŚŚ"
+      "Śpiewnik staropolski"
     ],
-    "tags": {
-      "tagList": [
-        "sort-authority"
-      ]
-    }
+    "subjectHeadings": "a",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "n 2014031245"
+      },
+      {
+        "identifierTypeId": "caaf835f-2037-46c5-9c62-71abaaaa78c5",
+        "value": "n 2014031245"
+      },
+      {
+        "identifierTypeId": "d6f3c637-3969-4dc6-9146-6371063f049e",
+        "value": "n 2007329258"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Usage note: prefer more specific heading when applicable"
+      },
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Used in conjunction with geographic subdivision"
+      }
+    ],
+    "naturalId": "n 2014031245",
+    "source": "MARC"
   },
   {
-    "id": "50720001-0000-4000-8000-000000000004",
+    "id": "00000014-0000-4000-a000-000000000000",
+    "genreTerm": "Suspense fiction",
     "saftGenreTerm": [
-      "ccc"
+      "Mystery fiction"
     ],
-    "tags": {
-      "tagList": [
-        "sort-authority"
-      ]
-    }
+    "subjectHeadings": "a",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "sh1995098247"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Cataloger note: used for works about and by this person"
+      }
+    ],
+    "naturalId": "sh1995098247",
+    "source": "MARC"
   },
   {
-    "id": "50720001-0000-4000-8000-000000000005",
-    "personalName": "zzz",
-    "tags": {
-      "tagList": [
-        "sort-authority"
-      ]
-    }
+    "id": "00000015-0000-4000-a000-000000000000",
+    "personalName": "Zeromski, Stefan",
+    "subjectHeadings": "a",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "n 2009229259"
+      },
+      {
+        "identifierTypeId": "d6f3c637-3969-4dc6-9146-6371063f049e",
+        "value": "n 1997629903"
+      },
+      {
+        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9",
+        "value": "(OCoLC)fst00010006"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Found in: WorldCat authority record"
+      }
+    ],
+    "naturalId": "n 2009229259",
+    "source": "MARC"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "01320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #01",
+    "id": "00000016-0000-4000-a000-000000000000",
     "personalNameTitle": "Brian K. Vaughan Title",
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "a",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "nb1997243963"
+      },
+      {
+        "identifierTypeId": "caaf835f-2037-46c5-9c62-71abaaaa78c5",
+        "value": "nb1997243963"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Scope note: includes works on related topics"
+      },
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Name changed; earlier form used as reference"
+      }
+    ],
+    "naturalId": "nb1997243963",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "02320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #02",
+    "id": "00000017-0000-4000-a000-000000000000",
+    "personalNameTitle": "Rollins, James",
     "sftPersonalNameTitle": [
       "Ĵämes Röllins"
     ],
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "b",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "no2015529904"
+      },
+      {
+        "identifierTypeId": "d6f3c637-3969-4dc6-9146-6371063f049e",
+        "value": "no1991127824"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "References verified against LC authority file"
+      }
+    ],
+    "naturalId": "no2015529904",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "03320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #03",
+    "id": "00000018-0000-4000-a000-000000000000",
+    "personalNameTitle": "Thor, Brad",
     "saftPersonalNameTitle": [
       "Brad Thor"
     ],
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "a",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "n 2023631263"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Used in conjunction with geographic subdivision"
+      }
+    ],
+    "naturalId": "n 2023631263",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "04320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #04",
+    "id": "00000019-0000-4000-a000-000000000000",
     "corporateNameTitle": "Disney",
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "b",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "nb1983027825"
+      },
+      {
+        "identifierTypeId": "caaf835f-2037-46c5-9c62-71abaaaa78c5",
+        "value": "nb1983027825"
+      },
+      {
+        "identifierTypeId": "d6f3c637-3969-4dc6-9146-6371063f049e",
+        "value": "nb1961308496"
+      },
+      {
+        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9",
+        "value": "(OCoLC)fst00010007"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Heading not found in reference sources"
+      },
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "See also related heading in name authority file"
+      }
+    ],
+    "naturalId": "nb1983027825",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "05320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #05",
+    "id": "0000001a-0000-4000-a000-000000000000",
+    "corporateNameTitle": "Green Beauty Holdings",
     "sftCorporateNameTitle": [
       "Blumberg Green Beauty"
     ],
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "a",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "n 1982588509"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Sources consulted: Library of Congress authority file"
+      }
+    ],
+    "naturalId": "n 1982588509",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "06320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #06",
+    "id": "0000001b-0000-4000-a000-000000000000",
+    "corporateNameTitle": "Amazon Digital Services",
     "saftCorporateNameTitle": [
       "Amazon Kindle"
     ],
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "b",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "nb2005208497"
+      },
+      {
+        "identifierTypeId": "d6f3c637-3969-4dc6-9146-6371063f049e",
+        "value": "nb1978781453"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Name changed; earlier form used as reference"
+      }
+    ],
+    "naturalId": "nb2005208497",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "07320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #07",
+    "id": "0000001c-0000-4000-a000-000000000000",
     "meetingNameTitle": "Comic-Con",
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "a",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "nb1984750801"
+      },
+      {
+        "identifierTypeId": "caaf835f-2037-46c5-9c62-71abaaaa78c5",
+        "value": "nb1984750801"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Established from: AACR2"
+      },
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Found in: WorldCat authority record"
+      }
+    ],
+    "naturalId": "nb1984750801",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "08320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #08",
+    "id": "0000001d-0000-4000-a000-000000000000",
+    "meetingNameTitle": "International Biomedical Conference",
     "sftMeetingNameTitle": [
       "Biomedical Symposium"
     ],
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "b",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "n 2016681454"
+      },
+      {
+        "identifierTypeId": "d6f3c637-3969-4dc6-9146-6371063f049e",
+        "value": "n 1989671412"
+      },
+      {
+        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9",
+        "value": "(OCoLC)fst00010008"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "This heading is not valid for use as a subject"
+      }
+    ],
+    "naturalId": "n 2016681454",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "09320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #09",
+    "id": "0000001e-0000-4000-a000-000000000000",
+    "meetingNameTitle": "World Conference on Corporate Accounting",
     "saftMeetingNameTitle": [
       "World Conference On Corporate Accounting (WCCA)"
     ],
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "a",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "no2000735393"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "See also related heading in name authority file"
+      }
+    ],
+    "naturalId": "no2000735393",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "10320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #10",
+    "id": "0000001f-0000-4000-a000-000000000000",
     "geographicName": "Asia Pacific",
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "b",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "n 2021571413"
+      },
+      {
+        "identifierTypeId": "caaf835f-2037-46c5-9c62-71abaaaa78c5",
+        "value": "n 2021571413"
+      },
+      {
+        "identifierTypeId": "d6f3c637-3969-4dc6-9146-6371063f049e",
+        "value": "n 2003331148"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Usage note: prefer more specific heading when applicable"
+      },
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Used in conjunction with geographic subdivision"
+      }
+    ],
+    "naturalId": "n 2021571413",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "11320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #11",
+    "id": "00000020-0000-4000-a000-000000000000",
+    "geographicName": "North America Region",
     "sftGeographicName": [
       "North America"
     ],
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "a",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "nb2005439899"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Cataloger note: used for works about and by this person"
+      }
+    ],
+    "naturalId": "nb2005439899",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "12320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #12",
+    "id": "00000021-0000-4000-a000-000000000000",
+    "geographicName": "Canadian Provinces",
     "saftGeographicName": [
       "Canada"
     ],
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "b",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "no2009231149"
+      },
+      {
+        "identifierTypeId": "d6f3c637-3969-4dc6-9146-6371063f049e",
+        "value": "no1990717889"
+      },
+      {
+        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9",
+        "value": "(OCoLC)fst00010009"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Found in: WorldCat authority record"
+      }
+    ],
+    "naturalId": "no2009231149",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "13320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #13",
+    "id": "00000022-0000-4000-a000-000000000000",
     "uniformTitle": "Harry Potter",
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "a",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "n 1996471030"
+      },
+      {
+        "identifierTypeId": "caaf835f-2037-46c5-9c62-71abaaaa78c5",
+        "value": "n 1996471030"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Scope note: includes works on related topics"
+      },
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Name changed; earlier form used as reference"
+      }
+    ],
+    "naturalId": "n 1996471030",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "14320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #14",
+    "id": "00000023-0000-4000-a000-000000000000",
+    "uniformTitle": "War and Peace, abridged",
     "sftUniformTitle": [
       "War and Peace"
     ],
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "b",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "n 1995617890"
+      },
+      {
+        "identifierTypeId": "d6f3c637-3969-4dc6-9146-6371063f049e",
+        "value": "n 1982948749"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "References verified against LC authority file"
+      }
+    ],
+    "naturalId": "n 1995617890",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "15320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #15",
+    "id": "00000024-0000-4000-a000-000000000000",
+    "uniformTitle": "The Lord of the Rings, illustrated",
     "saftUniformTitle": [
       "The Lord of the Rings"
     ],
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "a",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "no2015291705"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Used in conjunction with geographic subdivision"
+      }
+    ],
+    "naturalId": "no2015291705",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "16320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #16",
+    "id": "00000025-0000-4000-a000-000000000000",
     "topicalTerm": "Science",
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "b",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "sh2014848750"
+      },
+      {
+        "identifierTypeId": "caaf835f-2037-46c5-9c62-71abaaaa78c5",
+        "value": "sh2014848750"
+      },
+      {
+        "identifierTypeId": "d6f3c637-3969-4dc6-9146-6371063f049e",
+        "value": "sh2009895667"
+      },
+      {
+        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9",
+        "value": "(OCoLC)fst00010010"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Heading not found in reference sources"
+      },
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "See also related heading in name authority file"
+      }
+    ],
+    "naturalId": "sh2014848750",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "17320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #17",
+    "id": "00000026-0000-4000-a000-000000000000",
+    "topicalTerm": "Fantasy literature",
     "sftTopicalTerm": [
       "Fantasy"
     ],
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "a",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "sh1996911528"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Sources consulted: Library of Congress authority file"
+      }
+    ],
+    "naturalId": "sh1996911528",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "18320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #18",
+    "id": "00000027-0000-4000-a000-000000000000",
+    "topicalTerm": "Historical studies",
     "saftTopicalTerm": [
       "History"
     ],
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "b",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "sh2017006815"
+      },
+      {
+        "identifierTypeId": "d6f3c637-3969-4dc6-9146-6371063f049e",
+        "value": "sh1987267414"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Name changed; earlier form used as reference"
+      }
+    ],
+    "naturalId": "sh2017006815",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "19320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #19",
+    "id": "00000028-0000-4000-a000-000000000000",
     "genreTerm": "Novel",
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "a",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "sh2007795668"
+      },
+      {
+        "identifierTypeId": "caaf835f-2037-46c5-9c62-71abaaaa78c5",
+        "value": "sh2007795668"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Established from: AACR2"
+      },
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Found in: WorldCat authority record"
+      }
+    ],
+    "naturalId": "sh2007795668",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "20320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #20",
+    "id": "00000029-0000-4000-a000-000000000000",
+    "genreTerm": "Poetry collections",
     "sftGenreTerm": [
       "Poetry"
     ],
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "b",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "sh2017844963"
+      },
+      {
+        "identifierTypeId": "d6f3c637-3969-4dc6-9146-6371063f049e",
+        "value": "sh1990543143"
+      },
+      {
+        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9",
+        "value": "(OCoLC)fst00010011"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "This heading is not valid for use as a subject"
+      }
+    ],
+    "naturalId": "sh2017844963",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "21320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #21",
+    "id": "0000002a-0000-4000-a000-000000000000",
+    "genreTerm": "Prose fiction",
     "saftGenreTerm": [
       "Prose",
       "Romance"
     ],
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "a",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "sh2005167415"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "See also related heading in name authority file"
+      }
+    ],
+    "naturalId": "sh2005167415",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "22320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #22",
+    "id": "0000002b-0000-4000-a000-000000000000",
     "personalName": "Brian K. Vaughan",
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "b",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "nb1994732053"
+      },
+      {
+        "identifierTypeId": "caaf835f-2037-46c5-9c62-71abaaaa78c5",
+        "value": "nb1994732053"
+      },
+      {
+        "identifierTypeId": "d6f3c637-3969-4dc6-9146-6371063f049e",
+        "value": "nb1979391369"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Usage note: prefer more specific heading when applicable"
+      },
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Used in conjunction with geographic subdivision"
+      }
+    ],
+    "naturalId": "nb1994732053",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "23320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #23",
+    "id": "0000002c-0000-4000-a000-000000000000",
     "personalName": "Zappa Frank",
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "a",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "n 2012443144"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Cataloger note: used for works about and by this person"
+      }
+    ],
+    "naturalId": "n 2012443144",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
+    "id": "0000002d-0000-4000-a000-000000000000",
+    "topicalTerm": "Zappa Frank Songs",
+    "subjectHeadings": "b",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "sh2011356779"
+      },
+      {
+        "identifierTypeId": "d6f3c637-3969-4dc6-9146-6371063f049e",
+        "value": "sh2002325772"
+      },
+      {
+        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9",
+        "value": "(OCoLC)fst00010012"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Found in: WorldCat authority record"
+      }
+    ],
+    "naturalId": "sh2011356779",
     "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "24320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #24",
-    "topicalTerm": "Zappa Frank",
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "25320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #25",
+    "id": "0000002e-0000-4000-a000-000000000000",
     "namedEvent": "Eruption of Vesuvius",
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "a",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "n 1983291370"
+      },
+      {
+        "identifierTypeId": "caaf835f-2037-46c5-9c62-71abaaaa78c5",
+        "value": "n 1983291370"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Scope note: includes works on related topics"
+      },
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Name changed; earlier form used as reference"
+      }
+    ],
+    "naturalId": "n 1983291370",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "26320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #26",
+    "id": "0000002f-0000-4000-a000-000000000000",
+    "namedEvent": "French Revolution",
     "sftNamedEvent": [
       "Revolution"
     ],
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "b",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "n 1989163033"
+      },
+      {
+        "identifierTypeId": "d6f3c637-3969-4dc6-9146-6371063f049e",
+        "value": "n 1960452944"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "References verified against LC authority file"
+      }
+    ],
+    "naturalId": "n 1989163033",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "27320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #27",
+    "id": "00000030-0000-4000-a000-000000000000",
+    "namedEvent": "Wall Street Crash of 1929",
     "saftNamedEvent": [
       "Stock Market Crash"
     ],
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "a",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "no1990225773"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Used in conjunction with geographic subdivision"
+      }
+    ],
+    "naturalId": "no1990225773",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "28320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #28",
+    "id": "00000031-0000-4000-a000-000000000000",
     "generalSubdivision": "Periodicals",
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "b",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "sh2023800582"
+      },
+      {
+        "identifierTypeId": "caaf835f-2037-46c5-9c62-71abaaaa78c5",
+        "value": "sh2023800582"
+      },
+      {
+        "identifierTypeId": "d6f3c637-3969-4dc6-9146-6371063f049e",
+        "value": "sh2015197251"
+      },
+      {
+        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9",
+        "value": "(OCoLC)fst00010013"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Heading not found in reference sources"
+      },
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "See also related heading in name authority file"
+      }
+    ],
+    "naturalId": "sh2023800582",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "29320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #29",
+    "id": "00000032-0000-4000-a000-000000000000",
+    "generalSubdivision": "Knowledge and learning",
     "sftGeneralSubdivision": [
       "Knowledge"
     ],
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "a",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "sh2007352945"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Sources consulted: Library of Congress authority file"
+      }
+    ],
+    "naturalId": "sh2007352945",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "30320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #30",
+    "id": "00000033-0000-4000-a000-000000000000",
+    "generalSubdivision": "Sacred sites",
     "saftGeneralSubdivision": [
       "Shrines"
     ],
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "b",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "sh2018107176"
+      },
+      {
+        "identifierTypeId": "d6f3c637-3969-4dc6-9146-6371063f049e",
+        "value": "sh2001201414"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Name changed; earlier form used as reference"
+      }
+    ],
+    "naturalId": "sh2018107176",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
+    "id": "00000034-0000-4000-a000-000000000000",
+    "chronTerm": "Early Modern period",
+    "subjectHeadings": "a",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "sh1984097252"
+      },
+      {
+        "identifierTypeId": "caaf835f-2037-46c5-9c62-71abaaaa78c5",
+        "value": "sh1984097252"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Established from: AACR2"
+      },
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Found in: WorldCat authority record"
+      }
+    ],
+    "naturalId": "sh1984097252",
     "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "31320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #31",
-    "chronTerm": "xChronTerm",
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "32320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #32",
+    "id": "00000035-0000-4000-a000-000000000000",
+    "chronTerm": "Classical period",
     "sftChronTerm": [
-      "xsftChronTerm"
+      "Antiquity"
     ],
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "b",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "sh2004398383"
+      },
+      {
+        "identifierTypeId": "d6f3c637-3969-4dc6-9146-6371063f049e",
+        "value": "sh1988988662"
+      },
+      {
+        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9",
+        "value": "(OCoLC)fst00010014"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "This heading is not valid for use as a subject"
+      }
+    ],
+    "naturalId": "sh2004398383",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "33320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #33",
+    "id": "00000036-0000-4000-a000-000000000000",
+    "chronTerm": "Late medieval era",
     "saftChronTerm": [
-      "xsaftChronTerm"
+      "Middle Ages"
     ],
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "a",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "sh2004101415"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "See also related heading in name authority file"
+      }
+    ],
+    "naturalId": "sh2004101415",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
+    "id": "00000037-0000-4000-a000-000000000000",
+    "mediumPerfTerm": "Orchestra",
+    "subjectHeadings": "b",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "sh2018376418"
+      },
+      {
+        "identifierTypeId": "caaf835f-2037-46c5-9c62-71abaaaa78c5",
+        "value": "sh2018376418"
+      },
+      {
+        "identifierTypeId": "d6f3c637-3969-4dc6-9146-6371063f049e",
+        "value": "sh2002733052"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Usage note: prefer more specific heading when applicable"
+      },
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Used in conjunction with geographic subdivision"
+      }
+    ],
+    "naturalId": "sh2018376418",
     "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "34320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #34",
-    "mediumPerfTerm": "orchestra",
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "35320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #35",
+    "id": "00000038-0000-4000-a000-000000000000",
+    "mediumPerfTerm": "String ensemble",
     "sftMediumPerfTerm": [
-      "xsftMediumPerfTerm"
+      "string quartet"
     ],
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "a",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "sh2009888663"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Cataloger note: used for works about and by this person"
+      }
+    ],
+    "naturalId": "sh2009888663",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "36320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #36",
+    "id": "00000039-0000-4000-a000-000000000000",
+    "mediumPerfTerm": "Keyboard instrument",
     "saftMediumPerfTerm": [
-      "xsaftMediumPerfTerm"
+      "piano"
     ],
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "b",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "sh2013360664"
+      },
+      {
+        "identifierTypeId": "d6f3c637-3969-4dc6-9146-6371063f049e",
+        "value": "sh2000946335"
+      },
+      {
+        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9",
+        "value": "(OCoLC)fst00010015"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Found in: WorldCat authority record"
+      }
+    ],
+    "naturalId": "sh2013360664",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
+    "id": "0000003a-0000-4000-a000-000000000000",
+    "geographicSubdivision": "River valleys",
+    "subjectHeadings": "a",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "sh1996633053"
+      },
+      {
+        "identifierTypeId": "caaf835f-2037-46c5-9c62-71abaaaa78c5",
+        "value": "sh1996633053"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Scope note: includes works on related topics"
+      },
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Name changed; earlier form used as reference"
+      }
+    ],
+    "naturalId": "sh1996633053",
     "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "37320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #37",
-    "geographicSubdivision": "xGeographicSubdivision",
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "38320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #38",
+    "id": "0000003b-0000-4000-a000-000000000000",
+    "geographicSubdivision": "Highland areas",
     "sftGeographicSubdivision": [
-      "xsftGeographicSubdivision"
+      "Mountain ranges"
     ],
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "b",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "sh2015277371"
+      },
+      {
+        "identifierTypeId": "d6f3c637-3969-4dc6-9146-6371063f049e",
+        "value": "sh2009865179"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "References verified against LC authority file"
+      }
+    ],
+    "naturalId": "sh2015277371",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "39320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #39",
+    "id": "0000003c-0000-4000-a000-000000000000",
+    "geographicSubdivision": "Coastal deltas",
     "saftGeographicSubdivision": [
-      "xsaftGeographicSubdivision"
+      "River deltas"
     ],
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "a",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "sh1980846336"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Used in conjunction with geographic subdivision"
+      }
+    ],
+    "naturalId": "sh1980846336",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
+    "id": "0000003d-0000-4000-a000-000000000000",
+    "chronSubdivision": "Renaissance period",
+    "subjectHeadings": "b",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "sh2023045562"
+      },
+      {
+        "identifierTypeId": "caaf835f-2037-46c5-9c62-71abaaaa78c5",
+        "value": "sh2023045562"
+      },
+      {
+        "identifierTypeId": "d6f3c637-3969-4dc6-9146-6371063f049e",
+        "value": "sh2004662275"
+      },
+      {
+        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9",
+        "value": "(OCoLC)fst00010016"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Heading not found in reference sources"
+      },
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "See also related heading in name authority file"
+      }
+    ],
+    "naturalId": "sh2023045562",
     "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "40320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #40",
-    "chronSubdivision": "Geometric period",
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "41320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #41",
+    "id": "0000003e-0000-4000-a000-000000000000",
+    "chronSubdivision": "Victorian Age",
     "sftChronSubdivision": [
-      "xsftChronSubdivision"
+      "Victorian era"
     ],
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "a",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "sh1987765180"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Sources consulted: Library of Congress authority file"
+      }
+    ],
+    "naturalId": "sh1987765180",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "42320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #42",
+    "id": "0000003f-0000-4000-a000-000000000000",
+    "chronSubdivision": "Late medieval period",
     "saftChronSubdivision": [
-      "xsaftChronSubdivision"
+      "Medieval period"
     ],
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "b",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "sh2023481742"
+      },
+      {
+        "identifierTypeId": "d6f3c637-3969-4dc6-9146-6371063f049e",
+        "value": "sh2015496922"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Name changed; earlier form used as reference"
+      }
+    ],
+    "naturalId": "sh2023481742",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
+    "id": "00000040-0000-4000-a000-000000000000",
+    "formSubdivision": "Manuscripts, Medieval",
+    "subjectHeadings": "a",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "sh2014562276"
+      },
+      {
+        "identifierTypeId": "caaf835f-2037-46c5-9c62-71abaaaa78c5",
+        "value": "sh2014562276"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Established from: AACR2"
+      },
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "Found in: WorldCat authority record"
+      }
+    ],
+    "naturalId": "sh2014562276",
     "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "43320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #43",
-    "formSubdivision": "xFormSubdivision",
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "44320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #44",
+    "id": "00000041-0000-4000-a000-000000000000",
+    "formSubdivision": "Cartographic materials",
     "sftFormSubdivision": [
-      "xsftFormSubdivision"
+      "Maps"
     ],
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "b",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "sh1997130890"
+      },
+      {
+        "identifierTypeId": "d6f3c637-3969-4dc6-9146-6371063f049e",
+        "value": "sh1990678856"
+      },
+      {
+        "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9",
+        "value": "(OCoLC)fst00010017"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "This heading is not valid for use as a subject"
+      }
+    ],
+    "naturalId": "sh1997130890",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   },
   {
-    "source": "MARC",
-    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
-    "naturalId": "nbc123435",
-    "id": "45320dbd-6de3-453a-b05d-452fc1eb1e0d",
-    "subjectHeadings": "Authority #45",
+    "id": "00000042-0000-4000-a000-000000000000",
+    "formSubdivision": "Bibliographies and indexes",
     "saftFormSubdivision": [
-      "xsaftFormSubdivision"
+      "Catalogs"
     ],
-    "tags": {
-      "tagList": [
-        "browse-authority"
-      ]
-    }
+    "subjectHeadings": "a",
+    "identifiers": [
+      {
+        "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+        "value": "sh2021967097"
+      }
+    ],
+    "notes": [
+      {
+        "noteTypeId": "36a62267-d921-4904-bfd1-d2a4958fb67c",
+        "value": "See also related heading in name authority file"
+      }
+    ],
+    "naturalId": "sh2021967097",
+    "source": "MARC",
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6"
   }
 ]

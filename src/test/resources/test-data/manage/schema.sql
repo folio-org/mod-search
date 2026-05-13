@@ -8,6 +8,10 @@ CREATE TABLE IF NOT EXISTS ref_contributor_name_types  (id TEXT PRIMARY KEY, nam
 CREATE TABLE IF NOT EXISTS ref_contributor_types       (id TEXT PRIMARY KEY, name TEXT);
 CREATE TABLE IF NOT EXISTS ref_identifier_types    (id TEXT PRIMARY KEY, name TEXT);
 CREATE TABLE IF NOT EXISTS ref_alternative_title_types (id TEXT PRIMARY KEY, name TEXT);
+-- Authority-specific ref tables
+CREATE TABLE IF NOT EXISTS ref_authority_identifier_types (id TEXT PRIMARY KEY, name TEXT);
+CREATE TABLE IF NOT EXISTS ref_authority_note_types       (id TEXT PRIMARY KEY, name TEXT);
+CREATE TABLE IF NOT EXISTS ref_authority_source_files     (id TEXT PRIMARY KEY, name TEXT);
 
 -- Core tables
 CREATE TABLE IF NOT EXISTS instances (
@@ -305,6 +309,52 @@ CREATE TABLE IF NOT EXISTS items_metadata (
   updatedByUserId TEXT
 );
 
+-- Authority tables
+CREATE TABLE IF NOT EXISTS authorities (
+  id              TEXT PRIMARY KEY,
+  heading         TEXT,   -- primary heading value
+  headingType     TEXT,   -- e.g. 'personalName', 'corporateName', 'uniformTitle', ...
+  subjectHeadings TEXT,
+  naturalId       TEXT,
+  source          TEXT,
+  sourceFileId    TEXT REFERENCES ref_authority_source_files(id),
+  -- metadata fields (inlined — authority metadata has no separate reference data)
+  createdDate     TEXT,
+  createdByUserId TEXT,
+  updatedDate     TEXT,
+  updatedByUserId TEXT
+);
+
+-- "See From Tracing" headings (one row per value per authority)
+CREATE TABLE IF NOT EXISTS authority_sft_headings (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  authorityId TEXT REFERENCES authorities(id),
+  headingType TEXT,   -- same type vocabulary as authorities.headingType
+  value       TEXT
+);
+
+-- "See Also From Tracing" headings (one row per value per authority)
+CREATE TABLE IF NOT EXISTS authority_saft_headings (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  authorityId TEXT REFERENCES authorities(id),
+  headingType TEXT,
+  value       TEXT
+);
+
+CREATE TABLE IF NOT EXISTS authority_identifiers (
+  id               INTEGER PRIMARY KEY AUTOINCREMENT,
+  authorityId      TEXT REFERENCES authorities(id),
+  identifierTypeId TEXT REFERENCES ref_authority_identifier_types(id),
+  value            TEXT
+);
+
+CREATE TABLE IF NOT EXISTS authority_notes (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  authorityId TEXT REFERENCES authorities(id),
+  noteTypeId  TEXT REFERENCES ref_authority_note_types(id),
+  value       TEXT
+);
+
 -- Convenience views
 DROP VIEW IF EXISTS v_instance_full;
 CREATE VIEW v_instance_full AS
@@ -396,3 +446,23 @@ LEFT JOIN ref_call_number_types rct ON rct.id = it.effectiveCallNumberTypeId
 LEFT JOIN items_metadata        itm ON itm.itemId = it.id
 LEFT JOIN holdings              h   ON h.id   = it.holdingsRecordId
 LEFT JOIN instances             i   ON i.id   = it.instanceId;
+
+DROP VIEW IF EXISTS v_authority_full;
+CREATE VIEW v_authority_full AS
+SELECT
+  a.*,
+  rsf.name AS sourceFileName,
+  (SELECT json_group_array(json_object('headingType', sft.headingType, 'value', sft.value))
+   FROM authority_sft_headings sft WHERE sft.authorityId = a.id) AS sftHeadings,
+  (SELECT json_group_array(json_object('headingType', saft.headingType, 'value', saft.value))
+   FROM authority_saft_headings saft WHERE saft.authorityId = a.id) AS saftHeadings,
+  (SELECT json_group_array(json_object('identifierTypeId', ai.identifierTypeId, 'identifierTypeName', rait.name, 'value', ai.value))
+   FROM authority_identifiers ai
+   LEFT JOIN ref_authority_identifier_types rait ON rait.id = ai.identifierTypeId
+   WHERE ai.authorityId = a.id) AS identifiers,
+  (SELECT json_group_array(json_object('noteTypeId', an.noteTypeId, 'noteTypeName', rant.name, 'value', an.value))
+   FROM authority_notes an
+   LEFT JOIN ref_authority_note_types rant ON rant.id = an.noteTypeId
+   WHERE an.authorityId = a.id) AS notes
+FROM authorities a
+LEFT JOIN ref_authority_source_files rsf ON rsf.id = a.sourceFileId;

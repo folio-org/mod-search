@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-import.py — Seed test-data.db from instances.json, holdings.json, items.json.
+import.py — Seed test-data.db from instances.json, holdings.json, items.json, authorities.json.
 Run from any directory. Always recreates DB from scratch.
 
 Usage:
@@ -168,6 +168,25 @@ _REF_NAMES: dict[str, dict[str, str]] = {
         "f1a49577-5096-4771-a8a0-d07d642241eb": "Oversize Stacks",
         "f34d27c6-a8eb-461b-acd6-5dea81771e70": "SECOND FLOOR",
         "fcd64ce1-6995-48f0-840e-89ffa2288371": "Main Library",
+    },
+    "ref_authority_identifier_types": {
+        "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9": "Control number identifier",
+        "c858e4f2-2b6b-4385-842b-60732ee14abb": "LCCN",
+        "caaf835f-2037-46c5-9c62-71abaaaa78c5": "Authority identifier",
+        "d6f3c637-3969-4dc6-9146-6371063f049e": "Cancelled LCCN",
+    },
+    "ref_authority_note_types": {
+        "36a62267-d921-4904-bfd1-d2a4958fb67c": "General note",
+    },
+    "ref_authority_source_files": {
+        "1353873c-0e5e-4d64-a2f9-6c444dc4cd46": "LC Name Authority file (LCNAF)",
+        "39a52d91-8dbb-4348-ab06-5c6115e600cd": "LC Subject Headings (LCSH)",
+        "5de462a2-7a90-4467-b77f-b2057d6d69b6": "LC Genre/Form Terms (LCGFT)",
+        "62f72eeb-ed5a-4619-b01f-1750d5528d25": "LC Medium of Performance Thesaurus (LCMPT)",
+        "6edc7db0-5363-41ec-bf63-0242ac130002": "NACO Authority File",
+        "75b6e1e8-5363-41ec-bf63-0242ac130002": "Medical Subject Headings (MeSH)",
+        "b4000001-5de4-4467-b77f-b2057d6d69b6": "FOLIO Browse Authority File",
+        "cc6bbc19-3f54-43c5-8736-b85688619641": "Art and Architecture Thesaurus (AAT)",
     },
 }
 
@@ -549,6 +568,90 @@ def import_items(cur, records):
             )
 
 
+# All recognized primary heading types in canonical order.
+_AUTHORITY_HEADING_TYPES = [
+    "personalName", "personalNameTitle",
+    "corporateName", "corporateNameTitle",
+    "meetingName", "meetingNameTitle",
+    "geographicName", "uniformTitle",
+    "namedEvent", "generalSubdivision",
+    "topicalTerm", "genreTerm",
+    "chronTerm", "mediumPerfTerm",
+    "geographicSubdivision", "chronSubdivision",
+    "formSubdivision",
+]
+
+
+def import_authorities(cur, records):
+    for r in records:
+        aid = r["id"]
+
+        # Detect primary heading — exactly one expected per record.
+        found_primaries = [(ht, r[ht]) for ht in _AUTHORITY_HEADING_TYPES if ht in r]
+        if len(found_primaries) > 1:
+            import sys
+            print(
+                f"WARNING: Authority {aid!r} has {len(found_primaries)} primary headings "
+                f"({[ht for ht, _ in found_primaries]}). "
+                f"Only the first ({found_primaries[0][0]!r}) will be stored as the primary heading.",
+                file=sys.stderr,
+            )
+        heading_type, heading = found_primaries[0] if found_primaries else (None, None)
+
+        meta = r.get("metadata") or {}
+        upsert_ref(cur, "ref_authority_source_files", r.get("sourceFileId"))
+        cur.execute(
+            """INSERT OR REPLACE INTO authorities
+               (id, heading, headingType, subjectHeadings,
+                naturalId, source, sourceFileId,
+                createdDate, createdByUserId, updatedDate, updatedByUserId)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
+            (
+                aid,
+                heading,
+                heading_type,
+                r.get("subjectHeadings"),
+                r.get("naturalId"),
+                r.get("source"),
+                r.get("sourceFileId"),
+                meta.get("createdDate"),
+                meta.get("createdByUserId"),
+                meta.get("updatedDate"),
+                meta.get("updatedByUserId"),
+            ),
+        )
+
+        for ht in _AUTHORITY_HEADING_TYPES:
+            sft_key = "sft" + ht[0].upper() + ht[1:]
+            for val in r.get(sft_key, []):
+                cur.execute(
+                    "INSERT INTO authority_sft_headings (authorityId, headingType, value) VALUES (?,?,?)",
+                    (aid, ht, val),
+                )
+
+        for ht in _AUTHORITY_HEADING_TYPES:
+            saft_key = "saft" + ht[0].upper() + ht[1:]
+            for val in r.get(saft_key, []):
+                cur.execute(
+                    "INSERT INTO authority_saft_headings (authorityId, headingType, value) VALUES (?,?,?)",
+                    (aid, ht, val),
+                )
+
+        for ident in r.get("identifiers", []):
+            upsert_ref(cur, "ref_authority_identifier_types", ident.get("identifierTypeId"))
+            cur.execute(
+                "INSERT INTO authority_identifiers (authorityId, identifierTypeId, value) VALUES (?,?,?)",
+                (aid, ident.get("identifierTypeId"), ident.get("value")),
+            )
+
+        for note in r.get("notes", []):
+            upsert_ref(cur, "ref_authority_note_types", note.get("noteTypeId"))
+            cur.execute(
+                "INSERT INTO authority_notes (authorityId, noteTypeId, value) VALUES (?,?,?)",
+                (aid, note.get("noteTypeId"), note.get("value")),
+            )
+
+
 def main():
     DB_PATH.unlink(missing_ok=True)
     con = sqlite3.connect(DB_PATH)
@@ -576,28 +679,34 @@ def main():
         "items_former_ids", "items_statistical_code_ids",
         "items_tags", "items_administrative_notes", "items_notes",
         "items_circulation_notes", "items_electronic_access", "items_metadata",
+        "authority_sft_headings", "authority_saft_headings",
+        "authority_identifiers", "authority_notes",
     ]
     for t in junction_tables:
         con.execute(f"DELETE FROM {t}")
     con.execute("DELETE FROM items")
     con.execute("DELETE FROM holdings")
     con.execute("DELETE FROM instances")
+    con.execute("DELETE FROM authorities")
     con.commit()
 
     cur = con.cursor()
 
-    instances = json.loads((DATA_DIR / "instances.json").read_text())
-    holdings  = json.loads((DATA_DIR / "holdings.json").read_text())
-    items     = json.loads((DATA_DIR / "items.json").read_text())
+    instances   = json.loads((DATA_DIR / "instances.json").read_text())
+    holdings    = json.loads((DATA_DIR / "holdings.json").read_text())
+    items       = json.loads((DATA_DIR / "items.json").read_text())
+    authorities = json.loads((DATA_DIR / "authorities.json").read_text())
 
     import_instances(cur, instances)
     import_holdings(cur, holdings)
     import_items(cur, items)
+    import_authorities(cur, authorities)
 
     con.commit()
     con.close()
 
-    print(f"Imported {len(instances)} instances, {len(holdings)} holdings, {len(items)} items")
+    print(f"Imported {len(instances)} instances, {len(holdings)} holdings, "
+          f"{len(items)} items, {len(authorities)} authorities")
 
 
 if __name__ == "__main__":

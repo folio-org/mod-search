@@ -241,7 +241,7 @@
   },
   {
     "id": "75b6e1e8-5363-41ec-bf63-0242ac130002",
-    "geographicName": "GeographicName",
+    "geographicName": "Eastern Region",
     "subjectHeadings": "c",
     "sourceFileId": "39a52d91-8dbb-4348-ab06-5c6115e600cd",
     "tags": {
@@ -274,7 +274,7 @@
   },
   {
     "id": "7bfb7550-5363-41ec-bf63-0242ac130002",
-    "corporateName": "CorporateName",
+    "corporateName": "BizEntity",
     "subjectHeadings": "d",
     "sourceFileId": "62f72eeb-ed5a-4619-b01f-1750d5528d25",
     "tags": {
@@ -285,7 +285,7 @@
   },
   {
     "id": "3ec9be46-b002-472e-87c9-0e8a4c9eb8d2",
-    "corporateName": "CorporateName",
+    "corporateName": "BizEntity",
     "subjectHeadings": "d",
     "sourceFileId": "62f72eeb-ed5a-4619-b01f-1750d5528d25",
     "tags": {
@@ -307,7 +307,7 @@
   },
   {
     "id": "62f72eeb-ed5a-4619-b01f-1750d5528d32",
-    "uniformTitle": "UniformTitle",
+    "uniformTitle": "Classic Works",
     "subjectHeadings": "n",
     "sourceFileId": "75b6e1e8-5363-41ec-bf63-0242ac130002",
     "tags": {
@@ -318,7 +318,7 @@
   },
   {
     "id": "8eb6625e-5363-41ec-bf63-0242ac130002",
-    "uniformTitle": "UniformTitle",
+    "uniformTitle": "Classic Works",
     "subjectHeadings": "n",
     "sourceFileId": "75b6e1e8-5363-41ec-bf63-0242ac130002",
     "tags": {
@@ -876,7 +876,7 @@
     "naturalId": "nbc123435",
     "id": "34320dbd-6de3-453a-b05d-452fc1eb1e0d",
     "subjectHeadings": "Authority #34",
-    "mediumPerfTerm": "xMediumPerfTerm",
+    "mediumPerfTerm": "orchestra",
     "tags": {
       "tagList": [
         "browse-authority"
@@ -962,7 +962,7 @@
     "naturalId": "nbc123435",
     "id": "40320dbd-6de3-453a-b05d-452fc1eb1e0d",
     "subjectHeadings": "Authority #40",
-    "chronSubdivision": "xChronSubdivision",
+    "chronSubdivision": "Geometric period",
     "tags": {
       "tagList": [
         "browse-authority"

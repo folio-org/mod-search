@@ -546,7 +546,7 @@
   {
     "id": "00000011-0000-4000-a000-000000000000",
     "personalName": "Bach, Johann Sebastian",
-    "subjectHeadings": "a",
+    "subjectHeadings": "z",
     "identifiers": [
       {
         "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
@@ -573,7 +573,7 @@
   {
     "id": "00000012-0000-4000-a000-000000000000",
     "corporateName": "Cambridge Press",
-    "subjectHeadings": "a",
+    "subjectHeadings": "z",
     "identifiers": [
       {
         "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
@@ -591,11 +591,8 @@
   },
   {
     "id": "00000013-0000-4000-a000-000000000000",
-    "uniformTitle": "Śpiewnik polski",
-    "sftUniformTitle": [
-      "Śpiewnik staropolski"
-    ],
-    "subjectHeadings": "a",
+    "uniformTitle": "Śpiewnik staropolski",
+    "subjectHeadings": "z",
     "identifiers": [
       {
         "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
@@ -626,10 +623,7 @@
   {
     "id": "00000014-0000-4000-a000-000000000000",
     "genreTerm": "Suspense fiction",
-    "saftGenreTerm": [
-      "Mystery fiction"
-    ],
-    "subjectHeadings": "a",
+    "subjectHeadings": "z",
     "identifiers": [
       {
         "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
@@ -647,8 +641,8 @@
   },
   {
     "id": "00000015-0000-4000-a000-000000000000",
-    "personalName": "Zeromski, Stefan",
-    "subjectHeadings": "a",
+    "personalName": "Żeromski, Stefan",
+    "subjectHeadings": "z",
     "identifiers": [
       {
         "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",

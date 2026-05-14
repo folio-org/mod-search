@@ -25,12 +25,12 @@ class IndexingAuthorityIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void prepare() {
-    setUpTenant();
+    enableTenant(TENANT_ID);
   }
 
   @AfterAll
   static void cleanUp() {
-    removeTenant();
+    removeTenant(TENANT_ID);
   }
 
   @Test

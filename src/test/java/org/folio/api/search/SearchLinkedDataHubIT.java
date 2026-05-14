@@ -1,22 +1,15 @@
 package org.folio.api.search;
 
-import static org.folio.support.sample.SampleLinkedData.getHubSample2AsMap;
-import static org.folio.support.sample.SampleLinkedData.getHubSampleAsMap;
 import static org.folio.support.utils.LinkedDataTestUtils.toTotalRecords;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-import java.util.List;
-import java.util.Map;
 import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 public abstract class SearchLinkedDataHubIT extends BaseSharedTest {
-
-  public static final List<Map<String, Object>> HUB_SAMPLES =
-    List.of(getHubSampleAsMap(), getHubSample2AsMap());
 
   @DisplayName("search by linked data hub")
   @ParameterizedTest(name = "[{0}] {2}")

@@ -2,6 +2,8 @@ package org.folio.support.base;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
 import static org.awaitility.Durations.ONE_MINUTE;
 import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
@@ -22,6 +24,7 @@ import static org.folio.support.TestConstants.linkedDataInstanceTopic;
 import static org.folio.support.TestConstants.linkedDataWorkTopic;
 import static org.folio.support.base.ApiEndpoints.authoritySearchPath;
 import static org.folio.support.base.ApiEndpoints.browseConfigPath;
+import static org.folio.support.base.ApiEndpoints.indexRecordsPath;
 import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.support.base.ApiEndpoints.linkedDataHubSearchPath;
 import static org.folio.support.base.ApiEndpoints.linkedDataInstanceSearchPath;
@@ -583,6 +586,21 @@ public abstract class BaseSharedTest {
     var stub = mocker.apply(typeIds);
     doPut(browseConfigPath(browseType, browseOptionType), config);
     okapi.wireMockServer().removeStub(stub);
+  }
+
+  protected static void indexRecords(List<ResourceEvent> events) {
+    try {
+      doPost(indexRecordsPath(), events).andReturn();
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to index records", e);
+    }
+  }
+
+  protected static void verifyIndexedResourceCounts(ResourceType resourceType, String tenantId, int expectedCount) {
+    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
+      assertThat(countIndexDocument(resourceType, tenantId))
+        .as("%s index document count should reach %d", resourceType, expectedCount)
+        .isEqualTo(expectedCount));
   }
 
   public record TestData(Class<?> type, List<Map<String, Object>> testRecords, int expectedCount) {

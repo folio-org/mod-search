@@ -27,10 +27,6 @@ public final class SharedTestDataManager {
 
   private SharedTestDataManager() { }
 
-  // -------------------------------------------------------------------------
-  // Read helpers — parse JSON arrays from classpath
-  // -------------------------------------------------------------------------
-
   public static List<Map<String, Object>> instances() {
     return readJsonFromFile(BASE + "instances.json", new TypeReference<>() { });
   }
@@ -59,26 +55,19 @@ public final class SharedTestDataManager {
     return readJsonFromFile(BASE + "linked-data-hubs.json", new TypeReference<>() { });
   }
 
-  // -------------------------------------------------------------------------
-  // Count helpers
-  // -------------------------------------------------------------------------
-
-  public static int instanceCount() {
-    return instances().size();
+  public static void loadAll(String tenantId, LockManager lockManager,
+                             RecordsChildrenIndexer childrenIndexer, RecordsIndexer indexer,
+                             Runnable postProcesAction) {
+    loadInventory(tenantId, lockManager, childrenIndexer, indexer);
+    loadAuthorities(tenantId, indexer);
+    loadLinkedData(tenantId, indexer);
+    postProcesAction.run();
   }
-
-  public static int authorityCount() {
-    return authorities().size();
-  }
-
-  // -------------------------------------------------------------------------
-  // Loading entry points
-  // -------------------------------------------------------------------------
 
   /**
    * Indexes all inventory records (instances, holdings, items) under sub-resource locks so that
    * the scheduled job does not race with initial data load. After releasing locks, calls
-   * {@code persistChildren()} directly to process sub-resources synchronously.
+   * {@code RecordsChildrenIndexer#indexChildren()} directly to process sub-resources synchronously.
    */
   public static void loadInventory(String tenantId, LockManager lockManager,
                                    RecordsChildrenIndexer childrenIndexer,

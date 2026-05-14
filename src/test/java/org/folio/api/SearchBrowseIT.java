@@ -1,28 +1,22 @@
 package org.folio.api;
 
-import static java.util.Collections.emptyList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.await;
-import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
-import static org.awaitility.Durations.ONE_MINUTE;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CALL_NUMBERS;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CLASSIFICATIONS;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CONTRIBUTORS;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_SUBJECTS;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.SEARCH_ALL_FIELDS;
+import static org.folio.search.model.types.ResourceType.AUTHORITY;
+import static org.folio.search.model.types.ResourceType.INSTANCE;
 import static org.folio.search.model.types.ResourceType.INSTANCE_CALL_NUMBER;
 import static org.folio.search.model.types.ResourceType.INSTANCE_CLASSIFICATION;
 import static org.folio.search.model.types.ResourceType.INSTANCE_CONTRIBUTOR;
 import static org.folio.search.model.types.ResourceType.INSTANCE_SUBJECT;
+import static org.folio.search.model.types.ResourceType.LINKED_DATA_HUB;
+import static org.folio.search.model.types.ResourceType.LINKED_DATA_INSTANCE;
+import static org.folio.search.model.types.ResourceType.LINKED_DATA_WORK;
 import static org.folio.support.TestConstants.TENANT_ID;
-import static org.folio.support.base.ApiEndpoints.authoritySearchPath;
-import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
-import static org.folio.support.base.ApiEndpoints.linkedDataHubSearchPath;
-import static org.folio.support.base.ApiEndpoints.linkedDataInstanceSearchPath;
-import static org.folio.support.base.ApiEndpoints.linkedDataWorkSearchPath;
 
 import java.sql.Timestamp;
-import java.util.List;
 import org.folio.api.browse.BrowseAuthorityIT;
 import org.folio.api.browse.BrowseCallNumberIT;
 import org.folio.api.browse.BrowseClassificationIT;
@@ -44,12 +38,12 @@ import org.folio.api.search.SearchLinkedDataWorkIT;
 import org.folio.api.search.SortAuthorityIT;
 import org.folio.api.search.SortInstanceIT;
 import org.folio.api.search.SortItemIT;
-import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.reindex.jdbc.SubResourcesLockRepository;
 import org.folio.search.service.scheduled.ScheduledInstanceSubResourcesService;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.BaseIntegrationTest;
+import org.folio.support.base.BaseSharedTest;
 import org.folio.support.testdata.SharedTestDataManager;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -61,11 +55,14 @@ import org.springframework.test.context.TestPropertySource;
 @TestPropertySource(properties = "folio.search-config.indexing.instance-children-index-enabled=true")
 class SearchBrowseIT extends BaseIntegrationTest {
 
-  private static final int TOTAL_INSTANCES = 96;
-  private static final int TOTAL_AUTHORITIES = 132;
+  private static final int EXPECTED_AUTHORITY_COUNT = 132;
   private static final int EXPECTED_CALL_NUMBER_COUNT = 116;
-  private static final int EXPECTED_CONTRIBUTOR_COUNT = 68;
   private static final int EXPECTED_CLASSIFICATION_COUNT = 92;
+  private static final int EXPECTED_CONTRIBUTOR_COUNT = 68;
+  private static final int EXPECTED_INSTANCE_COUNT = 96;
+  private static final int EXPECTED_LINKED_DATA_HUB_COUNT = 2;
+  private static final int EXPECTED_LINKED_DATA_INSTANCE_COUNT = 2;
+  private static final int EXPECTED_LINKED_DATA_WORK_COUNT = 2;
   private static final int EXPECTED_SUBJECT_COUNT = 52;
 
   @BeforeAll
@@ -78,13 +75,11 @@ class SearchBrowseIT extends BaseIntegrationTest {
     enableFeature(BROWSE_CONTRIBUTORS);
     enableFeature(BROWSE_SUBJECTS);
     enableFeature(BROWSE_CLASSIFICATIONS);
-    SharedTestDataManager.loadInventory(TENANT_ID, createLockManager(lockRepo),
-      scheduledSubResourcesService::persistChildren, SearchBrowseIT::indexRecords);
-    SharedTestDataManager.loadAuthorities(TENANT_ID, SearchBrowseIT::indexRecords);
-    awaitSubResourceIndexing();
-    checkThatEventsFromKafkaAreIndexed(TENANT_ID, instanceSearchPath(), TOTAL_INSTANCES, emptyList());
-    checkThatEventsFromKafkaAreIndexed(TENANT_ID, authoritySearchPath(), TOTAL_AUTHORITIES, emptyList());
-    loadLinkedData();
+    SharedTestDataManager.loadAll(TENANT_ID,
+      createLockManager(lockRepo),
+      scheduledSubResourcesService::persistChildren,
+      BaseSharedTest::indexRecords,
+      SearchBrowseIT::awaitSubResourceIndexing);
   }
 
   @AfterAll
@@ -93,73 +88,26 @@ class SearchBrowseIT extends BaseIntegrationTest {
   }
 
   private static SharedTestDataManager.LockManager createLockManager(SubResourcesLockRepository lockRepo) {
-    return new BrowseLockManager(lockRepo);
+    return new SubResourceLockManager(lockRepo);
   }
 
   private static void awaitSubResourceIndexing() {
-    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
-      assertThat(countIndexDocument(INSTANCE_CALL_NUMBER, TENANT_ID))
-        .as("Call number index document count should reach %d", EXPECTED_CALL_NUMBER_COUNT)
-        .isEqualTo(EXPECTED_CALL_NUMBER_COUNT));
-    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
-      assertThat(countIndexDocument(INSTANCE_CLASSIFICATION, TENANT_ID))
-        .as("Classification index document count should reach %d", EXPECTED_CLASSIFICATION_COUNT)
-        .isEqualTo(EXPECTED_CLASSIFICATION_COUNT));
-    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
-      assertThat(countIndexDocument(INSTANCE_CONTRIBUTOR, TENANT_ID))
-        .as("Contributor index document count should reach %d", EXPECTED_CONTRIBUTOR_COUNT)
-        .isEqualTo(EXPECTED_CONTRIBUTOR_COUNT));
-    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
-      assertThat(countIndexDocument(INSTANCE_SUBJECT, TENANT_ID))
-        .as("Subject index document count should reach %d", EXPECTED_SUBJECT_COUNT)
-        .isEqualTo(EXPECTED_SUBJECT_COUNT));
-  }
-
-  private static void loadLinkedData() {
-    SharedTestDataManager.loadLinkedData(TENANT_ID, SearchBrowseIT::indexRecords);
-    checkThatEventsFromKafkaAreIndexed(TENANT_ID, linkedDataInstanceSearchPath(),
-      SearchLinkedDataInstanceIT.INSTANCE_SAMPLES.size(), emptyList());
-    checkThatEventsFromKafkaAreIndexed(TENANT_ID, linkedDataWorkSearchPath(),
-      SearchLinkedDataWorkIT.WORK_SAMPLES.size(), emptyList());
-    checkThatEventsFromKafkaAreIndexed(TENANT_ID, linkedDataHubSearchPath(),
-      SearchLinkedDataHubIT.HUB_SAMPLES.size(), emptyList());
-  }
-
-  private static void indexRecords(List<ResourceEvent> events) {
-    try {
-      var mvcResult = doPost("/search/index/records", events).andReturn();
-      System.out.println(mvcResult.getResponse().getContentAsString());
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to index records", e);
-    }
+    verifyIndexedResourceCounts(INSTANCE, TENANT_ID, EXPECTED_INSTANCE_COUNT);
+    verifyIndexedResourceCounts(AUTHORITY, TENANT_ID, EXPECTED_AUTHORITY_COUNT);
+    verifyIndexedResourceCounts(INSTANCE_CALL_NUMBER, TENANT_ID, EXPECTED_CALL_NUMBER_COUNT);
+    verifyIndexedResourceCounts(INSTANCE_CLASSIFICATION, TENANT_ID, EXPECTED_CLASSIFICATION_COUNT);
+    verifyIndexedResourceCounts(INSTANCE_CONTRIBUTOR, TENANT_ID, EXPECTED_CONTRIBUTOR_COUNT);
+    verifyIndexedResourceCounts(INSTANCE_SUBJECT, TENANT_ID, EXPECTED_SUBJECT_COUNT);
+    verifyIndexedResourceCounts(LINKED_DATA_INSTANCE, TENANT_ID, EXPECTED_LINKED_DATA_INSTANCE_COUNT);
+    verifyIndexedResourceCounts(LINKED_DATA_WORK, TENANT_ID, EXPECTED_LINKED_DATA_WORK_COUNT);
+    verifyIndexedResourceCounts(LINKED_DATA_HUB, TENANT_ID, EXPECTED_LINKED_DATA_HUB_COUNT);
   }
 
   @Nested
-  class SearchInstance extends SearchInstanceIT { }
-
-  @Nested
-  class SearchHoldings extends SearchHoldingsIT { }
-
-  @Nested
-  class SearchItem extends SearchItemIT { }
-
-  @Nested
-  class SortInstance extends SortInstanceIT { }
-
-  @Nested
-  class SearchByEmptyValues extends SearchByEmptyValuesIT { }
-
-  @Nested
-  class FacetInstance extends FacetInstanceIT { }
-
-  @Nested
-  class SortItem extends SortItemIT { }
+  class BrowseAuthority extends BrowseAuthorityIT { }
 
   @Nested
   class BrowseCallNumber extends BrowseCallNumberIT { }
-
-  @Nested
-  class FacetInstanceCallNumber extends FacetInstanceCallNumberIT { }
 
   @Nested
   class BrowseClassification extends BrowseClassificationIT { }
@@ -168,10 +116,19 @@ class SearchBrowseIT extends BaseIntegrationTest {
   class BrowseContributor extends BrowseContributorIT { }
 
   @Nested
-  class FacetInstanceContributor extends FacetInstanceContributorIT { }
+  class BrowseSubject extends BrowseSubjectIT { }
 
   @Nested
-  class BrowseSubject extends BrowseSubjectIT { }
+  class FacetAuthority extends FacetAuthorityIT { }
+
+  @Nested
+  class FacetInstance extends FacetInstanceIT { }
+
+  @Nested
+  class FacetInstanceCallNumber extends FacetInstanceCallNumberIT { }
+
+  @Nested
+  class FacetInstanceContributor extends FacetInstanceContributorIT { }
 
   @Nested
   class FacetInstanceSubject extends FacetInstanceSubjectIT { }
@@ -180,13 +137,19 @@ class SearchBrowseIT extends BaseIntegrationTest {
   class SearchAuthority extends SearchAuthorityIT { }
 
   @Nested
-  class FacetAuthority extends FacetAuthorityIT { }
+  class SearchByEmptyValues extends SearchByEmptyValuesIT { }
 
   @Nested
-  class SortAuthority extends SortAuthorityIT { }
+  class SearchHoldings extends SearchHoldingsIT { }
 
   @Nested
-  class BrowseAuthority extends BrowseAuthorityIT { }
+  class SearchInstance extends SearchInstanceIT { }
+
+  @Nested
+  class SearchItem extends SearchItemIT { }
+
+  @Nested
+  class SearchLinkedDataHub extends SearchLinkedDataHubIT { }
 
   @Nested
   class SearchLinkedDataInstance extends SearchLinkedDataInstanceIT { }
@@ -195,9 +158,15 @@ class SearchBrowseIT extends BaseIntegrationTest {
   class SearchLinkedDataWork extends SearchLinkedDataWorkIT { }
 
   @Nested
-  class SearchLinkedDataHub extends SearchLinkedDataHubIT { }
+  class SortAuthority extends SortAuthorityIT { }
 
-  private static final class BrowseLockManager implements SharedTestDataManager.LockManager {
+  @Nested
+  class SortInstance extends SortInstanceIT { }
+
+  @Nested
+  class SortItem extends SortItemIT { }
+
+  private static final class SubResourceLockManager implements SharedTestDataManager.LockManager {
 
     private final SubResourcesLockRepository lockRepo;
     private Timestamp subjLock;
@@ -205,20 +174,16 @@ class SearchBrowseIT extends BaseIntegrationTest {
     private Timestamp contribLock;
     private Timestamp cnLock;
 
-    private BrowseLockManager(SubResourcesLockRepository lockRepo) {
+    private SubResourceLockManager(SubResourcesLockRepository lockRepo) {
       this.lockRepo = lockRepo;
     }
 
     @Override
     public void lockAll() {
-      cnLock = lockRepo.lockSubResource(ReindexEntityType.CALL_NUMBER, TENANT_ID)
-        .orElseThrow(() -> new IllegalStateException("Unable to lock CALL_NUMBER resource"));
-      contribLock = lockRepo.lockSubResource(ReindexEntityType.CONTRIBUTOR, TENANT_ID)
-        .orElseThrow(() -> new IllegalStateException("Unable to lock CONTRIBUTOR resource"));
-      classifLock = lockRepo.lockSubResource(ReindexEntityType.CLASSIFICATION, TENANT_ID)
-        .orElseThrow(() -> new IllegalStateException("Unable to lock CLASSIFICATION resource"));
-      subjLock = lockRepo.lockSubResource(ReindexEntityType.SUBJECT, TENANT_ID)
-        .orElseThrow(() -> new IllegalStateException("Unable to lock SUBJECT resource"));
+      cnLock = lockOrFail(ReindexEntityType.CALL_NUMBER);
+      contribLock = lockOrFail(ReindexEntityType.CONTRIBUTOR);
+      classifLock = lockOrFail(ReindexEntityType.CLASSIFICATION);
+      subjLock = lockOrFail(ReindexEntityType.SUBJECT);
     }
 
     @Override
@@ -227,6 +192,11 @@ class SearchBrowseIT extends BaseIntegrationTest {
       lockRepo.unlockSubResource(ReindexEntityType.CONTRIBUTOR, contribLock, TENANT_ID);
       lockRepo.unlockSubResource(ReindexEntityType.CLASSIFICATION, classifLock, TENANT_ID);
       lockRepo.unlockSubResource(ReindexEntityType.SUBJECT, subjLock, TENANT_ID);
+    }
+
+    private Timestamp lockOrFail(ReindexEntityType entityType) {
+      return lockRepo.lockSubResource(entityType, TENANT_ID)
+        .orElseThrow(() -> new IllegalStateException("Unable to lock %s resource".formatted(entityType)));
     }
   }
 }

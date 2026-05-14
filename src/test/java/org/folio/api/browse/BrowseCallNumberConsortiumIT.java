@@ -64,7 +64,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.TestPropertySource;
 
 @IntegrationTest
-@TestPropertySource(properties = "folio.search-config.indexing.instance-children-index-enabled=true")
+@TestPropertySource(properties = {
+  "folio.search-config.indexing.instance-children-index-enabled=true",
+  "folio.system-user.enabled=false"
+})
 class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
 
   private static final String LOCATION_FACET = "instances.locationId";

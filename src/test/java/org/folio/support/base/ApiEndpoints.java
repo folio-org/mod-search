@@ -13,6 +13,10 @@ import org.folio.search.model.Pair;
 @UtilityClass
 public class ApiEndpoints {
 
+  public static String indexRecordsPath() {
+    return "/search/index/records";
+  }
+
   public static String instanceSearchPath() {
     return "/search/instances";
   }

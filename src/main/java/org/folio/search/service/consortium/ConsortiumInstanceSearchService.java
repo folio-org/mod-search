@@ -145,7 +145,7 @@ public class ConsortiumInstanceSearchService {
       .build();
     var termsQuery = termsQuery(targetField, identifierValues);
 
-    if (identifierValues.size() < DEFAULT_MAX_SEARCH_RESULT_WINDOW) {
+    if (identifierValues.size() <= DEFAULT_MAX_SEARCH_RESULT_WINDOW) {
       return executeSearch(request, termsQuery, recordMapper, identifierType, identifierValues);
     }
 

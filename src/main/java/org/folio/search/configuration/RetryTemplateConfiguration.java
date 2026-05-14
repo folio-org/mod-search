@@ -85,6 +85,7 @@ public class RetryTemplateConfiguration {
   }
 
   private static boolean isConnectionClosedException(Throwable throwable) {
+    log.warn("isConnectionClosedException:: encountered exception: ", throwable);
     var cause = throwable;
     while (cause != null) {
       if (cause instanceof ConnectionClosedException) {

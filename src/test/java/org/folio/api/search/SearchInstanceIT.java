@@ -123,7 +123,9 @@ public abstract class SearchInstanceIT extends BaseSharedTest {
 
     var actual = parseResponse(response, InstanceSearchResult.class);
 
-    Assertions.assertThat(actual).usingRecursiveComparison().ignoringCollectionOrder().isEqualTo(expected);
+    Assertions.assertThat(actual)
+      .as("Instance search response should match expected basic properties")
+      .usingRecursiveComparison().ignoringCollectionOrder().isEqualTo(expected);
   }
 
   @Test
@@ -143,7 +145,9 @@ public abstract class SearchInstanceIT extends BaseSharedTest {
 
     var actual = parseResponse(response, InstanceSearchResult.class);
 
-    Assertions.assertThat(actual).usingRecursiveComparison().ignoringCollectionOrder().isEqualTo(expected);
+    Assertions.assertThat(actual)
+      .as("Instance search response should match expected full properties")
+      .usingRecursiveComparison().ignoringCollectionOrder().isEqualTo(expected);
   }
 
   @MethodSource("invalidDateSearchQueriesProvider")

@@ -49,7 +49,9 @@ class IndexingInstanceClassificationIT extends BaseIntegrationTest {
     inventoryApi.createInstance(TENANT_ID, instance1);
     inventoryApi.createInstance(TENANT_ID, instance2);
     assertCountByIds(instanceSearchPath(), List.of(instanceId1, instanceId2), 2);
-    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CLASSIFICATION, TENANT_ID)).hasSize(1));
+    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CLASSIFICATION, TENANT_ID))
+      .as("Should have exactly 1 classification document in the index")
+      .hasSize(1));
 
     var hits = fetchAllDocuments(INSTANCE_CLASSIFICATION, TENANT_ID);
     var sourceAsMap = hits[0].getSourceAsMap();
@@ -58,6 +60,7 @@ class IndexingInstanceClassificationIT extends BaseIntegrationTest {
     @SuppressWarnings("unchecked")
     var instances = (List<Map<String, Object>>) sourceAsMap.get("instances");
     assertThat(instances)
+      .as("Instances list should contain exactly 1 group with count 2")
       .hasSize(1)
       .allSatisfy(map -> assertThat(map).containsEntry("shared", false))
       .allSatisfy(map -> assertThat(map).containsEntry("tenantId", TENANT_ID))
@@ -71,9 +74,13 @@ class IndexingInstanceClassificationIT extends BaseIntegrationTest {
     var instance = new Instance().id(instanceId).addClassificationsItem(classification);
     inventoryApi.createInstance(TENANT_ID, instance);
     assertCountByIds(instanceSearchPath(), List.of(instanceId), 1);
-    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CLASSIFICATION, TENANT_ID)).hasSize(1));
+    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CLASSIFICATION, TENANT_ID))
+      .as("Should have exactly 1 classification document before instance update")
+      .hasSize(1));
     inventoryApi.updateInstance(TENANT_ID, instance.classifications(null));
-    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CLASSIFICATION, TENANT_ID)).isEmpty());
+    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CLASSIFICATION, TENANT_ID))
+      .as("Classification document should be removed after instance classifications cleared")
+      .isEmpty());
   }
 
   @Test
@@ -83,13 +90,18 @@ class IndexingInstanceClassificationIT extends BaseIntegrationTest {
     var instance = new Instance().id(instanceId).addClassificationsItem(classification);
     inventoryApi.createInstance(TENANT_ID, instance);
     assertCountByIds(instanceSearchPath(), List.of(instanceId), 1);
-    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CLASSIFICATION, TENANT_ID)).hasSize(1));
+    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CLASSIFICATION, TENANT_ID))
+      .as("Should have exactly 1 classification document before instance delete")
+      .hasSize(1));
     inventoryApi.deleteInstance(TENANT_ID, instanceId);
-    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CLASSIFICATION, TENANT_ID)).isEmpty());
+    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CLASSIFICATION, TENANT_ID))
+      .as("Classification document should be removed after instance delete")
+      .isEmpty());
   }
 
   private void assertClassificationDocFields(Map<String, Object> sourceAsMap, String number, String lcTypeId) {
     assertThat(sourceAsMap)
+      .as("Classification document should contain expected indexed fields")
       .contains(
         entry("number", number),
         entry("typeId", lcTypeId),

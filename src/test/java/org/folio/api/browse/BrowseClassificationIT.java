@@ -44,7 +44,9 @@ public abstract class BrowseClassificationIT extends BaseSharedTest {
       .param("limit", String.valueOf(limit));
     var actual = parseResponse(doGet(request), ClassificationNumberBrowseResult.class);
 
-    assertThat(actual).usingRecursiveComparison().ignoringFields(COLLECTION_IGNORING_FIELDS).isEqualTo(expected);
+    assertThat(actual)
+      .as("Classification browse result should match expected for query='%s', anchor='%s'", query, anchor)
+      .usingRecursiveComparison().ignoringFields(COLLECTION_IGNORING_FIELDS).isEqualTo(expected);
   }
 
   @Test
@@ -58,11 +60,13 @@ public abstract class BrowseClassificationIT extends BaseSharedTest {
       .param("precedingRecordsCount", "2");
     var actual = parseResponse(doGet(request), ClassificationNumberBrowseResult.class);
     assertThat(actual)
+      .as("Browse result should have correct totalRecords, prev, and next pointers")
       .extracting(ClassificationNumberBrowseResult::getTotalRecords,
         ClassificationNumberBrowseResult::getPrev,
         ClassificationNumberBrowseResult::getNext)
       .contains(92, "Q9498 .N34 2020", "TK5105.88815");
     assertThat(actual.getItems())
+      .as("Browse items should match expected classification entries with precedingRecordsCount=2")
       .usingRecursiveFieldByFieldElementComparatorIgnoringFields(ENTRY_IGNORING_FIELDS)
       .startsWith(
         classificationBrowseItem("Q9498 .N34 2020", TYPE1_ID, 1,
@@ -93,6 +97,7 @@ public abstract class BrowseClassificationIT extends BaseSharedTest {
       .param("precedingRecordsCount", "1");
     var actual = parseResponse(doGet(request), ClassificationNumberBrowseResult.class);
     assertThat(actual)
+      .as("Browse result should include placeholder when anchor has no exact match")
       .usingRecursiveComparison().ignoringFields(COLLECTION_IGNORING_FIELDS)
       .isEqualTo(classificationBrowseResult("Q9498 .N34 2020", "QA1771 .R93 1975", 92, List.of(
         classificationBrowseItem("Q9498 .N34 2020", TYPE1_ID, 1, "Evolutionary Biology: Mechanisms and Patterns",
@@ -112,6 +117,7 @@ public abstract class BrowseClassificationIT extends BaseSharedTest {
       .param("precedingRecordsCount", "2");
     var actual = parseResponse(doGet(request), ClassificationNumberBrowseResult.class);
     assertThat(actual)
+      .as("Browse result should match expected when LC config is set to two type IDs")
       .usingRecursiveComparison().ignoringFields(COLLECTION_IGNORING_FIELDS)
       .isEqualTo(classificationBrowseResult("GE1748 .C51 1975", "HM3819 .L23 1998", 90, List.of(
         classificationBrowseItem("GE1748 .C51 1975", TYPE1_ID, 1, "Bioethics: Principles and Cases",

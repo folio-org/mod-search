@@ -48,7 +48,9 @@ public abstract class BrowseContributorIT extends BaseSharedTest {
       .param("limit", String.valueOf(limit));
 
     var actual = parseResponse(doGet(request), ContributorBrowseResult.class);
-    assertThat(actual).isEqualTo(expected);
+    assertThat(actual)
+      .as("Contributor browse result should match expected for query='%s', anchor='%s'", query, anchor)
+      .isEqualTo(expected);
   }
 
   @Test
@@ -70,7 +72,9 @@ public abstract class BrowseContributorIT extends BaseSharedTest {
         contributorBrowseItem(2, "Klaus Meine", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[0], TYPE_IDS[1]),
         contributorBrowseItem(2, "Paul McCartney", NAME_TYPE_IDS[0], AUTHORITY_IDS[0], TYPE_IDS[0], TYPE_IDS[1])));
 
-    assertThat(actual).isEqualTo(expected);
+    assertThat(actual)
+      .as("Contributor browse result should match expected when filtered by name type ID")
+      .isEqualTo(expected);
   }
 
   @SuppressWarnings("checkstyle:MethodLength")

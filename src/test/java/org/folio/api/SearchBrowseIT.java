@@ -99,15 +99,19 @@ class SearchBrowseIT extends BaseIntegrationTest {
   private static void awaitSubResourceIndexing() {
     await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
       assertThat(countIndexDocument(INSTANCE_CALL_NUMBER, TENANT_ID))
+        .as("Call number index document count should reach %d", EXPECTED_CALL_NUMBER_COUNT)
         .isEqualTo(EXPECTED_CALL_NUMBER_COUNT));
     await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
       assertThat(countIndexDocument(INSTANCE_CLASSIFICATION, TENANT_ID))
+        .as("Classification index document count should reach %d", EXPECTED_CLASSIFICATION_COUNT)
         .isEqualTo(EXPECTED_CLASSIFICATION_COUNT));
     await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
       assertThat(countIndexDocument(INSTANCE_CONTRIBUTOR, TENANT_ID))
+        .as("Contributor index document count should reach %d", EXPECTED_CONTRIBUTOR_COUNT)
         .isEqualTo(EXPECTED_CONTRIBUTOR_COUNT));
     await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
       assertThat(countIndexDocument(INSTANCE_SUBJECT, TENANT_ID))
+        .as("Subject index document count should reach %d", EXPECTED_SUBJECT_COUNT)
         .isEqualTo(EXPECTED_SUBJECT_COUNT));
   }
 

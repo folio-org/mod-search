@@ -37,7 +37,9 @@ public abstract class BrowseSubjectIT extends BaseSharedTest {
       .param("limit", String.valueOf(limit));
     var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
 
-    assertThat(actual).isEqualTo(expected);
+    assertThat(actual)
+      .as("Subject browse result should match expected for query='%s', anchor='%s'", query, anchor)
+      .isEqualTo(expected);
   }
 
   @Test
@@ -47,7 +49,9 @@ public abstract class BrowseSubjectIT extends BaseSharedTest {
       .param("limit", "7")
       .param("precedingRecordsCount", "2");
     var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
-    assertThat(actual).isEqualTo(new SubjectBrowseResult()
+    assertThat(actual)
+      .as("Subject browse result should match expected with precedingRecordsCount=2 around 'Machine learning'")
+      .isEqualTo(new SubjectBrowseResult()
       .totalRecords(52).prev("Library science").next("Music")
       .items(List.of(
         subjectBrowseItem(6, "Library science"),
@@ -67,7 +71,9 @@ public abstract class BrowseSubjectIT extends BaseSharedTest {
       .param("highlightMatch", "false");
     var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
 
-    assertThat(actual).isEqualTo(new SubjectBrowseResult()
+    assertThat(actual)
+      .as("Subject browse result should match expected when highlightMatch=false around 'genetics'")
+      .isEqualTo(new SubjectBrowseResult()
       .totalRecords(52).prev("Fantasy").next("Global economics")
       .items(List.of(
         subjectBrowseItem(1, "Fantasy"),
@@ -89,7 +95,9 @@ public abstract class BrowseSubjectIT extends BaseSharedTest {
         subjectBrowseItem(1, "Music", MUSIC_AUTHORITY_ID_1, MUSIC_SOURCE_ID, null),
         subjectBrowseItem(0, "Philosophy", true)));
 
-    assertThat(actual).isEqualTo(expected);
+    assertThat(actual)
+      .as("Subject browse result should match expected when filtered by source ID")
+      .isEqualTo(expected);
   }
 
   @Test
@@ -104,7 +112,9 @@ public abstract class BrowseSubjectIT extends BaseSharedTest {
         subjectBrowseItem(1, "Music", MUSIC_AUTHORITY_ID_2, MUSIC_SOURCE_ID, MUSIC_TYPE_ID),
         subjectBrowseItem(0, "Philosophy", true)));
 
-    assertThat(actual).isEqualTo(expected);
+    assertThat(actual)
+      .as("Subject browse result should match expected when filtered by type ID")
+      .isEqualTo(expected);
   }
 
   @SuppressWarnings("checkstyle:MethodLength")

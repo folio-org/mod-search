@@ -74,7 +74,9 @@ class IndexingInstanceCallNumberIT extends BaseIntegrationTest {
       // when
       // fetch all documents from search index
       var hits = fetchAllDocuments(INSTANCE_CALL_NUMBER, TENANT_ID);
-      assertThat(hits).hasSize(1);
+      assertThat(hits)
+        .as("Should have exactly 1 call number document in the index")
+        .hasSize(1);
 
       // then
       var sourceAsMap = hits[0].getSourceAsMap();
@@ -85,12 +87,15 @@ class IndexingInstanceCallNumberIT extends BaseIntegrationTest {
       @SuppressWarnings("unchecked")
       var instances = (List<Map<String, Object>>) sourceAsMap.get("instances");
       assertThat(instances)
+        .as("Instances list should contain exactly 1 shared/tenant group")
         .hasSize(1)
         .allSatisfy(map -> assertThat(map).containsEntry("shared", false))
         .allSatisfy(map -> assertThat(map).containsEntry("tenantId", TENANT_ID));
       @SuppressWarnings("unchecked")
       var ids = (List<String>) instances.getFirst().get("instanceId");
-      assertThat(ids).containsExactlyInAnyOrder(INSTANCE_ID_1, INSTANCE_ID_2);
+      assertThat(ids)
+        .as("Instance IDs should contain both indexed instances")
+        .containsExactlyInAnyOrder(INSTANCE_ID_1, INSTANCE_ID_2);
     });
   }
 
@@ -100,14 +105,18 @@ class IndexingInstanceCallNumberIT extends BaseIntegrationTest {
     // create item with call number
     var item = getItem(randomId());
     inventoryApi.createItem(TENANT_ID, INSTANCE_ID_1, item);
-    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CALL_NUMBER, TENANT_ID)).hasSize(1));
+    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CALL_NUMBER, TENANT_ID))
+      .as("Should have exactly 1 call number document before update")
+      .hasSize(1));
 
     // when update item with null call number
     item.setEffectiveCallNumberComponents(null);
     inventoryApi.updateItem(TENANT_ID, INSTANCE_ID_1, item);
 
     // then
-    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CALL_NUMBER, TENANT_ID)).isEmpty());
+    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CALL_NUMBER, TENANT_ID))
+      .as("Call number document should be removed after item call number is cleared")
+      .isEmpty());
   }
 
   @Test
@@ -117,17 +126,22 @@ class IndexingInstanceCallNumberIT extends BaseIntegrationTest {
     var itemId = randomId();
     var item = getItem(itemId);
     inventoryApi.createItem(TENANT_ID, INSTANCE_ID_1, item);
-    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CALL_NUMBER, TENANT_ID)).hasSize(1));
+    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CALL_NUMBER, TENANT_ID))
+      .as("Should have exactly 1 call number document before delete")
+      .hasSize(1));
 
     // when
     inventoryApi.deleteItem(TENANT_ID, itemId);
 
     // then
-    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CALL_NUMBER, TENANT_ID)).isEmpty());
+    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CALL_NUMBER, TENANT_ID))
+      .as("Call number document should be removed after item delete")
+      .isEmpty());
   }
 
   private void assertCallNumberDocFields(Map<String, Object> sourceAsMap) {
     assertThat(sourceAsMap)
+      .as("Call number document should contain expected indexed fields")
       .contains(
         entry("callNumber", "NS 1 .B5"),
         entry("fullCallNumber", "NS 1 .B5"),

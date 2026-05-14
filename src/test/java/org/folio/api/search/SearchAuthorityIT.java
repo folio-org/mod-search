@@ -161,7 +161,9 @@ public abstract class SearchAuthorityIT extends BaseSharedTest {
     var response = doSearchByAuthorities(prepareQuery(query, value))
       .andExpect(jsonPath("$.totalRecords", is(35)));
     var actual = parseResponse(response, AuthoritySearchResult.class);
-    assertThat(actual.getAuthorities()).asInstanceOf(InstanceOfAssertFactories.LIST).containsOnly(
+    assertThat(actual.getAuthorities())
+      .as("Authority search result should contain all 35 expected heading expansion entries")
+      .asInstanceOf(InstanceOfAssertFactories.LIST).containsOnly(
       // personalName headings
       gary("Personal Name", AUTHORIZED_TYPE, "Gary A. Wills"),
       gary("Personal Name", REFERENCE_TYPE, "a sft personal name"),

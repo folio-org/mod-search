@@ -36,8 +36,11 @@ public abstract class FacetInstanceSubjectIT extends BaseSharedTest {
       assertNotNull(actual.getFacets());
       var actualFacet = actual.getFacets().get(facetName);
 
-      assertThat(actualFacet).isNotNull();
+      assertThat(actualFacet)
+        .as("Facet '%s' should be present in results", facetName)
+        .isNotNull();
       assertThat(actualFacet.getValues())
+        .as("Facet '%s' values should match expected", facetName)
         .containsExactlyInAnyOrderElementsOf(expectedFacet.getValues());
     });
   }

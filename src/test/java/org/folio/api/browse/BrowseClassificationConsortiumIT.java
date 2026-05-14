@@ -92,7 +92,9 @@ class BrowseClassificationConsortiumIT extends BaseConsortiumIntegrationTest {
         .source(searchSource().query(matchAllQuery()).trackTotalHits(true).from(0).size(100))
         .indices(getIndexName(ResourceType.INSTANCE_CLASSIFICATION, CENTRAL_TENANT_ID));
       var searchResponse = elasticClient.search(searchRequest, RequestOptions.DEFAULT);
-      assertThat(searchResponse.getHits().getTotalHits().value()).isEqualTo(17);
+      assertThat(searchResponse.getHits().getTotalHits().value())
+        .as("Classification index should contain 17 documents after setup")
+        .isEqualTo(17);
     });
   }
 
@@ -110,6 +112,7 @@ class BrowseClassificationConsortiumIT extends BaseConsortiumIntegrationTest {
       .param("precedingRecordsCount", "2");
     var actual = parseResponse(doGet(request), ClassificationNumberBrowseResult.class);
     assertThat(actual)
+      .as("Shared browse result should match expected classification entries")
       .usingRecursiveComparison().ignoringFields(COLLECTION_IGNORING_FIELDS)
       .isEqualTo(classificationBrowseResult("HQ536 .A565 2018", null, 8, List.of(
         classificationBrowseItem("HQ536 .A565 2018", LC2_TYPE_ID, 1, "instance #03"),
@@ -130,6 +133,7 @@ class BrowseClassificationConsortiumIT extends BaseConsortiumIntegrationTest {
       .param("precedingRecordsCount", "2");
     var actual = parseResponse(doGet(request), ClassificationNumberBrowseResult.class);
     assertThat(actual)
+      .as("Local browse result should match expected classification entries")
       .usingRecursiveComparison().ignoringFields(COLLECTION_IGNORING_FIELDS)
       .isEqualTo(classificationBrowseResult("333.91", "SF433 .D47 2004", 11, List.of(
         classificationBrowseItem("333.91", DEWEY_TYPE_ID, 1, "instance #09"),
@@ -149,8 +153,11 @@ class BrowseClassificationConsortiumIT extends BaseConsortiumIntegrationTest {
     expected.forEach((facetName, expectedFacet) -> {
       var actualFacet = actual.getFacets().get(facetName);
 
-      assertThat(actualFacet).isNotNull();
+      assertThat(actualFacet)
+        .as("Facet '%s' should be present in results", facetName)
+        .isNotNull();
       assertThat(actualFacet.getValues())
+        .as("Facet '%s' values should match expected", facetName)
         .containsExactlyInAnyOrderElementsOf(expectedFacet.getValues());
     });
   }

@@ -78,7 +78,7 @@ Every browse endpoint returns a result object with the same shape:
 
 | Field          | Description                                                                                                    |
 |:---------------|:---------------------------------------------------------------------------------------------------------------|
-| `totalRecords` | Total number of distinct values in the index (not in this page). Used by clients to know the full index size.  |
+| `totalRecords` | Total number of distinct values matching the applied filter conditions (not in this page). When no filters are applied this equals the full index size. When heading-type or other filters are present it reflects the filtered count. |
 | `prev`         | Value of the **first** item in `items`; pass as anchor with a `<` query to navigate to the previous page.     |
 | `next`         | Value of the **last** item in `items`; pass as anchor with a `>` query to navigate to the next page. `null` if the last item is the global last. |
 | `items`        | Ordered list of browse items for this page.                                                                    |
@@ -104,8 +104,14 @@ For **around** queries both are populated and the sum of their limits equals `li
 ### Limit allocation for `around` queries
 
 ```
-precedingLimit  = precedingRecordsCount      (default: floor(limit / 2))
-succeedingLimit = limit - precedingRecordsCount
+precedingLimit  = precedingRecordsCount           (default: floor(limit / 2))
+succeedingLimit = limit - precedingRecordsCount - 1   (anchor occupies one slot)
+```
+
+When `highlightMatch=false` no anchor slot is consumed, so the formula changes to:
+
+```
+succeedingLimit = limit - precedingRecordsCount   (highlightMatch=false)
 ```
 
 The anchor itself is **not counted** toward either limit – it is handled as a third, separate query.
@@ -191,6 +197,109 @@ The following fields on the subject index support filter and facet queries:
 | `typeId`      | `typeId=="e62bbefe-adf5-4b1e-b3e7-43d877b0c91c"`         |
 | `instances.tenantId` | `instances.tenantId=="tenant_a"`                  |
 | `instances.shared`   | `instances.shared==true`                          |
+
+---
+
+## Authority Browse
+
+Authority browse operates on the **`AUTHORITY`** resource. Each document in the browse index represents one
+**heading entry** derived from an authority record. A single authority record typically produces multiple browse
+entries: one authorized heading, zero or more reference headings (from `sft*` fields), and optionally a title
+heading (from `*Title` fields).
+
+### Index document structure
+
+| Field              | Type          | Description                                                                                                  |
+|:-------------------|:--------------|:-------------------------------------------------------------------------------------------------------------|
+| `headingRef`       | `keyword_icu` | The heading text — the field being browsed and sorted                                                        |
+| `headingType`      | `keyword`     | Heading category: `Personal Name`, `Corporate Name`, `Conference Name`, `Geographic Name`, `Uniform Title`, `Topical`, `Genre`, `Named Event`, `Chronological Term`, `Chronological Subdivision`, `Geographic Subdivision`, `General Subdivision`, `Form Subdivision`, `Medium of Performance Term` |
+| `authRefType`      | `keyword`     | `Authorized` for the preferred heading; `Reference` for see-also entries                                     |
+| `isTitleHeadingRef`| `boolean`     | `true` when the heading was sourced from a `*Title` field (e.g. `personalNameTitle`, `meetingNameTitle`). Use `isTitleHeadingRef==false` to exclude these from a name-only browse. |
+| `naturalId`        | `keyword`     | External / LC control number of the authority record                                                         |
+| `sourceFileId`     | `keyword`     | UUID of the authority source file the record belongs to                                                      |
+| `id`               | `keyword`     | UUID of the authority record                                                                                 |
+| `tenantId`         | `keyword`     | Owning tenant identifier                                                                                     |
+| `shared`           | `boolean`     | Whether the authority record is shared across the consortium                                                 |
+| `numberOfTitles`   | `integer`     | Count of title instances linked to this authority (present only on `Authorized` entries)                     |
+
+### Sort order
+
+Results are sorted by `headingRef` using **ICU collation** (case-insensitive, diacritic-aware, language-aware).
+Characters with diacritics (e.g. `Ĵ`, `ä`) sort near their base-letter equivalents rather than at the end of the
+alphabet.
+
+### `totalRecords`
+
+Reflects the **total number of browse entries matching the non-range filter conditions** (e.g. `headingType`,
+`isTitleHeadingRef`, `sourceFileId`). When filters are applied this count may be significantly smaller than the
+full authority index.
+
+### Response item structure
+
+Each authority browse item contains:
+
+```json
+{
+  "headingRef": "Brian K. Vaughan",
+  "isAnchor": true,
+  "authority": {
+    "id": "0000002b-0000-4000-a000-000000000000",
+    "naturalId": "nb1994732053",
+    "headingRef": "Brian K. Vaughan",
+    "headingType": "Personal Name",
+    "authRefType": "Authorized",
+    "isTitleHeadingRef": false,
+    "sourceFileId": "b4000001-5de4-4467-b77f-b2057d6d69b6",
+    "tenantId": "test_tenant",
+    "shared": false,
+    "numberOfTitles": 0
+  }
+}
+```
+
+| Field         | Description                                                                                       |
+|:--------------|:--------------------------------------------------------------------------------------------------|
+| `headingRef`  | Heading text for this browse entry                                                                |
+| `isAnchor`    | `true` on the anchor item (see `isAnchor` behaviour below)                                        |
+| `authority`   | Nested authority object; **absent on placeholder items** (anchor values not found in the index)  |
+
+### `isAnchor` flag behaviour
+
+`isAnchor` is set to `true` on:
+- The **real anchor** item in `aroundIncluding` queries when the anchor value exists in the index.
+- A **placeholder item** (no `authority` object) injected when `highlightMatch=true` and the anchor value is not
+  present in the index — this applies to both `around` and `aroundIncluding` query types.
+
+`isAnchor` is **not set** on items returned by forward-only or backward-only queries, even when the anchor value
+appears in the result.
+
+### Filterable fields
+
+Additional filter conditions can be appended to any browse query with `and`:
+
+| Field              | Example filter query                                                       |
+|:-------------------|:---------------------------------------------------------------------------|
+| `headingType`      | `headingType==("Personal Name")` or `headingType==("Personal Name" OR "Corporate Name")` |
+| `isTitleHeadingRef`| `isTitleHeadingRef==false`                                                 |
+| `sourceFileId`     | `sourceFileId=="b4000001-5de4-4467-b77f-b2057d6d69b6"`                     |
+| `tenantId`         | `tenantId=="test_tenant"`                                                  |
+| `shared`           | `shared==false`                                                            |
+
+### Example — browsing around with heading-type filter
+
+```
+GET /browse/authorities
+  ?query=( headingRef >= "Ĵämes Röllins" or headingRef < "Ĵämes Röllins" )
+         and isTitleHeadingRef==false
+         and headingType==("Personal Name")
+         and sourceFileId=="b4000001-5de4-4467-b77f-b2057d6d69b6"
+  &limit=7
+  &precedingRecordsCount=2
+```
+
+Only Personal Name entries with `isTitleHeadingRef==false` are considered. The `totalRecords` value in the
+response reflects the total count of Personal Name non-title entries matching the source file filter, not the
+full authority index size.
 
 ---
 

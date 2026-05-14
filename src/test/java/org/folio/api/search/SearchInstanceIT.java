@@ -14,7 +14,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.stream.Stream;
 import org.assertj.core.api.Assertions;
 import org.folio.search.domain.dto.InstanceSearchResult;
-import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,7 +24,6 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-@IntegrationTest
 public abstract class SearchInstanceIT extends BaseSharedTest {
 
   @CsvFileSource(resources = "/test-resources/instance-search-test-queries.csv",

@@ -7,11 +7,9 @@ import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import java.util.List;
-import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.Test;
 
-@IntegrationTest
 public abstract class SortInstanceIT extends BaseSharedTest {
 
   private static final String ID_ANIMAL_FARM = "00000012-0000-4000-8000-000000000000";

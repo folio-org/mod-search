@@ -29,10 +29,6 @@ public abstract class SortAuthorityIT extends BaseSharedTest {
   private static final String PERSONAL_NAME_TYPE = "Personal Name";
   private static final String UNIFORM_TITLE_TYPE = "Uniform Title";
 
-  private static String scopedQuerySortedBy(String sort, CqlSort order) {
-    return String.format("subjectHeadings=z sortBy %s/sort.%s", sort, order);
-  }
-
   @Test
   void canSortAuthoritiesByHeadingRef_asc() throws Exception {
     doSearchByAuthorities(scopedQuerySortedBy("headingRef", ASCENDING))
@@ -95,7 +91,6 @@ public abstract class SortAuthorityIT extends BaseSharedTest {
       .andExpect(jsonPath("authorities[3].authRefType", is(AUTHORIZED.getTypeValue())))
       .andExpect(jsonPath("authorities[4].authRefType", is(AUTHORIZED.getTypeValue())))
       .andExpect(jsonPath("authorities[4].headingRef", is(ZEROMSKI_HEADING)));
-
   }
 
   @Test
@@ -123,5 +118,9 @@ public abstract class SortAuthorityIT extends BaseSharedTest {
       .andExpect(jsonPath("$.errors[0].code", is("validation_error")))
       .andExpect(jsonPath("$.errors[0].parameters[0].key", is("sortField")))
       .andExpect(jsonPath("$.errors[0].parameters[0].value", is("unknownSort")));
+  }
+
+  private static String scopedQuerySortedBy(String sort, CqlSort order) {
+    return String.format("subjectHeadings=z sortBy %s/sort.%s", sort, order);
   }
 }

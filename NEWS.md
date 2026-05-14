@@ -10,6 +10,8 @@
 * Honor spring.cache.type=noop for cache manager ([MSEARCH-1204](https://folio-org.atlassian.net/browse/MSEARCH-1204))
 
 ### Bug fixes
+* Add retry for search operations ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))
+* Skip background processing on BadSqlGrammarException ([MSEARCH-1214](https://folio-org.atlassian.net/browse/MSEARCH-1214))
 * Disable JVM container support to avoid cgroup v2 NullPointerException in Elasticsearch8  testcontainer ([MSEARCH-1209](https://folio-org.atlassian.net/browse/MSEARCH-1209))
 
 ### Tech Dept

@@ -57,8 +57,11 @@ class IndexingInstanceContributorIT extends BaseIntegrationTest {
 
     var sourceAsMap = fetchAllDocuments(INSTANCE_CONTRIBUTOR, TENANT_ID)[0].getSourceAsMap();
     asserContributorDocFields(sourceAsMap, name, nameTypeId, authorityId);
+    assertContributorInstancesGroup(sourceAsMap, typeId);
+  }
 
-    @SuppressWarnings("unchecked")
+  @SuppressWarnings("unchecked")
+  private void assertContributorInstancesGroup(Map<String, Object> sourceAsMap, String typeId) {
     var instances = (List<Map<String, Object>>) sourceAsMap.get("instances");
     assertThat(instances)
       .as("Instances list should contain exactly 1 group with count 2")

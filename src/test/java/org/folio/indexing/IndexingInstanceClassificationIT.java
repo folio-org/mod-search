@@ -56,8 +56,11 @@ class IndexingInstanceClassificationIT extends BaseIntegrationTest {
     var hits = fetchAllDocuments(INSTANCE_CLASSIFICATION, TENANT_ID);
     var sourceAsMap = hits[0].getSourceAsMap();
     assertClassificationDocFields(sourceAsMap, number, typeId);
+    assertClassificationInstancesGroup(sourceAsMap);
+  }
 
-    @SuppressWarnings("unchecked")
+  @SuppressWarnings("unchecked")
+  private void assertClassificationInstancesGroup(Map<String, Object> sourceAsMap) {
     var instances = (List<Map<String, Object>>) sourceAsMap.get("instances");
     assertThat(instances)
       .as("Instances list should contain exactly 1 group with count 2")

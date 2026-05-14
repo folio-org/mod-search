@@ -232,7 +232,7 @@ public abstract class SearchAuthorityIT extends BaseSharedTest {
       // formSubdivision headings
       gary("Form Subdivision", REFERENCE_TYPE, "a sft form subdivision"),
       gary("Form Subdivision", AUTH_REF_TYPE, "a saft form subdivision")
-    );
+      );
   }
 
   @SuppressWarnings("checkstyle:MethodLength")

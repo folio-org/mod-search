@@ -70,33 +70,25 @@ class IndexingInstanceCallNumberIT extends BaseIntegrationTest {
     inventoryApi.createItem(TENANT_ID, INSTANCE_ID_1, item1);
     inventoryApi.createItem(TENANT_ID, INSTANCE_ID_2, item2);
 
-    awaitAssertion(() -> {
-      // when
-      // fetch all documents from search index
-      var hits = fetchAllDocuments(INSTANCE_CALL_NUMBER, TENANT_ID);
-      assertThat(hits)
-        .as("Should have exactly 1 call number document in the index")
-        .hasSize(1);
+    awaitAssertion(this::assertCallNumberDocumentIndexed);
+  }
 
-      // then
-      var sourceAsMap = hits[0].getSourceAsMap();
-      // assert that the document contains the expected fields
-      assertCallNumberDocFields(sourceAsMap);
-
-      // assert that the document contains the expected instances object with count 1
-      @SuppressWarnings("unchecked")
-      var instances = (List<Map<String, Object>>) sourceAsMap.get("instances");
-      assertThat(instances)
-        .as("Instances list should contain exactly 1 shared/tenant group")
-        .hasSize(1)
-        .allSatisfy(map -> assertThat(map).containsEntry("shared", false))
-        .allSatisfy(map -> assertThat(map).containsEntry("tenantId", TENANT_ID));
-      @SuppressWarnings("unchecked")
-      var ids = (List<String>) instances.getFirst().get("instanceId");
-      assertThat(ids)
-        .as("Instance IDs should contain both indexed instances")
-        .containsExactlyInAnyOrder(INSTANCE_ID_1, INSTANCE_ID_2);
-    });
+  @SuppressWarnings("unchecked")
+  private void assertCallNumberDocumentIndexed() {
+    var hits = fetchAllDocuments(INSTANCE_CALL_NUMBER, TENANT_ID);
+    assertThat(hits).as("Should have exactly 1 call number document in the index").hasSize(1);
+    var sourceAsMap = hits[0].getSourceAsMap();
+    assertCallNumberDocFields(sourceAsMap);
+    var instances = (List<Map<String, Object>>) sourceAsMap.get("instances");
+    assertThat(instances)
+      .as("Instances list should contain exactly 1 shared/tenant group")
+      .hasSize(1)
+      .allSatisfy(map -> assertThat(map).containsEntry("shared", false))
+      .allSatisfy(map -> assertThat(map).containsEntry("tenantId", TENANT_ID));
+    var ids = (List<String>) instances.getFirst().get("instanceId");
+    assertThat(ids)
+      .as("Instance IDs should contain both indexed instances")
+      .containsExactlyInAnyOrder(INSTANCE_ID_1, INSTANCE_ID_2);
   }
 
   @Test

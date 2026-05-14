@@ -68,15 +68,9 @@ public abstract class BrowseAuthorityIT extends BaseSharedTest {
       .param("precedingRecordsCount", "2");
     var actual = parseResponse(doGet(request), AuthorityBrowseResult.class);
 
-    assertThat(actual.getTotalRecords())
-      .as("Total records should be 2 with additional filters applied")
-      .isEqualTo(2);
-    assertThat(actual.getPrev())
-      .as("Prev should be null when results fit within window")
-      .isNull();
-    assertThat(actual.getNext())
-      .as("Next should be null when results fit within window")
-      .isNull();
+    assertThat(actual.getTotalRecords()).as("Total records with additional filters").isEqualTo(2);
+    assertThat(actual.getPrev()).as("Prev should be null when results fit within window").isNull();
+    assertThat(actual.getNext()).as("Next should be null when results fit within window").isNull();
     assertThat(actual.getItems())
       .as("Browse items should contain filtered results around 'Ĵämes Röllins'")
       .extracting(AuthorityBrowseItem::getHeadingRef, AuthorityBrowseItem::getIsAnchor)
@@ -120,15 +114,9 @@ public abstract class BrowseAuthorityIT extends BaseSharedTest {
       .param("precedingRecordsCount", "2");
     var actual = parseResponse(doGet(request), AuthorityBrowseResult.class);
 
-    assertThat(actual.getTotalRecords())
-      .as("Total records should be 60")
-      .isEqualTo(60);
-    assertThat(actual.getPrev())
-      .as("Prev should be 'Historical studies'")
-      .isEqualTo("Historical studies");
-    assertThat(actual.getNext())
-      .as("Next should be 'Late medieval era'")
-      .isEqualTo("Late medieval era");
+    assertThat(actual.getTotalRecords()).as("Total records should be 60").isEqualTo(60);
+    assertThat(actual.getPrev()).as("Prev should be 'Historical studies'").isEqualTo("Historical studies");
+    assertThat(actual.getNext()).as("Next should be 'Late medieval era'").isEqualTo("Late medieval era");
     assertThat(actual.getItems())
       .as("Browse items should contain 7 entries with precedingRecordsCount=2")
       .extracting(AuthorityBrowseItem::getHeadingRef, AuthorityBrowseItem::getIsAnchor)
@@ -206,41 +194,28 @@ public abstract class BrowseAuthorityIT extends BaseSharedTest {
       .as("Result should contain exactly 1 browse item")
       .hasSize(1);
     var item = actual.getItems().getFirst();
-    assertThat(item.getHeadingRef())
-      .as("Item heading ref should be 'Brian K. Vaughan'")
+    assertThat(item.getHeadingRef()).as("Item heading ref should be 'Brian K. Vaughan'")
       .isEqualTo("Brian K. Vaughan");
-    assertThat(item.getIsAnchor())
-      .as("Item should not be an anchor in forward-only browse")
-      .isNull();
+    assertThat(item.getIsAnchor()).as("Item should not be an anchor in forward-only browse").isNull();
+    assertAuthorityFields(item);
+  }
 
+  private void assertAuthorityFields(AuthorityBrowseItem item) {
     var authority = item.getAuthority();
-    assertThat(authority)
-      .as("Item should have an associated authority object")
-      .isNotNull();
-    assertThat(authority.getHeadingRef())
-      .as("Authority heading ref should be 'Brian K. Vaughan'")
+    assertThat(authority).as("Item should have an associated authority object").isNotNull();
+    assertThat(authority.getHeadingRef()).as("Authority heading ref should be 'Brian K. Vaughan'")
       .isEqualTo("Brian K. Vaughan");
-    assertThat(authority.getHeadingType())
-      .as("Authority heading type should be 'Personal Name'")
+    assertThat(authority.getHeadingType()).as("Authority heading type should be 'Personal Name'")
       .isEqualTo("Personal Name");
-    assertThat(authority.getAuthRefType())
-      .as("Authority authRefType should be 'Authorized'")
+    assertThat(authority.getAuthRefType()).as("Authority authRefType should be 'Authorized'")
       .isEqualTo("Authorized");
-    assertThat(authority.getSourceFileId())
-      .as("Authority source file ID should match expected")
+    assertThat(authority.getSourceFileId()).as("Authority source file ID should match expected")
       .isEqualTo(BROWSE_SOURCE_FILE_ID);
-    assertThat(authority.getNaturalId())
-      .as("Authority natural ID should not be null")
-      .isNotNull();
-    assertThat(authority.getNumberOfTitles())
-      .as("Authority number of titles should be zero")
-      .isZero();
-    assertThat(authority.getTenantId())
-      .as("Authority tenant ID should match expected tenant")
+    assertThat(authority.getNaturalId()).as("Authority natural ID should not be null").isNotNull();
+    assertThat(authority.getNumberOfTitles()).as("Authority number of titles should be zero").isZero();
+    assertThat(authority.getTenantId()).as("Authority tenant ID should match expected tenant")
       .isEqualTo(TENANT_ID);
-    assertThat(authority.getShared())
-      .as("Authority should not be shared")
-      .isFalse();
+    assertThat(authority.getShared()).as("Authority should not be shared").isFalse();
   }
 
   private static String scoped(String query) {

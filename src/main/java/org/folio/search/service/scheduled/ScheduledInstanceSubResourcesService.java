@@ -31,6 +31,7 @@ import org.folio.search.service.reindex.jdbc.TenantRepository;
 import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -77,13 +78,17 @@ public class ScheduledInstanceSubResourcesService {
   @Scheduled(fixedDelayString = "#{searchConfigurationProperties.indexing.instanceChildrenIndexDelayMs}")
   public void persistChildren() {
     log.info("persistChildren::Starting instance children processing");
-    tenantRepository.fetchDataTenantIds()
-      .forEach(tenant -> executionService.executeSystemUserScoped(tenant, () -> {
-        processAllEntityTypes(tenant);
-        return null;
-      }));
+    try {
+      tenantRepository.fetchDataTenantIds()
+        .forEach(tenant -> executionService.executeSystemUserScoped(tenant, () -> {
+          processAllEntityTypes(tenant);
+          return null;
+        }));
 
-    log.debug("persistChildren::Finished instance children processing");
+      log.debug("persistChildren::Finished instance children processing");
+    } catch (BadSqlGrammarException e) {
+      log.warn("persistChildren::Module upgrade may be in progress - database schema is outdated. Skipping cycle.");
+    }
   }
 
   public List<ResourceEvent> mapToResourceEvents(List<Map<String, Object>> recordMaps,
@@ -136,6 +141,8 @@ public class ScheduledInstanceSubResourcesService {
   private boolean isReindexInProgressOrFailedNotForConsortiumMember() {
     try {
       return reindexStatusService.isReindexInProgressOrFailedNotForConsortiumMember();
+    } catch (BadSqlGrammarException e) {
+      throw e;
     } catch (Exception e) {
       log.warn("persistChildren::Failed to check reindex status, assuming no reindex in progress or failed", e);
       return false;

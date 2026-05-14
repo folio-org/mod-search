@@ -553,6 +553,14 @@ public abstract class BaseSharedTest {
     updateCnConfig(typeIds, BrowseOptionType.LC, ShelvingOrderAlgorithmType.LC);
   }
 
+  protected static void updateCnNlmConfig(List<UUID> typeIds) {
+    updateCnConfig(typeIds, BrowseOptionType.NLM, ShelvingOrderAlgorithmType.NLM);
+  }
+
+  protected static void updateCnOtherConfig(List<UUID> typeIds) {
+    updateCnConfig(typeIds, BrowseOptionType.OTHER, ShelvingOrderAlgorithmType.DEFAULT);
+  }
+
   protected static void updateCnConfig(List<UUID> typeIds, BrowseOptionType browseOptionType,
                                        ShelvingOrderAlgorithmType algorithmType) {
     updateBrowseConfig(typeIds, BrowseType.INSTANCE_CALL_NUMBER, browseOptionType, algorithmType,

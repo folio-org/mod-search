@@ -15,6 +15,7 @@ import java.util.UUID;
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.BrowseOptionType;
 import org.folio.search.domain.dto.CallNumberBrowseResult;
+import org.folio.search.domain.dto.ShelvingOrderAlgorithmType;
 import org.folio.support.TestRailCase;
 import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,6 +39,8 @@ public abstract class BrowseCallNumberIT extends BaseSharedTest {
   void setUp() {
     updateCnLcConfig(List.of(UUID.fromString(LC_TYPE_ID)));
     updateCnSudocConfig(List.of(UUID.fromString(SUDOC_TYPE_ID)));
+    updateCnNlmConfig(List.of(UUID.fromString(NLM_TYPE_ID)));
+    updateCnOtherConfig(List.of(UUID.fromString(OTHER_TYPE_ID)));
   }
 
   @MethodSource("callNumberBrowsingDataProvider")
@@ -82,17 +85,21 @@ public abstract class BrowseCallNumberIT extends BaseSharedTest {
   }
 
   /**
-   * When the LC browse config has no configured call number types (empty typeIds),
-   * call numbers of every type should produce an exact match when browsing with the LC option.
+   * When a browse config has no configured call number types (empty typeIds),
+   * call numbers of every type should produce an exact match for that browse option.
    */
-  @Test
-  @TestRailCase(627500)
-  void browseByCallNumber_lcOption_emptyConfig_allTypesReturnExactMatch() {
-    updateCnLcConfig(emptyList());
+  @TestRailCase({627500, 627501, 627502})
+  @ParameterizedTest(name = "[{0}] empty config - all types return exact match")
+  @MethodSource("emptyConfigBrowseOptionProvider")
+  void browseByCallNumber_emptyConfig_allTypesReturnExactMatch(BrowseOptionType browseOptionType,
+                                                               ShelvingOrderAlgorithmType algorithmType) {
+    updateCnConfig(emptyList(), browseOptionType, algorithmType);
 
+    // LC, DEWEY, NLM, SUDOC, OTHER call-numbers should produce an exact match regardless of the browse option type
+    // since there are no configured types to limit the matches
     for (var callNumber : List.of("Q127.U6U49", "338.1 MOG", "QV 18.2 L765 2015", "Y 10.13:980", "SYLY-12")) {
-      assertThat(browse(callNumber, BrowseOptionType.LC).getItems())
-        .as("Expected exact match for '%s' with empty LC config", callNumber)
+      assertThat(browse(callNumber, browseOptionType).getItems())
+        .as("Expected exact match for '%s' with empty %s config", callNumber, browseOptionType)
         .anySatisfy(item -> {
           assertThat(item.getFullCallNumber()).isEqualTo(callNumber);
           assertThat(item.getIsAnchor()).isTrue();
@@ -118,6 +125,14 @@ public abstract class BrowseCallNumberIT extends BaseSharedTest {
       cnBrowseItem("RJ421 .D3", LC_TYPE_ID, 1, "The Ethics of Artificial Intelligence")
     ));
     assertThat(actual).usingRecursiveComparison().ignoringFields(COLLECTION_IGNORING_FIELDS).isEqualTo(expected);
+  }
+
+  private static Stream<Arguments> emptyConfigBrowseOptionProvider() {
+    return Stream.of(
+      arguments(BrowseOptionType.LC, ShelvingOrderAlgorithmType.LC),
+      arguments(BrowseOptionType.NLM, ShelvingOrderAlgorithmType.NLM),
+      arguments(BrowseOptionType.OTHER, ShelvingOrderAlgorithmType.DEFAULT)
+    );
   }
 
   @SuppressWarnings("checkstyle:MethodLength")

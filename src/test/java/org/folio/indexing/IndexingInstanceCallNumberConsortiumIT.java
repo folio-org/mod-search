@@ -43,7 +43,10 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 
 @IntegrationTest
-@TestPropertySource(properties = "folio.search-config.indexing.instance-children-index-enabled=true")
+@TestPropertySource(properties = {
+  "folio.search-config.indexing.instance-children-index-enabled=true",
+  "folio.system-user.enabled=false"
+})
 @DatabaseCleanup(tenants = CENTRAL_TENANT_ID,
   tables = {CALL_NUMBER_TABLE, INSTANCE_CALL_NUMBER_TABLE, ITEM_TABLE, HOLDING_TABLE, INSTANCE_TABLE})
 @DirtiesContext(classMode = AFTER_CLASS)

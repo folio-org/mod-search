@@ -12,7 +12,6 @@ import static org.folio.support.TestConstants.inventoryLibraryTopic;
 import static org.folio.support.base.ApiEndpoints.consortiumLibrariesSearchPath;
 import static org.folio.support.sample.SampleLibraries.getLibrariesSampleAsMap;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
-import static org.folio.support.utils.TestUtils.kafkaResourceEvent;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -23,6 +22,7 @@ import org.folio.search.model.Pair;
 import org.folio.search.model.types.ResourceType;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.BaseConsortiumIntegrationTest;
+import org.folio.support.utils.TestUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -123,8 +123,8 @@ class ConsortiumSearchLibrariesIT extends BaseConsortiumIntegrationTest {
   private static void saveLibraryRecords() {
     getLibrariesSampleAsMap().stream()
       .flatMap(library -> Stream.of(
-        kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, library, null),
-        kafkaResourceEvent(MEMBER_TENANT_ID, CREATE, library, null)))
+        TestUtils.resourceEvent(CENTRAL_TENANT_ID, CREATE, library, null),
+        TestUtils.resourceEvent(MEMBER_TENANT_ID, CREATE, library, null)))
       .forEach(event -> kafkaTemplate.send(inventoryLibraryTopic(event.getTenant()), event));
 
     await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {

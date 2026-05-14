@@ -80,6 +80,8 @@ import org.jetbrains.annotations.NotNull;
 import org.opensearch.action.search.SearchRequest;
 import org.opensearch.client.RestHighLevelClient;
 import org.opensearch.client.indices.GetIndexRequest;
+import org.opensearch.index.query.QueryBuilder;
+import org.opensearch.index.query.QueryBuilders;
 import org.opensearch.index.reindex.DeleteByQueryRequest;
 import org.opensearch.search.SearchHit;
 import org.springframework.cache.CacheManager;
@@ -301,9 +303,14 @@ public abstract class BaseSharedTest {
     return attemptSearch(path, tenantId, queryParams).andExpect(status().isOk());
   }
 
-  protected static long countIndexDocument(ResourceType resource, String tenantId) throws IOException {
+  protected static long countIndexDocument(ResourceType resource, String tenantId) {
+    return countIndexDocument(QueryBuilders.matchAllQuery(), resource, tenantId);
+  }
+
+  @SneakyThrows
+  protected static long countIndexDocument(QueryBuilder query, ResourceType resource, String tenantId) {
     var searchRequest = new SearchRequest()
-      .source(searchSource().query(matchAllQuery()).trackTotalHits(true).from(0).size(0))
+      .source(searchSource().query(query).trackTotalHits(true).from(0).size(0))
       .indices(getIndexName(resource.getName(), tenantId));
     var searchResponse = elasticClient.search(searchRequest, DEFAULT);
     return Objects.requireNonNull(searchResponse.getHits().getTotalHits()).value();
@@ -357,7 +364,7 @@ public abstract class BaseSharedTest {
   @SneakyThrows
   protected static void setUpTenant(int expectedCount, Authority... authorities) {
     setUpTenant(TENANT_ID, authoritySearchPath(), () -> { }, asList(authorities), expectedCount, emptyList(),
-      rec -> kafkaTemplate.send(inventoryAuthorityTopic(), rec.getId(), resourceEvent(null, AUTHORITY, rec)));
+      rec -> kafkaTemplate.send(inventoryAuthorityTopic(), rec.getId(), resourceEvent((String) null, AUTHORITY, rec)));
   }
 
   @SafeVarargs
@@ -387,7 +394,7 @@ public abstract class BaseSharedTest {
 
       if (type.equals(Authority.class)) {
         saveRecords(tenant, authoritySearchPath(), testRecords, expectedCount,
-          rec -> kafkaTemplate.send(inventoryAuthorityTopic(tenant), resourceEvent(null, AUTHORITY, rec)));
+          rec -> kafkaTemplate.send(inventoryAuthorityTopic(tenant), resourceEvent((String) null, AUTHORITY, rec)));
       }
     }
   }
@@ -600,6 +607,14 @@ public abstract class BaseSharedTest {
     await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
       assertThat(countIndexDocument(resourceType, tenantId))
         .as("%s index document count should reach %d", resourceType, expectedCount)
+        .isEqualTo(expectedCount));
+  }
+
+  protected static void verifyIndexedResourceCounts(QueryBuilder query, ResourceType resourceType,
+                                                    String tenantId, int expectedCount) {
+    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
+      assertThat(countIndexDocument(query, resourceType, tenantId))
+        .as("%s index document count by query %s should reach %d", resourceType, query, expectedCount)
         .isEqualTo(expectedCount));
   }
 

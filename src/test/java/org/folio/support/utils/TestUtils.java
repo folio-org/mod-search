@@ -459,11 +459,11 @@ public class TestUtils {
     return new ResourceEvent().resourceName(resource.getName()).type(type).tenant(tenant)._new(n);
   }
 
-  public static ResourceEvent kafkaResourceEvent(ResourceEventType type, Object newData, Object oldData) {
-    return kafkaResourceEvent(TENANT_ID, type, newData, oldData);
+  public static ResourceEvent resourceEvent(ResourceEventType type, Object n, Object o) {
+    return resourceEvent(TENANT_ID, type, n, o);
   }
 
-  public static ResourceEvent kafkaResourceEvent(String tenant, ResourceEventType type, Object n, Object o) {
+  public static ResourceEvent resourceEvent(String tenant, ResourceEventType type, Object n, Object o) {
     return new ResourceEvent().type(type).tenant(tenant)._new(n).old(o);
   }
 

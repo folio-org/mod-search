@@ -1,29 +1,28 @@
-package org.folio.search.model.dto;
+package org.folio.search.model.dto.location;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import java.util.UUID;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
-import org.folio.search.domain.dto.Metadata;
 
 /**
  * Describes Location object that comes from external channels.
  */
 @Data
-@Builder
+@SuperBuilder(toBuilder = true)
 @Jacksonized
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class LocationDto {
+public class LocationDto extends BaseLocationDto {
 
-  @JsonProperty("id")
-  private String id;
-  @JsonProperty("name")
-  private String name;
-  @JsonProperty("code")
-  private String code;
   @JsonProperty("description")
   private String description;
   @JsonProperty("discoveryDisplayName")
@@ -40,6 +39,4 @@ public class LocationDto {
   private UUID primaryServicePoint;
   @JsonProperty("servicePointIds")
   private List<UUID> servicePointIds;
-  @JsonProperty("metadata")
-  private Metadata metadata;
 }

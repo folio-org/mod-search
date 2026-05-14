@@ -1,22 +1,17 @@
-package org.folio.search.model.dto.locationunit;
+package org.folio.search.model.dto.location;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Builder;
 import lombok.Data;
-import lombok.With;
-import lombok.extern.jackson.Jacksonized;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.folio.search.domain.dto.Metadata;
 
-/**
- * Describes Campus object that comes from external channels.
- */
 @Data
-@With
-@Builder
-@Jacksonized
+@SuperBuilder(toBuilder = true)
+@NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class LibraryDto {
+public class BaseLocationDto {
 
   @JsonProperty("id")
   private String id;
@@ -24,8 +19,6 @@ public class LibraryDto {
   private String name;
   @JsonProperty("code")
   private String code;
-  @JsonProperty("campusId")
-  private String campusId;
   @JsonProperty("metadata")
   private Metadata metadata;
 }

@@ -13,7 +13,6 @@ import static org.folio.support.TestConstants.inventoryCampusTopic;
 import static org.folio.support.base.ApiEndpoints.consortiumCampusesSearchPath;
 import static org.folio.support.sample.SampleCampuses.getCampusesSampleAsMap;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
-import static org.folio.support.utils.TestUtils.kafkaResourceEvent;
 
 import java.util.List;
 import java.util.Objects;
@@ -24,6 +23,7 @@ import org.folio.search.domain.dto.ConsortiumCampusCollection;
 import org.folio.search.model.Pair;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.BaseConsortiumIntegrationTest;
+import org.folio.support.utils.TestUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -125,8 +125,8 @@ class ConsortiumSearchCampusesIT extends BaseConsortiumIntegrationTest {
   private static void saveCampusRecords() {
     getCampusesSampleAsMap().stream()
       .flatMap(campus -> Stream.of(
-        kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, campus, null),
-        kafkaResourceEvent(MEMBER_TENANT_ID, CREATE, campus, null)))
+        TestUtils.resourceEvent(CENTRAL_TENANT_ID, CREATE, campus, null),
+        TestUtils.resourceEvent(MEMBER_TENANT_ID, CREATE, campus, null)))
       .forEach(event -> kafkaTemplate.send(inventoryCampusTopic(event.getTenant()), event));
 
     await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {

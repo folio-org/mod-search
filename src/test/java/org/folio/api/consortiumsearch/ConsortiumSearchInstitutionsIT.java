@@ -12,7 +12,6 @@ import static org.folio.support.TestConstants.inventoryInstitutionTopic;
 import static org.folio.support.base.ApiEndpoints.consortiumInstitutionsSearchPath;
 import static org.folio.support.sample.SampleInstitutions.getInstitutionsSampleAsMap;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
-import static org.folio.support.utils.TestUtils.kafkaResourceEvent;
 
 import java.util.List;
 import java.util.Objects;
@@ -24,6 +23,7 @@ import org.folio.search.model.Pair;
 import org.folio.search.model.types.ResourceType;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.BaseConsortiumIntegrationTest;
+import org.folio.support.utils.TestUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -123,8 +123,8 @@ class ConsortiumSearchInstitutionsIT extends BaseConsortiumIntegrationTest {
   private static void saveInstitutionRecords() {
     getInstitutionsSampleAsMap().stream()
       .flatMap(institution -> Stream.of(
-        kafkaResourceEvent(CENTRAL_TENANT_ID, CREATE, institution, null),
-        kafkaResourceEvent(MEMBER_TENANT_ID, CREATE, institution, null)))
+        TestUtils.resourceEvent(CENTRAL_TENANT_ID, CREATE, institution, null),
+        TestUtils.resourceEvent(MEMBER_TENANT_ID, CREATE, institution, null)))
       .forEach(event -> kafkaTemplate.send(inventoryInstitutionTopic(event.getTenant()), event));
 
     await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {

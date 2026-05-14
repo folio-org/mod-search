@@ -100,9 +100,12 @@ class ResourceServiceTest {
   @Test
   void indexResources_positive() {
     var searchBody = searchDocumentBody();
-    var resourceEvent = resourceEvent(INSTANCE, mapOf("id", randomId()));
+    var instanceId = randomId();
+    var resourceEvent = resourceEvent(INSTANCE, mapOf("id", instanceId));
     var expectedResponse = getSuccessIndexOperationResponse();
+    var indexEvent = new IndexInstanceEvent(resourceEvent.getTenant(), instanceId);
 
+    when(resourceFetchService.fetchInstancesByIds(List.of(indexEvent))).thenReturn(List.of(resourceEvent));
     when(searchDocumentConverter.convert(List.of(resourceEvent))).thenReturn(
       mapOf(INSTANCE.getName(), List.of(searchBody)));
     when(primaryResourceRepository.indexResources(List.of(searchBody))).thenReturn(expectedResponse);
@@ -115,9 +118,12 @@ class ResourceServiceTest {
   @Test
   void indexResources_negative_failedResponse() {
     var searchBody = searchDocumentBody();
-    var resourceEvent = resourceEvent(INSTANCE, mapOf("id", randomId()));
+    var instanceId = randomId();
+    var resourceEvent = resourceEvent(INSTANCE, mapOf("id", instanceId));
     var expectedResponse = getErrorIndexOperationResponse("Failed to save bulk");
+    var indexEvent = new IndexInstanceEvent(resourceEvent.getTenant(), instanceId);
 
+    when(resourceFetchService.fetchInstancesByIds(List.of(indexEvent))).thenReturn(List.of(resourceEvent));
     when(searchDocumentConverter.convert(List.of(resourceEvent)))
       .thenReturn(mapOf(INSTANCE.getName(), List.of(searchBody)));
     when(primaryResourceRepository.indexResources(List.of(searchBody))).thenReturn(expectedResponse);
@@ -130,11 +136,14 @@ class ResourceServiceTest {
   @Test
   void indexResources_positive_customResourceRepository() {
     var searchBody = searchDocumentBody();
-    var resourceEvent = resourceEvent(INSTANCE, mapOf("id", randomId()));
+    var instanceId = randomId();
+    var resourceEvent = resourceEvent(INSTANCE, mapOf("id", instanceId));
     var expectedResponse = getSuccessIndexOperationResponse();
     var customResourceRepository = mock(ResourceRepository.class);
+    var indexEvent = new IndexInstanceEvent(resourceEvent.getTenant(), instanceId);
 
     when(resourceDescriptionService.find(INSTANCE)).thenReturn(of(resourceDescriptionWithCustomRepository()));
+    when(resourceFetchService.fetchInstancesByIds(List.of(indexEvent))).thenReturn(List.of(resourceEvent));
     when(searchDocumentConverter.convert(List.of(resourceEvent)))
       .thenReturn(mapOf(INSTANCE.getName(), List.of(searchBody)));
     when(resourceRepositoryBeans.containsKey(CUSTOM_REPOSITORY_NAME)).thenReturn(true);

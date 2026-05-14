@@ -70,13 +70,13 @@ public class ResourceService {
     }
 
     persistInventoryEntities(resourceEvents);
-    reindexParentInstancesForSubResources(resourceEvents);
+    var reindexResponse = reindexParentInstancesForSubResources(resourceEvents);
 
     var directIndexEvents = resourceEvents.stream()
       .filter(e -> !isInventoryEvent(e))
       .toList();
     if (CollectionUtils.isEmpty(directIndexEvents)) {
-      return getSuccessIndexOperationResponse();
+      return reindexResponse;
     }
 
     var elasticsearchDocuments = searchDocumentConverter.convert(directIndexEvents);
@@ -112,7 +112,7 @@ public class ResourceService {
       .forEach(inventoryEntityPersistenceService::persistInventoryEntities);
   }
 
-  private void reindexParentInstancesForSubResources(List<ResourceEvent> resourceEvents) {
+  private FolioIndexOperationResponse reindexParentInstancesForSubResources(List<ResourceEvent> resourceEvents) {
     var instanceEvents = resourceEvents.stream()
       .filter(ResourceService::isInventoryEvent)
       .filter(e -> e.getNew() != null)
@@ -121,8 +121,9 @@ public class ResourceService {
       .distinct()
       .toList();
     if (!instanceEvents.isEmpty()) {
-      indexInstanceEvents(instanceEvents);
+      return indexInstanceEvents(instanceEvents);
     }
+    return getSuccessIndexOperationResponse();
   }
 
   private String getId(ResourceEvent e) {

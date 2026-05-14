@@ -47,6 +47,7 @@ import org.folio.search.service.ResourceService;
 import org.folio.search.service.reindex.ReindexService;
 import org.folio.search.service.reindex.ReindexStatusService;
 import org.folio.spring.integration.XOkapiHeaders;
+import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.folio.spring.testing.type.UnitTest;
 import org.folio.support.config.TestNoOpCacheConfig;
 import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
@@ -80,6 +81,8 @@ class IndexManagementControllerTest {
   private ReindexService reindexService;
   @MockitoBean
   private ReindexStatusService reindexStatusService;
+  @MockitoBean
+  private SystemUserScopedExecutionService executionService;
 
   @Test
   void submitReindexFull_positive() throws Exception {

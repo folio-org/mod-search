@@ -15,6 +15,12 @@ import static org.folio.search.model.types.ResourceType.LINKED_DATA_HUB;
 import static org.folio.search.model.types.ResourceType.LINKED_DATA_INSTANCE;
 import static org.folio.search.model.types.ResourceType.LINKED_DATA_WORK;
 import static org.folio.support.TestConstants.TENANT_ID;
+import static org.folio.support.testdata.SharedTestDataManager.LockManager;
+import static org.folio.support.testdata.SharedTestDataManager.instancesCount;
+import static org.folio.support.testdata.SharedTestDataManager.linkedDataHubsCount;
+import static org.folio.support.testdata.SharedTestDataManager.linkedDataInstancesCount;
+import static org.folio.support.testdata.SharedTestDataManager.linkedDataWorksCount;
+import static org.folio.support.testdata.SharedTestDataManager.loadAll;
 
 import java.sql.Timestamp;
 import org.folio.api.browse.BrowseAuthorityIT;
@@ -45,7 +51,6 @@ import org.folio.search.service.scheduled.ScheduledInstanceSubResourcesService;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.BaseIntegrationTest;
 import org.folio.support.base.BaseSharedTest;
-import org.folio.support.testdata.SharedTestDataManager;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
@@ -60,10 +65,6 @@ class SearchBrowseIT extends BaseIntegrationTest {
   private static final int EXPECTED_CALL_NUMBER_COUNT = 116;
   private static final int EXPECTED_CLASSIFICATION_COUNT = 92;
   private static final int EXPECTED_CONTRIBUTOR_COUNT = 68;
-  private static final int EXPECTED_INSTANCE_COUNT = 96;
-  private static final int EXPECTED_LINKED_DATA_HUB_COUNT = 2;
-  private static final int EXPECTED_LINKED_DATA_INSTANCE_COUNT = 2;
-  private static final int EXPECTED_LINKED_DATA_WORK_COUNT = 2;
   private static final int EXPECTED_SUBJECT_COUNT = 52;
 
   @BeforeAll
@@ -76,7 +77,7 @@ class SearchBrowseIT extends BaseIntegrationTest {
     enableFeature(BROWSE_CONTRIBUTORS);
     enableFeature(BROWSE_SUBJECTS);
     enableFeature(BROWSE_CLASSIFICATIONS);
-    SharedTestDataManager.loadAll(TENANT_ID,
+    loadAll(TENANT_ID,
       createLockManager(lockRepo),
       scheduledSubResourcesService::persistChildren,
       BaseSharedTest::indexRecords,
@@ -88,20 +89,20 @@ class SearchBrowseIT extends BaseIntegrationTest {
     removeTenant(TENANT_ID);
   }
 
-  private static SharedTestDataManager.LockManager createLockManager(SubResourcesLockRepository lockRepo) {
+  private static LockManager createLockManager(SubResourcesLockRepository lockRepo) {
     return new SubResourceLockManager(lockRepo);
   }
 
   private static void awaitSubResourceIndexing() {
-    verifyIndexedResourceCounts(INSTANCE, TENANT_ID, EXPECTED_INSTANCE_COUNT);
+    verifyIndexedResourceCounts(INSTANCE, TENANT_ID, instancesCount());
     verifyIndexedResourceCounts(AUTHORITY, TENANT_ID, EXPECTED_AUTHORITY_COUNT);
     verifyIndexedResourceCounts(INSTANCE_CALL_NUMBER, TENANT_ID, EXPECTED_CALL_NUMBER_COUNT);
     verifyIndexedResourceCounts(INSTANCE_CLASSIFICATION, TENANT_ID, EXPECTED_CLASSIFICATION_COUNT);
     verifyIndexedResourceCounts(INSTANCE_CONTRIBUTOR, TENANT_ID, EXPECTED_CONTRIBUTOR_COUNT);
     verifyIndexedResourceCounts(INSTANCE_SUBJECT, TENANT_ID, EXPECTED_SUBJECT_COUNT);
-    verifyIndexedResourceCounts(LINKED_DATA_INSTANCE, TENANT_ID, EXPECTED_LINKED_DATA_INSTANCE_COUNT);
-    verifyIndexedResourceCounts(LINKED_DATA_WORK, TENANT_ID, EXPECTED_LINKED_DATA_WORK_COUNT);
-    verifyIndexedResourceCounts(LINKED_DATA_HUB, TENANT_ID, EXPECTED_LINKED_DATA_HUB_COUNT);
+    verifyIndexedResourceCounts(LINKED_DATA_INSTANCE, TENANT_ID, linkedDataInstancesCount());
+    verifyIndexedResourceCounts(LINKED_DATA_WORK, TENANT_ID, linkedDataWorksCount());
+    verifyIndexedResourceCounts(LINKED_DATA_HUB, TENANT_ID, linkedDataHubsCount());
   }
 
   @Nested
@@ -170,7 +171,7 @@ class SearchBrowseIT extends BaseIntegrationTest {
   @Nested
   class StreamResourceIds extends StreamResourceIdsIT { }
 
-  private static final class SubResourceLockManager implements SharedTestDataManager.LockManager {
+  private static final class SubResourceLockManager implements LockManager {
 
     private final SubResourcesLockRepository lockRepo;
     private Timestamp subjLock;

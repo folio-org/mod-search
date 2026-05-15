@@ -196,6 +196,14 @@ public abstract class BaseSharedTest {
   }
 
   @SneakyThrows
+  protected static ResultActions attemptPost(String uri, String tenantId, Object body) {
+    return mockMvc.perform(post(uri)
+      .content(asJsonString(body))
+      .headers(defaultHeaders(tenantId))
+      .contentType(APPLICATION_JSON));
+  }
+
+  @SneakyThrows
   protected static ResultActions attemptPut(String uri, Object body) {
     return mockMvc.perform(put(uri)
       .content(asJsonString(body))
@@ -211,8 +219,23 @@ public abstract class BaseSharedTest {
   }
 
   @SneakyThrows
+  protected static ResultActions attemptSearch(String path, String tenantId, Map<String, String> queryParams) {
+    var requestBuilder = get(path);
+    queryParams.forEach(requestBuilder::param);
+    return mockMvc.perform(requestBuilder
+      .headers(defaultHeaders(tenantId))
+      .accept("application/json;charset=UTF-8"));
+  }
+
+  @SneakyThrows
   protected static ResultActions doPost(String uri, Object body) {
     return attemptPost(uri, body)
+      .andExpect(status().isOk());
+  }
+
+  @SneakyThrows
+  protected static ResultActions doPost(String uri, String tenantId, Object body) {
+    return attemptPost(uri, tenantId, body)
       .andExpect(status().isOk());
   }
 
@@ -330,15 +353,6 @@ public abstract class BaseSharedTest {
     var request = new DeleteByQueryRequest(getIndexName(resource.getName(), tenantId));
     request.setQuery(matchAllQuery());
     elasticClient.deleteByQuery(request, DEFAULT);
-  }
-
-  @SneakyThrows
-  protected static ResultActions attemptSearch(String path, String tenantId, Map<String, String> queryParams) {
-    var requestBuilder = get(path);
-    queryParams.forEach(requestBuilder::param);
-    return mockMvc.perform(requestBuilder
-      .headers(defaultHeaders(tenantId))
-      .accept("application/json;charset=UTF-8"));
   }
 
   @SneakyThrows
@@ -574,9 +588,9 @@ public abstract class BaseSharedTest {
     okapi.wireMockServer().removeStub(stub);
   }
 
-  protected static void indexRecords(List<ResourceEvent> events) {
+  protected static void indexRecords(List<ResourceEvent> events, String tenantId) {
     try {
-      doPost(indexRecordsPath(), events).andReturn();
+      doPost(indexRecordsPath(), tenantId, events).andReturn();
     } catch (Exception e) {
       throw new RuntimeException("Failed to index records", e);
     }

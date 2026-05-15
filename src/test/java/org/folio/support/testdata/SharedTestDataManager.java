@@ -121,9 +121,9 @@ public final class SharedTestDataManager {
                                    RecordsChildrenIndexer childrenIndexer,
                                    RecordsIndexer indexer) {
     lockManager.lockAll();
-    indexer.index(instances().stream().map(i -> event(i, INSTANCE, tenantId)).toList());
-    indexer.index(holdings().stream().map(i -> event(i, HOLDINGS, tenantId)).toList());
-    indexer.index(items().stream().map(i -> event(i, ITEM, tenantId)).toList());
+    indexer.index(instances().stream().map(i -> event(i, INSTANCE, tenantId)).toList(), tenantId);
+    indexer.index(holdings().stream().map(i -> event(i, HOLDINGS, tenantId)).toList(), tenantId);
+    indexer.index(items().stream().map(i -> event(i, ITEM, tenantId)).toList(), tenantId);
     lockManager.unlockAll();
     childrenIndexer.indexChildren();
   }
@@ -135,16 +135,28 @@ public final class SharedTestDataManager {
     var events = authorities().stream()
       .map(a -> event(a, AUTHORITY, tenantId))
       .toList();
-    indexer.index(events);
+    indexer.index(events, tenantId);
   }
 
   /**
    * Indexes all linked-data records (instances, works, hubs) in order.
    */
   public static void loadLinkedData(String tenantId, RecordsIndexer indexer) {
-    indexer.index(linkedDataInstances().stream().map(i -> event(i, LINKED_DATA_INSTANCE, tenantId)).toList());
-    indexer.index(linkedDataWorks().stream().map(w -> event(w, LINKED_DATA_WORK, tenantId)).toList());
-    indexer.index(linkedDataHubs().stream().map(h -> event(h, LINKED_DATA_HUB, tenantId)).toList());
+    loadLinkedDataInstances(tenantId, indexer);
+    loadLinkedDataWorks(tenantId, indexer);
+    loadLinkedDataHubs(tenantId, indexer);
+  }
+
+  public static void loadLinkedDataInstances(String tenantId, RecordsIndexer indexer) {
+    indexer.index(linkedDataInstances().stream().map(i -> event(i, LINKED_DATA_INSTANCE, tenantId)).toList(), tenantId);
+  }
+
+  public static void loadLinkedDataWorks(String tenantId, RecordsIndexer indexer) {
+    indexer.index(linkedDataWorks().stream().map(w -> event(w, LINKED_DATA_WORK, tenantId)).toList(), tenantId);
+  }
+
+  public static void loadLinkedDataHubs(String tenantId, RecordsIndexer indexer) {
+    indexer.index(linkedDataHubs().stream().map(h -> event(h, LINKED_DATA_HUB, tenantId)).toList(), tenantId);
   }
 
   private static List<Map<String, Object>> loadRecords(String fileName) {
@@ -162,7 +174,7 @@ public final class SharedTestDataManager {
 
   @FunctionalInterface
   public interface RecordsIndexer {
-    void index(List<ResourceEvent> events);
+    void index(List<ResourceEvent> events, String tenantId);
   }
 
   @FunctionalInterface

@@ -34,6 +34,18 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 
+/**
+ * Shared integration-test suite for consortium search and browse.
+ *
+ * <p>All test data is loaded once in {@link #setUp} via
+ * {@link org.folio.support.testdata.SharedTestDataManager} and shared across every nested test
+ * class for the lifetime of the suite. Records are indexed into both a central tenant and a member
+ * tenant to exercise consortium-specific behaviour.
+ *
+ * <p>Test data is maintained in
+ * {@code src/test/resources/test-data/} — see
+ * {@code src/test/resources/test-data/manage/README.md} for the management guide.
+ */
 @IntegrationTest
 public class SearchBrowseConsortiumIT extends BaseIntegrationTest {
 

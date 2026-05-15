@@ -57,6 +57,17 @@ import org.junit.jupiter.api.Nested;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.TestPropertySource;
 
+/**
+ * Shared integration-test suite for search, browse, facets, sort, and stream-IDs.
+ *
+ * <p>All test data is loaded once in {@link #setUpSharedTenant} via
+ * {@link org.folio.support.testdata.SharedTestDataManager} and shared across every nested test
+ * class for the lifetime of the suite.
+ *
+ * <p>Test data is maintained in
+ * {@code src/test/resources/test-data/} — see
+ * {@code src/test/resources/test-data/manage/README.md} for the management guide.
+ */
 @IntegrationTest
 @TestPropertySource(properties = "folio.search-config.indexing.instance-children-index-enabled=true")
 class SearchBrowseIT extends BaseIntegrationTest {

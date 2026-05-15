@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-export.py — Regenerate instances.json, holdings.json, items.json from test-data.db.
-Run from any directory. Overwrites the three JSON files.
+export.py — Regenerate instances.json, holdings.json, items.json, authorities.json from test-data.db.
+Run from any directory. Overwrites the four JSON files.
 
 Usage:
     python manage/export.py

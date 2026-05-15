@@ -35,7 +35,7 @@ public abstract class SearchInstanceIT extends BaseSharedTest {
                                                     String expectedId) throws Throwable {
     doSearchByInstances(prepareQuery(query, value))
       .andExpect(jsonPath("$.totalRecords", is(1)))
-      .andExpect(jsonPath("$.instances[0].id", is(EXPECTED_INSTANCE_ID)));
+      .andExpect(jsonPath("$.instances[0].id", is(expectedId)));
   }
 
   @Test

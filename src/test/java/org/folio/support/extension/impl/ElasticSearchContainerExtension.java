@@ -42,7 +42,8 @@ public class ElasticSearchContainerExtension implements BeforeAllCallback, After
       return new ElasticsearchContainer(
         DockerImageName.parse(imageTag)
           .asCompatibleSubstituteFor("docker.elastic.co/elasticsearch/elasticsearch"))
-        .withEnv("xpack.security.enabled", "false");
+        .withEnv("xpack.security.enabled", "false")
+        .withEnv("_JAVA_OPTIONS", "-XX:-UseContainerSupport");
     }
   }
 

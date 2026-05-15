@@ -160,7 +160,7 @@ public class ConsortiumInstanceSearchService {
     Mapper<Instance, IdentifierTypeEnum, Set<String>, List<T>> recordMapper,
     IdentifierTypeEnum identifierType,
     Set<String> identifierValues) {
-    var searchSourceBuilder = queryBuilder(query, SearchService.DEFAULT_MAX_SEARCH_RESULT_WINDOW);
+    var searchSourceBuilder = queryBuilder(query, properties.getSearchConsortiumRecordsPageSize());
     var response = searchRepository.search(request, searchSourceBuilder);
     var searchResult = documentConverter.convertToSearchResult(response, request.resourceClass(),
       (hits, item) -> recordMapper.apply(item, identifierType, identifierValues));

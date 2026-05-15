@@ -10,8 +10,9 @@
 * Honor spring.cache.type=noop for cache manager ([MSEARCH-1204](https://folio-org.atlassian.net/browse/MSEARCH-1204))
 
 ### Bug fixes
-* Add retry for search operations ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))
+* Add retry for search operations ([MSEARCH-1194](https://folio-org.atlassian.net/browse/MSEARCH-1194))
 * Skip background processing on BadSqlGrammarException ([MSEARCH-1214](https://folio-org.atlassian.net/browse/MSEARCH-1214))
+* Limit consortium search api calls to Elasticsearch to SEARCH_CONSORTIUM_RECORDS_PAGE_SIZE per request ([MSEARCH-1194](https://folio-org.atlassian.net/browse/MSEARCH-1194))
 
 ### Tech Dept
 * Add `@TestRailCase` annotation for linking integration tests to TestRail cases

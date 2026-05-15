@@ -2,6 +2,10 @@
 ### Features
 * Honor spring.cache.type=noop for cache manager ([MSEARCH-1204](https://folio-org.atlassian.net/browse/MSEARCH-1204))
 
+### Bug fixes
+* Disable JVM container support to avoid cgroup v2 NullPointerException in Elasticsearch8 testcontainer ([MSEARCH-1209](https://folio-org.atlassian.net/browse/MSEARCH-1209))
+
+
 ### Tech Dept
 * Optimize integration tests to reduce build time by introducing centralized test data setup ([MSEARCH-1036](https://folio-org.atlassian.net/browse/MSEARCH-1036))
 * Add `@TestRailCase` annotation for linking integration tests to TestRail cases

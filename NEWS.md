@@ -1,3 +1,7 @@
+## v6.0.1 2026-05-15
+### Bug fixes
+* Skip background processing on BadSqlGrammarException ([MSEARCH-1214](https://folio-org.atlassian.net/browse/MSEARCH-1214))
+
 ## v6.0.0 2026-04-15
 ### Breaking changes
 * Migrate to Spring Boot 4 ([MSEARCH-1104](https://folio-org.atlassian.net/browse/MSEARCH-1104))

@@ -6,36 +6,15 @@ import static org.folio.search.model.types.ResourceType.INSTANCE_SUBJECT;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.support.utils.TestUtils.randomId;
-import static org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_CLASS;
 
 import java.util.List;
 import java.util.Map;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Subject;
-import org.folio.search.domain.dto.TenantConfiguredFeature;
-import org.folio.spring.testing.type.IntegrationTest;
-import org.folio.support.base.BaseIntegrationTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.TestPropertySource;
 
-@IntegrationTest
-@TestPropertySource(properties = "folio.search-config.indexing.instance-children-index-enabled=true")
-@DirtiesContext(classMode = AFTER_CLASS)
-class IndexingInstanceSubjectIT extends BaseIntegrationTest {
-
-  @BeforeAll
-  static void prepare() {
-    setUpTenant();
-    enableFeature(TenantConfiguredFeature.BROWSE_SUBJECTS);
-  }
-
-  @AfterAll
-  static void cleanUp() {
-    removeTenant();
-  }
+public abstract class IndexingInstanceSubjectIT extends BaseSharedTest {
 
   @Test
   void shouldIndexInstanceSubject_createDocument() {
@@ -59,17 +38,6 @@ class IndexingInstanceSubjectIT extends BaseIntegrationTest {
     var sourceAsMap = hits[0].getSourceAsMap();
     assertSubjectDocFields(sourceAsMap, value, authorityId, sourceId, typeId);
     assertInstancesGroup(sourceAsMap);
-  }
-
-  @SuppressWarnings("unchecked")
-  private void assertInstancesGroup(Map<String, Object> sourceAsMap) {
-    var instances = (List<Map<String, Object>>) sourceAsMap.get("instances");
-    assertThat(instances)
-      .as("Instances list should contain exactly 1 group with count 2")
-      .hasSize(1)
-      .allSatisfy(map -> assertThat(map).containsEntry("shared", false))
-      .allSatisfy(map -> assertThat(map).containsEntry("tenantId", TENANT_ID))
-      .allSatisfy(map -> assertThat(map).containsEntry("count", 2));
   }
 
   @Test
@@ -102,6 +70,17 @@ class IndexingInstanceSubjectIT extends BaseIntegrationTest {
     awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_SUBJECT, TENANT_ID))
       .as("Subject document should be removed after instance delete")
       .isEmpty());
+  }
+
+  @SuppressWarnings("unchecked")
+  private void assertInstancesGroup(Map<String, Object> sourceAsMap) {
+    var instances = (List<Map<String, Object>>) sourceAsMap.get("instances");
+    assertThat(instances)
+      .as("Instances list should contain exactly 1 group with count 2")
+      .hasSize(1)
+      .allSatisfy(map -> assertThat(map).containsEntry("shared", false))
+      .allSatisfy(map -> assertThat(map).containsEntry("tenantId", TENANT_ID))
+      .allSatisfy(map -> assertThat(map).containsEntry("count", 2));
   }
 
   private void assertSubjectDocFields(Map<String, Object> sourceAsMap, String value, String authorityId,

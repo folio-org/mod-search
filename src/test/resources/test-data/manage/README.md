@@ -7,10 +7,10 @@ SQLite-backed developer tool for managing shared integration-test data.
 All JSON files in the `test-data/` folder are shared test data loaded by `SharedTestDataManager`
 and used by the following integration test suites:
 
-- **`SearchBrowseIT`** — loads all records into a single tenant and runs browse, facet, search, sort,
+- **`SearchBrowseSuiteIT`** — loads all records into a single tenant and runs browse, facet, search, sort,
   and stream-IDs tests across instances, authorities, call numbers, classifications, contributors,
   subjects, holdings, items, and linked-data resources.
-- **`SearchBrowseConsortiumIT`** — loads records into a central tenant and a member tenant and runs
+- **`SearchBrowseConsortiumSuiteIT`** — loads records into a central tenant and a member tenant and runs
   consortium search/browse tests for linked-data, locations, libraries, institutions, and campuses.
 
 Both test classes share the same Elasticsearch index for the duration of their test run, so any

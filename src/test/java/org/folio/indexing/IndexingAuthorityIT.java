@@ -8,30 +8,13 @@ import static org.folio.support.base.ApiEndpoints.authoritySearchPath;
 import static org.folio.support.utils.JsonTestUtils.toMap;
 import static org.folio.support.utils.TestUtils.randomId;
 import static org.folio.support.utils.TestUtils.resourceEvent;
-import static org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_CLASS;
 
 import java.util.List;
 import org.folio.search.domain.dto.Authority;
-import org.folio.spring.testing.type.IntegrationTest;
-import org.folio.support.base.BaseIntegrationTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.annotation.DirtiesContext;
 
-@IntegrationTest
-@DirtiesContext(classMode = AFTER_CLASS)
-class IndexingAuthorityIT extends BaseIntegrationTest {
-
-  @BeforeAll
-  static void prepare() {
-    enableTenant(TENANT_ID);
-  }
-
-  @AfterAll
-  static void cleanUp() {
-    removeTenant(TENANT_ID);
-  }
+public abstract class IndexingAuthorityIT extends BaseSharedTest {
 
   @Test
   void shouldRemoveAuthority() {

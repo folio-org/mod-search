@@ -6,36 +6,15 @@ import static org.folio.search.model.types.ResourceType.INSTANCE_CONTRIBUTOR;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.support.utils.TestUtils.randomId;
-import static org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_CLASS;
 
 import java.util.List;
 import java.util.Map;
 import org.folio.search.domain.dto.Contributor;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.TenantConfiguredFeature;
-import org.folio.spring.testing.type.IntegrationTest;
-import org.folio.support.base.BaseIntegrationTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.TestPropertySource;
 
-@IntegrationTest
-@TestPropertySource(properties = "folio.search-config.indexing.instance-children-index-enabled=true")
-@DirtiesContext(classMode = AFTER_CLASS)
-class IndexingInstanceContributorIT extends BaseIntegrationTest {
-
-  @BeforeAll
-  static void prepare() {
-    setUpTenant();
-    enableFeature(TenantConfiguredFeature.BROWSE_CONTRIBUTORS);
-  }
-
-  @AfterAll
-  static void cleanUp() {
-    removeTenant();
-  }
+public abstract class IndexingInstanceContributorIT extends BaseSharedTest {
 
   @Test
   void shouldIndexInstanceContributor_createDocument() {
@@ -58,18 +37,6 @@ class IndexingInstanceContributorIT extends BaseIntegrationTest {
     var sourceAsMap = fetchAllDocuments(INSTANCE_CONTRIBUTOR, TENANT_ID)[0].getSourceAsMap();
     asserContributorDocFields(sourceAsMap, name, nameTypeId, authorityId);
     assertContributorInstancesGroup(sourceAsMap, typeId);
-  }
-
-  @SuppressWarnings("unchecked")
-  private void assertContributorInstancesGroup(Map<String, Object> sourceAsMap, String typeId) {
-    var instances = (List<Map<String, Object>>) sourceAsMap.get("instances");
-    assertThat(instances)
-      .as("Instances list should contain exactly 1 group with count 2")
-      .hasSize(1)
-      .allSatisfy(map -> assertThat(map).containsEntry("shared", false))
-      .allSatisfy(map -> assertThat(map).containsEntry("tenantId", TENANT_ID))
-      .allSatisfy(map -> assertThat(map).containsEntry("typeId", List.of(typeId)))
-      .allSatisfy(map -> assertThat(map).containsEntry("count", 2));
   }
 
   @Test
@@ -102,6 +69,18 @@ class IndexingInstanceContributorIT extends BaseIntegrationTest {
     awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CONTRIBUTOR, TENANT_ID))
       .as("Contributor document should be removed after instance delete")
       .isEmpty());
+  }
+
+  @SuppressWarnings("unchecked")
+  private void assertContributorInstancesGroup(Map<String, Object> sourceAsMap, String typeId) {
+    var instances = (List<Map<String, Object>>) sourceAsMap.get("instances");
+    assertThat(instances)
+      .as("Instances list should contain exactly 1 group with count 2")
+      .hasSize(1)
+      .allSatisfy(map -> assertThat(map).containsEntry("shared", false))
+      .allSatisfy(map -> assertThat(map).containsEntry("tenantId", TENANT_ID))
+      .allSatisfy(map -> assertThat(map).containsEntry("typeId", List.of(typeId)))
+      .allSatisfy(map -> assertThat(map).containsEntry("count", 2));
   }
 
   private Contributor prepareContributor(String name, String contributorTypeId, String nameTypeId, String authorityId) {

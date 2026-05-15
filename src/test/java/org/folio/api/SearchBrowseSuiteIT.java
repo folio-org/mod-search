@@ -70,7 +70,7 @@ import org.springframework.test.context.TestPropertySource;
  */
 @IntegrationTest
 @TestPropertySource(properties = "folio.search-config.indexing.instance-children-index-enabled=true")
-class SearchBrowseIT extends BaseIntegrationTest {
+class SearchBrowseSuiteIT extends BaseIntegrationTest {
 
   private static final int EXPECTED_AUTHORITY_COUNT = 132;
   private static final int EXPECTED_CALL_NUMBER_COUNT = 116;
@@ -92,7 +92,7 @@ class SearchBrowseIT extends BaseIntegrationTest {
       createLockManager(lockRepo),
       scheduledSubResourcesService::persistChildren,
       BaseSharedTest::indexRecords,
-      SearchBrowseIT::awaitSubResourceIndexing);
+      SearchBrowseSuiteIT::awaitSubResourceIndexing);
   }
 
   @AfterAll

@@ -47,7 +47,7 @@ import org.junit.jupiter.api.Nested;
  * {@code src/test/resources/test-data/manage/README.md} for the management guide.
  */
 @IntegrationTest
-public class SearchBrowseConsortiumIT extends BaseIntegrationTest {
+public class SearchBrowseConsortiumSuiteIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void setUp() {

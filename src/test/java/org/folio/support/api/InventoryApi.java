@@ -31,7 +31,6 @@ import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.model.event.InstanceSharingCompleteEvent;
 import org.folio.search.model.types.ResourceType;
-import org.folio.support.utils.TestUtils;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 
@@ -56,7 +55,7 @@ public class InventoryApi {
     var instanceId = getString(instance, "id");
     INSTANCE_STORE.computeIfAbsent(tenantId, k -> new LinkedHashMap<>()).put(instanceId, instance);
 
-    var instanceEvent = TestUtils.resourceEvent(tenantId, CREATE, instance, null);
+    var instanceEvent = resourceEvent(tenantId, CREATE, instance, null);
     kafkaTemplate.send(inventoryInstanceTopic(tenantId), instanceId, instanceEvent)
       .whenComplete(onCompleteConsumer());
     createNestedResources(instance, INSTANCE_HOLDING_FIELD_NAME, hr -> createHolding(tenantId, instanceId, hr));
@@ -73,7 +72,7 @@ public class InventoryApi {
     assertThat(previousInstance).isNotNull();
     INSTANCE_STORE.computeIfAbsent(tenantId, k -> new LinkedHashMap<>()).put(instanceId, instance);
 
-    var instanceEvent = TestUtils.resourceEvent(tenantId, UPDATE, instance, previousInstance);
+    var instanceEvent = resourceEvent(tenantId, UPDATE, instance, previousInstance);
     kafkaTemplate.send(inventoryInstanceTopic(tenantId), instanceId, instanceEvent)
       .whenComplete(onCompleteConsumer());
   }
@@ -97,13 +96,13 @@ public class InventoryApi {
     holding.put(INSTANCE_ID_FIELD, instanceId);
     var holdingsId = getString(holding, ID_FIELD);
     HOLDING_STORE.computeIfAbsent(tenant, k -> new LinkedHashMap<>()).put(holdingsId, holding);
-    kafkaTemplate.send(inventoryHoldingTopic(tenant), holdingsId, TestUtils.resourceEvent(tenant, CREATE, holding, null))
+    kafkaTemplate.send(inventoryHoldingTopic(tenant), holdingsId, resourceEvent(tenant, CREATE, holding, null))
       .whenComplete(onCompleteConsumer());
   }
 
   public void deleteHolding(String tenant, String id) {
     var holdings = HOLDING_STORE.get(tenant).remove(id);
-    var resourceEvent = TestUtils.resourceEvent(tenant, DELETE, null, holdings);
+    var resourceEvent = resourceEvent(tenant, DELETE, null, holdings);
     kafkaTemplate.send(inventoryHoldingTopic(tenant), getString(holdings, ID_FIELD), resourceEvent)
       .whenComplete(onCompleteConsumer());
   }
@@ -116,7 +115,7 @@ public class InventoryApi {
     item.put(INSTANCE_ID_FIELD, instanceId);
     var itemId = getString(item, ID_FIELD);
     ITEM_STORE.computeIfAbsent(tenant, k -> new LinkedHashMap<>()).put(itemId, item);
-    kafkaTemplate.send(inventoryItemTopic(tenant), itemId, TestUtils.resourceEvent(tenant, CREATE, item, null))
+    kafkaTemplate.send(inventoryItemTopic(tenant), itemId, resourceEvent(tenant, CREATE, item, null))
       .whenComplete(onCompleteConsumer());
   }
 
@@ -128,13 +127,13 @@ public class InventoryApi {
     item.put(INSTANCE_ID_FIELD, instanceId);
     var itemId = getString(item, ID_FIELD);
     ITEM_STORE.computeIfAbsent(tenant, k -> new LinkedHashMap<>()).put(itemId, item);
-    kafkaTemplate.send(inventoryItemTopic(tenant), itemId, TestUtils.resourceEvent(tenant, UPDATE, item, null))
+    kafkaTemplate.send(inventoryItemTopic(tenant), itemId, resourceEvent(tenant, UPDATE, item, null))
       .whenComplete(onCompleteConsumer());
   }
 
   public void deleteItem(String tenant, String id) {
     var item = ITEM_STORE.get(tenant).remove(id);
-    var resourceEvent = TestUtils.resourceEvent(tenant, DELETE, null, item);
+    var resourceEvent = resourceEvent(tenant, DELETE, null, item);
     kafkaTemplate.send(inventoryItemTopic(tenant), getString(item, ID_FIELD), resourceEvent)
       .whenComplete(onCompleteConsumer());
   }
@@ -143,7 +142,7 @@ public class InventoryApi {
     var id = UUID.randomUUID().toString();
     Map<String, Object> boundWith = Map.of(ID_FIELD, id, INSTANCE_ID_FIELD, instanceId);
     BOUND_WITH_STORE.computeIfAbsent(tenant, k -> new LinkedHashMap<>()).put(id, boundWith);
-    var resourceEvent = TestUtils.resourceEvent(tenant, CREATE, boundWith, null);
+    var resourceEvent = resourceEvent(tenant, CREATE, boundWith, null);
     kafkaTemplate.send(inventoryBoundWithTopic(tenant), id, resourceEvent)
       .whenComplete(onCompleteConsumer());
   }

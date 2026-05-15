@@ -58,8 +58,8 @@ class IndexingLocationsConsortiumIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void prepare() {
-    setUpTenant(CENTRAL_TENANT_ID);
-    setUpTenant(MEMBER_TENANT_ID);
+    enableTenant(CENTRAL_TENANT_ID);
+    enableTenant(MEMBER_TENANT_ID);
   }
 
   @AfterAll
@@ -70,10 +70,10 @@ class IndexingLocationsConsortiumIT extends BaseIntegrationTest {
 
   @AfterEach
   void tearDown() throws IOException {
-    cleanUpIndex(LOCATION, CENTRAL_TENANT_ID);
-    cleanUpIndex(CAMPUS, CENTRAL_TENANT_ID);
-    cleanUpIndex(INSTITUTION, CENTRAL_TENANT_ID);
-    cleanUpIndex(LIBRARY, CENTRAL_TENANT_ID);
+    deleteAllDocuments(LOCATION, CENTRAL_TENANT_ID);
+    deleteAllDocuments(CAMPUS, CENTRAL_TENANT_ID);
+    deleteAllDocuments(INSTITUTION, CENTRAL_TENANT_ID);
+    deleteAllDocuments(LIBRARY, CENTRAL_TENANT_ID);
     reset(kafkaMessageListener);
   }
 
@@ -83,11 +83,11 @@ class IndexingLocationsConsortiumIT extends BaseIntegrationTest {
                                     UnaryOperator<String> topicNameFunction) {
     var createEvent = resourceEvent(CENTRAL_TENANT_ID, CREATE, toMap(dto), null);
     kafkaTemplate.send(topicNameFunction.apply(CENTRAL_TENANT_ID), createEvent);
-    verifyIndexedResourceCounts(resourceType, CENTRAL_TENANT_ID, 1);
+    awaitIndexedResourceCounts(resourceType, CENTRAL_TENANT_ID, 1);
 
     var deleteEvent = resourceEvent(CENTRAL_TENANT_ID, DELETE, null, toMap(dto));
     kafkaTemplate.send(topicNameFunction.apply(CENTRAL_TENANT_ID), deleteEvent);
-    verifyIndexedResourceCounts(resourceType, CENTRAL_TENANT_ID, 0);
+    awaitIndexedResourceCounts(resourceType, CENTRAL_TENANT_ID, 0);
   }
 
   @MethodSource("testData")
@@ -98,7 +98,7 @@ class IndexingLocationsConsortiumIT extends BaseIntegrationTest {
     var createMemberEvent = resourceEvent(MEMBER_TENANT_ID, CREATE, toMap(dto), null);
     kafkaTemplate.send(topicNameFunction.apply(CENTRAL_TENANT_ID), createCentralEvent);
     kafkaTemplate.send(topicNameFunction.apply(MEMBER_TENANT_ID), createMemberEvent);
-    verifyIndexedResourceCounts(resourceType, CENTRAL_TENANT_ID, 2);
+    awaitIndexedResourceCounts(resourceType, CENTRAL_TENANT_ID, 2);
   }
 
   @MethodSource("testData")
@@ -109,11 +109,11 @@ class IndexingLocationsConsortiumIT extends BaseIntegrationTest {
     var createMemberEvent = resourceEvent(MEMBER_TENANT_ID, CREATE, toMap(dto), null);
     kafkaTemplate.send(topicNameFunction.apply(CENTRAL_TENANT_ID), createCentralEvent);
     kafkaTemplate.send(topicNameFunction.apply(MEMBER_TENANT_ID), createMemberEvent);
-    verifyIndexedResourceCounts(resourceType, CENTRAL_TENANT_ID, 2);
+    awaitIndexedResourceCounts(resourceType, CENTRAL_TENANT_ID, 2);
 
     var deleteAllMemberEvent = new ResourceEvent().type(DELETE_ALL).tenant(MEMBER_TENANT_ID);
     kafkaTemplate.send(topicNameFunction.apply(MEMBER_TENANT_ID), deleteAllMemberEvent);
-    verifyIndexedResourceCounts(resourceType, CENTRAL_TENANT_ID, 1);
+    awaitIndexedResourceCounts(resourceType, CENTRAL_TENANT_ID, 1);
   }
 
   @MethodSource("testData")
@@ -136,7 +136,7 @@ class IndexingLocationsConsortiumIT extends BaseIntegrationTest {
       .pollInterval(ONE_HUNDRED_MILLISECONDS)
       .untilAsserted(() -> assertThat(visited.get()).isTrue());
 
-    verifyIndexedResourceCounts(resourceType, CENTRAL_TENANT_ID, 0);
+    awaitIndexedResourceCounts(resourceType, CENTRAL_TENANT_ID, 0);
   }
 
   @MethodSource("testData")
@@ -146,7 +146,7 @@ class IndexingLocationsConsortiumIT extends BaseIntegrationTest {
     var createEvent = resourceEvent(CENTRAL_TENANT_ID, CREATE, toMap(dto), null);
     kafkaTemplate.send(topicNameFunction.apply(CENTRAL_TENANT_ID), createEvent);
 
-    verifyIndexedResourceCounts(resourceType, CENTRAL_TENANT_ID, 1);
+    awaitIndexedResourceCounts(resourceType, CENTRAL_TENANT_ID, 1);
 
     var dtoUpdated = dto.toBuilder().name("nameUpdated").build();
     var updateEvent = resourceEvent(CENTRAL_TENANT_ID, UPDATE, toMap(dtoUpdated), toMap(dto));
@@ -169,7 +169,7 @@ class IndexingLocationsConsortiumIT extends BaseIntegrationTest {
     var idQuery = QueryBuilders.matchQuery("id", dtoUpdated.getId());
     var nameQuery = QueryBuilders.matchQuery("name", dtoUpdated.getName());
     var query = boolQuery().must(idQuery).must(nameQuery);
-    verifyIndexedResourceCounts(query, resourceType, CENTRAL_TENANT_ID, 1);
+    awaitIndexedResourceCounts(query, resourceType, CENTRAL_TENANT_ID, 1);
   }
 
   private static InstitutionDto institution() {

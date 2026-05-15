@@ -1,5 +1,6 @@
 package org.folio.api.search;
 
+import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.utils.TestUtils.array;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -30,7 +31,7 @@ public abstract class SortItemIT extends BaseSharedTest {
   @DisplayName("canSortInstancesByItemFields_parameterized")
   @ParameterizedTest(name = "[{index}] query={0}")
   void canSortInstancesByItemFields_parameterized(String query, List<String> expectedIds) throws Exception {
-    doSearchByInstances(query)
+    doSearchInstances(query, TENANT_ID)
       .andExpect(status().isOk())
       .andExpect(jsonPath("totalRecords", is(expectedIds.size())))
       .andExpect(jsonPath("instances[*].id", is(expectedIds)));

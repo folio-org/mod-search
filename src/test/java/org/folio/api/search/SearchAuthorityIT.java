@@ -111,7 +111,7 @@ public abstract class SearchAuthorityIT extends BaseSharedTest {
   @DisplayName("search by authority fields (single authority found)")
   @ParameterizedTest(name = "[{index}] query={0}, value=''{1}''")
   void searchAuthorities_parameterized_singleResult(String query, String value) throws Exception {
-    doSearchByAuthorities(prepareQuery(query, value))
+    doSearchAuthorities(prepareQuery(query, value), TENANT_ID)
       .andExpect(jsonPath("$.totalRecords", is(1)));
   }
 
@@ -120,7 +120,7 @@ public abstract class SearchAuthorityIT extends BaseSharedTest {
   @ParameterizedTest(name = "[{index}] query={0}")
   void searchAuthorities_parameterized(String query, int expectedCount, String expectedHeadingType)
     throws Exception {
-    var resultActions = doSearchByAuthorities(query)
+    var resultActions = doSearchAuthorities(query, TENANT_ID)
       .andExpect(status().isOk())
       .andExpect(jsonPath("totalRecords", is(expectedCount)));
     if (expectedHeadingType != null) {
@@ -131,7 +131,7 @@ public abstract class SearchAuthorityIT extends BaseSharedTest {
   @Test
   @DisplayName("search authorities (no authority found)")
   void searchAuthorities_noResult() throws Exception {
-    doSearchByAuthorities(prepareQuery("id==\"{value}\"", "random-val"))
+    doSearchAuthorities(prepareQuery("id==\"{value}\"", "random-val"), TENANT_ID)
       .andExpect(jsonPath("$.totalRecords", is(0)))
       .andExpect(jsonPath("$.authorities", notNullValue()));
   }
@@ -140,7 +140,7 @@ public abstract class SearchAuthorityIT extends BaseSharedTest {
   @DisplayName("search authorities by invalid date format")
   @ParameterizedTest(name = "[{index}] value={1}")
   void searchAuthorities_parameterized_invalidDateFormat(String name, String value) throws Exception {
-    attemptSearchByAuthorities("(" + name + "==" + value + ")")
+    attemptSearchAuthorities("(" + name + "==" + value + ")", TENANT_ID)
       .andExpect(status().isUnprocessableContent())
       .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is("Invalid date format")))
@@ -158,7 +158,7 @@ public abstract class SearchAuthorityIT extends BaseSharedTest {
   @ParameterizedTest(name = "[{index}] query={0}, value=''{1}''")
   @DisplayName("authority with all heading types expands into correct heading rows")
   void searchAuthorities_headingExpansion(String query, String value) throws Exception {
-    var response = doSearchByAuthorities(prepareQuery(query, value))
+    var response = doSearchAuthorities(prepareQuery(query, value), TENANT_ID)
       .andExpect(jsonPath("$.totalRecords", is(35)));
     var actual = parseResponse(response, AuthoritySearchResult.class);
     assertThat(actual.getAuthorities())

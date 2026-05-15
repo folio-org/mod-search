@@ -69,8 +69,8 @@ class BrowseClassificationConsortiumIT extends BaseConsortiumIntegrationTest {
 
   @BeforeAll
   static void prepare(@Autowired SubResourcesLockRepository subResourcesLockRepository) {
-    setUpTenant(CENTRAL_TENANT_ID);
-    setUpTenant(MEMBER_TENANT_ID);
+    enableTenant(CENTRAL_TENANT_ID);
+    enableTenant(MEMBER_TENANT_ID);
 
     enableFeature(CENTRAL_TENANT_ID, BROWSE_CLASSIFICATIONS);
 
@@ -107,10 +107,10 @@ class BrowseClassificationConsortiumIT extends BaseConsortiumIntegrationTest {
   @Test
   void browseByClassification_shared() {
     var request = get(instanceClassificationBrowsePath(BrowseOptionType.ALL))
-      .param("query", prepareQuery("number < {value} or number >= {value} and instances.shared==true",
+      .param(QUERY_PARAM, prepareQuery("number < {value} or number >= {value} and instances.shared==true",
         "\"QD33 .O87\""))
-      .param("limit", "4")
-      .param("precedingRecordsCount", "2");
+      .param(LIMIT_PARAM, "4")
+      .param(PRECEDING_RECORDS_COUNT_PARAM, "2");
     var actual = parseResponse(doGet(request), ClassificationNumberBrowseResult.class);
     assertThat(actual)
       .as("Shared browse result should match expected classification entries")
@@ -128,10 +128,10 @@ class BrowseClassificationConsortiumIT extends BaseConsortiumIntegrationTest {
   @Test
   void browseByClassification_local() {
     var request = get(instanceClassificationBrowsePath(BrowseOptionType.ALL))
-      .param("query", prepareQuery("number < {value} or number >= {value} and instances.shared==false",
+      .param(QUERY_PARAM, prepareQuery("number < {value} or number >= {value} and instances.shared==false",
         "\"QD33 .O87\""))
-      .param("limit", "4")
-      .param("precedingRecordsCount", "2");
+      .param(LIMIT_PARAM, "4")
+      .param(PRECEDING_RECORDS_COUNT_PARAM, "2");
     var actual = parseResponse(doGet(request), ClassificationNumberBrowseResult.class);
     assertThat(actual)
       .as("Local browse result should match expected classification entries")

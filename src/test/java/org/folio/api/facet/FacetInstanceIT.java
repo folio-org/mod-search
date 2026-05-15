@@ -123,7 +123,7 @@ public abstract class FacetInstanceIT extends BaseSharedTest {
   @ParameterizedTest(name = "[{index}] query={0}, facets={1}")
   @DisplayName("getFacetsForInstances_parameterized")
   void getFacetsForInstances_parameterized(String query, String[] facets, Map<String, Facet> expected) {
-    var actual = parseResponse(doGet(recordFacetsPath(INSTANCES, query, facets)), FacetResult.class);
+    var actual = parseResponse(doGet(recordFacetsPath(INSTANCES, query, facets), TENANT_ID), FacetResult.class);
 
     expected.forEach((facetName, expectedFacet) -> {
       assertNotNull(actual.getFacets());
@@ -137,7 +137,7 @@ public abstract class FacetInstanceIT extends BaseSharedTest {
 
   @Test
   void searchByInstances_negative_invalidFacetName() throws Exception {
-    attemptGet(recordFacetsPath(INSTANCES, ALL_RECORDS_QUERY, "unknownFacet:5"))
+    attemptGet(recordFacetsPath(INSTANCES, ALL_RECORDS_QUERY, "unknownFacet:5"), TENANT_ID)
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is("Invalid facet value")))

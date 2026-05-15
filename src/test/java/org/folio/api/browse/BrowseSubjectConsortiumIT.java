@@ -65,8 +65,8 @@ class BrowseSubjectConsortiumIT extends BaseConsortiumIntegrationTest {
 
   @BeforeAll
   static void prepare(@Autowired SubResourcesLockRepository subResourcesLockRepository) {
-    setUpTenant(CENTRAL_TENANT_ID);
-    setUpTenant(MEMBER_TENANT_ID);
+    enableTenant(CENTRAL_TENANT_ID);
+    enableTenant(MEMBER_TENANT_ID);
 
     enableFeature(CENTRAL_TENANT_ID, BROWSE_SUBJECTS);
 
@@ -98,11 +98,11 @@ class BrowseSubjectConsortiumIT extends BaseConsortiumIntegrationTest {
   @Test
   void browseBySubject_browsingAround_shared() {
     var request = get(instanceSubjectBrowsePath())
-      .param("query", "("
-                      + prepareQuery("value < {value} or value >= {value}", "\"Rules\"") + ") "
-                      + "and instances.shared==true")
-      .param("limit", "5")
-      .param("precedingRecordsCount", "2");
+      .param(QUERY_PARAM, "("
+                          + prepareQuery("value < {value} or value >= {value}", "\"Rules\"") + ") "
+                          + "and instances.shared==true")
+      .param(LIMIT_PARAM, "5")
+      .param(PRECEDING_RECORDS_COUNT_PARAM, "2");
     var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
     assertThat(actual).isEqualTo(new SubjectBrowseResult()
       .totalRecords(11).prev("Music").next(null)
@@ -117,11 +117,11 @@ class BrowseSubjectConsortiumIT extends BaseConsortiumIntegrationTest {
   @Test
   void browseBySubject_browsingAround_local() {
     var request = get(instanceSubjectBrowsePath())
-      .param("query", "("
-                      + prepareQuery("value < {value} or value >= {value}", "\"Science\"") + ") "
-                      + "and instances.shared==false")
-      .param("limit", "5")
-      .param("precedingRecordsCount", "2");
+      .param(QUERY_PARAM, "("
+                          + prepareQuery("value < {value} or value >= {value}", "\"Science\"") + ") "
+                          + "and instances.shared==false")
+      .param(LIMIT_PARAM, "5")
+      .param(PRECEDING_RECORDS_COUNT_PARAM, "2");
     var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
     assertThat(actual).isEqualTo(new SubjectBrowseResult()
       .totalRecords(20).prev("Philosophy").next("Science--Philosophy")

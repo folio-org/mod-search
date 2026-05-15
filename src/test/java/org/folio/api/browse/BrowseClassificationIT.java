@@ -2,6 +2,7 @@ package org.folio.api.browse;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.instanceClassificationBrowsePath;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
 import static org.folio.support.utils.TestUtils.classificationBrowseItem;
@@ -14,6 +15,7 @@ import java.util.UUID;
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.BrowseOptionType;
 import org.folio.search.domain.dto.ClassificationNumberBrowseResult;
+import org.folio.search.domain.dto.ShelvingOrderAlgorithmType;
 import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -31,7 +33,8 @@ public abstract class BrowseClassificationIT extends BaseSharedTest {
 
   @BeforeEach
   void setUp() {
-    updateClassLcConfig(List.of(UUID.fromString(TYPE1_ID)));
+    updateClassConfig(List.of(UUID.fromString(TYPE1_ID)),
+      BrowseOptionType.LC, ShelvingOrderAlgorithmType.LC, TENANT_ID);
   }
 
   @MethodSource("classificationBrowsingDataProvider")
@@ -40,9 +43,9 @@ public abstract class BrowseClassificationIT extends BaseSharedTest {
   void browseByClassification_parameterized(String query, String anchor, Integer limit,
                                             ClassificationNumberBrowseResult expected) {
     var request = get(instanceClassificationBrowsePath(BrowseOptionType.LC))
-      .param("query", prepareQuery(query, '"' + anchor + '"'))
-      .param("limit", String.valueOf(limit));
-    var actual = parseResponse(doGet(request), ClassificationNumberBrowseResult.class);
+      .param(QUERY_PARAM, prepareQuery(query, '"' + anchor + '"'))
+      .param(LIMIT_PARAM, String.valueOf(limit));
+    var actual = parseResponse(doGet(request, TENANT_ID), ClassificationNumberBrowseResult.class);
 
     assertThat(actual)
       .as("Classification browse result should match expected for query='%s', anchor='%s'", query, anchor)
@@ -55,10 +58,10 @@ public abstract class BrowseClassificationIT extends BaseSharedTest {
     // ALL browse includes 92 entries (all 4 type IDs). Anchor "QA76.73.C15" has TYPE3_ID (5af5cb9d).
     // precedingRecordsCount=2 means 2 items before anchor; remaining 7 items follow.
     var request = get(instanceClassificationBrowsePath(BrowseOptionType.ALL))
-      .param("query", prepareQuery("number < {value} or number >= {value}", "\"QA76.73.C15\""))
-      .param("limit", "10")
-      .param("precedingRecordsCount", "2");
-    var actual = parseResponse(doGet(request), ClassificationNumberBrowseResult.class);
+      .param(QUERY_PARAM, prepareQuery("number < {value} or number >= {value}", "\"QA76.73.C15\""))
+      .param(LIMIT_PARAM, "10")
+      .param(PRECEDING_RECORDS_COUNT_PARAM, "2");
+    var actual = parseResponse(doGet(request, TENANT_ID), ClassificationNumberBrowseResult.class);
     assertThat(actual)
       .as("Browse result should have correct totalRecords, prev, and next pointers")
       .extracting(ClassificationNumberBrowseResult::getTotalRecords,
@@ -92,10 +95,10 @@ public abstract class BrowseClassificationIT extends BaseSharedTest {
   @Test
   void browseByClassification_noExactMatch() {
     var request = get(instanceClassificationBrowsePath(BrowseOptionType.ALL))
-      .param("query", prepareQuery("number < {value} or number >= {value}", "\"QA100 .X00 2000\""))
-      .param("limit", "3")
-      .param("precedingRecordsCount", "1");
-    var actual = parseResponse(doGet(request), ClassificationNumberBrowseResult.class);
+      .param(QUERY_PARAM, prepareQuery("number < {value} or number >= {value}", "\"QA100 .X00 2000\""))
+      .param(LIMIT_PARAM, "3")
+      .param(PRECEDING_RECORDS_COUNT_PARAM, "1");
+    var actual = parseResponse(doGet(request, TENANT_ID), ClassificationNumberBrowseResult.class);
     assertThat(actual)
       .as("Browse result should include placeholder when anchor has no exact match")
       .usingRecursiveComparison().ignoringFields(COLLECTION_IGNORING_FIELDS)
@@ -109,13 +112,14 @@ public abstract class BrowseClassificationIT extends BaseSharedTest {
 
   @Test
   void browseByClassification_lcOptionConfiguredWithTwoIds() {
-    updateClassLcConfig(List.of(UUID.fromString(TYPE1_ID), UUID.fromString(TYPE2_ID)));
+    updateClassConfig(List.of(UUID.fromString(TYPE1_ID), UUID.fromString(TYPE2_ID)), BrowseOptionType.LC,
+      ShelvingOrderAlgorithmType.LC, TENANT_ID);
 
     var request = get(instanceClassificationBrowsePath(BrowseOptionType.LC))
-      .param("query", prepareQuery("number < {value} or number >= {value}", "\"HD8236 .Y68 2004\""))
-      .param("limit", "5")
-      .param("precedingRecordsCount", "2");
-    var actual = parseResponse(doGet(request), ClassificationNumberBrowseResult.class);
+      .param(QUERY_PARAM, prepareQuery("number < {value} or number >= {value}", "\"HD8236 .Y68 2004\""))
+      .param(LIMIT_PARAM, "5")
+      .param(PRECEDING_RECORDS_COUNT_PARAM, "2");
+    var actual = parseResponse(doGet(request, TENANT_ID), ClassificationNumberBrowseResult.class);
     assertThat(actual)
       .as("Browse result should match expected when LC config is set to two type IDs")
       .usingRecursiveComparison().ignoringFields(COLLECTION_IGNORING_FIELDS)

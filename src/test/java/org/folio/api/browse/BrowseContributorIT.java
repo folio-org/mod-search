@@ -1,6 +1,7 @@
 package org.folio.api.browse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.instanceContributorBrowsePath;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
 import static org.folio.support.utils.TestUtils.array;
@@ -44,10 +45,10 @@ public abstract class BrowseContributorIT extends BaseSharedTest {
   @ParameterizedTest(name = "[{index}] query={0}, value=''{1}'', limit={2}")
   void browseByContributor_parameterized(String query, String anchor, Integer limit,
                                          ContributorBrowseResult expected) {
-    var request = get(instanceContributorBrowsePath()).param("query", prepareQuery(query, '"' + anchor + '"'))
-      .param("limit", String.valueOf(limit));
+    var request = get(instanceContributorBrowsePath()).param(QUERY_PARAM, prepareQuery(query, '"' + anchor + '"'))
+      .param(LIMIT_PARAM, String.valueOf(limit));
 
-    var actual = parseResponse(doGet(request), ContributorBrowseResult.class);
+    var actual = parseResponse(doGet(request, TENANT_ID), ContributorBrowseResult.class);
     assertThat(actual)
       .as("Contributor browse result should match expected for query='%s', anchor='%s'", query, anchor)
       .isEqualTo(expected);
@@ -55,11 +56,11 @@ public abstract class BrowseContributorIT extends BaseSharedTest {
 
   @Test
   void browseByContributor_withNameTypeFilter() {
-    var request = get(instanceContributorBrowsePath()).param("query",
+    var request = get(instanceContributorBrowsePath()).param(QUERY_PARAM,
       "(" + prepareQuery("name >= {value} or name < {value}", '"' + "John Lennon" + '"') + ") "
-      + "and contributorNameTypeId==" + NAME_TYPE_IDS[0]).param("limit", "5");
+      + "and contributorNameTypeId==" + NAME_TYPE_IDS[0]).param(LIMIT_PARAM, "5");
 
-    var actual = parseResponse(doGet(request), ContributorBrowseResult.class);
+    var actual = parseResponse(doGet(request, TENANT_ID), ContributorBrowseResult.class);
     // Only 6 browse items have nameTypeId = e2ef4075 in the shared test dataset:
     // Anthony Kiedis, Bon Jovi, Darth Vader, Klaus Meine, Paul McCartney×2
     // "John Lennon" does not exist with this nameType, so it becomes a placeholder.

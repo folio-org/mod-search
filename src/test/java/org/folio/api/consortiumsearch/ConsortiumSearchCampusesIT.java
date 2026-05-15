@@ -58,8 +58,8 @@ public abstract class ConsortiumSearchCampusesIT extends BaseSharedTest {
   void doGetConsortiumCampuses_returns200AndRecords_withTenantAndSortQueryParams() {
     List<Pair<String, String>> queryParams = List.of(
       pair("tenantId", "consortium"),
-      pair("limit", "5"),
-      pair("offset", "0"),
+      pair(LIMIT_PARAM, "5"),
+      pair(OFFSET_PARAM, "0"),
       pair("sortBy", "name"),
       pair("sortOrder", "asc")
     );
@@ -80,8 +80,8 @@ public abstract class ConsortiumSearchCampusesIT extends BaseSharedTest {
     List<Pair<String, String>> queryParams = List.of(
       pair("tenantId", "consortium"),
       pair("id", "83891666-dcb6-4cd7-ad3a-f4b305abfe21"),
-      pair("limit", "5"),
-      pair("offset", "0"),
+      pair(LIMIT_PARAM, "5"),
+      pair(OFFSET_PARAM, "0"),
       pair("sortBy", "name"),
       pair("sortOrder", "asc")
     );

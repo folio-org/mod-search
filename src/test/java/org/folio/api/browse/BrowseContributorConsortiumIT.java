@@ -65,8 +65,8 @@ class BrowseContributorConsortiumIT extends BaseConsortiumIntegrationTest {
 
   @BeforeAll
   static void prepare(@Autowired SubResourcesLockRepository subResourcesLockRepository) {
-    setUpTenant(CENTRAL_TENANT_ID);
-    setUpTenant(MEMBER_TENANT_ID);
+    enableTenant(CENTRAL_TENANT_ID);
+    enableTenant(MEMBER_TENANT_ID);
 
     enableFeature(CENTRAL_TENANT_ID, BROWSE_CONTRIBUTORS);
 
@@ -113,9 +113,9 @@ class BrowseContributorConsortiumIT extends BaseConsortiumIntegrationTest {
 
   @Test
   void browseByContributor_shared() {
-    var request = get(instanceContributorBrowsePath()).param("query",
+    var request = get(instanceContributorBrowsePath()).param(QUERY_PARAM,
       "(" + prepareQuery("name >= {value} or name < {value}", '"' + "Bon Jovi" + '"') + ") "
-      + "and instances.shared==true").param("limit", "5");
+      + "and instances.shared==true").param(LIMIT_PARAM, "5");
 
     var actual = parseResponse(doGet(request), ContributorBrowseResult.class);
     var expected = new ContributorBrowseResult().totalRecords(5).prev(null).next(null).items(
@@ -134,9 +134,10 @@ class BrowseContributorConsortiumIT extends BaseConsortiumIntegrationTest {
 
   @Test
   void browseByContributor_local() {
-    var request = get(instanceContributorBrowsePath()).param("query",
+    var request = get(instanceContributorBrowsePath()).param(QUERY_PARAM,
       "(" + prepareQuery("name >= {value} or name < {value}", '"' + "Bon Jovi" + '"') + ") "
-      + "and instances.shared==false").param("limit", "5");
+      + "and instances.shared==false")
+      .param(LIMIT_PARAM, "5");
 
     var actual = parseResponse(doGet(request), ContributorBrowseResult.class);
     var expected = new ContributorBrowseResult().totalRecords(8).prev(null).next("John Lennon").items(

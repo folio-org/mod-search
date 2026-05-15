@@ -29,15 +29,15 @@ class IndexingSuiteIT extends BaseIntegrationTest {
   @BeforeAll
   static void prepare() {
     enableTenant(TENANT_ID);
-    enableFeature(BROWSE_SUBJECTS);
-    enableFeature(BROWSE_CALL_NUMBERS);
-    enableFeature(BROWSE_CONTRIBUTORS);
-    enableFeature(BROWSE_CLASSIFICATIONS);
+    enableFeature(TENANT_ID, BROWSE_SUBJECTS);
+    enableFeature(TENANT_ID, BROWSE_CALL_NUMBERS);
+    enableFeature(TENANT_ID, BROWSE_CONTRIBUTORS);
+    enableFeature(TENANT_ID, BROWSE_CLASSIFICATIONS);
   }
 
   @AfterAll
   static void cleanUp() {
-    removeTenant();
+    removeTenant(TENANT_ID);
   }
 
   @AfterEach

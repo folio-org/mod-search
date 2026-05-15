@@ -1,5 +1,6 @@
 package org.folio.api.search;
 
+import static org.folio.support.TestConstants.TENANT_ID;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -32,7 +33,7 @@ public abstract class SearchItemIT extends BaseSharedTest {
   })
   @ParameterizedTest(name = "[{index}] {0}: {1}")
   void canSearchByItems_wildcardMatch(String query, String value) throws Throwable {
-    doSearchByInstances(prepareQuery(query, value))
+    doSearchInstances(prepareQuery(query, value), TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(1)))
       .andExpect(jsonPath("instances[0].id", is(EXPECTED_INSTANCE_ID)));
   }
@@ -56,7 +57,7 @@ public abstract class SearchItemIT extends BaseSharedTest {
   })
   @ParameterizedTest(name = "[{index}] {0}: {1}")
   void canSearchByItems_negative(String query, String value) throws Throwable {
-    doSearchByInstances(prepareQuery(query, value))
+    doSearchInstances(prepareQuery(query, value), TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(0)));
   }
 }

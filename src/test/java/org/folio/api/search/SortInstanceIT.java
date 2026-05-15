@@ -2,6 +2,7 @@ package org.folio.api.search;
 
 import static org.folio.cql2pgjson.model.CqlSort.ASCENDING;
 import static org.folio.cql2pgjson.model.CqlSort.DESCENDING;
+import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.allRecordsSortedBy;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -43,14 +44,14 @@ public abstract class SortInstanceIT extends BaseSharedTest {
       .sorted(String::compareToIgnoreCase)
       .toList();
 
-    doSearchByInstances(TAG_SORT_TITLE_FILTER + " sortBy title")
+    doSearchInstances(TAG_SORT_TITLE_FILTER + " sortBy title", TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(13)))
       .andExpect(jsonPath("instances[*].title", is(expectedTitleOrder)));
   }
 
   @Test
   void canSortInstancesByContributors_asc() throws Exception {
-    doSearchByInstances(TAG_SORT_INSTANCE_FILTER + " sortBy contributors/sort." + ASCENDING)
+    doSearchInstances(TAG_SORT_INSTANCE_FILTER + " sortBy contributors/sort." + ASCENDING, TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(5)))
       .andExpect(jsonPath("instances[0].contributors[0].name", is("1111 2222")))
       .andExpect(jsonPath("instances[1].contributors[1].name", is("bbb ccc")))
@@ -61,7 +62,7 @@ public abstract class SortInstanceIT extends BaseSharedTest {
 
   @Test
   void canSortInstancesByContributors_desc() throws Exception {
-    doSearchByInstances(TAG_SORT_INSTANCE_FILTER + " sortBy contributors/sort." + DESCENDING)
+    doSearchInstances(TAG_SORT_INSTANCE_FILTER + " sortBy contributors/sort." + DESCENDING, TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(5)))
       .andExpect(jsonPath("instances[0].contributors[0].name", is("yyy zzz")))
       .andExpect(jsonPath("instances[1].contributors[0].name", is("Śląsk")))
@@ -72,7 +73,7 @@ public abstract class SortInstanceIT extends BaseSharedTest {
 
   @Test
   void canSortInstancesByDate1_asc() throws Exception {
-    doSearchByInstances(TAG_SORT_INSTANCE_FILTER + " sortBy normalizedDate1/sort." + ASCENDING)
+    doSearchInstances(TAG_SORT_INSTANCE_FILTER + " sortBy normalizedDate1/sort." + ASCENDING, TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(5)))
       .andExpect(jsonPath("instances[0].dates.date1", is("19u5")))
       .andExpect(jsonPath("instances[1].dates.date1", is("198u")))
@@ -83,7 +84,7 @@ public abstract class SortInstanceIT extends BaseSharedTest {
 
   @Test
   void canSortInstancesByDate1_desc() throws Exception {
-    doSearchByInstances(TAG_SORT_INSTANCE_FILTER + " sortBy normalizedDate1/sort." + DESCENDING)
+    doSearchInstances(TAG_SORT_INSTANCE_FILTER + " sortBy normalizedDate1/sort." + DESCENDING, TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(5)))
       .andExpect(jsonPath("instances[0].dates.date1", is("2021")))
       .andExpect(jsonPath("instances[1].dates.date1", is("2001")))
@@ -94,7 +95,7 @@ public abstract class SortInstanceIT extends BaseSharedTest {
 
   @Test
   void canSortInstancesByTitle_asc() throws Exception {
-    doSearchByInstances(TAG_SORT_INSTANCE_FILTER + " sortBy title/sort." + ASCENDING)
+    doSearchInstances(TAG_SORT_INSTANCE_FILTER + " sortBy title/sort." + ASCENDING, TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(5)))
       .andExpect(jsonPath("instances[0].title", is("Calling Me Home")))
       .andExpect(jsonPath("instances[1].title", is("Animal farm")))
@@ -105,7 +106,7 @@ public abstract class SortInstanceIT extends BaseSharedTest {
 
   @Test
   void canSortInstancesByTitle_desc() throws Exception {
-    doSearchByInstances(TAG_SORT_INSTANCE_FILTER + " sortBy title/sort." + DESCENDING)
+    doSearchInstances(TAG_SORT_INSTANCE_FILTER + " sortBy title/sort." + DESCENDING, TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(5)))
       .andExpect(jsonPath("instances[0].title", is("Zero Minus Ten")))
       .andExpect(jsonPath("instances[1].title", is("Walk in My Soul")))
@@ -116,7 +117,7 @@ public abstract class SortInstanceIT extends BaseSharedTest {
 
   @Test
   void canSortInstancesByMetadataCreatedDate_asc() throws Exception {
-    doSearchByInstances(TAG_SORT_INSTANCE_FILTER + " sortBy metadata.createdDate/sort." + ASCENDING)
+    doSearchInstances(TAG_SORT_INSTANCE_FILTER + " sortBy metadata.createdDate/sort." + ASCENDING, TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(5)))
       .andExpect(jsonPath("instances[0].id", is(ID_STAR_WARS)))
       .andExpect(jsonPath("instances[1].id", is(ID_ZERO_MINUS_TEN)))
@@ -127,7 +128,7 @@ public abstract class SortInstanceIT extends BaseSharedTest {
 
   @Test
   void canSortInstancesByMetadataCreatedDate_desc() throws Exception {
-    doSearchByInstances(TAG_SORT_INSTANCE_FILTER + " sortBy metadata.createdDate/sort." + DESCENDING)
+    doSearchInstances(TAG_SORT_INSTANCE_FILTER + " sortBy metadata.createdDate/sort." + DESCENDING, TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(5)))
       .andExpect(jsonPath("instances[0].id", is(ID_ANIMAL_FARM)))
       .andExpect(jsonPath("instances[1].id", is(ID_WALK_IN_MY_SOUL)))
@@ -138,7 +139,7 @@ public abstract class SortInstanceIT extends BaseSharedTest {
 
   @Test
   void canSortInstancesByMetadataUpdatedDate_asc() throws Exception {
-    doSearchByInstances(TAG_SORT_INSTANCE_FILTER + " sortBy metadata.updatedDate/sort." + ASCENDING)
+    doSearchInstances(TAG_SORT_INSTANCE_FILTER + " sortBy metadata.updatedDate/sort." + ASCENDING, TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(5)))
       .andExpect(jsonPath("instances[0].id", is(ID_STAR_WARS)))
       .andExpect(jsonPath("instances[1].id", is(ID_ZERO_MINUS_TEN)))
@@ -149,7 +150,7 @@ public abstract class SortInstanceIT extends BaseSharedTest {
 
   @Test
   void canSortInstancesByMetadataUpdatedDate_desc() throws Exception {
-    doSearchByInstances(TAG_SORT_INSTANCE_FILTER + " sortBy metadata.updatedDate/sort." + DESCENDING)
+    doSearchInstances(TAG_SORT_INSTANCE_FILTER + " sortBy metadata.updatedDate/sort." + DESCENDING, TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(5)))
       .andExpect(jsonPath("instances[0].id", is(ID_ANIMAL_FARM)))
       .andExpect(jsonPath("instances[1].id", is(ID_WALK_IN_MY_SOUL)))
@@ -160,7 +161,7 @@ public abstract class SortInstanceIT extends BaseSharedTest {
 
   @Test
   void search_negative_invalidSortOption() throws Exception {
-    attemptSearchByInstances(allRecordsSortedBy("unknownSort", DESCENDING)).andExpect(
+    attemptSearchInstances(allRecordsSortedBy("unknownSort", DESCENDING), TENANT_ID).andExpect(
         jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is("Sort field not found or cannot be used.")))
       .andExpect(jsonPath("$.errors[0].type", is("RequestValidationException")))

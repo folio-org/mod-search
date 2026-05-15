@@ -83,11 +83,11 @@ class SearchBrowseSuiteIT extends BaseIntegrationTest {
     @Autowired SubResourcesLockRepository lockRepo,
     @Autowired ScheduledInstanceSubResourcesService scheduledSubResourcesService) {
     enableTenant(TENANT_ID);
-    enableFeature(SEARCH_ALL_FIELDS);
-    enableFeature(BROWSE_CALL_NUMBERS);
-    enableFeature(BROWSE_CONTRIBUTORS);
-    enableFeature(BROWSE_SUBJECTS);
-    enableFeature(BROWSE_CLASSIFICATIONS);
+    enableFeature(TENANT_ID, SEARCH_ALL_FIELDS);
+    enableFeature(TENANT_ID, BROWSE_CALL_NUMBERS);
+    enableFeature(TENANT_ID, BROWSE_CONTRIBUTORS);
+    enableFeature(TENANT_ID, BROWSE_SUBJECTS);
+    enableFeature(TENANT_ID, BROWSE_CLASSIFICATIONS);
     loadAll(TENANT_ID,
       createLockManager(lockRepo),
       scheduledSubResourcesService::persistChildren,
@@ -105,15 +105,15 @@ class SearchBrowseSuiteIT extends BaseIntegrationTest {
   }
 
   private static void awaitSubResourceIndexing() {
-    verifyIndexedResourceCounts(INSTANCE, TENANT_ID, instancesCount());
-    verifyIndexedResourceCounts(AUTHORITY, TENANT_ID, EXPECTED_AUTHORITY_COUNT);
-    verifyIndexedResourceCounts(INSTANCE_CALL_NUMBER, TENANT_ID, EXPECTED_CALL_NUMBER_COUNT);
-    verifyIndexedResourceCounts(INSTANCE_CLASSIFICATION, TENANT_ID, EXPECTED_CLASSIFICATION_COUNT);
-    verifyIndexedResourceCounts(INSTANCE_CONTRIBUTOR, TENANT_ID, EXPECTED_CONTRIBUTOR_COUNT);
-    verifyIndexedResourceCounts(INSTANCE_SUBJECT, TENANT_ID, EXPECTED_SUBJECT_COUNT);
-    verifyIndexedResourceCounts(LINKED_DATA_INSTANCE, TENANT_ID, linkedDataInstancesCount());
-    verifyIndexedResourceCounts(LINKED_DATA_WORK, TENANT_ID, linkedDataWorksCount());
-    verifyIndexedResourceCounts(LINKED_DATA_HUB, TENANT_ID, linkedDataHubsCount());
+    awaitIndexedResourceCounts(INSTANCE, TENANT_ID, instancesCount());
+    awaitIndexedResourceCounts(AUTHORITY, TENANT_ID, EXPECTED_AUTHORITY_COUNT);
+    awaitIndexedResourceCounts(INSTANCE_CALL_NUMBER, TENANT_ID, EXPECTED_CALL_NUMBER_COUNT);
+    awaitIndexedResourceCounts(INSTANCE_CLASSIFICATION, TENANT_ID, EXPECTED_CLASSIFICATION_COUNT);
+    awaitIndexedResourceCounts(INSTANCE_CONTRIBUTOR, TENANT_ID, EXPECTED_CONTRIBUTOR_COUNT);
+    awaitIndexedResourceCounts(INSTANCE_SUBJECT, TENANT_ID, EXPECTED_SUBJECT_COUNT);
+    awaitIndexedResourceCounts(LINKED_DATA_INSTANCE, TENANT_ID, linkedDataInstancesCount());
+    awaitIndexedResourceCounts(LINKED_DATA_WORK, TENANT_ID, linkedDataWorksCount());
+    awaitIndexedResourceCounts(LINKED_DATA_HUB, TENANT_ID, linkedDataHubsCount());
   }
 
   @Nested

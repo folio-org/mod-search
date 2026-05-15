@@ -1,7 +1,9 @@
 package org.folio.api.facet;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.domain.dto.RecordType.SUBJECTS;
 import static org.folio.search.utils.SearchUtils.ALL_RECORDS_QUERY;
+import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.recordFacetsPath;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
 import static org.folio.support.utils.TestUtils.array;
@@ -15,7 +17,6 @@ import java.util.Map;
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetResult;
-import org.folio.search.domain.dto.RecordType;
 import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -31,7 +32,7 @@ public abstract class FacetInstanceSubjectIT extends BaseSharedTest {
   @ParameterizedTest(name = "[{index}] query={0}, facets={1}")
   @DisplayName("getFacetsForSubjects_parameterized")
   void getFacetsForSubjects_parameterized(String query, String[] facets, Map<String, Facet> expected) {
-    var actual = parseResponse(doGet(recordFacetsPath(RecordType.SUBJECTS, query, facets)), FacetResult.class);
+    var actual = parseResponse(doGet(recordFacetsPath(SUBJECTS, query, facets), TENANT_ID), FacetResult.class);
 
     expected.forEach((facetName, expectedFacet) -> {
       assertNotNull(actual.getFacets());

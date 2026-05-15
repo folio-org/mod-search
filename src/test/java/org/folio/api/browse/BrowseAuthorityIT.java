@@ -33,9 +33,9 @@ public abstract class BrowseAuthorityIT extends BaseSharedTest {
   @ParameterizedTest(name = "[{index}] query={0}, value=''{1}'', limit={2}")
   void browseByAuthority_parameterized(String query, String anchor, Integer limit, BrowseResult expected) {
     var request = get(authorityBrowsePath())
-      .param("query", scoped(prepareQuery(query, '"' + anchor + '"')))
-      .param("limit", String.valueOf(limit));
-    var actual = parseResponse(doGet(request), AuthorityBrowseResult.class);
+      .param(QUERY_PARAM, scoped(prepareQuery(query, '"' + anchor + '"')))
+      .param(LIMIT_PARAM, String.valueOf(limit));
+    var actual = parseResponse(doGet(request, TENANT_ID), AuthorityBrowseResult.class);
 
     assertThat(actual.getTotalRecords())
       .as("Total records should be 60")
@@ -58,15 +58,15 @@ public abstract class BrowseAuthorityIT extends BaseSharedTest {
   @Test
   void browseByAuthority_browsingAroundWithAdditionalFilters() {
     var request = get(authorityBrowsePath())
-      .param("query", prepareQuery("(headingRef>={value} or headingRef<{value}) "
-                                   + "and isTitleHeadingRef==false "
-                                   + "and tenantId==" + TENANT_ID + " "
-                                   + "and shared==false "
-                                   + "and headingType==(\"Personal Name\") "
-                                   + "and " + AUTHORITY_SCOPE_FILTER, "\"Ĵämes Röllins\""))
-      .param("limit", "7")
-      .param("precedingRecordsCount", "2");
-    var actual = parseResponse(doGet(request), AuthorityBrowseResult.class);
+      .param(QUERY_PARAM, prepareQuery("(headingRef>={value} or headingRef<{value}) "
+                                       + "and isTitleHeadingRef==false "
+                                       + "and tenantId==" + TENANT_ID + " "
+                                       + "and shared==false "
+                                       + "and headingType==(\"Personal Name\") "
+                                       + "and " + AUTHORITY_SCOPE_FILTER, "\"Ĵämes Röllins\""))
+      .param(LIMIT_PARAM, "7")
+      .param(PRECEDING_RECORDS_COUNT_PARAM, "2");
+    var actual = parseResponse(doGet(request, TENANT_ID), AuthorityBrowseResult.class);
 
     assertThat(actual.getTotalRecords()).as("Total records with additional filters").isEqualTo(2);
     assertThat(actual.getPrev()).as("Prev should be null when results fit within window").isNull();
@@ -83,10 +83,10 @@ public abstract class BrowseAuthorityIT extends BaseSharedTest {
   @Test
   void browseByAuthority_browsingAroundWithDiacritics() {
     var request = get(authorityBrowsePath())
-      .param("query", scoped(prepareQuery("(headingRef>={value} or headingRef<{value})", "\"Ĵämes Röllins test\"")))
-      .param("limit", "3")
-      .param("precedingRecordsCount", "2");
-    var actual = parseResponse(doGet(request), AuthorityBrowseResult.class);
+      .param(QUERY_PARAM, scoped(prepareQuery("(headingRef>={value} or headingRef<{value})", "\"Ĵämes Röllins test\"")))
+      .param(LIMIT_PARAM, "3")
+      .param(PRECEDING_RECORDS_COUNT_PARAM, "2");
+    var actual = parseResponse(doGet(request, TENANT_ID), AuthorityBrowseResult.class);
 
     assertThat(actual.getTotalRecords())
       .as("Total records should be 60")
@@ -109,10 +109,10 @@ public abstract class BrowseAuthorityIT extends BaseSharedTest {
   @Test
   void browseByAuthority_browsingAroundWithPrecedingRecordsCount() {
     var request = get(authorityBrowsePath())
-      .param("query", scoped(prepareQuery("headingRef < {value} or headingRef >= {value}", "\"Ĵämes Röllins\"")))
-      .param("limit", "7")
-      .param("precedingRecordsCount", "2");
-    var actual = parseResponse(doGet(request), AuthorityBrowseResult.class);
+      .param(QUERY_PARAM, scoped(prepareQuery("headingRef < {value} or headingRef >= {value}", "\"Ĵämes Röllins\"")))
+      .param(LIMIT_PARAM, "7")
+      .param(PRECEDING_RECORDS_COUNT_PARAM, "2");
+    var actual = parseResponse(doGet(request, TENANT_ID), AuthorityBrowseResult.class);
 
     assertThat(actual.getTotalRecords()).as("Total records should be 60").isEqualTo(60);
     assertThat(actual.getPrev()).as("Prev should be 'Historical studies'").isEqualTo("Historical studies");
@@ -134,9 +134,10 @@ public abstract class BrowseAuthorityIT extends BaseSharedTest {
   void browseByAuthority_browsingAroundAtIndexEnd() {
     // Verifies correct boundary handling when the anchor is the last item in the index
     var request = get(authorityBrowsePath())
-      .param("query", scoped(prepareQuery("headingRef < {value} or headingRef >= {value}", "\"Zappa Frank Songs\"")))
-      .param("limit", "3");
-    var actual = parseResponse(doGet(request), AuthorityBrowseResult.class);
+      .param(QUERY_PARAM,
+        scoped(prepareQuery("headingRef < {value} or headingRef >= {value}", "\"Zappa Frank Songs\"")))
+      .param(LIMIT_PARAM, "3");
+    var actual = parseResponse(doGet(request, TENANT_ID), AuthorityBrowseResult.class);
 
     assertThat(actual.getTotalRecords())
       .as("Total records should be 60")
@@ -158,10 +159,10 @@ public abstract class BrowseAuthorityIT extends BaseSharedTest {
   @Test
   void browseByAuthority_browsingAroundWithoutHighlightMatch() {
     var request = get(authorityBrowsePath())
-      .param("query", scoped(prepareQuery("headingRef < {value} or headingRef >= {value}", "\"fantasy\"")))
-      .param("limit", "5")
+      .param(QUERY_PARAM, scoped(prepareQuery("headingRef < {value} or headingRef >= {value}", "\"fantasy\"")))
+      .param(LIMIT_PARAM, "5")
       .param("highlightMatch", "false");
-    var actual = parseResponse(doGet(request), AuthorityBrowseResult.class);
+    var actual = parseResponse(doGet(request, TENANT_ID), AuthorityBrowseResult.class);
 
     assertThat(actual.getTotalRecords())
       .as("Total records should be 60")
@@ -186,9 +187,9 @@ public abstract class BrowseAuthorityIT extends BaseSharedTest {
   @Test
   void browseByAuthority_checkReturnedFields() {
     var request = get(authorityBrowsePath())
-      .param("query", scoped(prepareQuery("headingRef >= {value}", "\"Brian K. Vaughan\"")))
-      .param("limit", "1");
-    var actual = parseResponse(doGet(request), AuthorityBrowseResult.class);
+      .param(QUERY_PARAM, scoped(prepareQuery("headingRef >= {value}", "\"Brian K. Vaughan\"")))
+      .param(LIMIT_PARAM, "1");
+    var actual = parseResponse(doGet(request, TENANT_ID), AuthorityBrowseResult.class);
 
     assertThat(actual.getItems())
       .as("Result should contain exactly 1 browse item")

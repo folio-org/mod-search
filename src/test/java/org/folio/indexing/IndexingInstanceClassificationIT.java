@@ -27,7 +27,7 @@ public abstract class IndexingInstanceClassificationIT extends BaseSharedTest {
     var instance2 = new Instance().id(instanceId2).addClassificationsItem(classification);
     inventoryApi.createInstance(TENANT_ID, instance1);
     inventoryApi.createInstance(TENANT_ID, instance2);
-    assertCountByIds(instanceSearchPath(), List.of(instanceId1, instanceId2), 2);
+    assertSearchByIdsCount(instanceSearchPath(), List.of(instanceId1, instanceId2), 2, TENANT_ID);
     awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CLASSIFICATION, TENANT_ID))
       .as("Should have exactly 1 classification document in the index")
       .hasSize(1));
@@ -44,7 +44,7 @@ public abstract class IndexingInstanceClassificationIT extends BaseSharedTest {
     var classification = new Classification().classificationNumber("N123").classificationTypeId("type1");
     var instance = new Instance().id(instanceId).addClassificationsItem(classification);
     inventoryApi.createInstance(TENANT_ID, instance);
-    assertCountByIds(instanceSearchPath(), List.of(instanceId), 1);
+    assertSearchByIdsCount(instanceSearchPath(), List.of(instanceId), 1, TENANT_ID);
     awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CLASSIFICATION, TENANT_ID))
       .as("Should have exactly 1 classification document before instance update")
       .hasSize(1));
@@ -60,7 +60,7 @@ public abstract class IndexingInstanceClassificationIT extends BaseSharedTest {
     var classification = new Classification().classificationNumber("N123").classificationTypeId("type1");
     var instance = new Instance().id(instanceId).addClassificationsItem(classification);
     inventoryApi.createInstance(TENANT_ID, instance);
-    assertCountByIds(instanceSearchPath(), List.of(instanceId), 1);
+    assertSearchByIdsCount(instanceSearchPath(), List.of(instanceId), 1, TENANT_ID);
     awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CLASSIFICATION, TENANT_ID))
       .as("Should have exactly 1 classification document before instance delete")
       .hasSize(1));

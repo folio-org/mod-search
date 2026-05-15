@@ -12,6 +12,7 @@ import static org.folio.search.model.types.ResourceType.LINKED_DATA_WORK;
 import static org.folio.search.model.types.ResourceType.LOCATION;
 import static org.folio.search.utils.SearchUtils.getResourceName;
 import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
+import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.utils.JsonTestUtils.asJsonString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -27,13 +28,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.IndexDynamicSettings;
-import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum;
 import org.folio.search.domain.dto.UpdateIndexDynamicSettingsRequest;
 import org.folio.search.model.types.ResourceType;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.testing.type.IntegrationTest;
+import org.folio.support.TestConstants;
 import org.folio.support.base.ApiEndpoints;
 import org.folio.support.base.BaseIntegrationTest;
 import org.junit.jupiter.api.AfterAll;
@@ -60,12 +61,12 @@ class IndexManagementIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void prepare() {
-    setUpTenant(Instance.class);
+    enableTenant(TENANT_ID);
   }
 
   @AfterAll
   static void cleanUp() {
-    removeTenant();
+    removeTenant(TENANT_ID);
   }
 
   @Test
@@ -85,10 +86,10 @@ class IndexManagementIT extends BaseIntegrationTest {
     var request = getReindexRequestBuilder(
       asJsonString(new ReindexRequest().resourceName(ReindexRequest.ResourceNameEnum.LOCATION)));
 
-    assertThat(countDefaultIndexDocument(LOCATION)).isZero();
-    assertThat(countDefaultIndexDocument(CAMPUS)).isZero();
-    assertThat(countDefaultIndexDocument(LIBRARY)).isZero();
-    assertThat(countDefaultIndexDocument(INSTITUTION)).isZero();
+    assertThat(countIndexDocument(LOCATION, TENANT_ID)).isZero();
+    assertThat(countIndexDocument(CAMPUS, TENANT_ID)).isZero();
+    assertThat(countIndexDocument(LIBRARY, TENANT_ID)).isZero();
+    assertThat(countIndexDocument(INSTITUTION, TENANT_ID)).isZero();
 
     mockMvc.perform(request)
       .andExpect(status().isOk())
@@ -97,10 +98,10 @@ class IndexManagementIT extends BaseIntegrationTest {
       .andExpect(jsonPath("$.submittedDate", notNullValue()));
 
     await().atMost(FIVE_SECONDS).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() -> {
-      var countedLocations = countDefaultIndexDocument(LOCATION);
-      var countedCampuses = countDefaultIndexDocument(CAMPUS);
-      var countedLibraries = countDefaultIndexDocument(LIBRARY);
-      var countedInstitutions = countDefaultIndexDocument(INSTITUTION);
+      var countedLocations = countIndexDocument(LOCATION, TENANT_ID);
+      var countedCampuses = countIndexDocument(CAMPUS, TENANT_ID);
+      var countedLibraries = countIndexDocument(LIBRARY, TENANT_ID);
+      var countedInstitutions = countIndexDocument(INSTITUTION, TENANT_ID);
 
       assertThat(countedLocations).isEqualTo(3);
       assertThat(countedCampuses).isEqualTo(2);
@@ -116,7 +117,7 @@ class IndexManagementIT extends BaseIntegrationTest {
       .resourceName(ResourceNameEnum.valueOf(resourceType.name()))
       .recreateIndex(true);
     var request = getReindexRequestBuilder(asJsonString(reindexRequest));
-    var indexIdBeforeReindex = getIndexId(resourceType);
+    var indexIdBeforeReindex = getIndexId(resourceType, TENANT_ID);
 
     mockMvc.perform(request)
       .andExpect(status().isOk());
@@ -124,22 +125,22 @@ class IndexManagementIT extends BaseIntegrationTest {
     await().atMost(FIVE_SECONDS)
       .pollInterval(ONE_HUNDRED_MILLISECONDS)
       .untilAsserted(() -> {
-        assertNotEquals(indexIdBeforeReindex, getIndexId(resourceType));
-        assertThat(countDefaultIndexDocument(resourceType)).isZero();
+        assertNotEquals(indexIdBeforeReindex, getIndexId(resourceType, TENANT_ID));
+        assertThat(countIndexDocument(resourceType, TENANT_ID)).isZero();
       });
   }
 
   @ParameterizedTest
   @MethodSource("requestBuilderDataProvider")
   void runReindex_shouldNotRecreate_linkedDataResourcesIndexes(RequestBuilder requestBuilder) throws Exception {
-    var indexIdBeforeReindex = getIndexId(LINKED_DATA_WORK);
+    var indexIdBeforeReindex = getIndexId(LINKED_DATA_WORK, TENANT_ID);
 
     mockMvc.perform(requestBuilder)
       .andExpect(status().isOk());
 
     await().atMost(FIVE_SECONDS)
       .pollInterval(ONE_HUNDRED_MILLISECONDS)
-      .untilAsserted(() -> assertEquals(indexIdBeforeReindex, getIndexId(LINKED_DATA_WORK)));
+      .untilAsserted(() -> assertEquals(indexIdBeforeReindex, getIndexId(LINKED_DATA_WORK, TENANT_ID)));
   }
 
   @Test
@@ -174,7 +175,7 @@ class IndexManagementIT extends BaseIntegrationTest {
       .content(asJsonString(new UpdateIndexDynamicSettingsRequest()
         .resourceName(getResourceName(Authority.class))
         .indexSettings(new IndexDynamicSettings().numberOfReplicas(1).refreshInterval(1))))
-      .headers(defaultHeaders())
+      .headers(defaultHeaders(TestConstants.TENANT_ID))
       .header(XOkapiHeaders.URL, okapi.getOkapiUrl())
       .contentType(MediaType.APPLICATION_JSON);
 
@@ -189,7 +190,7 @@ class IndexManagementIT extends BaseIntegrationTest {
       .content(asJsonString(new UpdateIndexDynamicSettingsRequest()
         .resourceName("invalid-resource")
         .indexSettings(new IndexDynamicSettings().numberOfReplicas(1).refreshInterval(1))))
-      .headers(defaultHeaders())
+      .headers(defaultHeaders(TestConstants.TENANT_ID))
       .header(XOkapiHeaders.URL, okapi.getOkapiUrl())
       .contentType(MediaType.APPLICATION_JSON);
 
@@ -233,7 +234,7 @@ class IndexManagementIT extends BaseIntegrationTest {
   private static RequestBuilder getReindexRequestBuilder(String content) {
     return post(ApiEndpoints.reindexPath())
       .content(content)
-      .headers(defaultHeaders())
+      .headers(defaultHeaders(TestConstants.TENANT_ID))
       .header(XOkapiHeaders.URL, okapi.getOkapiUrl())
       .contentType(MediaType.APPLICATION_JSON);
   }

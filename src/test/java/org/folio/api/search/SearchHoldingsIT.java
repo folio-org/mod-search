@@ -1,5 +1,6 @@
 package org.folio.api.search;
 
+import static org.folio.support.TestConstants.TENANT_ID;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -27,7 +28,7 @@ public abstract class SearchHoldingsIT extends BaseSharedTest {
     "holdingsNormalizedCallNumbers==\"{value}\", GEN332.2"
   })
   void canSearchByHoldings_exactMatchWithWildcard(String query, String value) throws Exception {
-    doSearchByInstances(prepareQuery(query, value))
+    doSearchInstances(prepareQuery(query, value), TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(1)))
       .andExpect(jsonPath("instances[0].id", is(EXPECTED_INSTANCE_ID)));
   }
@@ -48,7 +49,7 @@ public abstract class SearchHoldingsIT extends BaseSharedTest {
     "holdingsNormalizedCallNumbers==\"{value}\", tk510588815a582004ftmeade"
   })
   void canSearchByHoldings_exactMatch(String query, String value) throws Exception {
-    doSearchByInstances(prepareQuery(query, value))
+    doSearchInstances(prepareQuery(query, value), TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(1)))
       .andExpect(jsonPath("instances[0].id", is(EXPECTED_INSTANCE_ID)));
   }
@@ -66,7 +67,7 @@ public abstract class SearchHoldingsIT extends BaseSharedTest {
     "holdingsNormalizedCallNumbers==\"{value}\", prefix number"
   })
   void canSearchByHoldings_negative(String query, String value) throws Exception {
-    doSearchByInstances(prepareQuery(query, value))
+    doSearchInstances(prepareQuery(query, value), TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(0)));
   }
 }

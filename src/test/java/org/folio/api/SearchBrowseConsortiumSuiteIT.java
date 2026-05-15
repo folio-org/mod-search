@@ -69,12 +69,12 @@ public class SearchBrowseConsortiumSuiteIT extends BaseIntegrationTest {
     loadLibraries(CENTRAL_TENANT_ID, BaseSharedTest::indexRecords);
     loadInstitutions(CENTRAL_TENANT_ID, BaseSharedTest::indexRecords);
     loadCampuses(CENTRAL_TENANT_ID, BaseSharedTest::indexRecords);
-    verifyIndexedResourceCounts(LINKED_DATA_WORK, CENTRAL_TENANT_ID, linkedDataWorksCount());
-    verifyIndexedResourceCounts(LINKED_DATA_INSTANCE, CENTRAL_TENANT_ID, linkedDataInstancesCount());
-    verifyIndexedResourceCounts(LOCATION, CENTRAL_TENANT_ID, locationsCount());
-    verifyIndexedResourceCounts(LIBRARY, CENTRAL_TENANT_ID, librariesCount());
-    verifyIndexedResourceCounts(INSTITUTION, CENTRAL_TENANT_ID, institutionsCount());
-    verifyIndexedResourceCounts(CAMPUS, CENTRAL_TENANT_ID, campusesCount());
+    awaitIndexedResourceCounts(LINKED_DATA_WORK, CENTRAL_TENANT_ID, linkedDataWorksCount());
+    awaitIndexedResourceCounts(LINKED_DATA_INSTANCE, CENTRAL_TENANT_ID, linkedDataInstancesCount());
+    awaitIndexedResourceCounts(LOCATION, CENTRAL_TENANT_ID, locationsCount());
+    awaitIndexedResourceCounts(LIBRARY, CENTRAL_TENANT_ID, librariesCount());
+    awaitIndexedResourceCounts(INSTITUTION, CENTRAL_TENANT_ID, institutionsCount());
+    awaitIndexedResourceCounts(CAMPUS, CENTRAL_TENANT_ID, campusesCount());
   }
 
   private static void setUpMemberTenant() {
@@ -84,10 +84,10 @@ public class SearchBrowseConsortiumSuiteIT extends BaseIntegrationTest {
     loadInstitutions(MEMBER_TENANT_ID, BaseSharedTest::indexRecords);
     loadCampuses(MEMBER_TENANT_ID, BaseSharedTest::indexRecords);
     // Load same location records in member tenant - creates separate documents in central index
-    verifyIndexedResourceCounts(LOCATION, CENTRAL_TENANT_ID, locationsCount() * 2);
-    verifyIndexedResourceCounts(LIBRARY, CENTRAL_TENANT_ID, librariesCount() * 2);
-    verifyIndexedResourceCounts(INSTITUTION, CENTRAL_TENANT_ID, institutionsCount() * 2);
-    verifyIndexedResourceCounts(CAMPUS, CENTRAL_TENANT_ID, campusesCount() * 2);
+    awaitIndexedResourceCounts(LOCATION, CENTRAL_TENANT_ID, locationsCount() * 2);
+    awaitIndexedResourceCounts(LIBRARY, CENTRAL_TENANT_ID, librariesCount() * 2);
+    awaitIndexedResourceCounts(INSTITUTION, CENTRAL_TENANT_ID, institutionsCount() * 2);
+    awaitIndexedResourceCounts(CAMPUS, CENTRAL_TENANT_ID, campusesCount() * 2);
   }
 
   @Nested

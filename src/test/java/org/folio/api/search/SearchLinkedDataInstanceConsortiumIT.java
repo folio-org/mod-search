@@ -14,7 +14,7 @@ public abstract class SearchLinkedDataInstanceConsortiumIT extends BaseSharedTes
 
   @Test
   void searchByLinkedDataInstanceInCentralTenant_shouldReturnCentralTenantRecord() throws Throwable {
-    doSearchByLinkedDataInstance(CENTRAL_TENANT_ID, "title all \"titleAbc\" sortBy title")
+    doSearchLinkedDataInstance("title all \"titleAbc\" sortBy title", CENTRAL_TENANT_ID)
       .andExpect(jsonPath(toTotalRecords(), is(2)))
       .andExpect(jsonPath(toTitleValue(toRootContent(0), 0), is("titleAbc def")));
   }

@@ -1,5 +1,6 @@
 package org.folio.api.search;
 
+import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.utils.LinkedDataTestUtils.toTotalRecords;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -25,7 +26,7 @@ public abstract class SearchLinkedDataHubIT extends BaseSharedTest {
     " 9, 1, label = \"*XYZ\""
   })
   void searchByLinkedDataHub_parameterized_singleResult(int index, int size, String query) throws Throwable {
-    doSearchByLinkedDataHub(query)
+    doSearchLinkedDataHub(query, TENANT_ID)
       .andExpect(jsonPath(toTotalRecords(), is(size)));
   }
 }

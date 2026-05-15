@@ -1,7 +1,9 @@
 package org.folio.api.facet;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.domain.dto.RecordType.CALL_NUMBERS;
 import static org.folio.search.utils.SearchUtils.ALL_RECORDS_QUERY;
+import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.recordFacetsPath;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
 import static org.folio.support.utils.TestUtils.array;
@@ -14,9 +16,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
+import org.folio.search.domain.dto.BrowseOptionType;
 import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetResult;
-import org.folio.search.domain.dto.RecordType;
+import org.folio.search.domain.dto.ShelvingOrderAlgorithmType;
 import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -30,14 +33,14 @@ public abstract class FacetInstanceCallNumberIT extends BaseSharedTest {
 
   @BeforeEach
   void setUp() {
-    updateCnLcConfig(List.of(UUID.fromString(LC_TYPE_ID)));
+    updateCnConfig(List.of(UUID.fromString(LC_TYPE_ID)), BrowseOptionType.LC, ShelvingOrderAlgorithmType.LC, TENANT_ID);
   }
 
   @MethodSource("facetQueriesProvider")
   @ParameterizedTest(name = "[{index}] query={0}, facets={1}")
   @DisplayName("getFacetsForCallNumbers_parameterized")
   void getFacetsForSubjects_parameterized(String query, String[] facets, Map<String, Facet> expected) {
-    var actual = parseResponse(doGet(recordFacetsPath(RecordType.CALL_NUMBERS, query, facets)), FacetResult.class);
+    var actual = parseResponse(doGet(recordFacetsPath(CALL_NUMBERS, query, facets), TENANT_ID), FacetResult.class);
 
     expected.forEach((facetName, expectedFacet) -> {
       var actualFacet = actual.getFacets().get(facetName);

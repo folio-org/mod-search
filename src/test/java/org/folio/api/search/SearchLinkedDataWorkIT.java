@@ -1,5 +1,6 @@
 package org.folio.api.search;
 
+import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.utils.LinkedDataTestUtils.toClassificationAdditionalNumber;
 import static org.folio.support.utils.LinkedDataTestUtils.toClassificationNumber;
 import static org.folio.support.utils.LinkedDataTestUtils.toClassificationType;
@@ -28,6 +29,7 @@ import static org.folio.support.utils.LinkedDataTestUtils.toTotalRecords;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
+import org.folio.support.TestConstants;
 import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -65,7 +67,7 @@ public abstract class SearchLinkedDataWorkIT extends BaseSharedTest {
   })
   void searchByLinkedDataWork_parameterized_allResults(int index, String query) throws Throwable {
     var asc = query.contains("titleAbc def") || query.contains("sortBy") && !query.contains("descending");
-    doSearchByLinkedDataWork(query)
+    doSearchLinkedDataWork(query, TestConstants.TENANT_ID)
       .andExpect(jsonPath(toTotalRecords(), is(2)))
       .andExpect(jsonPath(toTitleValue(toRootContent(), 0), is(asc ? "titleAbc def" : "titleAbc xyz")))
       .andExpect(jsonPath(toTitleValue(toRootContent(1), 0), is(asc ? "titleAbc xyz" : "titleAbc def")));
@@ -159,7 +161,7 @@ public abstract class SearchLinkedDataWorkIT extends BaseSharedTest {
     "82, isbn == \"0262012103*\""
   })
   void searchByLinkedDataWork_parameterized_singleResult(int index, String query) throws Throwable {
-    doSearchByLinkedDataWork(query)
+    doSearchLinkedDataWork(query, TestConstants.TENANT_ID)
       .andExpect(jsonPath(toTotalRecords(), is(1)))
       .andExpect(jsonPath(toId(toRootContent()), is("123456123456")))
       .andExpect(jsonPath(toClassificationType(toRootContent(), 0), is("ddc")))
@@ -276,7 +278,7 @@ public abstract class SearchLinkedDataWorkIT extends BaseSharedTest {
     "33, classificationAdditionalNumber == \"000\"",
   })
   void searchByLinkedDataWork_parameterized_zeroResults(int index, String query) throws Throwable {
-    doSearchByLinkedDataWork(query)
+    doSearchLinkedDataWork(query, TestConstants.TENANT_ID)
       .andExpect(jsonPath(toTotalRecords(), is(0)));
   }
 
@@ -320,7 +322,7 @@ public abstract class SearchLinkedDataWorkIT extends BaseSharedTest {
     "35, lang all rus"
   })
   void searchByLinkedDataWorkWithNoInstances_parameterized_singleResult(int index, String query) throws Throwable {
-    doSearchByLinkedDataWorkWithoutInstances(query)
+    doSearchLinkedDataWorkWithoutInstances(query, TENANT_ID)
       .andExpect(jsonPath(toTotalRecords(), is(1)))
       .andExpect(jsonPath(toId(toRootContent()), is("123456123456")))
       .andExpect(jsonPath(toClassificationType(toRootContent(), 0), is("ddc")))

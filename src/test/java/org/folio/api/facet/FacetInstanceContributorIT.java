@@ -1,6 +1,7 @@
 package org.folio.api.facet;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.recordFacetsPath;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
 import static org.folio.support.utils.TestUtils.array;
@@ -34,7 +35,7 @@ public abstract class FacetInstanceContributorIT extends BaseSharedTest {
   @ParameterizedTest(name = "[{index}] query={0}, facets={1}")
   @DisplayName("getFacetsForContributors_parameterized")
   void getFacetsForContributors_parameterized(String query, String[] facets, Map<String, Facet> expected) {
-    var request = doGet(recordFacetsPath(RecordType.CONTRIBUTORS, query, facets));
+    var request = doGet(recordFacetsPath(RecordType.CONTRIBUTORS, query, facets), TENANT_ID);
     var actual = parseResponse(request, FacetResult.class);
 
     expected.forEach((facetName, expectedFacet) -> {

@@ -2,6 +2,7 @@ package org.folio.api.browse;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.instanceCallNumberBrowsePath;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
 import static org.folio.support.utils.TestUtils.cnBrowseItem;
@@ -37,10 +38,13 @@ public abstract class BrowseCallNumberIT extends BaseSharedTest {
 
   @BeforeEach
   void setUp() {
-    updateCnLcConfig(List.of(UUID.fromString(LC_TYPE_ID)));
-    updateCnSudocConfig(List.of(UUID.fromString(SUDOC_TYPE_ID)));
-    updateCnNlmConfig(List.of(UUID.fromString(NLM_TYPE_ID)));
-    updateCnOtherConfig(List.of(UUID.fromString(OTHER_TYPE_ID)));
+    updateCnConfig(List.of(UUID.fromString(LC_TYPE_ID)), BrowseOptionType.LC, ShelvingOrderAlgorithmType.LC, TENANT_ID);
+    updateCnConfig(List.of(UUID.fromString(SUDOC_TYPE_ID)), BrowseOptionType.SUDOC, ShelvingOrderAlgorithmType.SUDOC,
+      TENANT_ID);
+    updateCnConfig(List.of(UUID.fromString(NLM_TYPE_ID)), BrowseOptionType.NLM, ShelvingOrderAlgorithmType.NLM,
+      TENANT_ID);
+    updateCnConfig(List.of(UUID.fromString(OTHER_TYPE_ID)), BrowseOptionType.OTHER, ShelvingOrderAlgorithmType.DEFAULT,
+      TENANT_ID);
   }
 
   @MethodSource("callNumberBrowsingDataProvider")
@@ -51,9 +55,9 @@ public abstract class BrowseCallNumberIT extends BaseSharedTest {
     var searchQuery = prepareQuery(query, '"' + anchor + '"');
     var request = get(instanceCallNumberBrowsePath(BrowseOptionType.ALL))
       .param("expandAll", "true")
-      .param("query", searchQuery)
-      .param("limit", String.valueOf(limit));
-    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+      .param(QUERY_PARAM, searchQuery)
+      .param(LIMIT_PARAM, String.valueOf(limit));
+    var actual = parseResponse(doGet(request, TENANT_ID), CallNumberBrowseResult.class);
     assertThat(actual).as("Expected browse result for query '%s'", searchQuery)
       .usingRecursiveComparison().ignoringFields(COLLECTION_IGNORING_FIELDS).isEqualTo(expected);
   }
@@ -93,7 +97,7 @@ public abstract class BrowseCallNumberIT extends BaseSharedTest {
   @MethodSource("emptyConfigBrowseOptionProvider")
   void browseByCallNumber_emptyConfig_allTypesReturnExactMatch(BrowseOptionType browseOptionType,
                                                                ShelvingOrderAlgorithmType algorithmType) {
-    updateCnConfig(emptyList(), browseOptionType, algorithmType);
+    updateCnConfig(emptyList(), browseOptionType, algorithmType, TENANT_ID);
 
     // LC, DEWEY, NLM, SUDOC, OTHER call-numbers should produce an exact match regardless of the browse option type
     // since there are no configured types to limit the matches
@@ -114,9 +118,9 @@ public abstract class BrowseCallNumberIT extends BaseSharedTest {
     var aroundQuery = "fullCallNumber >= {value} or fullCallNumber < {value}";
     var request = get(instanceCallNumberBrowsePath(BrowseOptionType.LC))
       .param("expandAll", "true")
-      .param("query", prepareQuery(aroundQuery, "\"RC280.N4 N49\""))
-      .param("limit", "5");
-    var actual = parseResponse(doGet(request), CallNumberBrowseResult.class);
+      .param(QUERY_PARAM, prepareQuery(aroundQuery, "\"RC280.N4 N49\""))
+      .param(LIMIT_PARAM, "5");
+    var actual = parseResponse(doGet(request, TENANT_ID), CallNumberBrowseResult.class);
     var expected = cnBrowseResult("QP363 .N6 1965 FT MEADE", "RJ421 .D3", 20, List.of(
       cnBrowseItem("QP363 .N6 1965", null, "FT MEADE", LC_TYPE_ID, 2, null),
       cnBrowseItem("QR1.I6", LC_TYPE_ID, 1, "Sociology of Education and Schooling"),
@@ -247,8 +251,8 @@ public abstract class BrowseCallNumberIT extends BaseSharedTest {
     var query = "fullCallNumber >= {value} or fullCallNumber < {value}";
     var request = get(instanceCallNumberBrowsePath(browseOptionType))
       .param("expandAll", "true")
-      .param("query", prepareQuery(query, '"' + fullCallNumber + '"'))
-      .param("limit", "5");
-    return parseResponse(doGet(request), CallNumberBrowseResult.class);
+      .param(QUERY_PARAM, prepareQuery(query, '"' + fullCallNumber + '"'))
+      .param(LIMIT_PARAM, "5");
+    return parseResponse(doGet(request, TENANT_ID), CallNumberBrowseResult.class);
   }
 }

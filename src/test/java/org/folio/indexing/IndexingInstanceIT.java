@@ -23,8 +23,8 @@ public abstract class IndexingInstanceIT extends BaseSharedTest {
     createInstances();
     var itemIdToDelete = ITEM_IDS.get(1);
     inventoryApi.deleteItem(TENANT_ID, itemIdToDelete);
-    assertCountByQuery(instanceSearchPath(), "items.id=={value}", itemIdToDelete, 0);
-    assertCountByQuery(instanceSearchPath(), "items.id=={value}", ITEM_IDS.getFirst(), 1);
+    assertSearchByQueryCount(instanceSearchPath(), "items.id=={value}", itemIdToDelete, 0, TENANT_ID);
+    assertSearchByQueryCount(instanceSearchPath(), "items.id=={value}", ITEM_IDS.getFirst(), 1, TENANT_ID);
   }
 
   @Test
@@ -33,14 +33,14 @@ public abstract class IndexingInstanceIT extends BaseSharedTest {
     var instance = new Instance().id(instanceId).title("test-resource");
 
     inventoryApi.createInstance(TENANT_ID, instance);
-    assertCountByQuery(instanceSearchPath(), "title=={value}", "test-resource", 1);
+    assertSearchByQueryCount(instanceSearchPath(), "title=={value}", "test-resource", 1, TENANT_ID);
 
     var instanceToUpdate = new Instance().id(instanceId).title("test-resource-updated");
     inventoryApi.updateInstance(TENANT_ID, instanceToUpdate);
-    assertCountByQuery(instanceSearchPath(), "title=={value}", "test-resource-updated", 1);
+    assertSearchByQueryCount(instanceSearchPath(), "title=={value}", "test-resource-updated", 1, TENANT_ID);
 
     inventoryApi.deleteInstance(TENANT_ID, instanceId);
-    assertCountByQuery(instanceSearchPath(), "id=={value}", instanceId, 0);
+    assertSearchByQueryCount(instanceSearchPath(), "id=={value}", instanceId, 0, TENANT_ID);
   }
 
   @Test
@@ -49,7 +49,7 @@ public abstract class IndexingInstanceIT extends BaseSharedTest {
     var instance = new Instance().id(instanceId).addAdministrativeNotesItem("🙂".repeat(32001));
 
     inventoryApi.createInstance(TENANT_ID, instance);
-    assertCountByQuery(instanceSearchPath(), "id==\"{value}\"", instanceId, 1);
+    assertSearchByQueryCount(instanceSearchPath(), "id==\"{value}\"", instanceId, 1, TENANT_ID);
   }
 
   @Test
@@ -58,21 +58,21 @@ public abstract class IndexingInstanceIT extends BaseSharedTest {
     var instance = new Instance().id(instanceId).title("test-resource");
 
     inventoryApi.createInstance(TENANT_ID, instance);
-    assertCountByQuery(instanceSearchPath(), "title=={value}", "test-resource", 1);
-    assertCountByQuery(instanceSearchPath(), "isBoundWith=={value}", "false", 1);
+    assertSearchByQueryCount(instanceSearchPath(), "title=={value}", "test-resource", 1, TENANT_ID);
+    assertSearchByQueryCount(instanceSearchPath(), "isBoundWith=={value}", "false", 1, TENANT_ID);
 
     inventoryApi.createBoundWith(TENANT_ID, instanceId);
-    assertCountByQuery(instanceSearchPath(), "isBoundWith=={value}", "true", 1);
+    assertSearchByQueryCount(instanceSearchPath(), "isBoundWith=={value}", "true", 1, TENANT_ID);
   }
 
   @Test
   void shouldRemoveHolding() {
     createInstances();
-    HOLDING_IDS.forEach(id -> assertCountByQuery(instanceSearchPath(), "holdings.id=={value}", id, 1));
+    HOLDING_IDS.forEach(id -> assertSearchByQueryCount(instanceSearchPath(), "holdings.id=={value}", id, 1, TENANT_ID));
     inventoryApi.deleteHolding(TENANT_ID, HOLDING_IDS.getFirst());
-    assertCountByIds(instanceSearchPath(), List.of(HOLDING_IDS.getFirst()), 0);
+    assertSearchByIdsCount(instanceSearchPath(), List.of(HOLDING_IDS.getFirst()), 0, TENANT_ID);
     HOLDING_IDS.subList(1, 4)
-      .forEach(id -> assertCountByQuery(instanceSearchPath(), "holdings.id=={value}", id, 1));
+      .forEach(id -> assertSearchByQueryCount(instanceSearchPath(), "holdings.id=={value}", id, 1, TENANT_ID));
   }
 
   @Test
@@ -80,12 +80,12 @@ public abstract class IndexingInstanceIT extends BaseSharedTest {
     createInstances();
     var instanceIdToDelete = INSTANCE_IDS.getFirst();
 
-    assertCountByIds(instanceSearchPath(), INSTANCE_IDS, INSTANCE_IDS.size());
+    assertSearchByIdsCount(instanceSearchPath(), INSTANCE_IDS, INSTANCE_IDS.size(), TENANT_ID);
 
     inventoryApi.deleteInstance(TENANT_ID, instanceIdToDelete);
-    assertCountByIds(instanceSearchPath(), List.of(instanceIdToDelete), 0);
+    assertSearchByIdsCount(instanceSearchPath(), List.of(instanceIdToDelete), 0, TENANT_ID);
     List<String> ids = INSTANCE_IDS.subList(1, 3);
-    assertCountByIds(instanceSearchPath(), ids, 2);
+    assertSearchByIdsCount(instanceSearchPath(), ids, 2, TENANT_ID);
   }
 
   private static Item item(int i) {
@@ -112,12 +112,12 @@ public abstract class IndexingInstanceIT extends BaseSharedTest {
     instances.get(1).holdings(List.of(holdingsRecord(2), holdingsRecord(3)));
 
     instances.forEach(instance -> inventoryApi.createInstance(TENANT_ID, instance));
-    assertCountByIds(instanceSearchPath(), INSTANCE_IDS, 3);
+    assertSearchByIdsCount(instanceSearchPath(), INSTANCE_IDS, 3, TENANT_ID);
     for (String itemId : ITEM_IDS) {
-      assertCountByQuery(instanceSearchPath(), "items.id=={value}", itemId, 1);
+      assertSearchByQueryCount(instanceSearchPath(), "items.id=={value}", itemId, 1, TENANT_ID);
     }
     for (String holdingId : HOLDING_IDS) {
-      assertCountByQuery(instanceSearchPath(), "holdings.id=={value}", holdingId, 1);
+      assertSearchByQueryCount(instanceSearchPath(), "holdings.id=={value}", holdingId, 1, TENANT_ID);
     }
   }
 }

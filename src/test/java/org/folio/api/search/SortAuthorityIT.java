@@ -3,6 +3,7 @@ package org.folio.api.search;
 import static org.folio.cql2pgjson.model.CqlSort.ASCENDING;
 import static org.folio.cql2pgjson.model.CqlSort.DESCENDING;
 import static org.folio.search.model.index.AuthRefType.AUTHORIZED;
+import static org.folio.support.TestConstants.TENANT_ID;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -31,7 +32,7 @@ public abstract class SortAuthorityIT extends BaseSharedTest {
 
   @Test
   void canSortAuthoritiesByHeadingRef_asc() throws Exception {
-    doSearchByAuthorities(scopedQuerySortedBy("headingRef", ASCENDING))
+    doSearchAuthorities(scopedQuerySortedBy("headingRef", ASCENDING), TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(RECORDS_COUNT)))
       .andExpect(jsonPath("authorities[0].headingRef", is(BACH_HEADING)))
       .andExpect(jsonPath("authorities[1].headingRef", is(CAMBRIDGE_HEADING)))
@@ -42,7 +43,7 @@ public abstract class SortAuthorityIT extends BaseSharedTest {
 
   @Test
   void canSortAuthoritiesByHeadingRef_desc() throws Exception {
-    doSearchByAuthorities(scopedQuerySortedBy("headingRef", DESCENDING))
+    doSearchAuthorities(scopedQuerySortedBy("headingRef", DESCENDING), TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(RECORDS_COUNT)))
       .andExpect(jsonPath("authorities[0].headingRef", is(ZEROMSKI_HEADING)))
       .andExpect(jsonPath("authorities[1].headingRef", is(SUSPENSE_HEADING)))
@@ -53,7 +54,7 @@ public abstract class SortAuthorityIT extends BaseSharedTest {
 
   @Test
   void canSortAuthoritiesByHeadingType_asc() throws Exception {
-    doSearchByAuthorities(scopedQuerySortedBy("headingType", ASCENDING))
+    doSearchAuthorities(scopedQuerySortedBy("headingType", ASCENDING), TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(RECORDS_COUNT)))
       .andExpect(jsonPath("authorities[0].headingType", is(CORPORATE_NAME_TYPE)))
       .andExpect(jsonPath("authorities[1].headingType", is(GENRE_TYPE)))
@@ -66,7 +67,7 @@ public abstract class SortAuthorityIT extends BaseSharedTest {
 
   @Test
   void canSortAuthoritiesByHeadingType_desc() throws Exception {
-    doSearchByAuthorities(scopedQuerySortedBy("headingType", DESCENDING))
+    doSearchAuthorities(scopedQuerySortedBy("headingType", DESCENDING), TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(RECORDS_COUNT)))
       .andExpect(jsonPath("authorities[0].headingType", is(UNIFORM_TITLE_TYPE)))
       .andExpect(jsonPath("authorities[1].headingType", is(PERSONAL_NAME_TYPE)))
@@ -79,7 +80,7 @@ public abstract class SortAuthorityIT extends BaseSharedTest {
 
   @Test
   void canSortAuthoritiesByAuthRefType_asc() throws Exception {
-    doSearchByAuthorities(scopedQuerySortedBy("authRefType", ASCENDING))
+    doSearchAuthorities(scopedQuerySortedBy("authRefType", ASCENDING), TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(RECORDS_COUNT)))
       .andExpect(jsonPath("authorities[0].authRefType", is(AUTHORIZED.getTypeValue())))
       .andExpect(jsonPath("authorities[0].headingRef", is(BACH_HEADING)))
@@ -95,7 +96,7 @@ public abstract class SortAuthorityIT extends BaseSharedTest {
 
   @Test
   void canSortAuthoritiesByAuthRefType_desc() throws Exception {
-    doSearchByAuthorities(scopedQuerySortedBy("authRefType", DESCENDING))
+    doSearchAuthorities(scopedQuerySortedBy("authRefType", DESCENDING), TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(RECORDS_COUNT)))
       .andExpect(jsonPath("authorities[0].authRefType", is(AUTHORIZED.getTypeValue())))
       .andExpect(jsonPath("authorities[0].headingRef", is(ZEROMSKI_HEADING)))
@@ -111,7 +112,7 @@ public abstract class SortAuthorityIT extends BaseSharedTest {
 
   @Test
   void search_negative_invalidSortOption() throws Exception {
-    attemptSearchByAuthorities(scopedQuerySortedBy("unknownSort", ASCENDING))
+    attemptSearchAuthorities(scopedQuerySortedBy("unknownSort", ASCENDING), TENANT_ID)
       .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is("Sort field not found or cannot be used.")))
       .andExpect(jsonPath("$.errors[0].type", is("RequestValidationException")))

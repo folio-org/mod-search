@@ -1,5 +1,6 @@
 package org.folio.api.search;
 
+import static org.folio.support.TestConstants.TENANT_ID;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -22,7 +23,7 @@ public abstract class SearchByEmptyValuesIT extends BaseSharedTest {
   })
   @ParameterizedTest
   void search_parameterized(String query, String count) throws Exception {
-    doSearchByInstances(query + " sortBy title")
+    doSearchInstances(query + " sortBy title", TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(Integer.parseInt(count))));
   }
 }

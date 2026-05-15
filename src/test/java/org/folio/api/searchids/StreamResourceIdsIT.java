@@ -7,6 +7,7 @@ import static org.folio.search.domain.dto.ResourceIdsJob.StatusEnum.COMPLETED;
 import static org.folio.search.domain.dto.ResourceIdsJob.StatusEnum.ERROR;
 import static org.folio.search.domain.dto.ResourceIdsJob.StatusEnum.IN_PROGRESS;
 import static org.folio.search.utils.SearchUtils.ALL_RECORDS_QUERY;
+import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.resourcesIdsJobPath;
 import static org.folio.support.base.ApiEndpoints.resourcesIdsPath;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
@@ -40,18 +41,18 @@ public abstract class StreamResourceIdsIT extends BaseSharedTest {
   @DisplayName("init resource IDs job and stream all resources IDs")
   void createIdsJobAndStreamIds(EntityTypeEnum entityType, List<String> expectedIds) throws Exception {
     var resourceIdsJob = new ResourceIdsJob().query(ALL_RECORDS_QUERY).entityType(entityType);
-    var postResponse = parseResponse(doPost(ApiEndpoints.resourcesIdsJobPath(), resourceIdsJob)
+    var postResponse = parseResponse(doPost(ApiEndpoints.resourcesIdsJobPath(), TENANT_ID, resourceIdsJob)
       .andExpect(jsonPath("$.query", is(ALL_RECORDS_QUERY)))
       .andExpect(jsonPath("$.entityType", is(entityType.name())))
       .andExpect(jsonPath("$.status", is(IN_PROGRESS.getValue())))
       .andExpect(jsonPath("$.id", anything())), ResourceIdsJob.class);
 
     await().atMost(Durations.FIVE_SECONDS).until(() -> {
-      var response = doGet(resourcesIdsJobPath(postResponse.getId()));
+      var response = doGet(resourcesIdsJobPath(postResponse.getId()), TENANT_ID);
       return requireNonNull(parseResponse(response, ResourceIdsJob.class).getStatus()).equals(COMPLETED);
     });
 
-    doGet(resourcesIdsPath(postResponse.getId()))
+    doGet(resourcesIdsPath(postResponse.getId()), TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(expectedIds.size())))
       .andExpect(jsonPath("ids[*].id", containsInAnyOrder(expectedIds.toArray())));
   }
@@ -63,52 +64,52 @@ public abstract class StreamResourceIdsIT extends BaseSharedTest {
       .limit(7)
       .collect(Collectors.joining(" or id=", "id=", EMPTY)); //297 query length
     var resourceIdsJob = new ResourceIdsJob().query(query).entityType(EntityTypeEnum.INSTANCE);
-    var postResponse = parseResponse(doPost(ApiEndpoints.resourcesIdsJobPath(), resourceIdsJob)
+    var postResponse = parseResponse(doPost(ApiEndpoints.resourcesIdsJobPath(), TENANT_ID, resourceIdsJob)
       .andExpect(jsonPath("$.query", is(query)))
       .andExpect(jsonPath("$.entityType", is(EntityTypeEnum.INSTANCE.name())))
       .andExpect(jsonPath("$.id", anything())), ResourceIdsJob.class);
 
     await().atMost(Durations.FIVE_SECONDS).until(() -> {
-      var response = doGet(resourcesIdsJobPath(postResponse.getId()));
+      var response = doGet(resourcesIdsJobPath(postResponse.getId()), TENANT_ID);
       return requireNonNull(parseResponse(response, ResourceIdsJob.class).getStatus()).equals(COMPLETED);
     });
   }
 
   @Test
   void cantStreamDeprecatedJob() throws Exception {
-    var postResponse = parseResponse(doPost(ApiEndpoints.resourcesIdsJobPath(), new ResourceIdsJob()
+    var postResponse = parseResponse(doPost(ApiEndpoints.resourcesIdsJobPath(), TENANT_ID, new ResourceIdsJob()
       .query(ALL_RECORDS_QUERY)
       .entityType(EntityTypeEnum.AUTHORITY))
       .andExpect(jsonPath("$.id", anything())), ResourceIdsJob.class);
 
     await().atMost(Durations.FIVE_SECONDS).until(() -> {
-      var response = doGet(resourcesIdsJobPath(postResponse.getId()));
+      var response = doGet(resourcesIdsJobPath(postResponse.getId()), TENANT_ID);
       return requireNonNull(parseResponse(response, ResourceIdsJob.class).getStatus()).equals(COMPLETED);
     });
 
-    doGet(resourcesIdsPath(postResponse.getId()));
+    doGet(resourcesIdsPath(postResponse.getId()), TENANT_ID);
 
-    attemptGet(resourcesIdsPath(postResponse.getId()))
+    attemptGet(resourcesIdsPath(postResponse.getId()), TENANT_ID)
       .andExpect(status().is4xxClientError());
   }
 
   @Test
   void cantStreamWithInvalidQuery() throws Exception {
     var query = "bad query";
-    var postResponse = parseResponse(doPost(ApiEndpoints.resourcesIdsJobPath(), new ResourceIdsJob()
+    var postResponse = parseResponse(doPost(ApiEndpoints.resourcesIdsJobPath(), TENANT_ID, new ResourceIdsJob()
       .query(query)
       .entityType(EntityTypeEnum.INSTANCE))
       .andExpect(jsonPath("$.id", anything())), ResourceIdsJob.class);
 
     await().atMost(Durations.FIVE_SECONDS).until(() -> {
-      var response = doGet(resourcesIdsJobPath(postResponse.getId()));
+      var response = doGet(resourcesIdsJobPath(postResponse.getId()), TENANT_ID);
       return requireNonNull(parseResponse(response, ResourceIdsJob.class).getStatus()).equals(ERROR);
     });
   }
 
   @Test
   void cantGetJobWithInvalidId() throws Exception {
-    attemptGet(resourcesIdsPath("randomUUID"))
+    attemptGet(resourcesIdsPath("randomUUID"), TENANT_ID)
       .andExpect(status().is4xxClientError());
   }
 

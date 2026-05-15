@@ -14,7 +14,7 @@ public abstract class SearchLinkedDataWorkConsortiumIT extends BaseSharedTest {
 
   @Test
   void searchByLinkedDataWorkInCentralTenant_shouldReturnCentralTenantRecord() throws Throwable {
-    doSearchByLinkedDataWork(CENTRAL_TENANT_ID, "title all \"titleAbc\" sortBy title")
+    doSearchLinkedDataWork("title all \"titleAbc\" sortBy title", CENTRAL_TENANT_ID)
       .andExpect(jsonPath(toTotalRecords(), is(2)))
       .andExpect(jsonPath(toTitleValue(toRootContent(0), 0), is("titleAbc def")));
   }

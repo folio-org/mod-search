@@ -1,27 +1,16 @@
 package org.folio.support.base;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
 import static org.awaitility.Durations.ONE_MINUTE;
-import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
 import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.model.client.CqlQuery.exactMatchAny;
-import static org.folio.search.model.types.ResourceType.AUTHORITY;
-import static org.folio.search.model.types.ResourceType.LINKED_DATA_HUB;
-import static org.folio.search.model.types.ResourceType.LINKED_DATA_INSTANCE;
-import static org.folio.search.model.types.ResourceType.LINKED_DATA_WORK;
 import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.support.TestConstants.MEMBER2_TENANT_ID;
 import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
-import static org.folio.support.TestConstants.TENANT_ID;
-import static org.folio.support.TestConstants.inventoryAuthorityTopic;
-import static org.folio.support.TestConstants.linkedDataHubTopic;
-import static org.folio.support.TestConstants.linkedDataInstanceTopic;
-import static org.folio.support.TestConstants.linkedDataWorkTopic;
 import static org.folio.support.base.ApiEndpoints.authoritySearchPath;
 import static org.folio.support.base.ApiEndpoints.browseConfigPath;
 import static org.folio.support.base.ApiEndpoints.indexRecordsPath;
@@ -55,17 +44,11 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import lombok.SneakyThrows;
-import org.awaitility.Awaitility;
 import org.awaitility.core.ThrowingRunnable;
-import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.BrowseConfig;
 import org.folio.search.domain.dto.BrowseOptionType;
 import org.folio.search.domain.dto.BrowseType;
 import org.folio.search.domain.dto.FeatureConfig;
-import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.LinkedDataHub;
-import org.folio.search.domain.dto.LinkedDataInstance;
-import org.folio.search.domain.dto.LinkedDataWork;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ShelvingOrderAlgorithmType;
 import org.folio.search.domain.dto.TenantConfiguredFeature;
@@ -77,7 +60,6 @@ import org.folio.spring.testing.extension.impl.OkapiConfiguration;
 import org.folio.support.api.InventoryApi;
 import org.folio.tenant.domain.dto.Parameter;
 import org.folio.tenant.domain.dto.TenantAttributes;
-import org.jetbrains.annotations.NotNull;
 import org.opensearch.action.search.SearchRequest;
 import org.opensearch.client.RestHighLevelClient;
 import org.opensearch.client.indices.GetIndexRequest;
@@ -102,6 +84,13 @@ import tools.jackson.databind.ObjectMapper;
  */
 public abstract class BaseSharedTest {
 
+  protected static final String QUERY_PARAM = "query";
+  protected static final String LIMIT_PARAM = "limit";
+  protected static final String OFFSET_PARAM = "offset";
+  protected static final String INCLUDE_PARAM = "include";
+  protected static final String EXPAND_ALL_PARAM = "expandAll";
+  protected static final String PRECEDING_RECORDS_COUNT_PARAM = "precedingRecordsCount";
+
   protected static final String[] COLLECTION_IGNORING_FIELDS = {"items.id"};
   protected static final String[] ENTRY_IGNORING_FIELDS = {"id"};
 
@@ -113,11 +102,7 @@ public abstract class BaseSharedTest {
   protected static RestHighLevelClient elasticClient;
   protected static CacheManager cacheManager;
 
-  public static HttpHeaders defaultHeaders() {
-    return defaultHeaders(TENANT_ID);
-  }
-
-  public static HttpHeaders defaultHeaders(String tenant) {
+  protected static HttpHeaders defaultHeaders(String tenant) {
     var httpHeaders = new HttpHeaders();
 
     httpHeaders.setContentType(APPLICATION_JSON);
@@ -128,75 +113,10 @@ public abstract class BaseSharedTest {
   }
 
   @SneakyThrows
-  public static ResultActions attemptGet(String uri, Object... args) {
-    return attemptGet(uri, TENANT_ID, args);
-  }
-
-  @SneakyThrows
-  public static ResultActions attemptGet(String uri, String tenantId, Object... args) {
+  protected static ResultActions attemptGet(String uri, String tenantId, Object... args) {
     return mockMvc.perform(get(uri, args)
       .headers(defaultHeaders(tenantId))
-      .accept("application/json;charset=UTF-8"));
-  }
-
-  @SneakyThrows
-  public static ResultActions doGet(String uri, Object... args) {
-    return attemptGet(uri, TENANT_ID, args)
-      .andExpect(status().isOk());
-  }
-
-  @SneakyThrows
-  public static ResultActions doGet(String uri, String tenantId, Object... args) {
-    return attemptGet(uri, tenantId, args)
-      .andExpect(status().isOk());
-  }
-
-  @SneakyThrows
-  public static ResultActions doGet(MockHttpServletRequestBuilder request) {
-    return mockMvc.perform(request
-        .headers(defaultHeaders())
-        .accept("application/json;charset=UTF-8"))
-      .andExpect(status().isOk());
-  }
-
-  @SneakyThrows
-  public static SearchHit[] fetchAllDocuments(ResourceType resourceType, String tenantId) {
-    var searchRequest = new SearchRequest()
-      .source(searchSource().query(matchAllQuery()))
-      .indices(getIndexName(resourceType, tenantId));
-    return elasticClient.search(searchRequest, DEFAULT).getHits().getHits();
-  }
-
-  @SneakyThrows
-  public static void deleteAllDocuments(ResourceType resourceType, String tenantId) {
-    var request = new DeleteByQueryRequest(getIndexName(resourceType, tenantId));
-    request.setQuery(matchAllQuery());
-    elasticClient.deleteByQuery(request, DEFAULT);
-  }
-
-  public static void assertCountByIds(String path, List<String> ids, int expected) {
-    var query = exactMatchAny(CqlQueryParam.ID, ids).toString();
-    awaitAssertion(() -> doSearch(path, query).andExpect(jsonPath("$.totalRecords", is(expected))));
-  }
-
-  public static void assertCountByQuery(String path, String template, String value, int expected) {
-    awaitAssertion(() -> doSearch(path, prepareQuery(template, value))
-      .andExpect(jsonPath("$.totalRecords", is(expected))));
-  }
-
-  public static void awaitAssertion(ThrowingRunnable runnable) {
-    Awaitility.await()
-      .atMost(ONE_MINUTE)
-      .pollInterval(ONE_HUNDRED_MILLISECONDS)
-      .untilAsserted(runnable);
-  }
-
-  @SneakyThrows
-  protected static ResultActions attemptPost(String uri, Object body) {
-    return mockMvc.perform(post(uri)
-      .content(asJsonString(body))
-      .headers(defaultHeaders())
-      .contentType(APPLICATION_JSON));
+      .accept(APPLICATION_JSON));
   }
 
   @SneakyThrows
@@ -208,17 +128,17 @@ public abstract class BaseSharedTest {
   }
 
   @SneakyThrows
-  protected static ResultActions attemptPut(String uri, Object body) {
+  protected static ResultActions attemptPut(String uri, String tenantId, Object body) {
     return mockMvc.perform(put(uri)
       .content(asJsonString(body))
-      .headers(defaultHeaders())
+      .headers(defaultHeaders(tenantId))
       .contentType(APPLICATION_JSON));
   }
 
   @SneakyThrows
-  protected static ResultActions attemptDelete(String uri) {
+  protected static ResultActions attemptDelete(String uri, String tenantId) {
     return mockMvc.perform(delete(uri)
-      .headers(defaultHeaders())
+      .headers(defaultHeaders(tenantId))
       .contentType(APPLICATION_JSON));
   }
 
@@ -228,12 +148,30 @@ public abstract class BaseSharedTest {
     queryParams.forEach(requestBuilder::param);
     return mockMvc.perform(requestBuilder
       .headers(defaultHeaders(tenantId))
-      .accept("application/json;charset=UTF-8"));
+      .accept(APPLICATION_JSON));
   }
 
   @SneakyThrows
-  protected static ResultActions doPost(String uri, Object body) {
-    return attemptPost(uri, body)
+  protected static ResultActions attemptSearchInstances(String query, String tenantId) {
+    return attemptSearch(instanceSearchPath(), tenantId, Map.of(QUERY_PARAM, query));
+  }
+
+  @SneakyThrows
+  protected static ResultActions attemptSearchAuthorities(String query, String tenantId) {
+    return attemptSearch(authoritySearchPath(), tenantId, Map.of(QUERY_PARAM, query));
+  }
+
+  @SneakyThrows
+  protected static ResultActions doGet(String uri, String tenantId, Object... args) {
+    return attemptGet(uri, tenantId, args)
+      .andExpect(status().isOk());
+  }
+
+  @SneakyThrows
+  protected static ResultActions doGet(MockHttpServletRequestBuilder request, String tenantId) {
+    return mockMvc.perform(request
+        .headers(defaultHeaders(tenantId))
+        .accept("application/json;charset=UTF-8"))
       .andExpect(status().isOk());
   }
 
@@ -244,91 +182,126 @@ public abstract class BaseSharedTest {
   }
 
   @SneakyThrows
-  protected static ResultActions doPut(String uri, Object body) {
-    return attemptPut(uri, body)
+  protected static ResultActions doPut(String uri, String tenantId, Object body) {
+    return attemptPut(uri, tenantId, body)
       .andExpect(status().isOk());
   }
 
   @SneakyThrows
-  protected static ResultActions doDelete(String uri, Object... args) {
+  protected static ResultActions doDelete(String uri, String tenantId, Object... args) {
     return mockMvc.perform(delete(uri, args)
-        .headers(defaultHeaders()))
+        .headers(defaultHeaders(tenantId)))
       .andExpect(status().isNoContent());
   }
 
   @SneakyThrows
-  protected static ResultActions doSearchByInstances(String query) {
-    return doSearch(instanceSearchPath(), TENANT_ID, Map.of("query", query));
+  protected static ResultActions doSearchInstances(String query, String tenantId) {
+    return doSearch(instanceSearchPath(), query, tenantId);
   }
 
   @SneakyThrows
-  protected static ResultActions doSearchByInstances(String query, String include) {
-    return doSearch(instanceSearchPath(), TENANT_ID, Map.of("query", query, "include", include));
+  protected static ResultActions doSearchInstances(String query, String tenantId, String include) {
+    return doSearch(instanceSearchPath(), tenantId, Map.of(QUERY_PARAM, query, INCLUDE_PARAM, include));
   }
 
   @SneakyThrows
-  protected static ResultActions doSearchByInstances(String query, boolean expandAll) {
-    return doSearch(instanceSearchPath(), TENANT_ID, Map.of("query", query, "expandAll", String.valueOf(expandAll)));
-  }
-
-  @SneakyThrows
-  protected static ResultActions doSearchByInstances(String query, int limit, int offset) {
-    return doSearch(instanceSearchPath(), TENANT_ID,
-      Map.of("query", query, "limit", String.valueOf(limit), "offset", String.valueOf(offset))
+  protected static ResultActions doSearchInstances(String query, String tenantId, int limit, int offset) {
+    return doSearch(instanceSearchPath(), tenantId,
+      Map.of(QUERY_PARAM, query, LIMIT_PARAM, String.valueOf(limit), OFFSET_PARAM, String.valueOf(offset))
     );
   }
 
   @SneakyThrows
-  protected static ResultActions attemptSearchByInstances(String query) {
-    return attemptSearch(instanceSearchPath(), TENANT_ID, Map.of("query", query));
+  protected static ResultActions doSearchInstancesExpandAll(String query, String tenantId) {
+    return doSearch(instanceSearchPath(), tenantId,
+      Map.of(QUERY_PARAM, query, EXPAND_ALL_PARAM, String.valueOf(true)));
   }
 
   @SneakyThrows
-  protected static ResultActions doSearchByAuthorities(String query) {
-    return doSearch(authoritySearchPath(), TENANT_ID, Map.of("query", query));
-  }
-
-  protected static ResultActions doSearchByLinkedDataInstance(String query) {
-    return doSearchByLinkedDataInstance(TENANT_ID, query);
+  protected static ResultActions doSearchAuthorities(String query, String tenantId) {
+    return doSearch(authoritySearchPath(), query, tenantId);
   }
 
   @SneakyThrows
-  protected static ResultActions doSearchByLinkedDataInstance(String tenantId, String query) {
-    return doSearch(linkedDataInstanceSearchPath(), tenantId, Map.of("query", query));
-  }
-
-  protected static ResultActions doSearchByLinkedDataWork(String query) {
-    return doSearchByLinkedDataWork(TENANT_ID, query);
+  protected static ResultActions doSearchLinkedDataInstance(String query, String tenantId) {
+    return doSearch(linkedDataInstanceSearchPath(), query, tenantId);
   }
 
   @SneakyThrows
-  protected static ResultActions doSearchByLinkedDataWork(String tenantId, String query) {
-    return doSearch(linkedDataWorkSearchPath(), tenantId, Map.of("query", query));
+  protected static ResultActions doSearchLinkedDataWork(String query, String tenantId) {
+    return doSearch(linkedDataWorkSearchPath(), query, tenantId);
   }
 
   @SneakyThrows
-  protected static ResultActions doSearchByLinkedDataWorkWithoutInstances(String query) {
-    return doSearch(linkedDataWorkSearchPath(), TENANT_ID, Map.of("query", query, "omitInstances", "true"));
+  protected static ResultActions doSearchLinkedDataWorkWithoutInstances(String query, String tenantId) {
+    return doSearch(linkedDataWorkSearchPath(), tenantId, Map.of(QUERY_PARAM, query, "omitInstances", "true"));
   }
 
   @SneakyThrows
-  protected static ResultActions doSearchByLinkedDataHub(String query) {
-    return doSearch(linkedDataHubSearchPath(), TENANT_ID, Map.of("query", query));
+  protected static ResultActions doSearchLinkedDataHub(String query, String tenantId) {
+    return doSearch(linkedDataHubSearchPath(), query, tenantId);
   }
 
   @SneakyThrows
-  protected static ResultActions attemptSearchByAuthorities(String query) {
-    return attemptSearch(authoritySearchPath(), TENANT_ID, Map.of("query", query));
-  }
-
-  @SneakyThrows
-  protected static ResultActions doSearch(String path, String query) {
-    return doSearch(path, TENANT_ID, Map.of("query", query));
+  protected static ResultActions doSearch(String path, String query, String tenantId) {
+    return doSearch(path, tenantId, Map.of(QUERY_PARAM, query));
   }
 
   @SneakyThrows
   protected static ResultActions doSearch(String path, String tenantId, Map<String, String> queryParams) {
     return attemptSearch(path, tenantId, queryParams).andExpect(status().isOk());
+  }
+
+  protected static void indexRecords(List<ResourceEvent> events, String tenantId) {
+    doPost(indexRecordsPath(), tenantId, events).andReturn();
+  }
+
+  @SneakyThrows
+  protected static SearchHit[] fetchAllDocuments(ResourceType resourceType, String tenantId) {
+    var searchRequest = new SearchRequest()
+      .source(searchSource().query(matchAllQuery()))
+      .indices(getIndexName(resourceType, tenantId));
+    return elasticClient.search(searchRequest, DEFAULT).getHits().getHits();
+  }
+
+  @SneakyThrows
+  protected static void deleteAllDocuments(ResourceType resourceType, String tenantId) {
+    var request = new DeleteByQueryRequest(getIndexName(resourceType, tenantId));
+    request.setQuery(matchAllQuery());
+    elasticClient.deleteByQuery(request, DEFAULT);
+  }
+
+  protected static void assertSearchByIdsCount(String path, List<String> ids, int expected, String tenantId) {
+    var query = exactMatchAny(CqlQueryParam.ID, ids).toString();
+    awaitAssertion(() -> doSearch(path, query, tenantId).andExpect(jsonPath("$.totalRecords", is(expected))));
+  }
+
+  protected static void assertSearchByQueryCount(String path, String query, String value,
+                                                 int expected, String tenantId) {
+    awaitAssertion(() -> doSearch(path, prepareQuery(query, value), tenantId)
+      .andExpect(jsonPath("$.totalRecords", is(expected))));
+  }
+
+  protected static void awaitIndexedResourceCounts(ResourceType resourceType, String tenantId, int expectedCount) {
+    awaitAssertion(() ->
+      assertThat(countIndexDocument(resourceType, tenantId))
+        .as("%s index document count should reach %d", resourceType, expectedCount)
+        .isEqualTo(expectedCount));
+  }
+
+  protected static void awaitIndexedResourceCounts(QueryBuilder query, ResourceType resourceType,
+                                                   String tenantId, int expectedCount) {
+    awaitAssertion(() ->
+      assertThat(countIndexDocument(query, resourceType, tenantId))
+        .as("%s index document count by query %s should reach %d", resourceType, query, expectedCount)
+        .isEqualTo(expectedCount));
+  }
+
+  protected static void awaitAssertion(ThrowingRunnable runnable) {
+    await()
+      .atMost(ONE_MINUTE)
+      .pollInterval(ONE_HUNDRED_MILLISECONDS)
+      .untilAsserted(runnable);
   }
 
   protected static long countIndexDocument(ResourceType resource, String tenantId) {
@@ -344,143 +317,9 @@ public abstract class BaseSharedTest {
     return Objects.requireNonNull(searchResponse.getHits().getTotalHits()).value();
   }
 
-  protected static String getIndexId(ResourceType resource) throws IOException {
-    var getIndexResponse = elasticClient.indices().get(new GetIndexRequest(getIndexName(resource, TENANT_ID)), DEFAULT);
+  protected static String getIndexId(ResourceType resource, String tenantId) throws IOException {
+    var getIndexResponse = elasticClient.indices().get(new GetIndexRequest(getIndexName(resource, tenantId)), DEFAULT);
     return getIndexResponse.getSetting(getIndexResponse.getIndices()[0], "index.uuid");
-  }
-
-  protected static long countDefaultIndexDocument(ResourceType resource) {
-    return countIndexDocument(resource, TENANT_ID);
-  }
-
-  protected static void cleanUpIndex(ResourceType resource, String tenantId) throws IOException {
-    var request = new DeleteByQueryRequest(getIndexName(resource.getName(), tenantId));
-    request.setQuery(matchAllQuery());
-    elasticClient.deleteByQuery(request, DEFAULT);
-  }
-
-  @SneakyThrows
-  protected static void setUpTenant(Instance... instances) {
-    setUpTenant(emptyList(), instances);
-  }
-
-  @SneakyThrows
-  protected static void setUpTenant(String tenantName, Instance... instances) {
-    setUpTenant(tenantName, emptyList(), instances);
-  }
-
-  @SneakyThrows
-  protected static void setUpTenant(List<ResultMatcher> matchers, Instance... instances) {
-    setUpTenant(TENANT_ID, matchers, instances);
-  }
-
-  @SneakyThrows
-  protected static void setUpTenant(String tenantName, List<ResultMatcher> matchers, Instance... instances) {
-    setUpTenant(tenantName, instanceSearchPath(), () -> { }, asList(instances), instances.length, matchers,
-      instance -> inventoryApi.createInstance(tenantName, instance));
-  }
-
-  @SneakyThrows
-  protected static void setUpTenant(int expectedCount, Authority... authorities) {
-    setUpTenant(TENANT_ID, authoritySearchPath(), () -> { }, asList(authorities), expectedCount, emptyList(),
-      rec -> kafkaTemplate.send(inventoryAuthorityTopic(), rec.getId(), resourceEvent((String) null, AUTHORITY, rec)));
-  }
-
-  @SafeVarargs
-  @SneakyThrows
-  protected static void setUpTenant(Class<?> type, Map<String, Object>... rawRecords) {
-    setUpTenant(type, TENANT_ID, rawRecords);
-  }
-
-  @SafeVarargs
-  @SneakyThrows
-  protected static void setUpTenant(Class<?> type, List<ResultMatcher> matchers, Map<String, Object>... rawRecords) {
-    setUpTenant(type, TENANT_ID, matchers, rawRecords);
-  }
-
-  @SneakyThrows
-  protected static void setUpTenant(List<TestData> testDataList, String tenant) {
-    enableTenant(tenant);
-    for (TestData testData : testDataList) {
-      var type = testData.type();
-      var testRecords = testData.testRecords();
-      var expectedCount = testData.expectedCount();
-
-      if (type.equals(Instance.class)) {
-        saveRecords(tenant, instanceSearchPath(), testRecords, expectedCount,
-          instance -> inventoryApi.createInstance(tenant, instance));
-      }
-
-      if (type.equals(Authority.class)) {
-        saveRecords(tenant, authoritySearchPath(), testRecords, expectedCount,
-          rec -> kafkaTemplate.send(inventoryAuthorityTopic(tenant), resourceEvent((String) null, AUTHORITY, rec)));
-      }
-    }
-  }
-
-  @SafeVarargs
-  @SneakyThrows
-  protected static void setUpTenant(Class<?> type, String tenant, Map<String, Object>... rawRecords) {
-    setUpTenant(type, tenant, () -> { }, rawRecords.length, emptyList(), rawRecords);
-  }
-
-  @SafeVarargs
-  @SneakyThrows
-  protected static void setUpTenant(Class<?> type, String tenant, List<ResultMatcher> matchers,
-                                    Map<String, Object>... rawRecords) {
-    setUpTenant(type, tenant, () -> { }, rawRecords.length, matchers, rawRecords);
-  }
-
-  @SafeVarargs
-  @SneakyThrows
-  protected static void setUpTenant(Class<?> type, Integer expectedCount, Map<String, Object>... rawRecords) {
-    setUpTenant(type, TENANT_ID, () -> { }, expectedCount, emptyList(), rawRecords);
-  }
-
-  @SafeVarargs
-  @SneakyThrows
-  protected static void setUpTenant(Class<?> type, Runnable postInitAction,
-                                    @NotNull List<ResultMatcher> matchers, Map<String, Object>... records) {
-    setUpTenant(type, TENANT_ID, postInitAction, records.length, matchers, records);
-  }
-
-  @SafeVarargs
-  @SneakyThrows
-  protected static void setUpTenant(Class<?> type, String tenant, Runnable postInitAction, Integer expectedCount,
-                                    List<ResultMatcher> matchers, Map<String, Object>... records) {
-    String searchPath;
-    Consumer<Object> consumer;
-
-    if (type.equals(Instance.class)) {
-      searchPath = instanceSearchPath();
-      consumer = instance -> inventoryApi.createInstance(tenant, (Map<String, Object>) instance);
-    } else if (type.equals(Authority.class)) {
-      searchPath = authoritySearchPath();
-      consumer = authority -> kafkaTemplate.send(inventoryAuthorityTopic(tenant), event(authority, AUTHORITY, tenant));
-    } else if (type.equals(LinkedDataInstance.class)) {
-      searchPath = linkedDataInstanceSearchPath();
-      consumer = ldInstance -> kafkaTemplate.send(linkedDataInstanceTopic(tenant),
-        event(ldInstance, LINKED_DATA_INSTANCE, tenant));
-    } else if (type.equals(LinkedDataWork.class)) {
-      searchPath = linkedDataWorkSearchPath();
-      consumer = ldWork -> kafkaTemplate.send(linkedDataWorkTopic(tenant), event(ldWork, LINKED_DATA_WORK, tenant));
-    } else if (type.equals(LinkedDataHub.class)) {
-      searchPath = linkedDataHubSearchPath();
-      consumer = ldHub -> kafkaTemplate.send(linkedDataHubTopic(tenant), event(ldHub, LINKED_DATA_HUB, tenant));
-    } else {
-      throw new IllegalArgumentException("Unsupported type: " + type.getName());
-    }
-
-    setUpTenant(tenant, searchPath, postInitAction, asList(records), expectedCount, matchers, consumer);
-  }
-
-  @SneakyThrows
-  protected static <T> void setUpTenant(String tenant, String validationPath, Runnable postInitAction,
-                                        List<T> records, Integer expectedCount, List<ResultMatcher> matchers,
-                                        Consumer<T> consumer) {
-    enableTenant(tenant);
-    postInitAction.run();
-    saveRecords(tenant, validationPath, records, expectedCount, matchers, consumer);
   }
 
   protected static <T> void saveRecords(String tenant, String validationPath, List<T> records, Integer expectedCount,
@@ -497,12 +336,6 @@ public abstract class BaseSharedTest {
   }
 
   @SneakyThrows
-  protected static void enableFeature(TenantConfiguredFeature feature) {
-    enableFeature(TENANT_ID, feature);
-  }
-
-  @SneakyThrows
-  @SuppressWarnings("SameParameterValue")
   protected static void enableFeature(String tenantId, TenantConfiguredFeature feature) {
     mockMvc.perform(post(ApiEndpoints.featureConfigPath())
         .headers(defaultHeaders(tenantId))
@@ -524,11 +357,6 @@ public abstract class BaseSharedTest {
   }
 
   @SneakyThrows
-  protected static void removeTenant() {
-    removeTenant(TENANT_ID);
-  }
-
-  @SneakyThrows
   protected static void removeTenant(String tenantId) {
     mockMvc.perform(post("/_/tenant", randomId())
         .content(asJsonString(new TenantAttributes().moduleFrom("mod-search").purge(true)))
@@ -538,8 +366,8 @@ public abstract class BaseSharedTest {
 
   protected static void checkThatEventsFromKafkaAreIndexed(String tenantId, String path, int size,
                                                            List<ResultMatcher> matchers) {
-    Awaitility.await().atMost(ONE_MINUTE).pollInterval(TWO_HUNDRED_MILLISECONDS).untilAsserted(() ->
-      doSearch(path, tenantId, Map.of("query", SearchUtils.ALL_RECORDS_QUERY, "expandAll", "true"))
+    awaitAssertion(() ->
+      doSearch(path, tenantId, Map.of(QUERY_PARAM, SearchUtils.ALL_RECORDS_QUERY, EXPAND_ALL_PARAM, "true"))
         .andExpect(jsonPath("$.totalRecords", is(size)))
         .andExpectAll(matchers.toArray(new ResultMatcher[0])));
   }
@@ -552,69 +380,28 @@ public abstract class BaseSharedTest {
     return resourceEvent(tenant, resourceType, CREATE, object);
   }
 
-  protected static void updateCnSudocConfig(List<UUID> typeIds) {
-    updateCnConfig(typeIds, BrowseOptionType.SUDOC, ShelvingOrderAlgorithmType.SUDOC);
-  }
-
-  protected static void updateCnLcConfig(List<UUID> typeIds) {
-    updateCnConfig(typeIds, BrowseOptionType.LC, ShelvingOrderAlgorithmType.LC);
-  }
-
-  protected static void updateCnNlmConfig(List<UUID> typeIds) {
-    updateCnConfig(typeIds, BrowseOptionType.NLM, ShelvingOrderAlgorithmType.NLM);
-  }
-
-  protected static void updateCnOtherConfig(List<UUID> typeIds) {
-    updateCnConfig(typeIds, BrowseOptionType.OTHER, ShelvingOrderAlgorithmType.DEFAULT);
-  }
-
   protected static void updateCnConfig(List<UUID> typeIds, BrowseOptionType browseOptionType,
-                                       ShelvingOrderAlgorithmType algorithmType) {
+                                       ShelvingOrderAlgorithmType algorithmType, String tenantId) {
     updateBrowseConfig(typeIds, BrowseType.INSTANCE_CALL_NUMBER, browseOptionType, algorithmType,
-      uuids -> mockCallNumberTypes(okapi.wireMockServer(), uuids.toArray(new UUID[0])));
+      uuids -> mockCallNumberTypes(okapi.wireMockServer(), uuids.toArray(new UUID[0])), tenantId);
   }
 
-  protected static void updateClassLcConfig(List<UUID> typeIds) {
-    updateBrowseConfig(typeIds, BrowseType.INSTANCE_CLASSIFICATION, BrowseOptionType.LC, ShelvingOrderAlgorithmType.LC,
-      uuids -> mockClassificationTypes(okapi.wireMockServer(), uuids.toArray(new UUID[0])));
+  protected static void updateClassConfig(List<UUID> typeIds, BrowseOptionType browseOptionType,
+                                          ShelvingOrderAlgorithmType algorithmType, String tenantId) {
+    updateBrowseConfig(typeIds, BrowseType.INSTANCE_CLASSIFICATION, browseOptionType, algorithmType,
+      uuids -> mockClassificationTypes(okapi.wireMockServer(), uuids.toArray(new UUID[0])), tenantId);
   }
 
   protected static void updateBrowseConfig(List<UUID> typeIds, BrowseType browseType,
                                            BrowseOptionType browseOptionType, ShelvingOrderAlgorithmType algorithm,
-                                           Function<List<UUID>, MappingBuilder> mocker) {
+                                           Function<List<UUID>, MappingBuilder> mocker, String tenantId) {
     var config = new BrowseConfig()
       .id(browseOptionType)
       .shelvingAlgorithm(algorithm)
       .typeIds(typeIds);
 
     var stub = mocker.apply(typeIds);
-    doPut(browseConfigPath(browseType, browseOptionType), config);
+    doPut(browseConfigPath(browseType, browseOptionType), tenantId, config);
     okapi.wireMockServer().removeStub(stub);
-  }
-
-  protected static void indexRecords(List<ResourceEvent> events, String tenantId) {
-    try {
-      doPost(indexRecordsPath(), tenantId, events).andReturn();
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to index records", e);
-    }
-  }
-
-  protected static void verifyIndexedResourceCounts(ResourceType resourceType, String tenantId, int expectedCount) {
-    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
-      assertThat(countIndexDocument(resourceType, tenantId))
-        .as("%s index document count should reach %d", resourceType, expectedCount)
-        .isEqualTo(expectedCount));
-  }
-
-  protected static void verifyIndexedResourceCounts(QueryBuilder query, ResourceType resourceType,
-                                                    String tenantId, int expectedCount) {
-    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
-      assertThat(countIndexDocument(query, resourceType, tenantId))
-        .as("%s index document count by query %s should reach %d", resourceType, query, expectedCount)
-        .isEqualTo(expectedCount));
-  }
-
-  public record TestData(Class<?> type, List<Map<String, Object>> testRecords, int expectedCount) {
   }
 }

@@ -79,9 +79,9 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
 
   @BeforeAll
   static void prepare(@Autowired SubResourcesLockRepository lockRepository) {
-    setUpTenant(CENTRAL_TENANT_ID);
-    setUpTenant(MEMBER_TENANT_ID);
-    setUpTenant(MEMBER2_TENANT_ID);
+    enableTenant(CENTRAL_TENANT_ID);
+    enableTenant(MEMBER_TENANT_ID);
+    enableTenant(MEMBER2_TENANT_ID);
 
     enableFeature(CENTRAL_TENANT_ID, BROWSE_CALL_NUMBERS);
 
@@ -124,8 +124,8 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
                                         Integer limit, CallNumberBrowseResult expected) {
     var request = get(instanceCallNumberBrowsePath(optionType))
       .param("expandAll", "true")
-      .param("query", prepareQuery(query, '"' + input + '"'))
-      .param("limit", String.valueOf(limit));
+      .param(QUERY_PARAM, prepareQuery(query, '"' + input + '"'))
+      .param(LIMIT_PARAM, String.valueOf(limit));
     var actual = parseResponse(doGet(request, tenant), CallNumberBrowseResult.class);
     assertThat(actual).isEqualTo(expected);
   }
@@ -134,9 +134,9 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
   void browseByCallNumber_withLocationFilter() {
     var request = get(instanceCallNumberBrowsePath(BrowseOptionType.ALL))
       .param("expandAll", "true")
-      .param("query", "(fullCallNumber>=\"a\" or fullCallNumber<\"a\") "
-                      + "and instances.locationId==(\"%s\")".formatted(MEMBER2_LOCATION))
-      .param("limit", String.valueOf(10));
+      .param(QUERY_PARAM, "(fullCallNumber>=\"a\" or fullCallNumber<\"a\") "
+                          + "and instances.locationId==(\"%s\")".formatted(MEMBER2_LOCATION))
+      .param(LIMIT_PARAM, String.valueOf(10));
     var actual = parseResponse(doGet(request, MEMBER_TENANT_ID), CallNumberBrowseResult.class);
     assertThat(actual).isEqualTo(cnBrowseResult(null, null, 0, List.of(cnEmptyBrowseItem("a"))));
   }
@@ -145,9 +145,9 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
   void browseByCallNumber_fromCentralTenant_withTenantIdFacet_sameCallNumberInMemberTenantOfSharedInstance() {
     var request = get(instanceCallNumberBrowsePath(BrowseOptionType.ALL))
       .param("expandAll", "true")
-      .param("query", "(fullCallNumber>=\"TA357 .A78 2010\" or fullCallNumber<\"TA357 .A78 2010\") "
-                      + "and instances.tenantId==(\"%s\")".formatted(MEMBER2_TENANT_ID))
-      .param("limit", String.valueOf(10));
+      .param(QUERY_PARAM, "(fullCallNumber>=\"TA357 .A78 2010\" or fullCallNumber<\"TA357 .A78 2010\") "
+                          + "and instances.tenantId==(\"%s\")".formatted(MEMBER2_TENANT_ID))
+      .param(LIMIT_PARAM, String.valueOf(10));
     var actual = parseResponse(doGet(request, CENTRAL_TENANT_ID), CallNumberBrowseResult.class);
     assertThat(actual).isEqualTo(cnBrowseResult(null, null, 2,
       List.of(cnBrowseItem(callNumbers().get(1).callNumber(), 0),

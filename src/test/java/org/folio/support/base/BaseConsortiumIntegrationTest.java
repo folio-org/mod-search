@@ -22,22 +22,6 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 public abstract class BaseConsortiumIntegrationTest extends BaseIntegrationTest {
 
   @SneakyThrows
-  protected static void removeTenant() {
-    removeTenant(TENANT_ID);
-    removeTenant(CENTRAL_TENANT_ID);
-  }
-
-  @SneakyThrows
-  protected static ResultActions doSearchByInstances(String query) {
-    return doSearch(instanceSearchPath(), MEMBER_TENANT_ID, Map.of("query", query));
-  }
-
-  @AfterAll
-  static void cleanUp() {
-    removeTenant();
-  }
-
-  @SneakyThrows
   public static ResultActions tryGet(String uri, Object... args) {
     return tryGet(uri, MEMBER_TENANT_ID, args);
   }
@@ -104,5 +88,21 @@ public abstract class BaseConsortiumIntegrationTest extends BaseIntegrationTest 
   public static ResultActions doPost(String uri, String tenantHeader, Object body) {
     return tryPost(uri, tenantHeader, body)
       .andExpect(status().isOk());
+  }
+
+  @SneakyThrows
+  protected static void removeTenant() {
+    removeTenant(TENANT_ID);
+    removeTenant(CENTRAL_TENANT_ID);
+  }
+
+  @SneakyThrows
+  protected static ResultActions doSearchByInstances(String query) {
+    return doSearch(instanceSearchPath(), MEMBER_TENANT_ID, Map.of(QUERY_PARAM, query));
+  }
+
+  @AfterAll
+  static void cleanUp() {
+    removeTenant();
   }
 }

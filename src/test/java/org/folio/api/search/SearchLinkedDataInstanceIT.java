@@ -28,6 +28,7 @@ import static org.folio.support.utils.LinkedDataTestUtils.toTotalRecords;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
+import org.folio.support.TestConstants;
 import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -65,7 +66,7 @@ public abstract class SearchLinkedDataInstanceIT extends BaseSharedTest {
   })
   void searchByLinkedDataInstance_parameterized_allResults(int index, String query) throws Throwable {
     var asc = !query.contains("descending");
-    doSearchByLinkedDataInstance(query)
+    doSearchLinkedDataInstance(query, TestConstants.TENANT_ID)
       .andExpect(jsonPath(toTotalRecords(), is(2)))
       .andExpect(jsonPath(toTitleValue(toRootContent(0), 0), is(asc ? "titleAbc def" : "titleAbc xyz")))
       .andExpect(jsonPath(toTitleValue(toRootContent(1), 0), is(asc ? "titleAbc xyz" : "titleAbc def")));
@@ -159,7 +160,7 @@ public abstract class SearchLinkedDataInstanceIT extends BaseSharedTest {
     "82, isbn == \"0262012103*\""
   })
   void searchByLinkedDataInstance_parameterized_singleResult(int index, String query) throws Throwable {
-    doSearchByLinkedDataInstance(query)
+    doSearchLinkedDataInstance(query, TestConstants.TENANT_ID)
       .andExpect(jsonPath(toTotalRecords(), is(1)))
       .andExpect(jsonPath(toId(toRootContent()), is("instance1")))
       .andExpect(jsonPath(toClassificationType(toParentWork(), 0), is("ddc")))
@@ -278,7 +279,7 @@ public abstract class SearchLinkedDataInstanceIT extends BaseSharedTest {
     "33, classificationAdditionalNumber == \"000\"",
   })
   void searchByLinkedDataInstance_parameterized_zeroResults(int index, String query) throws Throwable {
-    doSearchByLinkedDataInstance(query)
+    doSearchLinkedDataInstance(query, TestConstants.TENANT_ID)
       .andExpect(jsonPath(toTotalRecords(), is(0)));
   }
 }

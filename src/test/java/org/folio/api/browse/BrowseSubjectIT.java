@@ -2,6 +2,7 @@ package org.folio.api.browse;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.instanceSubjectBrowsePath;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
 import static org.folio.support.utils.TestUtils.subjectBrowseItem;
@@ -33,9 +34,9 @@ public abstract class BrowseSubjectIT extends BaseSharedTest {
   @ParameterizedTest(name = "[{index}] query={0}, value=''{1}'', limit={2}")
   void browseBySubject_parameterized(String query, String anchor, Integer limit, SubjectBrowseResult expected) {
     var request = get(instanceSubjectBrowsePath())
-      .param("query", prepareQuery(query, '"' + anchor + '"'))
-      .param("limit", String.valueOf(limit));
-    var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
+      .param(QUERY_PARAM, prepareQuery(query, '"' + anchor + '"'))
+      .param(LIMIT_PARAM, String.valueOf(limit));
+    var actual = parseResponse(doGet(request, TENANT_ID), SubjectBrowseResult.class);
 
     assertThat(actual)
       .as("Subject browse result should match expected for query='%s', anchor='%s'", query, anchor)
@@ -45,50 +46,50 @@ public abstract class BrowseSubjectIT extends BaseSharedTest {
   @Test
   void browseBySubject_browsingAroundWithPrecedingRecordsCount() {
     var request = get(instanceSubjectBrowsePath())
-      .param("query", prepareQuery("value < {value} or value >= {value}", "\"Machine learning\""))
-      .param("limit", "7")
-      .param("precedingRecordsCount", "2");
-    var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
+      .param(QUERY_PARAM, prepareQuery("value < {value} or value >= {value}", "\"Machine learning\""))
+      .param(LIMIT_PARAM, "7")
+      .param(PRECEDING_RECORDS_COUNT_PARAM, "2");
+    var actual = parseResponse(doGet(request, TENANT_ID), SubjectBrowseResult.class);
     assertThat(actual)
       .as("Subject browse result should match expected with precedingRecordsCount=2 around 'Machine learning'")
       .isEqualTo(new SubjectBrowseResult()
-      .totalRecords(52).prev("Library science").next("Music")
-      .items(List.of(
-        subjectBrowseItem(6, "Library science"),
-        subjectBrowseItem(3, "Literature and society"),
-        subjectBrowseItem(7, "Machine learning", true),
-        subjectBrowseItem(3, "Media studies"),
-        subjectBrowseItem(4, "Metadata"),
-        subjectBrowseItem(8, "Molecular biology"),
-        subjectBrowseItem(1, "Music", MUSIC_AUTHORITY_ID_2, MUSIC_SOURCE_ID, MUSIC_TYPE_ID))));
+        .totalRecords(52).prev("Library science").next("Music")
+        .items(List.of(
+          subjectBrowseItem(6, "Library science"),
+          subjectBrowseItem(3, "Literature and society"),
+          subjectBrowseItem(7, "Machine learning", true),
+          subjectBrowseItem(3, "Media studies"),
+          subjectBrowseItem(4, "Metadata"),
+          subjectBrowseItem(8, "Molecular biology"),
+          subjectBrowseItem(1, "Music", MUSIC_AUTHORITY_ID_2, MUSIC_SOURCE_ID, MUSIC_TYPE_ID))));
   }
 
   @Test
   void browseBySubject_browsingAroundWithoutHighlightMatch() {
     var request = get(instanceSubjectBrowsePath())
-      .param("query", prepareQuery("value < {value} or value >= {value}", "\"genetics\""))
-      .param("limit", "4")
+      .param(QUERY_PARAM, prepareQuery("value < {value} or value >= {value}", "\"genetics\""))
+      .param(LIMIT_PARAM, "4")
       .param("highlightMatch", "false");
-    var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
+    var actual = parseResponse(doGet(request, TENANT_ID), SubjectBrowseResult.class);
 
     assertThat(actual)
       .as("Subject browse result should match expected when highlightMatch=false around 'genetics'")
       .isEqualTo(new SubjectBrowseResult()
-      .totalRecords(52).prev("Fantasy").next("Global economics")
-      .items(List.of(
-        subjectBrowseItem(1, "Fantasy"),
-        subjectBrowseItem(3, "Game theory"),
-        subjectBrowseItem(8, "Genetics"),
-        subjectBrowseItem(3, "Global economics"))));
+        .totalRecords(52).prev("Fantasy").next("Global economics")
+        .items(List.of(
+          subjectBrowseItem(1, "Fantasy"),
+          subjectBrowseItem(3, "Game theory"),
+          subjectBrowseItem(8, "Genetics"),
+          subjectBrowseItem(3, "Global economics"))));
   }
 
   @Test
   void browseBySubject_withSourceFilter() {
-    var request = get(instanceSubjectBrowsePath()).param("query",
+    var request = get(instanceSubjectBrowsePath()).param(QUERY_PARAM,
       "(" + prepareQuery("value >= {value} or value < {value}", '"' + "Philosophy" + '"') + ") "
-      + "and sourceId==" + MUSIC_SOURCE_ID).param("limit", "5");
+      + "and sourceId==" + MUSIC_SOURCE_ID).param(LIMIT_PARAM, "5");
 
-    var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
+    var actual = parseResponse(doGet(request, TENANT_ID), SubjectBrowseResult.class);
     var expected = new SubjectBrowseResult().totalRecords(2).prev(null).next(null).items(
       List.of(
         subjectBrowseItem(1, "Music", MUSIC_AUTHORITY_ID_2, MUSIC_SOURCE_ID, MUSIC_TYPE_ID),
@@ -102,11 +103,11 @@ public abstract class BrowseSubjectIT extends BaseSharedTest {
 
   @Test
   void browseBySubject_withTypeFilter() {
-    var request = get(instanceSubjectBrowsePath()).param("query",
+    var request = get(instanceSubjectBrowsePath()).param(QUERY_PARAM,
       "(" + prepareQuery("value >= {value} or value < {value}", '"' + "Philosophy" + '"') + ") "
-      + "and typeId==" + MUSIC_TYPE_ID).param("limit", "5");
+      + "and typeId==" + MUSIC_TYPE_ID).param(LIMIT_PARAM, "5");
 
-    var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
+    var actual = parseResponse(doGet(request, TENANT_ID), SubjectBrowseResult.class);
     var expected = new SubjectBrowseResult().totalRecords(1).prev(null).next(null).items(
       List.of(
         subjectBrowseItem(1, "Music", MUSIC_AUTHORITY_ID_2, MUSIC_SOURCE_ID, MUSIC_TYPE_ID),

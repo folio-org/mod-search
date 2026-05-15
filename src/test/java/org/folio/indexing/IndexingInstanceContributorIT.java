@@ -29,7 +29,7 @@ public abstract class IndexingInstanceContributorIT extends BaseSharedTest {
     var instance2 = new Instance().id(instanceId2).addContributorsItem(contributor);
     inventoryApi.createInstance(TENANT_ID, instance1);
     inventoryApi.createInstance(TENANT_ID, instance2);
-    assertCountByIds(instanceSearchPath(), List.of(instanceId1, instanceId2), 2);
+    assertSearchByIdsCount(instanceSearchPath(), List.of(instanceId1, instanceId2), 2, TENANT_ID);
     awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CONTRIBUTOR, TENANT_ID))
       .as("Should have exactly 1 contributor document in the index")
       .hasSize(1));
@@ -45,7 +45,7 @@ public abstract class IndexingInstanceContributorIT extends BaseSharedTest {
     var contributor = new Contributor().name("Frodo Begins").authorityId(null);
     var instance = new Instance().id(instanceId).addContributorsItem(contributor);
     inventoryApi.createInstance(TENANT_ID, instance);
-    assertCountByIds(instanceSearchPath(), List.of(instanceId), 1);
+    assertSearchByIdsCount(instanceSearchPath(), List.of(instanceId), 1, TENANT_ID);
     awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CONTRIBUTOR, TENANT_ID))
       .as("Should have exactly 1 contributor document before instance update")
       .hasSize(1));
@@ -61,7 +61,7 @@ public abstract class IndexingInstanceContributorIT extends BaseSharedTest {
     var contributor = new Contributor().name("Frodo Begins").authorityId(null);
     var instance = new Instance().id(instanceId).addContributorsItem(contributor);
     inventoryApi.createInstance(TENANT_ID, instance);
-    assertCountByIds(instanceSearchPath(), List.of(instanceId), 1);
+    assertSearchByIdsCount(instanceSearchPath(), List.of(instanceId), 1, TENANT_ID);
     awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CONTRIBUTOR, TENANT_ID))
       .as("Should have exactly 1 contributor document before instance delete")
       .hasSize(1));

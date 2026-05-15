@@ -37,7 +37,7 @@ class OpensearchCompressionIT extends BaseIntegrationTest {
 
   @AfterAll
   static void cleanUp() {
-    removeTenant();
+    removeTenant(TENANT_ID);
   }
 
   @Test

@@ -74,6 +74,7 @@ public class ResourceService {
 
     var directIndexEvents = resourceEvents.stream()
       .filter(e -> !isInventoryEvent(e))
+      .map(this::preProcessResourceEvent)
       .toList();
     if (CollectionUtils.isEmpty(directIndexEvents)) {
       return reindexResponse;
@@ -103,6 +104,13 @@ public class ResourceService {
 
     var fetchedEvents = resourceFetchService.fetchInstancesByIds(instanceEvents);
     return indexFetchedInstances(fetchedEvents);
+  }
+
+  private ResourceEvent preProcessResourceEvent(ResourceEvent resourceEvent) {
+    if (isLocationEvent(resourceEvent)) {
+      resourceEvent.id(resourceEvent.getId() + "|" + resourceEvent.getTenant());
+    }
+    return resourceEvent;
   }
 
   private void persistInventoryEntities(List<ResourceEvent> resourceEvents) {
@@ -191,6 +199,14 @@ public class ResourceService {
            || ResourceType.HOLDINGS.getName().equals(name)
            || ResourceType.ITEM.getName().equals(name)
            || ResourceType.BOUND_WITH.getName().equals(name);
+  }
+
+  private static boolean isLocationEvent(ResourceEvent event) {
+    var name = event.getResourceName();
+    return ResourceType.LOCATION.getName().equals(name)
+           || ResourceType.CAMPUS.getName().equals(name)
+           || ResourceType.INSTITUTION.getName().equals(name)
+           || ResourceType.LIBRARY.getName().equals(name);
   }
 
   private static boolean isInstanceEvent(ResourceEvent event) {

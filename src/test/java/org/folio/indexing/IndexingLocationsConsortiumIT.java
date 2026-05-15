@@ -40,7 +40,7 @@ import org.folio.search.model.dto.location.LocationDto;
 import org.folio.search.model.types.ResourceType;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.TestConstants;
-import org.folio.support.base.BaseConsortiumIntegrationTest;
+import org.folio.support.base.BaseIntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -51,7 +51,7 @@ import org.opensearch.index.query.QueryBuilders;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 @IntegrationTest
-class IndexingLocationsConsortiumIT extends BaseConsortiumIntegrationTest {
+class IndexingLocationsConsortiumIT extends BaseIntegrationTest {
 
   @MockitoSpyBean
   private KafkaMessageListener kafkaMessageListener;

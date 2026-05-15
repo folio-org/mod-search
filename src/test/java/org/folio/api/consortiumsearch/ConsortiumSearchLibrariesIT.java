@@ -1,51 +1,26 @@
 package org.folio.api.consortiumsearch;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.await;
-import static org.awaitility.Durations.ONE_MINUTE;
-import static org.awaitility.Durations.ONE_SECOND;
-import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.model.Pair.pair;
 import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
-import static org.folio.support.TestConstants.inventoryLibraryTopic;
 import static org.folio.support.base.ApiEndpoints.consortiumLibrariesSearchPath;
-import static org.folio.support.sample.SampleLibraries.getLibrariesSampleAsMap;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
 
 import java.util.List;
-import java.util.stream.Stream;
 import org.assertj.core.groups.Tuple;
 import org.folio.search.domain.dto.ConsortiumLibrary;
 import org.folio.search.domain.dto.ConsortiumLibraryCollection;
 import org.folio.search.model.Pair;
-import org.folio.search.model.types.ResourceType;
-import org.folio.spring.testing.type.IntegrationTest;
-import org.folio.support.base.BaseConsortiumIntegrationTest;
-import org.folio.support.utils.TestUtils;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.folio.support.base.BaseSharedTest;
+import org.folio.support.testdata.SharedTestDataManager;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.commons.util.StringUtils;
 
-@IntegrationTest
-class ConsortiumSearchLibrariesIT extends BaseConsortiumIntegrationTest {
+public abstract class ConsortiumSearchLibrariesIT extends BaseSharedTest {
 
-  private static final int EXPECTED_WITH_TWO_TENANTS = 18;
-  private static final int EXPECTED_WITH_SINGLE_TENANT = 9;
-
-  @BeforeAll
-  static void prepare() {
-    setUpTenant(CENTRAL_TENANT_ID);
-    setUpTenant(MEMBER_TENANT_ID);
-    saveLibraryRecords();
-  }
-
-  @AfterAll
-  static void cleanUp() {
-    removeTenant(MEMBER_TENANT_ID);
-    removeTenant(CENTRAL_TENANT_ID);
-  }
+  private static final int EXPECTED_WITH_SINGLE_TENANT = SharedTestDataManager.librariesCount();
+  private static final int EXPECTED_WITH_TWO_TENANTS = EXPECTED_WITH_SINGLE_TENANT * 2;
 
   @Test
   void doGetConsortiumLibraries_returns200AndRecords() {
@@ -102,12 +77,12 @@ class ConsortiumSearchLibrariesIT extends BaseConsortiumIntegrationTest {
   @Test
   void doGetConsortiumLibraries_returns200AndRecords_withAllQueryParams() {
     List<Pair<String, String>> queryParams = List.of(
-        pair("tenantId", "consortium"),
-        pair("id", "83891666-dcb6-4cd7-ad3a-f4b305abfe21"),
-        pair("limit", "5"),
-        pair("offset", "0"),
-        pair("sortBy", "name"),
-        pair("sortOrder", "asc")
+      pair("tenantId", "consortium"),
+      pair("id", "83891666-dcb6-4cd7-ad3a-f4b305abfe21"),
+      pair("limit", "5"),
+      pair("offset", "0"),
+      pair("sortBy", "name"),
+      pair("sortOrder", "asc")
     );
 
     var result = doGet(consortiumLibrariesSearchPath(queryParams), CENTRAL_TENANT_ID);
@@ -118,19 +93,5 @@ class ConsortiumSearchLibrariesIT extends BaseConsortiumIntegrationTest {
     assertThat(actual.getLibraries().getFirst().getTenantId()).isEqualTo(CENTRAL_TENANT_ID);
     assertThat(actual.getLibraries().getFirst().getName()).isEqualTo("My library 1");
     assertThat(actual.getLibraries().getFirst().getCode()).isEqualTo("ML1");
-  }
-
-  private static void saveLibraryRecords() {
-    getLibrariesSampleAsMap().stream()
-      .flatMap(library -> Stream.of(
-        TestUtils.resourceEvent(CENTRAL_TENANT_ID, CREATE, library, null),
-        TestUtils.resourceEvent(MEMBER_TENANT_ID, CREATE, library, null)))
-      .forEach(event -> kafkaTemplate.send(inventoryLibraryTopic(event.getTenant()), event));
-
-    await().atMost(ONE_MINUTE).pollInterval(ONE_SECOND).untilAsserted(() -> {
-      var totalHits = countIndexDocument(ResourceType.LIBRARY, CENTRAL_TENANT_ID);
-
-      assertThat(totalHits).isEqualTo(EXPECTED_WITH_TWO_TENANTS);
-    });
   }
 }

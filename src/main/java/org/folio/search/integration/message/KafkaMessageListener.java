@@ -155,7 +155,6 @@ public class KafkaMessageListener {
     log.info("Processing location events from Kafka [number of events: {}]", consumerRecords.size());
     var batch = consumerRecords.stream()
       .map(ConsumerRecord::value)
-      .map(location -> location.id(getResourceEventId(location) + "|" + location.getTenant()))
       .filter(Predicate.not(SearchConverterUtils::isShadowLocationOrUnit))
       .toList();
 

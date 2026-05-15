@@ -2,12 +2,16 @@ package org.folio.support.testdata;
 
 import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.model.types.ResourceType.AUTHORITY;
+import static org.folio.search.model.types.ResourceType.CAMPUS;
 import static org.folio.search.model.types.ResourceType.HOLDINGS;
 import static org.folio.search.model.types.ResourceType.INSTANCE;
+import static org.folio.search.model.types.ResourceType.INSTITUTION;
 import static org.folio.search.model.types.ResourceType.ITEM;
+import static org.folio.search.model.types.ResourceType.LIBRARY;
 import static org.folio.search.model.types.ResourceType.LINKED_DATA_HUB;
 import static org.folio.search.model.types.ResourceType.LINKED_DATA_INSTANCE;
 import static org.folio.search.model.types.ResourceType.LINKED_DATA_WORK;
+import static org.folio.search.model.types.ResourceType.LOCATION;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
 import static org.folio.support.utils.JsonTestUtils.readJsonFromFile;
 
@@ -32,6 +36,10 @@ public final class SharedTestDataManager {
   private static final List<Map<String, Object>> LD_INSTANCE_RECORDS = loadRecords("linked-data-instances.json");
   private static final List<Map<String, Object>> LD_WORK_RECORDS = loadRecords("linked-data-works.json");
   private static final List<Map<String, Object>> LD_HUB_RECORDS = loadRecords("linked-data-hubs.json");
+  private static final List<Map<String, Object>> LOCATION_RECORDS = loadRecords("locations.json");
+  private static final List<Map<String, Object>> LIBRARY_RECORDS = loadRecords("libraries.json");
+  private static final List<Map<String, Object>> INSTITUTION_RECORDS = loadRecords("institutions.json");
+  private static final List<Map<String, Object>> CAMPUS_RECORDS = loadRecords("campuses.json");
 
   private SharedTestDataManager() { }
 
@@ -61,6 +69,22 @@ public final class SharedTestDataManager {
 
   public static List<Map<String, Object>> linkedDataHubs() {
     return LD_HUB_RECORDS;
+  }
+
+  public static List<Map<String, Object>> locations() {
+    return LOCATION_RECORDS;
+  }
+
+  public static List<Map<String, Object>> libraries() {
+    return LIBRARY_RECORDS;
+  }
+
+  public static List<Map<String, Object>> institutions() {
+    return INSTITUTION_RECORDS;
+  }
+
+  public static List<Map<String, Object>> campuses() {
+    return CAMPUS_RECORDS;
   }
 
   public static List<String> instanceIds() {
@@ -101,6 +125,22 @@ public final class SharedTestDataManager {
 
   public static int authoritiesCount() {
     return AUTHORITY_RECORDS.size();
+  }
+
+  public static int locationsCount() {
+    return LOCATION_RECORDS.size();
+  }
+
+  public static int librariesCount() {
+    return LIBRARY_RECORDS.size();
+  }
+
+  public static int institutionsCount() {
+    return INSTITUTION_RECORDS.size();
+  }
+
+  public static int campusesCount() {
+    return CAMPUS_RECORDS.size();
   }
 
   public static void loadAll(String tenantId, LockManager lockManager,
@@ -157,6 +197,22 @@ public final class SharedTestDataManager {
 
   public static void loadLinkedDataHubs(String tenantId, RecordsIndexer indexer) {
     indexer.index(linkedDataHubs().stream().map(h -> event(h, LINKED_DATA_HUB, tenantId)).toList(), tenantId);
+  }
+
+  public static void loadLocations(String tenantId, RecordsIndexer indexer) {
+    indexer.index(locations().stream().map(h -> event(h, LOCATION, tenantId)).toList(), tenantId);
+  }
+
+  public static void loadLibraries(String tenantId, RecordsIndexer indexer) {
+    indexer.index(libraries().stream().map(h -> event(h, LIBRARY, tenantId)).toList(), tenantId);
+  }
+
+  public static void loadInstitutions(String tenantId, RecordsIndexer indexer) {
+    indexer.index(institutions().stream().map(h -> event(h, INSTITUTION, tenantId)).toList(), tenantId);
+  }
+
+  public static void loadCampuses(String tenantId, RecordsIndexer indexer) {
+    indexer.index(campuses().stream().map(h -> event(h, CAMPUS, tenantId)).toList(), tenantId);
   }
 
   private static List<Map<String, Object>> loadRecords(String fileName) {

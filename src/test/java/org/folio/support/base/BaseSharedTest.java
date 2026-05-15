@@ -141,9 +141,13 @@ public abstract class BaseSharedTest {
 
   @SneakyThrows
   public static ResultActions doGet(String uri, Object... args) {
-    return mockMvc.perform(get(uri, args)
-        .headers(defaultHeaders())
-        .accept("application/json;charset=UTF-8"))
+    return attemptGet(uri, TENANT_ID, args)
+      .andExpect(status().isOk());
+  }
+
+  @SneakyThrows
+  public static ResultActions doGet(String uri, String tenantId, Object... args) {
+    return attemptGet(uri, tenantId, args)
       .andExpect(status().isOk());
   }
 

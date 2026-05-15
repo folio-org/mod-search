@@ -71,6 +71,7 @@ folio:
     password: Mod-search-1-0-0
     lastname: System
     permissionsFilePath: permissions/test-permissions.csv
+    enabled: false
   stream-ids:
     scroll-query-size: 1000
     retry-interval-ms: 1000

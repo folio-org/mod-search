@@ -7,6 +7,7 @@ import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
 import static org.awaitility.Durations.ONE_MINUTE;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CONTRIBUTORS;
+import static org.folio.search.utils.SearchUtils.ALL_RECORDS_QUERY;
 import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.instanceContributorBrowsePath;
@@ -150,9 +151,9 @@ class BrowseContributorConsortiumIT extends BaseConsortiumIntegrationTest {
 
   private static Stream<Arguments> facetQueriesProvider() {
     return Stream.of(
-      arguments("cql.allRecords=1", array("instances.shared"), mapOf("instances.shared",
+      arguments(ALL_RECORDS_QUERY, array("instances.shared"), mapOf("instances.shared",
         facet(facetItem("false", 8), facetItem("true", 5)))),
-      arguments("cql.allRecords=1", array("instances.tenantId"),
+      arguments(ALL_RECORDS_QUERY, array("instances.tenantId"),
         mapOf("instances.tenantId", facet(facetItem(MEMBER_TENANT_ID, 8),
           facetItem(CENTRAL_TENANT_ID, 5))))
     );

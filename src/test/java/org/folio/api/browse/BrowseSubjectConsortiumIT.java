@@ -8,6 +8,7 @@ import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
 import static org.awaitility.Durations.ONE_MINUTE;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_SUBJECTS;
 import static org.folio.search.model.types.ResourceType.INSTANCE_SUBJECT;
+import static org.folio.search.utils.SearchUtils.ALL_RECORDS_QUERY;
 import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
@@ -219,14 +220,14 @@ class BrowseSubjectConsortiumIT extends BaseConsortiumIntegrationTest {
   @SuppressWarnings("checkstyle:MethodLength")
   private static Stream<Arguments> facetQueriesProvider() {
     return Stream.of(
-      arguments("cql.allRecords=1", array("instances.shared"), mapOf("instances.shared",
+      arguments(ALL_RECORDS_QUERY, array("instances.shared"), mapOf("instances.shared",
         facet(facetItem("false", 20), facetItem("true", 11)))),
-      arguments("cql.allRecords=1", array("instances.tenantId"),
+      arguments(ALL_RECORDS_QUERY, array("instances.tenantId"),
         mapOf("instances.tenantId", facet(facetItem(MEMBER_TENANT_ID, 20),
           facetItem(CENTRAL_TENANT_ID, 11)))),
-      arguments("cql.allRecords=1", array("sourceId"), mapOf("sourceId",
+      arguments(ALL_RECORDS_QUERY, array("sourceId"), mapOf("sourceId",
         facet(facetItem(MUSIC_SOURCE_ID_1, 4), facetItem(MUSIC_SOURCE_ID_2, 2)))),
-      arguments("cql.allRecords=1", array("typeId"), mapOf("typeId",
+      arguments(ALL_RECORDS_QUERY, array("typeId"), mapOf("typeId",
         facet(facetItem(MUSIC_TYPE_ID_1, 3), facetItem(MUSIC_TYPE_ID_2, 3)))),
       //cases with filter query
       arguments("sourceId==(\"%s\")".formatted(MUSIC_SOURCE_ID_1),

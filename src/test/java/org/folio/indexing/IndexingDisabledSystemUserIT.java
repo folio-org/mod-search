@@ -1,6 +1,7 @@
 package org.folio.indexing;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.folio.search.utils.SearchUtils.ALL_RECORDS_QUERY;
 import static org.folio.support.sample.SampleInstances.getSemanticWebAsMap;
 import static org.folio.support.sample.SampleInstances.getSemanticWebId;
 import static org.hamcrest.Matchers.is;
@@ -43,7 +44,7 @@ class IndexingDisabledSystemUserIT extends BaseIntegrationTest {
 
   @Test
   void searchByInstances_parameterized_singleResult() throws Exception {
-    doSearchByInstances(prepareQuery("cql.allRecords = 1", ""))
+    doSearchByInstances(prepareQuery(ALL_RECORDS_QUERY, ""))
       .andExpect(jsonPath("$.totalRecords", is(1)))
       .andExpect(jsonPath("$.instances[0].id", is(getSemanticWebId())));
   }

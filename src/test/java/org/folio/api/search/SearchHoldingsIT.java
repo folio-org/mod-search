@@ -1,6 +1,5 @@
 package org.folio.api.search;
 
-import static org.folio.support.sample.SampleInstances.getSemanticWebId;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -9,6 +8,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 public abstract class SearchHoldingsIT extends BaseSharedTest {
+
+  private static final String EXPECTED_INSTANCE_ID = "00000008-0000-4000-8000-000000000000";
 
   @ParameterizedTest(name = "[{index}] {0}: {1}")
   @CsvSource({
@@ -28,7 +29,7 @@ public abstract class SearchHoldingsIT extends BaseSharedTest {
   void canSearchByHoldings_exactMatchWithWildcard(String query, String value) throws Exception {
     doSearchByInstances(prepareQuery(query, value))
       .andExpect(jsonPath("totalRecords", is(1)))
-      .andExpect(jsonPath("instances[0].id", is(getSemanticWebId())));
+      .andExpect(jsonPath("instances[0].id", is(EXPECTED_INSTANCE_ID)));
   }
 
   @ParameterizedTest(name = "[{index}] {0}: {1}")
@@ -49,7 +50,7 @@ public abstract class SearchHoldingsIT extends BaseSharedTest {
   void canSearchByHoldings_exactMatch(String query, String value) throws Exception {
     doSearchByInstances(prepareQuery(query, value))
       .andExpect(jsonPath("totalRecords", is(1)))
-      .andExpect(jsonPath("instances[0].id", is(getSemanticWebId())));
+      .andExpect(jsonPath("instances[0].id", is(EXPECTED_INSTANCE_ID)));
   }
 
   @ParameterizedTest(name = "[{index}] {0}: {1}")

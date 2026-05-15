@@ -8,6 +8,7 @@ import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
 import static org.awaitility.Durations.ONE_MINUTE;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CLASSIFICATIONS;
 import static org.folio.search.model.Pair.pair;
+import static org.folio.search.utils.SearchUtils.ALL_RECORDS_QUERY;
 import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
@@ -164,9 +165,9 @@ class BrowseClassificationConsortiumIT extends BaseConsortiumIntegrationTest {
 
   private static Stream<Arguments> facetQueriesProvider() {
     return Stream.of(
-      arguments("cql.allRecords=1", array("instances.shared"), mapOf("instances.shared",
+      arguments(ALL_RECORDS_QUERY, array("instances.shared"), mapOf("instances.shared",
         facet(facetItem("false", 11), facetItem("true", 8)))),
-      arguments("cql.allRecords=1", array("instances.tenantId"),
+      arguments(ALL_RECORDS_QUERY, array("instances.tenantId"),
         mapOf("instances.tenantId", facet(facetItem(MEMBER_TENANT_ID, 11),
           facetItem(CENTRAL_TENANT_ID, 8))))
     );

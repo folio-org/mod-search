@@ -38,6 +38,7 @@ import org.folio.api.search.SearchLinkedDataWorkIT;
 import org.folio.api.search.SortAuthorityIT;
 import org.folio.api.search.SortInstanceIT;
 import org.folio.api.search.SortItemIT;
+import org.folio.api.searchids.StreamResourceIdsIT;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.service.reindex.jdbc.SubResourcesLockRepository;
 import org.folio.search.service.scheduled.ScheduledInstanceSubResourcesService;
@@ -165,6 +166,9 @@ class SearchBrowseIT extends BaseIntegrationTest {
 
   @Nested
   class SortItem extends SortItemIT { }
+
+  @Nested
+  class StreamResourceIds extends StreamResourceIdsIT { }
 
   private static final class SubResourceLockManager implements SharedTestDataManager.LockManager {
 

@@ -1,6 +1,8 @@
 package org.folio.api.facet;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.domain.dto.RecordType.AUTHORITIES;
+import static org.folio.search.utils.SearchUtils.ALL_RECORDS_QUERY;
 import static org.folio.support.base.ApiEndpoints.recordFacetsPath;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
 import static org.folio.support.utils.TestUtils.array;
@@ -17,7 +19,6 @@ import java.util.Map;
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetResult;
-import org.folio.search.domain.dto.RecordType;
 import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -50,7 +51,7 @@ public abstract class FacetAuthorityIT extends BaseSharedTest {
   @DisplayName("getFacetsForAuthorities_parameterized")
   void getFacetsForAuthorities_parameterized(String query, String[] facets, Map<String, Facet> expected) {
     var actual = parseResponse(
-      doGet(recordFacetsPath(RecordType.AUTHORITIES, query, facets)), FacetResult.class);
+      doGet(recordFacetsPath(AUTHORITIES, query, facets)), FacetResult.class);
 
     expected.forEach((facetName, expectedFacet) -> {
       assertNotNull(actual.getFacets());
@@ -64,7 +65,7 @@ public abstract class FacetAuthorityIT extends BaseSharedTest {
 
   @Test
   void searchByAuthorities_negative_invalidFacetName() throws Exception {
-    attemptGet(recordFacetsPath(RecordType.AUTHORITIES, "cql.allRecords=1", "unknownFacet:5"))
+    attemptGet(recordFacetsPath(AUTHORITIES, ALL_RECORDS_QUERY, "unknownFacet:5"))
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is("Invalid facet value")))

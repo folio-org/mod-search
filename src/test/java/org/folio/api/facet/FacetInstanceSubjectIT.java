@@ -1,6 +1,7 @@
 package org.folio.api.facet;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.utils.SearchUtils.ALL_RECORDS_QUERY;
 import static org.folio.support.base.ApiEndpoints.recordFacetsPath;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
 import static org.folio.support.utils.TestUtils.array;
@@ -47,9 +48,9 @@ public abstract class FacetInstanceSubjectIT extends BaseSharedTest {
 
   private static Stream<Arguments> facetQueriesProvider() {
     return Stream.of(
-      arguments("cql.allRecords=1", array("sourceId"), mapOf("sourceId",
+      arguments(ALL_RECORDS_QUERY, array("sourceId"), mapOf("sourceId",
         facet(facetItem(SOURCE_ID, 2)))),
-      arguments("cql.allRecords=1", array("typeId"), mapOf("typeId",
+      arguments(ALL_RECORDS_QUERY, array("typeId"), mapOf("typeId",
         facet(facetItem(TYPE_ID, 1))))
     );
   }

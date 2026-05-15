@@ -1,6 +1,5 @@
 package org.folio.api.search;
 
-import static org.folio.support.sample.SampleInstances.getSemanticWebId;
 import static org.folio.support.sample.SampleInstancesResponse.getInstanceBasicResponseSample;
 import static org.folio.support.sample.SampleInstancesResponse.getInstanceFullResponseSample;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
@@ -26,16 +25,17 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 public abstract class SearchInstanceIT extends BaseSharedTest {
 
+  private static final String EXPECTED_INSTANCE_ID = "00000008-0000-4000-8000-000000000000";
+
   @CsvFileSource(resources = "/test-resources/instance-search-test-queries.csv",
                  useHeadersInDisplayName = true)
   @DisplayName("search by instances (single instance found)")
   @ParameterizedTest(name = "[{0}] {1}, {2}")
   void searchByInstances_parameterized_singleResult(int index, String query, String value,
                                                     String expectedId) throws Throwable {
-    var resolvedId = expectedId == null || expectedId.isBlank() ? getSemanticWebId() : expectedId;
     doSearchByInstances(prepareQuery(query, value))
       .andExpect(jsonPath("$.totalRecords", is(1)))
-      .andExpect(jsonPath("$.instances[0].id", is(resolvedId)));
+      .andExpect(jsonPath("$.instances[0].id", is(EXPECTED_INSTANCE_ID)));
   }
 
   @Test
@@ -72,7 +72,8 @@ public abstract class SearchInstanceIT extends BaseSharedTest {
   })
   @DisplayName("can search by instances (nothing found)")
   void searchByInstances_parameterized_zeroResults(String query, String value) throws Throwable {
-    doSearchByInstances(prepareQuery(query, '"' + value + '"')).andExpect(jsonPath("$.totalRecords", is(0)));
+    doSearchByInstances(prepareQuery(query, '"' + value + '"'))
+      .andExpect(jsonPath("$.totalRecords", is(0)));
   }
 
   @ParameterizedTest(name = "[{index}] {0}, {1}")
@@ -119,7 +120,7 @@ public abstract class SearchInstanceIT extends BaseSharedTest {
   @Test
   void responseContainsOnlyBasicInstanceProperties() {
     var expected = getInstanceBasicResponseSample();
-    var response = doSearchByInstances(prepareQuery("id=={value}", getSemanticWebId()));
+    var response = doSearchByInstances(prepareQuery("id=={value}", EXPECTED_INSTANCE_ID));
 
     var actual = parseResponse(response, InstanceSearchResult.class);
 
@@ -130,7 +131,7 @@ public abstract class SearchInstanceIT extends BaseSharedTest {
 
   @Test
   void responseContainsRequestedProperties() throws Exception {
-    doSearchByInstances(prepareQuery("id=={value}", getSemanticWebId()), "subjects.value,items.volume")
+    doSearchByInstances(prepareQuery("id=={value}", EXPECTED_INSTANCE_ID), "subjects.value,items.volume")
       .andExpect(jsonPath("$.instances[0].subjects[0].value", is("Semantic Web")))
       // subjects.authorityId is not requested
       .andExpect(jsonPath("$.instances[0].subjects[0].authorityId").doesNotExist())
@@ -141,7 +142,7 @@ public abstract class SearchInstanceIT extends BaseSharedTest {
   @Test
   void responseContainsAllInstanceProperties() {
     var expected = getInstanceFullResponseSample();
-    var response = doSearchByInstances(prepareQuery("id=={value}", getSemanticWebId()), true);
+    var response = doSearchByInstances(prepareQuery("id=={value}", EXPECTED_INSTANCE_ID), true);
 
     var actual = parseResponse(response, InstanceSearchResult.class);
 
@@ -200,7 +201,7 @@ public abstract class SearchInstanceIT extends BaseSharedTest {
   void canSearchByAllFieldValues_positive(String cqlQuery) throws Throwable {
     doSearchByInstances(prepareQuery("cql.all=\"{value}\"", cqlQuery), 1, 0)
       .andExpect(jsonPath("totalRecords", is(1)))
-      .andExpect(jsonPath("instances[0].id", is(getSemanticWebId())));
+      .andExpect(jsonPath("instances[0].id", is(EXPECTED_INSTANCE_ID)));
   }
 
   @ValueSource(strings = {
@@ -227,7 +228,7 @@ public abstract class SearchInstanceIT extends BaseSharedTest {
   void canSearchByInstanceFieldValues_positive(String cqlQuery) throws Throwable {
     doSearchByInstances(prepareQuery("cql.allInstances=\"{value}\"", cqlQuery), 1, 0)
       .andExpect(jsonPath("totalRecords", is(1)))
-      .andExpect(jsonPath("instances[0].id", is(getSemanticWebId())));
+      .andExpect(jsonPath("instances[0].id", is(EXPECTED_INSTANCE_ID)));
   }
 
   @ValueSource(strings = {
@@ -239,7 +240,7 @@ public abstract class SearchInstanceIT extends BaseSharedTest {
   void canSearchByHoldingFieldValues_positive(String cqlQuery) throws Throwable {
     doSearchByInstances(prepareQuery("cql.allHoldings=\"{value}\"", cqlQuery), 1, 0)
       .andExpect(jsonPath("totalRecords", is(1)))
-      .andExpect(jsonPath("instances[0].id", is(getSemanticWebId())));
+      .andExpect(jsonPath("instances[0].id", is(EXPECTED_INSTANCE_ID)));
   }
 
   @ValueSource(strings = {
@@ -252,7 +253,7 @@ public abstract class SearchInstanceIT extends BaseSharedTest {
   void canSearchByItemFieldValues_positive(String cqlQuery) throws Throwable {
     doSearchByInstances(prepareQuery("cql.allItems=\"{value}\"", cqlQuery), 1, 0)
       .andExpect(jsonPath("totalRecords", is(1)))
-      .andExpect(jsonPath("instances[0].id", is(getSemanticWebId())));
+      .andExpect(jsonPath("instances[0].id", is(EXPECTED_INSTANCE_ID)));
   }
 
   private static Stream<Arguments> invalidDateSearchQueriesProvider() {

@@ -1,6 +1,7 @@
 package org.folio.api.facet;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.folio.search.utils.SearchUtils.ALL_RECORDS_QUERY;
 import static org.folio.support.base.ApiEndpoints.recordFacetsPath;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
 import static org.folio.support.utils.TestUtils.array;
@@ -52,7 +53,7 @@ public abstract class FacetInstanceCallNumberIT extends BaseSharedTest {
 
   private static Stream<Arguments> facetQueriesProvider() {
     return Stream.of(
-      arguments("cql.allRecords=1", array("instances.locationId"),
+      arguments(ALL_RECORDS_QUERY, array("instances.locationId"),
         mapOf("instances.locationId", allLocationsFacet())),
       arguments("callNumberTypeId=\"" + LC_TYPE_ID + "\"", array("instances.locationId"),
         mapOf("instances.locationId", lcLocationsFacet())),

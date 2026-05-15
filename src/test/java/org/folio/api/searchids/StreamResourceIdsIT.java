@@ -1,22 +1,19 @@
 package org.folio.api.searchids;
 
-import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.awaitility.Awaitility.await;
 import static org.folio.search.domain.dto.ResourceIdsJob.StatusEnum.COMPLETED;
 import static org.folio.search.domain.dto.ResourceIdsJob.StatusEnum.ERROR;
-import static org.folio.support.TestConstants.TENANT_ID;
+import static org.folio.search.domain.dto.ResourceIdsJob.StatusEnum.IN_PROGRESS;
+import static org.folio.search.utils.SearchUtils.ALL_RECORDS_QUERY;
 import static org.folio.support.base.ApiEndpoints.resourcesIdsJobPath;
 import static org.folio.support.base.ApiEndpoints.resourcesIdsPath;
-import static org.folio.support.sample.SampleAuthorities.getAuthoritySampleAsMap;
-import static org.folio.support.sample.SampleInstances.getSemanticWebAsMap;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
 import static org.hamcrest.Matchers.anything;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
-import static org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_CLASS;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -25,52 +22,28 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.awaitility.Durations;
-import org.folio.search.domain.dto.Authority;
-import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.ResourceIdsJob;
 import org.folio.search.domain.dto.ResourceIdsJob.EntityTypeEnum;
-import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.ApiEndpoints;
-import org.folio.support.base.BaseIntegrationTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.folio.support.base.BaseSharedTest;
+import org.folio.support.testdata.SharedTestDataManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.test.annotation.DirtiesContext;
 
-@IntegrationTest
-@DirtiesContext(classMode = AFTER_CLASS)
-class StreamResourceIdsIT extends BaseIntegrationTest {
-
-  private static final int SAVED_INSTANCES_AMOUNT = 1;
-  private static final int SAVED_AUTHORITIES_AMOUNT = 51;
-
-  @BeforeAll
-  static void prepare() {
-    setUpTenant(List.of(
-      new TestData(Instance.class, singletonList(getSemanticWebAsMap()), SAVED_INSTANCES_AMOUNT),
-      new TestData(Authority.class, singletonList(getAuthoritySampleAsMap()), SAVED_AUTHORITIES_AMOUNT)
-    ), TENANT_ID);
-  }
-
-  @AfterAll
-  static void cleanUp() {
-    removeTenant();
-  }
+public abstract class StreamResourceIdsIT extends BaseSharedTest {
 
   @MethodSource("testDataProvider")
   @ParameterizedTest
   @DisplayName("init resource IDs job and stream all resources IDs")
   void createIdsJobAndStreamIds(EntityTypeEnum entityType, List<String> expectedIds) throws Exception {
-    var query = "cql.allRecords=1";
-    var resourceIdsJob = new ResourceIdsJob().query(query).entityType(entityType);
+    var resourceIdsJob = new ResourceIdsJob().query(ALL_RECORDS_QUERY).entityType(entityType);
     var postResponse = parseResponse(doPost(ApiEndpoints.resourcesIdsJobPath(), resourceIdsJob)
-      .andExpect(jsonPath("$.query", is(query)))
+      .andExpect(jsonPath("$.query", is(ALL_RECORDS_QUERY)))
       .andExpect(jsonPath("$.entityType", is(entityType.name())))
-      .andExpect(jsonPath("$.status", is("IN_PROGRESS")))
+      .andExpect(jsonPath("$.status", is(IN_PROGRESS.getValue())))
       .andExpect(jsonPath("$.id", anything())), ResourceIdsJob.class);
 
     await().atMost(Durations.FIVE_SECONDS).until(() -> {
@@ -103,9 +76,8 @@ class StreamResourceIdsIT extends BaseIntegrationTest {
 
   @Test
   void cantStreamDeprecatedJob() throws Exception {
-    var query = "cql.allRecords=1";
     var postResponse = parseResponse(doPost(ApiEndpoints.resourcesIdsJobPath(), new ResourceIdsJob()
-      .query(query)
+      .query(ALL_RECORDS_QUERY)
       .entityType(EntityTypeEnum.AUTHORITY))
       .andExpect(jsonPath("$.id", anything())), ResourceIdsJob.class);
 
@@ -142,11 +114,9 @@ class StreamResourceIdsIT extends BaseIntegrationTest {
 
   private static Stream<Arguments> testDataProvider() {
     return Stream.of(
-      arguments(EntityTypeEnum.INSTANCE, List.of("00000008-0000-4000-8000-000000000000")),
-      arguments(EntityTypeEnum.AUTHORITY, List.of("55294032-fcf6-45cc-b6da-4420a61ef72c")),
-      arguments(EntityTypeEnum.HOLDINGS, List.of("00000010-0000-4000-9000-000000000000",
-        "00000009-0000-4000-9000-000000000000",
-        "00000014-0000-4000-9000-000000000000"))
+      arguments(EntityTypeEnum.INSTANCE, SharedTestDataManager.instanceIds()),
+      arguments(EntityTypeEnum.AUTHORITY, SharedTestDataManager.authorityIds()),
+      arguments(EntityTypeEnum.HOLDINGS, SharedTestDataManager.holdingIds())
     );
   }
 }

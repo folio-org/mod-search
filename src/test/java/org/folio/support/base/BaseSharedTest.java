@@ -71,6 +71,7 @@ import org.folio.search.domain.dto.ShelvingOrderAlgorithmType;
 import org.folio.search.domain.dto.TenantConfiguredFeature;
 import org.folio.search.model.client.CqlQueryParam;
 import org.folio.search.model.types.ResourceType;
+import org.folio.search.utils.SearchUtils;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.testing.extension.impl.OkapiConfiguration;
 import org.folio.support.api.InventoryApi;
@@ -321,7 +322,7 @@ public abstract class BaseSharedTest {
     return getIndexResponse.getSetting(getIndexResponse.getIndices()[0], "index.uuid");
   }
 
-  protected static long countDefaultIndexDocument(ResourceType resource) throws IOException {
+  protected static long countDefaultIndexDocument(ResourceType resource) {
     return countIndexDocument(resource, TENANT_ID);
   }
 
@@ -464,28 +465,6 @@ public abstract class BaseSharedTest {
     saveRecords(tenant, validationPath, records, expectedCount, matchers, consumer);
   }
 
-  protected static void sendAuthorities(String tenantId, Authority... authorities) {
-    for (Authority a : authorities) {
-      kafkaTemplate.send(inventoryAuthorityTopic(tenantId), a.getId(), event(a, AUTHORITY, tenantId));
-    }
-  }
-
-  protected static void sendRawAuthority(String tenantId, Map<String, Object> rawAuthority) {
-    kafkaTemplate.send(inventoryAuthorityTopic(tenantId), event(rawAuthority, AUTHORITY, tenantId));
-  }
-
-  protected static void sendLinkedDataInstance(String tenantId, Map<String, Object> instance) {
-    kafkaTemplate.send(linkedDataInstanceTopic(tenantId), event(instance, LINKED_DATA_INSTANCE, tenantId));
-  }
-
-  protected static void sendLinkedDataWork(String tenantId, Map<String, Object> work) {
-    kafkaTemplate.send(linkedDataWorkTopic(tenantId), event(work, LINKED_DATA_WORK, tenantId));
-  }
-
-  protected static void sendLinkedDataHub(String tenantId, Map<String, Object> hub) {
-    kafkaTemplate.send(linkedDataHubTopic(tenantId), event(hub, LINKED_DATA_HUB, tenantId));
-  }
-
   protected static <T> void saveRecords(String tenant, String validationPath, List<T> records, Integer expectedCount,
                                         Consumer<T> consumer) {
     saveRecords(tenant, validationPath, records, expectedCount, emptyList(), consumer);
@@ -542,7 +521,7 @@ public abstract class BaseSharedTest {
   protected static void checkThatEventsFromKafkaAreIndexed(String tenantId, String path, int size,
                                                            List<ResultMatcher> matchers) {
     Awaitility.await().atMost(ONE_MINUTE).pollInterval(TWO_HUNDRED_MILLISECONDS).untilAsserted(() ->
-      doSearch(path, tenantId, Map.of("query", "cql.allRecords=1", "expandAll", "true"))
+      doSearch(path, tenantId, Map.of("query", SearchUtils.ALL_RECORDS_QUERY, "expandAll", "true"))
         .andExpect(jsonPath("$.totalRecords", is(size)))
         .andExpectAll(matchers.toArray(new ResultMatcher[0])));
   }

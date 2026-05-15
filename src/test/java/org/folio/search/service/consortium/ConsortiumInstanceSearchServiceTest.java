@@ -201,6 +201,7 @@ class ConsortiumInstanceSearchServiceTest {
       toConsortiumHolding(randomUUID().toString(), holding(ids.get(1), CENTRAL_TENANT_ID))
     );
     when(properties.getMaxSearchBatchRequestIdsCount()).thenReturn(10L);
+    when(properties.getSearchConsortiumRecordsPageSize()).thenReturn(10);
     when(searchRepository.search(any(CqlSearchRequest.class), any(SearchSourceBuilder.class)))
       .thenReturn(mock(SearchResponse.class));
     mockConvertion(any(SearchResponse.class), List.of(expectedConsortiumHoldings));
@@ -237,6 +238,7 @@ class ConsortiumInstanceSearchServiceTest {
   @Test
   void fetchConsortiumBatchHoldings_positive_noRecordsFound() {
     when(properties.getMaxSearchBatchRequestIdsCount()).thenReturn(10L);
+    when(properties.getSearchConsortiumRecordsPageSize()).thenReturn(10);
     when(searchRepository.search(any(CqlSearchRequest.class), any(SearchSourceBuilder.class)))
       .thenReturn(mock(SearchResponse.class));
     mockConvertion(any(SearchResponse.class), Collections.emptyList());
@@ -272,6 +274,7 @@ class ConsortiumInstanceSearchServiceTest {
       toConsortiumItem(randomUUID().toString(), item(ids.get(1), CENTRAL_TENANT_ID))
     );
     when(properties.getMaxSearchBatchRequestIdsCount()).thenReturn(10L);
+    when(properties.getSearchConsortiumRecordsPageSize()).thenReturn(10);
     when(searchRepository.search(any(CqlSearchRequest.class), any(SearchSourceBuilder.class)))
       .thenReturn(mock(SearchResponse.class));
     mockConvertion(any(SearchResponse.class), List.of(expectedConsortiumItems));
@@ -308,6 +311,7 @@ class ConsortiumInstanceSearchServiceTest {
   @Test
   void fetchConsortiumBatchItems_positive_noRecordsFound() {
     when(properties.getMaxSearchBatchRequestIdsCount()).thenReturn(10L);
+    when(properties.getSearchConsortiumRecordsPageSize()).thenReturn(10);
     when(searchRepository.search(any(CqlSearchRequest.class), any(SearchSourceBuilder.class)))
       .thenReturn(mock(SearchResponse.class));
     mockConvertion(any(SearchResponse.class), Collections.emptyList());

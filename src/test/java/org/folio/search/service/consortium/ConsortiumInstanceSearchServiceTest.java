@@ -195,15 +195,16 @@ class ConsortiumInstanceSearchServiceTest {
 
   @Test
   void fetchConsortiumBatchHoldings_positive_notExceedsSearchResultWindow() {
+    when(properties.getMaxSearchBatchRequestIdsCount()).thenReturn(10L);
+    when(properties.getSearchConsortiumRecordsPageSize()).thenReturn(10);
+    when(searchRepository.search(any(CqlSearchRequest.class), any(SearchSourceBuilder.class)))
+      .thenReturn(mock(SearchResponse.class));
+
     var ids = List.of(randomUUID().toString(), randomUUID().toString());
     var expectedConsortiumHoldings = List.of(
       toConsortiumHolding(randomUUID().toString(), holding(ids.get(0), MEMBER_TENANT_ID)),
       toConsortiumHolding(randomUUID().toString(), holding(ids.get(1), CENTRAL_TENANT_ID))
     );
-    when(properties.getMaxSearchBatchRequestIdsCount()).thenReturn(10L);
-    when(properties.getSearchConsortiumRecordsPageSize()).thenReturn(10);
-    when(searchRepository.search(any(CqlSearchRequest.class), any(SearchSourceBuilder.class)))
-      .thenReturn(mock(SearchResponse.class));
     mockConvertion(any(SearchResponse.class), List.of(expectedConsortiumHoldings));
     var expected = holdingCollection(expectedConsortiumHoldings);
 
@@ -268,15 +269,16 @@ class ConsortiumInstanceSearchServiceTest {
 
   @Test
   void fetchConsortiumBatchItems_positive_notExceedsSearchResultWindow() {
+    when(properties.getMaxSearchBatchRequestIdsCount()).thenReturn(10L);
+    when(properties.getSearchConsortiumRecordsPageSize()).thenReturn(10);
+    when(searchRepository.search(any(CqlSearchRequest.class), any(SearchSourceBuilder.class)))
+      .thenReturn(mock(SearchResponse.class));
+
     var ids = List.of(randomUUID().toString(), randomUUID().toString());
     var expectedConsortiumItems = List.of(
       toConsortiumItem(randomUUID().toString(), item(ids.get(0), MEMBER_TENANT_ID)),
       toConsortiumItem(randomUUID().toString(), item(ids.get(1), CENTRAL_TENANT_ID))
     );
-    when(properties.getMaxSearchBatchRequestIdsCount()).thenReturn(10L);
-    when(properties.getSearchConsortiumRecordsPageSize()).thenReturn(10);
-    when(searchRepository.search(any(CqlSearchRequest.class), any(SearchSourceBuilder.class)))
-      .thenReturn(mock(SearchResponse.class));
     mockConvertion(any(SearchResponse.class), List.of(expectedConsortiumItems));
     var expected = itemCollection(expectedConsortiumItems);
 

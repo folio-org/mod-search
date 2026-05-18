@@ -9,6 +9,7 @@ import org.apache.hc.core5.http.ConnectionClosedException;
 import org.folio.search.configuration.properties.OpensearchProperties;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.configuration.properties.StreamIdsProperties;
+import org.folio.search.exception.FolioIntegrationException;
 import org.folio.spring.testing.type.UnitTest;
 import org.folio.spring.tools.kafka.FolioKafkaProperties;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.core.retry.RetryException;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -67,7 +67,7 @@ class RetryTemplateConfigurationTest {
     assertThatThrownBy(() -> retryTemplate.execute(() -> {
       attempts.incrementAndGet();
       throw new ConnectionClosedException("closed");
-    })).isInstanceOf(RetryException.class);
+    })).isInstanceOf(FolioIntegrationException.class);
 
     assertThat(attempts.get()).isGreaterThan(1);
   }
@@ -84,7 +84,7 @@ class RetryTemplateConfigurationTest {
     assertThatThrownBy(() -> retryTemplate.execute(() -> {
       attempts.incrementAndGet();
       throw new RuntimeException(new ConnectionClosedException("closed"));
-    })).isInstanceOf(RetryException.class)
+    })).isInstanceOf(FolioIntegrationException.class)
       .hasRootCauseInstanceOf(ConnectionClosedException.class);
 
     assertThat(attempts.get()).isGreaterThan(1);
@@ -102,7 +102,7 @@ class RetryTemplateConfigurationTest {
     assertThatThrownBy(() -> retryTemplate.execute(() -> {
       attempts.incrementAndGet();
       throw new IllegalStateException("boom");
-    })).isInstanceOf(RetryException.class);
+    })).isInstanceOf(FolioIntegrationException.class);
 
     assertThat(attempts.get()).isEqualTo(1);
   }

@@ -4,7 +4,6 @@ import static org.apache.commons.collections4.CollectionUtils.containsAny;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.folio.search.converter.ConsortiumHoldingMapper.toConsortiumHolding;
 import static org.folio.search.converter.ConsortiumItemMapper.toConsortiumItem;
-import static org.folio.search.service.SearchService.DEFAULT_MAX_SEARCH_RESULT_WINDOW;
 import static org.folio.search.utils.IdentifierUtils.getHoldingIdentifierValue;
 import static org.folio.search.utils.IdentifierUtils.getHoldingTargetField;
 import static org.folio.search.utils.IdentifierUtils.getItemIdentifierValue;
@@ -145,7 +144,7 @@ public class ConsortiumInstanceSearchService {
       .build();
     var termsQuery = termsQuery(targetField, identifierValues);
 
-    if (identifierValues.size() < DEFAULT_MAX_SEARCH_RESULT_WINDOW) {
+    if (identifierValues.size() <= properties.getSearchConsortiumRecordsPageSize()) {
       return executeSearch(request, termsQuery, recordMapper, identifierType, identifierValues);
     }
 
@@ -161,7 +160,7 @@ public class ConsortiumInstanceSearchService {
     Mapper<Instance, IdentifierTypeEnum, Set<String>, List<T>> recordMapper,
     IdentifierTypeEnum identifierType,
     Set<String> identifierValues) {
-    var searchSourceBuilder = queryBuilder(query, SearchService.DEFAULT_MAX_SEARCH_RESULT_WINDOW);
+    var searchSourceBuilder = queryBuilder(query, properties.getSearchConsortiumRecordsPageSize());
     var response = searchRepository.search(request, searchSourceBuilder);
     var searchResult = documentConverter.convertToSearchResult(response, request.resourceClass(),
       (hits, item) -> recordMapper.apply(item, identifierType, identifierValues));

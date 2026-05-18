@@ -57,11 +57,22 @@ public class RetryTemplateConfiguration {
 
   @Bean(name = SEARCH_RETRY_TEMPLATE_NAME)
   public RetryTemplate searchRetryTemplate(OpensearchProperties properties) {
-    return new RetryTemplate(RetryPolicy.builder()
+    var retryTemplate =  new RetryTemplate(RetryPolicy.builder()
       .maxRetries(properties.getSearchRetryAttempts())
       .delay(Duration.ofMillis(properties.getSearchRetryIntervalMs()))
       .predicate(RetryTemplateConfiguration::isConnectionClosedException)
       .build());
+    retryTemplate.setRetryListener(new RetryListener() {
+      @Override
+      public void onRetryPolicyExhaustion(@NonNull RetryPolicy retryPolicy,
+                                          @NonNull Retryable<?> retryable,
+                                          @NonNull RetryException exception) {
+        var lastThrowable = exception.getLastException();
+        log.warn(new FormattedMessage("Failed to execute search"), lastThrowable);
+        throw new FolioIntegrationException("Failed to execute search after all retries", lastThrowable);
+      }
+    });
+    return retryTemplate;
   }
 
   @ConditionalOnBean(ReindexConfigurationProperties.class)

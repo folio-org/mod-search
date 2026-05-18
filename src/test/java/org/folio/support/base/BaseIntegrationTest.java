@@ -1,12 +1,14 @@
 package org.folio.support.base;
 
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.folio.support.utils.TestUtils.removeEnvProperty;
 import static org.folio.support.utils.TestUtils.setEnvProperty;
 
+import com.github.tomakehurst.wiremock.WireMockServer;
 import org.folio.search.SearchApplication;
 import org.folio.spring.testing.extension.EnableKafka;
-import org.folio.spring.testing.extension.EnableOkapi;
 import org.folio.spring.testing.extension.EnablePostgres;
+import org.folio.spring.testing.extension.impl.OkapiConfiguration;
 import org.folio.support.api.InventoryApi;
 import org.folio.support.extension.EnableElasticSearch;
 import org.folio.support.utils.TestUtils;
@@ -23,10 +25,11 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
 
-@EnableOkapi
 @EnableKafka
 @EnablePostgres
 @EnableElasticSearch
@@ -39,6 +42,18 @@ import tools.jackson.databind.ObjectMapper;
 @Import({
   BaseIntegrationTest.KafkaTemplateTestConfiguration.class})
 public abstract class BaseIntegrationTest extends BaseSharedTest {
+
+  private static final WireMockServer WIRE_MOCK_SERVER;
+
+  static {
+    WIRE_MOCK_SERVER = new WireMockServer(wireMockConfig().dynamicPort());
+    WIRE_MOCK_SERVER.start();
+  }
+
+  @DynamicPropertySource
+  static void okapiProperties(DynamicPropertyRegistry registry) {
+    registry.add("folio.okapi-url", WIRE_MOCK_SERVER::baseUrl);
+  }
 
   @BeforeAll
   static void setUpDefaultTenant(
@@ -54,6 +69,12 @@ public abstract class BaseIntegrationTest extends BaseSharedTest {
     BaseSharedTest.inventoryApi = new InventoryApi(kafkaTemplate);
     BaseSharedTest.elasticClient = restHighLevelClient;
     BaseSharedTest.cacheManager = cacheManager;
+    BaseSharedTest.okapi = new OkapiConfiguration(WIRE_MOCK_SERVER, WIRE_MOCK_SERVER.port());
+  }
+
+  @BeforeAll
+  static void resetWireMock() {
+    WIRE_MOCK_SERVER.resetAll();
   }
 
   @BeforeAll

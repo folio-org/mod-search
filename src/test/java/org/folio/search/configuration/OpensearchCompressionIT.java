@@ -5,7 +5,6 @@ import static org.folio.support.TestConstants.TENANT_ID;
 import static org.opensearch.client.RequestOptions.DEFAULT;
 import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
 import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
-import static org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_CLASS;
 
 import java.io.IOException;
 import org.folio.spring.testing.type.IntegrationTest;
@@ -14,7 +13,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.opensearch.action.search.SearchRequest;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 
 /**
@@ -27,7 +25,6 @@ import org.springframework.test.context.TestPropertySource;
  */
 @IntegrationTest
 @TestPropertySource(properties = "spring.opensearch.compression-enabled=true")
-@DirtiesContext(classMode = AFTER_CLASS)
 class OpensearchCompressionIT extends BaseIntegrationTest {
 
   @BeforeAll

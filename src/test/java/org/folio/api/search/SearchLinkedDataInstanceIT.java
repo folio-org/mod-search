@@ -1,7 +1,5 @@
 package org.folio.api.search;
 
-import static org.folio.support.sample.SampleLinkedData.getInstance2SampleAsMap;
-import static org.folio.support.sample.SampleLinkedData.getInstanceSampleAsMap;
 import static org.folio.support.utils.LinkedDataTestUtils.toClassificationAdditionalNumber;
 import static org.folio.support.utils.LinkedDataTestUtils.toClassificationNumber;
 import static org.folio.support.utils.LinkedDataTestUtils.toClassificationType;
@@ -30,27 +28,13 @@ import static org.folio.support.utils.LinkedDataTestUtils.toTotalRecords;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-import org.folio.search.domain.dto.LinkedDataInstance;
-import org.folio.spring.testing.type.IntegrationTest;
-import org.folio.support.base.BaseIntegrationTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.folio.support.TestConstants;
+import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-@IntegrationTest
-class SearchLinkedDataInstanceIT extends BaseIntegrationTest {
-
-  @BeforeAll
-  static void prepare() {
-    setUpTenant(LinkedDataInstance.class, getInstanceSampleAsMap(), getInstance2SampleAsMap());
-  }
-
-  @AfterAll
-  static void cleanUp() {
-    removeTenant();
-  }
+public abstract class SearchLinkedDataInstanceIT extends BaseSharedTest {
 
   @DisplayName("search by linked data instances (all 2 instances are found)")
   @ParameterizedTest(name = "[{0}] {1}")
@@ -82,7 +66,7 @@ class SearchLinkedDataInstanceIT extends BaseIntegrationTest {
   })
   void searchByLinkedDataInstance_parameterized_allResults(int index, String query) throws Throwable {
     var asc = !query.contains("descending");
-    doSearchByLinkedDataInstance(query)
+    doSearchLinkedDataInstance(query, TestConstants.TENANT_ID)
       .andExpect(jsonPath(toTotalRecords(), is(2)))
       .andExpect(jsonPath(toTitleValue(toRootContent(0), 0), is(asc ? "titleAbc def" : "titleAbc xyz")))
       .andExpect(jsonPath(toTitleValue(toRootContent(1), 0), is(asc ? "titleAbc xyz" : "titleAbc def")));
@@ -176,7 +160,7 @@ class SearchLinkedDataInstanceIT extends BaseIntegrationTest {
     "82, isbn == \"0262012103*\""
   })
   void searchByLinkedDataInstance_parameterized_singleResult(int index, String query) throws Throwable {
-    doSearchByLinkedDataInstance(query)
+    doSearchLinkedDataInstance(query, TestConstants.TENANT_ID)
       .andExpect(jsonPath(toTotalRecords(), is(1)))
       .andExpect(jsonPath(toId(toRootContent()), is("instance1")))
       .andExpect(jsonPath(toClassificationType(toParentWork(), 0), is("ddc")))
@@ -295,7 +279,7 @@ class SearchLinkedDataInstanceIT extends BaseIntegrationTest {
     "33, classificationAdditionalNumber == \"000\"",
   })
   void searchByLinkedDataInstance_parameterized_zeroResults(int index, String query) throws Throwable {
-    doSearchByLinkedDataInstance(query)
+    doSearchLinkedDataInstance(query, TestConstants.TENANT_ID)
       .andExpect(jsonPath(toTotalRecords(), is(0)));
   }
 }

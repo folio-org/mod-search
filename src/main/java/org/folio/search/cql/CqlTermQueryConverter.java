@@ -3,7 +3,9 @@ package org.folio.search.cql;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.stream.Collectors.joining;
 import static org.apache.commons.lang3.StringUtils.lowerCase;
+import static org.folio.search.utils.SearchUtils.ALL_RECORDS_QUERY;
 import static org.folio.search.utils.SearchUtils.ASTERISKS_SIGN;
+import static org.folio.search.utils.SearchUtils.KEYWORD_ALL_CQL_QUERY;
 import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
 
 import java.time.format.DateTimeFormatter;
@@ -15,6 +17,7 @@ import java.util.Optional;
 import java.util.StringJoiner;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.folio.search.cql.builders.TermQueryBuilder;
 import org.folio.search.cql.searchterm.SearchTermProcessor;
 import org.folio.search.exception.RequestValidationException;
@@ -33,8 +36,6 @@ import org.z3950.zing.cql.Modifier;
 public class CqlTermQueryConverter {
 
   public static final String WILDCARD_OPERATOR = "wildcard";
-  private static final String MATCH_ALL_CQL_QUERY = "cql.allRecords = 1";
-  private static final String KEYWORD_ALL_CQL_QUERY = "keyword = *";
 
   private static final List<DateTimeFormatter> SUPPORTED_DATE_FORMATS = List.of(
     DateTimeFormatter.ISO_DATE,
@@ -181,6 +182,7 @@ public class CqlTermQueryConverter {
   }
 
   private static boolean isMatchAllQuery(String cqlQuery) {
-    return MATCH_ALL_CQL_QUERY.equals(cqlQuery) || KEYWORD_ALL_CQL_QUERY.equals(cqlQuery);
+    cqlQuery = StringUtils.deleteWhitespace(cqlQuery.trim());
+    return ALL_RECORDS_QUERY.equals(cqlQuery) || KEYWORD_ALL_CQL_QUERY.equals(cqlQuery);
   }
 }

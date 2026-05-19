@@ -11,28 +11,10 @@ import java.util.List;
 import java.util.Map;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Subject;
-import org.folio.search.domain.dto.TenantConfiguredFeature;
-import org.folio.spring.testing.type.IntegrationTest;
-import org.folio.support.base.BaseIntegrationTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.context.TestPropertySource;
 
-@IntegrationTest
-@TestPropertySource(properties = "folio.search-config.indexing.instance-children-index-enabled=true")
-class IndexingInstanceSubjectIT extends BaseIntegrationTest {
-
-  @BeforeAll
-  static void prepare() {
-    setUpTenant();
-    enableFeature(TenantConfiguredFeature.BROWSE_SUBJECTS);
-  }
-
-  @AfterAll
-  static void cleanUp() {
-    removeTenant();
-  }
+public abstract class IndexingInstanceSubjectIT extends BaseSharedTest {
 
   @Test
   void shouldIndexInstanceSubject_createDocument() {
@@ -47,20 +29,15 @@ class IndexingInstanceSubjectIT extends BaseIntegrationTest {
     var instance2 = new Instance().id(instanceId2).addSubjectsItem(subject);
     inventoryApi.createInstance(TENANT_ID, instance1);
     inventoryApi.createInstance(TENANT_ID, instance2);
-    assertCountByIds(instanceSearchPath(), List.of(instanceId1, instanceId2), 2);
-    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_SUBJECT, TENANT_ID)).hasSize(1));
+    assertSearchByIdsCount(instanceSearchPath(), List.of(instanceId1, instanceId2), 2, TENANT_ID);
+    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_SUBJECT, TENANT_ID))
+      .as("Should have exactly 1 subject document in the index")
+      .hasSize(1));
 
     var hits = fetchAllDocuments(INSTANCE_SUBJECT, TENANT_ID);
     var sourceAsMap = hits[0].getSourceAsMap();
     assertSubjectDocFields(sourceAsMap, value, authorityId, sourceId, typeId);
-
-    @SuppressWarnings("unchecked")
-    var instances = (List<Map<String, Object>>) sourceAsMap.get("instances");
-    assertThat(instances)
-      .hasSize(1)
-      .allSatisfy(map -> assertThat(map).containsEntry("shared", false))
-      .allSatisfy(map -> assertThat(map).containsEntry("tenantId", TENANT_ID))
-      .allSatisfy(map -> assertThat(map).containsEntry("count", 2));
+    assertInstancesGroup(sourceAsMap);
   }
 
   @Test
@@ -69,10 +46,14 @@ class IndexingInstanceSubjectIT extends BaseIntegrationTest {
     var subject = new Subject().value("Sci-Fi").authorityId(null);
     var instance = new Instance().id(instanceId).addSubjectsItem(subject);
     inventoryApi.createInstance(TENANT_ID, instance);
-    assertCountByIds(instanceSearchPath(), List.of(instanceId), 1);
-    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_SUBJECT, TENANT_ID)).hasSize(1));
+    assertSearchByIdsCount(instanceSearchPath(), List.of(instanceId), 1, TENANT_ID);
+    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_SUBJECT, TENANT_ID))
+      .as("Should have exactly 1 subject document before instance update")
+      .hasSize(1));
     inventoryApi.updateInstance(TENANT_ID, instance.subjects(null));
-    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_SUBJECT, TENANT_ID)).isEmpty());
+    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_SUBJECT, TENANT_ID))
+      .as("Subject document should be removed after instance subjects cleared")
+      .isEmpty());
   }
 
   @Test
@@ -81,15 +62,31 @@ class IndexingInstanceSubjectIT extends BaseIntegrationTest {
     var subject = new Subject().value("Sci-Fi").authorityId(null);
     var instance = new Instance().id(instanceId).addSubjectsItem(subject);
     inventoryApi.createInstance(TENANT_ID, instance);
-    assertCountByIds(instanceSearchPath(), List.of(instanceId), 1);
-    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_SUBJECT, TENANT_ID)).hasSize(1));
+    assertSearchByIdsCount(instanceSearchPath(), List.of(instanceId), 1, TENANT_ID);
+    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_SUBJECT, TENANT_ID))
+      .as("Should have exactly 1 subject document before instance delete")
+      .hasSize(1));
     inventoryApi.deleteInstance(TENANT_ID, instanceId);
-    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_SUBJECT, TENANT_ID)).isEmpty());
+    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_SUBJECT, TENANT_ID))
+      .as("Subject document should be removed after instance delete")
+      .isEmpty());
+  }
+
+  @SuppressWarnings("unchecked")
+  private void assertInstancesGroup(Map<String, Object> sourceAsMap) {
+    var instances = (List<Map<String, Object>>) sourceAsMap.get("instances");
+    assertThat(instances)
+      .as("Instances list should contain exactly 1 group with count 2")
+      .hasSize(1)
+      .allSatisfy(map -> assertThat(map).containsEntry("shared", false))
+      .allSatisfy(map -> assertThat(map).containsEntry("tenantId", TENANT_ID))
+      .allSatisfy(map -> assertThat(map).containsEntry("count", 2));
   }
 
   private void assertSubjectDocFields(Map<String, Object> sourceAsMap, String value, String authorityId,
                                       String sourceId, String typeId) {
     assertThat(sourceAsMap)
+      .as("Subject document should contain expected indexed fields")
       .contains(
         entry("value", value),
         entry("authorityId", authorityId),

@@ -8,6 +8,7 @@ import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
 import static org.awaitility.Durations.ONE_MINUTE;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CLASSIFICATIONS;
 import static org.folio.search.model.Pair.pair;
+import static org.folio.search.utils.SearchUtils.ALL_RECORDS_QUERY;
 import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
@@ -68,8 +69,8 @@ class BrowseClassificationConsortiumIT extends BaseConsortiumIntegrationTest {
 
   @BeforeAll
   static void prepare(@Autowired SubResourcesLockRepository subResourcesLockRepository) {
-    setUpTenant(CENTRAL_TENANT_ID);
-    setUpTenant(MEMBER_TENANT_ID);
+    enableTenant(CENTRAL_TENANT_ID);
+    enableTenant(MEMBER_TENANT_ID);
 
     enableFeature(CENTRAL_TENANT_ID, BROWSE_CLASSIFICATIONS);
 
@@ -92,7 +93,9 @@ class BrowseClassificationConsortiumIT extends BaseConsortiumIntegrationTest {
         .source(searchSource().query(matchAllQuery()).trackTotalHits(true).from(0).size(100))
         .indices(getIndexName(ResourceType.INSTANCE_CLASSIFICATION, CENTRAL_TENANT_ID));
       var searchResponse = elasticClient.search(searchRequest, RequestOptions.DEFAULT);
-      assertThat(searchResponse.getHits().getTotalHits().value()).isEqualTo(17);
+      assertThat(searchResponse.getHits().getTotalHits().value())
+        .as("Classification index should contain 17 documents after setup")
+        .isEqualTo(17);
     });
   }
 
@@ -104,18 +107,19 @@ class BrowseClassificationConsortiumIT extends BaseConsortiumIntegrationTest {
   @Test
   void browseByClassification_shared() {
     var request = get(instanceClassificationBrowsePath(BrowseOptionType.ALL))
-      .param("query", prepareQuery("number < {value} or number >= {value} and instances.shared==true",
+      .param(QUERY_PARAM, prepareQuery("number < {value} or number >= {value} and instances.shared==true",
         "\"QD33 .O87\""))
-      .param("limit", "4")
-      .param("precedingRecordsCount", "2");
+      .param(LIMIT_PARAM, "4")
+      .param(PRECEDING_RECORDS_COUNT_PARAM, "2");
     var actual = parseResponse(doGet(request), ClassificationNumberBrowseResult.class);
     assertThat(actual)
+      .as("Shared browse result should match expected classification entries")
       .usingRecursiveComparison().ignoringFields(COLLECTION_IGNORING_FIELDS)
       .isEqualTo(classificationBrowseResult("HQ536 .A565 2018", null, 8, List.of(
         classificationBrowseItem("HQ536 .A565 2018", LC2_TYPE_ID, 1, "instance #03"),
         classificationBrowseItem("N6679.R64 G88 2010", LC_TYPE_ID, 1, "instance #03"),
         classificationBrowseItem("QD33 .O87", LC_TYPE_ID, 1, "instance #04", true,
-          List.of("Contributor 1", "Contributor 2")),
+          "Contributor 1", "Contributor 2"),
         classificationBrowseItem("QD453 .M8 1961", LC_TYPE_ID, 1, "instance #05")
 
       )));
@@ -124,18 +128,19 @@ class BrowseClassificationConsortiumIT extends BaseConsortiumIntegrationTest {
   @Test
   void browseByClassification_local() {
     var request = get(instanceClassificationBrowsePath(BrowseOptionType.ALL))
-      .param("query", prepareQuery("number < {value} or number >= {value} and instances.shared==false",
+      .param(QUERY_PARAM, prepareQuery("number < {value} or number >= {value} and instances.shared==false",
         "\"QD33 .O87\""))
-      .param("limit", "4")
-      .param("precedingRecordsCount", "2");
+      .param(LIMIT_PARAM, "4")
+      .param(PRECEDING_RECORDS_COUNT_PARAM, "2");
     var actual = parseResponse(doGet(request), ClassificationNumberBrowseResult.class);
     assertThat(actual)
+      .as("Local browse result should match expected classification entries")
       .usingRecursiveComparison().ignoringFields(COLLECTION_IGNORING_FIELDS)
       .isEqualTo(classificationBrowseResult("333.91", "SF433 .D47 2004", 11, List.of(
         classificationBrowseItem("333.91", DEWEY_TYPE_ID, 1, "instance #09"),
         classificationBrowseItem("372.4", DEWEY_TYPE_ID, 1, "instance #09"),
         classificationBrowseItem("QD33 .O87", LC_TYPE_ID, 1, "instance #10", true,
-          List.of("Contributor #3", "Contributor #4")),
+          "Contributor #3", "Contributor #4"),
         classificationBrowseItem("SF433 .D47 2004", LC_TYPE_ID, 1, "instance #06")
       )));
   }
@@ -149,17 +154,20 @@ class BrowseClassificationConsortiumIT extends BaseConsortiumIntegrationTest {
     expected.forEach((facetName, expectedFacet) -> {
       var actualFacet = actual.getFacets().get(facetName);
 
-      assertThat(actualFacet).isNotNull();
+      assertThat(actualFacet)
+        .as("Facet '%s' should be present in results", facetName)
+        .isNotNull();
       assertThat(actualFacet.getValues())
+        .as("Facet '%s' values should match expected", facetName)
         .containsExactlyInAnyOrderElementsOf(expectedFacet.getValues());
     });
   }
 
   private static Stream<Arguments> facetQueriesProvider() {
     return Stream.of(
-      arguments("cql.allRecords=1", array("instances.shared"), mapOf("instances.shared",
+      arguments(ALL_RECORDS_QUERY, array("instances.shared"), mapOf("instances.shared",
         facet(facetItem("false", 11), facetItem("true", 8)))),
-      arguments("cql.allRecords=1", array("instances.tenantId"),
+      arguments(ALL_RECORDS_QUERY, array("instances.tenantId"),
         mapOf("instances.tenantId", facet(facetItem(MEMBER_TENANT_ID, 11),
           facetItem(CENTRAL_TENANT_ID, 8))))
     );

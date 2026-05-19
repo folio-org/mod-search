@@ -2,128 +2,117 @@ package org.folio.api.search;
 
 import static org.folio.cql2pgjson.model.CqlSort.ASCENDING;
 import static org.folio.cql2pgjson.model.CqlSort.DESCENDING;
-import static org.folio.support.base.ApiEndpoints.allRecordsSortedBy;
-import static org.folio.support.utils.TestUtils.randomId;
+import static org.folio.search.model.index.AuthRefType.AUTHORIZED;
+import static org.folio.support.TestConstants.TENANT_ID;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-import java.util.Collections;
-import java.util.stream.IntStream;
-import org.folio.search.domain.dto.Authority;
-import org.folio.spring.testing.type.IntegrationTest;
-import org.folio.support.base.BaseIntegrationTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.folio.cql2pgjson.model.CqlSort;
+import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.Test;
 
-@IntegrationTest
-class SortAuthorityIT extends BaseIntegrationTest {
+/**
+ * Tests authority sorting. All queries are scoped to {@code subjectHeadings=z} to target
+ * the dedicated subset of test authorities that carry that subject heading.
+ */
+public abstract class SortAuthorityIT extends BaseSharedTest {
 
   private static final int RECORDS_COUNT = 5;
 
-  @BeforeAll
-  static void prepare() {
-    setUpTenant(RECORDS_COUNT, authorities());
-  }
+  private static final String BACH_HEADING = "Bach, Johann Sebastian";
+  private static final String CAMBRIDGE_HEADING = "Cambridge Press";
+  private static final String SPIEWNIK_HEADING = "Śpiewnik staropolski";
+  private static final String SUSPENSE_HEADING = "Suspense fiction";
+  private static final String ZEROMSKI_HEADING = "Żeromski, Stefan";
 
-  @AfterAll
-  static void cleanUp() {
-    removeTenant();
-  }
+  private static final String CORPORATE_NAME_TYPE = "Corporate Name";
+  private static final String GENRE_TYPE = "Genre";
+  private static final String PERSONAL_NAME_TYPE = "Personal Name";
+  private static final String UNIFORM_TITLE_TYPE = "Uniform Title";
 
   @Test
   void canSortAuthoritiesByHeadingRef_asc() throws Exception {
-    doSearchByAuthorities(allRecordsSortedBy("headingRef", ASCENDING))
+    doSearchAuthorities(scopedQuerySortedBy("headingRef", ASCENDING), TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(RECORDS_COUNT)))
-      .andExpect(jsonPath("authorities[0].headingRef", is("111")))
-      .andExpect(jsonPath("authorities[1].headingRef", is("aaa")))
-      .andExpect(jsonPath("authorities[2].headingRef", is("ccc")))
-      .andExpect(jsonPath("authorities[3].headingRef", is("ŚŚŚ")))
-      .andExpect(jsonPath("authorities[4].headingRef", is("zzz")));
+      .andExpect(jsonPath("authorities[0].headingRef", is(BACH_HEADING)))
+      .andExpect(jsonPath("authorities[1].headingRef", is(CAMBRIDGE_HEADING)))
+      .andExpect(jsonPath("authorities[2].headingRef", is(SPIEWNIK_HEADING)))
+      .andExpect(jsonPath("authorities[3].headingRef", is(SUSPENSE_HEADING)))
+      .andExpect(jsonPath("authorities[4].headingRef", is(ZEROMSKI_HEADING)));
   }
 
   @Test
   void canSortAuthoritiesByHeadingRef_desc() throws Exception {
-    doSearchByAuthorities(allRecordsSortedBy("headingRef", DESCENDING))
+    doSearchAuthorities(scopedQuerySortedBy("headingRef", DESCENDING), TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(RECORDS_COUNT)))
-      .andExpect(jsonPath("authorities[0].headingRef", is("zzz")))
-      .andExpect(jsonPath("authorities[1].headingRef", is("ŚŚŚ")))
-      .andExpect(jsonPath("authorities[2].headingRef", is("ccc")))
-      .andExpect(jsonPath("authorities[3].headingRef", is("aaa")))
-      .andExpect(jsonPath("authorities[4].headingRef", is("111")));
+      .andExpect(jsonPath("authorities[0].headingRef", is(ZEROMSKI_HEADING)))
+      .andExpect(jsonPath("authorities[1].headingRef", is(SUSPENSE_HEADING)))
+      .andExpect(jsonPath("authorities[2].headingRef", is(SPIEWNIK_HEADING)))
+      .andExpect(jsonPath("authorities[3].headingRef", is(CAMBRIDGE_HEADING)))
+      .andExpect(jsonPath("authorities[4].headingRef", is(BACH_HEADING)));
   }
 
   @Test
   void canSortAuthoritiesByHeadingType_asc() throws Exception {
-    doSearchByAuthorities(allRecordsSortedBy("headingType", ASCENDING))
+    doSearchAuthorities(scopedQuerySortedBy("headingType", ASCENDING), TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(RECORDS_COUNT)))
-      .andExpect(jsonPath("authorities[0].headingType", is("Corporate Name")))
-      .andExpect(jsonPath("authorities[1].headingType", is("Genre")))
-
-      .andExpect(jsonPath("authorities[2].headingType", is("Personal Name")))
-      .andExpect(jsonPath("authorities[2].headingRef", is("111")))
-
-      .andExpect(jsonPath("authorities[3].headingType", is("Personal Name")))
-      .andExpect(jsonPath("authorities[3].headingRef", is("zzz")))
-
-      .andExpect(jsonPath("authorities[4].headingType", is("Uniform Title")));
+      .andExpect(jsonPath("authorities[0].headingType", is(CORPORATE_NAME_TYPE)))
+      .andExpect(jsonPath("authorities[1].headingType", is(GENRE_TYPE)))
+      .andExpect(jsonPath("authorities[2].headingType", is(PERSONAL_NAME_TYPE)))
+      .andExpect(jsonPath("authorities[2].headingRef", is(BACH_HEADING)))
+      .andExpect(jsonPath("authorities[3].headingType", is(PERSONAL_NAME_TYPE)))
+      .andExpect(jsonPath("authorities[3].headingRef", is(ZEROMSKI_HEADING)))
+      .andExpect(jsonPath("authorities[4].headingType", is(UNIFORM_TITLE_TYPE)));
   }
 
   @Test
   void canSortAuthoritiesByHeadingType_desc() throws Exception {
-    doSearchByAuthorities(allRecordsSortedBy("headingType", DESCENDING))
+    doSearchAuthorities(scopedQuerySortedBy("headingType", DESCENDING), TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(RECORDS_COUNT)))
-      .andExpect(jsonPath("authorities[0].headingType", is("Uniform Title")))
-
-      .andExpect(jsonPath("authorities[1].headingType", is("Personal Name")))
-      .andExpect(jsonPath("authorities[1].headingRef", is("zzz")))
-
-      .andExpect(jsonPath("authorities[2].headingType", is("Personal Name")))
-      .andExpect(jsonPath("authorities[2].headingRef", is("111")))
-
-      .andExpect(jsonPath("authorities[3].headingType", is("Genre")))
-      .andExpect(jsonPath("authorities[4].headingType", is("Corporate Name")));
+      .andExpect(jsonPath("authorities[0].headingType", is(UNIFORM_TITLE_TYPE)))
+      .andExpect(jsonPath("authorities[1].headingType", is(PERSONAL_NAME_TYPE)))
+      .andExpect(jsonPath("authorities[1].headingRef", is(ZEROMSKI_HEADING)))
+      .andExpect(jsonPath("authorities[2].headingType", is(PERSONAL_NAME_TYPE)))
+      .andExpect(jsonPath("authorities[2].headingRef", is(BACH_HEADING)))
+      .andExpect(jsonPath("authorities[3].headingType", is(GENRE_TYPE)))
+      .andExpect(jsonPath("authorities[4].headingType", is(CORPORATE_NAME_TYPE)));
   }
 
   @Test
   void canSortAuthoritiesByAuthRefType_asc() throws Exception {
-    doSearchByAuthorities(allRecordsSortedBy("authRefType", ASCENDING))
+    doSearchAuthorities(scopedQuerySortedBy("authRefType", ASCENDING), TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(RECORDS_COUNT)))
-      .andExpect(jsonPath("authorities[0].authRefType", is("Auth/Ref")))
-
-      .andExpect(jsonPath("authorities[1].authRefType", is("Authorized")))
-      .andExpect(jsonPath("authorities[1].headingRef", is("111")))
-
-      .andExpect(jsonPath("authorities[2].authRefType", is("Authorized")))
-      .andExpect(jsonPath("authorities[2].headingRef", is("aaa")))
-
-      .andExpect(jsonPath("authorities[3].authRefType", is("Authorized")))
-      .andExpect(jsonPath("authorities[3].headingRef", is("zzz")))
-
-      .andExpect(jsonPath("authorities[4].authRefType", is("Reference")));
+      .andExpect(jsonPath("authorities[0].authRefType", is(AUTHORIZED.getTypeValue())))
+      .andExpect(jsonPath("authorities[0].headingRef", is(BACH_HEADING)))
+      .andExpect(jsonPath("authorities[1].authRefType", is(AUTHORIZED.getTypeValue())))
+      .andExpect(jsonPath("authorities[1].headingRef", is(CAMBRIDGE_HEADING)))
+      .andExpect(jsonPath("authorities[2].headingRef", is(SPIEWNIK_HEADING)))
+      .andExpect(jsonPath("authorities[2].authRefType", is(AUTHORIZED.getTypeValue())))
+      .andExpect(jsonPath("authorities[3].headingRef", is(SUSPENSE_HEADING)))
+      .andExpect(jsonPath("authorities[3].authRefType", is(AUTHORIZED.getTypeValue())))
+      .andExpect(jsonPath("authorities[4].authRefType", is(AUTHORIZED.getTypeValue())))
+      .andExpect(jsonPath("authorities[4].headingRef", is(ZEROMSKI_HEADING)));
   }
 
   @Test
   void canSortAuthoritiesByAuthRefType_desc() throws Exception {
-    doSearchByAuthorities(allRecordsSortedBy("authRefType", DESCENDING))
+    doSearchAuthorities(scopedQuerySortedBy("authRefType", DESCENDING), TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(RECORDS_COUNT)))
-      .andExpect(jsonPath("authorities[0].authRefType", is("Reference")))
-
-      .andExpect(jsonPath("authorities[1].authRefType", is("Authorized")))
-      .andExpect(jsonPath("authorities[1].headingRef", is("zzz")))
-
-      .andExpect(jsonPath("authorities[2].authRefType", is("Authorized")))
-      .andExpect(jsonPath("authorities[2].headingRef", is("aaa")))
-
-      .andExpect(jsonPath("authorities[3].authRefType", is("Authorized")))
-      .andExpect(jsonPath("authorities[3].headingRef", is("111")))
-
-      .andExpect(jsonPath("authorities[4].authRefType", is("Auth/Ref")));
+      .andExpect(jsonPath("authorities[0].authRefType", is(AUTHORIZED.getTypeValue())))
+      .andExpect(jsonPath("authorities[0].headingRef", is(ZEROMSKI_HEADING)))
+      .andExpect(jsonPath("authorities[1].authRefType", is(AUTHORIZED.getTypeValue())))
+      .andExpect(jsonPath("authorities[1].headingRef", is(SUSPENSE_HEADING)))
+      .andExpect(jsonPath("authorities[2].authRefType", is(AUTHORIZED.getTypeValue())))
+      .andExpect(jsonPath("authorities[2].headingRef", is(SPIEWNIK_HEADING)))
+      .andExpect(jsonPath("authorities[3].authRefType", is(AUTHORIZED.getTypeValue())))
+      .andExpect(jsonPath("authorities[3].headingRef", is(CAMBRIDGE_HEADING)))
+      .andExpect(jsonPath("authorities[4].authRefType", is(AUTHORIZED.getTypeValue())))
+      .andExpect(jsonPath("authorities[4].headingRef", is(BACH_HEADING)));
   }
 
   @Test
   void search_negative_invalidSortOption() throws Exception {
-    attemptSearchByAuthorities(allRecordsSortedBy("unknownSort", ASCENDING))
+    attemptSearchAuthorities(scopedQuerySortedBy("unknownSort", ASCENDING), TENANT_ID)
       .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is("Sort field not found or cannot be used.")))
       .andExpect(jsonPath("$.errors[0].type", is("RequestValidationException")))
@@ -132,26 +121,7 @@ class SortAuthorityIT extends BaseIntegrationTest {
       .andExpect(jsonPath("$.errors[0].parameters[0].value", is("unknownSort")));
   }
 
-  private static Authority[] authorities() {
-    var authorities = IntStream.range(0, RECORDS_COUNT)
-      .mapToObj(i -> new Authority().id(randomId()))
-      .toArray(Authority[]::new);
-
-    authorities[0]
-      .personalName("111");
-
-    authorities[1]
-      .corporateName("aaa");
-
-    authorities[2]
-      .sftUniformTitle(Collections.singletonList("ŚŚŚ"));
-
-    authorities[3]
-      .saftGenreTerm(Collections.singletonList("ccc"));
-
-    authorities[4]
-      .personalName("zzz");
-
-    return authorities;
+  private static String scopedQuerySortedBy(String sort, CqlSort order) {
+    return String.format("subjectHeadings=z sortBy %s/sort.%s", sort, order);
   }
 }

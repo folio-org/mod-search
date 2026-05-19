@@ -41,7 +41,10 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.test.context.TestPropertySource;
 
 @IntegrationTest
-@TestPropertySource(properties = "folio.search-config.indexing.instance-children-index-enabled=true")
+@TestPropertySource(properties = {
+  "folio.search-config.indexing.instance-children-index-enabled=true",
+  "folio.system-user.enabled=false"
+})
 @DatabaseCleanup(tenants = CENTRAL_TENANT_ID,
   tables = {CALL_NUMBER_TABLE, INSTANCE_CALL_NUMBER_TABLE, ITEM_TABLE, HOLDING_TABLE, INSTANCE_TABLE})
 class IndexingInstanceCallNumberConsortiumIT extends BaseIntegrationTest {
@@ -53,8 +56,8 @@ class IndexingInstanceCallNumberConsortiumIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void prepare() {
-    setUpTenant(CENTRAL_TENANT_ID);
-    setUpTenant(MEMBER_TENANT_ID);
+    enableTenant(CENTRAL_TENANT_ID);
+    enableTenant(MEMBER_TENANT_ID);
 
     enableFeature(CENTRAL_TENANT_ID, TenantConfiguredFeature.BROWSE_CALL_NUMBERS);
   }

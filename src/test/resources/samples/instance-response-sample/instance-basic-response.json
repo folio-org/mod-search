@@ -1,90 +1,89 @@
 {
-  "totalRecords": 1,
   "instances": [
     {
-      "id": "5bf370e0-8cca-4d9c-82e4-5170ab2a0a39",
-      "tenantId": "test_tenant",
-      "shared": false,
-      "hrid": "inst000000000022",
-      "title": "A sem\\ntic web primer :0747-0850 & wolves",
-      "identifiers": [
-        {
-          "value": "0262012103",
-          "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-        },
-        {
-          "value": "9781609383657",
-          "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-        },
-        {
-          "value": "9780262012102",
-          "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-        },
-        {
-          "value": "978-0-471-44250-9 (cloth : alk. paper)",
-          "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-        },
-        {
-          "value": "047144250X",
-          "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
-        },
-        {
-          "value": "2003065165",
-          "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
-        },
-        {
-          "value": "n 2003075732",
-          "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb"
-        },
-        {
-          "value": "canceled LCCN",
-          "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9"
-        },
-        {
-          "value": "0317-8471",
-          "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
-        },
-        {
-          "value": "0040-781X",
-          "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227"
-        },
-        {
-          "value": "(OCoLC)ocm0060710867",
-          "identifierTypeId": "c3c651c7-96b4-416c-a1af-17146ce0a409"
-        },
-        {
-          "value": "ocm0012345 800630",
-          "identifierTypeId": "82fb97e1-f460-4099-9ac8-97518341ed1a"
-        }
-      ],
       "contributors": [
         {
-          "name": "Ant\\niou, Grigoris matthew",
+          "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
           "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
-          "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a"
+          "name": "Ant\\niou, Grigoris matthew"
         },
         {
-          "name": "Van Harmelen, Frank",
-          "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
-          "contributorNameTypeId": "9fb7f83e-260e-479f-9539-dfd9a628b858",
           "authorityId": "55294032-fcf6-45cc-b6da-4420a61ef72c",
+          "contributorNameTypeId": "9fb7f83e-260e-479f-9539-dfd9a628b858",
+          "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+          "name": "Van Harmelen, Frank",
           "primary": true
         }
       ],
-      "publication": [
+      "dates": {
+        "date1": "1\\9u",
+        "date2": "1444"
+      },
+      "discoverySuppress": false,
+      "hrid": "inst000000000022",
+      "id": "00000008-0000-4000-8000-000000000000",
+      "identifiers": [
         {
-          "publisher": "MIT Press",
-          "dateOfPublication": "c2004"
+          "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422",
+          "value": "0262012103"
+        },
+        {
+          "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422",
+          "value": "9781609383657"
+        },
+        {
+          "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422",
+          "value": "9780262012102"
+        },
+        {
+          "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422",
+          "value": "978-0-471-44250-9 (cloth : alk. paper)"
+        },
+        {
+          "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422",
+          "value": "047144250X"
+        },
+        {
+          "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+          "value": "2003065165"
+        },
+        {
+          "identifierTypeId": "c858e4f2-2b6b-4385-842b-60732ee14abb",
+          "value": "n 2003075732"
+        },
+        {
+          "identifierTypeId": "3fb87c8e-d0d2-4c3a-821a-b481f32f48a9",
+          "value": "canceled LCCN"
+        },
+        {
+          "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227",
+          "value": "0317-8471"
+        },
+        {
+          "identifierTypeId": "913300b2-03ed-469a-8179-c1092c991227",
+          "value": "0040-781X"
+        },
+        {
+          "identifierTypeId": "c3c651c7-96b4-416c-a1af-17146ce0a409",
+          "value": "(OCoLC)ocm0060710867"
+        },
+        {
+          "identifierTypeId": "82fb97e1-f460-4099-9ac8-97518341ed1a",
+          "value": "ocm0012345 800630"
         }
       ],
-      "dates": {
-        "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
-        "date1": "1\\9u",
-        "date2": "2022"
-      },
+      "isBoundWith": true,
+      "publication": [
+        {
+          "dateOfPublication": "c2004",
+          "publisher": "MIT Press"
+        }
+      ],
+      "shared": false,
       "staffSuppress": false,
-      "discoverySuppress": false,
-      "isBoundWith": true
+      "tenantId": "test_tenant",
+      "title": "A sem\\ntic web primer :0747-0850 & wolves"
     }
-  ]
+  ],
+  "totalRecords": 1
 }

@@ -1,53 +1,36 @@
 package org.folio.api.search;
 
-import static org.folio.support.sample.SampleInstances.getSemanticWebAsMap;
-import static org.folio.support.sample.SampleInstances.getSemanticWebId;
-import static org.folio.support.sample.SampleInstances.getSemanticWebMatchers;
+import static org.folio.support.TestConstants.TENANT_ID;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-import org.folio.search.domain.dto.Instance;
-import org.folio.spring.testing.type.IntegrationTest;
-import org.folio.support.base.BaseIntegrationTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-@IntegrationTest
-class SearchHoldingsIT extends BaseIntegrationTest {
+public abstract class SearchHoldingsIT extends BaseSharedTest {
 
-  @BeforeAll
-  static void prepare() {
-    setUpTenant(Instance.class, getSemanticWebMatchers(), getSemanticWebAsMap());
-  }
-
-  @AfterAll
-  static void cleanUp() {
-    removeTenant();
-  }
+  private static final String EXPECTED_INSTANCE_ID = "00000008-0000-4000-8000-000000000000";
 
   @ParameterizedTest(name = "[{index}] {0}: {1}")
   @CsvSource({
-    "holdings.hrid=={value}, ho*7",
-    "holdings.fullCallNumber=={value}, prefix*suffix",
-    "holdings.normalizedCallNumbers==\"{value}\", prefix",
-    "holdings.normalizedCallNumbers==\"{value}\", prefix:",
-    "holdings.normalizedCallNumbers==\"{value}\", callnumber",
-    "holdings.normalizedCallNumbers==\"{value}\", call:number",
-    "holdingsNormalizedCallNumbers==\"{value}\", prefix",
-    "holdingsNormalizedCallNumbers==\"{value}\", prefix:",
-    "holdingsNormalizedCallNumbers==\"{value}\", callnumber",
-    "holdingsNormalizedCallNumbers==\"{value}\", call:number",
-    "holdingsNormalizedCallNumbers==\"{value}\", callnumbers",
-    "holdingsNormalizedCallNumbers==\"{value}\", callnumber suffix",
-    "holdingsNormalizedCallNumbers==\"{value}\", CALL.number suffix",
-    "holdingsNormalizedCallNumbers==\"{value}\", prefixcallnumber"
+    "holdings.hrid=={value}, ho1*6",
+    "holdings.fullCallNumber=={value}, GEN*c.1",
+    "holdings.normalizedCallNumbers==\"{value}\", GEN",
+    "holdings.normalizedCallNumbers==\"{value}\", GEN:",
+    "holdings.normalizedCallNumbers==\"{value}\", 332.2",
+    "holdings.normalizedCallNumbers==\"{value}\", 332:2",
+    "holdingsNormalizedCallNumbers==\"{value}\", GEN",
+    "holdingsNormalizedCallNumbers==\"{value}\", GEN:",
+    "holdingsNormalizedCallNumbers==\"{value}\", 332.2",
+    "holdingsNormalizedCallNumbers==\"{value}\", 332:2",
+    "holdingsNormalizedCallNumbers==\"{value}\", 332.2 c.1",
+    "holdingsNormalizedCallNumbers==\"{value}\", GEN332.2"
   })
   void canSearchByHoldings_exactMatchWithWildcard(String query, String value) throws Exception {
-    doSearchByInstances(prepareQuery(query, value))
+    doSearchInstances(prepareQuery(query, value), TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(1)))
-      .andExpect(jsonPath("instances[0].id", is(getSemanticWebId())));
+      .andExpect(jsonPath("instances[0].id", is(EXPECTED_INSTANCE_ID)));
   }
 
   @ParameterizedTest(name = "[{index}] {0}: {1}")
@@ -56,7 +39,7 @@ class SearchHoldingsIT extends BaseIntegrationTest {
     "holdings.normalizedCallNumbers==\"{value}\", TK5105.88815 . A58 2004 FT MEADE",
     "holdings.normalizedCallNumbers==\"{value}\", TK510588815",
     "holdings.normalizedCallNumbers==\"{value}\", TK5105.8881:5 . a58",
-    "holdingsFullCallNumbers==\"{value}\", TK5105.88815 . A58 2004 FT MEADE",
+    "holdingsFullCallNumbers==\"{value}\", suppl. TK5105.88815 . A58 2004 FT MEADE 3",
     "holdingsNormalizedCallNumbers==\"{value}\", TK5105.88815 . A58 2004 FT MEADE",
     "holdingsNormalizedCallNumbers==\"{value}\", TK510588815",
     "holdingsNormalizedCallNumbers==\"{value}\", TK5105.8881:5 . a58",
@@ -66,9 +49,9 @@ class SearchHoldingsIT extends BaseIntegrationTest {
     "holdingsNormalizedCallNumbers==\"{value}\", tk510588815a582004ftmeade"
   })
   void canSearchByHoldings_exactMatch(String query, String value) throws Exception {
-    doSearchByInstances(prepareQuery(query, value))
+    doSearchInstances(prepareQuery(query, value), TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(1)))
-      .andExpect(jsonPath("instances[0].id", is(getSemanticWebId())));
+      .andExpect(jsonPath("instances[0].id", is(EXPECTED_INSTANCE_ID)));
   }
 
   @ParameterizedTest(name = "[{index}] {0}: {1}")
@@ -84,7 +67,7 @@ class SearchHoldingsIT extends BaseIntegrationTest {
     "holdingsNormalizedCallNumbers==\"{value}\", prefix number"
   })
   void canSearchByHoldings_negative(String query, String value) throws Exception {
-    doSearchByInstances(prepareQuery(query, value))
+    doSearchInstances(prepareQuery(query, value), TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(0)));
   }
 }

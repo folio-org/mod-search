@@ -9,6 +9,7 @@ import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.consortiumBatchItemsSearchPath;
 import static org.folio.support.base.ApiEndpoints.consortiumItemSearchPath;
 import static org.folio.support.base.ApiEndpoints.consortiumItemsSearchPath;
+import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.support.sample.SampleInstances.getSemanticWeb;
 import static org.folio.support.sample.SampleInstances.getSemanticWebId;
 import static org.folio.support.sample.SampleInstances.getSemanticWebMatchers;
@@ -44,8 +45,10 @@ class ConsortiumSearchItemsIT extends BaseConsortiumIntegrationTest {
 
   @BeforeAll
   static void prepare() {
-    setUpTenant(CENTRAL_TENANT_ID);
-    setUpTenant(MEMBER_TENANT_ID, getSemanticWebMatchers(), getSemanticWeb());
+    enableTenant(CENTRAL_TENANT_ID);
+    enableTenant(MEMBER_TENANT_ID);
+    saveRecords(MEMBER_TENANT_ID, instanceSearchPath(), List.of(getSemanticWeb()), 1, getSemanticWebMatchers(),
+      instance -> inventoryApi.createInstance(MEMBER_TENANT_ID, instance));
   }
 
   @AfterAll
@@ -70,9 +73,9 @@ class ConsortiumSearchItemsIT extends BaseConsortiumIntegrationTest {
     List<Pair<String, String>> queryParams = List.of(
       pair("instanceId", getSemanticWebId()),
       pair("tenantId", MEMBER_TENANT_ID),
-      pair("holdingsRecordId", "e3ff6133-b9a2-4d4c-a1c9-dc1867d4df19"),
-      pair("limit", "1"),
-      pair("offset", "1"),
+      pair("holdingsRecordId", "00000014-0000-4000-9000-000000000000"),
+      pair(LIMIT_PARAM, "1"),
+      pair(OFFSET_PARAM, "1"),
       pair("sortBy", "barcode"),
       pair("sortOrder", "desc")
     );
@@ -98,8 +101,8 @@ class ConsortiumSearchItemsIT extends BaseConsortiumIntegrationTest {
   @Test
   void tryGetConsortiumItems_returns400_whenInstanceIdIsNotSpecified() throws Exception {
     List<Pair<String, String>> queryParams = List.of(
-      pair("limit", "1"),
-      pair("offset", "1"),
+      pair(LIMIT_PARAM, "1"),
+      pair(OFFSET_PARAM, "1"),
       pair("sortBy", "barcode"),
       pair("sortOrder", "desc")
     );

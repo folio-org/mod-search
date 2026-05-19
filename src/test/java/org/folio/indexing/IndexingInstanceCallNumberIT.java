@@ -5,9 +5,6 @@ import static java.util.Collections.emptyList;
 import static org.assertj.core.api.AssertionsForClassTypes.entry;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.folio.search.model.types.ResourceType.INSTANCE_CALL_NUMBER;
-import static org.folio.search.service.reindex.ReindexConstants.CALL_NUMBER_TABLE;
-import static org.folio.search.service.reindex.ReindexConstants.INSTANCE_CALL_NUMBER_TABLE;
-import static org.folio.search.service.reindex.ReindexConstants.ITEM_TABLE;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.support.utils.TestUtils.randomId;
@@ -17,45 +14,22 @@ import java.util.Map;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
-import org.folio.search.domain.dto.TenantConfiguredFeature;
-import org.folio.spring.testing.extension.DatabaseCleanup;
-import org.folio.spring.testing.type.IntegrationTest;
-import org.folio.support.base.BaseIntegrationTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
+import org.folio.support.base.BaseSharedTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.context.TestPropertySource;
 
-@IntegrationTest
-@TestPropertySource(properties = "folio.search-config.indexing.instance-children-index-enabled=true")
-@DatabaseCleanup(tenants = TENANT_ID, tables = {CALL_NUMBER_TABLE, INSTANCE_CALL_NUMBER_TABLE, ITEM_TABLE})
-class IndexingInstanceCallNumberIT extends BaseIntegrationTest {
+public abstract class IndexingInstanceCallNumberIT extends BaseSharedTest {
 
   private static final String INSTANCE_ID_1 = randomId();
   private static final String INSTANCE_ID_2 = randomId();
   private static final String LOCATION_ID = randomId();
 
-  @BeforeAll
-  static void prepare() {
-    setUpTenant();
-
-    enableFeature(TenantConfiguredFeature.BROWSE_CALL_NUMBERS);
-
-    var instance1 = new Instance().id(INSTANCE_ID_1).title("test");
-    var instance2 = new Instance().id(INSTANCE_ID_2).title("test");
+  @BeforeEach
+  void prepare() {
+    var instance1 = new Instance().id(INSTANCE_ID_1).title("test1");
+    var instance2 = new Instance().id(INSTANCE_ID_2).title("test2");
     saveRecords(TENANT_ID, instanceSearchPath(), asList(instance1, instance2), 2, emptyList(),
       instance -> inventoryApi.createInstance(TENANT_ID, instance));
-  }
-
-  @AfterAll
-  static void cleanUp() {
-    removeTenant();
-  }
-
-  @AfterEach
-  void tearDown() {
-    deleteAllDocuments(INSTANCE_CALL_NUMBER, TENANT_ID);
   }
 
   @Test
@@ -67,28 +41,10 @@ class IndexingInstanceCallNumberIT extends BaseIntegrationTest {
     inventoryApi.createItem(TENANT_ID, INSTANCE_ID_1, item1);
     inventoryApi.createItem(TENANT_ID, INSTANCE_ID_2, item2);
 
-    awaitAssertion(() -> {
-      // when
-      // fetch all documents from search index
-      var hits = fetchAllDocuments(INSTANCE_CALL_NUMBER, TENANT_ID);
-      assertThat(hits).hasSize(1);
+    awaitAssertion(this::assertCallNumberDocumentIndexed);
 
-      // then
-      var sourceAsMap = hits[0].getSourceAsMap();
-      // assert that the document contains the expected fields
-      assertCallNumberDocFields(sourceAsMap);
-
-      // assert that the document contains the expected instances object with count 1
-      @SuppressWarnings("unchecked")
-      var instances = (List<Map<String, Object>>) sourceAsMap.get("instances");
-      assertThat(instances)
-        .hasSize(1)
-        .allSatisfy(map -> assertThat(map).containsEntry("shared", false))
-        .allSatisfy(map -> assertThat(map).containsEntry("tenantId", TENANT_ID));
-      @SuppressWarnings("unchecked")
-      var ids = (List<String>) instances.getFirst().get("instanceId");
-      assertThat(ids).containsExactlyInAnyOrder(INSTANCE_ID_1, INSTANCE_ID_2);
-    });
+    inventoryApi.deleteItem(TENANT_ID, item1.getId());
+    inventoryApi.deleteItem(TENANT_ID, item2.getId());
   }
 
   @Test
@@ -97,14 +53,18 @@ class IndexingInstanceCallNumberIT extends BaseIntegrationTest {
     // create item with call number
     var item = getItem(randomId());
     inventoryApi.createItem(TENANT_ID, INSTANCE_ID_1, item);
-    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CALL_NUMBER, TENANT_ID)).hasSize(1));
+    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CALL_NUMBER, TENANT_ID))
+      .as("Should have exactly 1 call number document before update")
+      .hasSize(1));
 
     // when update item with null call number
     item.setEffectiveCallNumberComponents(null);
     inventoryApi.updateItem(TENANT_ID, INSTANCE_ID_1, item);
 
     // then
-    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CALL_NUMBER, TENANT_ID)).isEmpty());
+    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CALL_NUMBER, TENANT_ID))
+      .as("Call number document should be removed after item call number is cleared")
+      .isEmpty());
   }
 
   @Test
@@ -114,17 +74,40 @@ class IndexingInstanceCallNumberIT extends BaseIntegrationTest {
     var itemId = randomId();
     var item = getItem(itemId);
     inventoryApi.createItem(TENANT_ID, INSTANCE_ID_1, item);
-    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CALL_NUMBER, TENANT_ID)).hasSize(1));
+    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CALL_NUMBER, TENANT_ID))
+      .as("Should have exactly 1 call number document before delete")
+      .hasSize(1));
 
     // when
     inventoryApi.deleteItem(TENANT_ID, itemId);
 
     // then
-    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CALL_NUMBER, TENANT_ID)).isEmpty());
+    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CALL_NUMBER, TENANT_ID))
+      .as("Call number document should be removed after item delete")
+      .isEmpty());
+  }
+
+  @SuppressWarnings("unchecked")
+  private void assertCallNumberDocumentIndexed() {
+    var hits = fetchAllDocuments(INSTANCE_CALL_NUMBER, TENANT_ID);
+    assertThat(hits).as("Should have exactly 1 call number document in the index").hasSize(1);
+    var sourceAsMap = hits[0].getSourceAsMap();
+    assertCallNumberDocFields(sourceAsMap);
+    var instances = (List<Map<String, Object>>) sourceAsMap.get("instances");
+    assertThat(instances)
+      .as("Instances list should contain exactly 1 shared/tenant group")
+      .hasSize(1)
+      .allSatisfy(map -> assertThat(map).containsEntry("shared", false))
+      .allSatisfy(map -> assertThat(map).containsEntry("tenantId", TENANT_ID));
+    var ids = (List<String>) instances.getFirst().get("instanceId");
+    assertThat(ids)
+      .as("Instance IDs should contain both indexed instances")
+      .containsExactlyInAnyOrder(INSTANCE_ID_1, INSTANCE_ID_2);
   }
 
   private void assertCallNumberDocFields(Map<String, Object> sourceAsMap) {
     assertThat(sourceAsMap)
+      .as("Call number document should contain expected indexed fields")
       .contains(
         entry("callNumber", "NS 1 .B5"),
         entry("fullCallNumber", "NS 1 .B5"),

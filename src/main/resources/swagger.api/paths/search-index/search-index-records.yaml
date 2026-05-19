@@ -4,6 +4,8 @@ post:
   description: Indexes the records into elasticsearch.
   tags:
     - index-management
+  parameters:
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
   requestBody:
     content:
       application/json:

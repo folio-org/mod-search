@@ -1,6 +1,6 @@
 {
   "name": "library",
-  "eventBodyJavaClass": "org.folio.search.model.dto.locationunit.LibraryDto",
+  "eventBodyJavaClass": "org.folio.search.model.dto.location.LibraryDto",
   "parent": "location",
   "fields": {
     "id": {

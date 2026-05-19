@@ -1,5 +1,7 @@
 package org.folio.support.base;
 
+import static org.folio.search.utils.SearchUtils.ALL_RECORDS_QUERY;
+
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
@@ -12,6 +14,10 @@ import org.folio.search.model.Pair;
 
 @UtilityClass
 public class ApiEndpoints {
+
+  public static String indexRecordsPath() {
+    return "/search/index/records";
+  }
 
   public static String instanceSearchPath() {
     return "/search/instances";
@@ -187,7 +193,7 @@ public class ApiEndpoints {
   }
 
   public static String allRecordsSortedBy(String sort, CqlSort order) {
-    return String.format("cql.allRecords=1 sortBy %s/sort.%s", sort, order);
+    return String.format("%s sortBy %s/sort.%s", ALL_RECORDS_QUERY, sort, order);
   }
 
   private static String addQueryParams(String path, List<Pair<String, String>> queryParams) {

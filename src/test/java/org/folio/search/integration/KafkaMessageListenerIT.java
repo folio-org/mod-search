@@ -169,7 +169,7 @@ class KafkaMessageListenerIT {
 
   @Test
   void handleInstanceEvents_positive_boundWithEvent() {
-    var boundWithEvent = resourceEvent(null, BOUND_WITH, mapOf("id", randomId(), "instanceId", INSTANCE_ID));
+    var boundWithEvent = resourceEvent((String) null, BOUND_WITH, mapOf("id", randomId(), "instanceId", INSTANCE_ID));
 
     sendMessage(INSTANCE_ID, boundWithEvent, inventoryBoundWithTopic(), kafkaProducer);
 

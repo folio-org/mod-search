@@ -213,7 +213,7 @@ class CqlTermQueryConverterTest {
     assertThatThrownBy(() -> new CqlTermQueryConverter(null, queryBuilders, searchTermProcessors))
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Multiple TermQueryBuilder objects cannot be responsible for the same comparator."
-        + " Found issues: [comparator '=': QueryBuilder1, QueryBuilder2]");
+                  + " Found issues: [comparator '=': QueryBuilder1, QueryBuilder2]");
   }
 
   private static CQLTermNode cqlTermNode(String query) {

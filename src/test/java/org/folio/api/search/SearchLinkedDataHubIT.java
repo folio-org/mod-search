@@ -1,32 +1,16 @@
 package org.folio.api.search;
 
-import static org.folio.support.sample.SampleLinkedData.getHubSample2AsMap;
-import static org.folio.support.sample.SampleLinkedData.getHubSampleAsMap;
+import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.utils.LinkedDataTestUtils.toTotalRecords;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-import org.folio.search.domain.dto.LinkedDataHub;
-import org.folio.spring.testing.type.IntegrationTest;
-import org.folio.support.base.BaseIntegrationTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-@IntegrationTest
-class SearchLinkedDataHubIT extends BaseIntegrationTest {
-
-  @BeforeAll
-  static void prepare() {
-    setUpTenant(LinkedDataHub.class, getHubSampleAsMap(), getHubSample2AsMap());
-  }
-
-  @AfterAll
-  static void cleanUp() {
-    removeTenant();
-  }
+public abstract class SearchLinkedDataHubIT extends BaseSharedTest {
 
   @DisplayName("search by linked data hub")
   @ParameterizedTest(name = "[{0}] {2}")
@@ -42,7 +26,7 @@ class SearchLinkedDataHubIT extends BaseIntegrationTest {
     " 9, 1, label = \"*XYZ\""
   })
   void searchByLinkedDataHub_parameterized_singleResult(int index, int size, String query) throws Throwable {
-    doSearchByLinkedDataHub(query)
+    doSearchLinkedDataHub(query, TENANT_ID)
       .andExpect(jsonPath(toTotalRecords(), is(size)));
   }
 }

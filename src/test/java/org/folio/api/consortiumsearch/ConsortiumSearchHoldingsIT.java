@@ -10,6 +10,7 @@ import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.consortiumBatchHoldingsSearchPath;
 import static org.folio.support.base.ApiEndpoints.consortiumHoldingSearchPath;
 import static org.folio.support.base.ApiEndpoints.consortiumHoldingsSearchPath;
+import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.support.sample.SampleInstances.getSemanticWeb;
 import static org.folio.support.sample.SampleInstances.getSemanticWebId;
 import static org.folio.support.sample.SampleInstances.getSemanticWebMatchers;
@@ -42,8 +43,10 @@ class ConsortiumSearchHoldingsIT extends BaseConsortiumIntegrationTest {
 
   @BeforeAll
   static void prepare() {
-    setUpTenant(CENTRAL_TENANT_ID);
-    setUpTenant(MEMBER_TENANT_ID, getSemanticWebMatchers(), getSemanticWeb());
+    enableTenant(CENTRAL_TENANT_ID);
+    enableTenant(MEMBER_TENANT_ID);
+    saveRecords(MEMBER_TENANT_ID, instanceSearchPath(), List.of(getSemanticWeb()), 1, getSemanticWebMatchers(),
+      instance -> inventoryApi.createInstance(MEMBER_TENANT_ID, instance));
   }
 
   @AfterAll
@@ -65,8 +68,8 @@ class ConsortiumSearchHoldingsIT extends BaseConsortiumIntegrationTest {
     List<Pair<String, String>> queryParams = List.of(
       pair("instanceId", getSemanticWebId()),
       pair("tenantId", MEMBER_TENANT_ID),
-      pair("limit", "1"),
-      pair("offset", "1"),
+      pair(LIMIT_PARAM, "1"),
+      pair(OFFSET_PARAM, "1"),
       pair("sortBy", "callNumber"),
       pair("sortOrder", "desc")
     );
@@ -92,8 +95,8 @@ class ConsortiumSearchHoldingsIT extends BaseConsortiumIntegrationTest {
   @Test
   void tryGetConsortiumHoldings_returns400_whenOrderBySpecifiedWithoutAnyFilters() throws Exception {
     List<Pair<String, String>> queryParams = List.of(
-      pair("limit", "1"),
-      pair("offset", "1"),
+      pair(LIMIT_PARAM, "1"),
+      pair(OFFSET_PARAM, "1"),
       pair("sortBy", "callNumber"),
       pair("sortOrder", "desc")
     );

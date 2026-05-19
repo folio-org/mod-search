@@ -1,5 +1,5 @@
 {
-  "id": "5bf370e0-8cca-4d9c-82e4-5170ab2a0a39",
+  "id": "00000008-0000-4000-8000-000000000000",
   "tenantId": "test_tenant",
   "hrid": "inst000000000022",
   "source": "FOLIO",
@@ -139,9 +139,8 @@
     }
   ],
   "dates": {
-    "dateTypeId": "0750f52b-3bfc-458d-9307-e9afc8bcdffa",
     "date1": "1\\9u",
-    "date2": "2022"
+    "date2": "1444"
   },
   "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
   "instanceFormatIds": [

@@ -1,75 +1,29 @@
 package org.folio.api.search;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import static org.folio.support.utils.TestUtils.randomId;
+import static org.folio.support.TestConstants.TENANT_ID;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-import java.util.List;
-import org.apache.commons.lang3.StringUtils;
-import org.folio.search.domain.dto.Contributor;
-import org.folio.search.domain.dto.Instance;
-import org.folio.spring.testing.type.IntegrationTest;
-import org.folio.support.base.BaseIntegrationTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-@IntegrationTest
-class SearchByEmptyValuesIT extends BaseIntegrationTest {
-
-  private static final String INSTANCE_ID_1 = randomId();
-  private static final String INSTANCE_ID_2 = randomId();
-
-  @BeforeAll
-  static void prepare() {
-    setUpTenant(instances());
-  }
-
-  @AfterAll
-  static void cleanUp() {
-    removeTenant();
-  }
+public abstract class SearchByEmptyValuesIT extends BaseSharedTest {
 
   @CsvSource({
-    "cql.allRecords=1, title1;title2",
-    "instanceTypeId=\"\", title1;title2",
-    "isbn=\"\",",
-    "cql.allRecords=1 NOT isbn=\"\", title1;title2",
-    "cql.allRecords=1 NOT instanceTypeId=\"\",",
-    "contributors.name==[], title2",
-    "indexTitle=\"\" NOT indexTitle==\"\", title1",
-    "cql.allRecords=1 NOT indexTitle=\"\", title2",
-    "subjects.value==[], title1;title2",
+    "cql.allRecords=1, 96",
+    "instanceTypeId=\"\", 96",
+    "isbn=\"\", 91",
+    "cql.allRecords=1 NOT isbn=\"\", 5",
+    "cql.allRecords=1 NOT instanceTypeId=\"\", 0",
+    "contributors.name==[], 0",
+    "indexTitle=\"\" NOT indexTitle==\"\", 96",
+    "cql.allRecords=1 NOT indexTitle=\"\", 0",
+    "subjects.value==[], 5",
   })
   @ParameterizedTest
-  void search_parameterized(String query, String titles) throws Exception {
-    var expectedTitles = StringUtils.isNotEmpty(titles) ? asList(titles.split(";")) : null;
-    doSearchByInstances(query + " sortBy title")
-      .andExpect(jsonPath("totalRecords", is(expectedTitles == null ? 0 : expectedTitles.size())))
-      .andExpect(expectedTitles == null
-                 ? jsonPath("instances[*].title").doesNotExist()
-                 : jsonPath("instances[*].title", is(expectedTitles)));
-  }
-
-  private static Instance[] instances() {
-    return new Instance[] {
-      new Instance()
-        .id(INSTANCE_ID_1)
-        .title("title1")
-        .indexTitle("indexTitle")
-        .languages(List.of("eng"))
-        .instanceTypeId(randomId())
-        .subjects(emptyList())
-        .contributors(List.of(new Contributor().name("c1"))),
-
-      new Instance()
-        .id(INSTANCE_ID_2)
-        .title("title2")
-        .indexTitle("")
-        .instanceTypeId(randomId())
-        .contributors(emptyList())};
+  void search_parameterized(String query, String count) throws Exception {
+    doSearchInstances(query + " sortBy title", TENANT_ID)
+      .andExpect(jsonPath("totalRecords", is(Integer.parseInt(count))));
   }
 }

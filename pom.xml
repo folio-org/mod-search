@@ -506,12 +506,13 @@
               <generateSupportingFiles>true</generateSupportingFiles>
               <supportingFilesToGenerate>ApiUtil.java</supportingFilesToGenerate>
               <generateModelDocumentation>true</generateModelDocumentation>
+              <configHelp>false</configHelp>
               <configOptions>
-                <java8>true</java8>
                 <useTags>true</useTags>
-                <dateLibrary>java</dateLibrary>
                 <interfaceOnly>true</interfaceOnly>
-                <useSpringBoot3>true</useSpringBoot3>
+                <useSpringBoot4>true</useSpringBoot4>
+                <useJackson3>true</useJackson3>
+                <useJspecify>true</useJspecify>
                 <requestMappingMode>api_interface</requestMappingMode>
                 <generatedConstructorWithRequiredArgs>true</generatedConstructorWithRequiredArgs>
                 <containerDefaultToNull>true</containerDefaultToNull>

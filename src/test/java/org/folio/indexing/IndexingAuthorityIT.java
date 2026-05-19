@@ -11,24 +11,10 @@ import static org.folio.support.utils.TestUtils.resourceEvent;
 
 import java.util.List;
 import org.folio.search.domain.dto.Authority;
-import org.folio.spring.testing.type.IntegrationTest;
-import org.folio.support.base.BaseIntegrationTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.Test;
 
-@IntegrationTest
-class IndexingAuthorityIT extends BaseIntegrationTest {
-
-  @BeforeAll
-  static void prepare() {
-    setUpTenant();
-  }
-
-  @AfterAll
-  static void cleanUp() {
-    removeTenant();
-  }
+public abstract class IndexingAuthorityIT extends BaseSharedTest {
 
   @Test
   void shouldRemoveAuthority() {
@@ -37,10 +23,10 @@ class IndexingAuthorityIT extends BaseIntegrationTest {
       .corporateName("corporate name").uniformTitle("uniform title");
     var resourceEvent = resourceEvent(authorityId, AUTHORITY, toMap(authority));
     kafkaTemplate.send(inventoryAuthorityTopic(TENANT_ID), resourceEvent);
-    assertCountByIds(authoritySearchPath(), List.of(authorityId), 3);
+    assertSearchByIdsCount(authoritySearchPath(), List.of(authorityId), 3, TENANT_ID);
 
     var deleteEvent = resourceEvent(authorityId, AUTHORITY, null).type(DELETE).old(toMap(authority));
     kafkaTemplate.send(inventoryAuthorityTopic(TENANT_ID), deleteEvent);
-    assertCountByIds(authoritySearchPath(), List.of(authorityId), 0);
+    assertSearchByIdsCount(authoritySearchPath(), List.of(authorityId), 0, TENANT_ID);
   }
 }

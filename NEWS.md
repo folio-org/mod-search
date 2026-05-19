@@ -17,6 +17,7 @@
 * Bump httpclient5 to 5.6.1 and httpcore5 to 5.4.2 to fix CVE-2026-40542 mutual authentication bypass ([MSEARCH-1208](https://folio-org.atlassian.net/browse/MSEARCH-1208))
 
 ### Tech Dept
+* Optimize integration tests to reduce build time by introducing centralized test data setup ([MSEARCH-1036](https://folio-org.atlassian.net/browse/MSEARCH-1036))
 * Add `@TestRailCase` annotation for linking integration tests to TestRail cases
 * Add integration test coverage for SUDOC call-number browse type filtering (TestRail C627509)
 * Add integration test coverage for LC call-number browse with empty config returning all types (TestRail C627500)

@@ -81,6 +81,9 @@ public class SearchUtils {
   public static final String MISSING_LAST_PROP = "_last";
   public static final float CONST_SIZE_LOAD_FACTOR = 1.0f;
 
+  public static final String ALL_RECORDS_QUERY = "cql.allRecords=1";
+  public static final String KEYWORD_ALL_CQL_QUERY = "keyword=*";
+
   public static final Map<ShelvingOrderAlgorithmType, String> BROWSE_FIELDS_MAP = Map.of(
     ShelvingOrderAlgorithmType.DEFAULT, DEFAULT_SHELVING_ORDER_BROWSING_FIELD,
     ShelvingOrderAlgorithmType.LC, LC_SHELVING_ORDER_BROWSING_FIELD,

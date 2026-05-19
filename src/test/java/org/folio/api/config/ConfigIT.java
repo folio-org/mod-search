@@ -17,7 +17,9 @@ import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.TestConstants.getTopicName;
 import static org.folio.support.TestConstants.inventoryClassificationTopic;
 import static org.folio.support.base.ApiEndpoints.featureConfigPath;
-import static org.folio.support.sample.SampleInstances.getSemanticWebAsMap;
+import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
+import static org.folio.support.sample.SampleInstances.getSemanticWeb;
+import static org.folio.support.sample.SampleInstances.getSemanticWebMatchers;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
 import static org.folio.support.utils.TestUtils.mapOf;
 import static org.folio.support.utils.TestUtils.mockCallNumberTypes;
@@ -73,28 +75,30 @@ class ConfigIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void prepare() {
-    setUpTenant(Instance.class, getSemanticWebAsMap());
+    enableTenant(TENANT_ID);
+    saveRecords(TENANT_ID, instanceSearchPath(), List.of(getSemanticWeb()), 1, getSemanticWebMatchers(),
+      instance -> inventoryApi.createInstance(TENANT_ID, instance));
   }
 
   @AfterAll
   static void cleanUp() {
-    removeTenant();
+    removeTenant(TENANT_ID);
   }
 
   @BeforeEach
   void removeConfigs() {
-    var languageConfigs = parseResponse(doGet(ApiEndpoints.languageConfigPath()), LanguageConfigs.class);
+    var languageConfigs = parseResponse(doGet(ApiEndpoints.languageConfigPath(), TENANT_ID), LanguageConfigs.class);
     CollectionUtils.emptyIfNull(languageConfigs.getLanguageConfigs())
-      .forEach(config -> doDelete(ApiEndpoints.languageConfigPath() + "/{code}", config.getCode()));
+      .forEach(config -> doDelete(ApiEndpoints.languageConfigPath() + "/{code}", TENANT_ID, config.getCode()));
   }
 
   @Test
   void canCreateLanguageConfig() throws Exception {
     final var languageCode = "eng";
 
-    doPost(ApiEndpoints.languageConfigPath(), new LanguageConfig().code(languageCode));
+    doPost(ApiEndpoints.languageConfigPath(), TENANT_ID, new LanguageConfig().code(languageCode));
 
-    doGet(ApiEndpoints.languageConfigPath())
+    doGet(ApiEndpoints.languageConfigPath(), TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(1)))
       .andExpect(jsonPath("languageConfigs[0].code", is(languageCode)));
   }
@@ -104,18 +108,18 @@ class ConfigIT extends BaseIntegrationTest {
     final var languageCode = "kor";
     final var analyzer = "nori";
 
-    doPost(ApiEndpoints.languageConfigPath(), TestUtils.languageConfig(languageCode, analyzer));
+    doPost(ApiEndpoints.languageConfigPath(), TENANT_ID, TestUtils.languageConfig(languageCode, analyzer));
 
-    doGet(ApiEndpoints.languageConfigPath())
+    doGet(ApiEndpoints.languageConfigPath(), TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(1)))
       .andExpect(jsonPath("languageConfigs[0].code", is(languageCode)))
       .andExpect(jsonPath("languageConfigs[0].languageAnalyzer", is(analyzer)));
 
     var newAnalyzer = "seunjeon_analyzer";
-    doPut(ApiEndpoints.languageConfigPath() + "/kor", TestUtils.languageConfig(languageCode, newAnalyzer))
+    doPut(ApiEndpoints.languageConfigPath() + "/kor", TENANT_ID, TestUtils.languageConfig(languageCode, newAnalyzer))
       .andExpect(jsonPath("languageAnalyzer", is(newAnalyzer)));
 
-    doGet(ApiEndpoints.languageConfigPath())
+    doGet(ApiEndpoints.languageConfigPath(), TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(1)))
       .andExpect(jsonPath("languageConfigs[0].code", is(languageCode)))
       .andExpect(jsonPath("languageConfigs[0].languageAnalyzer", is(newAnalyzer)));
@@ -126,9 +130,9 @@ class ConfigIT extends BaseIntegrationTest {
     final var languageCode = "kor";
     final var analyzer = "nori";
 
-    doPost(ApiEndpoints.languageConfigPath(), TestUtils.languageConfig(languageCode, analyzer));
+    doPost(ApiEndpoints.languageConfigPath(), TENANT_ID, TestUtils.languageConfig(languageCode, analyzer));
 
-    doGet(ApiEndpoints.languageConfigPath())
+    doGet(ApiEndpoints.languageConfigPath(), TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(1)))
       .andExpect(jsonPath("languageConfigs[0].code", is(languageCode)))
       .andExpect(jsonPath("languageConfigs[0].languageAnalyzer", is(analyzer)));
@@ -136,7 +140,7 @@ class ConfigIT extends BaseIntegrationTest {
 
   @Test
   void cannotAddLanguageIfNoAnalyzer() throws Exception {
-    attemptPost(ApiEndpoints.languageConfigPath(), new LanguageConfig().code("ukr"))
+    attemptPost(ApiEndpoints.languageConfigPath(), TENANT_ID, new LanguageConfig().code("ukr"))
       .andExpect(status().is(422))
       .andExpect(jsonPath("total_records", is(1)))
       .andExpect(jsonPath("errors[0].parameters[0].key", is("code")))
@@ -149,9 +153,9 @@ class ConfigIT extends BaseIntegrationTest {
   void canRemoveLanguageConfig() throws Exception {
     final var language = new LanguageConfig().code("fre");
 
-    doPost(ApiEndpoints.languageConfigPath(), language);
+    doPost(ApiEndpoints.languageConfigPath(), TENANT_ID, language);
 
-    doDelete(ApiEndpoints.languageConfigPath() + "/fre")
+    doDelete(ApiEndpoints.languageConfigPath() + "/fre", TENANT_ID)
       .andExpect(status().isNoContent());
   }
 
@@ -161,7 +165,7 @@ class ConfigIT extends BaseIntegrationTest {
   void shouldUseConfiguredLanguagesDuringMapping() {
     final List<String> languageCodes = List.of("eng", "rus");
     for (String languageCode : languageCodes) {
-      doPost(ApiEndpoints.languageConfigPath(), new LanguageConfig().code(languageCode));
+      doPost(ApiEndpoints.languageConfigPath(), TENANT_ID, new LanguageConfig().code(languageCode));
     }
 
     var newInstance = new Instance()
@@ -183,41 +187,41 @@ class ConfigIT extends BaseIntegrationTest {
   @Test
   void featureConfigurationWorkflow_positive() throws Exception {
     var feature = new FeatureConfig().feature(SEARCH_ALL_FIELDS).enabled(true);
-    doPost(ApiEndpoints.featureConfigPath(), feature)
+    doPost(ApiEndpoints.featureConfigPath(), TENANT_ID, feature)
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.feature", is(SEARCH_ALL_FIELDS.getValue())))
       .andExpect(jsonPath("$.enabled", is(true)));
 
     var featureToUpdate = new FeatureConfig().feature(SEARCH_ALL_FIELDS).enabled(false);
-    doPut(ApiEndpoints.featureConfigPath(SEARCH_ALL_FIELDS), featureToUpdate)
+    doPut(ApiEndpoints.featureConfigPath(SEARCH_ALL_FIELDS), TENANT_ID, featureToUpdate)
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.feature", is(SEARCH_ALL_FIELDS.getValue())))
       .andExpect(jsonPath("$.enabled", is(false)));
 
-    doDelete(featureConfigPath(SEARCH_ALL_FIELDS))
+    doDelete(featureConfigPath(SEARCH_ALL_FIELDS), TENANT_ID)
       .andExpect(status().isNoContent());
   }
 
   @Test
   void createFeatureConfig_negative() throws Exception {
     var feature = new FeatureConfig().feature(SEARCH_ALL_FIELDS).enabled(true);
-    doPost(ApiEndpoints.featureConfigPath(), feature)
+    doPost(ApiEndpoints.featureConfigPath(), TENANT_ID, feature)
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.feature", is(SEARCH_ALL_FIELDS.getValue())))
       .andExpect(jsonPath("$.enabled", is(true)));
 
-    attemptPost(ApiEndpoints.featureConfigPath(), feature)
+    attemptPost(ApiEndpoints.featureConfigPath(), TENANT_ID, feature)
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors[0].message", is("Feature configuration already exists")))
       .andExpect(jsonPath("$.errors[0].parameters[0].key", is("feature")))
       .andExpect(jsonPath("$.errors[0].parameters[0].value", is("search.all.fields")));
 
-    doDelete(featureConfigPath(SEARCH_ALL_FIELDS)).andExpect(status().isNoContent());
+    doDelete(featureConfigPath(SEARCH_ALL_FIELDS), TENANT_ID).andExpect(status().isNoContent());
   }
 
   @Test
   void createFeatureConfig_negative_bodyWithoutFields() throws Exception {
-    attemptPost(ApiEndpoints.featureConfigPath(), new FeatureConfig())
+    attemptPost(ApiEndpoints.featureConfigPath(), TENANT_ID, new FeatureConfig())
       .andExpect(status().isBadRequest())
       .andExpect(jsonPath("$.errors[*].parameters[*].key", containsInAnyOrder("enabled", "feature")));
   }
@@ -225,7 +229,7 @@ class ConfigIT extends BaseIntegrationTest {
   @Test
   void updateFeatureConfig_notExists() throws Exception {
     var feature = new FeatureConfig().feature(SEARCH_ALL_FIELDS).enabled(true);
-    attemptPut(featureConfigPath(SEARCH_ALL_FIELDS), feature)
+    attemptPut(featureConfigPath(SEARCH_ALL_FIELDS), TENANT_ID, feature)
       .andExpect(status().isNotFound())
       .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is("Feature configuration not found for id: search.all.fields")));
@@ -233,7 +237,7 @@ class ConfigIT extends BaseIntegrationTest {
 
   @Test
   void deleteUnknownFeature_notExists() throws Exception {
-    attemptDelete(featureConfigPath(SEARCH_ALL_FIELDS))
+    attemptDelete(featureConfigPath(SEARCH_ALL_FIELDS), TENANT_ID)
       .andExpect(status().isNotFound())
       .andExpect(jsonPath("$.total_records", is(1)))
       .andExpect(jsonPath("$.errors[0].message", is("Feature configuration not found for id: search.all.fields")));
@@ -241,13 +245,13 @@ class ConfigIT extends BaseIntegrationTest {
 
   @Test
   void getBrowseConfigs_positive_classification() throws Exception {
-    doGet(ApiEndpoints.browseConfigPath(INSTANCE_CLASSIFICATION))
+    doGet(ApiEndpoints.browseConfigPath(INSTANCE_CLASSIFICATION), TENANT_ID)
       .andExpect(jsonPath("$.totalRecords", is(3)));
   }
 
   @Test
   void getBrowseConfigs_positive_callNumber() throws Exception {
-    doGet(ApiEndpoints.browseConfigPath(INSTANCE_CALL_NUMBER))
+    doGet(ApiEndpoints.browseConfigPath(INSTANCE_CALL_NUMBER), TENANT_ID)
       .andExpect(jsonPath("$.totalRecords", is(6)));
   }
 
@@ -261,9 +265,9 @@ class ConfigIT extends BaseIntegrationTest {
 
     var stub = mockClassificationTypes(okapi.wireMockServer(), typeId1, typeId2);
 
-    doPut(ApiEndpoints.browseConfigPath(INSTANCE_CLASSIFICATION, BrowseOptionType.LC), config);
+    doPut(ApiEndpoints.browseConfigPath(INSTANCE_CLASSIFICATION, BrowseOptionType.LC), TENANT_ID, config);
 
-    var result = doGet(ApiEndpoints.browseConfigPath(INSTANCE_CLASSIFICATION))
+    var result = doGet(ApiEndpoints.browseConfigPath(INSTANCE_CLASSIFICATION), TENANT_ID)
       .andExpect(jsonPath("$.totalRecords", is(3)));
 
     var configCollection = parseResponse(result, BrowseConfigCollection.class);
@@ -283,9 +287,9 @@ class ConfigIT extends BaseIntegrationTest {
 
     var stub = mockCallNumberTypes(okapi.wireMockServer(), typeId1, typeId2);
 
-    doPut(ApiEndpoints.browseConfigPath(INSTANCE_CALL_NUMBER, BrowseOptionType.SUDOC), config);
+    doPut(ApiEndpoints.browseConfigPath(INSTANCE_CALL_NUMBER, BrowseOptionType.SUDOC), TENANT_ID, config);
 
-    var result = doGet(ApiEndpoints.browseConfigPath(INSTANCE_CALL_NUMBER))
+    var result = doGet(ApiEndpoints.browseConfigPath(INSTANCE_CALL_NUMBER), TENANT_ID)
       .andExpect(jsonPath("$.totalRecords", is(6)));
 
     var configCollection = parseResponse(result, BrowseConfigCollection.class);
@@ -305,12 +309,12 @@ class ConfigIT extends BaseIntegrationTest {
 
     final var stub = mockClassificationTypes(okapi.wireMockServer(), typeId1, typeId2);
 
-    doPut(ApiEndpoints.browseConfigPath(INSTANCE_CLASSIFICATION, BrowseOptionType.LC), config);
+    doPut(ApiEndpoints.browseConfigPath(INSTANCE_CLASSIFICATION, BrowseOptionType.LC), TENANT_ID, config);
 
     sendDeleteEvent(typeId1, inventoryClassificationTopic(), ResourceType.CLASSIFICATION_TYPE);
 
     await().atMost(ONE_MINUTE).pollInterval(TWO_SECONDS).untilAsserted(() -> {
-      var result = doGet(ApiEndpoints.browseConfigPath(INSTANCE_CLASSIFICATION));
+      var result = doGet(ApiEndpoints.browseConfigPath(INSTANCE_CLASSIFICATION), TENANT_ID);
 
       var configCollection = parseResponse(result, BrowseConfigCollection.class);
       assertNotNull(configCollection.getConfigs());
@@ -336,12 +340,12 @@ class ConfigIT extends BaseIntegrationTest {
 
     final var stub = mockCallNumberTypes(okapi.wireMockServer(), typeId1, typeId2);
 
-    doPut(ApiEndpoints.browseConfigPath(INSTANCE_CALL_NUMBER, BrowseOptionType.SUDOC), config);
+    doPut(ApiEndpoints.browseConfigPath(INSTANCE_CALL_NUMBER, BrowseOptionType.SUDOC), TENANT_ID, config);
 
     sendDeleteEvent(typeId1, TestConstants.inventoryCallNumberTopic(), ResourceType.CALL_NUMBER_TYPE);
 
     await().atMost(ONE_MINUTE).pollInterval(TWO_SECONDS).untilAsserted(() -> {
-      var result = doGet(ApiEndpoints.browseConfigPath(INSTANCE_CALL_NUMBER));
+      var result = doGet(ApiEndpoints.browseConfigPath(INSTANCE_CALL_NUMBER), TENANT_ID);
 
       var configCollection = parseResponse(result, BrowseConfigCollection.class);
       assertNotNull(configCollection.getConfigs());

@@ -58,7 +58,7 @@ folio:
     indexing:
       data-format: json
       instance-children-index-enabled: false
-      instance-children-index-delay-ms: 2000
+      instance-children-index-delay-ms: 1000
       sub-resource-batch-size: 40
   reindex:
     reindex-type: PUBLISH
@@ -71,6 +71,7 @@ folio:
     password: Mod-search-1-0-0
     lastname: System
     permissionsFilePath: permissions/test-permissions.csv
+    enabled: false
   stream-ids:
     scroll-query-size: 1000
     retry-interval-ms: 1000

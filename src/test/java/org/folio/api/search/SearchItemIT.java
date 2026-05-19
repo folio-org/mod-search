@@ -1,62 +1,41 @@
 package org.folio.api.search;
 
-import static org.folio.support.sample.SampleInstances.getSemanticWebAsMap;
-import static org.folio.support.sample.SampleInstances.getSemanticWebId;
-import static org.folio.support.sample.SampleInstances.getSemanticWebMatchers;
+import static org.folio.support.TestConstants.TENANT_ID;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-import org.folio.search.domain.dto.Instance;
-import org.folio.spring.testing.type.IntegrationTest;
-import org.folio.support.base.BaseIntegrationTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-@IntegrationTest
-class SearchItemIT extends BaseIntegrationTest {
+public abstract class SearchItemIT extends BaseSharedTest {
 
-  @BeforeAll
-  static void prepare() {
-    setUpTenant(Instance.class, getSemanticWebMatchers(), getSemanticWebAsMap());
-  }
-
-  @AfterAll
-  static void cleanUp() {
-    removeTenant();
-  }
+  private static final String EXPECTED_INSTANCE_ID = "00000008-0000-4000-8000-000000000000";
 
   @CsvSource({
-    "items.fullCallNumber=={value}, prefix-90000 TK51*",
-    "items.effectiveCallNumberComponents=={value}, *suffix-10101",
-    "items.normalizedCallNumbers=={value}, prefix-90000",
-    "items.normalizedCallNumbers=={value}, prefix90000",
-    "items.normalizedCallNumbers=={value}, prefix.9",
+    "items.fullCallNumber=={value}, REF TK51*",
+    "items.effectiveCallNumberComponents=={value}, *c.2",
+    "items.normalizedCallNumbers=={value}, REF",
     "items.normalizedCallNumbers=={value}, TK5105.88815.A58 2004 FT MEADE",
     "items.normalizedCallNumbers=={value}, TK5105.88815",
-    "item.fullCallNumber=={value}, prefix-90000 TK51*",
-    "item.effectiveCallNumberComponents=={value}, *suffix-10101",
-    "item.normalizedCallNumbers=={value}, prefix-90000",
-    "item.normalizedCallNumbers=={value}, prefix90000",
-    "item.normalizedCallNumbers=={value}, prefix.9",
+    "item.fullCallNumber=={value}, REF TK51*",
+    "item.effectiveCallNumberComponents=={value}, *c.2",
+    "item.normalizedCallNumbers=={value}, REF",
     "item.normalizedCallNumbers=={value}, TK5105.88815.A58 2004 FT MEADE",
     "item.normalizedCallNumbers=={value}, TK5105.88815",
-    "itemNormalizedCallNumbers=={value}, prefix-90000",
-    "itemNormalizedCallNumbers=={value}, prefix90000",
-    "itemNormalizedCallNumbers=={value}, prefix.9",
+    "itemNormalizedCallNumbers=={value}, REF",
     "itemNormalizedCallNumbers=={value}, TK5105.88815.A58 2004 FT MEADE",
     "itemNormalizedCallNumbers=={value}, TK5105.88815",
-    "itemNormalizedCallNumbers=={value}, prefix90000 TK510588815",
+    "itemNormalizedCallNumbers=={value}, REF TK510588815",
     "itemNormalizedCallNumbers=={value}, tk510588815",
-    "itemNormalizedCallNumbers=={value}, TK5105.88815.A58 2004 FT MEADE suffix-90000",
-    "itemNormalizedCallNumbers=={value}, TK510588815A582004FT MEADE suffix90000"
+    "itemNormalizedCallNumbers=={value}, TK5105.88815.A58 2004 FT MEADE c.2",
+    "itemNormalizedCallNumbers=={value}, TK510588815A582004FT MEADE c2"
   })
   @ParameterizedTest(name = "[{index}] {0}: {1}")
   void canSearchByItems_wildcardMatch(String query, String value) throws Throwable {
-    doSearchByInstances(prepareQuery(query, value))
+    doSearchInstances(prepareQuery(query, value), TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(1)))
-      .andExpect(jsonPath("instances[0].id", is(getSemanticWebId())));
+      .andExpect(jsonPath("instances[0].id", is(EXPECTED_INSTANCE_ID)));
   }
 
   @CsvSource({
@@ -78,7 +57,7 @@ class SearchItemIT extends BaseIntegrationTest {
   })
   @ParameterizedTest(name = "[{index}] {0}: {1}")
   void canSearchByItems_negative(String query, String value) throws Throwable {
-    doSearchByInstances(prepareQuery(query, value))
+    doSearchInstances(prepareQuery(query, value), TENANT_ID)
       .andExpect(jsonPath("totalRecords", is(0)));
   }
 }

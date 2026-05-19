@@ -1,6 +1,6 @@
 {
   "name": "location",
-  "eventBodyJavaClass": "org.folio.search.model.dto.LocationDto",
+  "eventBodyJavaClass": "org.folio.search.model.dto.location.LocationDto",
   "reindexSupported": true,
   "fields": {
     "id": {

@@ -50,6 +50,8 @@ import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthorityBrowseItem;
+import org.folio.search.domain.dto.CallNumberBrowseItem;
+import org.folio.search.domain.dto.CallNumberBrowseResult;
 import org.folio.search.domain.dto.ClassificationNumberBrowseItem;
 import org.folio.search.domain.dto.ClassificationNumberBrowseResult;
 import org.folio.search.domain.dto.Facet;
@@ -189,41 +191,72 @@ public class TestUtils {
 
   public static ClassificationNumberBrowseItem classificationBrowseItem(String number, String typeId,
                                                                         Integer totalRecords) {
-    return classificationBrowseItem(number, typeId, totalRecords, null, null, null);
+    return classificationBrowseItem(number, typeId, totalRecords, null);
   }
 
   public static ClassificationNumberBrowseItem classificationBrowseItem(String number, String typeId,
                                                                         Integer totalRecords, Boolean isAnchor) {
-    return classificationBrowseItem(number, typeId, totalRecords, null, isAnchor, null);
+    return classificationBrowseItem(number, typeId, totalRecords, null, isAnchor);
   }
 
   public static ClassificationNumberBrowseItem classificationBrowseItem(String number, String typeId,
                                                                         Integer totalRecords, String instanceTitle,
-                                                                        Boolean isAnchor) {
-    return classificationBrowseItem(number, typeId, totalRecords, instanceTitle, isAnchor, null);
-  }
-
-  public static ClassificationNumberBrowseItem classificationBrowseItem(String number, String typeId,
-                                                                        Integer totalRecords, String instanceTitle) {
-    return classificationBrowseItem(number, typeId, totalRecords, instanceTitle, null, null);
-  }
-
-  public static ClassificationNumberBrowseItem classificationBrowseItem(String number, String typeId,
-                                                                        Integer totalRecords, String instanceTitle,
-                                                                        List<String> contributors) {
+                                                                        String... contributors) {
     return classificationBrowseItem(number, typeId, totalRecords, instanceTitle, null, contributors);
   }
 
   public static ClassificationNumberBrowseItem classificationBrowseItem(String number, String typeId,
                                                                         Integer totalRecords, String instanceTitle,
-                                                                        Boolean isAnchor, List<String> contributors) {
+                                                                        Boolean isAnchor, String... contributors) {
     return new ClassificationNumberBrowseItem()
       .classificationNumber(number)
       .classificationTypeId(typeId)
       .totalRecords(totalRecords)
       .instanceTitle(instanceTitle)
       .isAnchor(isAnchor)
-      .instanceContributors(contributors);
+      .instanceContributors(contributors == null || contributors.length == 0 ? null : asList(contributors));
+  }
+
+  public static CallNumberBrowseResult cnBrowseResult(String prev, String next, int totalRecords,
+                                                      List<CallNumberBrowseItem> items) {
+    return new CallNumberBrowseResult().prev(prev).next(next).items(items).totalRecords(totalRecords);
+  }
+
+  public static CallNumberBrowseItem cnEmptyBrowseItem(String callNumber) {
+    return new CallNumberBrowseItem().fullCallNumber(callNumber).isAnchor(true).totalRecords(0);
+  }
+
+  public static CallNumberBrowseItem cnBrowseItem(String callNumber, String typeId, int count, String title) {
+    return cnBrowseItemInternal(callNumber, null, null, typeId, count, title, null);
+  }
+
+  public static CallNumberBrowseItem cnBrowseItem(String callNumber, String typeId, int count, String title,
+                                                  boolean isAnchor) {
+    return cnBrowseItemInternal(callNumber, null, null, typeId, count, title, isAnchor);
+  }
+
+  public static CallNumberBrowseItem cnBrowseItem(String callNumber, String prefix, String suffix, String typeId,
+                                                  int count, String title) {
+    return cnBrowseItemInternal(callNumber, prefix, suffix, typeId, count, title, null);
+  }
+
+  public static CallNumberBrowseItem cnBrowseItem(String callNumber, String prefix, String suffix, String typeId,
+                                                  int count, String title, boolean isAnchor) {
+    return cnBrowseItemInternal(callNumber, prefix, suffix, typeId, count, title, isAnchor);
+  }
+
+  private static CallNumberBrowseItem cnBrowseItemInternal(String callNumber, String prefix, String suffix,
+                                                           String typeId, int count, String title, Boolean isAnchor) {
+    var fullCallNumber = suffix != null ? callNumber + " " + suffix : callNumber;
+    return new CallNumberBrowseItem()
+      .fullCallNumber(fullCallNumber)
+      .callNumber(callNumber)
+      .callNumberPrefix(prefix)
+      .callNumberSuffix(suffix)
+      .callNumberTypeId(typeId)
+      .instanceTitle(title)
+      .totalRecords(count)
+      .isAnchor(isAnchor);
   }
 
   public static InstanceContributorBrowseItem contributorBrowseItem(Integer totalRecords, String name,
@@ -426,11 +459,11 @@ public class TestUtils {
     return new ResourceEvent().resourceName(resource.getName()).type(type).tenant(tenant)._new(n);
   }
 
-  public static ResourceEvent kafkaResourceEvent(ResourceEventType type, Object newData, Object oldData) {
-    return kafkaResourceEvent(TENANT_ID, type, newData, oldData);
+  public static ResourceEvent resourceEvent(ResourceEventType type, Object n, Object o) {
+    return resourceEvent(TENANT_ID, type, n, o);
   }
 
-  public static ResourceEvent kafkaResourceEvent(String tenant, ResourceEventType type, Object n, Object o) {
+  public static ResourceEvent resourceEvent(String tenant, ResourceEventType type, Object n, Object o) {
     return new ResourceEvent().type(type).tenant(tenant)._new(n).old(o);
   }
 

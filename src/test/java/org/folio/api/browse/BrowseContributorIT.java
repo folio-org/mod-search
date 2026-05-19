@@ -1,142 +1,81 @@
 package org.folio.api.browse;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.await;
-import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
-import static org.awaitility.Durations.ONE_MINUTE;
-import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CONTRIBUTORS;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.instanceContributorBrowsePath;
-import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
-import static org.folio.support.base.ApiEndpoints.recordFacetsPath;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
 import static org.folio.support.utils.TestUtils.array;
 import static org.folio.support.utils.TestUtils.contributorBrowseItem;
-import static org.folio.support.utils.TestUtils.facet;
-import static org.folio.support.utils.TestUtils.facetItem;
-import static org.folio.support.utils.TestUtils.mapOf;
-import static org.folio.support.utils.TestUtils.randomId;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
-import org.folio.search.domain.dto.Contributor;
 import org.folio.search.domain.dto.ContributorBrowseResult;
-import org.folio.search.domain.dto.Facet;
-import org.folio.search.domain.dto.FacetResult;
-import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.RecordType;
-import org.folio.search.model.types.ReindexEntityType;
-import org.folio.search.model.types.ResourceType;
-import org.folio.search.service.reindex.jdbc.SubResourcesLockRepository;
-import org.folio.spring.testing.type.IntegrationTest;
-import org.folio.support.base.BaseIntegrationTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.TestPropertySource;
 
-@IntegrationTest
-@TestPropertySource(properties = "folio.search-config.indexing.instance-children-index-enabled=true")
-class BrowseContributorIT extends BaseIntegrationTest {
+public abstract class BrowseContributorIT extends BaseSharedTest {
 
   private static final String[] NAME_TYPE_IDS =
-    array("e2ef4075-310a-4447-a231-712bf10cc985", "0ad0a89a-741d-4f1a-85a6-ada214751013",
-      "1f857623-89ca-4f0b-ab56-5c30f706df3e");
+    array("e2ef4075-310a-4447-a231-712bf10cc985",
+      "0ad0a89a-741d-4f1a-85a6-ada214751013",
+      "1f857623-89ca-4f0b-ab56-5c30f706df3e",
+      "2b94c631-fca9-4892-a730-03ee529ffe2a",
+      "9fb7f83e-260e-479f-9539-dfd9a628b858");
+
   private static final String[] TYPE_IDS =
-    array("2a165833-1673-493f-934b-f3d3c8fcb299", "3ae36e29-e38f-457c-8fcf-1974a6cb63d3",
-      "653ffe66-aa3f-4f1c-a090-c42c4011ef40");
+    array("2a165833-1673-493f-934b-f3d3c8fcb299",
+      "3ae36e29-e38f-457c-8fcf-1974a6cb63d3",
+      "653ffe66-aa3f-4f1c-a090-c42c4011ef40",
+      "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+      "9deb29d1-3e71-4951-9413-a80adac703d0");
+
   private static final String[] AUTHORITY_IDS =
-    array("0a4c6d10-2161-4f64-aace-9e919489b6c9", "7ff32633-cc49-4332-870a-b05e329d2a2d");
-  private static final Instance[] INSTANCES = instances();
-
-  @BeforeAll
-  static void prepare(@Autowired SubResourcesLockRepository subResourcesLockRepository) {
-    setUpTenant();
-
-    enableFeature(BROWSE_CONTRIBUTORS);
-
-    var timestamp = subResourcesLockRepository.lockSubResource(ReindexEntityType.CONTRIBUTOR, TENANT_ID);
-    if (timestamp.isEmpty()) {
-      throw new IllegalStateException("Unexpected state of database: unable to lock contributor resource");
-    }
-
-    saveRecords(TENANT_ID, instanceSearchPath(), asList(INSTANCES), INSTANCES.length, emptyList(),
-      instance -> inventoryApi.createInstance(TENANT_ID, instance));
-
-    // this is needed to test deleting contributors when all instances are unlinked from a contributor
-    var instanceToUpdate = INSTANCES[0];
-    instanceToUpdate.setContributors(Collections.emptyList());
-    inventoryApi.updateInstance(TENANT_ID, instanceToUpdate);
-
-    subResourcesLockRepository.unlockSubResource(ReindexEntityType.CONTRIBUTOR, timestamp.get(), TENANT_ID);
-
-    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() -> {
-      var counted = countIndexDocument(ResourceType.INSTANCE_CONTRIBUTOR, TENANT_ID);
-      assertThat(counted).isEqualTo(13);
-    });
-  }
-
-  @AfterAll
-  static void cleanUp() {
-    removeTenant();
-  }
+    array("0a4c6d10-2161-4f64-aace-9e919489b6c9",
+      "7ff32633-cc49-4332-870a-b05e329d2a2d",
+      "55294032-fcf6-45cc-b6da-4420a61ef72e");
 
   @MethodSource("contributorBrowsingDataProvider")
   @DisplayName("browseByContributor_parameterized")
   @ParameterizedTest(name = "[{index}] query={0}, value=''{1}'', limit={2}")
   void browseByContributor_parameterized(String query, String anchor, Integer limit,
                                          ContributorBrowseResult expected) {
-    var request = get(instanceContributorBrowsePath()).param("query", prepareQuery(query, '"' + anchor + '"'))
-      .param("limit", String.valueOf(limit));
+    var request = get(instanceContributorBrowsePath()).param(QUERY_PARAM, prepareQuery(query, '"' + anchor + '"'))
+      .param(LIMIT_PARAM, String.valueOf(limit));
 
-    var actual = parseResponse(doGet(request), ContributorBrowseResult.class);
-    assertThat(actual).isEqualTo(expected);
+    var actual = parseResponse(doGet(request, TENANT_ID), ContributorBrowseResult.class);
+    assertThat(actual)
+      .as("Contributor browse result should match expected for query='%s', anchor='%s'", query, anchor)
+      .isEqualTo(expected);
   }
 
   @Test
   void browseByContributor_withNameTypeFilter() {
-    var request = get(instanceContributorBrowsePath()).param("query",
+    var request = get(instanceContributorBrowsePath()).param(QUERY_PARAM,
       "(" + prepareQuery("name >= {value} or name < {value}", '"' + "John Lennon" + '"') + ") "
-      + "and contributorNameTypeId==" + NAME_TYPE_IDS[0]).param("limit", "5");
+      + "and contributorNameTypeId==" + NAME_TYPE_IDS[0]).param(LIMIT_PARAM, "5");
 
-    var actual = parseResponse(doGet(request), ContributorBrowseResult.class);
-    var expected = new ContributorBrowseResult().totalRecords(5).prev(null).next("Paul McCartney").items(
+    var actual = parseResponse(doGet(request, TENANT_ID), ContributorBrowseResult.class);
+    // Only 6 browse items have nameTypeId = e2ef4075 in the shared test dataset:
+    // Anthony Kiedis, Bon Jovi, Darth Vader, Klaus Meine, Paul McCartney×2
+    // "John Lennon" does not exist with this nameType, so it becomes a placeholder.
+    // Darth Vader is now between Bon Jovi and John Lennon alphabetically.
+    var expected = new ContributorBrowseResult().totalRecords(6).prev("Bon Jovi").next("Paul McCartney").items(
       List.of(
-        contributorBrowseItem(1, "Anthony Kiedis", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[0]),
         contributorBrowseItem(2, "Bon Jovi", NAME_TYPE_IDS[0], AUTHORITY_IDS[0], TYPE_IDS[0], TYPE_IDS[1], TYPE_IDS[2]),
+        contributorBrowseItem(1, "Darth Vader", NAME_TYPE_IDS[0], AUTHORITY_IDS[0], TYPE_IDS[0]),
         contributorBrowseItem(0, true, "John Lennon"),
         contributorBrowseItem(2, "Klaus Meine", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[0], TYPE_IDS[1]),
         contributorBrowseItem(2, "Paul McCartney", NAME_TYPE_IDS[0], AUTHORITY_IDS[0], TYPE_IDS[0], TYPE_IDS[1])));
 
-    assertThat(actual).isEqualTo(expected);
-  }
-
-  @MethodSource("facetQueriesProvider")
-  @ParameterizedTest(name = "[{index}] query={0}, facets={1}")
-  @DisplayName("getFacetsForContributors_parameterized")
-  void getFacetsForContributors_parameterized(String query, String[] facets, Map<String, Facet> expected) {
-    var request = doGet(recordFacetsPath(RecordType.CONTRIBUTORS, query, facets));
-    var actual = parseResponse(request, FacetResult.class);
-
-    expected.forEach((facetName, expectedFacet) -> {
-      assertNotNull(actual.getFacets());
-      var actualFacet = actual.getFacets().get(facetName);
-
-      assertThat(actualFacet).isNotNull();
-      assertThat(actualFacet.getValues()).containsExactlyInAnyOrderElementsOf(expectedFacet.getValues());
-    });
+    assertThat(actual)
+      .as("Contributor browse result should match expected when filtered by name type ID")
+      .isEqualTo(expected);
   }
 
   @SuppressWarnings("checkstyle:MethodLength")
@@ -148,212 +87,170 @@ class BrowseContributorIT extends BaseIntegrationTest {
     var backwardQuery = "name < {value}";
     var backwardIncludingQuery = "name <= {value}";
 
-    return Stream.of(arguments(aroundQuery, "John", 5,
-        new ContributorBrowseResult().totalRecords(13).prev("Bon Jovi").next("John Lennon").items(List.of(
-          contributorBrowseItem(1, "Bon Jovi", NAME_TYPE_IDS[1], AUTHORITY_IDS[1], TYPE_IDS[0]),
-          contributorBrowseItem(2, "George Harrison", NAME_TYPE_IDS[1], AUTHORITY_IDS[0], TYPE_IDS[2]),
+    return Stream.of(
+      // around query: "John" is between "Jane Kowalski" and "John Lennon"
+      arguments(aroundQuery, "John", 5,
+        new ContributorBrowseResult().totalRecords(68).prev("Jackson, Mark B.").next("John Lennon").items(List.of(
+          contributorBrowseItem(2, "Jackson, Mark B.", NAME_TYPE_IDS[3], null, TYPE_IDS[3]),
+          contributorBrowseItem(1, "Jane Kowalski", NAME_TYPE_IDS[3], AUTHORITY_IDS[2], TYPE_IDS[3]),
           contributorBrowseItem(0, true, "John"),
           contributorBrowseItem(2, "John Lennon", NAME_TYPE_IDS[2], AUTHORITY_IDS[1], TYPE_IDS[0]),
           contributorBrowseItem(1, "John Lennon", NAME_TYPE_IDS[2], null, TYPE_IDS[0])))),
 
-      arguments(aroundQuery, "Lenon", 5,
-        new ContributorBrowseResult().totalRecords(13).prev("Klaus Meine").next("Paul McCartney").items(List.of(
-          contributorBrowseItem(1, "Klaus Meine", NAME_TYPE_IDS[1], AUTHORITY_IDS[0]),
+      // around query: "Klausy" sits between the two Klaus Meine items and "Lee, Christopher Z."
+      arguments(aroundQuery, "Klausy", 5,
+        new ContributorBrowseResult().totalRecords(68).prev("Klaus Meine").next("Lewis, Sharon M.").items(List.of(
+          contributorBrowseItem(1, "Klaus Meine", NAME_TYPE_IDS[1], AUTHORITY_IDS[0], TYPE_IDS[3]),
           contributorBrowseItem(2, "Klaus Meine", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[0], TYPE_IDS[1]),
+          contributorBrowseItem(0, true, "Klausy"),
+          contributorBrowseItem(4, "Lee, Christopher Z.", NAME_TYPE_IDS[3], null, TYPE_IDS[3]),
+          contributorBrowseItem(2, "Lewis, Sharon M.", NAME_TYPE_IDS[3], null, TYPE_IDS[3])))),
+
+      // aroundIncluding query: "Lenon" is between "Lee, Christopher Z." and "Lewis, Sharon M."
+      arguments(aroundIncludingQuery, "Lenon", 5,
+        new ContributorBrowseResult().totalRecords(68).prev("Klaus Meine").next("Lopez, Margaret Y.").items(List.of(
+          contributorBrowseItem(2, "Klaus Meine", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[0], TYPE_IDS[1]),
+          contributorBrowseItem(4, "Lee, Christopher Z.", NAME_TYPE_IDS[3], null, TYPE_IDS[3]),
           contributorBrowseItem(0, true, "Lenon"),
-          contributorBrowseItem(2, "Paul McCartney", NAME_TYPE_IDS[0], AUTHORITY_IDS[0], TYPE_IDS[0], TYPE_IDS[1]),
-          contributorBrowseItem(1, "Paul McCartney", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[2])))),
+          contributorBrowseItem(2, "Lewis, Sharon M.", NAME_TYPE_IDS[3], null, TYPE_IDS[3]),
+          contributorBrowseItem(3, "Lopez, Margaret Y.", NAME_TYPE_IDS[3], null, TYPE_IDS[3],
+            TYPE_IDS[4])))),
 
-      arguments(aroundIncludingQuery, "Meine", 5,
-        new ContributorBrowseResult().totalRecords(13).prev("Klaus Meine").next("Paul McCartney").items(List.of(
-          contributorBrowseItem(1, "Klaus Meine", NAME_TYPE_IDS[1], AUTHORITY_IDS[0]),
-          contributorBrowseItem(2, "Klaus Meine", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[0], TYPE_IDS[1]),
-          contributorBrowseItem(0, true, "Meine"),
-          contributorBrowseItem(2, "Paul McCartney", NAME_TYPE_IDS[0], AUTHORITY_IDS[0], TYPE_IDS[0], TYPE_IDS[1]),
-          contributorBrowseItem(1, "Paul McCartney", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[2])))),
-
+      // aroundIncluding: exact match "Klaus Meine" — both items are returned as anchor
       arguments(aroundIncludingQuery, "Klaus Meine", 5,
-        new ContributorBrowseResult().totalRecords(13).prev("John Lennon").next("Paul McCartney").items(List.of(
-          contributorBrowseItem(2, "John Lennon", NAME_TYPE_IDS[2], AUTHORITY_IDS[1], TYPE_IDS[0]),
-          contributorBrowseItem(1, "John Lennon", NAME_TYPE_IDS[2], null, TYPE_IDS[0]),
-          contributorBrowseItem(1, true, "Klaus Meine", NAME_TYPE_IDS[1], AUTHORITY_IDS[0]),
-          contributorBrowseItem(2, true, "Klaus Meine", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[0], TYPE_IDS[1]),
-          contributorBrowseItem(2, "Paul McCartney", NAME_TYPE_IDS[0], AUTHORITY_IDS[0], TYPE_IDS[0], TYPE_IDS[1])))),
+        new ContributorBrowseResult().totalRecords(68).prev("Jones, Michael D.").next("Lee, Christopher Z.").items(
+          List.of(
+            contributorBrowseItem(2, "Jones, Michael D.", NAME_TYPE_IDS[3], null, TYPE_IDS[3]),
+            contributorBrowseItem(1, "King, Jason H.", NAME_TYPE_IDS[3], null, TYPE_IDS[3]),
+            contributorBrowseItem(1, true, "Klaus Meine", NAME_TYPE_IDS[1], AUTHORITY_IDS[0], TYPE_IDS[3]),
+            contributorBrowseItem(2, true, "Klaus Meine", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[0], TYPE_IDS[1]),
+            contributorBrowseItem(4, "Lee, Christopher Z.", NAME_TYPE_IDS[3], null, TYPE_IDS[3])))),
 
-      arguments(aroundIncludingQuery, "Zak", 30,
-        new ContributorBrowseResult().totalRecords(13).prev(null).next(null).items(List.of(
-          contributorBrowseItem(1, "Anthony Kiedis", NAME_TYPE_IDS[1], AUTHORITY_IDS[1], TYPE_IDS[2]),
-          contributorBrowseItem(1, "Anthony Kiedis", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[0]),
-          contributorBrowseItem(2, "Bon Jovi", NAME_TYPE_IDS[0], AUTHORITY_IDS[0],
-            TYPE_IDS[0], TYPE_IDS[1], TYPE_IDS[2]),
-          contributorBrowseItem(1, "Bon Jovi", NAME_TYPE_IDS[1], AUTHORITY_IDS[1], TYPE_IDS[0]),
-          contributorBrowseItem(2, "George Harrison", NAME_TYPE_IDS[1], AUTHORITY_IDS[0], TYPE_IDS[2]),
-          contributorBrowseItem(2, "John Lennon", NAME_TYPE_IDS[2], AUTHORITY_IDS[1], TYPE_IDS[0]),
-          contributorBrowseItem(1, "John Lennon", NAME_TYPE_IDS[2], null, TYPE_IDS[0]),
-          contributorBrowseItem(1, "Klaus Meine", NAME_TYPE_IDS[1], AUTHORITY_IDS[0]),
-          contributorBrowseItem(2, "Klaus Meine", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[0], TYPE_IDS[1]),
-          contributorBrowseItem(2, "Paul McCartney", NAME_TYPE_IDS[0], AUTHORITY_IDS[0], TYPE_IDS[0], TYPE_IDS[1]),
-          contributorBrowseItem(1, "Paul McCartney", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[2]),
-          contributorBrowseItem(2, "Ringo Starr", NAME_TYPE_IDS[1], AUTHORITY_IDS[1], TYPE_IDS[0], TYPE_IDS[1]),
-          contributorBrowseItem(1, "Wi\\lly \\ Wonka", null, null),
-          contributorBrowseItem(0, true, "Zak")))),
+      // aroundIncluding: "Bon Jovi" with wide window shows band-member items and regular contributors
+      arguments(aroundIncludingQuery, "Bon Jovi", 10,
+        new ContributorBrowseResult().totalRecords(68).prev("Anthony Kiedis").next("Carter, Julie W.").items(
+          List.of(
+            contributorBrowseItem(1, "Anthony Kiedis", NAME_TYPE_IDS[1], AUTHORITY_IDS[1], TYPE_IDS[2]),
+            contributorBrowseItem(1, "Anthony Kiedis", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[0]),
+            contributorBrowseItem(2, "Baker, Raymond R.", NAME_TYPE_IDS[3], null, TYPE_IDS[3]),
+            contributorBrowseItem(1, "bbb ccc", NAME_TYPE_IDS[3], null, TYPE_IDS[3]),
+            contributorBrowseItem(1, "bcc ccc", NAME_TYPE_IDS[3], null, TYPE_IDS[3]),
+            contributorBrowseItem(2, true, "Bon Jovi", NAME_TYPE_IDS[0], AUTHORITY_IDS[0],
+              TYPE_IDS[0], TYPE_IDS[1], TYPE_IDS[2]),
+            contributorBrowseItem(1, true, "Bon Jovi", NAME_TYPE_IDS[1], AUTHORITY_IDS[1], TYPE_IDS[0]),
+            contributorBrowseItem(1, "Brown, Patricia K.", NAME_TYPE_IDS[3], null, TYPE_IDS[4]),
+            contributorBrowseItem(1, "Campbell, Melissa U.", NAME_TYPE_IDS[3], null, TYPE_IDS[4]),
+            contributorBrowseItem(2, "Carter, Julie W.", NAME_TYPE_IDS[3], null, TYPE_IDS[3])))),
 
+      // aroundIncluding: "PMC" falls between Paul McCartney entries and Ringo Starr
       arguments(aroundIncludingQuery, "PMC", 5,
-        new ContributorBrowseResult().totalRecords(13).prev("Paul McCartney").next(null).items(List.of(
-          contributorBrowseItem(2, "Paul McCartney", NAME_TYPE_IDS[0], AUTHORITY_IDS[0], TYPE_IDS[0], TYPE_IDS[1]),
-          contributorBrowseItem(1, "Paul McCartney", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[2]),
-          contributorBrowseItem(0, true, "PMC"),
-          contributorBrowseItem(2, "Ringo Starr", NAME_TYPE_IDS[1], AUTHORITY_IDS[1], TYPE_IDS[0], TYPE_IDS[1]),
-          contributorBrowseItem(1, "Wi\\lly \\ Wonka", null, null)))),
+        new ContributorBrowseResult().totalRecords(68).prev("Paul McCartney").next("Rivera, Anthony T.").items(
+          List.of(
+            contributorBrowseItem(1, "Paul McCartney", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[2]),
+            contributorBrowseItem(4, "Phillips, Rachel Z.", NAME_TYPE_IDS[3], null, TYPE_IDS[3]),
+            contributorBrowseItem(0, true, "PMC"),
+            contributorBrowseItem(2, "Ringo Starr", NAME_TYPE_IDS[1], AUTHORITY_IDS[1], TYPE_IDS[0], TYPE_IDS[1]),
+            contributorBrowseItem(1, "Rivera, Anthony T.", NAME_TYPE_IDS[3], null, TYPE_IDS[3])))),
 
-      arguments(aroundIncludingQuery, "a", 5,
-        new ContributorBrowseResult().totalRecords(13).prev(null).next("Anthony Kiedis").items(List.of(
-          contributorBrowseItem(0, true, "a"),
-          contributorBrowseItem(1, "Anthony Kiedis", NAME_TYPE_IDS[1], AUTHORITY_IDS[1], TYPE_IDS[2]),
-          contributorBrowseItem(1, "Anthony Kiedis", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[0])))),
+      // aroundIncluding: "0" is before all contributors — no preceding items, prev=null
+      arguments(aroundIncludingQuery, "0", 3,
+        new ContributorBrowseResult().totalRecords(68).prev(null).next("1111 2222").items(List.of(
+          contributorBrowseItem(0, true, "0"),
+          contributorBrowseItem(1, "1111 2222", NAME_TYPE_IDS[3], null, TYPE_IDS[3])))),
 
-      arguments(aroundIncludingQuery, "z", 5,
-        new ContributorBrowseResult().totalRecords(13).prev("Ringo Starr").next(null).items(List.of(
-          contributorBrowseItem(2, "Ringo Starr", NAME_TYPE_IDS[1], AUTHORITY_IDS[1], TYPE_IDS[0], TYPE_IDS[1]),
-          contributorBrowseItem(1, "Wi\\lly \\ Wonka", null, null),
-          contributorBrowseItem(0, true, "z")))),
+      // aroundIncluding: "Young, Steven F." is near the end of the index — next=null
+      arguments(aroundIncludingQuery, "Young, Steven F.", 5,
+        new ContributorBrowseResult().totalRecords(68).prev("Wilson, James F.").next(null).items(List.of(
+          contributorBrowseItem(2, "Wilson, James F.", NAME_TYPE_IDS[3], null, TYPE_IDS[3], TYPE_IDS[4]),
+          contributorBrowseItem(2, "Wright, Lisa I.", NAME_TYPE_IDS[3], null, TYPE_IDS[3]),
+          contributorBrowseItem(2, true, "Young, Steven F.", NAME_TYPE_IDS[3], null,
+            TYPE_IDS[3], TYPE_IDS[4]),
+          contributorBrowseItem(1, "yyy zzz", NAME_TYPE_IDS[3], null, TYPE_IDS[3])))),
 
+      // aroundIncluding: contributor with backslashes in name
       arguments(aroundIncludingQuery, "Wi\\\\lly \\\\ Wonka", 5,
-        new ContributorBrowseResult().totalRecords(13).prev("Paul McCartney").next(null).items(List.of(
-          contributorBrowseItem(1, "Paul McCartney", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[2]),
-          contributorBrowseItem(2, "Ringo Starr", NAME_TYPE_IDS[1], AUTHORITY_IDS[1], TYPE_IDS[0], TYPE_IDS[1]),
-          contributorBrowseItem(1, true, "Wi\\lly \\ Wonka", null, null)))),
+        new ContributorBrowseResult().totalRecords(68).prev("Walker, Donna E.").next("Wilson, James F.").items(
+          List.of(
+            contributorBrowseItem(1, "Walker, Donna E.", NAME_TYPE_IDS[3], null, TYPE_IDS[3]),
+            contributorBrowseItem(2, "White, Daniel P.", NAME_TYPE_IDS[3], null, TYPE_IDS[3]),
+            contributorBrowseItem(1, true, "Wi\\lly \\ Wonka", NAME_TYPE_IDS[3], null, TYPE_IDS[3]),
+            contributorBrowseItem(4, "Williams, Robert T.", NAME_TYPE_IDS[3], null, TYPE_IDS[3]),
+            contributorBrowseItem(2, "Wilson, James F.", NAME_TYPE_IDS[3], null,
+              TYPE_IDS[3], TYPE_IDS[4])))),
 
-      // browsing forward
+      // browsing forward: from "ringo" shows Ringo Starr and next regular contributors
       arguments(forwardQuery, "ringo", 5,
-        new ContributorBrowseResult().totalRecords(13).prev("Ringo Starr").next(null).items(List.of(
+        new ContributorBrowseResult().totalRecords(68).prev("Ringo Starr").next("Scott, Matthew J.").items(List.of(
           contributorBrowseItem(2, "Ringo Starr", NAME_TYPE_IDS[1], AUTHORITY_IDS[1], TYPE_IDS[0], TYPE_IDS[1]),
-          contributorBrowseItem(1, "Wi\\lly \\ Wonka", null, null)))),
+          contributorBrowseItem(1, "Rivera, Anthony T.", NAME_TYPE_IDS[3], null, TYPE_IDS[3]),
+          contributorBrowseItem(2, "Roberts, Alan X.", NAME_TYPE_IDS[3], null, TYPE_IDS[3], TYPE_IDS[4]),
+          contributorBrowseItem(1, "Robinson, Paul D.", NAME_TYPE_IDS[3], null, TYPE_IDS[3]),
+          contributorBrowseItem(3, "Scott, Matthew J.", NAME_TYPE_IDS[3], null, TYPE_IDS[3])))),
 
-      arguments(forwardQuery, "anthony", 5, new ContributorBrowseResult()
-        .totalRecords(13).prev("Anthony Kiedis").next("George Harrison").items(List.of(
+      // browsing forward: from "anthony" shows Anthony Kiedis (both entries) and next contributors
+      arguments(forwardQuery, "anthony", 5,
+        new ContributorBrowseResult().totalRecords(68).prev("Anthony Kiedis").next("bcc ccc").items(List.of(
           contributorBrowseItem(1, "Anthony Kiedis", NAME_TYPE_IDS[1], AUTHORITY_IDS[1], TYPE_IDS[2]),
           contributorBrowseItem(1, "Anthony Kiedis", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[0]),
-          contributorBrowseItem(2, "Bon Jovi", NAME_TYPE_IDS[0], AUTHORITY_IDS[0],
-            TYPE_IDS[0], TYPE_IDS[1], TYPE_IDS[2]),
-          contributorBrowseItem(1, "Bon Jovi", NAME_TYPE_IDS[1], AUTHORITY_IDS[1], TYPE_IDS[0]),
-          contributorBrowseItem(2, "George Harrison", NAME_TYPE_IDS[1], AUTHORITY_IDS[0], TYPE_IDS[2])))),
+          contributorBrowseItem(2, "Baker, Raymond R.", NAME_TYPE_IDS[3], null, TYPE_IDS[3]),
+          contributorBrowseItem(1, "bbb ccc", NAME_TYPE_IDS[3], null, TYPE_IDS[3]),
+          contributorBrowseItem(1, "bcc ccc", NAME_TYPE_IDS[3], null, TYPE_IDS[3])))),
 
-      arguments(forwardQuery, "Z", 10, new ContributorBrowseResult().totalRecords(13).items(null)),
+      // browsing forward from "Z": nothing in index after "Z" — items=null
+      arguments(forwardQuery, "Z", 10, new ContributorBrowseResult().totalRecords(68).items(null)),
 
+      // forwardIncluding: same result as forward "ringo" since "Ringo Starr" != "ringo"
       arguments(forwardIncludingQuery, "Ringo Starr", 5,
-        new ContributorBrowseResult().totalRecords(13).prev("Ringo Starr").next(null).items(List.of(
+        new ContributorBrowseResult().totalRecords(68).prev("Ringo Starr").next("Scott, Matthew J.").items(List.of(
           contributorBrowseItem(2, "Ringo Starr", NAME_TYPE_IDS[1], AUTHORITY_IDS[1], TYPE_IDS[0], TYPE_IDS[1]),
-          contributorBrowseItem(1, "Wi\\lly \\ Wonka", null, null)))),
+          contributorBrowseItem(1, "Rivera, Anthony T.", NAME_TYPE_IDS[3], null, TYPE_IDS[3]),
+          contributorBrowseItem(2, "Roberts, Alan X.", NAME_TYPE_IDS[3], null, TYPE_IDS[3], TYPE_IDS[4]),
+          contributorBrowseItem(1, "Robinson, Paul D.", NAME_TYPE_IDS[3], null, TYPE_IDS[3]),
+          contributorBrowseItem(3, "Scott, Matthew J.", NAME_TYPE_IDS[3], null, TYPE_IDS[3])))),
 
-      arguments(forwardIncludingQuery, "anthony", 5, new ContributorBrowseResult()
-        .totalRecords(13).prev("Anthony Kiedis").next("George Harrison").items(List.of(
+      // forwardIncluding: same result as forward "anthony"
+      arguments(forwardIncludingQuery, "anthony", 5,
+        new ContributorBrowseResult().totalRecords(68).prev("Anthony Kiedis").next("bcc ccc").items(List.of(
           contributorBrowseItem(1, "Anthony Kiedis", NAME_TYPE_IDS[1], AUTHORITY_IDS[1], TYPE_IDS[2]),
           contributorBrowseItem(1, "Anthony Kiedis", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[0]),
-          contributorBrowseItem(2, "Bon Jovi", NAME_TYPE_IDS[0], AUTHORITY_IDS[0],
-            TYPE_IDS[0], TYPE_IDS[1], TYPE_IDS[2]),
-          contributorBrowseItem(1, "Bon Jovi", NAME_TYPE_IDS[1], AUTHORITY_IDS[1], TYPE_IDS[0]),
-          contributorBrowseItem(2, "George Harrison", NAME_TYPE_IDS[1], AUTHORITY_IDS[0], TYPE_IDS[2])))),
+          contributorBrowseItem(2, "Baker, Raymond R.", NAME_TYPE_IDS[3], null, TYPE_IDS[3]),
+          contributorBrowseItem(1, "bbb ccc", NAME_TYPE_IDS[3], null, TYPE_IDS[3]),
+          contributorBrowseItem(1, "bcc ccc", NAME_TYPE_IDS[3], null, TYPE_IDS[3])))),
 
-      // browsing backward
+      // browsing backward: from "Ringo Starr" shows 5 items ending at Phillips
       arguments(backwardQuery, "Ringo Starr", 5,
-        new ContributorBrowseResult().totalRecords(13).prev("John Lennon").next("Paul McCartney").items(List.of(
-          contributorBrowseItem(2, "John Lennon", NAME_TYPE_IDS[2], AUTHORITY_IDS[1], TYPE_IDS[0]),
-          contributorBrowseItem(1, "Klaus Meine", NAME_TYPE_IDS[1], AUTHORITY_IDS[0]),
-          contributorBrowseItem(2, "Klaus Meine", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[0], TYPE_IDS[1]),
-          contributorBrowseItem(2, "Paul McCartney", NAME_TYPE_IDS[0], AUTHORITY_IDS[0], TYPE_IDS[0], TYPE_IDS[1]),
-          contributorBrowseItem(1, "Paul McCartney", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[2])))),
+        new ContributorBrowseResult().totalRecords(68).prev("Nelson, Virginia Q.").next("Phillips, Rachel Z.").items(
+          List.of(
+            contributorBrowseItem(3, "Nelson, Virginia Q.", NAME_TYPE_IDS[3], null,
+              TYPE_IDS[3], TYPE_IDS[4]),
+            contributorBrowseItem(4, "Parker, George D.", NAME_TYPE_IDS[3], null, TYPE_IDS[3]),
+            contributorBrowseItem(2, "Paul McCartney", NAME_TYPE_IDS[0], AUTHORITY_IDS[0], TYPE_IDS[0], TYPE_IDS[1]),
+            contributorBrowseItem(1, "Paul McCartney", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[2]),
+            contributorBrowseItem(4, "Phillips, Rachel Z.", NAME_TYPE_IDS[3], null, TYPE_IDS[3])))),
 
+      // browsing backward from "R": same items as backward "Ringo Starr"
       arguments(backwardQuery, "R", 5,
-        new ContributorBrowseResult().totalRecords(13).prev("John Lennon").next("Paul McCartney").items(List.of(
-          contributorBrowseItem(2, "John Lennon", NAME_TYPE_IDS[2], AUTHORITY_IDS[1], TYPE_IDS[0]),
-          contributorBrowseItem(1, "Klaus Meine", NAME_TYPE_IDS[1], AUTHORITY_IDS[0]),
-          contributorBrowseItem(2, "Klaus Meine", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[0], TYPE_IDS[1]),
-          contributorBrowseItem(2, "Paul McCartney", NAME_TYPE_IDS[0], AUTHORITY_IDS[0], TYPE_IDS[0], TYPE_IDS[1]),
-          contributorBrowseItem(1, "Paul McCartney", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[2])))),
+        new ContributorBrowseResult().totalRecords(68).prev("Nelson, Virginia Q.").next("Phillips, Rachel Z.").items(
+          List.of(
+            contributorBrowseItem(3, "Nelson, Virginia Q.", NAME_TYPE_IDS[3], null,
+              TYPE_IDS[3], TYPE_IDS[4]),
+            contributorBrowseItem(4, "Parker, George D.", NAME_TYPE_IDS[3], null, TYPE_IDS[3]),
+            contributorBrowseItem(2, "Paul McCartney", NAME_TYPE_IDS[0], AUTHORITY_IDS[0], TYPE_IDS[0], TYPE_IDS[1]),
+            contributorBrowseItem(1, "Paul McCartney", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[2]),
+            contributorBrowseItem(4, "Phillips, Rachel Z.", NAME_TYPE_IDS[3], null, TYPE_IDS[3])))),
 
-      arguments(backwardQuery, "A", 10, new ContributorBrowseResult().totalRecords(13).items(null)),
+      // browsing backward from "0": "0" is before all contributors — items=null
+      arguments(backwardQuery, "0", 10, new ContributorBrowseResult().totalRecords(68).items(null)),
 
+      // backwardIncluding "ringo": same result as backward "Ringo Starr" (no exact match)
       arguments(backwardIncludingQuery, "ringo", 5,
-        new ContributorBrowseResult().totalRecords(13).prev("John Lennon").next("Paul McCartney").items(List.of(
-          contributorBrowseItem(2, "John Lennon", NAME_TYPE_IDS[2], AUTHORITY_IDS[1], TYPE_IDS[0]),
-          contributorBrowseItem(1, "Klaus Meine", NAME_TYPE_IDS[1], AUTHORITY_IDS[0]),
-          contributorBrowseItem(2, "Klaus Meine", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[0], TYPE_IDS[1]),
-          contributorBrowseItem(2, "Paul McCartney", NAME_TYPE_IDS[0], AUTHORITY_IDS[0], TYPE_IDS[0], TYPE_IDS[1]),
-          contributorBrowseItem(1, "Paul McCartney", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[2])))));
-  }
-
-  private static Instance[] instances() {
-    return contributorBrowseInstanceData().stream().map(BrowseContributorIT::instance).toArray(Instance[]::new);
-  }
-
-  @SuppressWarnings("unchecked")
-  private static Instance instance(List<Object> data) {
-    return new Instance().id(randomId()).title((String) data.get(0)).contributors((List<Contributor>) data.get(1))
-      .staffSuppress(false).discoverySuppress(false).holdings(emptyList());
-  }
-
-  @SuppressWarnings("checkstyle:MethodLength")
-  private static List<List<Object>> contributorBrowseInstanceData() {
-    return List.of(
-      // contributor is removed from instance on setup
-      List.of("instance #00", List.of(
-        contributor("Darth Vader", NAME_TYPE_IDS[0], AUTHORITY_IDS[0], TYPE_IDS[0])
-      )),
-      List.of("instance #01", List.of(
-        contributor("Bon Jovi", NAME_TYPE_IDS[0], AUTHORITY_IDS[0], TYPE_IDS[0]),
-        contributor("Klaus Meine", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[0]),
-        contributor("Anthony Kiedis", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[0])
-      )),
-      List.of("instance #02", List.of(
-        contributor("Bon Jovi", NAME_TYPE_IDS[1], AUTHORITY_IDS[1], TYPE_IDS[0]),
-        contributor("Klaus Meine", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[1]),
-        contributor("Anthony Kiedis", NAME_TYPE_IDS[1], AUTHORITY_IDS[1], TYPE_IDS[2])
-      )),
-      List.of("instance #03", List.of(
-        contributor("Bon Jovi", NAME_TYPE_IDS[0], AUTHORITY_IDS[0], TYPE_IDS[1]),
-        contributor("Bon Jovi", NAME_TYPE_IDS[0], AUTHORITY_IDS[0], TYPE_IDS[2]),
-        contributor("Klaus Meine", NAME_TYPE_IDS[1], AUTHORITY_IDS[0], null)
-      )),
-      List.of("instance #04", List.of(
-        contributor("John Lennon", NAME_TYPE_IDS[2], AUTHORITY_IDS[1], TYPE_IDS[0]),
-        contributor("Paul McCartney", NAME_TYPE_IDS[0], AUTHORITY_IDS[0], TYPE_IDS[0]),
-        contributor("George Harrison", NAME_TYPE_IDS[1], AUTHORITY_IDS[0], TYPE_IDS[2]),
-        contributor("Ringo Starr", NAME_TYPE_IDS[1], AUTHORITY_IDS[1], TYPE_IDS[0])
-      )),
-      List.of("instance #05", List.of(
-        contributor("John Lennon", NAME_TYPE_IDS[2], AUTHORITY_IDS[1], TYPE_IDS[0]),
-        contributor("Paul McCartney", NAME_TYPE_IDS[0], AUTHORITY_IDS[0], TYPE_IDS[1]),
-        contributor("George Harrison", NAME_TYPE_IDS[1], AUTHORITY_IDS[0], TYPE_IDS[2]),
-        contributor("Ringo Starr", NAME_TYPE_IDS[1], AUTHORITY_IDS[1], TYPE_IDS[1])
-      )),
-      List.of("instance #06", List.of(
-        contributor("Paul McCartney", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[2]),
-        contributor("John Lennon", NAME_TYPE_IDS[2], null, TYPE_IDS[0]),
-        contributor("Wi\\lly \\ Wonka", null, null, null)
-      )));
-  }
-
-  private static Contributor contributor(String name, String nameTypeId, String authorityId, String typeId) {
-    return new Contributor()
-      .name(name)
-      .contributorNameTypeId(nameTypeId)
-      .contributorTypeId(typeId)
-      .authorityId(authorityId);
-  }
-
-  private static Stream<Arguments> facetQueriesProvider() {
-    return Stream.of(arguments("name=*", array("contributorNameTypeId"), mapOf("contributorNameTypeId",
-        facet(facetItem(NAME_TYPE_IDS[0], 5), facetItem(NAME_TYPE_IDS[1], 5), facetItem(NAME_TYPE_IDS[2], 2)))),
-
-      arguments("name=*", array("contributorNameTypeId:2"),
-        mapOf("contributorNameTypeId", facet(facetItem(NAME_TYPE_IDS[0], 5), facetItem(NAME_TYPE_IDS[1], 5)))),
-
-      arguments("contributorNameTypeId==\"" + NAME_TYPE_IDS[0] + "\"", array("contributorNameTypeId:1"),
-        mapOf("contributorNameTypeId", facet(facetItem(NAME_TYPE_IDS[0], 5)))),
-
-      arguments("contributorNameTypeId==(\"" + NAME_TYPE_IDS[1] + "\" or \"" + NAME_TYPE_IDS[2] + "\")",
-        array("contributorNameTypeId:2"),
-        mapOf("contributorNameTypeId", facet(facetItem(NAME_TYPE_IDS[1], 5), facetItem(NAME_TYPE_IDS[2], 2)))));
+        new ContributorBrowseResult().totalRecords(68).prev("Nelson, Virginia Q.").next("Phillips, Rachel Z.").items(
+          List.of(
+            contributorBrowseItem(3, "Nelson, Virginia Q.", NAME_TYPE_IDS[3], null,
+              TYPE_IDS[3], TYPE_IDS[4]),
+            contributorBrowseItem(4, "Parker, George D.", NAME_TYPE_IDS[3], null, TYPE_IDS[3]),
+            contributorBrowseItem(2, "Paul McCartney", NAME_TYPE_IDS[0], AUTHORITY_IDS[0], TYPE_IDS[0], TYPE_IDS[1]),
+            contributorBrowseItem(1, "Paul McCartney", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[2]),
+            contributorBrowseItem(4, "Phillips, Rachel Z.", NAME_TYPE_IDS[3], null, TYPE_IDS[3])))));
   }
 }

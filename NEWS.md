@@ -14,6 +14,7 @@
 * Skip background processing on BadSqlGrammarException ([MSEARCH-1214](https://folio-org.atlassian.net/browse/MSEARCH-1214))
 * Disable JVM container support to avoid cgroup v2 NullPointerException in Elasticsearch8  testcontainer ([MSEARCH-1209](https://folio-org.atlassian.net/browse/MSEARCH-1209))
 * Limit consortium search api calls to Elasticsearch to SEARCH_CONSORTIUM_RECORDS_PAGE_SIZE per request ([MSEARCH-1194](https://folio-org.atlassian.net/browse/MSEARCH-1194))
+* Bump httpclient5 to 5.6.1 and httpcore5 to 5.4.2 to fix CVE-2026-40542 mutual authentication bypass ([MSEARCH-1208](https://folio-org.atlassian.net/browse/MSEARCH-1208))
 
 ### Tech Dept
 * Optimize integration tests to reduce build time by introducing centralized test data setup ([MSEARCH-1036](https://folio-org.atlassian.net/browse/MSEARCH-1036))

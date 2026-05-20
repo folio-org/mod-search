@@ -47,6 +47,7 @@ public abstract class BrowseCallNumberIT extends BaseSharedTest {
       TENANT_ID);
   }
 
+  @TestRailCase(477527)
   @MethodSource("callNumberBrowsingDataProvider")
   @DisplayName("browseByCallNumber_parameterized")
   @ParameterizedTest(name = "[{index}] query={0}, value=''{1}'', limit={2}")

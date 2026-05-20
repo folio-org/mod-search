@@ -20,6 +20,7 @@
 * Optimize integration tests to reduce build time by introducing centralized test data setup ([MSEARCH-1036](https://folio-org.atlassian.net/browse/MSEARCH-1036))
 * Add `@TestRailCase` annotation for linking integration tests to TestRail cases
 * Add integration test coverage for ALL call-number browse type filtering (TestRail C627504)
+* Add integration test coverage for LC call-number browse type filtering (TestRail C627506)
 * Add integration test coverage for SUDOC call-number browse type filtering (TestRail C627509)
 * Add integration test coverage for LC call-number browse with empty config returning all types (TestRail C627500)
 * Add integration test coverage for NLM call-number browse with empty config returning all types (TestRail C627501)

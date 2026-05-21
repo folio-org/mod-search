@@ -1,3 +1,9 @@
+## v6.0.2 2026-05-21
+### Bug fixes
+* Add retry for search operations ([MSEARCH-1194](https://folio-org.atlassian.net/browse/MSEARCH-1194))
+* Limit consortium search api calls to Elasticsearch to SEARCH_CONSORTIUM_RECORDS_PAGE_SIZE per request ([MSEARCH-1194](https://folio-org.atlassian.net/browse/MSEARCH-1194))
+* Bump httpclient5 to 5.6.1 and httpcore5 to 5.4.2 to fix CVE-2026-40542 mutual authentication bypass ([MSEARCH-1208](https://folio-org.atlassian.net/browse/MSEARCH-1208))
+
 ## v6.0.1 2026-05-15
 ### Bug fixes
 * Skip background processing on BadSqlGrammarException ([MSEARCH-1214](https://folio-org.atlassian.net/browse/MSEARCH-1214))

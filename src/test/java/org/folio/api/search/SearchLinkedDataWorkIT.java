@@ -1,7 +1,6 @@
 package org.folio.api.search;
 
-import static org.folio.support.sample.SampleLinkedData.getWork2SampleAsMap;
-import static org.folio.support.sample.SampleLinkedData.getWorkSampleAsMap;
+import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.utils.LinkedDataTestUtils.toClassificationAdditionalNumber;
 import static org.folio.support.utils.LinkedDataTestUtils.toClassificationNumber;
 import static org.folio.support.utils.LinkedDataTestUtils.toClassificationType;
@@ -30,27 +29,13 @@ import static org.folio.support.utils.LinkedDataTestUtils.toTotalRecords;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-import org.folio.search.domain.dto.LinkedDataWork;
-import org.folio.spring.testing.type.IntegrationTest;
-import org.folio.support.base.BaseIntegrationTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.folio.support.TestConstants;
+import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-@IntegrationTest
-class SearchLinkedDataWorkIT extends BaseIntegrationTest {
-
-  @BeforeAll
-  static void prepare() {
-    setUpTenant(LinkedDataWork.class, getWorkSampleAsMap(), getWork2SampleAsMap());
-  }
-
-  @AfterAll
-  static void cleanUp() {
-    removeTenant();
-  }
+public abstract class SearchLinkedDataWorkIT extends BaseSharedTest {
 
   @DisplayName("search by linked data works (all 2 works are found)")
   @ParameterizedTest(name = "[{0}] {1}")
@@ -82,7 +67,7 @@ class SearchLinkedDataWorkIT extends BaseIntegrationTest {
   })
   void searchByLinkedDataWork_parameterized_allResults(int index, String query) throws Throwable {
     var asc = query.contains("titleAbc def") || query.contains("sortBy") && !query.contains("descending");
-    doSearchByLinkedDataWork(query)
+    doSearchLinkedDataWork(query, TestConstants.TENANT_ID)
       .andExpect(jsonPath(toTotalRecords(), is(2)))
       .andExpect(jsonPath(toTitleValue(toRootContent(), 0), is(asc ? "titleAbc def" : "titleAbc xyz")))
       .andExpect(jsonPath(toTitleValue(toRootContent(1), 0), is(asc ? "titleAbc xyz" : "titleAbc def")));
@@ -176,7 +161,7 @@ class SearchLinkedDataWorkIT extends BaseIntegrationTest {
     "82, isbn == \"0262012103*\""
   })
   void searchByLinkedDataWork_parameterized_singleResult(int index, String query) throws Throwable {
-    doSearchByLinkedDataWork(query)
+    doSearchLinkedDataWork(query, TestConstants.TENANT_ID)
       .andExpect(jsonPath(toTotalRecords(), is(1)))
       .andExpect(jsonPath(toId(toRootContent()), is("123456123456")))
       .andExpect(jsonPath(toClassificationType(toRootContent(), 0), is("ddc")))
@@ -293,7 +278,7 @@ class SearchLinkedDataWorkIT extends BaseIntegrationTest {
     "33, classificationAdditionalNumber == \"000\"",
   })
   void searchByLinkedDataWork_parameterized_zeroResults(int index, String query) throws Throwable {
-    doSearchByLinkedDataWork(query)
+    doSearchLinkedDataWork(query, TestConstants.TENANT_ID)
       .andExpect(jsonPath(toTotalRecords(), is(0)));
   }
 
@@ -337,7 +322,7 @@ class SearchLinkedDataWorkIT extends BaseIntegrationTest {
     "35, lang all rus"
   })
   void searchByLinkedDataWorkWithNoInstances_parameterized_singleResult(int index, String query) throws Throwable {
-    doSearchByLinkedDataWorkWithoutInstances(query)
+    doSearchLinkedDataWorkWithoutInstances(query, TENANT_ID)
       .andExpect(jsonPath(toTotalRecords(), is(1)))
       .andExpect(jsonPath(toId(toRootContent()), is("123456123456")))
       .andExpect(jsonPath(toClassificationType(toRootContent(), 0), is("ddc")))

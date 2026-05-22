@@ -118,7 +118,7 @@ class FacetsControllerTest {
       .andExpect(jsonPath("$.errors[0].code", is("validation_error")));
   }
 
-  public static Stream<Arguments> facetsTestSource() {
+  private static Stream<Arguments> facetsTestSource() {
     return Stream.of(
       Arguments.arguments("authorities", ResourceType.AUTHORITY),
       Arguments.arguments("instances", ResourceType.INSTANCE),

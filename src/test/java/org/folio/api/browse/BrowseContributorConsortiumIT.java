@@ -7,6 +7,7 @@ import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
 import static org.awaitility.Durations.ONE_MINUTE;
 import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CONTRIBUTORS;
+import static org.folio.search.utils.SearchUtils.ALL_RECORDS_QUERY;
 import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.instanceContributorBrowsePath;
@@ -64,8 +65,8 @@ class BrowseContributorConsortiumIT extends BaseConsortiumIntegrationTest {
 
   @BeforeAll
   static void prepare(@Autowired SubResourcesLockRepository subResourcesLockRepository) {
-    setUpTenant(CENTRAL_TENANT_ID);
-    setUpTenant(MEMBER_TENANT_ID);
+    enableTenant(CENTRAL_TENANT_ID);
+    enableTenant(MEMBER_TENANT_ID);
 
     enableFeature(CENTRAL_TENANT_ID, BROWSE_CONTRIBUTORS);
 
@@ -112,9 +113,9 @@ class BrowseContributorConsortiumIT extends BaseConsortiumIntegrationTest {
 
   @Test
   void browseByContributor_shared() {
-    var request = get(instanceContributorBrowsePath()).param("query",
+    var request = get(instanceContributorBrowsePath()).param(QUERY_PARAM,
       "(" + prepareQuery("name >= {value} or name < {value}", '"' + "Bon Jovi" + '"') + ") "
-      + "and instances.shared==true").param("limit", "5");
+      + "and instances.shared==true").param(LIMIT_PARAM, "5");
 
     var actual = parseResponse(doGet(request), ContributorBrowseResult.class);
     var expected = new ContributorBrowseResult().totalRecords(5).prev(null).next(null).items(
@@ -133,9 +134,10 @@ class BrowseContributorConsortiumIT extends BaseConsortiumIntegrationTest {
 
   @Test
   void browseByContributor_local() {
-    var request = get(instanceContributorBrowsePath()).param("query",
+    var request = get(instanceContributorBrowsePath()).param(QUERY_PARAM,
       "(" + prepareQuery("name >= {value} or name < {value}", '"' + "Bon Jovi" + '"') + ") "
-      + "and instances.shared==false").param("limit", "5");
+      + "and instances.shared==false")
+      .param(LIMIT_PARAM, "5");
 
     var actual = parseResponse(doGet(request), ContributorBrowseResult.class);
     var expected = new ContributorBrowseResult().totalRecords(8).prev(null).next("John Lennon").items(
@@ -150,9 +152,9 @@ class BrowseContributorConsortiumIT extends BaseConsortiumIntegrationTest {
 
   private static Stream<Arguments> facetQueriesProvider() {
     return Stream.of(
-      arguments("cql.allRecords=1", array("instances.shared"), mapOf("instances.shared",
+      arguments(ALL_RECORDS_QUERY, array("instances.shared"), mapOf("instances.shared",
         facet(facetItem("false", 8), facetItem("true", 5)))),
-      arguments("cql.allRecords=1", array("instances.tenantId"),
+      arguments(ALL_RECORDS_QUERY, array("instances.tenantId"),
         mapOf("instances.tenantId", facet(facetItem(MEMBER_TENANT_ID, 8),
           facetItem(CENTRAL_TENANT_ID, 5))))
     );

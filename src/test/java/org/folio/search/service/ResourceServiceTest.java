@@ -6,7 +6,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.domain.dto.ResourceEventType.DELETE;
 import static org.folio.search.domain.dto.ResourceEventType.UPDATE;
+import static org.folio.search.model.types.ResourceType.HOLDINGS;
 import static org.folio.search.model.types.ResourceType.INSTANCE;
+import static org.folio.search.model.types.ResourceType.ITEM;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.support.TestConstants.RESOURCE_ID;
@@ -79,6 +81,8 @@ class ResourceServiceTest {
   private IndexNameProvider indexNameProvider;
   @Mock
   private Map<String, ResourceRepository> resourceRepositoryBeans;
+  @Mock
+  private InventoryEntityPersistenceService inventoryEntityPersistenceService;
   @InjectMocks
   private ResourceService indexService;
 
@@ -96,9 +100,12 @@ class ResourceServiceTest {
   @Test
   void indexResources_positive() {
     var searchBody = searchDocumentBody();
-    var resourceEvent = resourceEvent(INSTANCE, mapOf("id", randomId()));
+    var instanceId = randomId();
+    var resourceEvent = resourceEvent(INSTANCE, mapOf("id", instanceId));
     var expectedResponse = getSuccessIndexOperationResponse();
+    var indexEvent = new IndexInstanceEvent(resourceEvent.getTenant(), instanceId);
 
+    when(resourceFetchService.fetchInstancesByIds(List.of(indexEvent))).thenReturn(List.of(resourceEvent));
     when(searchDocumentConverter.convert(List.of(resourceEvent))).thenReturn(
       mapOf(INSTANCE.getName(), List.of(searchBody)));
     when(primaryResourceRepository.indexResources(List.of(searchBody))).thenReturn(expectedResponse);
@@ -111,9 +118,12 @@ class ResourceServiceTest {
   @Test
   void indexResources_negative_failedResponse() {
     var searchBody = searchDocumentBody();
-    var resourceEvent = resourceEvent(INSTANCE, mapOf("id", randomId()));
+    var instanceId = randomId();
+    var resourceEvent = resourceEvent(INSTANCE, mapOf("id", instanceId));
     var expectedResponse = getErrorIndexOperationResponse("Failed to save bulk");
+    var indexEvent = new IndexInstanceEvent(resourceEvent.getTenant(), instanceId);
 
+    when(resourceFetchService.fetchInstancesByIds(List.of(indexEvent))).thenReturn(List.of(resourceEvent));
     when(searchDocumentConverter.convert(List.of(resourceEvent)))
       .thenReturn(mapOf(INSTANCE.getName(), List.of(searchBody)));
     when(primaryResourceRepository.indexResources(List.of(searchBody))).thenReturn(expectedResponse);
@@ -126,11 +136,14 @@ class ResourceServiceTest {
   @Test
   void indexResources_positive_customResourceRepository() {
     var searchBody = searchDocumentBody();
-    var resourceEvent = resourceEvent(INSTANCE, mapOf("id", randomId()));
+    var instanceId = randomId();
+    var resourceEvent = resourceEvent(INSTANCE, mapOf("id", instanceId));
     var expectedResponse = getSuccessIndexOperationResponse();
     var customResourceRepository = mock(ResourceRepository.class);
+    var indexEvent = new IndexInstanceEvent(resourceEvent.getTenant(), instanceId);
 
     when(resourceDescriptionService.find(INSTANCE)).thenReturn(of(resourceDescriptionWithCustomRepository()));
+    when(resourceFetchService.fetchInstancesByIds(List.of(indexEvent))).thenReturn(List.of(resourceEvent));
     when(searchDocumentConverter.convert(List.of(resourceEvent)))
       .thenReturn(mapOf(INSTANCE.getName(), List.of(searchBody)));
     when(resourceRepositoryBeans.containsKey(CUSTOM_REPOSITORY_NAME)).thenReturn(true);
@@ -145,6 +158,54 @@ class ResourceServiceTest {
   @Test
   void indexResources_positive_emptyList() {
     var response = indexService.indexResources(Collections.emptyList());
+    assertThat(response).isEqualTo(getSuccessIndexOperationResponse());
+  }
+
+  @Test
+  void indexResources_holdingsEvent_triggersInstanceReindex() {
+    var instanceId = randomId();
+    var holdingEvent = resourceEvent(HOLDINGS, mapOf("instanceId", instanceId));
+    var instanceEvent = resourceEvent(INSTANCE, mapOf("id", instanceId));
+    var searchBody = searchDocumentBody();
+
+    when(resourceFetchService.fetchInstancesByIds(
+      List.of(new IndexInstanceEvent(holdingEvent.getTenant(), instanceId))))
+      .thenReturn(List.of(instanceEvent));
+    when(searchDocumentConverter.convert(List.of(instanceEvent)))
+      .thenReturn(mapOf(INSTANCE.getName(), List.of(searchBody)));
+    when(primaryResourceRepository.indexResources(List.of(searchBody)))
+      .thenReturn(getSuccessIndexOperationResponse());
+    when(resourceDescriptionService.find(INSTANCE)).thenReturn(of(resourceDescription(INSTANCE)));
+
+    var response = indexService.indexResources(List.of(holdingEvent));
+    assertThat(response).isEqualTo(getSuccessIndexOperationResponse());
+  }
+
+  @Test
+  void indexResources_itemEvent_triggersInstanceReindex() {
+    var instanceId = randomId();
+    var itemEvent = resourceEvent(ITEM, mapOf("instanceId", instanceId));
+    var instanceEvent = resourceEvent(INSTANCE, mapOf("id", instanceId));
+    var searchBody = searchDocumentBody();
+
+    when(resourceFetchService.fetchInstancesByIds(
+      List.of(new IndexInstanceEvent(itemEvent.getTenant(), instanceId))))
+      .thenReturn(List.of(instanceEvent));
+    when(searchDocumentConverter.convert(List.of(instanceEvent)))
+      .thenReturn(mapOf(INSTANCE.getName(), List.of(searchBody)));
+    when(primaryResourceRepository.indexResources(List.of(searchBody)))
+      .thenReturn(getSuccessIndexOperationResponse());
+    when(resourceDescriptionService.find(INSTANCE)).thenReturn(of(resourceDescription(INSTANCE)));
+
+    var response = indexService.indexResources(List.of(itemEvent));
+    assertThat(response).isEqualTo(getSuccessIndexOperationResponse());
+  }
+
+  @Test
+  void indexResources_holdingsEventWithoutNew_skipsReindex() {
+    var holdingEvent = resourceEvent(RESOURCE_ID, HOLDINGS, DELETE);
+    // DELETE event has no _new, so instanceId cannot be extracted — no instance re-index triggered.
+    var response = indexService.indexResources(List.of(holdingEvent));
     assertThat(response).isEqualTo(getSuccessIndexOperationResponse());
   }
 

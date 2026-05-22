@@ -73,10 +73,10 @@ class MultiTenantSearchDocumentConverterTest {
     var tenant1 = "tenant_one";
     var tenant2 = "tenant_two";
     var events = List.of(
-      resourceEvent(null, UNKNOWN, mapOf("id", randomId())).tenant(tenant1).type(ResourceEventType.UPDATE),
-      resourceEvent(null, UNKNOWN, mapOf("id", randomId())).tenant(tenant1).type(ResourceEventType.DELETE),
-      resourceEvent(null, UNKNOWN, mapOf("id", randomId())).tenant(tenant2).type(ResourceEventType.UPDATE),
-      resourceEvent(null, UNKNOWN, mapOf("id", randomId())).tenant(tenant2).type(ResourceEventType.DELETE));
+      resourceEvent(tenant1, UNKNOWN, ResourceEventType.UPDATE, mapOf("id", randomId())),
+      resourceEvent(tenant1, UNKNOWN, ResourceEventType.DELETE, mapOf("id", randomId())),
+      resourceEvent(tenant2, UNKNOWN, ResourceEventType.UPDATE, mapOf("id", randomId())),
+      resourceEvent(tenant2, UNKNOWN, ResourceEventType.DELETE, mapOf("id", randomId())));
 
     when(resourceDescriptionService.find(UNKNOWN)).thenReturn(of(resourceDescription(UNKNOWN)));
     when(searchDocumentConverter.convert(events.get(0))).thenReturn(of(searchDocument(events.get(0), INDEX)));
@@ -98,8 +98,8 @@ class MultiTenantSearchDocumentConverterTest {
   void convert_positive_noScoped() {
     var tenant1 = "tenant_one";
     var events = List.of(
-      resourceEvent(null, UNKNOWN, mapOf("id", randomId())).tenant(tenant1).type(ResourceEventType.UPDATE),
-      resourceEvent(null, UNKNOWN, mapOf("id", randomId())).tenant(tenant1).type(ResourceEventType.DELETE));
+      resourceEvent(tenant1, UNKNOWN, ResourceEventType.UPDATE, mapOf("id", randomId())),
+      resourceEvent(tenant1, UNKNOWN, ResourceEventType.DELETE, mapOf("id", randomId())));
 
     when(resourceDescriptionService.find(UNKNOWN)).thenReturn(of(resourceDescription(UNKNOWN)));
     when(searchDocumentConverter.convert(events.get(0))).thenReturn(of(searchDocument(events.get(0), INDEX)));
@@ -185,8 +185,8 @@ class MultiTenantSearchDocumentConverterTest {
   @Test
   void convertForReindex_positive_multipleEvents() {
     var events = List.of(
-      resourceEvent(null, UNKNOWN, mapOf("id", randomId())).type(ResourceEventType.UPDATE),
-      resourceEvent(null, UNKNOWN, mapOf("id", randomId())).type(ResourceEventType.DELETE));
+      resourceEvent(TENANT_ID, UNKNOWN, ResourceEventType.UPDATE, mapOf("id", randomId())),
+      resourceEvent(TENANT_ID, UNKNOWN, ResourceEventType.DELETE, mapOf("id", randomId())));
 
     when(resourceDescriptionService.find(UNKNOWN)).thenReturn(of(resourceDescription(UNKNOWN)));
     when(searchDocumentConverter.convert(events.get(0))).thenReturn(of(searchDocument(events.get(0), INDEX)));
@@ -215,7 +215,7 @@ class MultiTenantSearchDocumentConverterTest {
 
   @Test
   void convertForReindex_positive_eventWithoutId() {
-    var event = resourceEvent(null, UNKNOWN, mapOf("id", RESOURCE_ID)).tenant(TENANT_ID);
+    var event = resourceEvent(TENANT_ID, UNKNOWN, mapOf("id", RESOURCE_ID));
 
     when(resourceDescriptionService.find(UNKNOWN)).thenReturn(of(resourceDescription(UNKNOWN)));
     when(searchDocumentConverter.convert(any(ResourceEvent.class))).thenReturn(of(searchDocument(event, INDEX)));

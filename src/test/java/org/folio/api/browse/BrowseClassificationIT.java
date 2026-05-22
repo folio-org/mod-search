@@ -1,92 +1,40 @@
 package org.folio.api.browse;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.await;
-import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
-import static org.awaitility.Durations.ONE_MINUTE;
-import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CLASSIFICATIONS;
-import static org.folio.search.model.Pair.pair;
 import static org.folio.support.TestConstants.TENANT_ID;
-import static org.folio.support.base.ApiEndpoints.browseConfigPath;
 import static org.folio.support.base.ApiEndpoints.instanceClassificationBrowsePath;
-import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
 import static org.folio.support.utils.TestUtils.classificationBrowseItem;
 import static org.folio.support.utils.TestUtils.classificationBrowseResult;
-import static org.folio.support.utils.TestUtils.mockClassificationTypes;
-import static org.folio.support.utils.TestUtils.randomId;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
-import org.folio.search.domain.dto.BrowseConfig;
 import org.folio.search.domain.dto.BrowseOptionType;
-import org.folio.search.domain.dto.BrowseType;
-import org.folio.search.domain.dto.Classification;
 import org.folio.search.domain.dto.ClassificationNumberBrowseResult;
-import org.folio.search.domain.dto.Contributor;
-import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.ShelvingOrderAlgorithmType;
-import org.folio.search.model.Pair;
-import org.folio.search.model.types.ReindexEntityType;
-import org.folio.search.model.types.ResourceType;
-import org.folio.search.service.reindex.jdbc.SubResourcesLockRepository;
-import org.folio.spring.testing.type.IntegrationTest;
-import org.folio.support.base.BaseIntegrationTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.TestPropertySource;
 
-@IntegrationTest
-@TestPropertySource(properties = "folio.search-config.indexing.instance-children-index-enabled=true")
-class BrowseClassificationIT extends BaseIntegrationTest {
+public abstract class BrowseClassificationIT extends BaseSharedTest {
 
-  private static final String LC_TYPE_ID = "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a";
-  private static final String LC2_TYPE_ID = "308c950f-8209-4f2e-9702-0c004a9f21bc";
-  private static final String DEWEY_TYPE_ID = "50524585-046b-49a1-8ca7-8d46f2a8dc19";
-
-  @BeforeAll
-  static void prepare(@Autowired SubResourcesLockRepository subResourcesLockRepository) {
-    setUpTenant();
-
-    enableFeature(BROWSE_CLASSIFICATIONS);
-
-    var timestamp = subResourcesLockRepository.lockSubResource(ReindexEntityType.CLASSIFICATION, TENANT_ID);
-    if (timestamp.isEmpty()) {
-      throw new IllegalStateException("Unexpected state of database: unable to lock classification resource");
-    }
-
-    var instances = instances();
-    saveRecords(TENANT_ID, instanceSearchPath(), asList(instances), instances.length, emptyList(),
-      instance -> inventoryApi.createInstance(TENANT_ID, instance));
-
-    subResourcesLockRepository.unlockSubResource(ReindexEntityType.CLASSIFICATION, timestamp.get(), TENANT_ID);
-
-    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() -> {
-      var counted = countIndexDocument(ResourceType.INSTANCE_CLASSIFICATION, TENANT_ID);
-      assertThat(counted).isEqualTo(19);
-    });
-  }
-
-  @AfterAll
-  static void cleanUp() {
-    removeTenant();
-  }
+  private static final String TYPE1_ID = "42471af9-7d25-4f3a-bf78-60d29dcf463b";
+  private static final String TYPE2_ID = "ce176ace-a53e-4b4d-aa89-725ed7b2edac";
+  private static final String TYPE3_ID = "5af5cb9d-063f-48ea-8148-7da3ecaafd7d";
+  private static final String TYPE4_ID = "7e5684a9-c8c1-4c1e-85b9-d047f53eeb6d";
 
   @BeforeEach
   void setUp() {
-    updateLcConfig(List.of(UUID.fromString(LC_TYPE_ID)));
+    updateClassConfig(List.of(UUID.fromString(TYPE1_ID)),
+      BrowseOptionType.LC, ShelvingOrderAlgorithmType.LC, TENANT_ID);
   }
 
   @MethodSource("classificationBrowsingDataProvider")
@@ -95,98 +43,99 @@ class BrowseClassificationIT extends BaseIntegrationTest {
   void browseByClassification_parameterized(String query, String anchor, Integer limit,
                                             ClassificationNumberBrowseResult expected) {
     var request = get(instanceClassificationBrowsePath(BrowseOptionType.LC))
-      .param("query", prepareQuery(query, '"' + anchor + '"'))
-      .param("limit", String.valueOf(limit));
-    var actual = parseResponse(doGet(request), ClassificationNumberBrowseResult.class);
+      .param(QUERY_PARAM, prepareQuery(query, '"' + anchor + '"'))
+      .param(LIMIT_PARAM, String.valueOf(limit));
+    var actual = parseResponse(doGet(request, TENANT_ID), ClassificationNumberBrowseResult.class);
 
-    assertThat(actual).usingRecursiveComparison().ignoringFields(COLLECTION_IGNORING_FIELDS).isEqualTo(expected);
+    assertThat(actual)
+      .as("Classification browse result should match expected for query='%s', anchor='%s'", query, anchor)
+      .usingRecursiveComparison().ignoringFields(COLLECTION_IGNORING_FIELDS).isEqualTo(expected);
   }
 
   @Test
   @SuppressWarnings("checkstyle:MethodLength")
   void browseByClassification_allOption_browsingAroundWithPrecedingRecordsCount() {
+    // ALL browse includes 92 entries (all 4 type IDs). Anchor "QA76.73.C15" has TYPE3_ID (5af5cb9d).
+    // precedingRecordsCount=2 means 2 items before anchor; remaining 7 items follow.
     var request = get(instanceClassificationBrowsePath(BrowseOptionType.ALL))
-      .param("query", prepareQuery("number < {value} or number >= {value}", "\"292.07\""))
-      .param("limit", "10")
-      .param("precedingRecordsCount", "2");
-    var actual = parseResponse(doGet(request), ClassificationNumberBrowseResult.class);
+      .param(QUERY_PARAM, prepareQuery("number < {value} or number >= {value}", "\"QA76.73.C15\""))
+      .param(LIMIT_PARAM, "10")
+      .param(PRECEDING_RECORDS_COUNT_PARAM, "2");
+    var actual = parseResponse(doGet(request, TENANT_ID), ClassificationNumberBrowseResult.class);
     assertThat(actual)
+      .as("Browse result should have correct totalRecords, prev, and next pointers")
       .extracting(ClassificationNumberBrowseResult::getTotalRecords,
         ClassificationNumberBrowseResult::getPrev,
         ClassificationNumberBrowseResult::getNext)
-      .contains(19, null, "N6679.R64 G88 2010");
+      .contains(92, "Q9498 .N34 2020", "TK5105.88815");
     assertThat(actual.getItems())
+      .as("Browse items should match expected classification entries with precedingRecordsCount=2")
       .usingRecursiveFieldByFieldElementComparatorIgnoringFields(ENTRY_IGNORING_FIELDS)
       .startsWith(
-        classificationBrowseItem("146.4", DEWEY_TYPE_ID, 2),
-        classificationBrowseItem("221.609", DEWEY_TYPE_ID, 1, "instance #07"),
-        classificationBrowseItem("292.07", DEWEY_TYPE_ID, 1, "instance #09", true),
-        classificationBrowseItem("333.91", DEWEY_TYPE_ID, 1, "instance #09"),
-        classificationBrowseItem("372.4", DEWEY_TYPE_ID, 1, "instance #09")
+        classificationBrowseItem("Q9498 .N34 2020", TYPE1_ID, 1,
+          "Evolutionary Biology: Mechanisms and Patterns", "Scott, Matthew J.", "Lewis, Sharon M."),
+        classificationBrowseItem("QA1771 .R93 1975", TYPE1_ID, 2)
       )
       .contains(
-        classificationBrowseItem("BJ1453 .I49 1983", LC_TYPE_ID, 1, "instance #01"),
-        classificationBrowseItem("BJ1453 .I49 1983", LC2_TYPE_ID, 1, "instance #02",
-          List.of("Contributor A", "Contributor B"))
+        classificationBrowseItem("QA76.73.C15", TYPE3_ID, 1, "Applied Linguistic Theory", true,
+          "Moore, Nancy W."),
+        classificationBrowseItem("QP7124 .M32 1979", TYPE1_ID, 1, "The Blade in the Ice",
+          "Hernandez, Carlos M."),
+        classificationBrowseItem("RC3154 .V85 1998", TYPE1_ID, 1, "Theories of International Relations",
+          "Smith, John A.")
       )
       .endsWith(
-        classificationBrowseItem("HD1691 .I5 1967", LC_TYPE_ID, 1, "instance #01"),
-        classificationBrowseItem("HQ536 .A565 2018", LC2_TYPE_ID, 1, "instance #03"),
-        classificationBrowseItem("N6679.R64 G88 2010", LC_TYPE_ID, 1, "instance #03")
+        classificationBrowseItem("TA5656 .C45 2005", TYPE1_ID, 1, "Environmental Law and Policy",
+          "Brown, Patricia K."),
+        classificationBrowseItem("TK5105.88815", TYPE4_ID, 1, "Environmental Policy and Governance",
+          "Campbell, Melissa U.", "Jones, Michael D.")
       );
   }
 
   @Test
   void browseByClassification_noExactMatch() {
     var request = get(instanceClassificationBrowsePath(BrowseOptionType.ALL))
-      .param("query", prepareQuery("number < {value} or number >= {value}", "\"292.08\""))
-      .param("limit", "3")
-      .param("precedingRecordsCount", "1");
-    var actual = parseResponse(doGet(request), ClassificationNumberBrowseResult.class);
+      .param(QUERY_PARAM, prepareQuery("number < {value} or number >= {value}", "\"QA100 .X00 2000\""))
+      .param(LIMIT_PARAM, "3")
+      .param(PRECEDING_RECORDS_COUNT_PARAM, "1");
+    var actual = parseResponse(doGet(request, TENANT_ID), ClassificationNumberBrowseResult.class);
     assertThat(actual)
+      .as("Browse result should include placeholder when anchor has no exact match")
       .usingRecursiveComparison().ignoringFields(COLLECTION_IGNORING_FIELDS)
-      .isEqualTo(classificationBrowseResult("292.07", "333.91", 19, List.of(
-        classificationBrowseItem("292.07", DEWEY_TYPE_ID, 1, "instance #09"),
-        classificationBrowseItem("292.08", null, 0, true),
-        classificationBrowseItem("333.91", DEWEY_TYPE_ID, 1, "instance #09")
+      .isEqualTo(classificationBrowseResult("Q9498 .N34 2020", "QA1771 .R93 1975", 92, List.of(
+        classificationBrowseItem("Q9498 .N34 2020", TYPE1_ID, 1, "Evolutionary Biology: Mechanisms and Patterns",
+          "Scott, Matthew J.", "Lewis, Sharon M."),
+        classificationBrowseItem("QA100 .X00 2000", null, 0, true),
+        classificationBrowseItem("QA1771 .R93 1975", TYPE1_ID, 2)
       )));
   }
 
   @Test
   void browseByClassification_lcOptionConfiguredWithTwoIds() {
-    updateLcConfig(List.of(UUID.fromString(LC_TYPE_ID), UUID.fromString(DEWEY_TYPE_ID)));
+    updateClassConfig(List.of(UUID.fromString(TYPE1_ID), UUID.fromString(TYPE2_ID)), BrowseOptionType.LC,
+      ShelvingOrderAlgorithmType.LC, TENANT_ID);
 
     var request = get(instanceClassificationBrowsePath(BrowseOptionType.LC))
-      .param("query", prepareQuery("number < {value} or number >= {value}", "\"292.07\""))
-      .param("limit", "10")
-      .param("precedingRecordsCount", "2");
-    var actual = parseResponse(doGet(request), ClassificationNumberBrowseResult.class);
+      .param(QUERY_PARAM, prepareQuery("number < {value} or number >= {value}", "\"HD8236 .Y68 2004\""))
+      .param(LIMIT_PARAM, "5")
+      .param(PRECEDING_RECORDS_COUNT_PARAM, "2");
+    var actual = parseResponse(doGet(request, TENANT_ID), ClassificationNumberBrowseResult.class);
     assertThat(actual)
+      .as("Browse result should match expected when LC config is set to two type IDs")
       .usingRecursiveComparison().ignoringFields(COLLECTION_IGNORING_FIELDS)
-      .isEqualTo(classificationBrowseResult(null, "QD453 .M8 1961", 15, List.of(
-        classificationBrowseItem("146.4", DEWEY_TYPE_ID, 2),
-        classificationBrowseItem("221.609", DEWEY_TYPE_ID, 1, "instance #07"),
-        classificationBrowseItem("292.07", DEWEY_TYPE_ID, 1, "instance #09", true),
-        classificationBrowseItem("333.91", DEWEY_TYPE_ID, 1, "instance #09"),
-        classificationBrowseItem("372.4", DEWEY_TYPE_ID, 1, "instance #09"),
-        classificationBrowseItem("BJ1453 .I49 1983", LC_TYPE_ID, 1, "instance #01"),
-        classificationBrowseItem("HD1691 .I5 1967", LC_TYPE_ID, 1, "instance #01"),
-        classificationBrowseItem("N6679.R64 G88 2010", LC_TYPE_ID, 1, "instance #03"),
-        classificationBrowseItem("QD33 .O87", LC_TYPE_ID, 2),
-        classificationBrowseItem("QD453 .M8 1961", LC_TYPE_ID, 1, "instance #05",
-          List.of("Contributor X"))
+      .isEqualTo(classificationBrowseResult("GE1748 .C51 1975", "HM3819 .L23 1998", 90, List.of(
+        classificationBrowseItem("GE1748 .C51 1975", TYPE1_ID, 1, "Bioethics: Principles and Cases",
+          "Gomez, Rachel Y."),
+        classificationBrowseItem("HD1691 .I5 1967", TYPE2_ID, 1,
+          "A sem\\ntic web primer :0747-0850 & wolves",
+          "Ant\\niou, Grigoris matthew", "Van Harmelen, Frank"),
+        classificationBrowseItem("HD8236 .Y68 2004", TYPE1_ID, 1, "Media Studies and Public Discourse",
+          true, "Lee, Christopher Z."),
+        classificationBrowseItem("HD8471 .J90 2001", TYPE1_ID, 1, "Sociology of Education and Schooling",
+          "Moore, Nancy W."),
+        classificationBrowseItem("HM3819 .L23 1998", TYPE1_ID, 1, "The Dynamics of Social Movements",
+          "Anderson, Susan G.")
       )));
-  }
-
-  private static void updateLcConfig(List<UUID> typeIds) {
-    var config = new BrowseConfig()
-      .id(BrowseOptionType.LC)
-      .shelvingAlgorithm(ShelvingOrderAlgorithmType.LC)
-      .typeIds(typeIds);
-
-    var stub = mockClassificationTypes(okapi.wireMockServer(), typeIds.toArray(new UUID[0]));
-    doPut(browseConfigPath(BrowseType.INSTANCE_CLASSIFICATION, BrowseOptionType.LC), config);
-    okapi.wireMockServer().removeStub(stub);
   }
 
   @SuppressWarnings("checkstyle:MethodLength")
@@ -198,118 +147,94 @@ class BrowseClassificationIT extends BaseIntegrationTest {
     var backwardIncludingQuery = "number <= {value}";
 
     return Stream.of(
-      arguments(aroundIncludingQuery, "QD33 .O87", 5, classificationBrowseResult("HD1691 .I5 1967",
-        "SF433 .D47 2004", 10, List.of(
-          classificationBrowseItem("HD1691 .I5 1967", LC_TYPE_ID, 1, "instance #01"),
-          classificationBrowseItem("N6679.R64 G88 2010", LC_TYPE_ID, 1, "instance #03"),
-          classificationBrowseItem("QD33 .O87", LC_TYPE_ID, 2, true),
-          classificationBrowseItem("QD453 .M8 1961", LC_TYPE_ID, 1, "instance #05",
-            List.of("Contributor X")),
-          classificationBrowseItem("SF433 .D47 2004", LC_TYPE_ID, 1, "instance #06")
-        ))),
-
-      arguments(forwardQuery, "QD33 .O87", 5, classificationBrowseResult("QD453 .M8 1961", "TX545 M45", 10, List.of(
-        classificationBrowseItem("QD453 .M8 1961", LC_TYPE_ID, 1, "instance #05",
-          List.of("Contributor X")),
-        classificationBrowseItem("SF433 .D47 2004", LC_TYPE_ID, 1, "instance #06"),
-        classificationBrowseItem("TN800 .F4613", LC_TYPE_ID, 1, "instance #08"),
-        classificationBrowseItem("TX545 .M45", LC_TYPE_ID, 1, "instance #06"),
-        classificationBrowseItem("TX545 M45", LC_TYPE_ID, 1, "instance #11")
+      // aroundIncluding at a mid-index anchor
+      arguments(aroundIncludingQuery, "507.79", 5, classificationBrowseResult("412.98", "523.06", 89, List.of(
+        classificationBrowseItem("412.98", TYPE1_ID, 1, "Cultural Methods in Social Science",
+          "Green, Deborah O."),
+        classificationBrowseItem("475.42", TYPE1_ID, 1, "Urban Ecology and Sustainable Cities",
+          "White, Daniel P."),
+        classificationBrowseItem("507.79", TYPE1_ID, 1, "Criminology and Criminal Justice",
+          true, "Phillips, Rachel Z.", "Turner, Lawrence B."),
+        classificationBrowseItem("508.83", TYPE1_ID, 1, "The Digital Transformation of Libraries",
+          "Torres, Angela K."),
+        classificationBrowseItem("523.06", TYPE1_ID, 1, "Structural Analysis in Civil Engineering",
+          "Hernandez, Carlos M.", "Davis, Barbara E.")
       ))),
 
-      arguments(forwardQuery, "Z", 10, classificationBrowseResult(null, null, 10, emptyList())),
-
-      arguments(forwardIncludingQuery, "QD33 .O87", 5, classificationBrowseResult("QD33 .O87", "TX545 .M45", 10,
-        List.of(
-          classificationBrowseItem("QD33 .O87", LC_TYPE_ID, 2),
-          classificationBrowseItem("QD453 .M8 1961", LC_TYPE_ID, 1, "instance #05",
-            List.of("Contributor X")),
-          classificationBrowseItem("SF433 .D47 2004", LC_TYPE_ID, 1, "instance #06"),
-          classificationBrowseItem("TN800 .F4613", LC_TYPE_ID, 1, "instance #08"),
-          classificationBrowseItem("TX545 .M45", LC_TYPE_ID, 1, "instance #06")
-        ))),
-
-      arguments(backwardQuery, "QD33 .O87", 5, classificationBrowseResult(null, "N6679.R64 G88 2010", 10, List.of(
-        classificationBrowseItem("BJ1453 .I49 1983", LC_TYPE_ID, 1, "instance #01"),
-        classificationBrowseItem("HD1691 .I5 1967", LC_TYPE_ID, 1, "instance #01"),
-        classificationBrowseItem("N6679.R64 G88 2010", LC_TYPE_ID, 1, "instance #03")
+      // forwardQuery from anchor
+      arguments(forwardQuery, "507.79", 5, classificationBrowseResult("508.83", "569.95", 89, List.of(
+        classificationBrowseItem("508.83", TYPE1_ID, 1, "The Digital Transformation of Libraries",
+          "Torres, Angela K."),
+        classificationBrowseItem("523.06", TYPE1_ID, 1, "Structural Analysis in Civil Engineering",
+          "Hernandez, Carlos M.", "Davis, Barbara E."),
+        classificationBrowseItem("536.02", TYPE1_ID, 1, "Monetary Theory and Central Banking",
+          "Roberts, Alan X."),
+        classificationBrowseItem("537.76", TYPE1_ID, 1, "The Neuroscience of Learning and Memory",
+          "Nelson, Virginia Q."),
+        classificationBrowseItem("569.95", TYPE1_ID, 1, "The Fab Four: A Musical Biography",
+          "John Lennon", "Paul McCartney", "George Harrison", "Ringo Starr")
       ))),
 
-      arguments(backwardQuery, "A", 10, classificationBrowseResult(null, null, 10, emptyList())),
+      // forwardQuery past end of index → empty result
+      arguments(forwardQuery, "Z9999", 10, classificationBrowseResult(null, null, 89, emptyList())),
 
-      arguments(backwardIncludingQuery, "QD33 .O87", 5, classificationBrowseResult(null, "QD33 .O87", 10, List.of(
-        classificationBrowseItem("BJ1453 .I49 1983", LC_TYPE_ID, 1, "instance #01"),
-        classificationBrowseItem("HD1691 .I5 1967", LC_TYPE_ID, 1, "instance #01"),
-        classificationBrowseItem("N6679.R64 G88 2010", LC_TYPE_ID, 1, "instance #03"),
-        classificationBrowseItem("QD33 .O87", LC_TYPE_ID, 2)
+      // forwardIncludingQuery from anchor (anchor is included, no isAnchor flag for forward-only)
+      arguments(forwardIncludingQuery, "507.79", 5, classificationBrowseResult("507.79", "537.76", 89, List.of(
+        classificationBrowseItem("507.79", TYPE1_ID, 1, "Criminology and Criminal Justice",
+          "Phillips, Rachel Z.", "Turner, Lawrence B."),
+        classificationBrowseItem("508.83", TYPE1_ID, 1, "The Digital Transformation of Libraries",
+          "Torres, Angela K."),
+        classificationBrowseItem("523.06", TYPE1_ID, 1, "Structural Analysis in Civil Engineering",
+          "Hernandez, Carlos M.", "Davis, Barbara E."),
+        classificationBrowseItem("536.02", TYPE1_ID, 1, "Monetary Theory and Central Banking",
+          "Roberts, Alan X."),
+        classificationBrowseItem("537.76", TYPE1_ID, 1, "The Neuroscience of Learning and Memory",
+          "Nelson, Virginia Q.")
       ))),
 
-      arguments(aroundIncludingQuery, "TX545 M45", 5, classificationBrowseResult("TN800 .F4613",
-        null, 10, List.of(
-          classificationBrowseItem("TN800 .F4613", LC_TYPE_ID, 1, "instance #08"),
-          classificationBrowseItem("TX545 .M45", LC_TYPE_ID, 1, "instance #06"),
-          classificationBrowseItem("TX545 M45", LC_TYPE_ID, 1, "instance #11", true),
-          classificationBrowseItem("TX\\545.\\\\M45", LC_TYPE_ID, 1, "instance #12")
-        ))),
+      // backwardQuery from anchor
+      arguments(backwardQuery, "507.79", 5, classificationBrowseResult("307.06", "475.42", 89, List.of(
+        classificationBrowseItem("307.06", TYPE1_ID, 1, "Cognitive Behavioral Approaches in Therapy",
+          "Williams, Robert T."),
+        classificationBrowseItem("395.99", TYPE1_ID, 1, "Language Acquisition and Development",
+          "Anderson, Susan G."),
+        classificationBrowseItem("405.55", TYPE1_ID, 1, "Ground-water exploration in Al Marj (1964)",
+          "Jackson, Mark B."),
+        classificationBrowseItem("412.98", TYPE1_ID, 1, "Cultural Methods in Social Science",
+          "Green, Deborah O."),
+        classificationBrowseItem("475.42", TYPE1_ID, 1, "Urban Ecology and Sustainable Cities",
+          "White, Daniel P.")
+      ))),
 
-      arguments(aroundIncludingQuery, "TX\\\\545.\\\\\\\\M45", 5, classificationBrowseResult("TX545 .M45",
-        null, 10, List.of(
-          classificationBrowseItem("TX545 .M45", LC_TYPE_ID, 1, "instance #06"),
-          classificationBrowseItem("TX545 M45", LC_TYPE_ID, 1, "instance #11"),
-          classificationBrowseItem("TX\\545.\\\\M45", LC_TYPE_ID, 1, "instance #12", true)
+      // backwardQuery before start of index → empty result
+      arguments(backwardQuery, "001", 10, classificationBrowseResult(null, null, 89, emptyList())),
+
+      // backwardIncludingQuery from anchor (anchor included as last item)
+      arguments(backwardIncludingQuery, "507.79", 5, classificationBrowseResult("395.99", "507.79", 89, List.of(
+        classificationBrowseItem("395.99", TYPE1_ID, 1, "Language Acquisition and Development",
+          "Anderson, Susan G."),
+        classificationBrowseItem("405.55", TYPE1_ID, 1, "Ground-water exploration in Al Marj (1964)",
+          "Jackson, Mark B."),
+        classificationBrowseItem("412.98", TYPE1_ID, 1, "Cultural Methods in Social Science",
+          "Green, Deborah O."),
+        classificationBrowseItem("475.42", TYPE1_ID, 1, "Urban Ecology and Sustainable Cities",
+          "White, Daniel P."),
+        classificationBrowseItem("507.79", TYPE1_ID, 1, "Criminology and Criminal Justice",
+          "Phillips, Rachel Z.", "Turner, Lawrence B.")
+      ))),
+
+      // aroundIncluding near end of index: only 4 items returned, next=null (last entry reached)
+      arguments(aroundIncludingQuery, "Z4056 .U98 1999", 5, classificationBrowseResult("TR9115 .C83 1971",
+        null, 89, List.of(
+          classificationBrowseItem("TR9115 .C83 1971", TYPE1_ID, 1,
+            "Architectural History of the Modern Era", "Hill, Michelle M.", "Wright, Lisa I."),
+          classificationBrowseItem("Z2364 .G82 1987", TYPE1_ID, 1, "Ground water in Sirte, Libya",
+            "Davis, Barbara E.", "White, Daniel P."),
+          classificationBrowseItem("Z4056 .U98 1999", TYPE1_ID, 1, "Chopin: A Life in Music and Exile",
+            true, "Thomas, Dorothy C.", "Parker, George D."),
+          classificationBrowseItem("Z6032 .E89 1981", TYPE1_ID, 1,
+            "Postcolonial Studies: Theory and Practice", "Harris, Elizabeth A.", "Johnson, Mary L.")
         )))
-    );
-  }
-
-  private static Instance[] instances() {
-    return classificationBrowseInstanceData().stream()
-      .map(BrowseClassificationIT::instance)
-      .toArray(Instance[]::new);
-  }
-
-  @SuppressWarnings("unchecked")
-  private static Instance instance(List<Object> data) {
-    var pairs = (List<Pair<String, String>>) data.get(1);
-    var instance = new Instance()
-      .id(randomId())
-      .title((String) data.get(0))
-      .classifications(pairs.stream()
-        .map(pair -> new Classification()
-          .classificationNumber(String.valueOf(pair.getFirst()))
-          .classificationTypeId(String.valueOf(pair.getSecond())))
-        .toList())
-      .staffSuppress(false)
-      .discoverySuppress(false)
-      .holdings(emptyList());
-
-    if (data.size() > 2) {
-      var contributors = (List<String>) data.get(2);
-      instance.setContributors(contributors.stream()
-        .map(name -> new Contributor().name(name))
-        .toList());
-    }
-
-    return instance;
-  }
-
-  private static List<List<Object>> classificationBrowseInstanceData() {
-    return List.of(
-      List.of("instance #01", List.of(pair("BJ1453 .I49 1983", LC_TYPE_ID), pair("HD1691 .I5 1967", LC_TYPE_ID))),
-      List.of("instance #02", List.of(pair("BJ1453 .I49 1983", LC2_TYPE_ID)),
-        List.of("Contributor A", "Contributor B")),
-      List.of("instance #03", List.of(pair("HQ536 .A565 2018", LC2_TYPE_ID), pair("N6679.R64 G88 2010", LC_TYPE_ID))),
-      List.of("instance #04", List.of(pair("QD33 .O87", LC_TYPE_ID))),
-      List.of("instance #05", List.of(pair("QD453 .M8 1961", LC_TYPE_ID), pair("146.4", DEWEY_TYPE_ID)),
-        List.of("Contributor X")),
-      List.of("instance #06", List.of(pair("SF433 .D47 2004", LC_TYPE_ID), pair("TX545 .M45", LC_TYPE_ID))),
-      List.of("instance #07", List.of(pair("221.609", DEWEY_TYPE_ID), pair("SF991 .M94", LC2_TYPE_ID))),
-      List.of("instance #08", List.of(pair("TN800 .F4613", LC_TYPE_ID))),
-      List.of("instance #09", List.of(pair("292.07", DEWEY_TYPE_ID), pair("333.91", DEWEY_TYPE_ID),
-        pair("372.4", DEWEY_TYPE_ID))),
-      List.of("instance #10", List.of(pair("146.4", DEWEY_TYPE_ID), pair("QD33 .O87", LC_TYPE_ID),
-        pair("SF991 .M94", null)), List.of("Contributor Y")),
-      List.of("instance #11", List.of(pair("TX545 M45", LC_TYPE_ID))),
-      List.of("instance #12", List.of(pair("TX\\545.\\\\M45", LC_TYPE_ID)))
     );
   }
 }

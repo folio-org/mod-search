@@ -11,28 +11,10 @@ import java.util.List;
 import java.util.Map;
 import org.folio.search.domain.dto.Contributor;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.TenantConfiguredFeature;
-import org.folio.spring.testing.type.IntegrationTest;
-import org.folio.support.base.BaseIntegrationTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.context.TestPropertySource;
 
-@IntegrationTest
-@TestPropertySource(properties = "folio.search-config.indexing.instance-children-index-enabled=true")
-class IndexingInstanceContributorIT extends BaseIntegrationTest {
-
-  @BeforeAll
-  static void prepare() {
-    setUpTenant();
-    enableFeature(TenantConfiguredFeature.BROWSE_CONTRIBUTORS);
-  }
-
-  @AfterAll
-  static void cleanUp() {
-    removeTenant();
-  }
+public abstract class IndexingInstanceContributorIT extends BaseSharedTest {
 
   @Test
   void shouldIndexInstanceContributor_createDocument() {
@@ -47,20 +29,14 @@ class IndexingInstanceContributorIT extends BaseIntegrationTest {
     var instance2 = new Instance().id(instanceId2).addContributorsItem(contributor);
     inventoryApi.createInstance(TENANT_ID, instance1);
     inventoryApi.createInstance(TENANT_ID, instance2);
-    assertCountByIds(instanceSearchPath(), List.of(instanceId1, instanceId2), 2);
-    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CONTRIBUTOR, TENANT_ID)).hasSize(1));
+    assertSearchByIdsCount(instanceSearchPath(), List.of(instanceId1, instanceId2), 2, TENANT_ID);
+    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CONTRIBUTOR, TENANT_ID))
+      .as("Should have exactly 1 contributor document in the index")
+      .hasSize(1));
 
     var sourceAsMap = fetchAllDocuments(INSTANCE_CONTRIBUTOR, TENANT_ID)[0].getSourceAsMap();
     asserContributorDocFields(sourceAsMap, name, nameTypeId, authorityId);
-
-    @SuppressWarnings("unchecked")
-    var instances = (List<Map<String, Object>>) sourceAsMap.get("instances");
-    assertThat(instances)
-      .hasSize(1)
-      .allSatisfy(map -> assertThat(map).containsEntry("shared", false))
-      .allSatisfy(map -> assertThat(map).containsEntry("tenantId", TENANT_ID))
-      .allSatisfy(map -> assertThat(map).containsEntry("typeId", List.of(typeId)))
-      .allSatisfy(map -> assertThat(map).containsEntry("count", 2));
+    assertContributorInstancesGroup(sourceAsMap, typeId);
   }
 
   @Test
@@ -69,10 +45,14 @@ class IndexingInstanceContributorIT extends BaseIntegrationTest {
     var contributor = new Contributor().name("Frodo Begins").authorityId(null);
     var instance = new Instance().id(instanceId).addContributorsItem(contributor);
     inventoryApi.createInstance(TENANT_ID, instance);
-    assertCountByIds(instanceSearchPath(), List.of(instanceId), 1);
-    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CONTRIBUTOR, TENANT_ID)).hasSize(1));
+    assertSearchByIdsCount(instanceSearchPath(), List.of(instanceId), 1, TENANT_ID);
+    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CONTRIBUTOR, TENANT_ID))
+      .as("Should have exactly 1 contributor document before instance update")
+      .hasSize(1));
     inventoryApi.updateInstance(TENANT_ID, instance.contributors(null));
-    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CONTRIBUTOR, TENANT_ID)).isEmpty());
+    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CONTRIBUTOR, TENANT_ID))
+      .as("Contributor document should be removed after instance contributors cleared")
+      .isEmpty());
   }
 
   @Test
@@ -81,10 +61,26 @@ class IndexingInstanceContributorIT extends BaseIntegrationTest {
     var contributor = new Contributor().name("Frodo Begins").authorityId(null);
     var instance = new Instance().id(instanceId).addContributorsItem(contributor);
     inventoryApi.createInstance(TENANT_ID, instance);
-    assertCountByIds(instanceSearchPath(), List.of(instanceId), 1);
-    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CONTRIBUTOR, TENANT_ID)).hasSize(1));
+    assertSearchByIdsCount(instanceSearchPath(), List.of(instanceId), 1, TENANT_ID);
+    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CONTRIBUTOR, TENANT_ID))
+      .as("Should have exactly 1 contributor document before instance delete")
+      .hasSize(1));
     inventoryApi.deleteInstance(TENANT_ID, instanceId);
-    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CONTRIBUTOR, TENANT_ID)).isEmpty());
+    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CONTRIBUTOR, TENANT_ID))
+      .as("Contributor document should be removed after instance delete")
+      .isEmpty());
+  }
+
+  @SuppressWarnings("unchecked")
+  private void assertContributorInstancesGroup(Map<String, Object> sourceAsMap, String typeId) {
+    var instances = (List<Map<String, Object>>) sourceAsMap.get("instances");
+    assertThat(instances)
+      .as("Instances list should contain exactly 1 group with count 2")
+      .hasSize(1)
+      .allSatisfy(map -> assertThat(map).containsEntry("shared", false))
+      .allSatisfy(map -> assertThat(map).containsEntry("tenantId", TENANT_ID))
+      .allSatisfy(map -> assertThat(map).containsEntry("typeId", List.of(typeId)))
+      .allSatisfy(map -> assertThat(map).containsEntry("count", 2));
   }
 
   private Contributor prepareContributor(String name, String contributorTypeId, String nameTypeId, String authorityId) {
@@ -98,6 +94,7 @@ class IndexingInstanceContributorIT extends BaseIntegrationTest {
   private void asserContributorDocFields(Map<String, Object> sourceAsMap, String name, String contributorNameTypeId,
                                          String authorityId) {
     assertThat(sourceAsMap)
+      .as("Contributor document should contain expected indexed fields")
       .contains(
         entry("name", name),
         entry("contributorNameTypeId", contributorNameTypeId),

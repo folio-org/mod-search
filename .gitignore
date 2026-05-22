@@ -38,3 +38,9 @@ build/
 ### Development
 application-local.yml
 !/.jpb/
+.agents/
+skills-lock.json
+docs/superpowers/
+# SQLite test data manager DB
+src/test/resources/test-data/manage/test-data.db
+__pycache__/

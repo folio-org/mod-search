@@ -168,15 +168,15 @@ folio:
         topic-pattern: (${folio.environment}\.)[A-Za-z0-9-]+\.\w+\.CONSORTIUM_INSTANCE_SHARING_COMPLETE
         group-id: ${folio.environment}-mod-search-consortium-instance-sharing-complete-group
       reindex-range-index:
-        concurrency: ${KAFKA_REINDEX_RANGE_INDEX_CONCURRENCY:2}
+        concurrency: ${KAFKA_REINDEX_RANGE_INDEX_CONCURRENCY:8}
         topic-pattern: (${folio.environment}\.)(.*\.)search\.reindex\.range-index
         group-id: ${folio.environment}-mod-search-reindex-range-index-group
       reindex-records:
-        concurrency: ${KAFKA_REINDEX_RECORDS_CONCURRENCY:2}
+        concurrency: ${KAFKA_REINDEX_RECORDS_CONCURRENCY:8}
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.reindex-records
         group-id: ${folio.environment}-mod-search-reindex-records-group
       reindex-file-ready:
-        concurrency: ${KAFKA_REINDEX_FILE_READY_CONCURRENCY:2}
+        concurrency: ${KAFKA_REINDEX_FILE_READY_CONCURRENCY:8}
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.reindex\.file-ready
         group-id: ${folio.environment}-mod-search-reindex-file-ready-group
       index-instance:

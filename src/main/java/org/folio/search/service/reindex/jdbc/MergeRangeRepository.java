@@ -108,7 +108,7 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
     return MERGE_RANGE_TABLE;
   }
 
-  public final void saveEntities(String tenantId, List<Map<String, Object>> entities) {
+  public void saveEntities(String tenantId, List<Map<String, Object>> entities) {
     if (ReindexContext.isReindexMode() && ReindexContext.getMemberTenantId() != null) {
       saveEntitiesToStaging(tenantId, entities);
     } else {
@@ -116,7 +116,7 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
     }
   }
 
-  public final void saveEntitiesRaw(String tenantId, List<RawLine> entities) {
+  public void saveEntitiesRaw(String tenantId, List<RawLine> entities) {
     if (ReindexContext.isReindexMode() && ReindexContext.getMemberTenantId() != null) {
       saveEntitiesToStagingRaw(tenantId, entities);
     } else {

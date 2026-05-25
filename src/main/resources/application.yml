@@ -19,6 +19,10 @@ spring:
     search-retry-attempts: ${OPENSEARCH_SEARCH_RETRY_ATTEMPTS:3}
     search-retry-interval-ms: ${OPENSEARCH_SEARCH_RETRY_INTERVAL_MS:500}
     elasticsearch-server: ${ELASTICSEARCH_SERVER:false}
+    max-conn-per-route: ${OPENSEARCH_MAX_CONN_PER_ROUTE:25}
+    max-conn-total: ${OPENSEARCH_MAX_CONN_TOTAL:100}
+    connection-time-to-live: ${OPENSEARCH_CONNECTION_TIME_TO_LIVE:}
+    validate-after-inactivity: ${OPENSEARCH_VALIDATE_AFTER_INACTIVITY:}
   kafka:
     bootstrap-servers: ${KAFKA_HOST:localhost}:${KAFKA_PORT:9092}
     consumer:

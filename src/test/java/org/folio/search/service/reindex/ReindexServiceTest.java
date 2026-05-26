@@ -120,27 +120,24 @@ class ReindexServiceTest {
   void submitFullReindex_negative_abortMergeAndSetFailedStatusWhenPublishingRangesFailed() throws InterruptedException {
     var tenant = "central";
     var member = "member";
-    var id = UUID.randomUUID();
-    var rangeEntity = buildMergeRangeEntity(id, tenant);
+    var rangeEntity = buildMergeRangeEntity(UUID.randomUUID(), tenant);
+    final int entityTypeCount = ReindexEntityType.supportMergeTypes().size();
 
     when(consortiumService.getCentralTenant(tenant)).thenReturn(Optional.of(tenant));
     when(consortiumService.getConsortiumTenants(tenant)).thenReturn(List.of(member));
     when(mergeRangeService.createMergeRanges(tenant)).thenReturn(List.of(rangeEntity));
     when(executionService.executeSystemUserScoped(anyString(), any()))
-      .thenReturn(List.of()); // when creating ranges for one member tenant
+      .thenReturn(List.of())                       // createMergeRanges for member tenant
+      .thenThrow(FolioIntegrationException.class); // publishing phase — all entity types fail
     when(mergeRangeService.fetchMergeRanges(any(ReindexEntityType.class))).thenReturn(List.of(rangeEntity));
-
-    doAnswer(executeRunnable())
-      .doThrow(FolioIntegrationException.class)
-      .when(reindexExecutor).execute(any());
+    doAnswer(executeRunnable()).when(reindexExecutor).execute(any());
 
     reindexService.submitFullReindex(tenant, null);
     ThreadUtils.sleep(Duration.ofSeconds(1));
 
     verify(mergeRangeService).saveMergeRanges(anyList());
-    verify(statusService)
-      .updateReindexMergeStarted(any(ReindexEntityType.class), eq(1));
-    verify(mergeRangeService).fetchMergeRanges(any(ReindexEntityType.class));
+    verify(mergeRangeService, times(entityTypeCount)).fetchMergeRanges(any(ReindexEntityType.class));
+    verify(statusService, times(entityTypeCount)).updateReindexMergeStarted(any(ReindexEntityType.class), eq(1));
     verify(statusService).updateReindexMergeFailed();
   }
 

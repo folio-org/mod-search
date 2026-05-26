@@ -97,6 +97,13 @@ public abstract class ReindexJdbcRepository {
     jdbcTemplate.update(sql, timestamp, status.name(), failCause, id);
   }
 
+  public abstract ReindexEntityType entityType();
+
+  // Override in subclasses that don't have tenant_id columns (like Subject, Contributor, etc.)
+  protected boolean supportsTenantSpecificDeletion() {
+    return true;
+  }
+
   /**
    * Fetch records updated after the given timestamp with a limit for background processing.
    * Default implementation returns null - subclasses can override if they support timestamp-based fetching with limit.
@@ -113,13 +120,6 @@ public abstract class ReindexJdbcRepository {
   @SuppressWarnings("unused")
   public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp, String fromId, int limit) {
     return null;
-  }
-
-  public abstract ReindexEntityType entityType();
-
-  // Override in subclasses that don't have tenant_id columns (like Subject, Contributor, etc.)
-  protected boolean supportsTenantSpecificDeletion() {
-    return true;
   }
 
   protected SubResourceResult fetchByTimestamp(String query, RowMapper<Map<String, Object>> rowMapper,

@@ -82,6 +82,7 @@ public class ReindexService {
     validateReindexNotInProgress();
 
     reindexCommonService.deleteAllRecords(targetTenantId);
+    reindexCommonService.disableAutoVacuumEntityTables();
     statusService.recreateMergeStatusRecords(targetTenantId);
 
     recreateIndices(tenantId, targetTenantId, indexSettings);
@@ -180,7 +181,7 @@ public class ReindexService {
 
     //Analyze if not member tenant reindex
     if (isBlank(memberTenantId)) {
-      mergeRangeService.analyzeEntityTables();
+      reindexCommonService.enableAutoVacuumEntityTables();
     }
   }
 

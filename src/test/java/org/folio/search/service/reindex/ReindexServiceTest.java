@@ -197,7 +197,7 @@ class ReindexServiceTest {
 
     verify(statusService).getTargetTenantId();
     verify(statusService).upsertUploadStatusRecord(eq(INSTANCE), any());
-    verify(mergeRangeService).analyzeEntityTables();
+    verify(reindexCommonService).enableAutoVacuumEntityTables();
     verify(uploadRangeService).prepareAndSendIndexRanges(INSTANCE);
     verify(reindexCommonService, never()).recreateIndex(any(), any(), any());
   }
@@ -214,7 +214,7 @@ class ReindexServiceTest {
     verify(statusService).getTargetTenantId();
     verify(statusService).upsertUploadStatusRecord(eq(INSTANCE), any());
     verify(reindexCommonService).recreateIndex(eq(INSTANCE), eq(TENANT_ID), any());
-    verify(mergeRangeService).analyzeEntityTables();
+    verify(reindexCommonService).enableAutoVacuumEntityTables();
     verify(uploadRangeService).prepareAndSendIndexRanges(INSTANCE);
   }
 
@@ -410,7 +410,7 @@ class ReindexServiceTest {
     verify(reindexCommonService, never()).deleteInstanceDocumentsByTenantId(any());
     verify(statusService).upsertUploadStatusRecord(eq(INSTANCE), any());
     verify(uploadRangeService).prepareAndSendIndexRanges(INSTANCE);
-    verify(mergeRangeService).analyzeEntityTables();
+    verify(reindexCommonService).enableAutoVacuumEntityTables();
   }
 
   @Test

@@ -257,15 +257,4 @@ class ReindexMergeRangeIndexServiceTest {
 
     verify(stagingMigrationService).migrateAllStagingTables(TENANT_ID);
   }
-
-  @Test
-  void analyzeEntityTables_positive() {
-    // act
-    service.analyzeEntityTables();
-
-    // assert
-    verify(instanceRepository).analyzeEntityTable();
-    verify(itemRepository).analyzeEntityTable();
-    verify(holdingRepository).analyzeEntityTable();
-  }
 }

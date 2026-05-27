@@ -242,5 +242,20 @@ class ReindexCommonServiceTest {
     // Assert
     verify(indexService).dropIndex(ResourceType.INSTANCE, TENANT_ID);
   }
+
+  @Test
+  void analyzeEntityTables_positive() {
+    // act
+    service.enableAutoVacuumEntityTables();
+
+    // assert
+    verify(instanceRepository).analyzeEntityTable();
+    verify(holdingRepository).analyzeEntityTable();
+    verify(itemRepository).analyzeEntityTable();
+    verify(subjectRepository).analyzeEntityTable();
+    verify(contributorRepository).analyzeEntityTable();
+    verify(classificationRepository).analyzeEntityTable();
+    verify(callNumberRepository).analyzeEntityTable();
+  }
 }
 

@@ -16,9 +16,6 @@
 
 package org.folio.search.configuration;
 
-import static org.opensearch.client.RestClientBuilder.DEFAULT_MAX_CONN_PER_ROUTE;
-import static org.opensearch.client.RestClientBuilder.DEFAULT_MAX_CONN_TOTAL;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
@@ -123,16 +120,18 @@ public class OpensearchRestClientConfiguration {
 
     private final OpensearchProperties properties;
     private final List<HttpRequestInterceptor> interceptors;
+    private final PoolingAsyncClientConnectionManager connectionManager;
 
     DefaultRestClientBuilderCustomizer(OpensearchProperties properties, List<HttpRequestInterceptor> interceptors) {
       this.properties = properties;
       this.interceptors = interceptors;
+      this.connectionManager = buildConnectionManager(properties);
     }
 
     @Override
     public void customize(HttpAsyncClientBuilder builder) {
       builder.setDefaultCredentialsProvider(new PropertiesCredentialsProvider(this.properties));
-      builder.setConnectionManager(getPoolingAsyncClientConnectionManager());
+      builder.setConnectionManager(connectionManager);
       interceptors.forEach(builder::addRequestInterceptorFirst);
     }
 
@@ -142,21 +141,28 @@ public class OpensearchRestClientConfiguration {
         .to(timeout -> builder.setResponseTimeout(Timeout.ofMilliseconds(timeout)));
     }
 
-    private PoolingAsyncClientConnectionManager getPoolingAsyncClientConnectionManager() {
+    private static PoolingAsyncClientConnectionManager buildConnectionManager(OpensearchProperties props) {
       return PoolingAsyncClientConnectionManagerBuilder.create()
-        .setDefaultConnectionConfig(getConnectionConfig(ConnectionConfig.custom()))
-        .setMaxConnPerRoute(DEFAULT_MAX_CONN_PER_ROUTE)
-        .setMaxConnTotal(DEFAULT_MAX_CONN_TOTAL)
+        .setDefaultConnectionConfig(buildConnectionConfig(props))
+        .setMaxConnPerRoute(props.getMaxConnPerRoute())
+        .setMaxConnTotal(props.getMaxConnTotal())
         .setTlsStrategy(getTlsStrategy())
         .build();
     }
 
-    private ConnectionConfig getConnectionConfig(ConnectionConfig.Builder builder) {
-      MAPPER.from(this.properties::getConnectionTimeout).asInt(Duration::toMillis)
+    private static ConnectionConfig buildConnectionConfig(OpensearchProperties props) {
+      var builder = ConnectionConfig.custom();
+      MAPPER.from(props::getConnectionTimeout).asInt(Duration::toMillis)
         .to(timeout -> builder.setConnectTimeout(Timeout.ofMilliseconds(timeout)));
-      MAPPER.from(this.properties::getSocketTimeout).asInt(Duration::toMillis)
+      MAPPER.from(props::getSocketTimeout).asInt(Duration::toMillis)
         .to(timeout -> builder.setSocketTimeout(Timeout.ofMilliseconds(timeout)));
-      builder.setValidateAfterInactivity(Timeout.ofSeconds(5));
+      if (props.getConnectionTimeToLive() != null) {
+        builder.setTimeToLive(Timeout.ofMilliseconds(props.getConnectionTimeToLive().toMillis()));
+      }
+      if (props.getValidateAfterInactivity() != null) {
+        builder.setValidateAfterInactivity(
+          Timeout.ofMilliseconds(props.getValidateAfterInactivity().toMillis()));
+      }
       return builder.build();
     }
 

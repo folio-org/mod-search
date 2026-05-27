@@ -27,7 +27,7 @@ import org.springframework.stereotype.Repository;
 public class UploadInstanceRepository extends UploadRangeRepository {
 
   private static final String SELECT_SQL_TEMPLATE = """
-          WITH aggregated_holdings AS (
+          WITH aggregated_holdings AS MATERIALIZED (
             SELECT
                 h.instance_id,
                 jsonb_agg(                   h.json || jsonb_build_object('tenantId', h.tenant_id)
@@ -36,7 +36,7 @@ public class UploadInstanceRepository extends UploadRangeRepository {
             WHERE %4$s
             GROUP BY h.instance_id
           ),
-          aggregated_items AS (
+          aggregated_items AS MATERIALIZED (
             SELECT
                 it.instance_id,
                 jsonb_agg(

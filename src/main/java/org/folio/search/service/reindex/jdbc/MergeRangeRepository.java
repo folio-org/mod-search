@@ -38,8 +38,6 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
     UPDATE %s SET is_deleted = true, last_updated_date = CURRENT_TIMESTAMP WHERE id = ANY (?) AND tenant_id = ?;
     """;
 
-  private static final String ANALYZE_SQL = "ANALYZE %s;";
-
   private static final String INSERT_MERGE_RANGE_SQL = """
       INSERT INTO %s (id, trace_id, entity_type, tenant_id, lower, upper, created_at, finished_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?);
@@ -96,19 +94,12 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
     JdbcUtils.truncateTable(MERGE_RANGE_TABLE, jdbcTemplate, context);
   }
 
-  @SuppressWarnings("java:S2077")
-  public void analyzeEntityTable() {
-    var fullTableName = getFullTableName(context, entityTable());
-    var sql = ANALYZE_SQL.formatted(fullTableName);
-    jdbcTemplate.execute(sql);
-  }
-
   @Override
   protected String rangeTable() {
     return MERGE_RANGE_TABLE;
   }
 
-  public final void saveEntities(String tenantId, List<Map<String, Object>> entities) {
+  public void saveEntities(String tenantId, List<Map<String, Object>> entities) {
     if (ReindexContext.isReindexMode() && ReindexContext.getMemberTenantId() != null) {
       saveEntitiesToStaging(tenantId, entities);
     } else {
@@ -116,7 +107,7 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
     }
   }
 
-  public final void saveEntitiesRaw(String tenantId, List<RawLine> entities) {
+  public void saveEntitiesRaw(String tenantId, List<RawLine> entities) {
     if (ReindexContext.isReindexMode() && ReindexContext.getMemberTenantId() != null) {
       saveEntitiesToStagingRaw(tenantId, entities);
     } else {

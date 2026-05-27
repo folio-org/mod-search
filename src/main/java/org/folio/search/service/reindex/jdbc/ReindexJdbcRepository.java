@@ -30,6 +30,10 @@ public abstract class ReindexJdbcRepository {
     WHERE id = ?;
     """;
 
+  private static final String AUTOVACUUM_DISABLE_SQL = "ALTER TABLE %s SET (autovacuum_enabled = false);";
+  private static final String AUTOVACUUM_ENABLE_SQL = "ALTER TABLE %s SET (autovacuum_enabled = true);";
+  private static final String ANALYZE_SQL = "ANALYZE %s;";
+
   protected final JsonConverter jsonConverter;
   protected final FolioExecutionContext context;
   protected final JdbcTemplate jdbcTemplate;
@@ -76,14 +80,28 @@ public abstract class ReindexJdbcRepository {
     }
   }
 
-  // Override in subclasses that don't have tenant_id columns (like Subject, Contributor, etc.)
-  protected boolean supportsTenantSpecificDeletion() {
-    return true;
+  public void enableAutoVacuumEntityTable() {
+    doQuery(AUTOVACUUM_ENABLE_SQL);
+  }
+
+  public void disableAutoVacuumEntityTable() {
+    doQuery(AUTOVACUUM_DISABLE_SQL);
+  }
+
+  public void analyzeEntityTable() {
+    doQuery(ANALYZE_SQL);
   }
 
   public void updateRangeStatus(UUID id, Timestamp timestamp, ReindexRangeStatus status, String failCause) {
     var sql = UPDATE_STATUS_SQL.formatted(getFullTableName(context, rangeTable()));
     jdbcTemplate.update(sql, timestamp, status.name(), failCause, id);
+  }
+
+  public abstract ReindexEntityType entityType();
+
+  // Override in subclasses that don't have tenant_id columns (like Subject, Contributor, etc.)
+  protected boolean supportsTenantSpecificDeletion() {
+    return true;
   }
 
   /**
@@ -119,8 +137,6 @@ public abstract class ReindexJdbcRepository {
     var lastUpdateDate = records.isEmpty() ? null : records.getLast().get(LAST_UPDATED_DATE_FIELD);
     return new SubResourceResult(records, (Timestamp) lastUpdateDate);
   }
-
-  public abstract ReindexEntityType entityType();
 
   protected abstract String entityTable();
 
@@ -161,5 +177,18 @@ public abstract class ReindexJdbcRepository {
     var limitClause = "LIMIT ?";
     return sql.formatted(
       JdbcUtils.getSchemaName(tenant, context.getFolioModuleMetadata()), whereClause, orderBy, limitClause, orderByAsc);
+  }
+
+  @SuppressWarnings("java:S2077")
+  private void doQuery(String query) {
+    var fullTableName = getFullTableName(context, entityTable());
+    var sql = query.formatted(fullTableName);
+    jdbcTemplate.execute(sql);
+
+    subEntityTable().ifPresent(tableName -> {
+      var subEntityTableName = getFullTableName(context, tableName);
+      var subSql = query.formatted(subEntityTableName);
+      jdbcTemplate.execute(subSql);
+    });
   }
 }

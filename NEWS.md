@@ -1,14 +1,12 @@
-## v6.0.3 2026-05-22
+## v6.0.4 2026-05-27
 ### Features
 * Honor spring.cache.type=noop for cache manager ([MSEARCH-1204](https://folio-org.atlassian.net/browse/MSEARCH-1204))
 
 ### Bug fixes
 * Disable JVM container support to avoid cgroup v2 NullPointerException in Elasticsearch8 testcontainer ([MSEARCH-1209](https://folio-org.atlassian.net/browse/MSEARCH-1209))
 
-
 ### Tech Dept
 * Adjust default configuration and improve parallelism for reindex ([MSEARCH-1236](https://folio-org.atlassian.net/browse/MSEARCH-1236))
-* Optimize integration tests to reduce build time by introducing centralized test data setup ([MSEARCH-1036](https://folio-org.atlassian.net/browse/MSEARCH-1036))
 * Add `@TestRailCase` annotation for linking integration tests to TestRail cases
 * Add integration test coverage for ALL call-number browse type filtering (TestRail C627504)
 * Add integration test coverage for LC call-number browse type filtering (TestRail C627506)
@@ -17,6 +15,12 @@
 * Add integration test coverage for NLM call-number browse with empty config returning all types (TestRail C627501)
 * Add integration test coverage for Other scheme call-number browse with empty config returning all types (TestRail C627502)
 * Add integration test coverage for similar call numbers with different types selected are sorted alphabetically (TestRail C477527)
+
+---
+
+## v6.0.3 2026-05-22
+### Tech Dept
+* Optimize integration tests to reduce build time by introducing centralized test data setup ([MSEARCH-1036](https://folio-org.atlassian.net/browse/MSEARCH-1036))
 
 ---
 

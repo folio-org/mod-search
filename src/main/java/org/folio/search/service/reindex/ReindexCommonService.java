@@ -32,6 +32,19 @@ public class ReindexCommonService {
     this.resourceRepository = resourceRepository;
   }
 
+  public void disableAutoVacuumEntityTables() {
+    log.info("disableAutoVacuumEntityTables:: disabling auto-vacuum");
+    repositories.values().forEach(ReindexJdbcRepository::disableAutoVacuumEntityTable);
+    log.info("disableAutoVacuumEntityTables:: disabled auto-vacuum");
+  }
+
+  public void enableAutoVacuumEntityTables() {
+    log.info("enableAutoVacuumEntityTables:: analyzing entity tables and enabling auto-vacuum to update statistics");
+    repositories.values().forEach(ReindexJdbcRepository::analyzeEntityTable);
+    repositories.values().forEach(ReindexJdbcRepository::enableAutoVacuumEntityTable);
+    log.info("enableAutoVacuumEntityTables:: analyzed entity tables and enabled auto-vacuum");
+  }
+
   @Transactional
   public void deleteAllRecords(String tenantId) {
     for (var entityType : ReindexEntityType.values()) {

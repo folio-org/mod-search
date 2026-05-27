@@ -39,7 +39,7 @@ public class AsyncConfig {
 
   @Bean("reindexUploadExecutor")
   public FolioExecutor reindexUploadExecutor() {
-    return new FolioExecutor(2, 4);
+    return new FolioExecutor(10, 15);
   }
 
   @Bean("reindexPublisherExecutor")

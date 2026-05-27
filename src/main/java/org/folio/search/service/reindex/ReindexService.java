@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.folio.search.converter.ReindexEntityTypeMapper;
 import org.folio.search.domain.dto.IndexSettings;
 import org.folio.search.domain.dto.ReindexUploadDto;
@@ -33,6 +34,8 @@ import org.springframework.stereotype.Service;
 @Log4j2
 @Service
 public class ReindexService {
+
+  private static final int RANGE_PUBLISH_PARTITION_SIZE = 2000;
 
   private final ConsortiumTenantService consortiumService;
   private final SystemUserScopedExecutionService executionService;
@@ -82,6 +85,7 @@ public class ReindexService {
     validateReindexNotInProgress();
 
     reindexCommonService.deleteAllRecords(targetTenantId);
+    reindexCommonService.disableAutoVacuumEntityTables();
     statusService.recreateMergeStatusRecords(targetTenantId);
 
     recreateIndices(tenantId, targetTenantId, indexSettings);
@@ -180,7 +184,7 @@ public class ReindexService {
 
     //Analyze if not member tenant reindex
     if (isBlank(memberTenantId)) {
-      mergeRangeService.analyzeEntityTables();
+      reindexCommonService.enableAutoVacuumEntityTables();
     }
   }
 
@@ -335,27 +339,19 @@ public class ReindexService {
   }
 
   private void publishRecordsRange(String tenantId, String targetTenantId) {
-    // Restore context before publishing
     if (targetTenantId != null) {
       ReindexContext.setMemberTenantId(targetTenantId);
     }
     try {
-      // Capture context before async execution
       final String memberTenantIdContext = ReindexContext.getMemberTenantId();
 
-      var futures = new ArrayList<CompletableFuture<Void>>();
-      for (var entityType : ReindexEntityType.supportMergeTypes()) {
-        var rangeEntities = mergeRangeService.fetchMergeRanges(entityType);
-        if (CollectionUtils.isNotEmpty(rangeEntities)) {
-          log.info("publishRecordsRange:: publishing merge ranges "
-              + "[requestingTenant: {}, entityType: {}, count: {}, targetTenant: {}]", tenantId, entityType,
-            rangeEntities.size(), targetTenantId != null ? targetTenantId : "all");
+      var perTypeFutures = ReindexEntityType.supportMergeTypes().stream()
+        .map(entityType -> CompletableFuture
+          .supplyAsync(() -> fetchAndPreparePartitions(tenantId, targetTenantId, entityType), reindexPublisherExecutor)
+          .thenCompose(partitions -> publishPartitionsInParallel(partitions, memberTenantIdContext)))
+        .toArray(CompletableFuture[]::new);
 
-          statusService.updateReindexMergeStarted(entityType, rangeEntities.size());
-          submitRecordsRangePublishing(memberTenantIdContext, rangeEntities, futures);
-        }
-      }
-      CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+      CompletableFuture.allOf(perTypeFutures).join();
     } finally {
       if (targetTenantId != null) {
         ReindexContext.clearMemberTenantId();
@@ -363,27 +359,43 @@ public class ReindexService {
     }
   }
 
-  private void submitRecordsRangePublishing(String memberTenantIdContext, List<MergeRangeEntity> rangeEntities,
-                                            List<CompletableFuture<Void>> futures) {
-    for (var rangeEntity : rangeEntities) {
-      var publishFuture = CompletableFuture.runAsync(() -> {
-        // Restore context in executor thread
-        if (memberTenantIdContext != null) {
-          ReindexContext.setMemberTenantId(memberTenantIdContext);
-        }
-        try {
-          executionService.executeSystemUserScoped(rangeEntity.getTenantId(), () -> {
-            inventoryService.publishReindexRecordsRange(rangeEntity);
-            return null;
-          });
-        } finally {
-          // Clean up context in executor thread
-          if (memberTenantIdContext != null) {
-            ReindexContext.clearMemberTenantId();
-          }
-        }
-      }, reindexPublisherExecutor);
-      futures.add(publishFuture);
+  private List<List<MergeRangeEntity>> fetchAndPreparePartitions(String tenantId, String targetTenantId,
+                                                                 ReindexEntityType entityType) {
+    var rangeEntities = mergeRangeService.fetchMergeRanges(entityType);
+    if (CollectionUtils.isEmpty(rangeEntities)) {
+      return List.of();
+    }
+    log.info("publishRecordsRange:: publishing merge ranges "
+        + "[requestingTenant: {}, entityType: {}, count: {}, targetTenant: {}]", tenantId, entityType,
+      rangeEntities.size(), targetTenantId != null ? targetTenantId : "all");
+    statusService.updateReindexMergeStarted(entityType, rangeEntities.size());
+    return ListUtils.partition(rangeEntities, RANGE_PUBLISH_PARTITION_SIZE);
+  }
+
+  private CompletableFuture<Void> publishPartitionsInParallel(List<List<MergeRangeEntity>> partitions,
+                                                              String memberTenantIdContext) {
+    var futures = partitions.stream()
+      .map(partition -> CompletableFuture.runAsync(
+        () -> publishRangePartition(partition, memberTenantIdContext), reindexPublisherExecutor))
+      .toArray(CompletableFuture[]::new);
+    return CompletableFuture.allOf(futures);
+  }
+
+  private void publishRangePartition(List<MergeRangeEntity> partition, String memberTenantIdContext) {
+    if (memberTenantIdContext != null) {
+      ReindexContext.setMemberTenantId(memberTenantIdContext);
+    }
+    try {
+      for (var rangeEntity : partition) {
+        executionService.executeSystemUserScoped(rangeEntity.getTenantId(), () -> {
+          inventoryService.publishReindexRecordsRange(rangeEntity);
+          return null;
+        });
+      }
+    } finally {
+      if (memberTenantIdContext != null) {
+        ReindexContext.clearMemberTenantId();
+      }
     }
   }
 

@@ -44,6 +44,35 @@ public class OpensearchProperties {
   private boolean compressionEnabled = true;
 
   /**
+   * Maximum number of connections per route in the async connection pool.
+   * Defaults to 25. Increase for high-concurrency environments.
+   */
+  private int maxConnPerRoute = 25;
+
+  /**
+   * Maximum total number of connections in the async connection pool.
+   * Defaults to 100. Should be at least maxConnPerRoute * number-of-opensearch-nodes.
+   */
+  private int maxConnTotal = 100;
+
+  /**
+   * Maximum time a connection may be kept alive (TTL). A null value means no TTL
+   * (connections are reused indefinitely). Set this lower than your load-balancer's
+   * idle-connection timeout to avoid stale-connection errors.
+   * Example: PT60S for 60 seconds.
+   */
+  private Duration connectionTimeToLive;
+
+  /**
+   * How long a connection may remain idle in the pool before it is validated
+   * with a TCP check on next use. Null (the default) disables validation,
+   * which is appropriate when the application issues frequent requests.
+   * Setting this too low (e.g. PT5S) causes a validation round-trip on
+   * nearly every reused connection and degrades throughput under moderate load.
+   */
+  private Duration validateAfterInactivity;
+
+  /**
    * Specifies the number of retry attempts for search requests on transient connection errors.
    */
   private int searchRetryAttempts = 3;

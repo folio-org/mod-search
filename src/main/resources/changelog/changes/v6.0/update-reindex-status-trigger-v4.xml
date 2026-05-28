@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
+
+  <changeSet id="MSEARCH-1238@@update-reindex-status-trigger-v4" author="viacheslav_kolesnyk">
+    <preConditions onFail="MARK_RAN">
+      <tableExists tableName="reindex_status"/>
+      <tableExists tableName="sub_resources_lock"/>
+    </preConditions>
+
+    <comment>
+      Remove proactive lock acquisition from the reindex status trigger. Sub-resource locks are now
+      acquired explicitly from Java at reindex phase boundaries; the trigger keeps only the
+      unlock-on-completion behavior alongside the existing status/timestamp updates.
+    </comment>
+
+    <sqlFile path="sql/update-reindex-status-trigger-v4.sql" relativeToChangelogFile="true" splitStatements="false"/>
+  </changeSet>
+
+</databaseChangeLog>
+

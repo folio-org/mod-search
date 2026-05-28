@@ -23,6 +23,8 @@ import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexStatus;
 import org.folio.search.service.consortium.ConsortiumTenantProvider;
 import org.folio.search.service.reindex.jdbc.ReindexStatusRepository;
+import org.folio.search.service.reindex.jdbc.SubResourcesLockRepository;
+import org.folio.spring.FolioExecutionContext;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Assertions;
@@ -48,6 +50,12 @@ class ReindexStatusServiceTest {
 
   @Mock
   private ConsortiumTenantProvider consortiumTenantProvider;
+
+  @Mock
+  private SubResourcesLockRepository subResourcesLockRepository;
+
+  @Mock
+  private FolioExecutionContext folioExecutionContext;
 
   @InjectMocks
   private ReindexStatusService service;
@@ -157,6 +165,9 @@ class ReindexStatusServiceTest {
 
   @Test
   void shouldRecreateMergeReindexStatusEntities() {
+    // given
+    when(folioExecutionContext.getTenantId()).thenReturn(TENANT_ID);
+
     // act
     service.recreateMergeStatusRecords(null);
 
@@ -164,6 +175,7 @@ class ReindexStatusServiceTest {
     verify(statusRepository).truncate();
     verify(statusRepository).recreateReindexStatusTrigger(false);
     verify(statusRepository).saveReindexStatusRecords(reindexStatusEntitiesCaptor.capture());
+    verify(subResourcesLockRepository).forceLockAllForReindex(TENANT_ID);
     var savedEntities = reindexStatusEntitiesCaptor.getValue();
     assertThat(savedEntities)
       .hasSize(ReindexEntityType.supportMergeTypes().size())
@@ -203,6 +215,7 @@ class ReindexStatusServiceTest {
       .hasSize(ReindexEntityType.supportMergeTypes().size())
       .allMatch(entity -> targetTenantId.equals(entity.getTargetTenantId()),
         "All entities should have targetTenantId set");
+    verifyNoInteractions(subResourcesLockRepository);
   }
 
   @Test
@@ -408,6 +421,36 @@ class ReindexStatusServiceTest {
     var actual = service.isReindexInProgressOrFailedNotForConsortiumMember();
 
     // assert
+    assertThat(actual).isFalse();
+  }
+
+  @Test
+  void isReindexInProgressOrFailedNotForConsortiumMember_true_whenInstanceIsMergeCompleted() {
+    // given: INSTANCE has MERGE_COMPLETED (transient between-phases state for upload-supporting types)
+    when(statusRepository.getReindexStatuses()).thenReturn(List.of(
+      new ReindexStatusEntity(ReindexEntityType.INSTANCE, ReindexStatus.MERGE_COMPLETED),
+      new ReindexStatusEntity(ReindexEntityType.ITEM, ReindexStatus.MERGE_COMPLETED),
+      new ReindexStatusEntity(ReindexEntityType.HOLDINGS, ReindexStatus.MERGE_COMPLETED)));
+
+    // act
+    var actual = service.isReindexInProgressOrFailedNotForConsortiumMember();
+
+    // assert: INSTANCE supports upload so MERGE_COMPLETED is not terminal for it
+    assertThat(actual).isTrue();
+  }
+
+  @Test
+  void isReindexInProgressOrFailedNotForConsortiumMember_false_whenOnlyItemAndHoldingsAreMergeCompleted() {
+    // given: only non-upload entity types have MERGE_COMPLETED — this is genuinely terminal for them
+    when(statusRepository.getReindexStatuses()).thenReturn(List.of(
+      new ReindexStatusEntity(ReindexEntityType.INSTANCE, ReindexStatus.UPLOAD_COMPLETED),
+      new ReindexStatusEntity(ReindexEntityType.ITEM, ReindexStatus.MERGE_COMPLETED),
+      new ReindexStatusEntity(ReindexEntityType.HOLDINGS, ReindexStatus.MERGE_COMPLETED)));
+
+    // act
+    var actual = service.isReindexInProgressOrFailedNotForConsortiumMember();
+
+    // assert: ITEM and HOLDINGS don't support upload so MERGE_COMPLETED is terminal for them
     assertThat(actual).isFalse();
   }
 }

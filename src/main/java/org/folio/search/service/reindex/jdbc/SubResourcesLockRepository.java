@@ -21,16 +21,24 @@ public class SubResourcesLockRepository {
     RETURNING last_updated_date
     """;
 
-  private static final String UNLOCK_SUB_RESOURCE_SQL = """
+  /**
+   * Scheduler-side unlock with fencing. Releases the lock only if {@code expectedLastUpdatedDate}
+   * still matches the row, so a lock taken over by a reindex via {@link #forceLockAllForReindex(String)}
+   * is not cleared by the scheduler.
+   */
+  private static final String UNLOCK_SUB_RESOURCE_FENCED_SQL = """
     UPDATE %s.sub_resources_lock
     SET locked_flag = FALSE, last_updated_date = ?
-    WHERE entity_type = ?
+    WHERE entity_type = ? AND last_updated_date = ?
     """;
 
-  private static final String UPDATE_LOCK_TIMESTAMP_SQL = """
+  /**
+   * Scheduler-side heartbeat with fencing semantics, see {@link #UNLOCK_SUB_RESOURCE_FENCED_SQL}.
+   */
+  private static final String UPDATE_LOCK_TIMESTAMP_FENCED_SQL = """
     UPDATE %s.sub_resources_lock
     SET last_updated_date = ?
-    WHERE entity_type = ? AND locked_flag = TRUE
+    WHERE entity_type = ? AND locked_flag = TRUE AND last_updated_date = ?
     """;
 
   private static final String RELEASE_STALE_LOCK_SQL = """
@@ -39,6 +47,15 @@ public class SubResourcesLockRepository {
     WHERE entity_type = ?
       AND locked_flag = TRUE
       AND last_updated_date < ?
+    """;
+
+  /**
+   * Reindex-side unconditional lock of all entity types. Bumps {@code last_updated_date}
+   * so any in-flight scheduler cycle holding a stale fencing token is preempted.
+   */
+  private static final String FORCE_LOCK_ALL_SUB_RESOURCES_SQL = """
+    UPDATE %s.sub_resources_lock
+    SET locked_flag = TRUE, last_updated_date = ?
     """;
 
   private final JdbcTemplate jdbcTemplate;
@@ -53,23 +70,40 @@ public class SubResourcesLockRepository {
     );
   }
 
-  public void unlockSubResource(ReindexEntityType entityType, Timestamp lastUpdatedDate, String tenantId) {
-
-    var formattedSql = formatSqlWithSchema(UNLOCK_SUB_RESOURCE_SQL, tenantId);
-    jdbcTemplate.update(formattedSql, lastUpdatedDate, entityType.getType());
+  /**
+   * Releases the lock from the scheduler side, but only if the row has not been
+   * preempted by a reindex (fencing token check on {@code expectedLastUpdatedDate}).
+   *
+   * @return {@code true} if the lock was released, {@code false} if it had been taken over
+   *     (typically by {@link #forceLockAllForReindex(String)} during a reindex).
+   */
+  public boolean unlockSubResourceFenced(ReindexEntityType entityType, Timestamp lastUpdatedDate, String tenantId,
+                                         Timestamp expectedLastUpdatedDate) {
+    var formattedSql = formatSqlWithSchema(UNLOCK_SUB_RESOURCE_FENCED_SQL, tenantId);
+    var rowsAffected = jdbcTemplate.update(formattedSql, lastUpdatedDate, entityType.getType(),
+      expectedLastUpdatedDate);
+    return rowsAffected > 0;
   }
 
   /**
-   * Updates the lock timestamp for a sub-resource without releasing the lock.
-   * This prevents the lock from appearing stale during long-running batch processing.
+   * Updates the lock timestamp for a sub-resource without releasing the lock, using a fencing
+   * token. This prevents the lock from appearing stale during long-running batch processing
+   * while also allowing the scheduler to detect preemption by a reindex
+   * (see {@link #forceLockAllForReindex(String)}).
    *
    * @param entityType the type of entity being processed
-   * @param lastUpdatedDate the timestamp to update in the lock record
+   * @param lastUpdatedDate the new timestamp to set
    * @param tenantId the tenant identifier
+   * @param expectedLastUpdatedDate the timestamp value the caller previously saw / wrote
+   * @return {@code true} if the timestamp was refreshed, {@code false} if the lock was
+   *     preempted (caller should abort its current cycle without releasing the lock).
    */
-  public void updateLockTimestamp(ReindexEntityType entityType, Timestamp lastUpdatedDate, String tenantId) {
-    var formattedSql = formatSqlWithSchema(UPDATE_LOCK_TIMESTAMP_SQL, tenantId);
-    jdbcTemplate.update(formattedSql, lastUpdatedDate, entityType.getType());
+  public boolean updateLockTimestampFenced(ReindexEntityType entityType, Timestamp lastUpdatedDate, String tenantId,
+                                           Timestamp expectedLastUpdatedDate) {
+    var formattedSql = formatSqlWithSchema(UPDATE_LOCK_TIMESTAMP_FENCED_SQL, tenantId);
+    var rowsAffected = jdbcTemplate.update(formattedSql, lastUpdatedDate, entityType.getType(),
+      expectedLastUpdatedDate);
+    return rowsAffected > 0;
   }
 
   /**
@@ -88,6 +122,18 @@ public class SubResourcesLockRepository {
 
     var rowsAffected = jdbcTemplate.update(formattedSql, entityType.getType(), staleThresholdTimestamp);
     return rowsAffected > 0;
+  }
+
+  /**
+   * Reindex-side: unconditionally locks all sub-resource rows for the given tenant and
+   * advances {@code last_updated_date}. The timestamp bump invalidates any fencing token
+   * held by an in-flight scheduler cycle so it will abort instead of clearing the lock.
+   *
+   * @param tenantId the tenant identifier
+   */
+  public void forceLockAllForReindex(String tenantId) {
+    var formattedSql = formatSqlWithSchema(FORCE_LOCK_ALL_SUB_RESOURCES_SQL, tenantId);
+    jdbcTemplate.update(formattedSql, new Timestamp(System.currentTimeMillis()));
   }
 
   private String formatSqlWithSchema(String sqlTemplate, String tenantId) {

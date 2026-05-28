@@ -101,7 +101,8 @@ class ScheduledInstanceSubResourcesServiceTest {
     verify(resourceService).indexResources(anyList());
     verify(itemRepository).deleteEntitiesForTenant(List.of("4"), TENANT_ID, true);
     verify(instanceRepository).deleteEntities(List.of("5"), true);
-    verify(subResourcesLockRepository).unlockSubResource(eq(ReindexEntityType.SUBJECT), any(), eq(TENANT_ID));
+    verify(subResourcesLockRepository).unlockSubResourceFenced(
+      eq(ReindexEntityType.SUBJECT), any(), eq(TENANT_ID), any());
   }
 
   @Test
@@ -110,6 +111,7 @@ class ScheduledInstanceSubResourcesServiceTest {
     doAnswer(invocation -> invocation.<Callable<?>>getArgument(1).call())
       .when(executionService).executeSystemUserScoped(anyString(), any());
     when(subResourcesLockRepository.lockSubResource(any(), any())).thenReturn(Optional.of(timestamp));
+    when(subResourcesLockRepository.updateLockTimestampFenced(any(), any(), any(), any())).thenReturn(true);
     when(tenantRepository.fetchDataTenantIds()).thenReturn(List.of(TENANT_ID));
     when(subjectRepository.fetchByTimestamp(TENANT_ID, timestamp, 3))
       .thenReturn(new SubResourceResult(List.of(Map.of("id", "1", "tenantId", TENANT_ID),
@@ -127,7 +129,8 @@ class ScheduledInstanceSubResourcesServiceTest {
     verify(instanceRepository).fetchByTimestamp(TENANT_ID, timestamp, 3);
     verify(subjectRepository).fetchByTimestamp(TENANT_ID, timestamp, 3);
     verify(resourceService).indexResources(anyList());
-    verify(subResourcesLockRepository).unlockSubResource(eq(ReindexEntityType.SUBJECT), any(), eq(TENANT_ID));
+    verify(subResourcesLockRepository).unlockSubResourceFenced(
+      eq(ReindexEntityType.SUBJECT), any(), eq(TENANT_ID), any());
   }
 
   @Test
@@ -141,7 +144,7 @@ class ScheduledInstanceSubResourcesServiceTest {
     // Assert
     verify(subjectRepository, never()).fetchByTimestamp(anyString(), any(), anyInt());
     verify(resourceService, never()).indexResources(anyList());
-    verify(subResourcesLockRepository, never()).unlockSubResource(any(), any(), any());
+    verify(subResourcesLockRepository, never()).unlockSubResourceFenced(any(), any(), any(), any());
   }
 
   @Test
@@ -161,7 +164,7 @@ class ScheduledInstanceSubResourcesServiceTest {
     // Assert
     verify(subjectRepository, times(2)).fetchByTimestamp(anyString(), any(), anyInt());
     verify(resourceService, times(2)).indexResources(anyList());
-    verify(subResourcesLockRepository, times(6)).unlockSubResource(any(), any(), any());
+    verify(subResourcesLockRepository, times(6)).unlockSubResourceFenced(any(), any(), any(), any());
   }
 
   @Test
@@ -175,7 +178,7 @@ class ScheduledInstanceSubResourcesServiceTest {
     // Assert
     verify(subjectRepository, never()).fetchByTimestamp(anyString(), any(), anyInt());
     verify(resourceService, never()).indexResources(anyList());
-    verify(subResourcesLockRepository, never()).unlockSubResource(any(), any(), any());
+    verify(subResourcesLockRepository, never()).unlockSubResourceFenced(any(), any(), any(), any());
   }
 
   @Test
@@ -195,7 +198,7 @@ class ScheduledInstanceSubResourcesServiceTest {
     verify(subResourcesLockRepository, times(3)).lockSubResource(any(), eq(TENANT_ID));
     verify(reindexStatusService, times(3)).isReindexInProgressOrFailedNotForConsortiumMember();
     verify(subResourcesLockRepository, times(3)).checkAndReleaseStaleLock(any(), eq(TENANT_ID), anyLong());
-    verify(subResourcesLockRepository, never()).unlockSubResource(any(), any(), any());
+    verify(subResourcesLockRepository, never()).unlockSubResourceFenced(any(), any(), any(), any());
     verify(subjectRepository, never()).fetchByTimestamp(anyString(), any(), anyInt());
     verifyNoInteractions(instanceRepository, itemRepository, resourceService);
   }
@@ -217,7 +220,7 @@ class ScheduledInstanceSubResourcesServiceTest {
     verify(subResourcesLockRepository, times(3)).lockSubResource(any(), eq(TENANT_ID));
     verify(reindexStatusService, times(3)).isReindexInProgressOrFailedNotForConsortiumMember();
     verify(subResourcesLockRepository, times(3)).checkAndReleaseStaleLock(any(), eq(TENANT_ID), anyLong());
-    verify(subResourcesLockRepository, never()).unlockSubResource(any(), any(), any());
+    verify(subResourcesLockRepository, never()).unlockSubResourceFenced(any(), any(), any(), any());
     verify(subjectRepository, never()).fetchByTimestamp(anyString(), any(), anyInt());
     verifyNoInteractions(instanceRepository, itemRepository, resourceService);
   }
@@ -238,7 +241,7 @@ class ScheduledInstanceSubResourcesServiceTest {
     verify(subResourcesLockRepository, times(3)).lockSubResource(any(), eq(TENANT_ID));
     verify(reindexStatusService, times(3)).isReindexInProgressOrFailedNotForConsortiumMember();
     verify(subResourcesLockRepository, never()).checkAndReleaseStaleLock(any(), any(), anyLong());
-    verify(subResourcesLockRepository, never()).unlockSubResource(any(), any(), any());
+    verify(subResourcesLockRepository, never()).unlockSubResourceFenced(any(), any(), any(), any());
     verify(subjectRepository, never()).fetchByTimestamp(anyString(), any(), anyInt());
     verifyNoInteractions(instanceRepository, itemRepository, resourceService);
   }

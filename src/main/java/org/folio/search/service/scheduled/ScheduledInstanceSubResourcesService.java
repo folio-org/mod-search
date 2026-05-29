@@ -150,33 +150,51 @@ public class ScheduledInstanceSubResourcesService {
   }
 
   private void processSubResources(ReindexEntityType entityType, String tenant, Timestamp timestamp) {
-    SubResourceResult result = null;
-    String lastId = null;
-    Timestamp lastTimestamp = timestamp;
-
+    var loopResult = new ProcessingLoopResult();
     try {
-      do {
-        result = fetchSubResourceBatch(entityType, tenant, timestamp, lastId, lastTimestamp);
-
-        if (isEmptyResult(result)) {
-          break;
-        }
-
-        processBatch(entityType, tenant, result);
-
-        if (hasMoreBatches(result)) {
-          updateLockForNextBatch(entityType, tenant, result, lastTimestamp);
-          lastId = extractLastRecordId(result);
-          lastTimestamp = result.lastUpdateDate();
-        } else {
-          break;
-        }
-      } while (result.hasRecords());
+      runProcessingLoop(entityType, tenant, timestamp, loopResult);
     } catch (Exception e) {
       log.error("processSubResources::Error processing {} entities", entityType, e);
     } finally {
-      releaseProcessingLock(entityType, tenant, timestamp, result);
+      if (!loopResult.preempted) {
+        releaseProcessingLock(entityType, tenant, timestamp, loopResult.lastResult, loopResult.fencingToken);
+      }
     }
+  }
+
+  private void runProcessingLoop(ReindexEntityType entityType, String tenant, Timestamp timestamp,
+                                 ProcessingLoopResult loopResult) {
+    String lastId = null;
+    Timestamp lastTimestamp = timestamp;
+    loopResult.fencingToken = timestamp;
+
+    do {
+      loopResult.lastResult = fetchSubResourceBatch(entityType, tenant, timestamp, lastId, lastTimestamp);
+      if (isEmptyResult(loopResult.lastResult)) {
+        return;
+      }
+      processBatch(entityType, tenant, loopResult.lastResult);
+      if (!hasMoreBatches(loopResult.lastResult)
+          || !refreshFencingToken(entityType, tenant, lastTimestamp, loopResult)) {
+        return;
+      }
+      lastId = extractLastRecordId(loopResult.lastResult);
+      lastTimestamp = loopResult.lastResult.lastUpdateDate();
+    } while (loopResult.lastResult.hasRecords());
+  }
+
+  private boolean refreshFencingToken(ReindexEntityType entityType, String tenant, Timestamp lastTimestamp,
+                                      ProcessingLoopResult loopResult) {
+    var newToken = updateLockForNextBatch(entityType, tenant, loopResult.lastResult, lastTimestamp,
+      loopResult.fencingToken);
+    if (newToken == null) {
+      log.warn("processSubResources::Lock for entity type {} in tenant {} was preempted "
+               + "(reindex started). Aborting current cycle.", entityType, tenant);
+      loopResult.preempted = true;
+      return false;
+    }
+    loopResult.fencingToken = newToken;
+    return true;
   }
 
   private boolean isEmptyResult(SubResourceResult result) {
@@ -204,10 +222,13 @@ public class ScheduledInstanceSubResourcesService {
     return result.records().size() == subResourceBatchSize;
   }
 
-  private void updateLockForNextBatch(ReindexEntityType entityType, String tenant,
-                                      SubResourceResult result, Timestamp lastTimestamp) {
+  private Timestamp updateLockForNextBatch(ReindexEntityType entityType, String tenant,
+                                           SubResourceResult result, Timestamp lastTimestamp,
+                                           Timestamp fencingToken) {
     var currentTimestamp = result.lastUpdateDate() != null ? result.lastUpdateDate() : lastTimestamp;
-    subResourcesLockRepository.updateLockTimestamp(entityType, currentTimestamp, tenant);
+    var refreshed = subResourcesLockRepository.updateLockTimestampFenced(entityType, currentTimestamp, tenant,
+      fencingToken);
+    return refreshed ? currentTimestamp : null;
   }
 
   private String extractLastRecordId(SubResourceResult result) {
@@ -216,9 +237,14 @@ public class ScheduledInstanceSubResourcesService {
   }
 
   private void releaseProcessingLock(ReindexEntityType entityType, String tenant,
-                                     Timestamp timestamp, SubResourceResult result) {
+                                     Timestamp timestamp, SubResourceResult result, Timestamp fencingToken) {
     var lastUpdatedDate = determineLastUpdatedDate(timestamp, result);
-    subResourcesLockRepository.unlockSubResource(entityType, lastUpdatedDate, tenant);
+    var released = subResourcesLockRepository.unlockSubResourceFenced(entityType, lastUpdatedDate, tenant,
+      fencingToken);
+    if (!released) {
+      log.warn("releaseProcessingLock::Lock for entity type {} in tenant {} was preempted "
+               + "(reindex started). Skipping unlock.", entityType, tenant);
+    }
   }
 
   private Timestamp determineLastUpdatedDate(Timestamp timestamp, SubResourceResult result) {
@@ -338,5 +364,16 @@ public class ScheduledInstanceSubResourcesService {
       .resourceName(ReindexConstants.RESOURCE_NAME_MAP.get(entityType).getName())
       ._new(instancesEmpty ? null : map)
       .tenant(tenant);
+  }
+
+  private static final class ProcessingLoopResult {
+    private SubResourceResult lastResult;
+    /**
+     * The last {@code last_updated_date} value the scheduler believes is stored in the row.
+     * Used by scheduler-side lock writes to detect preemption by a reindex
+     * ({@code forceLockAllForReindex} bumps the timestamp so this token goes stale).
+     */
+    private Timestamp fencingToken;
+    private boolean preempted;
   }
 }

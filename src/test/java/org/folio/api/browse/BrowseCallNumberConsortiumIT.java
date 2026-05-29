@@ -97,9 +97,12 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
     saveTestRecords();
 
     // Unlock all resources in reverse order
-    lockRepository.unlockSubResource(ReindexEntityType.INSTANCE, instanceTimestamp.get(), CENTRAL_TENANT_ID);
-    lockRepository.unlockSubResource(ReindexEntityType.ITEM, itemTimestamp.get(), CENTRAL_TENANT_ID);
-    lockRepository.unlockSubResource(ReindexEntityType.CALL_NUMBER, callNumberTimestamp.get(), CENTRAL_TENANT_ID);
+    lockRepository.unlockSubResourceFenced(
+      ReindexEntityType.INSTANCE, instanceTimestamp.get(), CENTRAL_TENANT_ID, instanceTimestamp.get());
+    lockRepository.unlockSubResourceFenced(
+      ReindexEntityType.ITEM, itemTimestamp.get(), CENTRAL_TENANT_ID, itemTimestamp.get());
+    lockRepository.unlockSubResourceFenced(
+      ReindexEntityType.CALL_NUMBER, callNumberTimestamp.get(), CENTRAL_TENANT_ID, callNumberTimestamp.get());
 
     await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() -> {
       var counted = countIndexDocument(ResourceType.INSTANCE_CALL_NUMBER, CENTRAL_TENANT_ID);

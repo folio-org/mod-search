@@ -1,6 +1,7 @@
 package org.folio.search.service.reindex;
 
 import static java.util.Collections.singletonList;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.folio.search.configuration.SearchCacheNames.REINDEX_TARGET_TENANT_CACHE;
 
@@ -18,6 +19,8 @@ import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexStatus;
 import org.folio.search.service.consortium.ConsortiumTenantProvider;
 import org.folio.search.service.reindex.jdbc.ReindexStatusRepository;
+import org.folio.search.service.reindex.jdbc.SubResourcesLockRepository;
+import org.folio.spring.FolioExecutionContext;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -31,6 +34,8 @@ public class ReindexStatusService {
   private final ReindexStatusRepository statusRepository;
   private final ReindexStatusMapper reindexStatusMapper;
   private final ConsortiumTenantProvider consortiumTenantProvider;
+  private final SubResourcesLockRepository subResourcesLockRepository;
+  private final FolioExecutionContext folioExecutionContext;
 
   public List<ReindexStatusItem> getReindexStatuses(String tenantId) {
     if (consortiumTenantProvider.isMemberTenant(tenantId)) {
@@ -57,6 +62,15 @@ public class ReindexStatusService {
     statusRepository.truncate();
     statusRepository.recreateReindexStatusTrigger(isNotBlank(targetTenantId));
     statusRepository.saveReindexStatusRecords(statusRecords);
+    // For full (non-consortium-member) reindex, proactively acquire sub-resource locks before
+    // any ranges are processed so that background processing cannot race in during the gap
+    // between status creation and the first processed range. Consortium-member reindex must
+    // not touch the locks - background processing is expected to keep running there.
+    if (isBlank(targetTenantId)) {
+      log.info("recreateMergeStatusRecords:: force-locking sub-resources for full reindex [tenant: {}]",
+        folioExecutionContext.getTenantId());
+      subResourcesLockRepository.forceLockAllForReindex(folioExecutionContext.getTenantId());
+    }
   }
 
   @Transactional
@@ -129,21 +143,30 @@ public class ReindexStatusService {
   }
 
   /**
-   * Checks if any reindex operation is currently in progress or has failed, excluding operations
-   * scoped to a specific consortium member tenant (i.e. where targetTenantId is not null).
+   * Checks if any reindex operation is currently in progress, has failed, or is between phases,
+   * excluding operations scoped to a specific consortium member tenant
+   * (i.e. where targetTenantId is not null).
    *
-   * @return true if any entity type has a status of MERGE_IN_PROGRESS, UPLOAD_IN_PROGRESS, STAGING_IN_PROGRESS,
-   *     MERGE_FAILED, STAGING_FAILED or UPLOAD_FAILED and the operation is not scoped to a consortium member tenant
+   * <p>{@code MERGE_COMPLETED} is included for entity types that also support upload
+   * (currently only {@code INSTANCE}), because for those types it is a transient between-phases
+   * state: merge is done but the upload phase has not yet started. During this window the
+   * sub-resource lock is still held and must not be released as "stale", otherwise background
+   * processing could race in before the upload phase begins.
+   * For entity types without an upload phase (e.g. {@code ITEM}, {@code HOLDINGS}),
+   * {@code MERGE_COMPLETED} is a genuine terminal status and must not block stale-lock release.
+   *
+   * @return true if any entity type has a non-terminal, non-consortium-member-scoped status
    */
   public boolean isReindexInProgressOrFailedNotForConsortiumMember() {
     return statusRepository.getReindexStatuses().stream()
       .anyMatch(status -> status.getTargetTenantId() == null
-                          && (status.getStatus() == ReindexStatus.MERGE_IN_PROGRESS
-                              || status.getStatus() == ReindexStatus.UPLOAD_IN_PROGRESS
-                              || status.getStatus() == ReindexStatus.STAGING_IN_PROGRESS
-                              || status.getStatus() == ReindexStatus.MERGE_FAILED
-                              || status.getStatus() == ReindexStatus.STAGING_FAILED
-                              || status.getStatus() == ReindexStatus.UPLOAD_FAILED));
+        && (status.getStatus() == ReindexStatus.MERGE_IN_PROGRESS
+        || status.getStatus() == ReindexStatus.UPLOAD_IN_PROGRESS
+        || status.getStatus() == ReindexStatus.STAGING_IN_PROGRESS
+        || status.getStatus() == ReindexStatus.MERGE_FAILED
+        || status.getStatus() == ReindexStatus.STAGING_FAILED
+        || status.getStatus() == ReindexStatus.UPLOAD_FAILED
+        || status.getStatus() == ReindexStatus.MERGE_COMPLETED && status.getEntityType().isSupportsUpload()));
   }
 
   private List<ReindexStatusEntity> constructNewStatusRecords(List<ReindexEntityType> entityTypes,

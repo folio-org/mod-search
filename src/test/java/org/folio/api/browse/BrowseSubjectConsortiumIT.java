@@ -82,7 +82,8 @@ class BrowseSubjectConsortiumIT extends BaseConsortiumIntegrationTest {
       INSTANCES_CENTRAL.length + INSTANCES_MEMBER.length,
       instance -> inventoryApi.createInstance(MEMBER_TENANT_ID, instance));
 
-    subResourcesLockRepository.unlockSubResource(ReindexEntityType.SUBJECT, timestamp.get(), CENTRAL_TENANT_ID);
+    subResourcesLockRepository.unlockSubResourceFenced(
+      ReindexEntityType.SUBJECT, timestamp.get(), CENTRAL_TENANT_ID, timestamp.get());
 
     await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() -> {
       var counted = countIndexDocument(INSTANCE_SUBJECT, CENTRAL_TENANT_ID);

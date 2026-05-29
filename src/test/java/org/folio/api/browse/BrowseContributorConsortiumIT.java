@@ -87,7 +87,8 @@ class BrowseContributorConsortiumIT extends BaseConsortiumIntegrationTest {
     instanceToUpdate.setContributors(Collections.emptyList());
     inventoryApi.updateInstance(CENTRAL_TENANT_ID, instanceToUpdate);
 
-    subResourcesLockRepository.unlockSubResource(ReindexEntityType.CONTRIBUTOR, timestamp.get(), CENTRAL_TENANT_ID);
+    subResourcesLockRepository.unlockSubResourceFenced(
+      ReindexEntityType.CONTRIBUTOR, timestamp.get(), CENTRAL_TENANT_ID, timestamp.get());
 
     await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() -> {
       var counted = countIndexDocument(ResourceType.INSTANCE_CONTRIBUTOR, CENTRAL_TENANT_ID);

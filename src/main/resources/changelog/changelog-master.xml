@@ -25,4 +25,5 @@
   <include file="changes/v6.0/add_staging_time_columns_to_reindex_status.xml" relativeToChangelogFile="true"/>
   <include file="changes/v6.0/create_consortium_member_reindex_status_function.xml" relativeToChangelogFile="true"/>
   <include file="changes/v6.0/add-trace-id-range-column.xml" relativeToChangelogFile="true"/>
+  <include file="changes/v6.0/update-reindex-status-trigger-v4.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

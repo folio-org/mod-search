@@ -204,10 +204,10 @@ class SearchBrowseSuiteIT extends BaseIntegrationTest {
 
     @Override
     public void unlockAll() {
-      lockRepo.unlockSubResource(ReindexEntityType.CALL_NUMBER, cnLock, TENANT_ID);
-      lockRepo.unlockSubResource(ReindexEntityType.CONTRIBUTOR, contribLock, TENANT_ID);
-      lockRepo.unlockSubResource(ReindexEntityType.CLASSIFICATION, classifLock, TENANT_ID);
-      lockRepo.unlockSubResource(ReindexEntityType.SUBJECT, subjLock, TENANT_ID);
+      lockRepo.unlockSubResourceFenced(ReindexEntityType.CALL_NUMBER, cnLock, TENANT_ID, cnLock);
+      lockRepo.unlockSubResourceFenced(ReindexEntityType.CONTRIBUTOR, contribLock, TENANT_ID, contribLock);
+      lockRepo.unlockSubResourceFenced(ReindexEntityType.CLASSIFICATION, classifLock, TENANT_ID, classifLock);
+      lockRepo.unlockSubResourceFenced(ReindexEntityType.SUBJECT, subjLock, TENANT_ID, subjLock);
     }
 
     private Timestamp lockOrFail(ReindexEntityType entityType) {

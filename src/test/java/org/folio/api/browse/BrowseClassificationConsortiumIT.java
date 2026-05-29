@@ -68,6 +68,7 @@ class BrowseClassificationConsortiumIT extends BaseConsortiumIntegrationTest {
   private static final Instance[] INSTANCES_CENTRAL = instancesCentral();
 
   @BeforeAll
+  @SuppressWarnings("checkstyle:methodLength")
   static void prepare(@Autowired SubResourcesLockRepository subResourcesLockRepository) {
     enableTenant(CENTRAL_TENANT_ID);
     enableTenant(MEMBER_TENANT_ID);
@@ -86,7 +87,8 @@ class BrowseClassificationConsortiumIT extends BaseConsortiumIntegrationTest {
       INSTANCES_CENTRAL.length + INSTANCES_MEMBER.length,
       instance -> inventoryApi.createInstance(MEMBER_TENANT_ID, instance));
 
-    subResourcesLockRepository.unlockSubResource(ReindexEntityType.CLASSIFICATION, timestamp.get(), CENTRAL_TENANT_ID);
+    subResourcesLockRepository.unlockSubResourceFenced(
+      ReindexEntityType.CLASSIFICATION, timestamp.get(), CENTRAL_TENANT_ID, timestamp.get());
 
     await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() -> {
       var searchRequest = new SearchRequest()

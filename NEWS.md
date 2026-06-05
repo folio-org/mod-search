@@ -1,3 +1,7 @@
+## v6.0.5 2026-06-05
+### Bug fixes
+* Move reindex sub-resource locks acquisition from trigger to code, add fencing tokens to scheduler-side unlock/refresh ([MSEARCH-1238](https://folio-org.atlassian.net/browse/MSEARCH-1238)
+
 ## v6.0.4 2026-05-27
 ### Features
 * Honor spring.cache.type=noop for cache manager ([MSEARCH-1204](https://folio-org.atlassian.net/browse/MSEARCH-1204))

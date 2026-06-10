@@ -69,6 +69,14 @@ folio:
   environment: ${ENV:folio}
   exchange:
     enabled: true
+    # Shared connection pool for all @HttpExchange clients (e.g. inventory reindex records client).
+    # max-connections-per-route is the effective concurrency limit (all calls share one Okapi route)
+    # and should be >= REINDEX_MERGE_RANGE_PUBLISHER_MAX_POOL_SIZE. No read timeout is set on purpose
+    # because reindex calls to mod-inventory-storage are long-running.
+    http-client:
+      max-connections-per-route: ${EXCHANGE_HTTP_MAX_CONN_PER_ROUTE:50}
+      max-connections-total: ${EXCHANGE_HTTP_MAX_CONN_TOTAL:100}
+      connect-timeout: ${EXCHANGE_HTTP_CONNECT_TIMEOUT:10s}
   system:
     schemaName: mod_search__system
     change-log: classpath:changelog/changelog-system.xml

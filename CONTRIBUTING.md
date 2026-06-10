@@ -28,13 +28,33 @@ If you encounter bugs, issues, or have any suggestions for improvements, please 
     git checkout -b your-branch-name
     ```
 2. **Make Changes**: Make your changes in your branch.
-3. **Commit Changes**: Commit your changes with a meaningful commit message that will follow [Conventional Commit practice](https://folio-org.atlassian.net/wiki/spaces/FOLIJET/pages/1400654/Conventional+Commit+Initiative) .
+3. **Update Documentation**: If your changes affect existing behaviour or introduce new functionality, update the relevant feature documentation in [`docs/features/`](docs/features/). Each file in that directory corresponds to a feature area (e.g. `docs/features/instance-search.md`).
+4. **Commit Changes**: Commit your changes with a meaningful commit message following [Conventional Commit practice](https://folio-org.atlassian.net/wiki/spaces/FOLIJET/pages/1400654/Conventional+Commit+Initiative).
+    - The **scope** must match the `feature_id` — the file metadata of the relevant file under [`docs/features/`](docs/features/). For example, if your change is related to the "Instance Search" feature, the scope should be `instance-search` to match the `feature_id` in `docs/features/instance-search.md`.
+    - The commit **footer** must include a `Closes` reference to the corresponding MSEARCH JIRA issue: `Closes: MSEARCH-XXX`.
+
+    **Examples:**
+    ```
+    feat(instance-search): add support for searching by HRID
+
+    Closes: MSEARCH-1234
+    ```
+    ```
+    fix(reindex): resolve NPE during full reindex when tenant has no records
+
+    Closes: MSEARCH-5678
+    ```
+    ```
+    refactor(authority-search): simplify query translation logic and improve error handling
+
+    Closes: MSEARCH-9101
+    ```
     ```bash
     git add .
-    git commit -m "Your commit message"
+    git commit
     ```
-4. **Push Changes**: Push your changes to the repository.
+5. **Push Changes**: Push your changes to the repository.
     ```bash
     git push origin your-branch-name
     ```
-5. **Create a Pull Request**: Open a pull request from your branch to the `master` branch of the original repository. Follow [Pull Request Template](PULL_REQUEST_TEMPLATE.md) to create a description.
+6. **Create a Pull Request**: Open a pull request from your branch to the `master` branch of the original repository. Follow [Pull Request Template](PULL_REQUEST_TEMPLATE.md) to create a description.

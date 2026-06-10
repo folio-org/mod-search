@@ -14,6 +14,7 @@ _How does this change fulfill the purpose? Provide a high-level overview of the 
 - [ ] **Unit Testing**: Confirm that changed classes were covered by unit tests.
 - [ ] **Integration Testing**: Confirm that changed logic was covered by integration tests.
 - [ ] **Manual Testing**: Confirm that changes were tested on local or dev environment.
+- [ ] **Documentation**: Confirm that relevant [documentation](/docs) was updated to reflect the changes made in this pull request.
 - [ ] **NEWS**: Confirm that the NEWS file is updated with relevant information about the changes made in this pull request.
 
 ### Related Issues

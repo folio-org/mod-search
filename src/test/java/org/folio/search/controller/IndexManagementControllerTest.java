@@ -51,7 +51,7 @@ import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.folio.spring.testing.type.UnitTest;
 import org.folio.support.config.TestNoOpCacheConfig;
 import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
-import org.hibernate.validator.internal.engine.path.PathImpl;
+import org.hibernate.validator.internal.engine.path.MutablePath;
 import org.junit.jupiter.api.Test;
 import org.opensearch.OpenSearchException;
 import org.opensearch.core.index.Index;
@@ -304,7 +304,7 @@ class IndexManagementControllerTest {
   void reindexInventoryRecords_negative_constraintViolationException() throws Exception {
     var request = new ReindexRequest().resourceName(ReindexRequest.ResourceNameEnum.AUTHORITY);
     var constraintViolation = mock(ConstraintViolationImpl.class);
-    when(constraintViolation.getPropertyPath()).thenReturn(PathImpl.createPathFromString("recreateIndices"));
+    when(constraintViolation.getPropertyPath()).thenReturn(MutablePath.createPathFromString("recreateIndices"));
     when(constraintViolation.getMessage()).thenReturn("must be boolean");
     when(indexService.reindexInventory(TENANT_ID, request)).thenThrow(
       new ConstraintViolationException("error", Set.<ConstraintViolation<?>>of(constraintViolation)));

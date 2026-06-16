@@ -1,3 +1,7 @@
+## v6.0.6 2026-06-16
+### Bug fixes
+* Increate http client pool size and make it configurable ([MSEARCH-1248](https://folio-org.atlassian.net/browse/MSEARCH-1248)
+
 ## v6.0.5 2026-06-05
 ### Bug fixes
 * Move reindex sub-resource locks acquisition from trigger to code, add fencing tokens to scheduler-side unlock/refresh ([MSEARCH-1238](https://folio-org.atlassian.net/browse/MSEARCH-1238)

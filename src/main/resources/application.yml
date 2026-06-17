@@ -200,6 +200,9 @@ folio:
     access-key: ${S3_REINDEX_ACCESS_KEY_ID:}
     secret-key: ${S3_REINDEX_SECRET_ACCESS_KEY:}
     aws-sdk: ${S3_REINDEX_IS_AWS:true}
+    idle-keep-alive-seconds: ${S3_REINDEX_IDLE_KEEP_ALIVE_SECONDS:}
+    max-idle-connections: ${S3_REINDEX_MAX_IDLE_CONNECTIONS:}
+    max-requests-per-host: ${S3_REINDEX_MAX_REQUESTS_PER_HOST:}
 
 server.port: 8081
 management:

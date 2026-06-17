@@ -42,6 +42,36 @@ class RemoteStorageConfigTest {
   }
 
   @Test
+  void remoteFolioS3Client_positive_poolPropertiesArePassedThrough() {
+    var remoteStorageProperties = remoteStorageProperties();
+    remoteStorageProperties.setIdleKeepAliveSeconds(10);
+    remoteStorageProperties.setMaxIdleConnections(25);
+    remoteStorageProperties.setMaxRequestsPerHost(50);
+
+    var expectedS3Props = S3ClientProperties.builder()
+      .endpoint(ENDPOINT)
+      .secretKey(SECRET_KEY)
+      .accessKey(ACCESS_KEY)
+      .bucket(BUCKET)
+      .region(REGION)
+      .awsSdk(true)
+      .idleKeepAliveSeconds(10)
+      .maxIdleConnections(25)
+      .maxRequestsPerHost(50)
+      .build();
+
+    var folioS3Client = mock(FolioS3Client.class);
+    try (var s3ClientFactory = mockStatic(S3ClientFactory.class)) {
+      s3ClientFactory.when(() -> S3ClientFactory.getS3Client(expectedS3Props)).thenReturn(folioS3Client);
+
+      var result = remoteStorageConfig.remoteFolioS3Client(remoteStorageProperties);
+
+      assertThat(result).isSameAs(folioS3Client);
+      s3ClientFactory.verify(() -> S3ClientFactory.getS3Client(expectedS3Props));
+    }
+  }
+
+  @Test
   void remoteFolioS3Client_negative_s3ClientExceptionIsPropagated() {
     var remoteStorageProperties = remoteStorageProperties();
     var s3ClientProperties = s3ClientProperties();

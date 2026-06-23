@@ -109,6 +109,8 @@ folio:
     merge-range-publisher-max-pool-size: ${REINDEX_MERGE_RANGE_PUBLISHER_MAX_POOL_SIZE:30}
     merge-range-publisher-retry-interval-ms: ${REINDEX_MERGE_RANGE_PUBLISHER_RETRY_INTERVAL_MS:1000}
     merge-range-publisher-retry-attempts: ${REINDEX_MERGE_RANGE_PUBLISHER_RETRY_ATTEMPTS:5}
+    s3-retry-interval-ms: ${REINDEX_S3_RETRY_INTERVAL_MS:1000}
+    s3-retry-attempts: ${REINDEX_S3_RETRY_ATTEMPTS:3}
     migration-work-mem: ${REINDEX_MIGRATION_WORK_MEM:64MB}
     migration-statement-timeout: ${REINDEX_MIGRATION_STATEMENT_TIMEOUT:0}
   index-management:

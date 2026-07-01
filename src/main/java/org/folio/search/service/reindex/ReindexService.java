@@ -25,8 +25,8 @@ import org.folio.search.integration.folio.InventoryService;
 import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexStatus;
+import org.folio.search.service.EgressExecutionContextService;
 import org.folio.search.service.consortium.ConsortiumTenantService;
-import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
@@ -38,7 +38,7 @@ public class ReindexService {
   private static final int RANGE_PUBLISH_PARTITION_SIZE = 2000;
 
   private final ConsortiumTenantService consortiumService;
-  private final SystemUserScopedExecutionService executionService;
+  private final EgressExecutionContextService executionService;
   private final ReindexMergeRangeIndexService mergeRangeService;
   private final ReindexUploadRangeIndexService uploadRangeService;
   private final ReindexStatusService statusService;
@@ -49,7 +49,7 @@ public class ReindexService {
   private final ReindexEntityTypeMapper entityTypeMapper;
   private final ReindexCommonService reindexCommonService;
 
-  public ReindexService(ConsortiumTenantService consortiumService, SystemUserScopedExecutionService executionService,
+  public ReindexService(ConsortiumTenantService consortiumService, EgressExecutionContextService executionService,
                         ReindexMergeRangeIndexService mergeRangeService,
                         ReindexUploadRangeIndexService uploadRangeService, ReindexStatusService statusService,
                         InventoryService inventoryService,
@@ -271,7 +271,7 @@ public class ReindexService {
     var futures = new ArrayList<>();
     for (var rangeEntity : failedRanges) {
       var future =
-        CompletableFuture.runAsync(() -> executionService.executeSystemUserScoped(rangeEntity.getTenantId(), () -> {
+        CompletableFuture.runAsync(() -> executionService.execute(rangeEntity.getTenantId(), () -> {
           inventoryService.publishReindexRecordsRange(rangeEntity);
           return null;
         }), reindexPublisherExecutor);
@@ -321,7 +321,7 @@ public class ReindexService {
       ReindexContext.setMemberTenantId(targetTenantId);
 
       // Process ONLY the target member tenant
-      mergeRangeEntities.addAll(executionService.executeSystemUserScoped(targetTenantId,
+      mergeRangeEntities.addAll(executionService.execute(targetTenantId,
         () -> mergeRangeService.createMergeRanges(targetTenantId)));
 
       // DO NOT process central tenant here - it will be handled in upload phase
@@ -330,7 +330,7 @@ public class ReindexService {
       var memberTenants = consortiumService.getConsortiumTenants(tenantId);
       for (var memberTenant : memberTenants) {
         log.info("processForConsortium:: processing member tenant [{}]", memberTenant);
-        mergeRangeEntities.addAll(executionService.executeSystemUserScoped(memberTenant,
+        mergeRangeEntities.addAll(executionService.execute(memberTenant,
           () -> mergeRangeService.createMergeRanges(memberTenant)));
       }
     }
@@ -387,7 +387,7 @@ public class ReindexService {
     }
     try {
       for (var rangeEntity : partition) {
-        executionService.executeSystemUserScoped(rangeEntity.getTenantId(), () -> {
+        executionService.execute(rangeEntity.getTenantId(), () -> {
           inventoryService.publishReindexRecordsRange(rangeEntity);
           return null;
         });

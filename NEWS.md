@@ -20,6 +20,7 @@
 
 ### Tech Dept
 * Adjust default configuration and improve parallelism for reindex ([MSEARCH-1236](https://folio-org.atlassian.net/browse/MSEARCH-1236))
+* Remove usage of folio-spring-system-user ([MSEARCH-1258](https://folio-org.atlassian.net/browse/MSEARCH-1258))
 * Optimize integration tests to reduce build time by introducing centralized test data setup ([MSEARCH-1036](https://folio-org.atlassian.net/browse/MSEARCH-1036))
 * Add `@TestRailCase` annotation for linking integration tests to TestRail cases
 * Add integration test coverage for ALL call-number browse type filtering (TestRail C627504)

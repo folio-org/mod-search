@@ -1,7 +1,7 @@
 package org.folio.search.service.setter.holding;
 
 import static java.util.stream.Collectors.toSet;
-import static org.codehaus.plexus.util.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.folio.search.utils.CollectionUtils.toStreamSafe;
 
 import java.util.Set;

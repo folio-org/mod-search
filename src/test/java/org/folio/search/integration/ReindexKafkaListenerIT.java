@@ -34,11 +34,11 @@ import org.folio.search.model.event.ReindexFileReadyEvent;
 import org.folio.search.model.event.ReindexRangeIndexEvent;
 import org.folio.search.model.event.ReindexRecordType;
 import org.folio.search.model.event.ReindexRecordsEvent;
+import org.folio.search.service.EgressExecutionContextService;
 import org.folio.search.service.consortium.ConsortiumTenantExecutor;
 import org.folio.search.service.reindex.ReindexOrchestrationService;
 import org.folio.spring.DefaultFolioExecutionContext;
 import org.folio.spring.FolioExecutionContext;
-import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.spring.tools.kafka.FolioKafkaProperties;
 import org.junit.jupiter.api.AfterAll;
@@ -75,7 +75,7 @@ class ReindexKafkaListenerIT {
   @MockitoBean
   private ConsortiumTenantExecutor executionService;
   @MockitoBean
-  private SystemUserScopedExecutionService systemUserScopedExecutionService;
+  private EgressExecutionContextService scopedExecutionService;
   @MockitoBean
   private ReindexOrchestrationService reindexService;
 
@@ -97,7 +97,7 @@ class ReindexKafkaListenerIT {
 
   @BeforeEach
   void setUp() {
-    lenient().when(systemUserScopedExecutionService.executeSystemUserScoped(eq(TENANT_ID), any()))
+    lenient().when(scopedExecutionService.execute(eq(TENANT_ID), any(Callable.class)))
       .thenAnswer(invocation -> invocation.<Callable<?>>getArgument(1).call());
     lenient().when(executionService.execute(any()))
       .thenAnswer(invocation -> invocation.<Supplier<?>>getArgument(0).get());

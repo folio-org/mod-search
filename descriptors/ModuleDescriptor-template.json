@@ -584,15 +584,6 @@
           "pathPattern": "/_/tenant",
           "modulePermissions": [
             "user-tenants.collection.get",
-            "users.collection.get",
-            "users.item.post",
-            "users.item.put",
-            "login.item.post",
-            "login.item.delete",
-            "perms.users.get",
-            "perms.users.item.post",
-            "perms.users.assign.immutable",
-            "perms.users.assign.mutable",
             "inventory-storage.instance.reindex.post",
             "authority-storage.authority.reindex.post",
             "inventory-storage.inventory-view.instances.collection.get",
@@ -675,20 +666,6 @@
     {
       "id": "classification-types",
       "version": "1.2"
-    }
-  ],
-  "requires": [
-    {
-      "id": "login",
-      "version": "7.0"
-    },
-    {
-      "id": "permissions",
-      "version": "5.3"
-    },
-    {
-      "id": "users",
-      "version": "15.3 16.0"
     }
   ],
   "permissionSets": [
@@ -928,14 +905,6 @@
       "type": "system",
       "permissions": [
         "user-tenants.collection.get",
-        "users.collection.get",
-        "users.item.post",
-        "login.item.post",
-        "login.item.delete",
-        "perms.users.get",
-        "perms.users.item.post",
-        "perms.users.assign.immutable",
-        "perms.users.assign.mutable",
         "authority-identifier-types.collection.get",
         "inventory-storage.instance.reindex.post",
         "authority-storage.authority.reindex.post",
@@ -1192,19 +1161,9 @@
         "description": "Provides the maximum number of supported languages"
       },
       {
-        "name": "SYSTEM_USER_USERNAME",
-        "value": "mod-search",
-        "description": "Username for `mod-search` system user"
-      },
-      {
-        "name": "SYSTEM_USER_PASSWORD",
-        "value": "",
-        "description": "Password for `mod-search` system user (not required for dev envs)"
-      },
-      {
         "name": "OKAPI_URL",
         "value": "",
-        "description": "OKAPI URL used to login system user, required"
+        "description": "Used for module-to-module requests"
       },
       {
         "name": "SEARCH_BY_ALL_FIELDS_ENABLED",

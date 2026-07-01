@@ -16,6 +16,7 @@ import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ResourceType;
+import org.folio.search.service.EgressExecutionContextService;
 import org.folio.search.service.InstanceChildrenResourceService;
 import org.folio.search.service.ResourceService;
 import org.folio.search.service.reindex.ReindexConstants;
@@ -28,7 +29,6 @@ import org.folio.search.service.reindex.jdbc.ReindexJdbcRepository;
 import org.folio.search.service.reindex.jdbc.SubResourceResult;
 import org.folio.search.service.reindex.jdbc.SubResourcesLockRepository;
 import org.folio.search.service.reindex.jdbc.TenantRepository;
-import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jdbc.BadSqlGrammarException;
@@ -45,7 +45,7 @@ public class ScheduledInstanceSubResourcesService {
   private final Map<ReindexEntityType, ReindexJdbcRepository> repositories;
   private final SubResourcesLockRepository subResourcesLockRepository;
   private final ReindexStatusService reindexStatusService;
-  private final SystemUserScopedExecutionService executionService;
+  private final EgressExecutionContextService executionService;
   private final int subResourceBatchSize;
   private final long staleLockThresholdMs;
   private InstanceChildrenResourceService instanceChildrenResourceService;
@@ -55,7 +55,7 @@ public class ScheduledInstanceSubResourcesService {
                                               List<ReindexJdbcRepository> repositories,
                                               SubResourcesLockRepository subResourcesLockRepository,
                                               ReindexStatusService reindexStatusService,
-                                              SystemUserScopedExecutionService executionService,
+                                              EgressExecutionContextService executionService,
                                               MergeInstanceRepository instanceRepository,
                                               ItemRepository itemRepository,
                                               SearchConfigurationProperties searchConfigurationProperties) {
@@ -80,7 +80,7 @@ public class ScheduledInstanceSubResourcesService {
     log.info("persistChildren::Starting instance children processing");
     try {
       tenantRepository.fetchDataTenantIds()
-        .forEach(tenant -> executionService.executeSystemUserScoped(tenant, () -> {
+        .forEach(tenant -> executionService.execute(tenant, () -> {
           processAllEntityTypes(tenant);
           return null;
         }));

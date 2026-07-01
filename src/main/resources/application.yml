@@ -119,12 +119,6 @@ folio:
   query:
     properties:
       request-timeout: ${SEARCH_QUERY_TIMEOUT:25s}
-  system-user:
-    enabled: ${SYSTEM_USER_ENABLED:true}
-    username: ${SYSTEM_USER_USERNAME:mod-search}
-    password: ${SYSTEM_USER_PASSWORD}
-    lastname: System
-    permissionsFilePath: permissions/mod-search.csv
   stream-ids:
     scroll-query-size: ${SCROLL_QUERY_SIZE:1000}
     retry-interval-ms: ${STREAM_ID_RETRY_INTERVAL_MS:1000}

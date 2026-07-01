@@ -60,8 +60,6 @@ class SearchTenantServiceTest {
   @Mock
   private FolioExecutionContext context;
   @Mock
-  private OkapiSystemUserService okapiSystemUserService;
-  @Mock
   private LanguageConfigService languageConfigService;
   @Mock
   private ResourceDescriptionService resourceDescriptionService;
@@ -82,7 +80,6 @@ class SearchTenantServiceTest {
     when(context.getTenantId()).thenReturn(TENANT_ID);
     when(context.getFolioModuleMetadata()).thenReturn(metadata);
     when(resourceDescriptionService.getResourceTypes()).thenReturn(List.of(UNKNOWN));
-    doNothing().when(okapiSystemUserService).prepareSystemUser();
     doNothing().when(kafkaAdminService).createTopics(TENANT_ID);
     doNothing().when(kafkaAdminService).restartEventListeners();
 
@@ -96,9 +93,8 @@ class SearchTenantServiceTest {
   }
 
   @Test
-  void createOrUpdateTenant_positive_onlyKafkaAndSystemUserWhenConsortiumMemberTenant() {
+  void createOrUpdateTenant_positive_onlyKafkaWhenConsortiumMemberTenant() {
     when(context.getTenantId()).thenReturn(TENANT_ID);
-    doNothing().when(okapiSystemUserService).prepareSystemUser();
     doNothing().when(kafkaAdminService).createTopics(TENANT_ID);
     doNothing().when(kafkaAdminService).restartEventListeners();
 
@@ -109,7 +105,6 @@ class SearchTenantServiceTest {
     verifyNoInteractions(indexService);
     verify(kafkaAdminService).createTopics(TENANT_ID);
     verify(kafkaAdminService).restartEventListeners();
-    verify(okapiSystemUserService).prepareSystemUser();
   }
 
   @Test
@@ -117,7 +112,6 @@ class SearchTenantServiceTest {
     when(searchConfigurationProperties.getInitialLanguages()).thenReturn(Set.of("eng"));
     when(context.getTenantId()).thenReturn(TENANT_ID);
     when(resourceDescriptionService.getResourceTypes()).thenReturn(List.of(UNKNOWN));
-    doNothing().when(okapiSystemUserService).prepareSystemUser();
     doNothing().when(kafkaAdminService).createTopics(TENANT_ID);
     doNothing().when(kafkaAdminService).restartEventListeners();
 

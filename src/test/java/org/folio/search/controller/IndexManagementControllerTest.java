@@ -42,12 +42,12 @@ import org.folio.search.domain.dto.UpdateMappingsRequest;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ResourceType;
+import org.folio.search.service.EgressExecutionContextService;
 import org.folio.search.service.IndexService;
 import org.folio.search.service.ResourceService;
 import org.folio.search.service.reindex.ReindexService;
 import org.folio.search.service.reindex.ReindexStatusService;
 import org.folio.spring.integration.XOkapiHeaders;
-import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.folio.spring.testing.type.UnitTest;
 import org.folio.support.config.TestNoOpCacheConfig;
 import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
@@ -82,7 +82,7 @@ class IndexManagementControllerTest {
   @MockitoBean
   private ReindexStatusService reindexStatusService;
   @MockitoBean
-  private SystemUserScopedExecutionService executionService;
+  private EgressExecutionContextService executionService;
 
   @Test
   void submitReindexFull_positive() throws Exception {

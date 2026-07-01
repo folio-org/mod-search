@@ -6,10 +6,10 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.folio.search.model.event.ReindexFileReadyEvent;
 import org.folio.search.model.event.ReindexRangeIndexEvent;
 import org.folio.search.model.event.ReindexRecordsEvent;
+import org.folio.search.service.EgressExecutionContextService;
 import org.folio.search.service.consortium.ConsortiumTenantExecutor;
 import org.folio.search.service.reindex.ReindexOrchestrationService;
 import org.folio.search.utils.KafkaConstants;
-import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +20,7 @@ public class ReindexKafkaListener {
 
   private final ReindexOrchestrationService reindexService;
   private final ConsortiumTenantExecutor executionService;
-  private final SystemUserScopedExecutionService systemUserScopedExecutionService;
+  private final EgressExecutionContextService scopedExecutionService;
 
   @KafkaListener(
     id = KafkaConstants.REINDEX_RANGE_INDEX_LISTENER_ID,
@@ -30,7 +30,7 @@ public class ReindexKafkaListener {
     concurrency = "#{folioKafkaProperties.listener['reindex-range-index'].concurrency}")
   public void handleReindexRangeEvents(ReindexRangeIndexEvent event) {
     log.debug("handleReindexRangeEvents::received reindex event [id={}]", event.getId());
-    systemUserScopedExecutionService.executeSystemUserScoped(event.getTenant(),
+    scopedExecutionService.execute(event.getTenant(),
       () -> executionService.execute(() -> reindexService.process(event)));
   }
 
@@ -44,7 +44,7 @@ public class ReindexKafkaListener {
     log.debug("handleReindexRecordsEvent::received reindex event [id={}]", consumerRecord.key());
     var event = consumerRecord.value();
     event.setRangeId(consumerRecord.key());
-    systemUserScopedExecutionService.executeSystemUserScoped(event.getTenant(),
+    scopedExecutionService.execute(event.getTenant(),
       () -> executionService.execute(() -> reindexService.process(event)));
   }
 
@@ -57,7 +57,7 @@ public class ReindexKafkaListener {
   public void handleReindexFileReadyEvent(ConsumerRecord<String, ReindexFileReadyEvent> consumerRecord) {
     log.debug("handleReindexFileReadyEvent::received reindex event [id={}]", consumerRecord.key());
     var event = consumerRecord.value();
-    systemUserScopedExecutionService.executeSystemUserScoped(event.getTenantId(),
+    scopedExecutionService.execute(event.getTenantId(),
       () -> executionService.execute(() -> reindexService.process(event)));
   }
 }

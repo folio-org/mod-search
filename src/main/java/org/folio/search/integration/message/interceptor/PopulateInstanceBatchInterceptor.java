@@ -13,10 +13,9 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.types.ResourceType;
+import org.folio.search.service.EgressExecutionContextService;
 import org.folio.search.service.InventoryEntityPersistenceService;
 import org.folio.search.service.consortium.ConsortiumTenantExecutor;
-import org.folio.spring.exception.SystemUserAuthorizationException;
-import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.kafka.listener.BatchInterceptor;
@@ -29,14 +28,14 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
 
   private final InventoryEntityPersistenceService inventoryEntityPersistenceService;
   private final ConsortiumTenantExecutor executionService;
-  private final SystemUserScopedExecutionService systemUserScopedExecutionService;
+  private final EgressExecutionContextService scopedExecutionService;
 
   public PopulateInstanceBatchInterceptor(InventoryEntityPersistenceService inventoryEntityPersistenceService,
                                           ConsortiumTenantExecutor executionService,
-                                          SystemUserScopedExecutionService systemUserScopedExecutionService) {
+                                          EgressExecutionContextService scopedExecutionService) {
     this.inventoryEntityPersistenceService = inventoryEntityPersistenceService;
     this.executionService = executionService;
-    this.systemUserScopedExecutionService = systemUserScopedExecutionService;
+    this.scopedExecutionService = scopedExecutionService;
   }
 
   @Override
@@ -64,11 +63,11 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
 
   private boolean processAll(List<ConsumerRecord<String, ResourceEvent>> records) {
     if (records.size() != 2
-      || Objects.equals(records.getFirst().value().getTenant(), records.getLast().value().getTenant())) {
+        || Objects.equals(records.getFirst().value().getTenant(), records.getLast().value().getTenant())) {
       return false;
     }
     return isUpdateOwnershipEvents(records)
-      || isInstanceSharingEvents(records);
+           || isInstanceSharingEvents(records);
   }
 
   /**
@@ -94,7 +93,8 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
    * caller method (intercept) logic would filter out the CREATE event since both events have same id.
    * This method helps identify such case.
    * UPDATE event would be filtered out later in process method since source of such event would have consortium prefix.
-   * */
+   *
+   */
   private boolean isInstanceSharingEvents(List<ConsumerRecord<String, ResourceEvent>> records) {
     var eventTypes = records.stream()
       .map(consumerRecord -> consumerRecord.value().getType())
@@ -106,17 +106,11 @@ public class PopulateInstanceBatchInterceptor implements BatchInterceptor<String
 
   private void populate(List<ResourceEvent> records) {
     var batchByTenant = records.stream().collect(Collectors.groupingBy(ResourceEvent::getTenant));
-    batchByTenant.forEach((tenant, batch) -> {
-      try {
-        systemUserScopedExecutionService.executeSystemUserScoped(tenant, () -> executionService.execute(() -> {
-          process(tenant, batch);
-          return null;
-        }));
-      } catch (SystemUserAuthorizationException ex) {
-        log.warn("System user authorization failed. Skip processing batch for tenant {}: {}",
-          tenant, ex.getMessage(), ex);
-      }
-    });
+    batchByTenant.forEach((tenant, batch) ->
+      scopedExecutionService.execute(tenant, () -> executionService.execute(() -> {
+        process(tenant, batch);
+        return null;
+      })));
   }
 
   private void process(String tenant, List<ResourceEvent> batch) {

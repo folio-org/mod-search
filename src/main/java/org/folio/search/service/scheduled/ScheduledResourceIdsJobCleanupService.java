@@ -5,8 +5,8 @@ import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.StreamIdsProperties;
 import org.folio.search.repository.ResourceIdsJobRepository;
 import org.folio.search.repository.ResourceIdsTemporaryRepository;
+import org.folio.search.service.EgressExecutionContextService;
 import org.folio.search.service.reindex.jdbc.TenantRepository;
-import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -17,13 +17,13 @@ public class ScheduledResourceIdsJobCleanupService {
   private final TenantRepository tenantRepository;
   private final ResourceIdsJobRepository jobRepository;
   private final ResourceIdsTemporaryRepository tempTableRepository;
-  private final SystemUserScopedExecutionService executionService;
+  private final EgressExecutionContextService executionService;
   private final StreamIdsProperties streamIdsProperties;
 
   public ScheduledResourceIdsJobCleanupService(TenantRepository tenantRepository,
                                                ResourceIdsJobRepository jobRepository,
                                                ResourceIdsTemporaryRepository tempTableRepository,
-                                               SystemUserScopedExecutionService executionService,
+                                               EgressExecutionContextService executionService,
                                                StreamIdsProperties streamIdsProperties) {
     this.tenantRepository = tenantRepository;
     this.jobRepository = jobRepository;
@@ -39,16 +39,16 @@ public class ScheduledResourceIdsJobCleanupService {
   public void cleanupExpiredResourceIdsJobs() {
     log.info("cleanupExpiredResourceIdsJobs:: Starting cleanup of expired resource ids jobs");
     tenantRepository.fetchDataTenantIds()
-        .forEach(tenant -> executionService.executeSystemUserScoped(tenant, () -> {
-          log.info("cleanupExpiredResourceIdsJobs:: Processing tenant: {}", tenant);
-          var expirationThresholdDate = getJobExpirationThresholdDate();
-          var tempTables = jobRepository.deleteByCreatedDateLessThan(expirationThresholdDate);
-          tempTables.forEach(tempTable -> {
-            log.info("cleanupExpiredResourceIdsJobs:: Dropping temporary table: {}", tempTable);
-            tempTableRepository.dropTableForIds(tempTable);
-          });
-          return null;
-        }));
+      .forEach(tenant -> executionService.execute(tenant, () -> {
+        log.info("cleanupExpiredResourceIdsJobs:: Processing tenant: {}", tenant);
+        var expirationThresholdDate = getJobExpirationThresholdDate();
+        var tempTables = jobRepository.deleteByCreatedDateLessThan(expirationThresholdDate);
+        tempTables.forEach(tempTable -> {
+          log.info("cleanupExpiredResourceIdsJobs:: Dropping temporary table: {}", tempTable);
+          tempTableRepository.dropTableForIds(tempTable);
+        });
+        return null;
+      }));
 
     log.info("cleanupExpiredResourceIdsJobs:: Cleanup completed");
   }

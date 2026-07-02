@@ -43,8 +43,8 @@ import org.folio.search.integration.folio.InventoryService;
 import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexStatus;
+import org.folio.search.service.EgressExecutionContextService;
 import org.folio.search.service.consortium.ConsortiumTenantService;
-import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -60,7 +60,7 @@ class ReindexServiceTest {
   @Mock
   private ConsortiumTenantService consortiumService;
   @Mock
-  private SystemUserScopedExecutionService executionService;
+  private EgressExecutionContextService executionService;
   @Mock
   private ReindexMergeRangeIndexService mergeRangeService;
   @Mock
@@ -94,7 +94,7 @@ class ReindexServiceTest {
 
     when(consortiumService.getCentralTenant(tenant)).thenReturn(Optional.of(tenant));
     when(mergeRangeService.createMergeRanges(tenant)).thenReturn(List.of(rangeEntity));
-    when(executionService.executeSystemUserScoped(anyString(), any())).thenReturn(List.of());
+    when(executionService.execute(anyString(), any(Callable.class))).thenReturn(List.of());
     when(consortiumService.getConsortiumTenants(tenant)).thenReturn(List.of(member));
     when(mergeRangeService.fetchMergeRanges(any(ReindexEntityType.class))).thenReturn(List.of(rangeEntity));
     doAnswer(executeRunnable()).when(reindexExecutor).execute(any());
@@ -126,7 +126,7 @@ class ReindexServiceTest {
     when(consortiumService.getCentralTenant(tenant)).thenReturn(Optional.of(tenant));
     when(consortiumService.getConsortiumTenants(tenant)).thenReturn(List.of(member));
     when(mergeRangeService.createMergeRanges(tenant)).thenReturn(List.of(rangeEntity));
-    when(executionService.executeSystemUserScoped(anyString(), any()))
+    when(executionService.execute(anyString(), any(Callable.class)))
       .thenReturn(List.of())                       // createMergeRanges for member tenant
       .thenThrow(FolioIntegrationException.class); // publishing phase — all entity types fail
     when(mergeRangeService.fetchMergeRanges(any(ReindexEntityType.class))).thenReturn(List.of(rangeEntity));
@@ -277,7 +277,7 @@ class ReindexServiceTest {
     when(mergeRangeService.fetchFailedMergeRanges()).thenReturn(failedRanges);
     doAnswer(executeRunnable()).when(reindexExecutor).execute(any());
     doAnswer(invocation -> invocation.<Callable<?>>getArgument(1).call())
-      .when(executionService).executeSystemUserScoped(any(), any());
+      .when(executionService).execute(anyString(), any(Callable.class));
 
     reindexService.submitFailedMergeRangesReindex(TENANT_ID).get();
 
@@ -341,7 +341,7 @@ class ReindexServiceTest {
     when(consortiumService.getCentralTenant(tenant)).thenReturn(Optional.of(tenant));
     when(consortiumService.getConsortiumTenants(tenant)).thenReturn(List.of(targetTenant));
     when(statusService.getStatusesByType()).thenReturn(Map.of());
-    when(executionService.executeSystemUserScoped(eq(targetTenant), any())).thenReturn(List.of(rangeEntity));
+    when(executionService.execute(anyString(), any(Callable.class))).thenReturn(List.of(rangeEntity));
     when(mergeRangeService.fetchMergeRanges(any(ReindexEntityType.class))).thenReturn(List.of(rangeEntity));
     doAnswer(executeRunnable()).when(reindexExecutor).execute(any());
     final var expectedCallsCount = ReindexEntityType.supportMergeTypes().size();

@@ -11,7 +11,6 @@ import java.util.Map;
 import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.folio.spring.config.properties.FolioEnvironment;
 import org.folio.spring.tools.kafka.FolioKafkaTopic;
 import org.springframework.boot.kafka.autoconfigure.KafkaProperties;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
@@ -65,11 +64,6 @@ public abstract class KafkaConfiguration {
     @Override
     public String topicName() {
       return topicName;
-    }
-
-    @Override
-    public String envId() {
-      return FolioEnvironment.getFolioEnvName();
     }
   }
 }

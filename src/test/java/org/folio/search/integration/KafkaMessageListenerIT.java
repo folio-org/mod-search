@@ -18,6 +18,7 @@ import static org.folio.support.utils.TestUtils.removeEnvProperty;
 import static org.folio.support.utils.TestUtils.resourceEvent;
 import static org.folio.support.utils.TestUtils.setEnvProperty;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 
@@ -43,6 +44,7 @@ import org.folio.search.integration.message.KafkaMessageListener;
 import org.folio.search.integration.message.interceptor.ResourceEventBatchInterceptor;
 import org.folio.search.model.event.IndexInstanceEvent;
 import org.folio.search.model.types.ResourceType;
+import org.folio.search.service.EgressExecutionContextService;
 import org.folio.search.service.ResourceService;
 import org.folio.search.service.config.ConfigSynchronizationService;
 import org.folio.search.service.consortium.ConsortiumTenantProvider;
@@ -50,7 +52,6 @@ import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.search.service.reindex.jdbc.CallNumberRepository;
 import org.folio.spring.DefaultFolioExecutionContext;
 import org.folio.spring.FolioExecutionContext;
-import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.spring.tools.kafka.FolioKafkaProperties;
 import org.junit.jupiter.api.AfterAll;
@@ -109,7 +110,7 @@ class KafkaMessageListenerIT {
   @MockitoBean
   private ResourceService resourceService;
   @MockitoBean
-  private SystemUserScopedExecutionService executionService;
+  private EgressExecutionContextService executionService;
   @MockitoBean
   private ConfigSynchronizationService configSynchronizationService;
   @MockitoBean
@@ -146,7 +147,7 @@ class KafkaMessageListenerIT {
   @BeforeEach
   void setUp() {
     lenient().doAnswer(invocation -> invocation.<Callable<?>>getArgument(1).call())
-      .when(executionService).executeSystemUserScoped(any(), any());
+      .when(executionService).execute(anyString(), any(Callable.class));
 
     var configs = KafkaTestUtils.producerProps(embeddedKafka);
     configs.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);

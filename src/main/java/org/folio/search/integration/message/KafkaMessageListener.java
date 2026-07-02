@@ -21,13 +21,13 @@ import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.event.IndexInstanceEvent;
 import org.folio.search.model.event.InstanceSharingCompleteEvent;
 import org.folio.search.model.types.ResourceType;
+import org.folio.search.service.EgressExecutionContextService;
 import org.folio.search.service.ResourceService;
 import org.folio.search.service.config.ConfigSynchronizationService;
 import org.folio.search.service.consortium.ConsortiumTenantProvider;
 import org.folio.search.service.reindex.jdbc.CallNumberRepository;
 import org.folio.search.utils.KafkaConstants;
 import org.folio.search.utils.SearchConverterUtils;
-import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -43,7 +43,7 @@ public class KafkaMessageListener {
 
   private final ResourceService resourceService;
   private final FolioMessageBatchProcessor folioMessageBatchProcessor;
-  private final SystemUserScopedExecutionService executionService;
+  private final EgressExecutionContextService executionService;
   private final ConfigSynchronizationService configSynchronizationService;
   private final KafkaTemplate<String, IndexInstanceEvent> instanceEventProducer;
   private final InstanceEventMapper instanceEventMapper;
@@ -64,7 +64,7 @@ public class KafkaMessageListener {
   public void handleInstanceEvents(List<ConsumerRecord<String, ResourceEvent>> consumerRecords) {
     log.info("Processing instance related events from kafka events [number of events: {}]", consumerRecords.size());
     consumerRecords.stream().collect(Collectors.groupingBy(consumerRecord -> consumerRecord.value().getTenant()))
-      .forEach((tenant, records) -> executionService.executeSystemUserScoped(tenant, () -> {
+      .forEach((tenant, records) -> executionService.execute(tenant, () -> {
         records.stream()
           .map(instanceEventMapper::mapToProducerRecords)
           .flatMap(List::stream)
@@ -88,7 +88,7 @@ public class KafkaMessageListener {
     log.info("Processing index instance events from kafka [number of events: {}]", consumerRecords.size());
     var batchByTenant = consumerRecords.stream().map(ConsumerRecord::value)
       .collect(Collectors.groupingBy(IndexInstanceEvent::tenant));
-    batchByTenant.forEach((tenant, resourceEvents) -> executionService.executeSystemUserScoped(tenant, () -> {
+    batchByTenant.forEach((tenant, resourceEvents) -> executionService.execute(tenant, () -> {
       folioMessageBatchProcessor.consumeBatchWithFallback(resourceEvents, KAFKA_RETRY_TEMPLATE_NAME,
         resourceService::indexInstanceEvents, KafkaMessageListener::logFailedEvent);
       return null;
@@ -133,10 +133,11 @@ public class KafkaMessageListener {
 
     var batchByTenant = batch.stream().collect(Collectors.groupingBy(ResourceEvent::getTenant));
 
-    batchByTenant.forEach((tenant, resourceEvents) -> executionService.executeSystemUserScoped(tenant, () -> {
+    batchByTenant.forEach((tenant, resourceEvents) -> executionService.execute(tenant, () -> {
       folioMessageBatchProcessor.consumeBatchWithFallback(batch, KAFKA_RETRY_TEMPLATE_NAME,
         resourceEvent -> {
-          var eventsByResource = resourceEvent.stream().collect(Collectors.groupingBy(ResourceEvent::getResourceName));
+          var eventsByResource =
+            resourceEvent.stream().collect(Collectors.groupingBy(ResourceEvent::getResourceName));
           eventsByResource.forEach((resourceName, events) ->
             configSynchronizationService.sync(resourceEvent, ResourceType.byName(resourceName)));
         },
@@ -187,13 +188,13 @@ public class KafkaMessageListener {
     log.info("Processing consortium instance sharing complete event from Kafka ");
 
     if (InstanceSharingCompleteEvent.Status.COMPLETE.equals(instanceSharingCompleteEvent.getStatus())
-      && StringUtils.isEmpty(instanceSharingCompleteEvent.getError())) {
+        && StringUtils.isEmpty(instanceSharingCompleteEvent.getError())) {
 
       var tenant = instanceSharingCompleteEvent.getTargetTenantId();
-      executionService.executeSystemUserScoped(tenant, () -> {
+      executionService.execute(tenant, () -> {
         if (consortiumTenantProvider.isCentralTenant(tenant)) {
           log.info("handleInstanceSharingCompleteEvent: Updating lastUpdatedDate for call numbers of instance "
-            + "in central tenant {}", tenant);
+                   + "in central tenant {}", tenant);
           callNumberRepository.updateLastUpdatedDate(instanceSharingCompleteEvent.getInstanceIdentifier());
         }
         return null;
@@ -204,7 +205,7 @@ public class KafkaMessageListener {
   private void indexResources(List<ResourceEvent> batch, Consumer<List<ResourceEvent>> indexConsumer) {
     var batchByTenant = batch.stream().collect(Collectors.groupingBy(ResourceEvent::getTenant));
 
-    batchByTenant.forEach((tenant, resourceEvents) -> executionService.executeSystemUserScoped(tenant, () -> {
+    batchByTenant.forEach((tenant, resourceEvents) -> executionService.execute(tenant, () -> {
       folioMessageBatchProcessor.consumeBatchWithFallback(resourceEvents, KAFKA_RETRY_TEMPLATE_NAME,
         indexConsumer, KafkaMessageListener::logFailedEvent);
       return null;

@@ -1,6 +1,6 @@
 package org.folio.support;
 
-import static org.folio.spring.config.properties.FolioEnvironment.getFolioEnvName;
+import static org.folio.spring.tools.config.properties.FolioEnvironment.getFolioEnvName;
 import static org.folio.support.utils.TestUtils.randomId;
 
 import java.util.List;

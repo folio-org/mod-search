@@ -16,8 +16,8 @@ import java.util.concurrent.Callable;
 import org.folio.search.configuration.properties.StreamIdsProperties;
 import org.folio.search.repository.ResourceIdsJobRepository;
 import org.folio.search.repository.ResourceIdsTemporaryRepository;
+import org.folio.search.service.EgressExecutionContextService;
 import org.folio.search.service.reindex.jdbc.TenantRepository;
-import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,7 +32,7 @@ class ScheduledResourceIdsJobCleanupServiceTest {
   private @Mock TenantRepository tenantRepository;
   private @Mock ResourceIdsJobRepository jobRepository;
   private @Mock ResourceIdsTemporaryRepository tempTableRepository;
-  private @Mock SystemUserScopedExecutionService executionService;
+  private @Mock EgressExecutionContextService executionService;
   private @Mock StreamIdsProperties streamIdsProperties;
 
   private @InjectMocks ScheduledResourceIdsJobCleanupService cleanupService;
@@ -43,7 +43,7 @@ class ScheduledResourceIdsJobCleanupServiceTest {
     var tenantIds = List.of("tenant1", "tenant2");
     var tableNames = List.of("temp_table_1", "temp_table_2");
     doAnswer(invocation -> invocation.<Callable<?>>getArgument(1).call())
-      .when(executionService).executeSystemUserScoped(anyString(), any());
+      .when(executionService).execute(anyString(), any(Callable.class));
     when(tenantRepository.fetchDataTenantIds()).thenReturn(tenantIds);
     when(streamIdsProperties.getJobExpirationDays()).thenReturn(7);
     when(jobRepository.deleteByCreatedDateLessThan(any(Date.class))).thenReturn(tableNames);
@@ -53,7 +53,7 @@ class ScheduledResourceIdsJobCleanupServiceTest {
 
     // Assert
     verify(tenantRepository).fetchDataTenantIds();
-    verify(executionService, times(2)).executeSystemUserScoped(argThat(tenantIds::contains), any());
+    verify(executionService, times(2)).execute(argThat(tenantIds::contains), any(Callable.class));
     verify(jobRepository, times(2)).deleteByCreatedDateLessThan(any(Date.class));
     verify(tempTableRepository, times(4)).dropTableForIds(argThat(tableNames::contains));
   }

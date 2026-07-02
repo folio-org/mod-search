@@ -18,11 +18,11 @@ import org.folio.search.domain.dto.UpdateIndexDynamicSettingsRequest;
 import org.folio.search.domain.dto.UpdateMappingsRequest;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.rest.resource.IndexManagementApi;
+import org.folio.search.service.EgressExecutionContextService;
 import org.folio.search.service.IndexService;
 import org.folio.search.service.ResourceService;
 import org.folio.search.service.reindex.ReindexService;
 import org.folio.search.service.reindex.ReindexStatusService;
-import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,7 +42,7 @@ public class IndexManagementController implements IndexManagementApi {
   private final ResourceService resourceService;
   private final ReindexService reindexService;
   private final ReindexStatusService reindexStatusService;
-  private final SystemUserScopedExecutionService executionService;
+  private final EgressExecutionContextService executionService;
 
   @Override
   public ResponseEntity<FolioCreateIndexResponse> createIndices(String tenantId, CreateIndexRequest request) {
@@ -51,7 +51,7 @@ public class IndexManagementController implements IndexManagementApi {
 
   @Override
   public ResponseEntity<FolioIndexOperationResponse> indexRecords(String tenantId, List<ResourceEvent> events) {
-    executionService.executeSystemUserScoped(tenantId, () -> resourceService.indexResources(events));
+    executionService.execute(tenantId, () -> resourceService.indexResources(events));
     return ResponseEntity.ok(resourceService.indexResources(events));
   }
 

@@ -6,7 +6,6 @@ import static org.folio.support.TestConstants.TENANT_ID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -24,12 +23,11 @@ import org.apache.kafka.common.header.internals.RecordHeaders;
 import org.apache.kafka.common.record.TimestampType;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ResourceEventType;
+import org.folio.search.service.EgressExecutionContextService;
 import org.folio.search.service.InventoryEntityPersistenceService;
 import org.folio.search.service.consortium.ConsortiumTenantExecutor;
 import org.folio.search.service.reindex.jdbc.ItemRepository;
 import org.folio.search.service.reindex.jdbc.MergeInstanceRepository;
-import org.folio.spring.exception.SystemUserAuthorizationException;
-import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,7 +42,7 @@ class PopulateInstanceBatchInterceptorTest {
   @Mock
   private ConsortiumTenantExecutor executionService;
   @Mock
-  private SystemUserScopedExecutionService systemUserScopedExecutionService;
+  private EgressExecutionContextService scopedExecutionService;
   @Mock
   private MergeInstanceRepository instanceRepository;
   @Mock
@@ -63,26 +61,8 @@ class PopulateInstanceBatchInterceptorTest {
     populateInstanceBatchInterceptor = new PopulateInstanceBatchInterceptor(
       inventoryEntityPersistenceService,
       executionService,
-      systemUserScopedExecutionService
+      scopedExecutionService
     );
-  }
-
-  @Test
-  void shouldHandleSystemUserAuthorizationExceptionInIntercept() {
-    // Arrange
-    var resourceEvent = new ResourceEvent().tenant(TENANT_ID).resourceName("instance");
-    var consumerRecord = new ConsumerRecord<>("topic", 0, 0L, "key", resourceEvent);
-    var records = getConsumerRecords(List.of(consumerRecord));
-
-    doThrow(new SystemUserAuthorizationException("Authorization failed"))
-      .when(systemUserScopedExecutionService).executeSystemUserScoped(eq(TENANT_ID), any());
-
-    // Act
-    populateInstanceBatchInterceptor.intercept(records, consumer);
-
-    // Assert
-    verify(systemUserScopedExecutionService).executeSystemUserScoped(eq(TENANT_ID), any());
-    verify(executionService, never()).execute(any());
   }
 
   @Test
@@ -98,7 +78,7 @@ class PopulateInstanceBatchInterceptorTest {
     populateInstanceBatchInterceptor.intercept(records, consumer);
 
     // Assert
-    verify(systemUserScopedExecutionService).executeSystemUserScoped(eq(TENANT_ID), any());
+    verify(scopedExecutionService).execute(eq(TENANT_ID), any(Callable.class));
     verify(executionService).execute(any());
   }
 
@@ -183,7 +163,7 @@ class PopulateInstanceBatchInterceptorTest {
     doAnswer(invocation -> {
       var action = invocation.<Callable<?>>getArgument(1);
       return action.call();
-    }).when(systemUserScopedExecutionService).executeSystemUserScoped(any(String.class), any());
+    }).when(scopedExecutionService).execute(any(String.class), any(Callable.class));
   }
 
   private ConsumerRecord<String, ResourceEvent> createConsumerRecord(Map<String, Object> resourceNew, long timestamp) {

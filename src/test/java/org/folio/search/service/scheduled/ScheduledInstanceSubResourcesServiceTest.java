@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.concurrent.Callable;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.model.types.ReindexEntityType;
+import org.folio.search.service.EgressExecutionContextService;
 import org.folio.search.service.InstanceChildrenResourceService;
 import org.folio.search.service.ResourceService;
 import org.folio.search.service.reindex.ReindexStatusService;
@@ -32,7 +33,6 @@ import org.folio.search.service.reindex.jdbc.SubResourceResult;
 import org.folio.search.service.reindex.jdbc.SubResourcesLockRepository;
 import org.folio.search.service.reindex.jdbc.SubjectRepository;
 import org.folio.search.service.reindex.jdbc.TenantRepository;
-import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -50,7 +50,7 @@ class ScheduledInstanceSubResourcesServiceTest {
   private @Mock TenantRepository tenantRepository;
   private @Mock SubResourcesLockRepository subResourcesLockRepository;
   private @Mock ReindexStatusService reindexStatusService;
-  private @Mock SystemUserScopedExecutionService executionService;
+  private @Mock EgressExecutionContextService executionService;
   private @Mock InstanceChildrenResourceService instanceChildrenResourceService;
   private @Mock SubjectRepository subjectRepository;
   private @Mock MergeInstanceRepository instanceRepository;
@@ -85,7 +85,7 @@ class ScheduledInstanceSubResourcesServiceTest {
   void persistChildren_ShouldProcessSubResources() {
     // Arrange
     doAnswer(invocation -> invocation.<Callable<?>>getArgument(1).call())
-      .when(executionService).executeSystemUserScoped(anyString(), any());
+      .when(executionService).execute(anyString(), any(Callable.class));
     when(subResourcesLockRepository.lockSubResource(any(), any())).thenReturn(Optional.of(timestamp));
     when(tenantRepository.fetchDataTenantIds()).thenReturn(List.of(TENANT_ID));
     mockSubResourceResult(TENANT_ID, timestamp);
@@ -109,7 +109,7 @@ class ScheduledInstanceSubResourcesServiceTest {
   void persistChildren_ShouldProcessSubResourcesSizeEqualsBatchSize() {
     // Arrange
     doAnswer(invocation -> invocation.<Callable<?>>getArgument(1).call())
-      .when(executionService).executeSystemUserScoped(anyString(), any());
+      .when(executionService).execute(anyString(), any(Callable.class));
     when(subResourcesLockRepository.lockSubResource(any(), any())).thenReturn(Optional.of(timestamp));
     when(subResourcesLockRepository.updateLockTimestampFenced(any(), any(), any(), any())).thenReturn(true);
     when(tenantRepository.fetchDataTenantIds()).thenReturn(List.of(TENANT_ID));
@@ -152,7 +152,7 @@ class ScheduledInstanceSubResourcesServiceTest {
     // Arrange
     var tenantIds = List.of("tenant1", "tenant2");
     doAnswer(invocation -> invocation.<Callable<?>>getArgument(1).call())
-      .when(executionService).executeSystemUserScoped(anyString(), any());
+      .when(executionService).execute(anyString(), any(Callable.class));
     when(subResourcesLockRepository.lockSubResource(any(), any())).thenReturn(Optional.of(timestamp));
     when(tenantRepository.fetchDataTenantIds()).thenReturn(tenantIds);
     mockSubResourceResult(tenantIds.getFirst(), timestamp);
@@ -185,7 +185,7 @@ class ScheduledInstanceSubResourcesServiceTest {
   void persistChildren_ShouldReleaseStaleLockWhenLockAcquisitionFails() {
     // Arrange
     doAnswer(invocation -> invocation.<Callable<?>>getArgument(1).call())
-      .when(executionService).executeSystemUserScoped(anyString(), any());
+      .when(executionService).execute(anyString(), any(Callable.class));
     when(tenantRepository.fetchDataTenantIds()).thenReturn(List.of(TENANT_ID));
     when(subResourcesLockRepository.lockSubResource(any(), eq(TENANT_ID))).thenReturn(Optional.empty());
     when(reindexStatusService.isReindexInProgressOrFailedNotForConsortiumMember()).thenReturn(false);
@@ -207,7 +207,7 @@ class ScheduledInstanceSubResourcesServiceTest {
   void persistChildren_ShouldNotProcessWhenLockFailsAndNoStaleLock() {
     // Arrange
     doAnswer(invocation -> invocation.<Callable<?>>getArgument(1).call())
-      .when(executionService).executeSystemUserScoped(anyString(), any());
+      .when(executionService).execute(anyString(), any(Callable.class));
     when(tenantRepository.fetchDataTenantIds()).thenReturn(List.of(TENANT_ID));
     when(subResourcesLockRepository.lockSubResource(any(), eq(TENANT_ID))).thenReturn(Optional.empty());
     when(reindexStatusService.isReindexInProgressOrFailedNotForConsortiumMember()).thenReturn(false);
@@ -229,7 +229,7 @@ class ScheduledInstanceSubResourcesServiceTest {
   void persistChildren_ShouldSkipStaleLockCheckWhenReindexInProgress() {
     // Arrange
     doAnswer(invocation -> invocation.<Callable<?>>getArgument(1).call())
-      .when(executionService).executeSystemUserScoped(anyString(), any());
+      .when(executionService).execute(anyString(), any(Callable.class));
     when(tenantRepository.fetchDataTenantIds()).thenReturn(List.of(TENANT_ID));
     when(subResourcesLockRepository.lockSubResource(any(), eq(TENANT_ID))).thenReturn(Optional.empty());
     when(reindexStatusService.isReindexInProgressOrFailedNotForConsortiumMember()).thenReturn(true);
@@ -250,7 +250,7 @@ class ScheduledInstanceSubResourcesServiceTest {
   void persistChildren_ShouldLogWarnAndSkipCycleOnException() {
     // Arrange
     doAnswer(invocation -> invocation.<Callable<?>>getArgument(1).call())
-      .when(executionService).executeSystemUserScoped(anyString(), any());
+      .when(executionService).execute(anyString(), any(Callable.class));
     when(tenantRepository.fetchDataTenantIds()).thenReturn(List.of(TENANT_ID));
     when(subResourcesLockRepository.lockSubResource(any(), eq(TENANT_ID))).thenReturn(Optional.empty());
     when(reindexStatusService.isReindexInProgressOrFailedNotForConsortiumMember())

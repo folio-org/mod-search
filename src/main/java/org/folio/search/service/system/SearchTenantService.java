@@ -28,7 +28,6 @@ public class SearchTenantService extends TenantService {
 
   private final TenantInitIndexService indexService;
   private final KafkaAdminService kafkaAdminService;
-  private final OkapiSystemUserService okapiSystemUserService;
   private final LanguageConfigService languageConfigService;
   private final ResourceDescriptionService resourceDescriptionService;
   private final SearchConfigurationProperties searchConfigurationProperties;
@@ -37,7 +36,6 @@ public class SearchTenantService extends TenantService {
   public SearchTenantService(JdbcTemplate jdbcTemplate, FolioExecutionContext context,
                              FolioSpringLiquibase folioSpringLiquibase, KafkaAdminService kafkaAdminService,
                              TenantInitIndexService indexService,
-                             OkapiSystemUserService okapiSystemUserService,
                              LanguageConfigService languageConfigService,
                              ResourceDescriptionService resourceDescriptionService,
                              SearchConfigurationProperties searchConfigurationProperties,
@@ -45,7 +43,6 @@ public class SearchTenantService extends TenantService {
     super(jdbcTemplate, context, folioSpringLiquibase);
     this.kafkaAdminService = kafkaAdminService;
     this.indexService = indexService;
-    this.okapiSystemUserService = okapiSystemUserService;
     this.languageConfigService = languageConfigService;
     this.resourceDescriptionService = resourceDescriptionService;
     this.searchConfigurationProperties = searchConfigurationProperties;
@@ -58,7 +55,6 @@ public class SearchTenantService extends TenantService {
    * <p>This method:</p>
    * <ul>
    *   <li>Creates Kafka topics</li>
-   *   <li>Creates a system user to perform record indexing</li>
    * </ul>
    *
    * <p>This method additionally if it's not a consortium member tenant:</p>
@@ -115,7 +111,6 @@ public class SearchTenantService extends TenantService {
    * <p>This method:</p>
    * <ul>
    *   <li>Creates Kafka topics</li>
-   *   <li>Creates a system user to perform record indexing</li>
    *   <li>Add default languages to the tenant configuration</li>
    *   <li>Creates Elasticsearch indexes and corresponding mappings for supported record types</li>
    *   <li>Starts reindexing process for inventory (if it's specified)</li>
@@ -151,7 +146,6 @@ public class SearchTenantService extends TenantService {
   private void baseAfterTenantUpdate() {
     kafkaAdminService.createTopics(context.getTenantId());
     kafkaAdminService.restartEventListeners();
-    okapiSystemUserService.prepareSystemUser();
     log.info("Tenant base init has been completed");
   }
 

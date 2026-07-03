@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.folio.s3.client.FolioS3Client;
+import org.folio.s3.exception.S3ClientException;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ResourceEvent;
@@ -44,6 +45,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.retry.RetryPolicy;
+import org.springframework.core.retry.RetryTemplate;
 import org.springframework.dao.PessimisticLockingFailureException;
 
 @UnitTest
@@ -62,6 +65,8 @@ class ExportReindexOrchestrationServiceTest {
   private MultiTenantSearchDocumentConverter documentConverter;
   @Spy
   private ReindexConfigurationProperties configurationProperties;
+  @Spy
+  private RetryTemplate s3ReadRetryTemplate = new RetryTemplate(RetryPolicy.builder().maxRetries(0).build());
   @Mock
   private JsonConverter jsonConverter;
   @Mock
@@ -275,6 +280,18 @@ class ExportReindexOrchestrationServiceTest {
     assertThrows(ReindexException.class, () -> service.process(event));
 
     verifyNoMoreInteractions(reindexStatusService);
+  }
+
+  @Test
+  void process_negative_reindexFileReadyEvent_shouldThrowReindexExceptionOnS3ReadFailure() {
+    var event = getReindexFileReadyEvent(UUID.randomUUID().toString());
+    when(folioS3Client.read(event.getObjectKey()))
+      .thenThrow(new S3ClientException("Error creating input stream for path: " + event.getObjectKey()));
+
+    assertThrows(ReindexException.class, () -> service.process(event));
+
+    verify(reindexStatusService).getTargetTenantId();
+    verifyNoMoreInteractions(reindexStatusService, mergeRangeService);
   }
 
   private ReindexFileReadyEvent getReindexFileReadyEvent(String rangeId) {

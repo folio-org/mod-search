@@ -17,6 +17,7 @@
 * Bump httpclient5 to 5.6.1 and httpcore5 to 5.4.2 to fix CVE-2026-40542 mutual authentication bypass ([MSEARCH-1208](https://folio-org.atlassian.net/browse/MSEARCH-1208))
 * Move reindex sub-resource locks acquisition from trigger to code, add fencing tokens to scheduler-side unlock/refresh ([MSEARCH-1238](https://folio-org.atlassian.net/browse/MSEARCH-1238)
 * Increate http client pool size and make it configurable ([MSEARCH-1248](https://folio-org.atlassian.net/browse/MSEARCH-1248)
+* Implement retries for s3 client reads and s3 client connection config ([MSEARCH-1245](https://folio-org.atlassian.net/browse/MSEARCH-1245)
 
 ### Tech Dept
 * Adjust default configuration and improve parallelism for reindex ([MSEARCH-1236](https://folio-org.atlassian.net/browse/MSEARCH-1236))

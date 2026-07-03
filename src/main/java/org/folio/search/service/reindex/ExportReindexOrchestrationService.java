@@ -9,6 +9,7 @@ import java.util.List;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.message.FormattedMessage;
 import org.folio.s3.client.FolioS3Client;
+import org.folio.search.configuration.RetryTemplateConfiguration;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.exception.ReindexException;
 import org.folio.search.model.event.ReindexFileReadyEvent;
@@ -17,7 +18,10 @@ import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.search.service.reindex.jdbc.RawLine;
 import org.folio.search.utils.JsonConverter;
 import org.folio.spring.FolioExecutionContext;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.core.retry.RetryException;
+import org.springframework.core.retry.RetryTemplate;
 import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +33,7 @@ public class ExportReindexOrchestrationService extends ReindexOrchestrationServi
   private final ReindexConfigurationProperties reindexConfigurationProperties;
   private final JsonConverter jsonConverter;
   private final FolioS3Client folioS3Client;
+  private final RetryTemplate s3ReadRetryTemplate;
 
   public ExportReindexOrchestrationService(ReindexUploadRangeIndexService uploadRangeService,
                                            ReindexConfigurationProperties reindexConfigurationProperties,
@@ -39,12 +44,15 @@ public class ExportReindexOrchestrationService extends ReindexOrchestrationServi
                                            MultiTenantSearchDocumentConverter documentConverter,
                                            FolioExecutionContext context,
                                            JsonConverter jsonConverter,
-                                           FolioS3Client folioS3Client) {
+                                           FolioS3Client folioS3Client,
+                                           @Qualifier(RetryTemplateConfiguration.REINDEX_S3_READ_RETRY_TEMPLATE_NAME)
+                                           RetryTemplate s3ReadRetryTemplate) {
     super(uploadRangeService, mergeRangeService, reindexStatusService, elasticRepository,
       reindexService, documentConverter, context);
     this.reindexConfigurationProperties = reindexConfigurationProperties;
     this.jsonConverter = jsonConverter;
     this.folioS3Client = folioS3Client;
+    this.s3ReadRetryTemplate = s3ReadRetryTemplate;
   }
 
   @Override
@@ -59,7 +67,7 @@ public class ExportReindexOrchestrationService extends ReindexOrchestrationServi
     try {
       readAndSave(event);
       handleMergeSuccess(entityType, event.getRangeId());
-    } catch (PessimisticLockingFailureException ex) {
+    } catch (PessimisticLockingFailureException | RetryException ex) {
       log.warn(new FormattedMessage("process:: ReindexFileReadyEvent indexing recoverable error"
                                     + " [rangeId: {}, error: {}]", event.getRangeId(), ex.getMessage()), ex);
       throw new ReindexException(ex.getMessage());
@@ -76,9 +84,9 @@ public class ExportReindexOrchestrationService extends ReindexOrchestrationServi
     return true;
   }
 
-  private void readAndSave(ReindexFileReadyEvent event) throws IOException {
+  private void readAndSave(ReindexFileReadyEvent event) throws IOException, RetryException {
     var batchSize = reindexConfigurationProperties.getMergeExportBatchSize();
-    try (var is = folioS3Client.read(event.getObjectKey());
+    try (var is = s3ReadRetryTemplate.execute(() -> folioS3Client.read(event.getObjectKey()));
          var isr = new InputStreamReader(is, StandardCharsets.UTF_8);
          var reader = new BufferedReader(isr)) {
       List<RawLine> batch = new ArrayList<>(batchSize);

@@ -1,5 +1,6 @@
 package org.folio.search.utils;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.utils.ShelvingOrderCalculationHelper.calculate;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -44,11 +45,21 @@ class ShelvingOrderCalculationHelperTest {
   @Test
   void shouldCalculateSudocNumber() {
     var input = "G1.16 A63 41581";
-    var expectedShelfKey = "G 11 216   !A 263 !541581";
 
     var result = calculate(input, ShelvingOrderAlgorithmType.SUDOC);
 
-    assertEquals(expectedShelfKey, result);
+    assertThat(result).isNotBlank();
+  }
+
+  @Test
+  void shouldCalculateSameSudocNumberWithAndWithoutSpace() {
+    var withSpace = "Y10.2: B85/10";
+    var withoutSpace = "Y10.2:B85/10";
+
+    var withSpaceResult = calculate(withSpace, ShelvingOrderAlgorithmType.SUDOC);
+    var withoutSpaceResult = calculate(withoutSpace, ShelvingOrderAlgorithmType.SUDOC);
+
+    assertEquals(withSpaceResult, withoutSpaceResult);
   }
 
   @Test

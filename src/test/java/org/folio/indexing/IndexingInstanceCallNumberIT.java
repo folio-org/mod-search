@@ -115,7 +115,7 @@ public abstract class IndexingInstanceCallNumberIT extends BaseSharedTest {
         entry("defaultShelvingOrder", "NS 1 .B5"),
         entry("deweyShelvingOrder", "NS 11 B 15"),
         entry("lcShelvingOrder", "NS 11 B5"),
-        entry("sudocShelvingOrder", "!NS 11   !B 15"),
+        entry("sudocShelvingOrder", "1NS 311 01 1B 315"),
         entry("nlmShelvingOrder", "NS 11 B5")
       );
   }

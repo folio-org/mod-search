@@ -71,7 +71,7 @@ public abstract class BrowseCallNumberIT extends BaseSharedTest {
    * Call numbers of non-configured types must NOT produce an exact match; only the configured
    * type should.
    */
-  @TestRailCase({627504, 627506, 627509})
+  @TestRailCase({627504, 627506, 627509, 627507})
   @ParameterizedTest(name = "[{index}] browseOption={0}, configuredTypeId={1}, exactMatchCallNumber={4}")
   @MethodSource("onlyConfiguredTypesReturnExactMatchProvider")
   void browseByCallNumber_onlyConfiguredTypesReturnExactMatch(BrowseOptionType browseOptionType,
@@ -155,7 +155,11 @@ public abstract class BrowseCallNumberIT extends BaseSharedTest {
       // SUDOC option configured with SUDOC only — LC, DEWEY, NLM, OTHER must not match. TestRail case 627509
       arguments(SUDOC, SUDOC_TYPE_ID, ShelvingOrderAlgorithmType.SUDOC,
         List.of("Q127.U6U49", "338.1 MOG", "QV 18.2 L765 2015", "SYLY-12"),
-        "Y 10.13:980")
+        "Y 10.13:980"),
+      // NLM option configured with NLM only — LC, DEWEY, SUDOC, OTHER must not match. TestRail case 627507
+      arguments(NLM, NLM_TYPE_ID, ShelvingOrderAlgorithmType.NLM,
+        List.of("Q127.U6U49", "338.1 MOG", "Y 10.13:980", "SYLY-12"),
+        "QV 18.2 L765 2015")
     );
   }
 

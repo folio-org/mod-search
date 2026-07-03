@@ -7,7 +7,10 @@
 * Requires `API_NAME vX.Y`
 
 ### Features
-* Honor spring.cache.type=noop for cache manager ([MSEARCH-1204](https://folio-org.atlassian.net/browse/MSEARCH-1204))
+* **General**
+  * Honor spring.cache.type=noop for cache manager ([MSEARCH-1204](https://folio-org.atlassian.net/browse/MSEARCH-1204))
+* **Call Number Browse**
+  * Ignore spaces in SuDoc sorting algorithm ([MSEARCH-1005](https://folio-org.atlassian.net/browse/MSEARCH-1005))
 
 ### Bug fixes
 * Add retry for search operations ([MSEARCH-1194](https://folio-org.atlassian.net/browse/MSEARCH-1194))

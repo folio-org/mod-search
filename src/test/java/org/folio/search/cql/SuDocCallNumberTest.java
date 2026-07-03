@@ -16,18 +16,18 @@ class SuDocCallNumberTest {
 
   @ParameterizedTest
   @MethodSource("parseableSuDocProvider")
-  void parse_supportedSuDoc_examplesAreTokenized(String callNumber, String authorSymbol, String subordinateOffice,
-                                                 String series, String suffix) {
+  void parse_supportedSuDoc_examplesAreTokenized(String callNumber, String agencySymbol, String subordinateOffice,
+                                                 String series, String bookNumber) {
     // Arrange
     var suDocCallNumber = new SuDocCallNumber(callNumber);
 
     // Act & Assert
     assertThat(suDocCallNumber.isValid()).isTrue();
-    assertThat(suDocCallNumber.authorSymbol).isEqualTo(authorSymbol);
+    assertThat(suDocCallNumber.agencySymbol).isEqualTo(agencySymbol);
     assertThat(suDocCallNumber.subordinateOffice).isEqualTo(subordinateOffice);
     assertThat(suDocCallNumber.series).isEqualTo(series);
     assertThat(suDocCallNumber.subSeries).isNull();
-    assertThat(suDocCallNumber.suffix).isEqualTo(suffix);
+    assertThat(suDocCallNumber.bookNumber).isEqualTo(bookNumber);
   }
 
   @Test
@@ -52,17 +52,17 @@ class SuDocCallNumberTest {
 
   @ParameterizedTest
   @MethodSource("congressionalSuDocProvider")
-  void parse_congressionalStyleStem_keepsCommitteeStemInSeries(String callNumber, String series, String suffix) {
+  void parse_congressionalStyleStem_keepsCommitteeStemInSeries(String callNumber, String series, String bookNumber) {
     // Arrange
     var suDocCallNumber = new SuDocCallNumber(callNumber);
 
     // Act & Assert
     assertThat(suDocCallNumber.isValid()).isTrue();
-    assertThat(suDocCallNumber.authorSymbol).isEqualTo("Y");
+    assertThat(suDocCallNumber.agencySymbol).isEqualTo("Y");
     assertThat(suDocCallNumber.subordinateOffice).isEqualTo("4");
     assertThat(suDocCallNumber.series).isEqualTo(series);
     assertThat(suDocCallNumber.subSeries).isNull();
-    assertThat(suDocCallNumber.suffix).isEqualTo(suffix);
+    assertThat(suDocCallNumber.bookNumber).isEqualTo(bookNumber);
   }
 
   @Test

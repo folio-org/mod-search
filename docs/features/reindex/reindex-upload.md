@@ -19,11 +19,6 @@ Do **not** use when:
 - You need fresh data from inventory — use [Full Reindex — Kafka](reindex-full-kafka.md) or [Full Reindex — S3](reindex-full-s3.md) instead
 - A merge is currently in progress or in `MERGE_FAILED` state for the requested entity types — the request will be rejected
 
-## Prerequisites
-
-- A full reindex (merge phase) must have completed successfully at least once
-- No merge in progress or in `MERGE_FAILED` state for the requested entity types
-
 ## Step 1: Trigger upload reindex
 
 ```http
@@ -57,37 +52,56 @@ Content-Type: application/json
 
 ## Step 2: Monitor progress
 
-```http
-GET /search/index/instance-records/reindex/status
-x-okapi-tenant: <tenant>
+Monitor via `GET /search/index/instance-records/reindex/status` — see [Monitoring Progress](../reindex.md#monitoring-progress). Upload is complete when all requested entity types show `UPLOAD_COMPLETED`.
+
+## Performance
+
+An upload-phase reindex has no merge phase and no communication with mod-inventory-storage, so it is typically much faster than a full reindex on the same dataset — the merge phase (usually the longest part of a full reindex) is skipped entirely. Two factors bound its throughput:
+
+1. **OpenSearch bulk-write throughput** — the primary limit. Disabling replicas and refresh during indexing (below) and adding data nodes has the largest impact here.
+2. **PostgreSQL read connections** — each upload range reads its staged records from PostgreSQL, so a small connection pool can throttle parallel range processing. Raise `DB_MAXSHAREDPOOLSIZE` if the pool is saturated. Very large ranges can also exceed the statement timeout — raise `DB_QUERYTIMEOUT` or lower `REINDEX_UPLOAD_RANGE_SIZE` if range reads time out. Both come from `folio-spring-base`; see [Shared database settings](../reindex.md#shared-database-settings).
+
+### Scaling consumers and partitions
+
+The upload phase is Kafka-consumer-bound, so throughput scales with the number of mod-search tasks (container instances): the **effective consumer count is `tasks × KAFKA_REINDEX_RANGE_INDEX_CONCURRENCY`**, capped by the partition count of the `search.reindex.range-index` topic — any consumers beyond that stay idle. Raise the concurrency and the partition count together.
+
+The topic's partitions come from `KAFKA_REINDEX_RANGE_INDEX_TOPIC_PARTITIONS` (default `16`) **at creation only**. The topic is created once and is not repartitioned when the variable changes, so on an existing environment raise the partition count manually with Kafka admin tooling before reindexing — for example, to match 4 tasks running `KAFKA_REINDEX_RANGE_INDEX_CONCURRENCY=6` (4 × 6 = 24):
+
 ```
+kafka-topics --bootstrap-server <broker> --alter \
+  --topic <env>.<tenant>.search.reindex.range-index --partitions 24
+```
+
+### Speeding up indexing
+
+Pass `indexSettings` in the [Step 1](#step-1-trigger-upload-reindex) request to remove replica-write and refresh overhead while indexing:
 
 ```json
-[
-  {
-    "entityType": "instance",
-    "status": "UPLOAD_IN_PROGRESS",
-    "totalUploadRanges": 200,
-    "processedUploadRanges": 75,
-    "startTimeUpload": "2024-04-01T01:37:34.15755006Z"
-  },
-  {
-    "entityType": "contributor",
-    "status": "UPLOAD_COMPLETED",
-    "totalUploadRanges": 3,
-    "processedUploadRanges": 3,
-    "startTimeUpload": "2024-04-01T01:37:34.15755006Z",
-    "endTimeUpload": "2024-04-01T01:37:35.15755006Z"
+{
+  "entityTypes": ["instance", "subject", "contributor", "classification", "call-number"],
+  "indexSettings": {
+    "numberOfReplicas": 0,
+    "refreshInterval": -1
   }
-]
+}
 ```
 
-Upload is complete when all requested entity types show `UPLOAD_COMPLETED`.
+Restore production values once the upload completes — see [Restoring Index Settings After Reindex](../reindex.md#restoring-index-settings-after-reindex).
 
-## Key configuration variables
+### Key tuning variables
 
-| Variable                                | Default | Purpose                                                   |
-|-----------------------------------------|---------|-----------------------------------------------------------|
-| `REINDEX_UPLOAD_RANGE_SIZE`             | `1000`  | Records per upload range                                  |
-| `REINDEX_UPLOAD_RANGE_LEVEL`            | `3`     | Range tree depth for upload phase                         |
-| `KAFKA_REINDEX_RANGE_INDEX_CONCURRENCY` | `8`     | Parallel Kafka consumers for the upload range-index topic |
+| Variable                                | Default | Effect                                                                      |
+|-----------------------------------------|---------|-----------------------------------------------------------------------------|
+| `REINDEX_UPLOAD_RANGE_SIZE`             | `1000`  | Records per upload range. Lower it if large ranges hit `DB_QUERYTIMEOUT`     |
+| `REINDEX_UPLOAD_RANGE_LEVEL`            | `3`     | Range tree depth for the upload phase                                       |
+| `KAFKA_REINDEX_RANGE_INDEX_CONCURRENCY` | `8`     | Parallel Kafka consumers for the upload range-index topic                   |
+| `DB_MAXSHAREDPOOLSIZE`                  | `10`    | Max DB connection pool size — raise to relieve read-connection contention   |
+| `DB_QUERYTIMEOUT`                       | `60000` | PostgreSQL statement timeout (ms) — raise if large range reads time out     |
+
+`DB_MAXSHAREDPOOLSIZE` and `DB_QUERYTIMEOUT` are provided by `folio-spring-base` and apply to all DB-bound reindex types. For the full configuration reference, see the [Configuration Reference](../reindex.md#configuration-reference).
+
+## Related
+
+- [Full Reindex — Kafka](reindex-full-kafka.md) — full rebuild that fetches fresh data from inventory (run this if the staging tables are empty)
+- [Failed Merge Reindex](reindex-failed-merge.md) — retry failed merge ranges before uploading
+- [Reindex overview](../reindex.md) — phases, monitoring, status values, and shared configuration

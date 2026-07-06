@@ -1,7 +1,7 @@
 ---
 feature_id: reindex
 title: Reindex
-updated: 2026-07-03
+updated: 2026-07-06
 ---
 
 # Reindex
@@ -12,38 +12,20 @@ Orchestrates full and partial re-population of the OpenSearch index for all inve
 
 After upgrades, configuration changes, or index corruption, the search index must be rebuilt from the authoritative database state. Reindex enables operators to trigger and monitor this process without downtime, using a distributed range-based approach that is safe to run in a clustered deployment.
 
-## Reindex Types
-
-| Type                                                                   | Description                                                                                   |
-|------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
-| [Full Reindex — Kafka (PUBLISH mode)](reindex/reindex-full-kafka.md)   | Full reindex using Kafka to stream records from mod-inventory (default mode, most performant) |
-| [Full Reindex — S3 (EXPORT mode)](reindex/reindex-full-s3.md)          | Full reindex using S3/object storage as an intermediary for cost optimization                 |
-| [Full Reindex — ECS Member Tenant](reindex/reindex-full-ecs-member.md) | Full reindex triggered on a consortium member tenant in an ECS deployment                     |
-| [Upload-Phase Reindex](reindex/reindex-upload.md)                      | Runs only the upload phase (OpenSearch indexing) without re-merging records from inventory    |
-| [Failed Merge Reindex](reindex/reindex-failed-merge.md)                | Retries only the merge ranges that previously failed                                          |
-| [Legacy Reindex](reindex/reindex-legacy.md)                            | Reindex for entity types other than instance via the legacy inventory reindex endpoint        |
-
 ## Choosing a Reindex Type
 
-| Situation                                                            | Use                                                                    |
-|----------------------------------------------------------------------|------------------------------------------------------------------------|
-| Full index rebuild — default environment (`REINDEX_TYPE=PUBLISH`)    | [Full Reindex — Kafka](reindex/reindex-full-kafka.md)                  |
-| Full index rebuild — S3 export environment (`REINDEX_TYPE=EXPORT`)   | [Full Reindex — S3](reindex/reindex-full-s3.md)                        |
-| Reindex a specific ECS consortium member tenant                      | [Full Reindex — ECS Member Tenant](reindex/reindex-full-ecs-member.md) |
-| OpenSearch deleted or upgraded; inventory data already in PostgreSQL | [Upload-Phase Reindex](reindex/reindex-upload.md)                      |
-| Previous full reindex left some ranges in `MERGE_FAILED`             | [Failed Merge Reindex](reindex/reindex-failed-merge.md)                |
-| Reindexing authorities, locations, or linked-data records            | [Legacy Reindex](reindex/reindex-legacy.md)                            |
+Each reindex type has its own guide with complete run instructions, request format, configuration, and performance notes. Start here to pick the right one, then follow the linked guide.
 
-## API Endpoints
+| Your situation | Use | Guide |
+|---|---|---|
+| Full rebuild from inventory — default environment (`REINDEX_TYPE=PUBLISH`) | Full Reindex — Kafka | [reindex-full-kafka.md](reindex/reindex-full-kafka.md) |
+| Full rebuild via S3 object storage — cost-optimized (`REINDEX_TYPE=EXPORT`) | Full Reindex — S3 | [reindex-full-s3.md](reindex/reindex-full-s3.md) |
+| Reindex a specific consortium member tenant in an ECS deployment | Full Reindex — ECS Member Tenant | [reindex-full-ecs-member.md](reindex/reindex-full-ecs-member.md) |
+| OpenSearch deleted or upgraded; inventory data is current in PostgreSQL | Upload-Phase Reindex | [reindex-upload.md](reindex/reindex-upload.md) |
+| Previous full reindex left ranges in `MERGE_FAILED` | Failed Merge Reindex | [reindex-failed-merge.md](reindex/reindex-failed-merge.md) |
+| Reindex `authority` or `location` records | Legacy Reindex | [reindex-legacy.md](reindex/reindex-legacy.md) |
 
-| Method | Path                                                  | Description                                                            |
-|--------|-------------------------------------------------------|------------------------------------------------------------------------|
-| POST   | `/search/index/instance-records/reindex/full`         | Initiates a full reindex (merge + upload) for all entity types         |
-| POST   | `/search/index/instance-records/reindex/upload`       | Initiates an upload-phase reindex for selected entity types            |
-| POST   | `/search/index/instance-records/reindex/merge/failed` | Retries failed merge ranges                                            |
-| GET    | `/search/index/instance-records/reindex/status`       | Returns reindex status per entity type                                 |
-| POST   | `/search/index/inventory/reindex`                     | Triggers legacy reindex for non-instance entity types                  |
-| PUT    | `/search/index/settings`                              | Updates dynamic index settings (use to restore settings after reindex) |
+The remainder of this page covers concepts and reference material shared by **all** reindex types: phases, progress monitoring, index-settings restore, the consolidated configuration reference, and FAQ. Each guide links back here rather than repeating it.
 
 ## Kafka Topics
 
@@ -66,10 +48,11 @@ Sequence diagrams for the reindex flow are in [`docs/diagrams/`](../diagrams/):
 
 ## Reindex Phases
 
-Entity types are split into two phases:
+A reindex progresses through up to three phases:
 
-- **Merge phase** — records are received from inventory via Kafka (PUBLISH mode) or read from object storage (EXPORT mode) and staged in PostgreSQL. Applies to: `INSTANCE`, `HOLDINGS`, `ITEM`.
-- **Upload phase** — staged records are read from the local DB in ranges and pushed to OpenSearch. Applies to: `INSTANCE`, `SUBJECT`, `CONTRIBUTOR`, `CLASSIFICATION`, `CALL_NUMBER`.
+- **Merge phase** — records are received from inventory via Kafka (PUBLISH mode) or read from object storage (EXPORT mode) and staged in PostgreSQL. Applies to: `instance`, `holdings`, `item`.
+- **Staging phase** *(ECS member tenant reindex only)* — an intermediary stage between merge and upload that promotes a member tenant's merged records into the central tenant's index data. It is tracked separately via the `STAGING_IN_PROGRESS` / `STAGING_COMPLETED` / `STAGING_FAILED` status values and driven by the `REINDEX_MIGRATION_*` settings. Standalone (non-consortium) and full-consortium reindexes skip this phase. See [Full Reindex — ECS Member Tenant](reindex/reindex-full-ecs-member.md).
+- **Upload phase** — staged records are read from the local DB in ranges and pushed to OpenSearch. Applies to: `instance`, `subject`, `contributor`, `classification`, `call-number`.
 
 All entity type tables are truncated before a full reindex starts.
 
@@ -82,6 +65,7 @@ Use `GET /search/index/instance-records/reindex/status` to track progress. Each 
   {
     "entityType": "instance",
     "status": "UPLOAD_COMPLETED",
+    "targetTenantId": null,
     "totalMergeRanges": 100,
     "processedMergeRanges": 100,
     "totalUploadRanges": 200,
@@ -89,18 +73,20 @@ Use `GET /search/index/instance-records/reindex/status` to track progress. Each 
     "startTimeMerge": "2024-04-01T01:37:30Z",
     "endTimeMerge": "2024-04-01T02:10:00Z",
     "startTimeUpload": "2024-04-01T02:10:01Z",
-    "endTimeUpload": "2024-04-01T02:38:00Z"
+    "endTimeUpload": "2024-04-01T02:38:00Z",
+    "startTimeStaging": null,
+    "endTimeStaging": null
   }
 ]
 ```
 
-> `targetTenantId` is only populated during member tenant reindexing — see [Full Reindex — ECS Member Tenant](reindex/reindex-full-ecs-member.md).
+`targetTenantId`, `startTimeStaging`, and `endTimeStaging` are only populated during ECS member tenant reindexing — see [Full Reindex — ECS Member Tenant](reindex/reindex-full-ecs-member.md).
 
 ### Status values
 
 | Status                | Description                                                    |
 |-----------------------|----------------------------------------------------------------|
-| `MERGE_IN_PROGRESS`   | Receiving records from inventory via Kafka                     |
+| `MERGE_IN_PROGRESS`   | Merge phase in progress — records being staged in PostgreSQL   |
 | `MERGE_COMPLETED`     | All records staged in PostgreSQL                               |
 | `MERGE_FAILED`        | One or more merge ranges failed                                |
 | `STAGING_IN_PROGRESS` | Member tenant reindex: staging member records to central index |
@@ -112,22 +98,11 @@ Use `GET /search/index/instance-records/reindex/status` to track progress. Each 
 
 Reindex is complete when all upload-phase entity types (`instance`, `subject`, `contributor`, `classification`, `call-number`) show `UPLOAD_COMPLETED`, and all merge-only entity types (`holdings`, `item`) show `MERGE_COMPLETED`.
 
-## Performance Tuning
+## Restoring Index Settings After Reindex
 
-### Indexing throughput during reindex
+The full and upload reindex requests accept an `indexSettings` override that disables replica writes and periodic refresh to speed up indexing on large datasets. See each reindex guide's **Performance** section for the request-time settings and type-specific tuning.
 
-Pass `indexSettings` in the reindex request to disable replica writes and background refresh while indexing — this can reduce reindex time significantly on large datasets:
-
-```json
-{
-  "indexSettings": {
-    "numberOfReplicas": 0,
-    "refreshInterval": -1
-  }
-}
-```
-
-Restore production values after completion:
+Those overrides persist after the reindex finishes, so restore production values with `PUT /search/index/settings` once it completes:
 
 ```http
 PUT /search/index/settings
@@ -143,31 +118,8 @@ Content-Type: application/json
 }
 ```
 
-### Key tuning variables
+> `numberOfShards` is **not** a valid field on this endpoint — it is only applied at index creation time via the reindex trigger.
 
-**Merge phase (PUBLISH mode):**
-
-| Variable                                       | Default | Effect                                                                         |
-|------------------------------------------------|---------|--------------------------------------------------------------------------------|
-| `REINDEX_MERGE_RANGE_PUBLISHER_CORE_POOL_SIZE` | `30`    | Parallel HTTP requests to mod-inventory-storage                                |
-| `REINDEX_MERGE_RANGE_PUBLISHER_MAX_POOL_SIZE`  | `30`    | Maximum parallel HTTP requests                                                 |
-| `EXCHANGE_HTTP_MAX_CONN_PER_ROUTE`             | `50`    | HTTP connection pool — must be ≥ `REINDEX_MERGE_RANGE_PUBLISHER_MAX_POOL_SIZE` |
-| `KAFKA_REINDEX_RECORDS_CONCURRENCY`            | `4`     | Parallel Kafka consumers staging records                                       |
-| `REINDEX_MERGE_RANGE_SIZE`                     | `500`   | Records per merge range                                                        |
-| `REINDEX_MIGRATION_WORK_MEM`                   | `64MB`  | PostgreSQL `work_mem` for staging migration queries                            |
-
-**Upload phase:**
-
-| Variable                                | Default | Effect                                     |
-|-----------------------------------------|---------|--------------------------------------------|
-| `KAFKA_REINDEX_RANGE_INDEX_CONCURRENCY` | `8`     | Parallel Kafka consumers for upload ranges |
-| `REINDEX_UPLOAD_RANGE_SIZE`             | `1000`  | Records per upload range                   |
-
-### Infrastructure sizing
-
-For environments with ~10 million records, expect **1.5–2.5 hours** for a full reindex depending on configuration. For production scale, recommended minimums:
-- PostgreSQL: instance with ≥16 vCPUs, ≥128 GB RAM (e.g. `db.r6g.4xlarge`)
-- OpenSearch: cluster with 4+ data nodes
 
 ## Constraints and Preconditions
 
@@ -175,14 +127,12 @@ For environments with ~10 million records, expect **1.5–2.5 hours** for a full
 - Upload reindex is rejected while a merge is in progress or in a failed state for the requested entity type.
 - Failed-merge reindex returns immediately if no failed ranges exist.
 - Simultaneous multi-tenant reindexing is not supported — run one tenant at a time.
+- Background resource processing is disabled if the reindex is failed. Reindex must be restarted in such case to ensure data consistency.
 
 ## Error Behavior
 
-- `400 Bad Request` — invalid request parameters.
-- `500 Internal Server Error` — internal failure.
 - Kafka listener processing uses retry backoff (`KAFKA_RETRY_INTERVAL_MS`, `KAFKA_RETRY_DELIVERY_ATTEMPTS`).
-- Recoverable pessimistic locking failures raise `ReindexException`; non-recoverable errors mark the merge range as failed.
-- Failed merge ranges can be retried via `POST /search/index/instance-records/reindex/merge/failed` — see [Failed Merge Reindex](reindex/reindex-failed-merge.md).
+- Non-recoverable processing errors mark the affected merge range as `MERGE_FAILED`. Retrying via `POST /search/index/instance-records/reindex/merge/failed` — see [Failed Merge Reindex](reindex/reindex-failed-merge.md).
 
 ## Configuration Reference
 
@@ -214,36 +164,29 @@ For environments with ~10 million records, expect **1.5–2.5 hours** for a full
 | `S3_REINDEX_IS_AWS`                               | `true`                     | Use AWS SDK behaviour; `false` for MinIO or other S3-compatible storage                  |
 | `EXCHANGE_HTTP_MAX_CONN_PER_ROUTE`                | `50`                       | HTTP connection pool per route — must be ≥ `REINDEX_MERGE_RANGE_PUBLISHER_MAX_POOL_SIZE` |
 
+### Shared database settings
+
+These variables come from the `folio-spring-base` dependency (not mod-search itself) and configure the shared HikariCP PostgreSQL connection pool. They are **not** reindex-specific, but they affect **any** reindex type that reads from or writes to PostgreSQL — full, upload, member, and failed-merge — so they are worth tuning for large reindexes.
+
+| Variable               | Default   | Purpose                                                                                                                              |
+|------------------------|-----------|------------------------------------------------------------------------------------------------------------------------------------|
+| `DB_MAXSHAREDPOOLSIZE` | `10`      | Maximum HikariCP DB connection pool size (HikariCP default applies when unset). Raising it relieves read-connection contention during the upload phase, where each range reads staged records from PostgreSQL. |
+| `DB_QUERYTIMEOUT`      | `60000`   | PostgreSQL statement timeout (ms) applied to pooled connections. Raise it — or lower the upload range size — if large upload ranges hit statement timeouts. |
+
+
 ## FAQ
 
-**Can I run reindex for multiple tenants simultaneously?**
-No. Parallel multi-tenant reindexing is not supported. Run one tenant at a time.
-
-**Will reindex affect ongoing search performance?**
-Yes — indexing puts load on OpenSearch and PostgreSQL. Setting `numberOfReplicas: 0` and `refreshInterval: -1` in the reindex request reduces overhead. Search queries may be slower while reindex is in progress.
-
-**How do I know when reindex is fully complete?**
-Poll `GET /search/index/instance-records/reindex/status` until all upload-phase entity types (`instance`, `subject`, `contributor`, `classification`, `call-number`) show `UPLOAD_COMPLETED` and all merge-only entity types (`holdings`, `item`) show `MERGE_COMPLETED`.
+**Can I run reindex for multiple tenants simultaneously?**                                                                                                                                                      
+No. Parallel multi-tenant reindexing is not supported. Run one tenant at a time.  
 
 **The status shows completed but `processedMergeRanges` or `processedUploadRanges` is greater than `totalMergeRanges` / `totalUploadRanges`. Is something wrong?**
 This is a known issue. It means some ranges were retried internally via Kafka, which increments the processed counter beyond the original total. If the counts have stopped growing and the status is `UPLOAD_COMPLETED` / `MERGE_COMPLETED`, the reindex is considered successful.
 
 **Can I stop a reindex that is in progress?**
-There is no explicit stop endpoint. Triggering a new full reindex truncates all staging tables and starts fresh, effectively cancelling the previous run.
+There is no explicit stop endpoint. Stopping mod-search and mod-inventory-storage and cleaning up the Kafka topics will halt the reindex, but is not recommended. To restart reindex after a forced stop, manually correct all entity type statuses in the database to `..._FAILED` or `..._COMPLETED` first — otherwise a new reindex will not start.
 
-**What if some merge ranges fail?**
-Use [Failed Merge Reindex](reindex/reindex-failed-merge.md) to retry only the failed ranges after resolving the underlying cause.
+**Is it safe to run data import or other inventory updates during a reindex?**
+It is possible, but not recommended for large jobs. Concurrent inventory writes compete for the same mod-inventory-storage, Kafka, PostgreSQL, and OpenSearch capacity, slowing the reindex — and the reindex slows the imports in return. If you must overlap them, monitor resource usage closely and expect a longer reindex.
 
 **Do I need to reindex after every upgrade?**
 Only if the upgrade includes OpenSearch mapping changes or if the release notes explicitly call for a reindex. Check the release notes and the changelog in `docs/features/` for the relevant feature area.
-
-**When should I use upload reindex instead of full reindex?**
-Use [Upload-Phase Reindex](reindex/reindex-upload.md) when the issue is in OpenSearch only (index deleted, cluster upgraded) and the data in the PostgreSQL resource tables is still valid. If you need fresh data from inventory, run a full reindex.
-
-## Dependencies and Interactions
-
-- Depends on OpenSearch for bulk index write operations.
-- Depends on PostgreSQL for staging and reading all entity type records.
-- Publishes range events to the internal `search.reindex.range-index` Kafka topic.
-- Consumes `inventory.reindex-records` and `inventory.reindex.file-ready` topics produced by mod-inventory.
-- In EXPORT mode, reads exported records from object storage via `FolioS3Client`.

@@ -15,14 +15,7 @@ When a full reindex's merge phase fails for one or more ranges, those ranges are
 
 ## Step 1: Confirm failed ranges exist
 
-Check the status before retrying:
-
-```http
-GET /search/index/instance-records/reindex/status
-x-okapi-tenant: <tenant>
-```
-
-Look for entries with `"status": "MERGE_FAILED"`. If none are present, there is nothing to retry.
+Check [Monitoring Progress](../reindex.md#monitoring-progress) and look for entries with `"status": "MERGE_FAILED"`. If none are present, there is nothing to retry.
 
 ## Step 2: Retry failed merge ranges
 
@@ -39,16 +32,24 @@ No request body.
 
 ## Step 3: Monitor progress
 
-```http
-GET /search/index/instance-records/reindex/status
-x-okapi-tenant: <tenant>
-```
+Monitor via [Monitoring Progress](../reindex.md#monitoring-progress). Watch for `MERGE_FAILED` entries to transition to `MERGE_IN_PROGRESS` then `MERGE_COMPLETED`. Once all merges complete, the upload phase starts automatically.
 
-Watch for `MERGE_FAILED` entries to transition back to `MERGE_IN_PROGRESS` and then `MERGE_COMPLETED`. Once merge completes, the upload phase starts automatically.
+If ranges fail again, investigate the underlying cause before retrying — repeated failures indicate a persistent infrastructure issue.
 
-If ranges fail again, investigate the underlying cause before retrying. Repeated failures indicate a persistent infrastructure issue rather than a transient one.
+## Performance
+
+This operation retries **only the ranges in `MERGE_FAILED`**, so its duration scales with the number of failed ranges rather than the full dataset — it is normally a small fraction of a full reindex. It reuses the same merge-phase machinery as a PUBLISH full reindex, so the same tuning variables apply (`REINDEX_MERGE_RANGE_PUBLISHER_*`, `KAFKA_REINDEX_RECORDS_CONCURRENCY`, `EXCHANGE_HTTP_MAX_CONN_PER_ROUTE`) — see [Full Reindex — Kafka › Performance](reindex-full-kafka.md#performance) and the full [Configuration Reference](../reindex.md#configuration-reference).
+
+Once all failed ranges recover to `MERGE_COMPLETED`, the upload phase starts automatically; upload-phase throughput is governed by the variables in [Upload-Phase Reindex › Performance](reindex-upload.md#performance).
 
 ## Notes
 
 - Only ranges in `MERGE_FAILED` state are retried — ranges already in `MERGE_COMPLETED` or later states are not re-processed.
 - If the merge failure is systemic (e.g. inventory is unreachable for an extended period), consider restarting the full reindex after the issue is resolved rather than retrying repeatedly.
+
+## Related
+
+- [Full Reindex — Kafka](reindex-full-kafka.md) — the operation that produces `MERGE_FAILED` ranges
+- [Reindex overview › Error Behavior](../reindex.md#error-behavior) — how ranges enter `MERGE_FAILED`
+- [Reindex overview](../reindex.md) — phases, monitoring, and status values
+

@@ -47,37 +47,35 @@ Content-Type: application/json
 
 ## Step 2: Monitor progress
 
-```http
-GET /search/index/instance-records/reindex/status
-x-okapi-tenant: <central-tenant>
-```
+Monitor via `GET /search/index/instance-records/reindex/status` using the **central tenant** header — see [Monitoring Progress](../reindex.md#monitoring-progress). The `targetTenantId` field in each status item identifies the member tenant being reindexed. Reindex is complete when all upload-phase entity types show `UPLOAD_COMPLETED` and all staging-phase entity types show `STAGING_COMPLETED`.
 
-The `targetTenantId` field in each status item identifies which member tenant the entry belongs to:
+## Performance
 
-```json
-[
-  {
-    "entityType": "instance",
-    "status": "MERGE_IN_PROGRESS",
-    "targetTenantId": "college",
-    "totalMergeRanges": 50,
-    "processedMergeRanges": 12,
-    "startTimeMerge": "2024-04-01T01:37:34.15755006Z"
-  }
-]
-```
+A member tenant reindex shares the merge bottleneck of its underlying mode ([PUBLISH](reindex-full-kafka.md#performance) or [EXPORT](reindex-full-s3.md)) and adds a [**staging phase**](../reindex.md#reindex-phases) that promotes the member's merged records into the central tenant's index data. Two factors dominate:
 
-Reindex is complete when all upload-phase entity types show `UPLOAD_COMPLETED` and all staging-only entity types show their terminal staging status.
+- **Fetching the member's records** — same characteristics as a standard full reindex merge for the configured mode.
+- **Staging into the central index** — governed by the PostgreSQL migration settings below. On large members, raising `REINDEX_MIGRATION_WORK_MEM` reduces spill-to-disk during staging queries.
 
-## Key configuration variables
+The `indexSettings` override applies here too (pass it in the [Step 1](#step-1-trigger-member-reindex-from-central-tenant) request) — restore production values afterwards via [Restoring Index Settings After Reindex](../reindex.md#restoring-index-settings-after-reindex).
 
-| Variable                              | Default | Purpose                                                           |
+### Key tuning variables
+
+| Variable                              | Default | Effect                                                            |
 |---------------------------------------|---------|-------------------------------------------------------------------|
 | `REINDEX_MIGRATION_WORK_MEM`          | `64MB`  | PostgreSQL `work_mem` for staging migration queries               |
 | `REINDEX_MIGRATION_STATEMENT_TIMEOUT` | `0`     | PostgreSQL statement timeout for staging migration (0 = no limit) |
+
+The underlying mode's merge and upload tuning variables also apply — see [Full Reindex — Kafka › Performance](reindex-full-kafka.md#performance) (including [Scaling consumers and partitions](reindex-full-kafka.md#scaling-consumers-and-partitions) and [mod-inventory-storage configuration](reindex-full-kafka.md#mod-inventory-storage-configuration)), the shared [database settings](../reindex.md#shared-database-settings) (`DB_MAXSHAREDPOOLSIZE`, `DB_QUERYTIMEOUT`), and the full [Configuration Reference](../reindex.md#configuration-reference).
 
 ## Constraints
 
 - Full reindex requested directly on a member tenant (i.e., with the member's tenant header and no `tenantId` field) is rejected.
 - If `tenantId` is omitted, all consortium members are reindexed. Be aware of the resource impact.
 - Simultaneous multi-tenant reindexing is not supported — run one member at a time.
+
+## Related
+
+- [Full Reindex — Kafka](reindex-full-kafka.md) / [Full Reindex — S3](reindex-full-s3.md) — the underlying merge modes a member reindex builds on
+- [Consortium Search](../consortium-search.md) — how member records are served from the central index
+- [Reindex overview](../reindex.md) — phases, monitoring, status values, and shared configuration
+

@@ -159,7 +159,11 @@ public abstract class BrowseCallNumberIT extends BaseSharedTest {
       // NLM option configured with NLM only — LC, DEWEY, SUDOC, OTHER must not match. TestRail case 627507
       arguments(NLM, NLM_TYPE_ID, ShelvingOrderAlgorithmType.NLM,
         List.of("Q127.U6U49", "338.1 MOG", "Y 10.13:980", "SYLY-12"),
-        "QV 18.2 L765 2015")
+        "QV 18.2 L765 2015"),
+      // OTHER option configured with NLM only — LC, DEWEY, SUDOC, NLM must not match. TestRail case 627508
+      arguments(OTHER, OTHER_TYPE_ID, ShelvingOrderAlgorithmType.DEFAULT,
+        List.of("Q127.U6U49", "338.1 MOG", "Y 10.13:980", "QV 18.2 L765 2015"),
+        "SYLY-12")
     );
   }
 

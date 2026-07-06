@@ -103,7 +103,7 @@ public abstract class BrowseCallNumberIT extends BaseSharedTest {
    * When a browse config has no configured call number types (empty typeIds),
    * call numbers of every type should produce an exact match for that browse option.
    */
-  @TestRailCase({627500, 627501, 627502})
+  @TestRailCase({627500, 627501, 627502, 627503})
   @ParameterizedTest(name = "[{0}] empty config - all types return exact match")
   @MethodSource("emptyConfigBrowseOptionProvider")
   void browseByCallNumber_emptyConfig_allTypesReturnExactMatch(BrowseOptionType browseOptionType,
@@ -174,7 +174,9 @@ public abstract class BrowseCallNumberIT extends BaseSharedTest {
       // TestRail case 627501
       arguments(NLM, ShelvingOrderAlgorithmType.NLM),
       // TestRail case 627502
-      arguments(OTHER, ShelvingOrderAlgorithmType.DEFAULT)
+      arguments(OTHER, ShelvingOrderAlgorithmType.DEFAULT),
+      // TestRail case 627503
+      arguments(SUDOC, ShelvingOrderAlgorithmType.SUDOC)
     );
   }
 

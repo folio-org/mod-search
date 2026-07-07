@@ -8,6 +8,8 @@ title: Failed Merge Reindex
 
 When a full reindex's merge phase fails for one or more ranges, those ranges are marked `MERGE_FAILED` in the status table. The failed-merge reindex endpoint retries only those specific ranges without restarting the entire reindex operation. If no failed ranges exist, the call returns immediately with no action taken.
 
+> Sequence diagram: [failed-merge.png](../../diagrams/failed-merge.png) ([PlantUML source](../../diagrams/failed-merge.puml)).
+
 ## When to use
 
 - When `GET /search/index/instance-records/reindex/status` shows `MERGE_FAILED` for any entity type

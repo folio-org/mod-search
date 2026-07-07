@@ -12,6 +12,8 @@ To reindex a specific member tenant without reindexing the entire consortium, pa
 
 Triggering a full reindex directly on a member tenant is rejected with an error — the member reindex must always be initiated from the central tenant.
 
+> Sequence diagram: [member-reindex.png](../../diagrams/member-reindex.png) ([PlantUML source](../../diagrams/member-reindex.puml)).
+
 ## When to use
 
 - After a new consortium member tenant is onboarded and its data needs to be indexed

@@ -8,6 +8,8 @@ title: Upload-Phase Reindex
 
 The upload-phase reindex skips the merge phase entirely. It reads records already staged in PostgreSQL and re-pushes them to OpenSearch in ranges. **It does not communicate with mod-inventory-storage** — no Kafka messages are sent to inventory, and no new data is fetched. The data source is exclusively the local PostgreSQL staging tables populated by a previous full reindex.
 
+> Sequence diagram: [upload-phase.png](../../diagrams/upload-phase.png) ([PlantUML source](../../diagrams/upload.puml)).
+
 ## When to use
 
 - After an OpenSearch cluster upgrade or index deletion — inventory data is current in PostgreSQL, only OpenSearch needs to be rebuilt

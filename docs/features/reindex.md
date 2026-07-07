@@ -43,6 +43,9 @@ Sequence diagrams for the reindex flow are in [`docs/diagrams/`](../diagrams/):
 |--------------------------------------------------|----------------------------------------|---------------------------------------------------------------------------------------|
 | [full-reindex.png](../diagrams/full-reindex.png) | [full.puml](../diagrams/full.puml)     | Full reindex — merge phase (PUBLISH and EXPORT modes) followed by upload phase        |
 | [upload-phase.png](../diagrams/upload-phase.png) | [upload.puml](../diagrams/upload.puml) | Upload-only reindex — triggered directly via API or internally after merge completion |
+| [member-reindex.png](../diagrams/member-reindex.png) | [member-reindex.puml](../diagrams/member-reindex.puml) | ECS member tenant reindex — merge (member only) → staging migration → upload with member document cleanup |
+| [failed-merge.png](../diagrams/failed-merge.png) | [failed-merge.puml](../diagrams/failed-merge.puml) | Failed merge reindex — retries only `MERGE_FAILED` ranges, then auto-continues to upload |
+| [legacy-reindex.png](../diagrams/legacy-reindex.png) | [legacy-reindex.puml](../diagrams/legacy-reindex.puml) | Legacy reindex — synchronous `location` indexing vs. asynchronous `authority` delegation |
 
 ---
 
@@ -142,6 +145,7 @@ Content-Type: application/json
 | `REINDEX_MERGE_RANGE_SIZE`                        | `500`                      | Records per merge range                                                                  |
 | `REINDEX_MERGE_RANGE_PUBLISHER_CORE_POOL_SIZE`    | `30`                       | Core thread pool for merge range publishing                                              |
 | `REINDEX_MERGE_RANGE_PUBLISHER_MAX_POOL_SIZE`     | `30`                       | Max thread pool for merge range publishing                                               |
+| `EXCHANGE_HTTP_MAX_CONN_PER_ROUTE`                | `50`                       | HTTP connection pool per route — must be ≥ `REINDEX_MERGE_RANGE_PUBLISHER_MAX_POOL_SIZE` |
 | `REINDEX_MERGE_RANGE_PUBLISHER_RETRY_INTERVAL_MS` | `1000`                     | Retry interval (ms) for merge range publishing                                           |
 | `REINDEX_MERGE_RANGE_PUBLISHER_RETRY_ATTEMPTS`    | `5`                        | Retry attempts for merge range publishing                                                |
 | `REINDEX_UPLOAD_RANGE_SIZE`                       | `1000`                     | Records per upload range                                                                 |
@@ -162,7 +166,6 @@ Content-Type: application/json
 | `S3_REINDEX_ACCESS_KEY_ID`                        | _(empty)_                  | S3 access key (EXPORT mode)                                                              |
 | `S3_REINDEX_SECRET_ACCESS_KEY`                    | _(empty)_                  | S3 secret key (EXPORT mode)                                                              |
 | `S3_REINDEX_IS_AWS`                               | `true`                     | Use AWS SDK behaviour; `false` for MinIO or other S3-compatible storage                  |
-| `EXCHANGE_HTTP_MAX_CONN_PER_ROUTE`                | `50`                       | HTTP connection pool per route — must be ≥ `REINDEX_MERGE_RANGE_PUBLISHER_MAX_POOL_SIZE` |
 
 ### Shared database settings
 

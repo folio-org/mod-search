@@ -8,9 +8,11 @@ title: Legacy Reindex
 
 The legacy reindex endpoint handles entity types outside the instance-based reindex pipeline. It triggers a self-contained reindex job for `authority` or `location`, and optionally recreates the underlying index before repopulating it. `linked-data-*` types are accepted by the API but are not currently implemented — the call succeeds with no data being reindexed.
 
+> Sequence diagram: [legacy-reindex.png](../../diagrams/legacy-reindex.png) ([PlantUML source](../../diagrams/legacy-reindex.puml)).
+
 ## When to use
 
-- After authority records in mod-authority-storage change in bulk
+- After authority records in mod-entities-links change in bulk
 - After location data (campus, institution, library, location) changes
 - After index mapping changes for `authority` or `location` (`recreateIndex: true`)
 
@@ -37,7 +39,7 @@ Content-Type: application/json
 
 | Value                  | Description                                                 |
 |------------------------|-------------------------------------------------------------|
-| `authority`            | Authority records from mod-authority-storage (async)        |
+| `authority`            | Authority records from mod-entities-links (async)           |
 | `location`             | Location hierarchy (institution, campus, library, location) |
 | `linked-data-instance` | Linked-data instance records (**not implemented — see note below**) |
 | `linked-data-work`     | Linked-data work records (**not implemented — see note below**)     |
@@ -45,7 +47,7 @@ Content-Type: application/json
 
 ### Response
 
-For `authority` (async — delegates to mod-inventory-storage):
+For `authority` (async — delegates to mod-entities-links):
 
 ```json
 {

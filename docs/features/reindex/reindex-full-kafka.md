@@ -8,6 +8,8 @@ title: Full Reindex — Kafka (PUBLISH mode)
 
 PUBLISH mode is the default full reindex strategy (`REINDEX_TYPE=PUBLISH`). mod-search's merge range publisher makes parallel HTTP calls to mod-inventory-storage, which responds by streaming records to Kafka. mod-search consumes those records and stages them in PostgreSQL. Once all entity types have been staged (merge phase complete), the upload phase reads staged records in ranges and bulk-writes them to OpenSearch.
 
+> Sequence diagram: [full-reindex.png](../../diagrams/full-reindex.png) ([PlantUML source](../../diagrams/full.puml)). Covers both PUBLISH and EXPORT merge modes followed by the upload phase.
+
 ## When to use
 
 - After OpenSearch index mapping changes that require a full rebuild

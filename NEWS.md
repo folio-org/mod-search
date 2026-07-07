@@ -29,10 +29,13 @@
 * Add `@TestRailCase` annotation for linking integration tests to TestRail cases
 * Add integration test coverage for ALL call-number browse type filtering (TestRail C627504)
 * Add integration test coverage for LC call-number browse type filtering (TestRail C627506)
+* Add integration test coverage for NLM call-number browse type filtering (TestRail C627507)
 * Add integration test coverage for SUDOC call-number browse type filtering (TestRail C627509)
+* Add integration test coverage for OTHER call-number browse type filtering (TestRail C627508)
 * Add integration test coverage for LC call-number browse with empty config returning all types (TestRail C627500)
 * Add integration test coverage for NLM call-number browse with empty config returning all types (TestRail C627501)
 * Add integration test coverage for Other scheme call-number browse with empty config returning all types (TestRail C627502)
+* Add integration test coverage for SuDoc call-number browse with empty config returning all types (TestRail C627503)
 * Add integration test coverage for similar call numbers with different types selected are sorted alphabetically (TestRail C477527)
 
 ### Dependencies

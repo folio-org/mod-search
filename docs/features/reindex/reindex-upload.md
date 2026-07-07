@@ -92,13 +92,13 @@ Restore production values once the upload completes — see [Restoring Index Set
 
 ### Key tuning variables
 
-| Variable                                | Default | Effect                                                                      |
-|-----------------------------------------|---------|-----------------------------------------------------------------------------|
-| `REINDEX_UPLOAD_RANGE_SIZE`             | `1000`  | Records per upload range. Lower it if large ranges hit `DB_QUERYTIMEOUT`     |
-| `REINDEX_UPLOAD_RANGE_LEVEL`            | `3`     | Range tree depth for the upload phase                                       |
-| `KAFKA_REINDEX_RANGE_INDEX_CONCURRENCY` | `8`     | Parallel Kafka consumers for the upload range-index topic                   |
-| `DB_MAXSHAREDPOOLSIZE`                  | `10`    | Max DB connection pool size — raise to relieve read-connection contention   |
-| `DB_QUERYTIMEOUT`                       | `60000` | PostgreSQL statement timeout (ms) — raise if large range reads time out     |
+| Variable                                | Default | Effect                                                                    |
+|-----------------------------------------|---------|---------------------------------------------------------------------------|
+| `REINDEX_UPLOAD_RANGE_SIZE`             | `1000`  | Records per upload range. Lower it if large ranges hit `DB_QUERYTIMEOUT`  |
+| `REINDEX_UPLOAD_RANGE_LEVEL`            | `3`     | Range tree depth for the upload phase                                     |
+| `KAFKA_REINDEX_RANGE_INDEX_CONCURRENCY` | `8`     | Parallel Kafka consumers for the upload range-index topic                 |
+| `DB_MAXSHAREDPOOLSIZE`                  | `10`    | Max DB connection pool size — raise to relieve read-connection contention |
+| `DB_QUERYTIMEOUT`                       | `60000` | PostgreSQL statement timeout (ms) — raise if large range reads time out   |
 
 `DB_MAXSHAREDPOOLSIZE` and `DB_QUERYTIMEOUT` are provided by `folio-spring-base` and apply to all DB-bound reindex types. For the full configuration reference, see the [Configuration Reference](../reindex.md#configuration-reference).
 

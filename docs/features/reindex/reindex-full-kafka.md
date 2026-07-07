@@ -96,9 +96,9 @@ Record staging and the upload phase are Kafka-consumer-bound, so their throughpu
 
 A PUBLISH full reindex is bounded by two reindex topics:
 
-| Topic                                 | Consumer concurrency                              | Partition count                                                              |
-|---------------------------------------|---------------------------------------------------|------------------------------------------------------------------------------|
-| `inventory.reindex-records` (merge)   | `KAFKA_REINDEX_RECORDS_CONCURRENCY` (default `4`) | Owned by mod-inventory-storage (the producer)                                |
+| Topic                                 | Consumer concurrency                                  | Partition count                                                                |
+|---------------------------------------|-------------------------------------------------------|--------------------------------------------------------------------------------|
+| `inventory.reindex-records` (merge)   | `KAFKA_REINDEX_RECORDS_CONCURRENCY` (default `4`)     | Owned by mod-inventory-storage (the producer)                                  |
 | `search.reindex.range-index` (upload) | `KAFKA_REINDEX_RANGE_INDEX_CONCURRENCY` (default `8`) | `KAFKA_REINDEX_RANGE_INDEX_TOPIC_PARTITIONS` (default `16`) — at creation only |
 
 **Adjusting partitions.** These topics are created once and are **not** repartitioned when a partition-count variable changes, so on an existing environment you must raise the partition count manually with Kafka admin tooling before reindexing. For example, to give the upload topic 24 partitions to match 4 tasks running `KAFKA_REINDEX_RANGE_INDEX_CONCURRENCY=6` (4 × 6 = 24):

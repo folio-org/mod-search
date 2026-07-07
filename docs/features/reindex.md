@@ -16,14 +16,14 @@ After upgrades, configuration changes, or index corruption, the search index mus
 
 Each reindex type has its own guide with complete run instructions, request format, configuration, and performance notes. Start here to pick the right one, then follow the linked guide.
 
-| Your situation | Use | Guide |
-|---|---|---|
-| Full rebuild from inventory — default environment (`REINDEX_TYPE=PUBLISH`) | Full Reindex — Kafka | [reindex-full-kafka.md](reindex/reindex-full-kafka.md) |
-| Full rebuild via S3 object storage — cost-optimized (`REINDEX_TYPE=EXPORT`) | Full Reindex — S3 | [reindex-full-s3.md](reindex/reindex-full-s3.md) |
-| Reindex a specific consortium member tenant in an ECS deployment | Full Reindex — ECS Member Tenant | [reindex-full-ecs-member.md](reindex/reindex-full-ecs-member.md) |
-| OpenSearch deleted or upgraded; inventory data is current in PostgreSQL | Upload-Phase Reindex | [reindex-upload.md](reindex/reindex-upload.md) |
-| Previous full reindex left ranges in `MERGE_FAILED` | Failed Merge Reindex | [reindex-failed-merge.md](reindex/reindex-failed-merge.md) |
-| Reindex `authority` or `location` records | Legacy Reindex | [reindex-legacy.md](reindex/reindex-legacy.md) |
+| Your situation                                                              | Use                              | Guide                                                            |
+|-----------------------------------------------------------------------------|----------------------------------|------------------------------------------------------------------|
+| Full rebuild from inventory — default environment (`REINDEX_TYPE=PUBLISH`)  | Full Reindex — Kafka             | [reindex-full-kafka.md](reindex/reindex-full-kafka.md)           |
+| Full rebuild via S3 object storage — cost-optimized (`REINDEX_TYPE=EXPORT`) | Full Reindex — S3                | [reindex-full-s3.md](reindex/reindex-full-s3.md)                 |
+| Reindex a specific consortium member tenant in an ECS deployment            | Full Reindex — ECS Member Tenant | [reindex-full-ecs-member.md](reindex/reindex-full-ecs-member.md) |
+| OpenSearch deleted or upgraded; inventory data is current in PostgreSQL     | Upload-Phase Reindex             | [reindex-upload.md](reindex/reindex-upload.md)                   |
+| Previous full reindex left ranges in `MERGE_FAILED`                         | Failed Merge Reindex             | [reindex-failed-merge.md](reindex/reindex-failed-merge.md)       |
+| Reindex `authority` or `location` records                                   | Legacy Reindex                   | [reindex-legacy.md](reindex/reindex-legacy.md)                   |
 
 The remainder of this page covers concepts and reference material shared by **all** reindex types: phases, progress monitoring, index-settings restore, the consolidated configuration reference, and FAQ. Each guide links back here rather than repeating it.
 
@@ -39,13 +39,13 @@ The remainder of this page covers concepts and reference material shared by **al
 
 Sequence diagrams for the reindex flow are in [`docs/diagrams/`](../diagrams/):
 
-| Diagram                                          | Source                                 | Description                                                                           |
-|--------------------------------------------------|----------------------------------------|---------------------------------------------------------------------------------------|
-| [full-reindex.png](../diagrams/full-reindex.png) | [full.puml](../diagrams/full.puml)     | Full reindex — merge phase (PUBLISH and EXPORT modes) followed by upload phase        |
-| [upload-phase.png](../diagrams/upload-phase.png) | [upload.puml](../diagrams/upload.puml) | Upload-only reindex — triggered directly via API or internally after merge completion |
+| Diagram                                              | Source                                                 | Description                                                                                               |
+|------------------------------------------------------|--------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|
+| [full-reindex.png](../diagrams/full-reindex.png)     | [full.puml](../diagrams/full.puml)                     | Full reindex — merge phase (PUBLISH and EXPORT modes) followed by upload phase                            |
+| [upload-phase.png](../diagrams/upload-phase.png)     | [upload.puml](../diagrams/upload.puml)                 | Upload-only reindex — triggered directly via API or internally after merge completion                     |
 | [member-reindex.png](../diagrams/member-reindex.png) | [member-reindex.puml](../diagrams/member-reindex.puml) | ECS member tenant reindex — merge (member only) → staging migration → upload with member document cleanup |
-| [failed-merge.png](../diagrams/failed-merge.png) | [failed-merge.puml](../diagrams/failed-merge.puml) | Failed merge reindex — retries only `MERGE_FAILED` ranges, then auto-continues to upload |
-| [legacy-reindex.png](../diagrams/legacy-reindex.png) | [legacy-reindex.puml](../diagrams/legacy-reindex.puml) | Legacy reindex — synchronous `location` indexing vs. asynchronous `authority` delegation |
+| [failed-merge.png](../diagrams/failed-merge.png)     | [failed-merge.puml](../diagrams/failed-merge.puml)     | Failed merge reindex — retries only `MERGE_FAILED` ranges, then auto-continues to upload                  |
+| [legacy-reindex.png](../diagrams/legacy-reindex.png) | [legacy-reindex.puml](../diagrams/legacy-reindex.puml) | Legacy reindex — synchronous `location` indexing vs. asynchronous `authority` delegation                  |
 
 ---
 
@@ -171,10 +171,10 @@ Content-Type: application/json
 
 These variables come from the `folio-spring-base` dependency (not mod-search itself) and configure the shared HikariCP PostgreSQL connection pool. They are **not** reindex-specific, but they affect **any** reindex type that reads from or writes to PostgreSQL — full, upload, member, and failed-merge — so they are worth tuning for large reindexes.
 
-| Variable               | Default   | Purpose                                                                                                                              |
-|------------------------|-----------|------------------------------------------------------------------------------------------------------------------------------------|
-| `DB_MAXSHAREDPOOLSIZE` | `10`      | Maximum HikariCP DB connection pool size (HikariCP default applies when unset). Raising it relieves read-connection contention during the upload phase, where each range reads staged records from PostgreSQL. |
-| `DB_QUERYTIMEOUT`      | `60000`   | PostgreSQL statement timeout (ms) applied to pooled connections. Raise it — or lower the upload range size — if large upload ranges hit statement timeouts. |
+| Variable               | Default | Purpose                                                                                                                                                                                                        |
+|------------------------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `DB_MAXSHAREDPOOLSIZE` | `10`    | Maximum HikariCP DB connection pool size (HikariCP default applies when unset). Raising it relieves read-connection contention during the upload phase, where each range reads staged records from PostgreSQL. |
+| `DB_QUERYTIMEOUT`      | `60000` | PostgreSQL statement timeout (ms) applied to pooled connections. Raise it — or lower the upload range size — if large upload ranges hit statement timeouts.                                                    |
 
 
 ## FAQ

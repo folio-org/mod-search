@@ -37,10 +37,10 @@ Content-Type: application/json
 
 ### Valid `resourceName` values
 
-| Value                  | Description                                                 |
-|------------------------|-------------------------------------------------------------|
-| `authority`            | Authority records from mod-entities-links (async)           |
-| `location`             | Location hierarchy (institution, campus, library, location) |
+| Value                  | Description                                                         |
+|------------------------|---------------------------------------------------------------------|
+| `authority`            | Authority records from mod-entities-links (async)                   |
+| `location`             | Location hierarchy (institution, campus, library, location)         |
 | `linked-data-instance` | Linked-data instance records (**not implemented — see note below**) |
 | `linked-data-work`     | Linked-data work records (**not implemented — see note below**)     |
 | `linked-data-hub`      | Linked-data hub records (**not implemented — see note below**)      |
@@ -67,11 +67,11 @@ For `location` (synchronous — runs entirely in mod-search):
 }
 ```
 
-| Field           | Description                                   |
-|-----------------|-----------------------------------------------|
-| `id`            | Job identifier                                |
+| Field           | Description                                             |
+|-----------------|---------------------------------------------------------|
+| `id`            | Job identifier                                          |
 | `jobStatus`     | `"In progress"` (authority) or `"Completed"` (location) |
-| `submittedDate` | Timestamp when the job was submitted          |
+| `submittedDate` | Timestamp when the job was submitted                    |
 
 ## Performance
 
@@ -84,9 +84,9 @@ The `indexSettings` override is accepted for both types and is most useful toget
 
 ### Key tuning variables
 
-| Variable                     | Default | Effect                                                    |
-|------------------------------|---------|-----------------------------------------------------------|
-| `REINDEX_LOCATION_BATCH_SIZE`| `1000`  | Records read per batch during `location` reindex          |
+| Variable                      | Default | Effect                                           |
+|-------------------------------|---------|--------------------------------------------------|
+| `REINDEX_LOCATION_BATCH_SIZE` | `1000`  | Records read per batch during `location` reindex |
 
 For the full configuration reference, see the [Configuration Reference](../reindex.md#configuration-reference).
 

@@ -4,7 +4,7 @@ import static java.util.Locale.ROOT;
 import static org.folio.search.model.reconciliation.ReconciliationReport.Status.ERROR;
 import static org.folio.search.model.reconciliation.ReconciliationReport.Status.MATCH;
 import static org.folio.search.model.reconciliation.ReconciliationReport.Status.MISMATCH;
-import static org.folio.spring.config.properties.FolioEnvironment.getFolioEnvName;
+import static org.folio.spring.tools.config.properties.FolioEnvironment.getFolioEnvName;
 import static org.opensearch.client.RequestOptions.DEFAULT;
 
 import java.util.List;
@@ -75,7 +75,8 @@ public class ReconciliationService {
       var status = baselineCount == currentCount ? MATCH : MISMATCH;
       return new IndexComparison(baselineIndex, currentIndex, baselineCount, currentCount, status, null);
     } catch (Exception e) {
-      log.warn("compareIndex:: Failed to compare index [resource: {}, error: {}]", resourceType.getName(), e.getMessage());
+      log.warn("compareIndex:: Failed to compare index [resource: {}, error: {}]",
+        resourceType.getName(), e.getMessage());
       return new IndexComparison(baselineIndex, currentIndex, -1, -1, ERROR, e.getMessage());
     }
   }
@@ -112,7 +113,8 @@ public class ReconciliationService {
   }
 
   private String baselineIndexName(String resource, String tenantId) {
-    return getFolioEnvName().toLowerCase(ROOT) + "_" + resource.toLowerCase(ROOT) + "_" + tenantId + baselineIndexSuffix;
+    return getFolioEnvName().toLowerCase(ROOT) + "_" + resource.toLowerCase(ROOT) + "_" + tenantId
+      + baselineIndexSuffix;
   }
 
   private Status determineOverallStatus(
@@ -121,12 +123,20 @@ public class ReconciliationService {
   ) {
     var status = MATCH;
     for (var r : osResults) {
-      if (r.status() == ERROR) return ERROR;
-      if (r.status() == MISMATCH) status = MISMATCH;
+      if (r.status() == ERROR) {
+        return ERROR;
+      }
+      if (r.status() == MISMATCH) {
+        status = MISMATCH;
+      }
     }
     for (var r : pgResults) {
-      if (r.status() == ERROR) return ERROR;
-      if (r.status() == MISMATCH) status = MISMATCH;
+      if (r.status() == ERROR) {
+        return ERROR;
+      }
+      if (r.status() == MISMATCH) {
+        status = MISMATCH;
+      }
     }
     return status;
   }

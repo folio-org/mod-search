@@ -251,7 +251,8 @@ public class IndexService {
     var aliasName = indexNameProvider.getIndexName(resourceType, tenantId);
     var currentConcrete = indexRepository.getAliasWriteIndex(aliasName)
       .orElseThrow(() -> new SearchServiceException(
-        "No alias found for [" + aliasName + "]. Ensure INDEX_ALIAS_ENABLED=true was set when this tenant was initialized."));
+        "No alias found for [" + aliasName + "]. "
+          + "Ensure INDEX_ALIAS_ENABLED=true was set when this tenant was initialized."));
     var targetConcrete = aliasName + "_" + toVersion;
     if (!indexRepository.indexExists(targetConcrete)) {
       throw new SearchServiceException(

@@ -10,15 +10,19 @@ import static org.opensearch.client.RequestOptions.DEFAULT;
 import static org.opensearch.common.xcontent.XContentType.JSON;
 
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.FolioCreateIndexResponse;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
+import org.opensearch.action.admin.indices.alias.IndicesAliasesRequest;
+import org.opensearch.action.admin.indices.alias.IndicesAliasesRequest.AliasActions;
 import org.opensearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.opensearch.action.admin.indices.refresh.RefreshRequest;
 import org.opensearch.action.admin.indices.settings.put.UpdateSettingsRequest;
 import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestHighLevelClient;
 import org.opensearch.client.indices.CreateIndexRequest;
+import org.opensearch.action.admin.indices.alias.get.GetAliasesRequest;
 import org.opensearch.client.indices.GetIndexRequest;
 import org.opensearch.client.indices.PutMappingRequest;
 import org.springframework.cache.annotation.CacheEvict;
@@ -131,5 +135,49 @@ public class IndexRepository {
 
     performExceptionalOperation(() -> elasticsearchClient.indices()
       .delete(request, RequestOptions.DEFAULT), index, "dropIndex");
+  }
+
+  /**
+   * Creates an alias pointing to the given concrete index.
+   *
+   * @param aliasName     the alias name
+   * @param concreteIndex the concrete index the alias should point to
+   */
+  public void createAlias(String aliasName, String concreteIndex) {
+    var request = new IndicesAliasesRequest()
+      .addAliasAction(AliasActions.add().index(concreteIndex).alias(aliasName));
+    performExceptionalOperation(
+      () -> elasticsearchClient.indices().updateAliases(request, DEFAULT),
+      aliasName, "createAliasApi");
+  }
+
+  /**
+   * Atomically switches an alias from one concrete index to another.
+   *
+   * @param aliasName  the alias name
+   * @param fromIndex  concrete index currently targeted by the alias
+   * @param toIndex    concrete index the alias should point to after the switch
+   */
+  public void switchAlias(String aliasName, String fromIndex, String toIndex) {
+    var request = new IndicesAliasesRequest()
+      .addAliasAction(AliasActions.remove().index(fromIndex).alias(aliasName))
+      .addAliasAction(AliasActions.add().index(toIndex).alias(aliasName));
+    performExceptionalOperation(
+      () -> elasticsearchClient.indices().updateAliases(request, DEFAULT),
+      aliasName, "switchAliasApi");
+  }
+
+  /**
+   * Returns the concrete index that the given alias points to, if the alias exists.
+   *
+   * @param aliasName the alias name to look up
+   * @return the name of the concrete index, or empty if the alias does not exist
+   */
+  public Optional<String> getAliasWriteIndex(String aliasName) {
+    var request = new GetAliasesRequest(aliasName);
+    var response = performExceptionalOperation(
+      () -> elasticsearchClient.indices().getAlias(request, DEFAULT),
+      aliasName, "getAliasApi");
+    return response.getAliases().keySet().stream().findFirst();
   }
 }

@@ -7,6 +7,7 @@ import org.folio.search.service.consortium.SimpleTenantProvider;
 import org.folio.search.service.es.SearchSettingsHelper;
 import org.folio.search.service.es.TenantInitMappingsHelper;
 import org.folio.search.service.metadata.ResourceDescriptionService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
@@ -26,13 +27,14 @@ public class TenantInitIndexService extends IndexService {
                                 ResourceReindexClient resourceReindexClient,
                                 ResourceDescriptionService resourceDescriptionService,
                                 SimpleTenantProvider simpleTenantProvider,
-                                LocationService locationService) {
+                                LocationService locationService,
+                                @Value("${folio.index.suffix:}") String indexSuffix) {
     super(indexRepository,
       mappingHelper,
       settingsHelper,
       resourceReindexClient,
       resourceDescriptionService,
-      new IndexNameProvider(simpleTenantProvider),
+      new IndexNameProvider(simpleTenantProvider, indexSuffix),
       simpleTenantProvider,
       locationService);
   }

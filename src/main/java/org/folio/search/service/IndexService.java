@@ -4,14 +4,17 @@ import static java.lang.Boolean.TRUE;
 import static org.folio.search.model.types.ResourceType.LINKED_DATA_HUB;
 import static org.folio.search.model.types.ResourceType.LINKED_DATA_INSTANCE;
 import static org.folio.search.model.types.ResourceType.LINKED_DATA_WORK;
+import static org.folio.search.utils.SearchResponseHelper.getSuccessFolioCreateIndexResponse;
 import static org.springframework.web.util.UriComponentsBuilder.fromUriString;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.client.ResourceReindexClient;
@@ -31,6 +34,7 @@ import org.folio.search.service.es.SearchMappingsHelper;
 import org.folio.search.service.es.SearchSettingsHelper;
 import org.folio.search.service.metadata.ResourceDescriptionService;
 import org.opensearch.action.support.clustermanager.AcknowledgedResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.JsonNode;
@@ -42,8 +46,13 @@ import tools.jackson.databind.node.ObjectNode;
 @RequiredArgsConstructor
 public class IndexService {
 
+  static final String CONCRETE_INDEX_SUFFIX = "_0";
+
   private static final String RESOURCE_NAME_PARAMETER = "resourceName";
   private static final String RESOURCE_STORAGE_REINDEX_URI = "{resource}-storage/reindex";
+
+  @Value("${folio.index.alias-enabled:false}")
+  private boolean aliasEnabled;
 
   private final IndexRepository indexRepository;
   private final SearchMappingsHelper mappingHelper;
@@ -204,6 +213,7 @@ public class IndexService {
 
   /**
    * Drops Elasticsearch index for given resource name and tenant id.
+   * When alias mode is enabled, resolves the alias to its concrete index and drops that.
    *
    * @param resource - resource name as {@link String} object.
    * @param tenant   - tenant id as {@link String} object
@@ -211,21 +221,68 @@ public class IndexService {
   public void dropIndex(ResourceType resource, String tenant) {
     log.debug("dropIndex:: by [resource: {}, tenant: {}]", resource, tenant);
 
-    var index = indexNameProvider.getIndexName(resource, tenant);
-    if (indexRepository.indexExists(index)) {
-      indexRepository.dropIndex(index);
+    var logicalName = indexNameProvider.getIndexName(resource, tenant);
+    var indexToDrop = aliasEnabled
+      ? indexRepository.getAliasWriteIndex(logicalName).orElse(logicalName + CONCRETE_INDEX_SUFFIX)
+      : logicalName;
+
+    if (indexRepository.indexExists(indexToDrop)) {
+      log.info("dropIndex:: Dropping index [indexToDrop: {}, logicalName: {}]", indexToDrop, logicalName);
+      indexRepository.dropIndex(indexToDrop);
     }
   }
 
-  private FolioCreateIndexResponse doCreateIndex(ResourceType resourceName, String tenantId, String indexSettings) {
-    log.debug("createIndex:: by [resourceName: {}, tenantId: {}]", resourceName, tenantId);
+  /**
+   * Atomically switches the alias for every resource type of a tenant from its current concrete index
+   * to the concrete index at {@code toVersion} (e.g. version 1 → {@code folio_instance_diku_v2_1}).
+   * The target concrete index must already exist and be populated before calling this method.
+   *
+   * @param tenantId  the tenant whose aliases should be switched
+   * @param toVersion the numeric version suffix of the target concrete index
+   * @return map of resource name → "fromIndex -> toIndex" describing each switch performed
+   */
+  public Map<String, String> switchAlias(String tenantId, int toVersion) {
+    log.info("switchAlias:: Switching all aliases [tenantId: {}, toVersion: {}]", tenantId, toVersion);
+    return resourceDescriptionService.getResourceTypes().stream()
+      .collect(Collectors.toMap(ResourceType::getName, rt -> switchAliasForResource(rt, tenantId, toVersion)));
+  }
 
-    var index = indexNameProvider.getIndexName(resourceName, tenantId);
+  private String switchAliasForResource(ResourceType resourceType, String tenantId, int toVersion) {
+    var aliasName = indexNameProvider.getIndexName(resourceType, tenantId);
+    var currentConcrete = indexRepository.getAliasWriteIndex(aliasName)
+      .orElseThrow(() -> new SearchServiceException(
+        "No alias found for [" + aliasName + "]. Ensure INDEX_ALIAS_ENABLED=true was set when this tenant was initialized."));
+    var targetConcrete = aliasName + "_" + toVersion;
+    if (!indexRepository.indexExists(targetConcrete)) {
+      throw new SearchServiceException(
+        "Target index [" + targetConcrete + "] does not exist. Create and populate it before switching.");
+    }
+    log.info("switchAlias:: [alias: {}, from: {}, to: {}]", aliasName, currentConcrete, targetConcrete);
+    indexRepository.switchAlias(aliasName, currentConcrete, targetConcrete);
+    return currentConcrete + " -> " + targetConcrete;
+  }
+
+  private FolioCreateIndexResponse doCreateIndex(ResourceType resourceName, String tenantId, String indexSettings) {
+    log.debug("createIndex:: by [resourceName: {}, tenantId: {}, aliasEnabled: {}]",
+      resourceName, tenantId, aliasEnabled);
+
+    var aliasName = indexNameProvider.getIndexName(resourceName, tenantId);
     var mappings = mappingHelper.getMappings(resourceName);
 
+    if (aliasEnabled) {
+      var concreteIndex = aliasName + CONCRETE_INDEX_SUFFIX;
+      log.info("doCreateIndex:: Creating concrete index and alias [alias: {}, concrete: {}]", aliasName, concreteIndex);
+      var response = indexRepository.createIndex(concreteIndex, indexSettings, mappings);
+      if (response.getStatus() != null && response.getStatus().equals("error")) {
+        return response;
+      }
+      indexRepository.createAlias(aliasName, concreteIndex);
+      return getSuccessFolioCreateIndexResponse(List.of(aliasName, concreteIndex));
+    }
+
     log.info("doCreateIndex:: Attempting to create index by [indexName: {}, mappings: {}, settings: {}]",
-      index, mappings, indexSettings);
-    return indexRepository.createIndex(index, indexSettings, mappings);
+      aliasName, mappings, indexSettings);
+    return indexRepository.createIndex(aliasName, indexSettings, mappings);
   }
 
   private List<ResourceType> getResourceNamesToReindex(ReindexRequest reindexRequest) {

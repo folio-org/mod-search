@@ -57,6 +57,7 @@ public class KafkaMessageListener {
    */
   @KafkaListener(
     id = KafkaConstants.EVENT_LISTENER_ID,
+    autoStartup = "#{'${folio.catch-up.enabled:false}' == 'false'}",
     containerFactory = "instanceResourceListenerContainerFactory",
     topicPattern = "#{folioKafkaProperties.listener['events'].topicPattern}",
     groupId = "#{folioKafkaProperties.listener['events'].groupId}",
@@ -80,6 +81,7 @@ public class KafkaMessageListener {
    */
   @KafkaListener(
     id = KafkaConstants.INDEX_INSTANCE_LISTENER_ID,
+    autoStartup = "#{'${folio.catch-up.enabled:false}' == 'false'}",
     containerFactory = "indexInstanceListenerContainerFactory",
     topicPattern = "#{folioKafkaProperties.listener['index-instance'].topicPattern}",
     groupId = "#{folioKafkaProperties.listener['index-instance'].groupId}",
@@ -102,6 +104,7 @@ public class KafkaMessageListener {
    */
   @KafkaListener(
     id = KafkaConstants.AUTHORITY_LISTENER_ID,
+    autoStartup = "#{'${folio.catch-up.enabled:false}' == 'false'}",
     containerFactory = "resourceListenerContainerFactory",
     groupId = "#{folioKafkaProperties.listener['authorities'].groupId}",
     concurrency = "#{folioKafkaProperties.listener['authorities'].concurrency}",
@@ -119,6 +122,7 @@ public class KafkaMessageListener {
 
   @KafkaListener(
     id = KafkaConstants.BROWSE_CONFIG_DATA_LISTENER_ID,
+    autoStartup = "#{'${folio.catch-up.enabled:false}' == 'false'}",
     containerFactory = "resourceListenerContainerFactory",
     groupId = "#{folioKafkaProperties.listener['browse-config-data'].groupId}",
     concurrency = "#{folioKafkaProperties.listener['browse-config-data'].concurrency}",
@@ -148,6 +152,7 @@ public class KafkaMessageListener {
 
   @KafkaListener(
     id = KafkaConstants.LOCATION_LISTENER_ID,
+    autoStartup = "#{'${folio.catch-up.enabled:false}' == 'false'}",
     containerFactory = "resourceListenerContainerFactory",
     groupId = "#{folioKafkaProperties.listener['location'].groupId}",
     concurrency = "#{folioKafkaProperties.listener['location'].concurrency}",
@@ -164,6 +169,7 @@ public class KafkaMessageListener {
 
   @KafkaListener(
     id = KafkaConstants.LINKED_DATA_LISTENER_ID,
+    autoStartup = "#{'${folio.catch-up.enabled:false}' == 'false'}",
     containerFactory = "resourceListenerContainerFactory",
     groupId = "#{folioKafkaProperties.listener['linked-data'].groupId}",
     concurrency = "#{folioKafkaProperties.listener['linked-data'].concurrency}",
@@ -180,6 +186,7 @@ public class KafkaMessageListener {
 
   @KafkaListener(
     id = KafkaConstants.INSTANCE_SHARING_COMPLETE_LISTENER_ID,
+    autoStartup = "#{'${folio.catch-up.enabled:false}' == 'false'}",
     containerFactory = "instanceSharingCompleteListenerContainerFactory",
     groupId = "#{folioKafkaProperties.listener['instance-sharing-complete'].groupId}",
     concurrency = "#{folioKafkaProperties.listener['instance-sharing-complete'].concurrency}",

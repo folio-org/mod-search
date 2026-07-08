@@ -1,6 +1,6 @@
 spring:
   application:
-    name: mod-search
+    name: ${MODULE_NAME:mod-search}
   profiles:
     default: "prod"
   threads:
@@ -78,8 +78,18 @@ folio:
       max-connections-total: ${EXCHANGE_HTTP_MAX_CONN_TOTAL:100}
       connect-timeout: ${EXCHANGE_HTTP_CONNECT_TIMEOUT:10s}
   system:
-    schemaName: mod_search__system
+    schemaName: ${SYSTEM_SCHEMA_NAME:mod_search__system}
     change-log: classpath:changelog/changelog-system.xml
+  index:
+    suffix: ${INDEX_SUFFIX:}
+    alias-enabled: ${INDEX_ALIAS_ENABLED:false}
+  catch-up:
+    enabled: ${CATCH_UP_ENABLED:false}
+    check-interval-ms: ${CATCH_UP_CHECK_INTERVAL_MS:30000}
+  reconciliation:
+    baseline-index-suffix: ${RECONCILIATION_BASELINE_INDEX_SUFFIX:}
+    baseline-schema-suffix: ${RECONCILIATION_BASELINE_SCHEMA_SUFFIX:_mod_search}
+    tables: ${RECONCILIATION_TABLES:instance_subject,instance_contributor,instance_call_number}
   search-config:
     initial-languages: ${INITIAL_LANGUAGES:eng}
     max-supported-languages: ${MAX_SUPPORTED_LANGUAGES:5}
@@ -143,50 +153,50 @@ folio:
       events:
         concurrency: ${KAFKA_EVENTS_CONCURRENCY:2}
         topic-pattern: ${KAFKA_EVENTS_CONSUMER_PATTERN:(${folio.environment}\.)(.*\.)inventory\.(instance|holdings-record|item|bound-with)}
-        group-id: ${folio.environment}-mod-search-events-group
+        group-id: ${folio.environment}-${MODULE_NAME:mod-search}-events-group
         max-poll-records: ${KAFKA_CONSUMER_EVENTS_MAX_POLL_RECORDS:200}
         max-poll-interval-ms: ${KAFKA_CONSUMER_EVENTS_MAX_POLL_INTERVAL_MS:600000}
       instances:
         concurrency: ${KAFKA_EVENTS_CONCURRENCY:2}
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.instance
-        group-id: ${folio.environment}-mod-search-inventory-group
+        group-id: ${folio.environment}-${MODULE_NAME:mod-search}-inventory-group
       authorities:
         concurrency: ${KAFKA_AUTHORITIES_CONCURRENCY:1}
         topic-pattern: ${KAFKA_AUTHORITIES_CONSUMER_PATTERN:(${folio.environment}\.)(.*\.)authorities\.authority}
-        group-id: ${folio.environment}-mod-search-authorities-group
+        group-id: ${folio.environment}-${MODULE_NAME:mod-search}-authorities-group
       browse-config-data:
         concurrency: ${KAFKA_BROWSE_CONFIG_DATA_CONCURRENCY:1}
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.(classification-type|call-number-type)
-        group-id: ${folio.environment}-mod-search-browse-config-data-group
+        group-id: ${folio.environment}-${MODULE_NAME:mod-search}-browse-config-data-group
         shared-group: false
       location:
         concurrency: ${KAFKA_LOCATION_CONCURRENCY:1}
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.(location|campus|institution|library)
-        group-id: ${folio.environment}-mod-search-location-type-group
+        group-id: ${folio.environment}-${MODULE_NAME:mod-search}-location-type-group
       linked-data:
         concurrency: ${KAFKA_LINKED_DATA_CONCURRENCY:1}
         topic-pattern: (${folio.environment}\.)(.*\.)linked-data\.(instance|work|hub)
-        group-id: ${folio.environment}-mod-search-linked-data-group
+        group-id: ${folio.environment}-${MODULE_NAME:mod-search}-linked-data-group
       instance-sharing-complete:
         concurrency: ${KAFKA_CONSORTIUM_INSTANCE_SHARING_COMPLETE_CONCURRENCY:1}
         topic-pattern: (${folio.environment}\.)[A-Za-z0-9-]+\.\w+\.CONSORTIUM_INSTANCE_SHARING_COMPLETE
-        group-id: ${folio.environment}-mod-search-consortium-instance-sharing-complete-group
+        group-id: ${folio.environment}-${MODULE_NAME:mod-search}-consortium-instance-sharing-complete-group
       reindex-range-index:
         concurrency: ${KAFKA_REINDEX_RANGE_INDEX_CONCURRENCY:8}
         topic-pattern: (${folio.environment}\.)(.*\.)search\.reindex\.range-index
-        group-id: ${folio.environment}-mod-search-reindex-range-index-group
+        group-id: ${folio.environment}-${MODULE_NAME:mod-search}-reindex-range-index-group
       reindex-records:
         concurrency: ${KAFKA_REINDEX_RECORDS_CONCURRENCY:4}
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.reindex-records
-        group-id: ${folio.environment}-mod-search-reindex-records-group
+        group-id: ${folio.environment}-${MODULE_NAME:mod-search}-reindex-records-group
       reindex-file-ready:
         concurrency: ${KAFKA_REINDEX_FILE_READY_CONCURRENCY:4}
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.reindex\.file-ready
-        group-id: ${folio.environment}-mod-search-reindex-file-ready-group
+        group-id: ${folio.environment}-${MODULE_NAME:mod-search}-reindex-file-ready-group
       index-instance:
         concurrency: ${KAFKA_INDEX_INSTANCE_CONCURRENCY:2}
         topic-pattern: (${folio.environment}\.)(.*\.)search\.index.instance
-        group-id: ${folio.environment}-mod-search-index-instance-group
+        group-id: ${folio.environment}-${MODULE_NAME:mod-search}-index-instance-group
         max-poll-records: ${KAFKA_CONSUMER_INSTANCE_MAX_POLL_RECORDS:200}
         max-poll-interval-ms: ${KAFKA_CONSUMER_INSTANCE_MAX_POLL_INTERVAL_MS:600000}
   okapiUrl: ${okapi.url:http://localhost:9130}

@@ -9,6 +9,7 @@ import org.folio.search.model.ResourceRequest;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.consortium.TenantProvider;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Log4j2
@@ -16,9 +17,12 @@ import org.springframework.stereotype.Component;
 public class IndexNameProvider {
 
   private final TenantProvider tenantProvider;
+  private final String indexSuffix;
 
-  public IndexNameProvider(TenantProvider tenantProvider) {
+  public IndexNameProvider(TenantProvider tenantProvider,
+                           @Value("${folio.index.suffix:}") String indexSuffix) {
     this.tenantProvider = tenantProvider;
+    this.indexSuffix = indexSuffix;
   }
 
   public String getIndexName(ResourceType resource, String tenantId) {
@@ -39,8 +43,8 @@ public class IndexNameProvider {
 
   private String getIndexName(String resource, String tenantId) {
     var finalTenantId = tenantProvider.getTenant(tenantId);
-    log.debug("Calculating index name for tenant [resource: {}, original: {}, final: {}]",
-      resource, tenantId, finalTenantId);
-    return getFolioEnvName().toLowerCase(ROOT) + "_" + resource + "_" + finalTenantId;
+    log.debug("Calculating index name for tenant [resource: {}, original: {}, final: {}, suffix: {}]",
+      resource, tenantId, finalTenantId, indexSuffix);
+    return getFolioEnvName().toLowerCase(ROOT) + "_" + resource + "_" + finalTenantId + indexSuffix;
   }
 }

@@ -3,7 +3,7 @@ package org.folio.search.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.LINKED_DATA_HUB;
-import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.LINKED_DATA_INSTANCE;
+import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.LINKED_DATA_AUTHORITY;
 import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.LINKED_DATA_WORK;
 import static org.folio.search.model.types.ResourceType.AUTHORITY;
 import static org.folio.search.model.types.ResourceType.CAMPUS;
@@ -466,37 +466,37 @@ class IndexServiceTest {
   }
 
   @Test
-  void reindexInventory_shouldRecreate_linkedDataInstanceIndex() {
-    var linkedDataInstanceIndex = getIndexName(ResourceType.LINKED_DATA_INSTANCE, TENANT_ID);
-    when(resourceDescriptionService.find(ResourceType.LINKED_DATA_INSTANCE)).thenReturn(
-      Optional.of(resourceDescription(ResourceType.LINKED_DATA_INSTANCE)));
-    when(resourceDescriptionService.getSecondaryResourceTypes(ResourceType.LINKED_DATA_INSTANCE))
+  void reindexInventory_shouldRecreate_linkedDataAuthorityIndex() {
+    var linkedDataAuthorityIndex = getIndexName(ResourceType.LINKED_DATA_AUTHORITY, TENANT_ID);
+    when(resourceDescriptionService.find(ResourceType.LINKED_DATA_AUTHORITY)).thenReturn(
+      Optional.of(resourceDescription(ResourceType.LINKED_DATA_AUTHORITY)));
+    when(resourceDescriptionService.getSecondaryResourceTypes(ResourceType.LINKED_DATA_AUTHORITY))
       .thenReturn(List.of());
-    when(indexRepository.indexExists(linkedDataInstanceIndex)).thenReturn(true);
-    when(mappingsHelper.getMappings(ResourceType.LINKED_DATA_INSTANCE)).thenReturn(EMPTY_OBJECT);
-    when(settingsHelper.getSettingsJson(ResourceType.LINKED_DATA_INSTANCE)).thenReturn(EMPTY_JSON_OBJECT);
+    when(indexRepository.indexExists(linkedDataAuthorityIndex)).thenReturn(true);
+    when(mappingsHelper.getMappings(ResourceType.LINKED_DATA_AUTHORITY)).thenReturn(EMPTY_OBJECT);
+    when(settingsHelper.getSettingsJson(ResourceType.LINKED_DATA_AUTHORITY)).thenReturn(EMPTY_JSON_OBJECT);
 
     var reindexRequest = new ReindexRequest()
-      .resourceName(LINKED_DATA_INSTANCE)
+      .resourceName(LINKED_DATA_AUTHORITY)
       .recreateIndex(true);
     var actual = indexService.reindexInventory(TENANT_ID, reindexRequest);
 
     assertNotNull(actual);
-    verify(indexRepository).dropIndex(linkedDataInstanceIndex);
-    verify(indexRepository).createIndex(linkedDataInstanceIndex, EMPTY_JSON_OBJECT.toString(), EMPTY_OBJECT);
+    verify(indexRepository).dropIndex(linkedDataAuthorityIndex);
+    verify(indexRepository).createIndex(linkedDataAuthorityIndex, EMPTY_JSON_OBJECT.toString(), EMPTY_OBJECT);
     verifyNoInteractions(locationService);
     verifyNoInteractions(resourceReindexClient);
   }
 
   @Test
-  void reindexInventory_shouldNotTriggerReindex_linkedDataInstanceWithoutRecreate() {
-    when(resourceDescriptionService.find(ResourceType.LINKED_DATA_INSTANCE)).thenReturn(
-      Optional.of(resourceDescription(ResourceType.LINKED_DATA_INSTANCE)));
-    when(resourceDescriptionService.getSecondaryResourceTypes(ResourceType.LINKED_DATA_INSTANCE))
+  void reindexInventory_shouldNotTriggerReindex_linkedDataAuthorityWithoutRecreate() {
+    when(resourceDescriptionService.find(ResourceType.LINKED_DATA_AUTHORITY)).thenReturn(
+      Optional.of(resourceDescription(ResourceType.LINKED_DATA_AUTHORITY)));
+    when(resourceDescriptionService.getSecondaryResourceTypes(ResourceType.LINKED_DATA_AUTHORITY))
       .thenReturn(List.of());
 
     var actual = indexService.reindexInventory(TENANT_ID,
-      new ReindexRequest().resourceName(LINKED_DATA_INSTANCE));
+      new ReindexRequest().resourceName(LINKED_DATA_AUTHORITY));
 
     assertNotNull(actual);
     verifyNoInteractions(indexRepository);

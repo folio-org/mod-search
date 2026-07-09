@@ -1,0 +1,13 @@
+value:
+  searchQuery: "query string"
+  content:
+    - id: "1"
+      label: "Authority Label"
+      identifiers:
+        - value: "1234567890"
+          type: "LCCN"
+      types:
+        - "http://bibfra.me/vocab/lite/Family"
+  pageNumber: 0
+  totalPages: 10
+  totalRecords: 100

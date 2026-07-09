@@ -21,7 +21,7 @@ public enum ResourceType {
   ITEM("item"),
   LIBRARY("library"),
   LINKED_DATA_HUB("linked-data-hub"),
-  LINKED_DATA_INSTANCE("linked-data-instance"),
+  LINKED_DATA_AUTHORITY("linked-data-authority"),
   LINKED_DATA_WORK("linked-data-work"),
   LOCATION("location"),
   UNKNOWN("unknown");

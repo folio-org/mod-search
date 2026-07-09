@@ -10,7 +10,7 @@ import static org.folio.search.domain.dto.ResourceEventType.REINDEX;
 import static org.folio.search.domain.dto.ResourceEventType.UPDATE;
 import static org.folio.search.model.types.ResourceType.AUTHORITY;
 import static org.folio.search.model.types.ResourceType.LINKED_DATA_HUB;
-import static org.folio.search.model.types.ResourceType.LINKED_DATA_INSTANCE;
+import static org.folio.search.model.types.ResourceType.LINKED_DATA_AUTHORITY;
 import static org.folio.search.model.types.ResourceType.LINKED_DATA_WORK;
 import static org.folio.support.TestConstants.RESOURCE_ID;
 import static org.folio.support.TestConstants.TENANT_ID;
@@ -18,7 +18,7 @@ import static org.folio.support.TestConstants.inventoryAuthorityTopic;
 import static org.folio.support.TestConstants.inventoryCallNumberTopic;
 import static org.folio.support.TestConstants.inventoryClassificationTopic;
 import static org.folio.support.TestConstants.linkedDataHubTopic;
-import static org.folio.support.TestConstants.linkedDataInstanceTopic;
+import static org.folio.support.TestConstants.linkedDataAuthorityTopic;
 import static org.folio.support.TestConstants.linkedDataWorkTopic;
 import static org.folio.support.utils.JsonTestUtils.OBJECT_MAPPER;
 import static org.folio.support.utils.JsonTestUtils.toMap;
@@ -38,11 +38,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.folio.search.domain.dto.Authority;
-import org.folio.search.domain.dto.LinkedDataHub;
-import org.folio.search.domain.dto.LinkedDataInstance;
-import org.folio.search.domain.dto.LinkedDataWork;
-import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.domain.dto.*;
 import org.folio.search.integration.message.FolioMessageBatchProcessor;
 import org.folio.search.integration.message.KafkaMessageListener;
 import org.folio.search.model.event.IndexInstanceEvent;
@@ -200,24 +196,24 @@ class KafkaMessageListenerTest {
   }
 
   @Test
-  void handleLinkedDataInstanceEvent_positive() {
-    var payload = toMap(new LinkedDataInstance().id(RESOURCE_ID));
+  void handleLinkedDataAuthorityEvent_positive() {
+    var payload = toMap(new LinkedDataAuthority().id(RESOURCE_ID));
 
-    var consumerRecord = new ConsumerRecord<>(linkedDataInstanceTopic(TENANT_ID), 0, 0, RESOURCE_ID,
-      resourceEvent(null, LINKED_DATA_INSTANCE, CREATE, payload, null));
+    var consumerRecord = new ConsumerRecord<>(linkedDataAuthorityTopic(TENANT_ID), 0, 0, RESOURCE_ID,
+      resourceEvent(null, LINKED_DATA_AUTHORITY, CREATE, payload, null));
     messageListener.handleLinkedDataEvents(List.of(consumerRecord));
 
     var expectedEvents = singletonList(
-      resourceEvent(RESOURCE_ID, LINKED_DATA_INSTANCE, CREATE, payload, null)
+      resourceEvent(RESOURCE_ID, LINKED_DATA_AUTHORITY, CREATE, payload, null)
     );
     verify(resourceService).indexResources(expectedEvents);
     verify(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
   }
 
   @Test
-  void handleLinkedDataInstanceEvent_negative_logFailedEvent() {
-    var payload = toMap(new LinkedDataInstance().id(RESOURCE_ID));
-    var expectedEvents = List.of(resourceEvent(RESOURCE_ID, LINKED_DATA_INSTANCE, UPDATE, payload, null));
+  void handleLinkedDataAuthorityEvent_negative_logFailedEvent() {
+    var payload = toMap(new LinkedDataAuthority().id(RESOURCE_ID));
+    var expectedEvents = List.of(resourceEvent(RESOURCE_ID, LINKED_DATA_AUTHORITY, UPDATE, payload, null));
 
     doAnswer(inv -> {
       inv.<BiConsumer<ResourceEvent, Exception>>getArgument(3)
@@ -225,8 +221,8 @@ class KafkaMessageListenerTest {
       return null;
     }).when(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());
 
-    var consumerRecord = new ConsumerRecord<>(linkedDataInstanceTopic(TENANT_ID), 0, 0, RESOURCE_ID,
-      resourceEvent(null, LINKED_DATA_INSTANCE, UPDATE, payload, null));
+    var consumerRecord = new ConsumerRecord<>(linkedDataAuthorityTopic(TENANT_ID), 0, 0, RESOURCE_ID,
+      resourceEvent(null, LINKED_DATA_AUTHORITY, UPDATE, payload, null));
     messageListener.handleLinkedDataEvents(List.of(consumerRecord));
 
     verify(batchProcessor).consumeBatchWithFallback(eq(expectedEvents), eq(KAFKA_RETRY_TEMPLATE_NAME), any(), any());

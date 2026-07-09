@@ -12,13 +12,13 @@ import static org.folio.search.model.types.ResourceType.INSTANCE_CLASSIFICATION;
 import static org.folio.search.model.types.ResourceType.INSTANCE_CONTRIBUTOR;
 import static org.folio.search.model.types.ResourceType.INSTANCE_SUBJECT;
 import static org.folio.search.model.types.ResourceType.LINKED_DATA_HUB;
-import static org.folio.search.model.types.ResourceType.LINKED_DATA_INSTANCE;
+import static org.folio.search.model.types.ResourceType.LINKED_DATA_AUTHORITY;
 import static org.folio.search.model.types.ResourceType.LINKED_DATA_WORK;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.testdata.SharedTestDataManager.LockManager;
 import static org.folio.support.testdata.SharedTestDataManager.instancesCount;
 import static org.folio.support.testdata.SharedTestDataManager.linkedDataHubsCount;
-import static org.folio.support.testdata.SharedTestDataManager.linkedDataInstancesCount;
+import static org.folio.support.testdata.SharedTestDataManager.linkedDataAuthoritiesCount;
 import static org.folio.support.testdata.SharedTestDataManager.linkedDataWorksCount;
 import static org.folio.support.testdata.SharedTestDataManager.loadAll;
 
@@ -111,7 +111,7 @@ class SearchBrowseSuiteIT extends BaseIntegrationTest {
     awaitIndexedResourceCounts(INSTANCE_CLASSIFICATION, TENANT_ID, EXPECTED_CLASSIFICATION_COUNT);
     awaitIndexedResourceCounts(INSTANCE_CONTRIBUTOR, TENANT_ID, EXPECTED_CONTRIBUTOR_COUNT);
     awaitIndexedResourceCounts(INSTANCE_SUBJECT, TENANT_ID, EXPECTED_SUBJECT_COUNT);
-    awaitIndexedResourceCounts(LINKED_DATA_INSTANCE, TENANT_ID, linkedDataInstancesCount());
+    awaitIndexedResourceCounts(LINKED_DATA_AUTHORITY, TENANT_ID, linkedDataAuthoritiesCount());
     awaitIndexedResourceCounts(LINKED_DATA_WORK, TENANT_ID, linkedDataWorksCount());
     awaitIndexedResourceCounts(LINKED_DATA_HUB, TENANT_ID, linkedDataHubsCount());
   }

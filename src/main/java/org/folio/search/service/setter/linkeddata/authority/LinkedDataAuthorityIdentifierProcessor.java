@@ -1,5 +1,6 @@
-package org.folio.search.service.setter.linkeddata.common;
+package org.folio.search.service.setter.linkeddata.authority;
 
+import static java.util.Objects.nonNull;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toCollection;
 
@@ -10,26 +11,29 @@ import java.util.Objects;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.folio.search.domain.dto.LinkedDataIdentifier;
+import org.folio.search.service.lccn.StringNormalizer;
 import org.folio.search.service.setter.FieldProcessor;
 import org.folio.search.service.setter.instance.IsbnProcessor;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class LinkedDataIsbnProcessor implements FieldProcessor<List<LinkedDataIdentifier>, Set<String>> {
+public class LinkedDataAuthorityIdentifierProcessor implements FieldProcessor<List<LinkedDataIdentifier>, Set<String>> {
   private static final String ISBN = "ISBN";
   private final IsbnProcessor isbnProcessor;
+  private final StringNormalizer stringNormalizer;
 
   @Override
-  public Set<String> getFieldValue(List<LinkedDataIdentifier> identifiers) {
-    return ofNullable(identifiers)
+  public Set<String> getFieldValue(List<LinkedDataIdentifier> linkedDataIdentifiers) {
+    return ofNullable(linkedDataIdentifiers)
       .stream()
       .flatMap(Collection::stream)
-      .filter(i -> ISBN.equals(i.getType()))
-      .map(LinkedDataIdentifier::getValue)
       .filter(Objects::nonNull)
-      .map(isbnProcessor::normalizeIsbn)
-      .flatMap(Collection::stream)
+      .filter(i -> nonNull(i.getValue()))
+      .flatMap(i -> ISBN.equals(i.getType())
+        ? isbnProcessor.normalizeIsbn(i.getValue()).stream()
+        : stringNormalizer.apply(i.getValue()).stream()
+      )
       .collect(toCollection(LinkedHashSet::new));
   }
 }

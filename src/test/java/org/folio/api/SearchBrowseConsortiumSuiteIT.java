@@ -25,7 +25,6 @@ import org.folio.api.consortiumsearch.ConsortiumSearchCampusesIT;
 import org.folio.api.consortiumsearch.ConsortiumSearchInstitutionsIT;
 import org.folio.api.consortiumsearch.ConsortiumSearchLibrariesIT;
 import org.folio.api.consortiumsearch.ConsortiumSearchLocationsIT;
-import org.folio.api.search.SearchLinkedDataInstanceConsortiumIT;
 import org.folio.api.search.SearchLinkedDataWorkConsortiumIT;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.BaseIntegrationTest;
@@ -92,9 +91,6 @@ public class SearchBrowseConsortiumSuiteIT extends BaseIntegrationTest {
 
   @Nested
   class SearchLinkedDataWork extends SearchLinkedDataWorkConsortiumIT { }
-
-  @Nested
-  class SearchLinkedDataInstance extends SearchLinkedDataInstanceConsortiumIT { }
 
   @Nested
   class ConsortiumSearchLocations extends ConsortiumSearchLocationsIT { }

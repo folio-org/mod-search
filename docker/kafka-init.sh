@@ -21,7 +21,7 @@ TOPICS=(
 "${ENV}.Default.inventory.campus"
 "${ENV}.Default.inventory.institution"
 "${ENV}.Default.inventory.library"
-"${ENV}.Default.linked-data.instance"
+"${ENV}.Default.linked-data.authority"
 "${ENV}.Default.linked-data.work"
 "${ENV}.Default.linked-data.hub"
 "${ENV}.Default.search.reindex.range-index"

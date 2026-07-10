@@ -17,7 +17,6 @@ import static org.folio.support.base.ApiEndpoints.indexRecordsPath;
 import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.support.base.ApiEndpoints.linkedDataAuthoritySearchPath;
 import static org.folio.support.base.ApiEndpoints.linkedDataHubSearchPath;
-import static org.folio.support.base.ApiEndpoints.linkedDataInstanceSearchPath;
 import static org.folio.support.base.ApiEndpoints.linkedDataWorkSearchPath;
 import static org.folio.support.utils.JsonTestUtils.asJsonString;
 import static org.folio.support.utils.TestUtils.mockCallNumberTypes;
@@ -221,11 +220,6 @@ public abstract class BaseSharedTest {
   @SneakyThrows
   protected static ResultActions doSearchAuthorities(String query, String tenantId) {
     return doSearch(authoritySearchPath(), query, tenantId);
-  }
-
-  @SneakyThrows
-  protected static ResultActions doSearchLinkedDataInstance(String query, String tenantId) {
-    return doSearch(linkedDataInstanceSearchPath(), query, tenantId);
   }
 
   @SneakyThrows

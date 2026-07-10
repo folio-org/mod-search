@@ -147,8 +147,4 @@ public class LinkedDataTestUtils {
   public static String toTotalRecords() {
     return join(".", "$", path("totalRecords"));
   }
-
-  public static String toParentWork() {
-    return join(".", toRootContent(), path("parentWork"));
-  }
 }

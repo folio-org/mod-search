@@ -1,11 +1,11 @@
 [
   {
     "id": "Authority1",
-    "label": "Authority1 Label",
+    "label": "Authority1 Label common",
     "identifiers": [
       {
-        "value": "1234567890123",
-        "type": "Other"
+        "value": "047144250X",
+        "type": "ISBN"
       },
       {
         "value": "  2023202345",
@@ -13,7 +13,8 @@
       }
     ],
     "types": [
-      "http://bibfra.me/vocab/lite/Family"
+      "Family",
+      "Person"
     ]
   },
   {
@@ -30,8 +31,7 @@
       }
     ],
     "types": [
-      "http://bibfra.me/vocab/lite/Concept",
-      "http://bibfra.me/vocab/lite/Person"
+      "Concept"
     ]
   }
 ]

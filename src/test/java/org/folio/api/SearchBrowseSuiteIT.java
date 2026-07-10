@@ -38,6 +38,7 @@ import org.folio.api.search.SearchByEmptyValuesIT;
 import org.folio.api.search.SearchHoldingsIT;
 import org.folio.api.search.SearchInstanceIT;
 import org.folio.api.search.SearchItemIT;
+import org.folio.api.search.SearchLinkedDataAuthorityIT;
 import org.folio.api.search.SearchLinkedDataHubIT;
 import org.folio.api.search.SearchLinkedDataInstanceIT;
 import org.folio.api.search.SearchLinkedDataWorkIT;
@@ -160,6 +161,9 @@ class SearchBrowseSuiteIT extends BaseIntegrationTest {
 
   @Nested
   class SearchItem extends SearchItemIT { }
+
+  @Nested
+  class SearchLinkedDataAuthority extends SearchLinkedDataAuthorityIT { }
 
   @Nested
   class SearchLinkedDataHub extends SearchLinkedDataHubIT { }

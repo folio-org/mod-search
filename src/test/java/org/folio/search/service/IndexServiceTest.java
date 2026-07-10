@@ -2,8 +2,8 @@ package org.folio.search.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.LINKED_DATA_HUB;
 import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.LINKED_DATA_AUTHORITY;
+import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.LINKED_DATA_HUB;
 import static org.folio.search.domain.dto.ReindexRequest.ResourceNameEnum.LINKED_DATA_WORK;
 import static org.folio.search.model.types.ResourceType.AUTHORITY;
 import static org.folio.search.model.types.ResourceType.CAMPUS;

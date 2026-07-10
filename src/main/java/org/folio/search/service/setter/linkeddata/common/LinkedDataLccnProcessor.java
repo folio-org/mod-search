@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class LinkedDataLccnProcessor implements FieldProcessor<List<LinkedDataIdentifier>, Set<String>> {
-  private static final String LCCN ="LCCN";
+  private static final String LCCN = "LCCN";
   private final StringNormalizer stringNormalizer;
 
   @Override

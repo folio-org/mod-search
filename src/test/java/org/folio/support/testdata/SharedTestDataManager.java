@@ -8,8 +8,8 @@ import static org.folio.search.model.types.ResourceType.INSTANCE;
 import static org.folio.search.model.types.ResourceType.INSTITUTION;
 import static org.folio.search.model.types.ResourceType.ITEM;
 import static org.folio.search.model.types.ResourceType.LIBRARY;
-import static org.folio.search.model.types.ResourceType.LINKED_DATA_HUB;
 import static org.folio.search.model.types.ResourceType.LINKED_DATA_AUTHORITY;
+import static org.folio.search.model.types.ResourceType.LINKED_DATA_HUB;
 import static org.folio.search.model.types.ResourceType.LINKED_DATA_WORK;
 import static org.folio.search.model.types.ResourceType.LOCATION;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
@@ -188,7 +188,8 @@ public final class SharedTestDataManager {
   }
 
   public static void loadLinkedDataAuthorities(String tenantId, RecordsIndexer indexer) {
-    indexer.index(linkedDataAuthorities().stream().map(i -> event(i, LINKED_DATA_AUTHORITY, tenantId)).toList(), tenantId);
+    indexer.index(linkedDataAuthorities().stream()
+      .map(i -> event(i, LINKED_DATA_AUTHORITY, tenantId)).toList(), tenantId);
   }
 
   public static void loadLinkedDataWorks(String tenantId, RecordsIndexer indexer) {

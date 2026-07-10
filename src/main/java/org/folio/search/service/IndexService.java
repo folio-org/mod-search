@@ -1,8 +1,8 @@
 package org.folio.search.service;
 
 import static java.lang.Boolean.TRUE;
-import static org.folio.search.model.types.ResourceType.LINKED_DATA_HUB;
 import static org.folio.search.model.types.ResourceType.LINKED_DATA_AUTHORITY;
+import static org.folio.search.model.types.ResourceType.LINKED_DATA_HUB;
 import static org.folio.search.model.types.ResourceType.LINKED_DATA_WORK;
 import static org.springframework.web.util.UriComponentsBuilder.fromUriString;
 

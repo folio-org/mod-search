@@ -11,14 +11,14 @@ import static org.folio.search.model.types.ResourceType.INSTANCE_CALL_NUMBER;
 import static org.folio.search.model.types.ResourceType.INSTANCE_CLASSIFICATION;
 import static org.folio.search.model.types.ResourceType.INSTANCE_CONTRIBUTOR;
 import static org.folio.search.model.types.ResourceType.INSTANCE_SUBJECT;
-import static org.folio.search.model.types.ResourceType.LINKED_DATA_HUB;
 import static org.folio.search.model.types.ResourceType.LINKED_DATA_AUTHORITY;
+import static org.folio.search.model.types.ResourceType.LINKED_DATA_HUB;
 import static org.folio.search.model.types.ResourceType.LINKED_DATA_WORK;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.testdata.SharedTestDataManager.LockManager;
 import static org.folio.support.testdata.SharedTestDataManager.instancesCount;
-import static org.folio.support.testdata.SharedTestDataManager.linkedDataHubsCount;
 import static org.folio.support.testdata.SharedTestDataManager.linkedDataAuthoritiesCount;
+import static org.folio.support.testdata.SharedTestDataManager.linkedDataHubsCount;
 import static org.folio.support.testdata.SharedTestDataManager.linkedDataWorksCount;
 import static org.folio.support.testdata.SharedTestDataManager.loadAll;
 

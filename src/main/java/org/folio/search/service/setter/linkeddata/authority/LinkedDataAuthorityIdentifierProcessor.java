@@ -6,11 +6,10 @@ import static java.util.stream.Collectors.toCollection;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
-import org.folio.search.domain.dto.LinkedDataIdentifier;
+import org.folio.search.domain.dto.LinkedDataAuthority;
 import org.folio.search.service.lccn.StringNormalizer;
 import org.folio.search.service.setter.FieldProcessor;
 import org.folio.search.service.setter.instance.IsbnProcessor;
@@ -18,14 +17,14 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class LinkedDataAuthorityIdentifierProcessor implements FieldProcessor<List<LinkedDataIdentifier>, Set<String>> {
+public class LinkedDataAuthorityIdentifierProcessor implements FieldProcessor<LinkedDataAuthority, Set<String>> {
   private static final String ISBN = "ISBN";
   private final IsbnProcessor isbnProcessor;
   private final StringNormalizer stringNormalizer;
 
   @Override
-  public Set<String> getFieldValue(List<LinkedDataIdentifier> linkedDataIdentifiers) {
-    return ofNullable(linkedDataIdentifiers)
+  public Set<String> getFieldValue(LinkedDataAuthority linkedDataAuthority) {
+    return ofNullable(linkedDataAuthority.getIdentifiers())
       .stream()
       .flatMap(Collection::stream)
       .filter(Objects::nonNull)

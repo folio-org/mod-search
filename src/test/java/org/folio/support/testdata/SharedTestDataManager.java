@@ -33,7 +33,7 @@ public final class SharedTestDataManager {
   private static final List<Map<String, Object>> HOLDINGS_RECORDS = loadRecords("holdings.json");
   private static final List<Map<String, Object>> ITEM_RECORDS = loadRecords("items.json");
   private static final List<Map<String, Object>> AUTHORITY_RECORDS = loadRecords("authorities.json");
-  private static final List<Map<String, Object>> LD_AUTHORITY_RECORDS = loadRecords("``linked-data-authorities.json``");
+  private static final List<Map<String, Object>> LD_AUTHORITY_RECORDS = loadRecords("linked-data-authorities.json");
   private static final List<Map<String, Object>> LD_WORK_RECORDS = loadRecords("linked-data-works.json");
   private static final List<Map<String, Object>> LD_HUB_RECORDS = loadRecords("linked-data-hubs.json");
   private static final List<Map<String, Object>> LOCATION_RECORDS = loadRecords("locations.json");

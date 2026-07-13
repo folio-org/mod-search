@@ -143,7 +143,7 @@ folio:
     retry-interval-ms: ${KAFKA_RETRY_INTERVAL_MS:2000}
     retry-delivery-attempts: ${KAFKA_RETRY_DELIVERY_ATTEMPTS:6}
     topics:
-      - name: search.reindex.range-index
+      - name: ${REINDEX_RANGE_INDEX_TOPIC_NAME:search.reindex.range-index}
         numPartitions: ${KAFKA_REINDEX_RANGE_INDEX_TOPIC_PARTITIONS:16}
         replicationFactor: ${KAFKA_REINDEX_RANGE_INDEX_TOPIC_REPLICATION_FACTOR:}
       - name: search.index.instance
@@ -183,7 +183,7 @@ folio:
         group-id: ${folio.environment}-${MODULE_NAME:mod-search}-consortium-instance-sharing-complete-group
       reindex-range-index:
         concurrency: ${KAFKA_REINDEX_RANGE_INDEX_CONCURRENCY:8}
-        topic-pattern: (${folio.environment}\.)(.*\.)search\.reindex\.range-index
+        topic-pattern: (${folio.environment}\.)(.*\.)(${REINDEX_RANGE_INDEX_TOPIC_PATTERN:search\.reindex\.range-index})
         group-id: ${folio.environment}-${MODULE_NAME:mod-search}-reindex-range-index-group
       reindex-records:
         concurrency: ${KAFKA_REINDEX_RECORDS_CONCURRENCY:4}

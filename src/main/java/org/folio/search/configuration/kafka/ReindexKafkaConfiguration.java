@@ -1,7 +1,6 @@
 package org.folio.search.configuration.kafka;
 
 import static org.apache.kafka.clients.consumer.ConsumerConfig.MAX_POLL_RECORDS_CONFIG;
-import static org.folio.search.configuration.kafka.KafkaConfiguration.SearchTopic.REINDEX_RANGE_INDEX;
 
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +11,7 @@ import org.folio.search.model.event.ReindexRangeIndexEvent;
 import org.folio.search.model.event.ReindexRecordsEvent;
 import org.folio.spring.tools.kafka.FolioKafkaProperties;
 import org.folio.spring.tools.kafka.FolioMessageProducer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.kafka.autoconfigure.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,6 +30,9 @@ public class ReindexKafkaConfiguration extends KafkaConfiguration {
   private static final Map<String, Object> REINDEX_CONSUMER_OVERRIDE_PROPERTIES = Map.of(MAX_POLL_RECORDS_CONFIG, 10);
 
   private final KafkaProperties kafkaProperties;
+
+  @Value("${REINDEX_RANGE_INDEX_TOPIC_NAME:search.reindex.range-index}")
+  private String reindexRangeIndexTopicName;
 
   @Bean
   public ConcurrentKafkaListenerContainerFactory<String, ReindexRangeIndexEvent> rangeIndexListenerContainerFactory(
@@ -66,7 +69,7 @@ public class ReindexKafkaConfiguration extends KafkaConfiguration {
 
   @Bean
   public FolioMessageProducer<ReindexRangeIndexEvent> rangeIndexMessageProducer() {
-    return new FolioMessageProducer<>(rangeIndexKafkaTemplate(), REINDEX_RANGE_INDEX);
+    return new FolioMessageProducer<>(rangeIndexKafkaTemplate(), () -> reindexRangeIndexTopicName);
   }
 
   private <T> ConcurrentKafkaListenerContainerFactory<String, T> listenerContainerFactory(

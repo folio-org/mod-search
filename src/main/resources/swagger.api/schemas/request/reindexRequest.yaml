@@ -11,7 +11,7 @@ properties:
     enum:
       - authority
       - location
-      - linked-data-instance
+      - linked-data-authority
       - linked-data-work
       - linked-data-hub
   indexSettings:

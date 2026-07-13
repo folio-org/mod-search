@@ -1,22 +1,22 @@
 ---
 feature_id: linked-data-search
 title: Linked Data Search
-updated: 2026-05-22
+updated: 2026-07-10
 ---
 
 # Linked Data Search
 
 ## What it does
-Allows callers to search Linked Data works, instances, and hubs using CQL queries and receive paginated results. Works results optionally suppress embedded instance details via the `omitInstances` flag.
+Allows callers to search Linked Data works, authorities, and hubs using CQL queries and receive paginated results. Works results optionally suppress embedded instance details via the `omitInstances` flag.
 
 ## Why it exists
-FOLIO supports a Linked Data cataloguing model alongside its traditional MARC-based model. This feature exposes a dedicated search surface for Linked Data resource types so that Linked Data-aware clients can discover works, instances, and hubs independently of the MARC instance index.
+FOLIO supports a Linked Data cataloguing model alongside its traditional MARC-based model. This feature exposes a dedicated search surface for Linked Data resource types so that Linked Data-aware clients can discover works, authorities, and hubs independently of the MARC instance index.
 
 ## Entry point(s)
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | /search/linked-data/works | Search Linked Data works by CQL query |
-| GET | /search/linked-data/instances | Search Linked Data instances by CQL query |
+| GET | /search/linked-data/authorities | Search Linked Data authorities by CQL query |
 | GET | /search/linked-data/hubs | Search Linked Data hubs by CQL query |
 
 ## Business rules and constraints
@@ -40,4 +40,4 @@ FOLIO supports a Linked Data cataloguing model alongside its traditional MARC-ba
 
 ## Dependencies and interactions
 - Depends on Elasticsearch/OpenSearch for query execution.
-- Kafka consumer (`folio.kafka.listener.linked-data.topicPattern`) ingests linked data instance, work, and hub events matching pattern `(env\.)(.*\.)linked-data\.(instance|work|hub)`.
+- Kafka consumer (`folio.kafka.listener.linked-data.topicPattern`) ingests linked data authority, work, and hub events matching pattern `(env\.)(.*\.)linked-data\.(authority|work|hub)`.

@@ -1,7 +1,7 @@
 get:
-  operationId: searchLinkedDataInstances
-  summary: Search Linked Data Instances
-  description: Get a list of linked data records for CQL query
+  operationId: searchLinkedDataAuthorities
+  summary: Search Linked Data Authorities
+  description: Get a list of linked data authority records for CQL query
   tags:
     - search
   parameters:
@@ -11,14 +11,14 @@ get:
     - $ref: '../../parameters/offset-param.yaml'
   responses:
     '200':
-      description: 'Linked data instances search result'
+      description: 'Linked data authority search result'
       content:
         application/json:
           schema:
-            $ref: '../../schemas/response/linkedDataInstanceSearchResult.yaml'
+            $ref: '../../schemas/response/linkedDataAuthoritySearchResult.yaml'
           examples:
             searchResult:
-              $ref: '../../examples/result/linkedDataInstanceSearchResult.yaml'
+              $ref: '../../examples/result/linkedDataAuthoritySearchResult.yaml'
     '400':
       $ref: '../../responses/badRequestResponse.yaml'
     '500':

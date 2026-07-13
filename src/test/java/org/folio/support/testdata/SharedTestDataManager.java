@@ -8,8 +8,8 @@ import static org.folio.search.model.types.ResourceType.INSTANCE;
 import static org.folio.search.model.types.ResourceType.INSTITUTION;
 import static org.folio.search.model.types.ResourceType.ITEM;
 import static org.folio.search.model.types.ResourceType.LIBRARY;
+import static org.folio.search.model.types.ResourceType.LINKED_DATA_AUTHORITY;
 import static org.folio.search.model.types.ResourceType.LINKED_DATA_HUB;
-import static org.folio.search.model.types.ResourceType.LINKED_DATA_INSTANCE;
 import static org.folio.search.model.types.ResourceType.LINKED_DATA_WORK;
 import static org.folio.search.model.types.ResourceType.LOCATION;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
@@ -33,7 +33,7 @@ public final class SharedTestDataManager {
   private static final List<Map<String, Object>> HOLDINGS_RECORDS = loadRecords("holdings.json");
   private static final List<Map<String, Object>> ITEM_RECORDS = loadRecords("items.json");
   private static final List<Map<String, Object>> AUTHORITY_RECORDS = loadRecords("authorities.json");
-  private static final List<Map<String, Object>> LD_INSTANCE_RECORDS = loadRecords("linked-data-instances.json");
+  private static final List<Map<String, Object>> LD_AUTHORITY_RECORDS = loadRecords("linked-data-authorities.json");
   private static final List<Map<String, Object>> LD_WORK_RECORDS = loadRecords("linked-data-works.json");
   private static final List<Map<String, Object>> LD_HUB_RECORDS = loadRecords("linked-data-hubs.json");
   private static final List<Map<String, Object>> LOCATION_RECORDS = loadRecords("locations.json");
@@ -59,8 +59,8 @@ public final class SharedTestDataManager {
     return AUTHORITY_RECORDS;
   }
 
-  public static List<Map<String, Object>> linkedDataInstances() {
-    return LD_INSTANCE_RECORDS;
+  public static List<Map<String, Object>> linkedDataAuthorities() {
+    return LD_AUTHORITY_RECORDS;
   }
 
   public static List<Map<String, Object>> linkedDataWorks() {
@@ -111,8 +111,8 @@ public final class SharedTestDataManager {
     return ITEM_RECORDS.size();
   }
 
-  public static int linkedDataInstancesCount() {
-    return LD_INSTANCE_RECORDS.size();
+  public static int linkedDataAuthoritiesCount() {
+    return LD_AUTHORITY_RECORDS.size();
   }
 
   public static int linkedDataWorksCount() {
@@ -182,13 +182,14 @@ public final class SharedTestDataManager {
    * Indexes all linked-data records (instances, works, hubs) in order.
    */
   public static void loadLinkedData(String tenantId, RecordsIndexer indexer) {
-    loadLinkedDataInstances(tenantId, indexer);
+    loadLinkedDataAuthorities(tenantId, indexer);
     loadLinkedDataWorks(tenantId, indexer);
     loadLinkedDataHubs(tenantId, indexer);
   }
 
-  public static void loadLinkedDataInstances(String tenantId, RecordsIndexer indexer) {
-    indexer.index(linkedDataInstances().stream().map(i -> event(i, LINKED_DATA_INSTANCE, tenantId)).toList(), tenantId);
+  public static void loadLinkedDataAuthorities(String tenantId, RecordsIndexer indexer) {
+    indexer.index(linkedDataAuthorities().stream()
+      .map(i -> event(i, LINKED_DATA_AUTHORITY, tenantId)).toList(), tenantId);
   }
 
   public static void loadLinkedDataWorks(String tenantId, RecordsIndexer indexer) {

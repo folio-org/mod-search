@@ -144,7 +144,7 @@ folio:
         group-id: ${folio.environment}-mod-search-location-type-group
       linked-data:
         concurrency: ${KAFKA_LINKED_DATA_CONCURRENCY:1}
-        topic-pattern: (${folio.environment}\.)(.*\.)linked-data\.(instance|work|hub)
+        topic-pattern: (${folio.environment}\.)(.*\.)linked-data\.(authority|work|hub)
         group-id: ${folio.environment}-mod-search-linked-data-group
       instance-sharing-complete:
         concurrency: ${KAFKA_CONSORTIUM_INSTANCE_SHARING_COMPLETE_CONCURRENCY:1}

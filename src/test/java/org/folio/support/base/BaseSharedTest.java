@@ -15,8 +15,8 @@ import static org.folio.support.base.ApiEndpoints.authoritySearchPath;
 import static org.folio.support.base.ApiEndpoints.browseConfigPath;
 import static org.folio.support.base.ApiEndpoints.indexRecordsPath;
 import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
+import static org.folio.support.base.ApiEndpoints.linkedDataAuthoritySearchPath;
 import static org.folio.support.base.ApiEndpoints.linkedDataHubSearchPath;
-import static org.folio.support.base.ApiEndpoints.linkedDataInstanceSearchPath;
 import static org.folio.support.base.ApiEndpoints.linkedDataWorkSearchPath;
 import static org.folio.support.utils.JsonTestUtils.asJsonString;
 import static org.folio.support.utils.TestUtils.mockCallNumberTypes;
@@ -223,11 +223,6 @@ public abstract class BaseSharedTest {
   }
 
   @SneakyThrows
-  protected static ResultActions doSearchLinkedDataInstance(String query, String tenantId) {
-    return doSearch(linkedDataInstanceSearchPath(), query, tenantId);
-  }
-
-  @SneakyThrows
   protected static ResultActions doSearchLinkedDataWork(String query, String tenantId) {
     return doSearch(linkedDataWorkSearchPath(), query, tenantId);
   }
@@ -240,6 +235,11 @@ public abstract class BaseSharedTest {
   @SneakyThrows
   protected static ResultActions doSearchLinkedDataHub(String query, String tenantId) {
     return doSearch(linkedDataHubSearchPath(), query, tenantId);
+  }
+
+  @SneakyThrows
+  protected static ResultActions doSearchLinkedDataAuthority(String query, String tenantId) {
+    return doSearch(linkedDataAuthoritySearchPath(), query, tenantId);
   }
 
   @SneakyThrows

@@ -164,15 +164,15 @@
     },
     {
       "id": "search-linked-data",
-      "version": "1.0",
+      "version": "1.1",
       "handlers": [
         {
           "methods": [
             "GET"
           ],
-          "pathPattern": "/search/linked-data/instances",
+          "pathPattern": "/search/linked-data/authorities",
           "permissionsRequired": [
-            "search.linked-data.instance.collection.get"
+            "search.linked-data.authority.collection.get"
           ],
           "modulePermissions": [
             "user-tenants.collection.get"
@@ -715,9 +715,9 @@
       "description": "Searches authorities by given query"
     },
     {
-      "permissionName": "search.linked-data.instance.collection.get",
-      "displayName": "Search - searches linked data instances by given query",
-      "description": "Searches linked data instances by given query"
+      "permissionName": "search.linked-data.authority.collection.get",
+      "displayName": "Search - searches linked data authorities by given query",
+      "description": "Searches linked data authorities by given query"
     },
     {
       "permissionName": "search.linked-data.work.collection.get",

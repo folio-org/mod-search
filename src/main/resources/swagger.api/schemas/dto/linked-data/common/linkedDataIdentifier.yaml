@@ -6,12 +6,6 @@ properties:
     description: "Value of Identifier"
   type:
     type: "string"
-    enum:
-      - "IAN"
-      - "ISBN"
-      - "LCCN"
-      - "LocalId"
-      - "UNKNOWN"
 required:
   - "value"
   - "type"

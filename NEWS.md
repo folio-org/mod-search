@@ -9,6 +9,8 @@
 ### Features
 * **General**
   * Honor spring.cache.type=noop for cache manager ([MSEARCH-1204](https://folio-org.atlassian.net/browse/MSEARCH-1204))
+* **Linked Data Authority**
+  * Implement Linked Data Authority index and search API ([MSEARCH-1246](https://folio-org.atlassian.net/browse/MSEARCH-1246))
 * **Call Number Browse**
   * Ignore spaces in SuDoc sorting algorithm ([MSEARCH-1005](https://folio-org.atlassian.net/browse/MSEARCH-1005))
 

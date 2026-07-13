@@ -1,0 +1,49 @@
+{
+  "name": "linked-data-authority",
+  "eventBodyJavaClass": "org.folio.search.domain.dto.LinkedDataAuthority",
+  "reindexSupported": true,
+  "languageSourcePaths": [ "$.languages" ],
+  "fields": {
+    "id": {
+      "index": "keyword",
+      "searchAliases": [ "keyword" ]
+    },
+    "tenantId": {
+      "index": "keyword_lowercase",
+      "isTenant": true
+    },
+    "label": {
+      "index": "multilang",
+      "searchAliases": [ "label", "keyword" ]
+    },
+    "identifiers": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "index": "whitespace"
+        },
+        "type": {
+          "index": "whitespace"
+        }
+      }
+    },
+    "types": {
+      "index": "whitespace"
+    }
+  },
+  "searchFields": {
+    "identifier": {
+      "type": "search",
+      "index": "standard",
+      "processor": "linkedDataAuthorityIdentifierProcessor",
+      "searchTermProcessor": "noSpaceSearchTermProcessor"
+    },
+    "type": {
+      "type": "search",
+      "index": "standard",
+      "processor": "linkedDataAuthorityTypeProcessor",
+      "searchAliases": [ "keyword" ]
+    }
+  },
+  "indexMappings": { }
+}

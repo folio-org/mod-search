@@ -18,19 +18,19 @@ change to these JSON files affects all nested test classes inside them.
 
 The full set of JSON files consumed by both suites:
 
-| File                         | Resource type         |
-|------------------------------|-----------------------|
-| `instances.json`             | Instances             |
-| `holdings.json`              | Holdings records      |
-| `items.json`                 | Items                 |
-| `authorities.json`           | Authorities           |
-| `linked-data-instances.json` | Linked-data instances |
-| `linked-data-works.json`     | Linked-data works     |
-| `linked-data-hubs.json`      | Linked-data hubs      |
-| `locations.json`             | Locations             |
-| `libraries.json`             | Libraries             |
-| `institutions.json`          | Institutions          |
-| `campuses.json`              | Campuses              |
+| File                           | Resource type           |
+|--------------------------------|-------------------------|
+| `instances.json`               | Instances               |
+| `holdings.json`                | Holdings records        |
+| `items.json`                   | Items                   |
+| `authorities.json`             | Authorities             |
+| `linked-data-authorities.json` | Linked-data authorities |
+| `linked-data-works.json`       | Linked-data works       |
+| `linked-data-hubs.json`        | Linked-data hubs        |
+| `locations.json`               | Locations               |
+| `libraries.json`               | Libraries               |
+| `institutions.json`            | Institutions            |
+| `campuses.json`                | Campuses                |
 
 ### test-data.db
 

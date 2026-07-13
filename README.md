@@ -408,7 +408,7 @@ x-okapi-token: [JWT_TOKEN]
 ```
 
 * `resourceName` parameter is required. Possible values: `authority`, `location`,
-  `linked-data-instance`, `linked-data-work`, `linked-data-hub`. Please note that `location` reindex is synchronous.
+  `linked-data-authority`, `linked-data-work`, `linked-data-hub`. Please note that `location` reindex is synchronous.
   Refer to [Indexing of Instance Records](#indexing-of-instance-records) section for reindexing of instances
 * `recreateIndex` parameter is optional and equal to `false` by default. If it is equal to `true` then mod-search
   will drop existing indices for tenant and resource, creating them again. Executing request with this parameter
@@ -417,7 +417,7 @@ x-okapi-token: [JWT_TOKEN]
   - `numberOfShards` - the number (between 1 and 100) of primary shards for the index
   - `numberOfReplicas` - the number of replicas (between 0 and 100) each primary shard has
   - `refreshInterval` - the refresh interval reflecting how often to make new changes to the index visible to search (seconds). `-1` disables refresh.
-* Please note that for `linked-data-instance`, `linked-data-work` and `linked-data-hub` resources the endpoint is used only for index recreation
+* Please note that for `linked-data-authority`, `linked-data-work` and `linked-data-hub` resources the endpoint is used only for index recreation
   purpose and actual reindex operation is triggered through mod-linked-data.
 
 ### Updating index settings
@@ -439,7 +439,7 @@ x-okapi-token: [JWT_TOKEN]
 }
 ```
 
-* `resourceName` parameter is required. Possible values: `instance`, `authority`, `location`, `linked-data-instance`, `linked-data-work`, `linked-data-hub`.
+* `resourceName` parameter is required. Possible values: `instance`, `authority`, `location`, `linked-data-authority`, `linked-data-work`, `linked-data-hub`.
 * `indexSettings` parameter is optional and defines the following Elasticsearch/Opensearch index settings:
   - `numberOfReplicas` - the number of replicas (between 0 and 100) each primary shard has
   - `refreshInterval` - the refresh interval reflecting how often to make new changes to the index visible to search (seconds). `-1` disables refresh.

@@ -101,7 +101,7 @@ folio:
       - name: inventory.location
         numPartitions: 1
         replicationFactor: 1
-      - name: linked-data.instance
+      - name: linked-data.authority
         numPartitions: 1
         replicationFactor: 1
       - name: linked-data.work
@@ -160,7 +160,7 @@ folio:
         group-id: ${folio.environment}-mod-search-location-type-group
       linked-data:
         concurrency: 1
-        topic-pattern: (${folio.environment}\.)(.*\.)linked-data\.(instance|work|hub)
+        topic-pattern: (${folio.environment}\.)(.*\.)linked-data\.(authority|work|hub)
         group-id: ${folio.environment}-mod-search-linked-data-group
       instance-sharing-complete:
         concurrency: 1

@@ -7,10 +7,10 @@ import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthoritySearchResult;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceSearchResult;
+import org.folio.search.domain.dto.LinkedDataAuthority;
+import org.folio.search.domain.dto.LinkedDataAuthoritySearchResult;
 import org.folio.search.domain.dto.LinkedDataHub;
 import org.folio.search.domain.dto.LinkedDataHubSearchResult;
-import org.folio.search.domain.dto.LinkedDataInstance;
-import org.folio.search.domain.dto.LinkedDataInstanceSearchResult;
 import org.folio.search.domain.dto.LinkedDataWork;
 import org.folio.search.domain.dto.LinkedDataWorkSearchResult;
 import org.folio.search.model.service.CqlSearchRequest;
@@ -71,11 +71,11 @@ public class SearchController implements SearchApi {
   }
 
   @Override
-  public ResponseEntity<LinkedDataInstanceSearchResult> searchLinkedDataInstances(String tenant,
-                                                                                  String query,
-                                                                                  Integer limit,
-                                                                                  Integer offset) {
-    var searchRequest = CqlSearchRequest.builder(LinkedDataInstance.class)
+  public ResponseEntity<LinkedDataAuthoritySearchResult> searchLinkedDataAuthorities(String tenant,
+                                                                                    String query,
+                                                                                    Integer limit,
+                                                                                    Integer offset) {
+    var searchRequest = CqlSearchRequest.builder(LinkedDataAuthority.class)
       .tenantId(tenant)
       .query(query)
       .limit(limit)
@@ -83,7 +83,7 @@ public class SearchController implements SearchApi {
       .expandAll(true)
       .build();
     var result = searchService.search(searchRequest);
-    return ResponseEntity.ok(new LinkedDataInstanceSearchResult()
+    return ResponseEntity.ok(new LinkedDataAuthoritySearchResult()
       .searchQuery(query)
       .content(result.getRecords())
       .pageNumber(divPlusOneIfRemainder(offset, limit))

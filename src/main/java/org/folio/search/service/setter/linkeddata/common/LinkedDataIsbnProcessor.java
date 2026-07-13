@@ -2,7 +2,6 @@ package org.folio.search.service.setter.linkeddata.common;
 
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toCollection;
-import static org.folio.search.domain.dto.LinkedDataIdentifier.TypeEnum.ISBN;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -18,7 +17,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class LinkedDataIsbnProcessor implements FieldProcessor<List<LinkedDataIdentifier>, Set<String>> {
-
+  private static final String ISBN = "ISBN";
   private final IsbnProcessor isbnProcessor;
 
   @Override

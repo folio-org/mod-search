@@ -36,7 +36,7 @@ public class TestConstants {
   public static final String INVENTORY_CLASSIFICATION_TYPE_TOPIC = "inventory.classification-type";
   public static final String INVENTORY_CALL_NUMBER_TYPE_TOPIC = "inventory.call-number-type";
   public static final String CONSORTIUM_INSTANCE_SHARING_COMPLETE_TOPIC = "CONSORTIUM_INSTANCE_SHARING_COMPLETE";
-  public static final String LINKED_DATA_WORK_INSTANCE = "linked-data.instance";
+  public static final String LINKED_DATA_AUTHORITY = "linked-data.authority";
   public static final String LINKED_DATA_WORK_TOPIC = "linked-data.work";
   public static final String LINKED_DATA_HUB_TOPIC = "linked-data.hub";
   public static final String CAMPUS_TOPIC = "inventory.campus";
@@ -135,8 +135,8 @@ public class TestConstants {
     return getTopicName(tenantId, INVENTORY_BOUND_WITH_TOPIC);
   }
 
-  public static String linkedDataInstanceTopic(String tenantId) {
-    return getTopicName(tenantId, LINKED_DATA_WORK_INSTANCE);
+  public static String linkedDataAuthorityTopic(String tenantId) {
+    return getTopicName(tenantId, LINKED_DATA_AUTHORITY);
   }
 
   public static String linkedDataWorkTopic(String tenantId) {

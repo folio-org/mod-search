@@ -1,0 +1,24 @@
+description: "Linked Data Authority search dto"
+type: "object"
+properties:
+  id:
+    description: "The Linked Data ID of an Authority"
+    type: "string"
+  tenantId:
+    description: "Tenant ID"
+    type: string
+  label:
+    description: "Label of an Authority"
+    type: "string"
+  identifiers:
+    type: "array"
+    description: "Resource identifier array"
+    items:
+      $ref: "common/linkedDataIdentifier.yaml"
+  types:
+    type: "array"
+    description: "Array of authority types"
+    items:
+      type: "string"
+required:
+  - "id"

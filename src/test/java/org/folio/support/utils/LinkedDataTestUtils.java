@@ -64,6 +64,14 @@ public class LinkedDataTestUtils {
     return join(".", base, arrayPath("hubLabels", number));
   }
 
+  public static String toLabel(String base) {
+    return join(".", base, path("label"));
+  }
+
+  public static String toType(String base, int number) {
+    return join(".", base, arrayPath("types", number));
+  }
+
   public static String toLanguage(String base, int number) {
     return join(".", base, arrayPath("languages", number));
   }
@@ -138,9 +146,5 @@ public class LinkedDataTestUtils {
 
   public static String toTotalRecords() {
     return join(".", "$", path("totalRecords"));
-  }
-
-  public static String toParentWork() {
-    return join(".", toRootContent(), path("parentWork"));
   }
 }

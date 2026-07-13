@@ -1,37 +1,30 @@
-package org.folio.search.service.setter.linkeddata.common;
+package org.folio.search.service.setter.linkeddata.authority;
 
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toCollection;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
-import org.folio.search.domain.dto.LinkedDataIdentifier;
+import org.folio.search.domain.dto.LinkedDataAuthority;
 import org.folio.search.service.lccn.StringNormalizer;
 import org.folio.search.service.setter.FieldProcessor;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class LinkedDataLccnProcessor implements FieldProcessor<List<LinkedDataIdentifier>, Set<String>> {
-  private static final String LCCN = "LCCN";
+public class LinkedDataAuthorityTypeProcessor implements FieldProcessor<LinkedDataAuthority, Set<String>> {
   private final StringNormalizer stringNormalizer;
 
   @Override
-  public Set<String> getFieldValue(List<LinkedDataIdentifier> linkedDataIdentifiers) {
-    return ofNullable(linkedDataIdentifiers)
+  public Set<String> getFieldValue(LinkedDataAuthority linkedDataAuthority) {
+    return ofNullable(linkedDataAuthority.getTypes())
       .stream()
       .flatMap(Collection::stream)
       .filter(Objects::nonNull)
-      .filter(i -> LCCN.equals(i.getType()))
-      .map(LinkedDataIdentifier::getValue)
-      .filter(Objects::nonNull)
-      .map(stringNormalizer)
-      .flatMap(Optional::stream)
+      .flatMap(i -> stringNormalizer.apply(i).stream())
       .collect(toCollection(LinkedHashSet::new));
   }
 }

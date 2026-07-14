@@ -98,7 +98,7 @@ public class CatchUpPhaseManager {
   private boolean isMergeCompletedForTenant(String tenantId) {
     try {
       return Boolean.TRUE.equals(
-        executionService.execute(tenantId, reindexStatusService::isMergeCompleted));
+        executionService.execute(tenantId, reindexStatusService::isFullReindexCompleted));
     } catch (Exception e) {
       log.warn("checkAndActivateCatchUp:: Cannot check reindex status [tenantId: {}, error: {}]",
         tenantId, e.getMessage());

@@ -157,6 +157,22 @@ public class ReindexStatusService {
    *
    * @return true if any entity type has a non-terminal, non-consortium-member-scoped status
    */
+  public boolean isFullReindexCompleted() {
+    var statuses = statusRepository.getReindexStatuses();
+    if (statuses.isEmpty()) {
+      return false;
+    }
+    return statuses.stream()
+      .filter(s -> s.getTargetTenantId() == null)
+      .noneMatch(s -> s.getStatus() == ReindexStatus.MERGE_IN_PROGRESS
+        || s.getStatus() == ReindexStatus.UPLOAD_IN_PROGRESS
+        || s.getStatus() == ReindexStatus.STAGING_IN_PROGRESS
+        || s.getStatus() == ReindexStatus.MERGE_FAILED
+        || s.getStatus() == ReindexStatus.STAGING_FAILED
+        || s.getStatus() == ReindexStatus.UPLOAD_FAILED
+        || s.getStatus() == ReindexStatus.MERGE_COMPLETED && s.getEntityType().isSupportsUpload());
+  }
+
   public boolean isReindexInProgressOrFailedNotForConsortiumMember() {
     return statusRepository.getReindexStatuses().stream()
       .anyMatch(status -> status.getTargetTenantId() == null

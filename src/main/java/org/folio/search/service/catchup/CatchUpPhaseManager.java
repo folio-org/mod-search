@@ -95,6 +95,12 @@ public class CatchUpPhaseManager {
     log.info("stop:: All catch-up listeners stopped. Safe to run reconciliation.");
   }
 
+  public void start() {
+    log.info("start:: Manually starting catch-up listeners");
+    activateCatchUpListeners();
+    catchUpActive.set(true);
+  }
+
   private boolean isMergeCompletedForTenant(String tenantId) {
     try {
       return Boolean.TRUE.equals(

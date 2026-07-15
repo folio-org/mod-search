@@ -226,4 +226,23 @@ public class IndexManagementController implements IndexManagementApi {
     catchUpPhaseManager.stop();
     return ResponseEntity.noContent().build();
   }
+
+  /**
+   * Manually starts all real-time catch-up Kafka listeners, bypassing the automatic
+   * scheduler check. Useful when the automatic activation did not trigger (e.g. the
+   * reindex completed before the instance started) or after a manual stop.
+   * Only meaningful when {@code CATCH_UP_ENABLED=true}.
+   *
+   * @return 204 if listeners were started, 409 if already in catch-up mode or catch-up
+   *         is not enabled
+   */
+  @PostMapping("/search/index/catch-up/start")
+  public ResponseEntity<Void> startCatchUp() {
+    if (catchUpPhaseManager == null || catchUpPhaseManager.isCatchUpActive()) {
+      return ResponseEntity.status(409).build();
+    }
+    log.info("startCatchUp:: Manually starting real-time catch-up listeners");
+    catchUpPhaseManager.start();
+    return ResponseEntity.noContent().build();
+  }
 }

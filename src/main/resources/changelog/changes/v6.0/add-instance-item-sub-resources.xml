@@ -27,7 +27,7 @@
     </insert>
   </changeSet>
 
-  <changeSet id="MSEARCH-1056@@update-reindex-status-trigger-v3" author="viacheslav_kolesnyk">
+  <changeSet id="MSEARCH-1056@@update-reindex-status-trigger-v3" author="viacheslav_kolesnyk" runOnChange="true">
     <preConditions onFail="MARK_RAN">
       <tableExists tableName="reindex_status"/>
       <tableExists tableName="sub_resources_lock"/>

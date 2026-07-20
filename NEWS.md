@@ -1,3 +1,7 @@
+## v6.0.7 2026-07-20
+### Features
+* Implement retries for s3 client reads and s3 client connection config ([MSEARCH-1260](https://folio-org.atlassian.net/browse/MSEARCH-1260)
+
 ## v6.0.6 2026-06-16
 ### Bug fixes
 * Increate http client pool size and make it configurable ([MSEARCH-1248](https://folio-org.atlassian.net/browse/MSEARCH-1248)

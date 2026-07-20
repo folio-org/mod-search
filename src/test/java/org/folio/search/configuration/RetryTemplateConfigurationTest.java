@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.hc.core5.http.ConnectionClosedException;
+import org.folio.s3.exception.S3ClientException;
 import org.folio.search.configuration.properties.OpensearchProperties;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.configuration.properties.StreamIdsProperties;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.retry.RetryException;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -103,6 +105,65 @@ class RetryTemplateConfigurationTest {
       attempts.incrementAndGet();
       throw new IllegalStateException("boom");
     })).isInstanceOf(FolioIntegrationException.class);
+
+    assertThat(attempts.get()).isEqualTo(1);
+  }
+
+  @Test
+  void reindexS3ReadRetryTemplate_positive() {
+    when(reindexConfigurationProperties.getS3RetryAttempts()).thenReturn(3);
+    when(reindexConfigurationProperties.getS3RetryIntervalMs()).thenReturn(1000L);
+    var actual = configuration.reindexS3ReadRetryTemplate(reindexConfigurationProperties);
+    assertThat(actual).isNotNull();
+  }
+
+  @Test
+  void reindexS3ReadRetryTemplate_s3ClientException_retries() {
+    when(reindexConfigurationProperties.getS3RetryAttempts()).thenReturn(3);
+    when(reindexConfigurationProperties.getS3RetryIntervalMs()).thenReturn(1L);
+
+    var retryTemplate = configuration.reindexS3ReadRetryTemplate(reindexConfigurationProperties);
+    var attempts = new AtomicInteger();
+
+    assertThatThrownBy(() -> retryTemplate.execute(() -> {
+      attempts.incrementAndGet();
+      throw new S3ClientException("S3 read error");
+    })).isInstanceOf(RetryException.class)
+      .hasRootCauseInstanceOf(S3ClientException.class);
+
+    assertThat(attempts.get()).isGreaterThan(1);
+  }
+
+  @Test
+  void reindexS3ReadRetryTemplate_wrappedS3ClientException_retries() {
+    when(reindexConfigurationProperties.getS3RetryAttempts()).thenReturn(3);
+    when(reindexConfigurationProperties.getS3RetryIntervalMs()).thenReturn(1L);
+
+    var retryTemplate = configuration.reindexS3ReadRetryTemplate(reindexConfigurationProperties);
+    var attempts = new AtomicInteger();
+
+    assertThatThrownBy(() -> retryTemplate.execute(() -> {
+      attempts.incrementAndGet();
+      throw new RuntimeException(new S3ClientException("S3 read error"));
+    })).isInstanceOf(RetryException.class)
+      .hasRootCauseInstanceOf(S3ClientException.class);
+
+    assertThat(attempts.get()).isGreaterThan(1);
+  }
+
+  @Test
+  void reindexS3ReadRetryTemplate_otherException_doesNotRetry() {
+    when(reindexConfigurationProperties.getS3RetryAttempts()).thenReturn(3);
+    when(reindexConfigurationProperties.getS3RetryIntervalMs()).thenReturn(1L);
+
+    var retryTemplate = configuration.reindexS3ReadRetryTemplate(reindexConfigurationProperties);
+    var attempts = new AtomicInteger();
+
+    assertThatThrownBy(() -> retryTemplate.execute(() -> {
+      attempts.incrementAndGet();
+      throw new RuntimeException("unrelated error");
+    })).isInstanceOf(RetryException.class)
+      .hasRootCauseInstanceOf(RuntimeException.class);
 
     assertThat(attempts.get()).isEqualTo(1);
   }

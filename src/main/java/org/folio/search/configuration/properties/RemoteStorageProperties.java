@@ -23,4 +23,7 @@ public class RemoteStorageProperties {
   private String accessKey;
   private String secretKey;
   private boolean awsSdk = true;
+  private Integer idleKeepAliveSeconds;
+  private Integer maxIdleConnections;
+  private Integer maxRequestsPerHost;
 }

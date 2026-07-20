@@ -46,6 +46,10 @@ public class ReindexConfigurationProperties {
 
   private int mergeRangePublisherRetryAttempts = 5;
 
+  private long s3RetryIntervalMs = 1000;
+
+  private int s3RetryAttempts = 3;
+
   /**
    * Defines a type of reindex process. Default is PUBLISH.
    * EXPORT - will use exported S3 files.

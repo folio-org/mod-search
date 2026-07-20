@@ -19,25 +19,33 @@ public class RemoteStorageConfig {
 
   @Bean
   public FolioS3Client remoteFolioS3Client(RemoteStorageProperties properties) {
-    log.info("Configure remote storage [endpoint={}, region={}, bucket={}, accessKey={}, secretKey={}, awsSdk={}]",
+    log.info("Configure remote storage [endpoint={}, region={}, bucket={}, accessKey={}, secretKey={}, "
+        + "awsSdk={}, idleKeepAliveSeconds={}, maxIdleConnections={}, maxRequestsPerHost={}]",
       properties.getEndpoint(), properties.getRegion(), properties.getBucket(),
-      hideIfSet(properties.getAccessKey()),
-      hideIfSet(properties.getSecretKey()),
-      properties.isAwsSdk());
+      hideIfSet(properties.getAccessKey()), hideIfSet(properties.getSecretKey()),
+      properties.isAwsSdk(), properties.getIdleKeepAliveSeconds(),
+      properties.getMaxIdleConnections(), properties.getMaxRequestsPerHost());
     try {
-      var client = S3ClientFactory.getS3Client(S3ClientProperties.builder()
-        .endpoint(properties.getEndpoint())
-        .secretKey(properties.getSecretKey())
-        .accessKey(properties.getAccessKey())
-        .bucket(properties.getBucket())
-        .region(properties.getRegion())
-        .awsSdk(properties.isAwsSdk())
-        .build());
+      var client = S3ClientFactory.getS3Client(toS3ClientProperties(properties));
       client.createBucketIfNotExists();
       return client;
     } catch (S3ClientException e) {
       log.error("Error creating bucket: {} during RemoteStorageClient initialization", properties.getBucket(), e);
       throw e;
     }
+  }
+
+  private static S3ClientProperties toS3ClientProperties(RemoteStorageProperties p) {
+    return S3ClientProperties.builder()
+      .endpoint(p.getEndpoint())
+      .secretKey(p.getSecretKey())
+      .accessKey(p.getAccessKey())
+      .bucket(p.getBucket())
+      .region(p.getRegion())
+      .awsSdk(p.isAwsSdk())
+      .idleKeepAliveSeconds(p.getIdleKeepAliveSeconds())
+      .maxIdleConnections(p.getMaxIdleConnections())
+      .maxRequestsPerHost(p.getMaxRequestsPerHost())
+      .build();
   }
 }

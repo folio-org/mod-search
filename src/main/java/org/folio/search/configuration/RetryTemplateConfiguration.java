@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.logging.log4j.message.FormattedMessage;
+import org.folio.s3.exception.S3ClientException;
 import org.folio.search.configuration.properties.OpensearchProperties;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.configuration.properties.StreamIdsProperties;
@@ -29,6 +30,7 @@ public class RetryTemplateConfiguration {
   public static final String STREAM_IDS_RETRY_TEMPLATE_NAME = "streamIdsRetryTemplate";
   public static final String SEARCH_RETRY_TEMPLATE_NAME = "searchRetryTemplate";
   public static final String REINDEX_PUBLISH_RANGE_RETRY_TEMPLATE_NAME = "reindexPublishRangeRetryTemplate";
+  public static final String REINDEX_S3_READ_RETRY_TEMPLATE_NAME = "reindexS3ReadRetryTemplate";
 
   /**
    * Constructs a batch handler that tries to deliver messages 10 times with configured interval, if exception is not
@@ -95,10 +97,47 @@ public class RetryTemplateConfiguration {
     return retryTemplate;
   }
 
+  @ConditionalOnBean(ReindexConfigurationProperties.class)
+  @Bean(name = REINDEX_S3_READ_RETRY_TEMPLATE_NAME)
+  public RetryTemplate reindexS3ReadRetryTemplate(ReindexConfigurationProperties properties) {
+    var retryTemplate = new RetryTemplate(RetryPolicy.builder()
+      .maxRetries(properties.getS3RetryAttempts())
+      .delay(Duration.ofMillis(properties.getS3RetryIntervalMs()))
+      .predicate(RetryTemplateConfiguration::isS3ClientException)
+      .build());
+    retryTemplate.setRetryListener(new RetryListener() {
+      @Override
+      public void onRetryFailure(@NonNull RetryPolicy retryPolicy,
+                                 @NonNull Retryable<?> retryable,
+                                 @NonNull Throwable throwable) {
+        log.warn(new FormattedMessage("S3 read failed, retrying..."), throwable);
+      }
+
+      @Override
+      public void onRetryPolicyExhaustion(@NonNull RetryPolicy retryPolicy,
+                                          @NonNull Retryable<?> retryable,
+                                          @NonNull RetryException exception) {
+        log.error(new FormattedMessage("S3 read failed after all retries"), exception.getLastException());
+      }
+    });
+    return retryTemplate;
+  }
+
   private static boolean isConnectionClosedException(Throwable throwable) {
     var cause = throwable;
     while (cause != null) {
       if (cause instanceof ConnectionClosedException) {
+        return true;
+      }
+      cause = cause.getCause();
+    }
+    return false;
+  }
+
+  private static boolean isS3ClientException(Throwable throwable) {
+    var cause = throwable;
+    while (cause != null) {
+      if (cause instanceof S3ClientException) {
         return true;
       }
       cause = cause.getCause();

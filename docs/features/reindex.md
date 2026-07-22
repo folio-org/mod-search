@@ -38,6 +38,12 @@ Sequence diagrams for the reindex flow are in [`docs/diagrams/`](../diagrams/):
 
 ---
 
+## Runbooks
+
+| Runbook | Description |
+|---------|-------------|
+| [reindex-upload-failure-cleanup.md](../reindex-upload-failure-cleanup.md) | Diagnose and clean up oversized instance data (too many related holdings/items/etc.) that makes the upload phase fail on a testing environment. |
+
 ## Business rules and constraints
 
 ### Reindex phases

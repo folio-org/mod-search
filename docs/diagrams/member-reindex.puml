@@ -1,0 +1,76 @@
+@startuml
+!theme plain
+title Full Reindex - ECS Member Tenant (MERGE + STAGING + UPLOAD)
+
+actor "Client\n(central tenant)" as client
+box "FOLIO Backend" #LightBlue
+  participant "mod-search" as modSearch
+  participant "mod-inventory-storage" as inventoryStorage
+  participant "Kafka" as kafka
+  database "Postgres\n(Staging tables: staging_instance,\nstaging_holding, ... +\nmain intermediate tables)" as postgres
+  database "Elasticsearch\n(central index)" as elasticsearch
+end box
+
+autonumber
+
+' Initial API request reception (must be issued on the central tenant)
+client -> modSearch: POST /search/index/instance-records/reindex/full\n{ tenantId: <member>, indexSettings }
+
+' Validation: reject if triggered directly on a member tenant
+modSearch -> modSearch: validateTenant()\nrequire consortium CENTRAL tenant;\nreject if issued on a member tenant
+
+' Cleanup and status initialization for the target member
+modSearch -> postgres: delete member records + disable auto-vacuum
+modSearch -> postgres: recreate reindex_status (MERGE_IN_PROGRESS)\nwith targetTenantId = <member>
+
+' Ensure indices exist WITHOUT recreating them (preserves other members' data)
+modSearch -> elasticsearch: ensure indices exist (no drop/recreate)
+
+' Immediate async acknowledgement
+client <-- modSearch: HTTP 200 OK (async process started)
+
+note over modSearch
+Set ReindexContext.memberTenantId = <member>
+and reindexMode = true so records are staged.
+end note
+
+== Merge phase (member tenant only) ==
+
+modSearch -> inventoryStorage: Get record count for the member tenant
+inventoryStorage --> modSearch: Return counts
+modSearch -> postgres: Create + save merge ranges (member only)
+modSearch -> postgres: Update total_merge_ranges in reindex_status
+
+modSearch -> inventoryStorage: Trigger range publishing (member tenant context)
+inventoryStorage -> kafka: Publish ReindexRecordsEvent (records payload)
+kafka -> modSearch: Consume ReindexRecordsEvent
+modSearch -> postgres: Save records to STAGING tables (staging_*)
+modSearch -> postgres: Update merge_range status + increment processed_merge_ranges
+
+modSearch -> modSearch: isMergeCompleted()?
+
+== Staging phase (member reindex only) ==
+
+modSearch -> postgres: reindex_status -> STAGING_IN_PROGRESS
+group performStagingMigration (single transaction)
+  modSearch -> postgres: SET LOCAL work_mem / statement_timeout\n(REINDEX_MIGRATION_*)
+  modSearch -> postgres: Delete existing member data from main tables
+  modSearch -> postgres: UPSERT staging_* -> main tables\n(stamped with reindex timestamp)
+  modSearch -> postgres: Truncate staging tables
+end
+modSearch -> postgres: reindex_status -> STAGING_COMPLETED
+
+== Upload phase (with member document cleanup) ==
+
+modSearch -> elasticsearch: Delete member's documents\n(preserving shared consortium instances)
+modSearch -> postgres: Create upload ranges (member, timestamp-filtered)
+modSearch -> postgres: Update total_upload_ranges; status UPLOAD_IN_PROGRESS
+modSearch -> kafka: Publish ReindexRangeIndexEvent(s)
+
+kafka -> modSearch: Consume ReindexRangeIndexEvent
+modSearch -> postgres: Fetch member records for range (timestamp-filtered)
+modSearch -> elasticsearch: Bulk index documents into central index
+modSearch -> postgres: Update upload_range status + increment processed_upload_ranges
+
+@enduml
+

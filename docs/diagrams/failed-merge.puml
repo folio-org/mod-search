@@ -1,0 +1,60 @@
+@startuml
+!theme plain
+title Failed Merge Reindex (retry MERGE_FAILED ranges)
+
+actor "Client" as client
+box "FOLIO Backend" #LightBlue
+  participant "mod-search" as modSearch
+  participant "mod-inventory-storage" as inventoryStorage
+  participant "Kafka" as kafka
+  database "Postgres\n(merge_range, reindex_status,\nintermediate tables)" as postgres
+  database "Elasticsearch" as elasticsearch
+end box
+
+autonumber
+
+' Initial API request reception
+client -> modSearch: POST /search/index/instance-records/reindex/merge/failed
+
+modSearch -> modSearch: validateTenant()
+
+' Look up only the ranges that previously failed
+modSearch -> postgres: Fetch merge ranges with status = MERGE_FAILED
+postgres --> modSearch: Return failed ranges
+
+alt No failed ranges exist
+  client <-- modSearch: HTTP 200 OK (nothing to retry, returns immediately)
+else Failed ranges found
+  ' Reset affected entity types back to in-progress
+  modSearch -> postgres: Update affected entity types -> MERGE_IN_PROGRESS
+  client <-- modSearch: HTTP 200 OK (async retry started)
+
+  ' Re-publish ONLY the failed ranges (same path as the full-reindex merge phase)
+  loop for each failed range
+    modSearch -> inventoryStorage: Re-publish reindex records range
+  end
+  inventoryStorage -> kafka: Publish ReindexRecordsEvent (records payload)
+  kafka -> modSearch: Consume ReindexRecordsEvent
+  modSearch -> postgres: Save records to intermediate tables
+  modSearch -> postgres: Update merge_range status (SUCCESS/FAIL)
+  modSearch -> postgres: Increment processed_merge_ranges in reindex_status
+
+  ' Shared completion check automatically starts upload once ALL merges are done
+  modSearch -> modSearch: startUploadOnMergeCompletion()\nisMergeCompleted()?
+  note right of modSearch
+  When every merge range reaches MERGE_COMPLETED,
+  the upload phase starts automatically - the same
+  path used after a normal full reindex merge.
+  end note
+
+  == Upload phase (automatic once merges complete) ==
+  modSearch -> postgres: Create upload ranges + update total_upload_ranges\n(status UPLOAD_IN_PROGRESS)
+  modSearch -> kafka: Publish ReindexRangeIndexEvent(s)
+  kafka -> modSearch: Consume ReindexRangeIndexEvent
+  modSearch -> postgres: Fetch records from intermediate tables for range
+  modSearch -> elasticsearch: Bulk index documents
+  modSearch -> postgres: Update upload_range status + increment processed_upload_ranges
+end
+
+@enduml
+

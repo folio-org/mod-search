@@ -192,4 +192,4 @@ There is no explicit stop endpoint. Stopping mod-search and mod-inventory-storag
 It is possible, but not recommended for large jobs. Concurrent inventory writes compete for the same mod-inventory-storage, Kafka, PostgreSQL, and OpenSearch capacity, slowing the reindex — and the reindex slows the imports in return. If you must overlap them, monitor resource usage closely and expect a longer reindex.
 
 **Do I need to reindex after every upgrade?**
-Only if the upgrade includes OpenSearch mapping changes or if the release notes explicitly call for a reindex. Check the release notes and the changelog in `docs/features/` for the relevant feature area.
+Only if the upgrade includes OpenSearch mapping changes or if the release notes explicitly call for a reindex.

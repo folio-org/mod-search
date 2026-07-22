@@ -1,3 +1,7 @@
+## v6.0.8 2026-07-22
+### Features
+* Fix reindex-status-trigger-v3 changeset failing on checksum ([MSEARCH-1265](https://folio-org.atlassian.net/browse/MSEARCH-1265))
+
 ## v6.0.7 2026-07-20
 ### Features
 * Implement retries for s3 client reads and s3 client connection config ([MSEARCH-1260](https://folio-org.atlassian.net/browse/MSEARCH-1260)

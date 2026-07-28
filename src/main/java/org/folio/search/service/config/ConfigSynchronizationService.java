@@ -23,7 +23,8 @@ public class ConfigSynchronizationService {
     }
 
     Optional.ofNullable(resourceType)
-      .map(resource -> switch (resourceType) {
+      .map(resource ->
+        switch (resourceType) {
           case CLASSIFICATION_TYPE -> BrowseType.INSTANCE_CLASSIFICATION;
           case CALL_NUMBER_TYPE -> BrowseType.INSTANCE_CALL_NUMBER;
           default -> null;

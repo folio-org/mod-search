@@ -23,10 +23,10 @@ Replace these placeholders before running the scripts:
 | `<tenant>`                | `test_tenant`          | Tenant id used as the schema prefix (`<tenant>_mod_search`, `<tenant>_mod_inventory_storage`) |
 | `<instance_ids>`          | `'id-1', 'id-2'`       | Comma-separated list of quoted instance ids to clean up (holdings cleanup, §2.2).             |
 | `<holdings_record_ids>`   | `'id-1', 'id-2'`       | Comma-separated list of quoted holdings record ids to clean up (items cleanup, §2.1).         |
-| `<subject_value>`         | `World War, 1939-1945` | Subject value from diagnostic query 4 (subjects cleanup, §2.3).                               |
-| `<contributor_name>`      | `Smith, John`          | Contributor name from diagnostic query 6 (contributors cleanup, §2.4).                        |
+| `<subject_value>`         | `World War, 1939-1945` | Subject value from diagnostic query 3 (subjects cleanup, §2.3).                               |
+| `<contributor_name>`      | `Smith, John`          | Contributor name from diagnostic query 4 (contributors cleanup, §2.4).                        |
 | `<classification_number>` | `QA76.73`              | Classification number from diagnostic query 5 (classifications cleanup, §2.5).                |
-| `<call_number>`           | `PS3552.R6858`         | Call number from diagnostic query 7 (call numbers cleanup, §2.6).                             |
+| `<call_number>`           | `PS3552.R6858`         | Call number from diagnostic query 6 (call numbers cleanup, §2.6).                             |
 
 ---
 
@@ -40,25 +40,10 @@ data, so an outlier's `tenant_id` identifies **which member's `mod_inventory_sto
 clean up.
 
 ```sql
--- 1. Holdings per instance (top 10)
-SELECT h.tenant_id,
-       h.instance_id,
-       COUNT(*) AS holding_count
-FROM <tenant>_mod_search.holding h
-GROUP BY h.tenant_id, h.instance_id
-ORDER BY holding_count DESC
-LIMIT 10;
-
--- 2. Items per holding (top 10)
-SELECT i.tenant_id,
-       i.holding_id,
-       COUNT(*) AS item_count
-FROM <tenant>_mod_search.item i
-GROUP BY i.tenant_id, i.holding_id
-ORDER BY item_count DESC
-LIMIT 10;
-
--- 3. Items per instance (top 10)
+-- 1. Items
+-- 1.1 Items per instance (top 10)
+-- (Items by instance are harder to delete — check query 1.2 first, since large counts are often
+--  concentrated on a few holdings that §2.1 can target directly via <holdings_record_ids>.)
 SELECT i.tenant_id,
        i.instance_id,
        COUNT(*) AS item_count
@@ -67,13 +52,41 @@ GROUP BY i.tenant_id, i.instance_id
 ORDER BY item_count DESC
 LIMIT 10;
 
--- 4. Instances per subject value (top 10)
+-- 1.2 Items per holding (top 10)
+SELECT i.tenant_id,
+       i.holding_id,
+       COUNT(*) AS item_count
+FROM <tenant>_mod_search.item i
+GROUP BY i.tenant_id, i.holding_id
+ORDER BY item_count DESC
+LIMIT 10;
+
+-- 2. Holdings per instance (top 10)
+SELECT h.tenant_id,
+       h.instance_id,
+       COUNT(*) AS holding_count
+FROM <tenant>_mod_search.holding h
+GROUP BY h.tenant_id, h.instance_id
+ORDER BY holding_count DESC
+LIMIT 10;
+
+-- 3. Instances per subject value (top 10)
 SELECT ins.tenant_id,
        s.value AS subject_value,
        COUNT(DISTINCT ins.instance_id) AS instance_count
 FROM <tenant>_mod_search.instance_subject ins
 JOIN <tenant>_mod_search.subject s ON s.id = ins.subject_id
 GROUP BY ins.tenant_id, s.value
+ORDER BY instance_count DESC
+LIMIT 10;
+
+-- 4. Instances per contributor name (top 10)
+SELECT ic.tenant_id,
+       c.name AS contributor_name,
+       COUNT(DISTINCT ic.instance_id) AS instance_count
+FROM <tenant>_mod_search.instance_contributor ic
+JOIN <tenant>_mod_search.contributor c ON c.id = ic.contributor_id
+GROUP BY ic.tenant_id, c.name
 ORDER BY instance_count DESC
 LIMIT 10;
 
@@ -87,17 +100,7 @@ GROUP BY ic.tenant_id, c.number
 ORDER BY instance_count DESC
 LIMIT 10;
 
--- 6. Instances per contributor name (top 10)
-SELECT ic.tenant_id,
-       c.name AS contributor_name,
-       COUNT(DISTINCT ic.instance_id) AS instance_count
-FROM <tenant>_mod_search.instance_contributor ic
-JOIN <tenant>_mod_search.contributor c ON c.id = ic.contributor_id
-GROUP BY ic.tenant_id, c.name
-ORDER BY instance_count DESC
-LIMIT 10;
-
--- 7. Instances per call number (top 10)
+-- 6. Instances per call number (top 10)
 SELECT icn.tenant_id,
        cn.call_number,
        COUNT(DISTINCT icn.instance_id) AS instance_count
@@ -123,7 +126,7 @@ and `item`, so the offending entry is stripped from the JSONB in batches.
 > **Delete order:** delete items before their holdings — the item → holding foreign key stays
 > enforced. JSONB edits update rows in place and have no such constraint.
 
-> **JSONB sections:** take the value from diagnostic queries 4–7 (run on **mod-search**) and paste it
+> **JSONB sections:** take the value from diagnostic queries 3–6 (run on **mod-search**) and paste it
 > into the update run on **mod-inventory-storage**. Matching by value removes every dedup variant that
 > shares it (e.g. the same subject value under different authorities).
 

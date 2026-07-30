@@ -60,7 +60,11 @@ FROM <tenant>_mod_search.item i
 GROUP BY i.tenant_id, i.holding_id
 ORDER BY item_count DESC
 LIMIT 10;
+```
 
+→ [Cleanup §2.1 — Items](#21-items)
+
+```sql
 -- 2. Holdings per instance (top 10)
 SELECT h.tenant_id,
        h.instance_id,
@@ -69,7 +73,11 @@ FROM <tenant>_mod_search.holding h
 GROUP BY h.tenant_id, h.instance_id
 ORDER BY holding_count DESC
 LIMIT 10;
+```
 
+→ [Cleanup §2.2 — Holdings](#22-holdings)
+
+```sql
 -- 3. Instances per subject value (top 10)
 SELECT ins.tenant_id,
        s.value AS subject_value,
@@ -79,7 +87,11 @@ JOIN <tenant>_mod_search.subject s ON s.id = ins.subject_id
 GROUP BY ins.tenant_id, s.value
 ORDER BY instance_count DESC
 LIMIT 10;
+```
 
+→ [Cleanup §2.3 — Subjects](#23-subjects)
+
+```sql
 -- 4. Instances per contributor name (top 10)
 SELECT ic.tenant_id,
        c.name AS contributor_name,
@@ -89,7 +101,11 @@ JOIN <tenant>_mod_search.contributor c ON c.id = ic.contributor_id
 GROUP BY ic.tenant_id, c.name
 ORDER BY instance_count DESC
 LIMIT 10;
+```
 
+→ [Cleanup §2.4 — Contributors](#24-contributors)
+
+```sql
 -- 5. Instances per classification number (top 10)
 SELECT ic.tenant_id,
        c.number AS classification_number,
@@ -99,7 +115,11 @@ JOIN <tenant>_mod_search.classification c ON c.id = ic.classification_id
 GROUP BY ic.tenant_id, c.number
 ORDER BY instance_count DESC
 LIMIT 10;
+```
 
+→ [Cleanup §2.5 — Classifications](#25-classifications)
+
+```sql
 -- 6. Instances per call number (top 10)
 SELECT icn.tenant_id,
        cn.call_number,
@@ -110,6 +130,8 @@ GROUP BY icn.tenant_id, cn.call_number
 ORDER BY instance_count DESC
 LIMIT 10;
 ```
+
+→ [Cleanup §2.6 — Call numbers](#26-call-numbers)
 
 ---
 

@@ -1,0 +1,57 @@
+@startuml
+!theme plain
+title Legacy Reindex (authority / location / linked-data)
+
+actor "Client" as client
+box "FOLIO Backend" #LightBlue
+  participant "mod-search" as modSearch
+  participant "mod-inventory-storage" as inventoryStorage
+  participant "mod-entities-links" as entitiesLinks
+  participant "Kafka" as kafka
+  database "Elasticsearch" as elasticsearch
+end box
+
+autonumber
+
+' Initial API request reception
+client -> modSearch: POST /search/index/inventory/reindex\n{ resourceName, recreateIndex, indexSettings }
+
+' Optional index recreation (skipped for consortium member tenants)
+alt recreateIndex = true AND not a consortium member tenant
+  loop for each target resource
+    modSearch -> elasticsearch: Drop index
+    modSearch -> elasticsearch: Create index (mappings + indexSettings)
+  end
+end
+
+alt resourceName = location (synchronous, runs in mod-search)
+  loop paged batches per resource: location, campus, library, institution (REINDEX_LOCATION_BATCH_SIZE)
+    modSearch -> inventoryStorage: GET location data (offset, limit)
+    inventoryStorage --> modSearch: Return batch + totalRecords
+    modSearch -> elasticsearch: Index location documents\n(resourceService.indexResources)
+  end
+  client <-- modSearch: ReindexJob { jobStatus: "Completed" }
+
+else resourceName = authority (asynchronous, delegated)
+  modSearch -> entitiesLinks: POST authority-storage/reindex\n(authority-storage interface, provided by mod-entities-links)
+  entitiesLinks --> modSearch: ReindexJob { id, jobStatus: "In progress" }
+  client <-- modSearch: ReindexJob { jobStatus: "In progress" }
+  note over entitiesLinks, modSearch
+  mod-entities-links streams authority records over the
+  standard authorities Kafka topic; mod-search consumes and
+  indexes them via the normal indexing pipeline. Progress is
+  tracked through the returned job, not the reindex/status API.
+  end note
+  entitiesLinks -> kafka: Publish authority records (async)
+  kafka -> modSearch: Consume authority events
+  modSearch -> elasticsearch: Index authority documents
+
+else resourceName = linked-data-* (accepted but not implemented)
+  client <-- modSearch: Empty ReindexJob (no-op)
+end
+
+@enduml
+
+
+
+

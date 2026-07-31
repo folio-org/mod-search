@@ -54,20 +54,19 @@ public class CallNumberTestData {
 
     var items = callNumbers.stream()
       .map(callNumberResource -> {
-          var callNumber = callNumberResource.callNumber();
-          var locationId = callNumberResource.locationId();
-          return new Item()
-            .id(randomId())
-            .holdingsRecordId(holdingId)
-            .effectiveLocationId(locationId)
-            .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents()
-              .callNumber(callNumber.callNumber())
-              .typeId(callNumber.callNumberTypeId())
-              .prefix(callNumber.callNumberPrefix())
-              .suffix(callNumber.callNumberSuffix())
-            );
-        }
-      ).toList();
+        var callNumber = callNumberResource.callNumber();
+        var locationId = callNumberResource.locationId();
+        return new Item()
+          .id(randomId())
+          .holdingsRecordId(holdingId)
+          .effectiveLocationId(locationId)
+          .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents()
+            .callNumber(callNumber.callNumber())
+            .typeId(callNumber.callNumberTypeId())
+            .prefix(callNumber.callNumberPrefix())
+            .suffix(callNumber.callNumberSuffix())
+          );
+      }).toList();
 
     return new Instance()
       .id(randomId())

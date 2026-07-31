@@ -434,4 +434,4 @@ ALTER TABLE <tenant>_mod_inventory_storage.item ENABLE TRIGGER USER;
 Cleanup only changed `mod-inventory-storage`, so run a fresh **full** reindex
 (`POST /search/index/instance-records/reindex/full`) — its merge phase re-reads the cleaned data
 before the upload retries. Re-run the diagnostics after the merge to confirm. See
-[reindex.md](features/reindex.md).
+[reindex.md](../reindex.md).

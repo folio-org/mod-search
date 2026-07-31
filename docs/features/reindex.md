@@ -193,3 +193,7 @@ It is possible, but not recommended for large jobs. Concurrent inventory writes 
 
 **Do I need to reindex after every upgrade?**
 Only if the upgrade includes OpenSearch mapping changes or if the release notes explicitly call for a reindex.
+
+**Reindex fails on upload stage on a testing environment. What could be the reason?**
+Testing environments might have unrealistic amounts of related entities, f.e. 300k holdings for a single instance.
+Check out the diagnostic and cleanup scripts: [reindex-upload-failure-cleanup.md](reindex/reindex-upload-failure-cleanup.md)

@@ -87,6 +87,7 @@ class ScheduledInstanceSubResourcesServiceTest {
     doAnswer(invocation -> invocation.<Callable<?>>getArgument(1).call())
       .when(executionService).execute(anyString(), any(Callable.class));
     when(subResourcesLockRepository.lockSubResource(any(), any())).thenReturn(Optional.of(timestamp));
+    when(subResourcesLockRepository.lockChildSubResource(any(), any(), any())).thenReturn(Optional.of(timestamp));
     when(tenantRepository.fetchDataTenantIds()).thenReturn(List.of(TENANT_ID));
     mockSubResourceResult(TENANT_ID, timestamp);
 
@@ -111,6 +112,7 @@ class ScheduledInstanceSubResourcesServiceTest {
     doAnswer(invocation -> invocation.<Callable<?>>getArgument(1).call())
       .when(executionService).execute(anyString(), any(Callable.class));
     when(subResourcesLockRepository.lockSubResource(any(), any())).thenReturn(Optional.of(timestamp));
+    when(subResourcesLockRepository.lockChildSubResource(any(), any(), any())).thenReturn(Optional.of(timestamp));
     when(subResourcesLockRepository.updateLockTimestampFenced(any(), any(), any(), any())).thenReturn(true);
     when(tenantRepository.fetchDataTenantIds()).thenReturn(List.of(TENANT_ID));
     when(subjectRepository.fetchByTimestamp(TENANT_ID, timestamp, 3))
@@ -134,6 +136,70 @@ class ScheduledInstanceSubResourcesServiceTest {
   }
 
   @Test
+  void persistChildren_shouldAdvanceCursorToLastNonEmptyBatch_whenFinalPaginationBatchIsEmpty() {
+    // Two full batches (size == batchSize) followed by an empty pagination-end batch.
+    // Before the fix, loopResult.lastResult was overwritten with the empty result, causing
+    // determineLastUpdatedDate to fall back to the original lock timestamp and rewind the cursor.
+    var batchTimestamp = new Timestamp(timestamp.getTime() + 1000L);
+
+    doAnswer(invocation -> invocation.<Callable<?>>getArgument(1).call())
+      .when(executionService).execute(anyString(), any(Callable.class));
+    when(tenantRepository.fetchDataTenantIds()).thenReturn(List.of(TENANT_ID));
+    when(subResourcesLockRepository.lockSubResource(any(), any())).thenReturn(Optional.of(timestamp));
+    when(subResourcesLockRepository.lockChildSubResource(any(), any(), any())).thenReturn(Optional.of(timestamp));
+    when(subResourcesLockRepository.updateLockTimestampFenced(any(), any(), any(), any())).thenReturn(true);
+
+    when(instanceRepository.fetchByTimestamp(TENANT_ID, timestamp, 3))
+      .thenReturn(new SubResourceResult(List.of(Map.of("id", "i1", "tenantId", TENANT_ID)), null));
+    when(itemRepository.fetchByTimestamp(TENANT_ID, timestamp, 3))
+      .thenReturn(new SubResourceResult(List.of(Map.of("id", "it1", "tenantId", TENANT_ID)), null));
+
+    when(subjectRepository.fetchByTimestamp(TENANT_ID, timestamp, 3))
+      .thenReturn(new SubResourceResult(
+        List.of(Map.of("id", "s1"), Map.of("id", "s2"), Map.of("id", "s3")), batchTimestamp));
+    when(subjectRepository.fetchByTimestamp(TENANT_ID, batchTimestamp, "s3", 3))
+      .thenReturn(new SubResourceResult(
+        List.of(Map.of("id", "s4"), Map.of("id", "s5"), Map.of("id", "s6")), batchTimestamp));
+    when(subjectRepository.fetchByTimestamp(TENANT_ID, batchTimestamp, "s6", 3))
+      .thenReturn(new SubResourceResult(List.of(), null));
+
+    service.persistChildren();
+
+    verify(subResourcesLockRepository).unlockSubResourceFenced(
+      ReindexEntityType.SUBJECT, batchTimestamp, TENANT_ID, batchTimestamp);
+  }
+
+  @Test
+  void persistChildren_shouldNotAdvanceCursorPastFailedBatch_whenProcessBatchThrows() {
+    // First batch succeeds; second batch throws. Cursor must stay at batch1Timestamp.
+    var batch1Timestamp = new Timestamp(timestamp.getTime() + 1000L);
+    var batch2Timestamp = new Timestamp(timestamp.getTime() + 2000L);
+    doAnswer(invocation -> invocation.<Callable<?>>getArgument(1).call())
+      .when(executionService).execute(anyString(), any(Callable.class));
+    when(tenantRepository.fetchDataTenantIds()).thenReturn(List.of(TENANT_ID));
+    when(subResourcesLockRepository.lockSubResource(any(), any())).thenReturn(Optional.of(timestamp));
+    when(subResourcesLockRepository.lockChildSubResource(any(), any(), any())).thenReturn(Optional.of(timestamp));
+    when(subResourcesLockRepository.updateLockTimestampFenced(any(), any(), any(), any())).thenReturn(true);
+    when(instanceRepository.fetchByTimestamp(TENANT_ID, timestamp, 3))
+      .thenReturn(new SubResourceResult(List.of(Map.of("id", "i1", "tenantId", TENANT_ID)), null));
+    when(itemRepository.fetchByTimestamp(TENANT_ID, timestamp, 3))
+      .thenReturn(new SubResourceResult(List.of(Map.of("id", "it1", "tenantId", TENANT_ID)), null));
+    when(subjectRepository.fetchByTimestamp(TENANT_ID, timestamp, 3))
+      .thenReturn(new SubResourceResult(
+        List.of(Map.of("id", "s1"), Map.of("id", "s2"), Map.of("id", "s3")), batch1Timestamp));
+    when(subjectRepository.fetchByTimestamp(TENANT_ID, batch1Timestamp, "s3", 3))
+      .thenReturn(new SubResourceResult(
+        List.of(Map.of("id", "s4"), Map.of("id", "s5"), Map.of("id", "s6")), batch2Timestamp));
+    when(resourceService.indexResources(anyList()))
+      .thenReturn(null).thenThrow(new RuntimeException("index error"));
+
+    service.persistChildren();
+
+    verify(subResourcesLockRepository).unlockSubResourceFenced(
+      ReindexEntityType.SUBJECT, batch1Timestamp, TENANT_ID, batch1Timestamp);
+  }
+
+  @Test
   void persistChildren_ShouldSkipProcessingWhenNoTimestamp() {
     // Arrange
     when(tenantRepository.fetchDataTenantIds()).thenReturn(List.of(TENANT_ID));
@@ -154,6 +220,7 @@ class ScheduledInstanceSubResourcesServiceTest {
     doAnswer(invocation -> invocation.<Callable<?>>getArgument(1).call())
       .when(executionService).execute(anyString(), any(Callable.class));
     when(subResourcesLockRepository.lockSubResource(any(), any())).thenReturn(Optional.of(timestamp));
+    when(subResourcesLockRepository.lockChildSubResource(any(), any(), any())).thenReturn(Optional.of(timestamp));
     when(tenantRepository.fetchDataTenantIds()).thenReturn(tenantIds);
     mockSubResourceResult(tenantIds.getFirst(), timestamp);
     mockSubResourceResult(tenantIds.getLast(), timestamp);
@@ -188,6 +255,7 @@ class ScheduledInstanceSubResourcesServiceTest {
       .when(executionService).execute(anyString(), any(Callable.class));
     when(tenantRepository.fetchDataTenantIds()).thenReturn(List.of(TENANT_ID));
     when(subResourcesLockRepository.lockSubResource(any(), eq(TENANT_ID))).thenReturn(Optional.empty());
+    when(subResourcesLockRepository.lockChildSubResource(any(), any(), eq(TENANT_ID))).thenReturn(Optional.empty());
     when(reindexStatusService.isReindexInProgressOrFailedNotForConsortiumMember()).thenReturn(false);
     when(subResourcesLockRepository.checkAndReleaseStaleLock(any(), eq(TENANT_ID), anyLong())).thenReturn(true);
 
@@ -195,7 +263,8 @@ class ScheduledInstanceSubResourcesServiceTest {
     service.persistChildren();
 
     // Assert
-    verify(subResourcesLockRepository, times(3)).lockSubResource(any(), eq(TENANT_ID));
+    verify(subResourcesLockRepository, times(2)).lockSubResource(any(), eq(TENANT_ID));
+    verify(subResourcesLockRepository).lockChildSubResource(any(), any(), eq(TENANT_ID));
     verify(reindexStatusService, times(3)).isReindexInProgressOrFailedNotForConsortiumMember();
     verify(subResourcesLockRepository, times(3)).checkAndReleaseStaleLock(any(), eq(TENANT_ID), anyLong());
     verify(subResourcesLockRepository, never()).unlockSubResourceFenced(any(), any(), any(), any());
@@ -210,6 +279,7 @@ class ScheduledInstanceSubResourcesServiceTest {
       .when(executionService).execute(anyString(), any(Callable.class));
     when(tenantRepository.fetchDataTenantIds()).thenReturn(List.of(TENANT_ID));
     when(subResourcesLockRepository.lockSubResource(any(), eq(TENANT_ID))).thenReturn(Optional.empty());
+    when(subResourcesLockRepository.lockChildSubResource(any(), any(), eq(TENANT_ID))).thenReturn(Optional.empty());
     when(reindexStatusService.isReindexInProgressOrFailedNotForConsortiumMember()).thenReturn(false);
     when(subResourcesLockRepository.checkAndReleaseStaleLock(any(), eq(TENANT_ID), anyLong())).thenReturn(false);
 
@@ -217,7 +287,8 @@ class ScheduledInstanceSubResourcesServiceTest {
     service.persistChildren();
 
     // Assert
-    verify(subResourcesLockRepository, times(3)).lockSubResource(any(), eq(TENANT_ID));
+    verify(subResourcesLockRepository, times(2)).lockSubResource(any(), eq(TENANT_ID));
+    verify(subResourcesLockRepository).lockChildSubResource(any(), any(), eq(TENANT_ID));
     verify(reindexStatusService, times(3)).isReindexInProgressOrFailedNotForConsortiumMember();
     verify(subResourcesLockRepository, times(3)).checkAndReleaseStaleLock(any(), eq(TENANT_ID), anyLong());
     verify(subResourcesLockRepository, never()).unlockSubResourceFenced(any(), any(), any(), any());
@@ -232,13 +303,15 @@ class ScheduledInstanceSubResourcesServiceTest {
       .when(executionService).execute(anyString(), any(Callable.class));
     when(tenantRepository.fetchDataTenantIds()).thenReturn(List.of(TENANT_ID));
     when(subResourcesLockRepository.lockSubResource(any(), eq(TENANT_ID))).thenReturn(Optional.empty());
+    when(subResourcesLockRepository.lockChildSubResource(any(), any(), eq(TENANT_ID))).thenReturn(Optional.empty());
     when(reindexStatusService.isReindexInProgressOrFailedNotForConsortiumMember()).thenReturn(true);
 
     // Act
     service.persistChildren();
 
     // Assert
-    verify(subResourcesLockRepository, times(3)).lockSubResource(any(), eq(TENANT_ID));
+    verify(subResourcesLockRepository, times(2)).lockSubResource(any(), eq(TENANT_ID));
+    verify(subResourcesLockRepository).lockChildSubResource(any(), any(), eq(TENANT_ID));
     verify(reindexStatusService, times(3)).isReindexInProgressOrFailedNotForConsortiumMember();
     verify(subResourcesLockRepository, never()).checkAndReleaseStaleLock(any(), any(), anyLong());
     verify(subResourcesLockRepository, never()).unlockSubResourceFenced(any(), any(), any(), any());

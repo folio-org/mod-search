@@ -105,6 +105,8 @@ Reindex is complete when all upload-phase entity types (`instance`, `subject`, `
 
 The full and upload reindex requests accept an `indexSettings` override that disables replica writes and periodic refresh to speed up indexing on large datasets. See each reindex guide's **Performance** section for the request-time settings and type-specific tuning.
 
+`resourceName` values that need updated settings after full reindex: `instance`, `contributor`, `instance_classification`, `instance_call_number`, `instance_subject`.
+
 Those overrides persist after the reindex finishes, so restore production values with `PUT /search/index/settings` once it completes:
 
 ```http

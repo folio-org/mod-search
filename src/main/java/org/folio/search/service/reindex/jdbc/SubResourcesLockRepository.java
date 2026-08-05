@@ -41,6 +41,19 @@ public class SubResourcesLockRepository {
     WHERE entity_type = ? AND locked_flag = TRUE AND last_updated_date = ?
     """;
 
+  private static final String LOCK_CHILD_SUB_RESOURCE_SQL = """
+    UPDATE %s.sub_resources_lock
+    SET locked_flag = TRUE
+    WHERE entity_type = ?
+      AND locked_flag = FALSE
+      AND NOT EXISTS (
+          SELECT 1 FROM %s.sub_resources_lock
+          WHERE entity_type = ?
+            AND locked_flag = TRUE
+      )
+    RETURNING last_updated_date
+    """;
+
   private static final String RELEASE_STALE_LOCK_SQL = """
     UPDATE %s.sub_resources_lock
     SET locked_flag = FALSE
@@ -77,6 +90,20 @@ public class SubResourcesLockRepository {
    * @return {@code true} if the lock was released, {@code false} if it had been taken over
    *     (typically by {@link #forceLockAllForReindex(String)} during a reindex).
    */
+  @SuppressWarnings("java:S2077")
+  public Optional<Timestamp> lockChildSubResource(ReindexEntityType entityType,
+                                                  ReindexEntityType parentEntityType,
+                                                  String tenantId) {
+    var schema = getSchemaName(tenantId, moduleMetadata);
+    var sql = LOCK_CHILD_SUB_RESOURCE_SQL.formatted(schema, schema);
+    return jdbcTemplate.query(
+      sql,
+      rs -> rs.next() ? Optional.of(rs.getTimestamp(1)) : Optional.empty(),
+      entityType.getType(),
+      parentEntityType.getType()
+    );
+  }
+
   public boolean unlockSubResourceFenced(ReindexEntityType entityType, Timestamp lastUpdatedDate, String tenantId,
                                          Timestamp expectedLastUpdatedDate) {
     var formattedSql = formatSqlWithSchema(UNLOCK_SUB_RESOURCE_FENCED_SQL, tenantId);

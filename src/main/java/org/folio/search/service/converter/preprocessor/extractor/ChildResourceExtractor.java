@@ -19,6 +19,7 @@ import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.entity.ChildResourceEntityBatch;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.reindex.jdbc.InstanceChildResourceRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Log4j2
@@ -28,6 +29,7 @@ public abstract class ChildResourceExtractor {
 
   public abstract ResourceType resourceType();
 
+  @Transactional
   public void persistChildren(String tenantId, boolean shared, List<ResourceEvent> events) {
     deleteParentsIfNeeded(tenantId, events);
 

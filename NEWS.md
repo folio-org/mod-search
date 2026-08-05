@@ -23,6 +23,7 @@
 * Move reindex sub-resource locks acquisition from trigger to code, add fencing tokens to scheduler-side unlock/refresh ([MSEARCH-1238](https://folio-org.atlassian.net/browse/MSEARCH-1238)
 * Increate http client pool size and make it configurable ([MSEARCH-1248](https://folio-org.atlassian.net/browse/MSEARCH-1248)
 * Implement retries for s3 client reads and s3 client connection config ([MSEARCH-1245](https://folio-org.atlassian.net/browse/MSEARCH-1245)
+* Fix indexing race conditions on multi-pod deployments ([MSEARCH-1270](https://folio-org.atlassian.net/browse/MSEARCH-1270)
 
 ### Tech Dept
 * Adjust default configuration and improve parallelism for reindex ([MSEARCH-1236](https://folio-org.atlassian.net/browse/MSEARCH-1236))

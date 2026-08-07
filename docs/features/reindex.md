@@ -105,6 +105,8 @@ Reindex is complete when all upload-phase entity types (`instance`, `subject`, `
 
 The full and upload reindex requests accept an `indexSettings` override that disables replica writes and periodic refresh to speed up indexing on large datasets. See each reindex guide's **Performance** section for the request-time settings and type-specific tuning.
 
+`resourceName` values that need updated settings after full reindex: `instance`, `contributor`, `instance_classification`, `instance_call_number`, `instance_subject`.
+
 Those overrides persist after the reindex finishes, so restore production values with `PUT /search/index/settings` once it completes:
 
 ```http
@@ -193,3 +195,7 @@ It is possible, but not recommended for large jobs. Concurrent inventory writes 
 
 **Do I need to reindex after every upgrade?**
 Only if the upgrade includes OpenSearch mapping changes or if the release notes explicitly call for a reindex.
+
+**Reindex fails on upload stage on a testing environment. What could be the reason?**
+Testing environments might have unrealistic amounts of related entities, f.e. 300k holdings for a single instance.
+Check out the diagnostic and cleanup scripts: [reindex-upload-failure-cleanup.md](reindex/reindex-upload-failure-cleanup.md)

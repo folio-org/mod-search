@@ -1,3 +1,7 @@
+## v6.0.9 2026-08-13
+### Bug fixes
+* Fix indexing race conditions on multi-pod deployments ([MSEARCH-1270](https://folio-org.atlassian.net/browse/MSEARCH-1270)
+
 ## v6.0.8 2026-07-22
 ### Features
 * Fix reindex-status-trigger-v3 changeset failing on checksum ([MSEARCH-1265](https://folio-org.atlassian.net/browse/MSEARCH-1265))

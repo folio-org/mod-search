@@ -116,11 +116,23 @@ public class ScheduledInstanceSubResourcesService {
   }
 
   private void processEntityTypeWithLock(ReindexEntityType entityType, String tenant) {
-    subResourcesLockRepository.lockSubResource(entityType, tenant)
-      .ifPresentOrElse(
-        timestamp -> processSubResources(entityType, tenant, timestamp),
-        () -> handleLockAcquisitionFailure(entityType, tenant)
-      );
+    var parentType = getParentEntityType(entityType);
+    var lockResult = parentType != null
+      ? subResourcesLockRepository.lockChildSubResource(entityType, parentType, tenant)
+      : subResourcesLockRepository.lockSubResource(entityType, tenant);
+    lockResult.ifPresentOrElse(
+      timestamp -> processSubResources(entityType, tenant, timestamp),
+      () -> handleLockAcquisitionFailure(entityType, tenant)
+    );
+  }
+
+  private ReindexEntityType getParentEntityType(ReindexEntityType entityType) {
+    if (!(repositories.get(entityType) instanceof InstanceChildResourceRepository)) {
+      return null;
+    }
+    return entityType == ReindexEntityType.CALL_NUMBER
+      ? ReindexEntityType.ITEM
+      : ReindexEntityType.INSTANCE;
   }
 
   private void handleLockAcquisitionFailure(ReindexEntityType entityType, String tenant) {
@@ -169,11 +181,12 @@ public class ScheduledInstanceSubResourcesService {
     loopResult.fencingToken = timestamp;
 
     do {
-      loopResult.lastResult = fetchSubResourceBatch(entityType, tenant, timestamp, lastId, lastTimestamp);
-      if (isEmptyResult(loopResult.lastResult)) {
+      var batchResult = fetchSubResourceBatch(entityType, tenant, timestamp, lastId, lastTimestamp);
+      if (isEmptyResult(batchResult)) {
         return;
       }
-      processBatch(entityType, tenant, loopResult.lastResult);
+      processBatch(entityType, tenant, batchResult);
+      loopResult.lastResult = batchResult;
       if (!hasMoreBatches(loopResult.lastResult)
           || !refreshFencingToken(entityType, tenant, lastTimestamp, loopResult)) {
         return;

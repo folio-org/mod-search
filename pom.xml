@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>4.1.0</version>
+    <version>4.1.1</version>
     <relativePath />
   </parent>
 
@@ -52,7 +52,7 @@
 
     <!-- Plugins versions -->
     <folio-module-descriptor-validator.version>1.0.1</folio-module-descriptor-validator.version>
-    <maven-openapi-generator-plugin.version>7.23.0</maven-openapi-generator-plugin.version>
+    <maven-openapi-generator-plugin.version>7.25.0</maven-openapi-generator-plugin.version>
     <maven-copy-rename-plugin.version>1.0.1</maven-copy-rename-plugin.version>
     <maven-build-helper-plugin.version>3.6.1</maven-build-helper-plugin.version>
     <maven-clean-plugin.version>3.5.0</maven-clean-plugin.version>

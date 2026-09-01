@@ -113,6 +113,11 @@ public abstract class ReindexOrchestrationService {
 
   protected void persistEntities(ReindexRecordsEvent event) {
     var entityType = event.getRecordType().getEntityType();
+    if (!mergeRangeService.isRangeOwned(entityType, event.getRangeId())) {
+      log.debug("persistEntities:: Ignoring range not owned by this instance [rangeId: {}, entityType: {}]",
+        event.getRangeId(), entityType);
+      return;
+    }
     mergeRangeService.saveEntities(event);
     handleMergeSuccess(entityType, event.getRangeId());
   }

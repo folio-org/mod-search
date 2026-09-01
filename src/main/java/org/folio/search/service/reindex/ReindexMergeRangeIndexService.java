@@ -90,6 +90,18 @@ public class ReindexMergeRangeIndexService {
     repository.updateRangeStatus(UUID.fromString(rangeId), Timestamp.from(Instant.now()), status, failCause);
   }
 
+  /**
+   * Checks whether the given range was created by this instance's own reindex, as opposed to a range
+   * belonging to another mod-search instance that shares the same Kafka reindex topics (e.g. a v1/v2
+   * side-by-side deployment). Ranges are schema-isolated per instance, so a range id only exists here
+   * if this instance itself created it.
+   *
+   * @return true if this instance owns the range, false if it should be ignored
+   */
+  public boolean isRangeOwned(ReindexEntityType entityType, String rangeId) {
+    return repositories.get(entityType).rangeExists(UUID.fromString(rangeId));
+  }
+
   @SuppressWarnings("unchecked")
   public void saveEntities(ReindexRecordsEvent event) {
     var entities = event.getRecords().stream()

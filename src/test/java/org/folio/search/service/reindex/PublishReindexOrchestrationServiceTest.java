@@ -7,6 +7,7 @@ import static org.folio.search.model.types.ReindexRangeStatus.SUCCESS;
 import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -58,6 +59,7 @@ class PublishReindexOrchestrationServiceTest {
     event.setRecordType(INSTANCE);
     event.setRecords(emptyList());
 
+    when(mergeRangeService.isRangeOwned(ReindexEntityType.INSTANCE, event.getRangeId())).thenReturn(true);
     when(reindexStatusService.getTargetTenantId()).thenReturn(MEMBER_TENANT_ID);
     when(reindexStatusService.isMergeCompleted()).thenReturn(false);
 
@@ -71,12 +73,30 @@ class PublishReindexOrchestrationServiceTest {
   }
 
   @Test
+  void process_positive_reindexRecordsEvent_shouldSkipRangeNotOwnedByThisInstance() {
+    var event = new ReindexRecordsEvent();
+    event.setRangeId(UUID.randomUUID().toString());
+    event.setRecordType(INSTANCE);
+    event.setRecords(emptyList());
+
+    when(mergeRangeService.isRangeOwned(ReindexEntityType.INSTANCE, event.getRangeId())).thenReturn(false);
+    when(reindexStatusService.getTargetTenantId()).thenReturn(MEMBER_TENANT_ID);
+
+    service.process(event);
+
+    verify(mergeRangeService, never()).saveEntities(any());
+    verify(mergeRangeService, never()).updateStatus(any(), any(), any(), any());
+    verify(reindexStatusService, never()).addProcessedMergeRanges(any(), anyInt());
+  }
+
+  @Test
   void process_negative_reindexRecordsEvent_shouldFailMergeOnException() {
     var event = new ReindexRecordsEvent();
     event.setRangeId(UUID.randomUUID().toString());
     event.setRecordType(INSTANCE);
     event.setRecords(emptyList());
     var failCause = "exception occurred";
+    when(mergeRangeService.isRangeOwned(ReindexEntityType.INSTANCE, event.getRangeId())).thenReturn(true);
     doThrow(new RuntimeException(failCause)).when(mergeRangeService).saveEntities(event);
 
     service.process(event);
@@ -93,11 +113,11 @@ class PublishReindexOrchestrationServiceTest {
     event.setRangeId(UUID.randomUUID().toString());
     event.setRecordType(INSTANCE);
     event.setRecords(emptyList());
+    when(mergeRangeService.isRangeOwned(ReindexEntityType.INSTANCE, event.getRangeId())).thenReturn(true);
     doThrow(new PessimisticLockingFailureException("Deadlock")).when(mergeRangeService).saveEntities(event);
 
     assertThrows(ReindexException.class, () -> service.process(event));
 
-    verifyNoMoreInteractions(mergeRangeService);
     verify(reindexStatusService).getTargetTenantId();
     verifyNoMoreInteractions(reindexStatusService);
   }
@@ -109,6 +129,7 @@ class PublishReindexOrchestrationServiceTest {
     event.setRecordType(ReindexRecordType.INSTANCE);
     event.setRecords(emptyList());
 
+    when(mergeRangeService.isRangeOwned(ReindexEntityType.INSTANCE, event.getRangeId())).thenReturn(true);
     when(reindexStatusService.isMergeCompleted()).thenReturn(true);
     when(reindexStatusService.getTargetTenantId()).thenReturn(null);
     when(context.getTenantId()).thenReturn("test-tenant");
@@ -128,6 +149,7 @@ class PublishReindexOrchestrationServiceTest {
     event.setRecordType(ReindexRecordType.INSTANCE);
     event.setRecords(emptyList());
 
+    when(mergeRangeService.isRangeOwned(ReindexEntityType.INSTANCE, event.getRangeId())).thenReturn(true);
     when(reindexStatusService.isMergeCompleted()).thenReturn(false);
 
     service.process(event);
@@ -144,6 +166,7 @@ class PublishReindexOrchestrationServiceTest {
     event.setRecordType(ReindexRecordType.INSTANCE);
     event.setRecords(emptyList());
 
+    when(mergeRangeService.isRangeOwned(ReindexEntityType.INSTANCE, event.getRangeId())).thenReturn(true);
     when(reindexStatusService.isMergeCompleted()).thenReturn(true);
     when(reindexStatusService.getTargetTenantId()).thenReturn(MEMBER_TENANT_ID);
     when(context.getTenantId()).thenReturn("central-tenant");
@@ -167,6 +190,7 @@ class PublishReindexOrchestrationServiceTest {
     event.setRecords(emptyList());
     var migrationError = "DB connection lost";
 
+    when(mergeRangeService.isRangeOwned(ReindexEntityType.INSTANCE, event.getRangeId())).thenReturn(true);
     when(reindexStatusService.isMergeCompleted()).thenReturn(true);
     when(reindexStatusService.getTargetTenantId()).thenReturn(MEMBER_TENANT_ID);
     doThrow(new RuntimeException(migrationError)).when(mergeRangeService).performStagingMigration(MEMBER_TENANT_ID);

@@ -13,6 +13,7 @@ import org.folio.search.configuration.RetryTemplateConfiguration;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.exception.ReindexException;
 import org.folio.search.model.event.ReindexFileReadyEvent;
+import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.repository.PrimaryResourceRepository;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.search.service.reindex.jdbc.RawLine;
@@ -58,13 +59,13 @@ public class ExportReindexOrchestrationService extends ReindexOrchestrationServi
   @Override
   public boolean process(ReindexFileReadyEvent event) {
     var memberTenantId = getMemberTenantIdForProcessing();
-
-    log.info("process:: ReindexFileReadyEvent [traceId: {}, rangeId: {}, tenantId: {}, memberTenantId: {}, "
-             + "recordType: {}]",
-      event.getTraceId(), event.getRangeId(), event.getTenantId(), memberTenantId, event.getRecordType());
+    logReceivedEvent(event, memberTenantId);
     var entityType = event.getRecordType().getEntityType();
 
     try {
+      if (isForeignRange(entityType, event.getRangeId())) {
+        return true;
+      }
       readAndSave(event);
       handleMergeSuccess(entityType, event.getRangeId());
     } catch (PessimisticLockingFailureException | RetryException ex) {
@@ -81,6 +82,21 @@ public class ExportReindexOrchestrationService extends ReindexOrchestrationServi
     }
 
     startUploadOnMergeCompletion();
+    return true;
+  }
+
+  private void logReceivedEvent(ReindexFileReadyEvent event, String memberTenantId) {
+    log.info("process:: ReindexFileReadyEvent [traceId: {}, rangeId: {}, tenantId: {}, memberTenantId: {}, "
+             + "recordType: {}]",
+      event.getTraceId(), event.getRangeId(), event.getTenantId(), memberTenantId, event.getRecordType());
+  }
+
+  private boolean isForeignRange(ReindexEntityType entityType, String rangeId) {
+    if (mergeRangeService.isRangeOwned(entityType, rangeId)) {
+      return false;
+    }
+    log.debug("process:: Ignoring range not owned by this instance [rangeId: {}, entityType: {}]",
+      rangeId, entityType);
     return true;
   }
 

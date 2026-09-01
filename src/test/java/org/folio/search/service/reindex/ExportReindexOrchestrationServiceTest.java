@@ -9,8 +9,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -203,6 +205,7 @@ class ExportReindexOrchestrationServiceTest {
     var event = getReindexFileReadyEvent(rangeId);
     var line = "{\"id\":\"ddc29cbf-f2f5-4f6a-9411-359d6274478e\"}";
     var inventoryRecord = Map.<String, Object>of("id", "ddc29cbf-f2f5-4f6a-9411-359d6274478e");
+    when(mergeRangeService.isRangeOwned(ReindexEntityType.INSTANCE, rangeId)).thenReturn(true);
     when(folioS3Client.read(event.getObjectKey())).thenReturn(new ByteArrayInputStream((line + "\n").getBytes(UTF_8)));
     when(jsonConverter.fromJsonToMap(line)).thenReturn(inventoryRecord);
 
@@ -226,6 +229,7 @@ class ExportReindexOrchestrationServiceTest {
     var line2 = "{\"id\":\"23be9716-2935-4e8c-9931-f904eb10d6ce\"}";
     var record1 = Map.<String, Object>of("id", "ddc29cbf-f2f5-4f6a-9411-359d6274478e");
     var record2 = Map.<String, Object>of("id", "23be9716-2935-4e8c-9931-f904eb10d6ce");
+    when(mergeRangeService.isRangeOwned(ReindexEntityType.INSTANCE, rangeId)).thenReturn(true);
     when(folioS3Client.read(event.getObjectKey()))
       .thenReturn(new ByteArrayInputStream((line1 + "\n\n" + line2 + "\n").getBytes(UTF_8)));
     when(jsonConverter.fromJsonToMap(line1)).thenReturn(record1);
@@ -252,6 +256,7 @@ class ExportReindexOrchestrationServiceTest {
     var line = "{\"id\":\"ddc29cbf-f2f5-4f6a-9411-359d6274478e\"}";
     var inventoryRecord = Map.<String, Object>of("id", "ddc29cbf-f2f5-4f6a-9411-359d6274478e");
     var failCause = "exception occurred";
+    when(mergeRangeService.isRangeOwned(ReindexEntityType.INSTANCE, rangeId)).thenReturn(true);
     when(reindexStatusService.getTargetTenantId()).thenReturn(MEMBER_TENANT_ID);
     when(folioS3Client.read(event.getObjectKey())).thenReturn(new ByteArrayInputStream((line + "\n").getBytes(UTF_8)));
     when(jsonConverter.fromJsonToMap(line)).thenReturn(inventoryRecord);
@@ -271,6 +276,7 @@ class ExportReindexOrchestrationServiceTest {
     var event = getReindexFileReadyEvent(rangeId);
     var line = "{\"id\":\"ddc29cbf-f2f5-4f6a-9411-359d6274478e\"}";
     var inventoryRecord = Map.<String, Object>of("id", "ddc29cbf-f2f5-4f6a-9411-359d6274478e");
+    when(mergeRangeService.isRangeOwned(ReindexEntityType.INSTANCE, rangeId)).thenReturn(true);
     when(reindexStatusService.getTargetTenantId()).thenReturn(MEMBER_TENANT_ID);
     when(folioS3Client.read(event.getObjectKey())).thenReturn(new ByteArrayInputStream((line + "\n").getBytes(UTF_8)));
     when(jsonConverter.fromJsonToMap(line)).thenReturn(inventoryRecord);
@@ -284,14 +290,29 @@ class ExportReindexOrchestrationServiceTest {
 
   @Test
   void process_negative_reindexFileReadyEvent_shouldThrowReindexExceptionOnS3ReadFailure() {
-    var event = getReindexFileReadyEvent(UUID.randomUUID().toString());
+    var rangeId = UUID.randomUUID().toString();
+    var event = getReindexFileReadyEvent(rangeId);
+    when(mergeRangeService.isRangeOwned(ReindexEntityType.INSTANCE, rangeId)).thenReturn(true);
     when(folioS3Client.read(event.getObjectKey()))
       .thenThrow(new S3ClientException("Error creating input stream for path: " + event.getObjectKey()));
 
     assertThrows(ReindexException.class, () -> service.process(event));
 
     verify(reindexStatusService).getTargetTenantId();
-    verifyNoMoreInteractions(reindexStatusService, mergeRangeService);
+  }
+
+  @Test
+  void process_positive_reindexFileReadyEvent_shouldSkipRangeNotOwnedByThisInstance() {
+    var rangeId = UUID.randomUUID().toString();
+    var event = getReindexFileReadyEvent(rangeId);
+    when(mergeRangeService.isRangeOwned(ReindexEntityType.INSTANCE, rangeId)).thenReturn(false);
+
+    var result = service.process(event);
+
+    assertTrue(result);
+    verify(mergeRangeService, never()).saveEntitiesRaw(any(), any(), any());
+    verify(mergeRangeService, never()).updateStatus(any(), any(), any(), any());
+    verify(reindexStatusService, never()).addProcessedMergeRanges(any(), anyInt());
   }
 
   private ReindexFileReadyEvent getReindexFileReadyEvent(String rangeId) {

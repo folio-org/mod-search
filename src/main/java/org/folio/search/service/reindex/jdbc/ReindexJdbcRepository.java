@@ -29,6 +29,7 @@ public abstract class ReindexJdbcRepository {
     SET finished_at = ?, status = ?, fail_cause = ?
     WHERE id = ?;
     """;
+  private static final String EXISTS_RANGE_SQL = "SELECT EXISTS(SELECT 1 FROM %s WHERE id = ?);";
 
   private static final String AUTOVACUUM_DISABLE_SQL = "ALTER TABLE %s SET (autovacuum_enabled = false);";
   private static final String AUTOVACUUM_ENABLE_SQL = "ALTER TABLE %s SET (autovacuum_enabled = true);";
@@ -95,6 +96,19 @@ public abstract class ReindexJdbcRepository {
   public void updateRangeStatus(UUID id, Timestamp timestamp, ReindexRangeStatus status, String failCause) {
     var sql = UPDATE_STATUS_SQL.formatted(getFullTableName(context, rangeTable()));
     jdbcTemplate.update(sql, timestamp, status.name(), failCause, id);
+  }
+
+  /**
+   * Checks whether a merge range with the given id exists in this instance's own range table.
+   * Used to distinguish ranges created by this instance's own reindex from ranges belonging to
+   * another mod-search instance sharing the same Kafka topics (e.g. a v1/v2 side-by-side deployment).
+   *
+   * @param id the range id to check
+   * @return true if the range exists (i.e. was created by this instance), false otherwise
+   */
+  public boolean rangeExists(UUID id) {
+    var sql = EXISTS_RANGE_SQL.formatted(getFullTableName(context, rangeTable()));
+    return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sql, Boolean.class, id));
   }
 
   public abstract ReindexEntityType entityType();

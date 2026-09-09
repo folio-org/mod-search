@@ -75,20 +75,14 @@ class BrowseClassificationConsortiumIT extends BaseConsortiumIntegrationTest {
 
     enableFeature(CENTRAL_TENANT_ID, BROWSE_CLASSIFICATIONS);
 
-    var timestamp = subResourcesLockRepository.lockSubResource(ReindexEntityType.CLASSIFICATION, CENTRAL_TENANT_ID);
-    if (timestamp.isEmpty()) {
-      throw new IllegalStateException("Unexpected state of database: unable to lock classification resource");
-    }
-
-    saveRecords(CENTRAL_TENANT_ID, instanceSearchPath(), asList(INSTANCES_CENTRAL),
-      INSTANCES_CENTRAL.length,
-      instance -> inventoryApi.createInstance(CENTRAL_TENANT_ID, instance));
-    saveRecords(MEMBER_TENANT_ID, instanceSearchPath(), asList(INSTANCES_MEMBER),
-      INSTANCES_CENTRAL.length + INSTANCES_MEMBER.length,
-      instance -> inventoryApi.createInstance(MEMBER_TENANT_ID, instance));
-
-    subResourcesLockRepository.unlockSubResourceFenced(
-      ReindexEntityType.CLASSIFICATION, timestamp.get(), CENTRAL_TENANT_ID, timestamp.get());
+    withLockedSubResource(subResourcesLockRepository, ReindexEntityType.CLASSIFICATION, CENTRAL_TENANT_ID, () -> {
+      saveRecords(CENTRAL_TENANT_ID, instanceSearchPath(), asList(INSTANCES_CENTRAL),
+        INSTANCES_CENTRAL.length,
+        instance -> inventoryApi.createInstance(CENTRAL_TENANT_ID, instance));
+      saveRecords(MEMBER_TENANT_ID, instanceSearchPath(), asList(INSTANCES_MEMBER),
+        INSTANCES_CENTRAL.length + INSTANCES_MEMBER.length,
+        instance -> inventoryApi.createInstance(MEMBER_TENANT_ID, instance));
+    });
 
     await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() -> {
       var searchRequest = new SearchRequest()

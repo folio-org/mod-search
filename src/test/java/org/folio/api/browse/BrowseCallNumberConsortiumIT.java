@@ -85,24 +85,12 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
 
     enableFeature(CENTRAL_TENANT_ID, BROWSE_CALL_NUMBERS);
 
-    // Lock all required resources: call numbers, instances, and items
-    var callNumberTimestamp = lockRepository.lockSubResource(ReindexEntityType.CALL_NUMBER, CENTRAL_TENANT_ID);
-    var itemTimestamp = lockRepository.lockSubResource(ReindexEntityType.ITEM, CENTRAL_TENANT_ID);
-    var instanceTimestamp = lockRepository.lockSubResource(ReindexEntityType.INSTANCE, CENTRAL_TENANT_ID);
-
-    if (callNumberTimestamp.isEmpty() || instanceTimestamp.isEmpty() || itemTimestamp.isEmpty()) {
-      throw new IllegalStateException("Unexpected state of database: unable to lock required resources");
-    }
-
-    saveTestRecords();
-
-    // Unlock all resources in reverse order
-    lockRepository.unlockSubResourceFenced(
-      ReindexEntityType.INSTANCE, instanceTimestamp.get(), CENTRAL_TENANT_ID, instanceTimestamp.get());
-    lockRepository.unlockSubResourceFenced(
-      ReindexEntityType.ITEM, itemTimestamp.get(), CENTRAL_TENANT_ID, itemTimestamp.get());
-    lockRepository.unlockSubResourceFenced(
-      ReindexEntityType.CALL_NUMBER, callNumberTimestamp.get(), CENTRAL_TENANT_ID, callNumberTimestamp.get());
+    // Lock all required resources (call numbers, items, and instances) for the duration of the
+    // test data setup, so the scheduled sub-resources processing does not race with it.
+    withLockedSubResource(lockRepository, ReindexEntityType.CALL_NUMBER, CENTRAL_TENANT_ID, () ->
+      withLockedSubResource(lockRepository, ReindexEntityType.ITEM, CENTRAL_TENANT_ID, () ->
+        withLockedSubResource(lockRepository, ReindexEntityType.INSTANCE, CENTRAL_TENANT_ID,
+          BrowseCallNumberConsortiumIT::saveTestRecords)));
 
     await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() -> {
       var counted = countIndexDocument(ResourceType.INSTANCE_CALL_NUMBER, CENTRAL_TENANT_ID);

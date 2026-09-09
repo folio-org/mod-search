@@ -70,20 +70,14 @@ class BrowseSubjectConsortiumIT extends BaseConsortiumIntegrationTest {
 
     enableFeature(CENTRAL_TENANT_ID, BROWSE_SUBJECTS);
 
-    var timestamp = subResourcesLockRepository.lockSubResource(ReindexEntityType.SUBJECT, CENTRAL_TENANT_ID);
-    if (timestamp.isEmpty()) {
-      throw new IllegalStateException("Unexpected state of database: unable to lock subject resource");
-    }
-
-    saveRecords(CENTRAL_TENANT_ID, instanceSearchPath(), asList(INSTANCES_CENTRAL),
-      INSTANCES_CENTRAL.length,
-      instance -> inventoryApi.createInstance(CENTRAL_TENANT_ID, instance));
-    saveRecords(MEMBER_TENANT_ID, instanceSearchPath(), asList(INSTANCES_MEMBER),
-      INSTANCES_CENTRAL.length + INSTANCES_MEMBER.length,
-      instance -> inventoryApi.createInstance(MEMBER_TENANT_ID, instance));
-
-    subResourcesLockRepository.unlockSubResourceFenced(
-      ReindexEntityType.SUBJECT, timestamp.get(), CENTRAL_TENANT_ID, timestamp.get());
+    withLockedSubResource(subResourcesLockRepository, ReindexEntityType.SUBJECT, CENTRAL_TENANT_ID, () -> {
+      saveRecords(CENTRAL_TENANT_ID, instanceSearchPath(), asList(INSTANCES_CENTRAL),
+        INSTANCES_CENTRAL.length,
+        instance -> inventoryApi.createInstance(CENTRAL_TENANT_ID, instance));
+      saveRecords(MEMBER_TENANT_ID, instanceSearchPath(), asList(INSTANCES_MEMBER),
+        INSTANCES_CENTRAL.length + INSTANCES_MEMBER.length,
+        instance -> inventoryApi.createInstance(MEMBER_TENANT_ID, instance));
+    });
 
     await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() -> {
       var counted = countIndexDocument(INSTANCE_SUBJECT, CENTRAL_TENANT_ID);

@@ -70,25 +70,19 @@ class BrowseContributorConsortiumIT extends BaseConsortiumIntegrationTest {
 
     enableFeature(CENTRAL_TENANT_ID, BROWSE_CONTRIBUTORS);
 
-    var timestamp = subResourcesLockRepository.lockSubResource(ReindexEntityType.CONTRIBUTOR, CENTRAL_TENANT_ID);
-    if (timestamp.isEmpty()) {
-      throw new IllegalStateException("Unexpected state of database: unable to lock contributor resource");
-    }
+    withLockedSubResource(subResourcesLockRepository, ReindexEntityType.CONTRIBUTOR, CENTRAL_TENANT_ID, () -> {
+      saveRecords(CENTRAL_TENANT_ID, instanceSearchPath(), asList(INSTANCES_CENTRAL),
+        INSTANCES_CENTRAL.length,
+        instance -> inventoryApi.createInstance(CENTRAL_TENANT_ID, instance));
+      saveRecords(MEMBER_TENANT_ID, instanceSearchPath(), asList(INSTANCES_MEMBER),
+        INSTANCES_CENTRAL.length + INSTANCES_MEMBER.length,
+        instance -> inventoryApi.createInstance(MEMBER_TENANT_ID, instance));
 
-    saveRecords(CENTRAL_TENANT_ID, instanceSearchPath(), asList(INSTANCES_CENTRAL),
-      INSTANCES_CENTRAL.length,
-      instance -> inventoryApi.createInstance(CENTRAL_TENANT_ID, instance));
-    saveRecords(MEMBER_TENANT_ID, instanceSearchPath(), asList(INSTANCES_MEMBER),
-      INSTANCES_CENTRAL.length + INSTANCES_MEMBER.length,
-      instance -> inventoryApi.createInstance(MEMBER_TENANT_ID, instance));
-
-    // this is needed to test deleting contributors when all instances are unlinked from a contributor
-    var instanceToUpdate = INSTANCES_CENTRAL[0];
-    instanceToUpdate.setContributors(Collections.emptyList());
-    inventoryApi.updateInstance(CENTRAL_TENANT_ID, instanceToUpdate);
-
-    subResourcesLockRepository.unlockSubResourceFenced(
-      ReindexEntityType.CONTRIBUTOR, timestamp.get(), CENTRAL_TENANT_ID, timestamp.get());
+      // this is needed to test deleting contributors when all instances are unlinked from a contributor
+      var instanceToUpdate = INSTANCES_CENTRAL[0];
+      instanceToUpdate.setContributors(Collections.emptyList());
+      inventoryApi.updateInstance(CENTRAL_TENANT_ID, instanceToUpdate);
+    });
 
     await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() -> {
       var counted = countIndexDocument(ResourceType.INSTANCE_CONTRIBUTOR, CENTRAL_TENANT_ID);

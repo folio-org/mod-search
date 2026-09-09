@@ -26,6 +26,7 @@
 * Fix indexing race conditions on multi-pod deployments ([MSEARCH-1270](https://folio-org.atlassian.net/browse/MSEARCH-1270)
 
 ### Tech Dept
+* Add retry for sub-resource lock acquisition in integration test setup to fix flaky consortium browse ITs ([MSEARCH-1269](https://folio-org.atlassian.net/browse/MSEARCH-1269))
 * Adjust default configuration and improve parallelism for reindex ([MSEARCH-1236](https://folio-org.atlassian.net/browse/MSEARCH-1236))
 * Remove usage of folio-spring-system-user ([MSEARCH-1258](https://folio-org.atlassian.net/browse/MSEARCH-1258))
 * Optimize integration tests to reduce build time by introducing centralized test data setup ([MSEARCH-1036](https://folio-org.atlassian.net/browse/MSEARCH-1036))

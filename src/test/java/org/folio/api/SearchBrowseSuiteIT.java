@@ -211,8 +211,7 @@ class SearchBrowseSuiteIT extends BaseIntegrationTest {
     }
 
     private Timestamp lockOrFail(ReindexEntityType entityType) {
-      return lockRepo.lockSubResource(entityType, TENANT_ID)
-        .orElseThrow(() -> new IllegalStateException("Unable to lock %s resource".formatted(entityType)));
+      return lockSubResourceWithRetry(lockRepo, entityType, TENANT_ID);
     }
   }
 }

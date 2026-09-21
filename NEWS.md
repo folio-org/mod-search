@@ -24,6 +24,7 @@
 * Increate http client pool size and make it configurable ([MSEARCH-1248](https://folio-org.atlassian.net/browse/MSEARCH-1248)
 * Implement retries for s3 client reads and s3 client connection config ([MSEARCH-1245](https://folio-org.atlassian.net/browse/MSEARCH-1245)
 * Fix indexing race conditions on multi-pod deployments ([MSEARCH-1270](https://folio-org.atlassian.net/browse/MSEARCH-1270)
+* Fix indexing: restore a soft-deleted instance when it is saved again ([MSEARCH-1278](https://folio-org.atlassian.net/browse/MSEARCH-1278))
 
 ### Tech Dept
 * Add retry for sub-resource lock acquisition in integration test setup to fix flaky consortium browse ITs ([MSEARCH-1269](https://folio-org.atlassian.net/browse/MSEARCH-1269))
@@ -41,7 +42,7 @@
 * Add integration test coverage for Other scheme call-number browse with empty config returning all types (TestRail C627502)
 * Add integration test coverage for SuDoc call-number browse with empty config returning all types (TestRail C627503)
 * Add integration test coverage for similar call numbers with different types selected are sorted alphabetically (TestRail C477527)
-* Set "permissions: contents: read" in maven.yml ([FOLIO-4553](https://folio-org.atlassian.net/browse/FOLIO-4553)) 
+* Set "permissions: contents: read" in maven.yml ([FOLIO-4553](https://folio-org.atlassian.net/browse/FOLIO-4553))
 
 ### Dependencies
 * Bump `LIB_NAME` from `OLD_VERSION` to `NEW_VERSION`

@@ -30,6 +30,7 @@ public class MergeInstanceRepository extends MergeRangeRepository {
       tenant_id = EXCLUDED.tenant_id,
       is_bound_with = EXCLUDED.is_bound_with,
       json = EXCLUDED.json,
+      is_deleted = false,
       last_updated_date = CURRENT_TIMESTAMP;
     """;
 

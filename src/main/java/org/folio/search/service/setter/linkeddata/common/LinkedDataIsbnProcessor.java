@@ -25,6 +25,7 @@ public class LinkedDataIsbnProcessor implements FieldProcessor<List<LinkedDataId
     return ofNullable(identifiers)
       .stream()
       .flatMap(Collection::stream)
+      .filter(Objects::nonNull)
       .filter(i -> ISBN.equals(i.getType()))
       .map(LinkedDataIdentifier::getValue)
       .filter(Objects::nonNull)

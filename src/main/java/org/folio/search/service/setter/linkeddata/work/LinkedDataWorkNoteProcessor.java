@@ -24,9 +24,12 @@ public class LinkedDataWorkNoteProcessor implements FieldProcessor<LinkedDataWor
     var workNotes = ofNullable(linkedDataWork.getNotes())
       .stream()
       .flatMap(Collection::stream);
-    var instanceNotes = ofNullable(linkedDataWork.getInstances()).stream().flatMap(Collection::stream)
+    var instanceNotes = ofNullable(linkedDataWork.getInstances())
+      .stream()
+      .flatMap(Collection::stream)
       .filter(Objects::nonNull)
       .map(LinkedDataInstanceOnly::getNotes)
+      .filter(Objects::nonNull)
       .flatMap(Collection::stream);
     var notes = Stream.concat(workNotes, instanceNotes).toList();
     return linkedDataNoteProcessor.getFieldValue(notes);

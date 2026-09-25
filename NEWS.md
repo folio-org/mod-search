@@ -25,6 +25,7 @@
 * Implement retries for s3 client reads and s3 client connection config ([MSEARCH-1245](https://folio-org.atlassian.net/browse/MSEARCH-1245)
 * Fix indexing race conditions on multi-pod deployments ([MSEARCH-1270](https://folio-org.atlassian.net/browse/MSEARCH-1270)
 * Fix indexing: restore a soft-deleted instance when it is saved again ([MSEARCH-1278](https://folio-org.atlassian.net/browse/MSEARCH-1278))
+* Improve null safety in title and note processing methods for linked-data ([MSEARCH-1281](https://folio-org.atlassian.net/browse/MSEARCH-1281))
 
 ### Tech Dept
 * Add retry for sub-resource lock acquisition in integration test setup to fix flaky consortium browse ITs ([MSEARCH-1269](https://folio-org.atlassian.net/browse/MSEARCH-1269))

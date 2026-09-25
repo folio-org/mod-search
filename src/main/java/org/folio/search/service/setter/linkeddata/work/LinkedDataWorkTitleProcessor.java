@@ -29,6 +29,7 @@ public class LinkedDataWorkTitleProcessor implements FieldProcessor<LinkedDataWo
       .flatMap(Collection::stream)
       .filter(Objects::nonNull)
       .map(LinkedDataInstanceOnly::getTitles)
+      .filter(Objects::nonNull)
       .flatMap(Collection::stream);
     var titles = Stream.concat(workTitles, instTitles).toList();
     return linkedDataTitleProcessor.getFieldValue(titles);

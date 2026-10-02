@@ -57,11 +57,19 @@ public class OpensearchProperties {
 
   /**
    * Maximum time a connection may be kept alive (TTL). A null value means no TTL
-   * (connections are reused indefinitely). Set this lower than your load-balancer's
-   * idle-connection timeout to avoid stale-connection errors.
-   * Example: PT60S for 60 seconds.
+   * (connections are reused indefinitely). Expired connections are closed and recreated,
+   * which also helps rebalancing after an OpenSearch cluster restart.
+   * Defaults to 5 minutes.
    */
-  private Duration connectionTimeToLive;
+  private Duration connectionTimeToLive = Duration.ofMinutes(5);
+
+  /**
+   * Maximum time a connection may stay idle in the pool before a background evictor closes it.
+   * Set this lower than the idle timeout of any firewall, NAT or load balancer between mod-search
+   * and OpenSearch, so that silently dropped connections are never reused.
+   * A null value disables idle connection eviction. Defaults to 60 seconds.
+   */
+  private Duration maxIdleTime = Duration.ofSeconds(60);
 
   /**
    * How long a connection may remain idle in the pool before it is validated

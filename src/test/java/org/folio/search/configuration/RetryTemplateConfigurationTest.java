@@ -4,6 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.folio.s3.exception.S3ClientException;
@@ -11,6 +14,7 @@ import org.folio.search.configuration.properties.OpensearchProperties;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.configuration.properties.StreamIdsProperties;
 import org.folio.search.exception.FolioIntegrationException;
+import org.folio.search.exception.SearchOperationException;
 import org.folio.spring.testing.type.UnitTest;
 import org.folio.spring.tools.kafka.FolioKafkaProperties;
 import org.junit.jupiter.api.Test;
@@ -101,10 +105,70 @@ class RetryTemplateConfigurationTest {
     var retryTemplate = configuration.searchRetryTemplate(properties);
     var attempts = new AtomicInteger();
 
-    assertThatThrownBy(() -> retryTemplate.execute(() -> {
+    assertThatThrownBy(() -> retryTemplate.invoke(() -> {
       attempts.incrementAndGet();
       throw new IllegalStateException("boom");
-    })).isInstanceOf(FolioIntegrationException.class);
+    })).isInstanceOf(IllegalStateException.class)
+      .hasMessage("boom");
+
+    assertThat(attempts.get()).isEqualTo(1);
+  }
+
+  @Test
+  void searchRetryTemplate_wrappedConnectionResetException_retries() {
+    var properties = new OpensearchProperties();
+    properties.setSearchRetryAttempts(3);
+    properties.setSearchRetryIntervalMs(1);
+
+    var retryTemplate = configuration.searchRetryTemplate(properties);
+    var attempts = new AtomicInteger();
+
+    assertThatThrownBy(() -> retryTemplate.invoke(() -> {
+      attempts.incrementAndGet();
+      throw new SearchOperationException("Failed to perform elasticsearch request",
+        new IOException("Connection reset", new SocketException("Connection reset")));
+    })).isInstanceOf(FolioIntegrationException.class)
+      .hasRootCauseInstanceOf(SocketException.class);
+
+    assertThat(attempts.get()).isEqualTo(4);
+  }
+
+  @Test
+  void searchRetryTemplate_connectionResetException_succeedsOnRetry() {
+    var properties = new OpensearchProperties();
+    properties.setSearchRetryAttempts(3);
+    properties.setSearchRetryIntervalMs(1);
+
+    var retryTemplate = configuration.searchRetryTemplate(properties);
+    var attempts = new AtomicInteger();
+
+    var result = retryTemplate.invoke(() -> {
+      if (attempts.incrementAndGet() == 1) {
+        throw new SearchOperationException("Failed to perform elasticsearch request",
+          new SocketException("Connection reset"));
+      }
+      return "ok";
+    });
+
+    assertThat(result).isEqualTo("ok");
+    assertThat(attempts.get()).isEqualTo(2);
+  }
+
+  @Test
+  void searchRetryTemplate_socketTimeoutException_doesNotRetry() {
+    var properties = new OpensearchProperties();
+    properties.setSearchRetryAttempts(3);
+    properties.setSearchRetryIntervalMs(1);
+
+    var retryTemplate = configuration.searchRetryTemplate(properties);
+    var attempts = new AtomicInteger();
+    var exception = new SearchOperationException("Failed to perform elasticsearch request",
+      new SocketTimeoutException("Read timed out"));
+
+    assertThatThrownBy(() -> retryTemplate.invoke(() -> {
+      attempts.incrementAndGet();
+      throw exception;
+    })).isSameAs(exception);
 
     assertThat(attempts.get()).isEqualTo(1);
   }

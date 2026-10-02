@@ -35,6 +35,8 @@ import org.apache.hc.client5.http.ssl.ClientTlsStrategyBuilder;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
+import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 import org.folio.search.configuration.opensearch.RestClientBuilderCustomizer;
 import org.folio.search.configuration.properties.OpensearchProperties;
@@ -132,6 +134,11 @@ public class OpensearchRestClientConfiguration {
     public void customize(HttpAsyncClientBuilder builder) {
       builder.setDefaultCredentialsProvider(new PropertiesCredentialsProvider(this.properties));
       builder.setConnectionManager(connectionManager);
+      builder.setIOReactorConfig(IOReactorConfig.custom().setSoKeepAlive(true).build());
+      builder.evictExpiredConnections();
+      if (properties.getMaxIdleTime() != null) {
+        builder.evictIdleConnections(TimeValue.ofMilliseconds(properties.getMaxIdleTime().toMillis()));
+      }
       interceptors.forEach(builder::addRequestInterceptorFirst);
     }
 

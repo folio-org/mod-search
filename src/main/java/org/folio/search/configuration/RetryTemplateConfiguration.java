@@ -1,5 +1,6 @@
 package org.folio.search.configuration;
 
+import java.net.SocketException;
 import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -62,13 +63,17 @@ public class RetryTemplateConfiguration {
     var retryTemplate =  new RetryTemplate(RetryPolicy.builder()
       .maxRetries(properties.getSearchRetryAttempts())
       .delay(Duration.ofMillis(properties.getSearchRetryIntervalMs()))
-      .predicate(RetryTemplateConfiguration::isConnectionClosedException)
+      .predicate(RetryTemplateConfiguration::isTransientConnectionException)
       .build());
     retryTemplate.setRetryListener(new RetryListener() {
       @Override
       public void onRetryPolicyExhaustion(@NonNull RetryPolicy retryPolicy,
                                           @NonNull Retryable<?> retryable,
                                           @NonNull RetryException exception) {
+        // non-retryable failure: let the original exception propagate to the API exception handler
+        if (exception.getRetryCount() == 0) {
+          return;
+        }
         var lastThrowable = exception.getLastException();
         log.warn(new FormattedMessage("Failed to execute search"), lastThrowable);
         throw new FolioIntegrationException("Failed to execute search after all retries", lastThrowable);
@@ -123,10 +128,14 @@ public class RetryTemplateConfiguration {
     return retryTemplate;
   }
 
-  private static boolean isConnectionClosedException(Throwable throwable) {
+  /**
+   * Matches failures caused by a broken connection (closed by peer, reset, refused), which are safe to retry for
+   * read-only search requests. Socket timeouts are not {@link SocketException} and are deliberately not retried.
+   */
+  private static boolean isTransientConnectionException(Throwable throwable) {
     var cause = throwable;
     while (cause != null) {
-      if (cause instanceof ConnectionClosedException) {
+      if (cause instanceof ConnectionClosedException || cause instanceof SocketException) {
         return true;
       }
       cause = cause.getCause();

@@ -16,6 +16,7 @@
 
 ### Bug fixes
 * Add retry for search operations ([MSEARCH-1194](https://folio-org.atlassian.net/browse/MSEARCH-1194))
+* Retry searches on connection reset and evict idle OpenSearch connections ([MSEARCH-1215](https://folio-org.atlassian.net/browse/MSEARCH-1215))
 * Skip background processing on BadSqlGrammarException ([MSEARCH-1214](https://folio-org.atlassian.net/browse/MSEARCH-1214))
 * Disable JVM container support to avoid cgroup v2 NullPointerException in Elasticsearch8  testcontainer ([MSEARCH-1209](https://folio-org.atlassian.net/browse/MSEARCH-1209))
 * Limit consortium search api calls to Elasticsearch to SEARCH_CONSORTIUM_RECORDS_PAGE_SIZE per request ([MSEARCH-1194](https://folio-org.atlassian.net/browse/MSEARCH-1194))

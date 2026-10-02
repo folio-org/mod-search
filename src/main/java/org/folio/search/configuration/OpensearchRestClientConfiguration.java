@@ -35,6 +35,8 @@ import org.apache.hc.client5.http.ssl.ClientTlsStrategyBuilder;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
+import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 import org.folio.search.configuration.opensearch.RestClientBuilderCustomizer;
 import org.folio.search.configuration.properties.OpensearchProperties;
@@ -49,6 +51,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
 
+/**
+ * {@link RestClient} and {@link RestClientBuilder} are deprecated since OpenSearch 3.8.0
+ * (<a href="https://github.com/opensearch-project/OpenSearch/pull/22116">opensearch-project/OpenSearch#22116</a>),
+ * but {@link RestHighLevelClient} can only be built from them. The warnings are suppressed until the module is
+ * migrated to the opensearch-java client.
+ */
+@SuppressWarnings("deprecation")
 @Configuration
 public class OpensearchRestClientConfiguration {
 
@@ -132,6 +141,11 @@ public class OpensearchRestClientConfiguration {
     public void customize(HttpAsyncClientBuilder builder) {
       builder.setDefaultCredentialsProvider(new PropertiesCredentialsProvider(this.properties));
       builder.setConnectionManager(connectionManager);
+      builder.setIOReactorConfig(IOReactorConfig.custom().setSoKeepAlive(true).build());
+      builder.evictExpiredConnections();
+      if (properties.getMaxIdleTime() != null) {
+        builder.evictIdleConnections(TimeValue.ofMilliseconds(properties.getMaxIdleTime().toMillis()));
+      }
       interceptors.forEach(builder::addRequestInterceptorFirst);
     }
 

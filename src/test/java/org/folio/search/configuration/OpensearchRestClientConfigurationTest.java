@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.Duration;
@@ -12,6 +14,8 @@ import java.util.List;
 import java.util.stream.Stream;
 import org.apache.hc.client5.http.impl.async.HttpAsyncClientBuilder;
 import org.apache.hc.client5.http.impl.nio.PoolingAsyncClientConnectionManager;
+import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.util.TimeValue;
 import org.folio.search.configuration.OpensearchRestClientConfiguration.DefaultRestClientBuilderCustomizer;
 import org.folio.search.configuration.opensearch.RestClientBuilderCustomizer;
 import org.folio.search.configuration.properties.OpensearchProperties;
@@ -20,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -29,6 +34,7 @@ import org.opensearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.ObjectProvider;
 
 @UnitTest
+@SuppressWarnings("deprecation")
 @ExtendWith(MockitoExtension.class)
 class OpensearchRestClientConfigurationTest {
 
@@ -153,5 +159,34 @@ class OpensearchRestClientConfigurationTest {
     props.setConnectionTimeToLive(Duration.ofSeconds(60));
     var customizer = new DefaultRestClientBuilderCustomizer(props, List.of());
     assertThat(customizer).isNotNull();
+  }
+
+  @Test
+  void defaultCustomizer_enablesKeepAliveAndConnectionEviction() {
+    var props = new OpensearchProperties();
+    props.setMaxIdleTime(Duration.ofSeconds(30));
+    var customizer = new DefaultRestClientBuilderCustomizer(props, List.of());
+    var clientBuilder = mock(HttpAsyncClientBuilder.class);
+
+    customizer.customize(clientBuilder);
+
+    var ioReactorConfig = ArgumentCaptor.forClass(IOReactorConfig.class);
+    verify(clientBuilder).setIOReactorConfig(ioReactorConfig.capture());
+    assertThat(ioReactorConfig.getValue().isSoKeepAlive()).isTrue();
+    verify(clientBuilder).evictExpiredConnections();
+    verify(clientBuilder).evictIdleConnections(TimeValue.ofSeconds(30));
+  }
+
+  @Test
+  void defaultCustomizer_idleConnectionEvictionDisabledWhenMaxIdleTimeIsNull() {
+    var props = new OpensearchProperties();
+    props.setMaxIdleTime(null);
+    var customizer = new DefaultRestClientBuilderCustomizer(props, List.of());
+    var clientBuilder = mock(HttpAsyncClientBuilder.class);
+
+    customizer.customize(clientBuilder);
+
+    verify(clientBuilder).evictExpiredConnections();
+    verify(clientBuilder, never()).evictIdleConnections(any());
   }
 }

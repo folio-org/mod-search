@@ -51,6 +51,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
 
+/**
+ * {@link RestClient} and {@link RestClientBuilder} are deprecated since OpenSearch 3.8.0
+ * (<a href="https://github.com/opensearch-project/OpenSearch/pull/22116">opensearch-project/OpenSearch#22116</a>),
+ * but {@link RestHighLevelClient} can only be built from them. The warnings are suppressed until the module is
+ * migrated to the opensearch-java client.
+ */
+@SuppressWarnings("deprecation")
 @Configuration
 public class OpensearchRestClientConfiguration {
 

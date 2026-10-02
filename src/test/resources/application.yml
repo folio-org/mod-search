@@ -202,5 +202,4 @@ logging:
     org.folio.spring.filter.IncomingRequestLoggingFilter: debug
     org.folio.spring.client.ExchangeLoggingInterceptor: debug
     org.opensearch.client: trace
-    org.opensearch.client.sniffer: trace
     tracer: trace

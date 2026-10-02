@@ -34,6 +34,7 @@ import org.opensearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.ObjectProvider;
 
 @UnitTest
+@SuppressWarnings("deprecation")
 @ExtendWith(MockitoExtension.class)
 class OpensearchRestClientConfigurationTest {
 

@@ -92,7 +92,7 @@ Restore production values once the reindex completes — see [Restoring Index Se
 
 Record staging and the upload phase are Kafka-consumer-bound, so their throughput scales with the number of mod-search tasks (container instances): the **effective consumer count is `tasks × concurrency`**, capped by the topic's partition count — any consumers beyond the partition count stay idle. To go faster, raise the consumer concurrency and the topic's partition count together.
 
-> The merge **publish** step is the exception. It runs only on the single mod-search instance that received the trigger, so adding tasks does **not** make it publish faster — merge-publish fan-out is governed by `REINDEX_MERGE_RANGE_PUBLISHER_CORE_POOL_SIZE` / `REINDEX_MERGE_RANGE_PUBLISHER_MAX_POOL_SIZE` on that one instance (plus `EXCHANGE_HTTP_MAX_CONN_PER_ROUTE`, which must be ≥ the max pool size).
+> The merge **publish** step is the exception. It runs only on the single mod-search instance that received the trigger, so adding tasks does **not** make it publish faster — merge-publish fan-out is governed by `REINDEX_MERGE_RANGE_PUBLISHER_CORE_POOL_SIZE` / `REINDEX_MERGE_RANGE_PUBLISHER_MAX_POOL_SIZE` on that one instance (plus `FOLIO_EXCHANGE_HTTP_CLIENT_MAX_CONNECTIONS_PER_ROUTE`, which must be ≥ the max pool size).
 
 A PUBLISH full reindex is bounded by two reindex topics:
 
@@ -121,19 +121,19 @@ The merge phase does its real work in mod-inventory-storage — mod-search calls
   "command": ["-instances", "4"]
   ```
 
-Size these together so that **`(mod-inventory-storage task count) × (verticle -instances)` stays lower than mod-search's `EXCHANGE_HTTP_MAX_CONN_PER_ROUTE`.** The single merge-publishing mod-search instance opens up to `EXCHANGE_HTTP_MAX_CONN_PER_ROUTE` concurrent connections to mod-inventory-storage; keeping the total verticle count under that ceiling ensures every verticle can be driven without exhausting the connection pool.
+Size these together so that **`(mod-inventory-storage task count) × (verticle -instances)` stays lower than mod-search's `FOLIO_EXCHANGE_HTTP_CLIENT_MAX_CONNECTIONS_PER_ROUTE`.** The single merge-publishing mod-search instance opens up to `FOLIO_EXCHANGE_HTTP_CLIENT_MAX_CONNECTIONS_PER_ROUTE` concurrent connections to mod-inventory-storage; keeping the total verticle count under that ceiling ensures every verticle can be driven without exhausting the connection pool.
 
 ### Key tuning variables
 
 **Merge phase:**
 
-| Variable                                       | Default | Effect                                                                              |
-|------------------------------------------------|---------|-------------------------------------------------------------------------------------|
-| `REINDEX_MERGE_RANGE_PUBLISHER_CORE_POOL_SIZE` | `30`    | Parallel HTTP calls to mod-inventory-storage                                        |
-| `REINDEX_MERGE_RANGE_PUBLISHER_MAX_POOL_SIZE`  | `30`    | Maximum parallel HTTP calls to mod-inventory-storage                                |
-| `EXCHANGE_HTTP_MAX_CONN_PER_ROUTE`             | `50`    | HTTP connection pool size — must be ≥ `REINDEX_MERGE_RANGE_PUBLISHER_MAX_POOL_SIZE` |
-| `KAFKA_REINDEX_RECORDS_CONCURRENCY`            | `4`     | Parallel Kafka consumers processing records                                         |
-| `REINDEX_MERGE_RANGE_SIZE`                     | `500`   | Records per merge range                                                             |
+| Variable                                               | Default | Effect                                                                              |
+|--------------------------------------------------------|---------|-------------------------------------------------------------------------------------|
+| `REINDEX_MERGE_RANGE_PUBLISHER_CORE_POOL_SIZE`         | `30`    | Parallel HTTP calls to mod-inventory-storage                                        |
+| `REINDEX_MERGE_RANGE_PUBLISHER_MAX_POOL_SIZE`          | `30`    | Maximum parallel HTTP calls to mod-inventory-storage                                |
+| `FOLIO_EXCHANGE_HTTP_CLIENT_MAX_CONNECTIONS_PER_ROUTE` | `50`    | HTTP connection pool size — must be ≥ `REINDEX_MERGE_RANGE_PUBLISHER_MAX_POOL_SIZE` |
+| `KAFKA_REINDEX_RECORDS_CONCURRENCY`                    | `4`     | Parallel Kafka consumers processing records                                         |
+| `REINDEX_MERGE_RANGE_SIZE`                             | `500`   | Records per merge range                                                             |
 
 **Upload phase:**
 

@@ -40,7 +40,7 @@ If ranges fail again, investigate the underlying cause before retrying — repea
 
 ## Performance
 
-This operation retries **only the ranges in `MERGE_FAILED`**, so its duration scales with the number of failed ranges rather than the full dataset — it is normally a small fraction of a full reindex. It reuses the same merge-phase machinery as a PUBLISH full reindex, so the same tuning variables apply (`REINDEX_MERGE_RANGE_PUBLISHER_*`, `KAFKA_REINDEX_RECORDS_CONCURRENCY`, `EXCHANGE_HTTP_MAX_CONN_PER_ROUTE`) — see [Full Reindex — Kafka › Performance](reindex-full-kafka.md#performance) and the full [Configuration Reference](../reindex.md#configuration-reference).
+This operation retries **only the ranges in `MERGE_FAILED`**, so its duration scales with the number of failed ranges rather than the full dataset — it is normally a small fraction of a full reindex. It reuses the same merge-phase machinery as a PUBLISH full reindex, so the same tuning variables apply (`REINDEX_MERGE_RANGE_PUBLISHER_*`, `KAFKA_REINDEX_RECORDS_CONCURRENCY`, `FOLIO_EXCHANGE_HTTP_CLIENT_MAX_CONNECTIONS_PER_ROUTE`) — see [Full Reindex — Kafka › Performance](reindex-full-kafka.md#performance) and the full [Configuration Reference](../reindex.md#configuration-reference).
 
 Once all failed ranges recover to `MERGE_COMPLETED`, the upload phase starts automatically; upload-phase throughput is governed by the variables in [Upload-Phase Reindex › Performance](reindex-upload.md#performance).
 

@@ -22,7 +22,7 @@
 * Limit consortium search api calls to Elasticsearch to SEARCH_CONSORTIUM_RECORDS_PAGE_SIZE per request ([MSEARCH-1194](https://folio-org.atlassian.net/browse/MSEARCH-1194))
 * Bump httpclient5 to 5.6.1 and httpcore5 to 5.4.2 to fix CVE-2026-40542 mutual authentication bypass ([MSEARCH-1208](https://folio-org.atlassian.net/browse/MSEARCH-1208))
 * Move reindex sub-resource locks acquisition from trigger to code, add fencing tokens to scheduler-side unlock/refresh ([MSEARCH-1238](https://folio-org.atlassian.net/browse/MSEARCH-1238)
-* Increate http client pool size and make it configurable ([MSEARCH-1248](https://folio-org.atlassian.net/browse/MSEARCH-1248)
+* Increase http client pool size and make it configurable via folio-spring-base `FOLIO_EXCHANGE_HTTP_CLIENT_*` env variables ([MSEARCH-1248](https://folio-org.atlassian.net/browse/MSEARCH-1248)), ([MSEARCH-1249](https://folio-org.atlassian.net/browse/MSEARCH-1249))
 * Implement retries for s3 client reads and s3 client connection config ([MSEARCH-1245](https://folio-org.atlassian.net/browse/MSEARCH-1245)
 * Fix indexing race conditions on multi-pod deployments ([MSEARCH-1270](https://folio-org.atlassian.net/browse/MSEARCH-1270)
 * Fix indexing: restore a soft-deleted instance when it is saved again ([MSEARCH-1278](https://folio-org.atlassian.net/browse/MSEARCH-1278))

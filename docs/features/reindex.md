@@ -141,33 +141,33 @@ Content-Type: application/json
 
 ## Configuration Reference
 
-| Variable                                          | Default                    | Purpose                                                                                  |
-|---------------------------------------------------|----------------------------|------------------------------------------------------------------------------------------|
-| `REINDEX_TYPE`                                    | `PUBLISH`                  | Merge ingestion mode: `PUBLISH` (Kafka) or `EXPORT` (S3)                                 |
-| `REINDEX_MERGE_RANGE_SIZE`                        | `500`                      | Records per merge range                                                                  |
-| `REINDEX_MERGE_RANGE_PUBLISHER_CORE_POOL_SIZE`    | `30`                       | Core thread pool for merge range publishing                                              |
-| `REINDEX_MERGE_RANGE_PUBLISHER_MAX_POOL_SIZE`     | `30`                       | Max thread pool for merge range publishing                                               |
-| `EXCHANGE_HTTP_MAX_CONN_PER_ROUTE`                | `50`                       | HTTP connection pool per route — must be ≥ `REINDEX_MERGE_RANGE_PUBLISHER_MAX_POOL_SIZE` |
-| `REINDEX_MERGE_RANGE_PUBLISHER_RETRY_INTERVAL_MS` | `1000`                     | Retry interval (ms) for merge range publishing                                           |
-| `REINDEX_MERGE_RANGE_PUBLISHER_RETRY_ATTEMPTS`    | `5`                        | Retry attempts for merge range publishing                                                |
-| `REINDEX_UPLOAD_RANGE_SIZE`                       | `1000`                     | Records per upload range                                                                 |
-| `REINDEX_UPLOAD_RANGE_LEVEL`                      | `3`                        | Range tree depth for upload phase                                                        |
-| `REINDEX_LOCATION_BATCH_SIZE`                     | `1000`                     | Batch size for location reindex                                                          |
-| `REINDEX_MIGRATION_WORK_MEM`                      | `64MB`                     | PostgreSQL `work_mem` for staging migration queries                                      |
-| `REINDEX_MIGRATION_STATEMENT_TIMEOUT`             | `0`                        | PostgreSQL statement timeout for migration (0 = no limit)                                |
-| `KAFKA_REINDEX_RANGE_INDEX_CONCURRENCY`           | `8`                        | Concurrency for upload range-index consumer                                              |
-| `KAFKA_REINDEX_RANGE_INDEX_TOPIC_PARTITIONS`      | `16`                       | Partition count for the `search.reindex.range-index` topic                               |
-| `KAFKA_REINDEX_RECORDS_CONCURRENCY`               | `4`                        | Concurrency for reindex records consumer (PUBLISH mode)                                  |
-| `KAFKA_REINDEX_FILE_READY_CONCURRENCY`            | `4`                        | Concurrency for file-ready consumer (EXPORT mode)                                        |
-| `REINDEX_MERGE_EXPORT_BATCH_SIZE`                 | `500`                      | Batch size for reading S3 export files (EXPORT mode)                                     |
-| `REINDEX_S3_RETRY_INTERVAL_MS`                    | `1000`                     | Retry interval (ms) for S3 read failures (EXPORT mode)                                   |
-| `REINDEX_S3_RETRY_ATTEMPTS`                       | `3`                        | Retry attempts for S3 read failures (EXPORT mode)                                        |
-| `S3_REINDEX_URL`                                  | `https://s3.amazonaws.com` | S3 endpoint (EXPORT mode)                                                                |
-| `S3_REINDEX_REGION`                               | `us-west-2`                | S3 region (EXPORT mode)                                                                  |
-| `S3_REINDEX_BUCKET`                               | _(empty)_                  | S3 bucket name (EXPORT mode)                                                             |
-| `S3_REINDEX_ACCESS_KEY_ID`                        | _(empty)_                  | S3 access key (EXPORT mode)                                                              |
-| `S3_REINDEX_SECRET_ACCESS_KEY`                    | _(empty)_                  | S3 secret key (EXPORT mode)                                                              |
-| `S3_REINDEX_IS_AWS`                               | `true`                     | Use AWS SDK behaviour; `false` for MinIO or other S3-compatible storage                  |
+| Variable                                               | Default                    | Purpose                                                                                  |
+|--------------------------------------------------------|----------------------------|------------------------------------------------------------------------------------------|
+| `REINDEX_TYPE`                                         | `PUBLISH`                  | Merge ingestion mode: `PUBLISH` (Kafka) or `EXPORT` (S3)                                 |
+| `REINDEX_MERGE_RANGE_SIZE`                             | `500`                      | Records per merge range                                                                  |
+| `REINDEX_MERGE_RANGE_PUBLISHER_CORE_POOL_SIZE`         | `30`                       | Core thread pool for merge range publishing                                              |
+| `REINDEX_MERGE_RANGE_PUBLISHER_MAX_POOL_SIZE`          | `30`                       | Max thread pool for merge range publishing                                               |
+| `FOLIO_EXCHANGE_HTTP_CLIENT_MAX_CONNECTIONS_PER_ROUTE` | `50`                       | HTTP connection pool per route — must be ≥ `REINDEX_MERGE_RANGE_PUBLISHER_MAX_POOL_SIZE` |
+| `REINDEX_MERGE_RANGE_PUBLISHER_RETRY_INTERVAL_MS`      | `1000`                     | Retry interval (ms) for merge range publishing                                           |
+| `REINDEX_MERGE_RANGE_PUBLISHER_RETRY_ATTEMPTS`         | `5`                        | Retry attempts for merge range publishing                                                |
+| `REINDEX_UPLOAD_RANGE_SIZE`                            | `1000`                     | Records per upload range                                                                 |
+| `REINDEX_UPLOAD_RANGE_LEVEL`                           | `3`                        | Range tree depth for upload phase                                                        |
+| `REINDEX_LOCATION_BATCH_SIZE`                          | `1000`                     | Batch size for location reindex                                                          |
+| `REINDEX_MIGRATION_WORK_MEM`                           | `64MB`                     | PostgreSQL `work_mem` for staging migration queries                                      |
+| `REINDEX_MIGRATION_STATEMENT_TIMEOUT`                  | `0`                        | PostgreSQL statement timeout for migration (0 = no limit)                                |
+| `KAFKA_REINDEX_RANGE_INDEX_CONCURRENCY`                | `8`                        | Concurrency for upload range-index consumer                                              |
+| `KAFKA_REINDEX_RANGE_INDEX_TOPIC_PARTITIONS`           | `16`                       | Partition count for the `search.reindex.range-index` topic                               |
+| `KAFKA_REINDEX_RECORDS_CONCURRENCY`                    | `4`                        | Concurrency for reindex records consumer (PUBLISH mode)                                  |
+| `KAFKA_REINDEX_FILE_READY_CONCURRENCY`                 | `4`                        | Concurrency for file-ready consumer (EXPORT mode)                                        |
+| `REINDEX_MERGE_EXPORT_BATCH_SIZE`                      | `500`                      | Batch size for reading S3 export files (EXPORT mode)                                     |
+| `REINDEX_S3_RETRY_INTERVAL_MS`                         | `1000`                     | Retry interval (ms) for S3 read failures (EXPORT mode)                                   |
+| `REINDEX_S3_RETRY_ATTEMPTS`                            | `3`                        | Retry attempts for S3 read failures (EXPORT mode)                                        |
+| `S3_REINDEX_URL`                                       | `https://s3.amazonaws.com` | S3 endpoint (EXPORT mode)                                                                |
+| `S3_REINDEX_REGION`                                    | `us-west-2`                | S3 region (EXPORT mode)                                                                  |
+| `S3_REINDEX_BUCKET`                                    | _(empty)_                  | S3 bucket name (EXPORT mode)                                                             |
+| `S3_REINDEX_ACCESS_KEY_ID`                             | _(empty)_                  | S3 access key (EXPORT mode)                                                              |
+| `S3_REINDEX_SECRET_ACCESS_KEY`                         | _(empty)_                  | S3 secret key (EXPORT mode)                                                              |
+| `S3_REINDEX_IS_AWS`                                    | `true`                     | Use AWS SDK behaviour; `false` for MinIO or other S3-compatible storage                  |
 
 ### Shared database settings
 

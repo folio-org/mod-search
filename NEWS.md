@@ -1,3 +1,8 @@
+## v5.0.14 2026-10-07
+### Bug fixes
+* Fix indexing: Restore a soft-deleted instance when it is saved again ([MSEARCH-1280](https://folio-org.atlassian.net/browse/MSEARCH-1280))
+---
+
 ## v5.0.13 2026-03-01
 ### Bug fixes
 * Fix lock treated as stale on reindexing ([MSEARCH-1188](https://folio-org.atlassian.net/browse/MSEARCH-1188))

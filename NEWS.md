@@ -1,3 +1,7 @@
+## v6.0.10 2026-10-07
+### Bug fixes
+* Fix indexing: Restore a soft-deleted instance when it is saved again ([MSEARCH-1279](https://folio-org.atlassian.net/browse/MSEARCH-1279))
+
 ## v6.0.9 2026-08-13
 ### Bug fixes
 * Fix indexing race conditions on multi-pod deployments ([MSEARCH-1270](https://folio-org.atlassian.net/browse/MSEARCH-1270)

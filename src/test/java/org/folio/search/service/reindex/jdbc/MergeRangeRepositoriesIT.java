@@ -250,6 +250,37 @@ class MergeRangeRepositoriesIT {
     assertThat(itemRepository.countEntities()).isEqualTo(4);
   }
 
+  @Test
+  void saveEntities_restoresSoftDeletedInstance() {
+    // given: the central tenant's copy of the instance is deleted; with the instance children index enabled
+    // mod-search records that as a soft delete of its row (the storage record itself is gone)
+    var instanceId = UUID.randomUUID();
+    var instance = List.of(Map.<String, Object>of("id", instanceId, "title", "restored"));
+    when(tenantProvider.isCentralTenant(TENANT_ID)).thenReturn(true);
+    instanceRepository.saveEntities(TENANT_ID, instance);
+    instanceRepository.deleteEntities(List.of(instanceId.toString()), false);
+
+    assertThat(isDeleted(instanceId)).isTrue();
+    assertThat(uploadInstanceRepository.fetchByIds(List.of(instanceId.toString()))).isEmpty();
+
+    // act: the member tenant re-saves its local instance with the same id
+    instanceRepository.saveEntities(MEMBER_TENANT_ID, instance);
+
+    // assert: the row is live again and is returned by the query that feeds the index
+    assertThat(isDeleted(instanceId)).isFalse();
+    var actual = uploadInstanceRepository.fetchByIds(List.of(instanceId.toString()));
+    assertThat(actual).hasSize(1);
+    assertThat(actual.getFirst())
+      .containsEntry("id", instanceId.toString())
+      .containsEntry("tenantId", MEMBER_TENANT_ID)
+      .containsEntry("shared", false);
+  }
+
+  private Boolean isDeleted(UUID instanceId) {
+    return jdbcTemplate.queryForObject(
+      "SELECT is_deleted FROM instance WHERE id = ?::uuid", Boolean.class, instanceId.toString());
+  }
+
   private List<String> extractMapValues(List<Map<String, Object>> maps) {
     return maps.stream().map(Map::values).flatMap(Collection::stream).map(String::valueOf).toList();
   }

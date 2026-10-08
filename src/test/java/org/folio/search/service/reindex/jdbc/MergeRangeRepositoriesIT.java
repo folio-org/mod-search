@@ -263,6 +263,33 @@ class MergeRangeRepositoriesIT {
 
   @ParameterizedTest(name = "{0}")
   @MethodSource("saveStrategies")
+  void saveEntities_restoresSoftDeletedInstance(String label, SaveStrategy strategy) {
+    // given: the central tenant's copy of the instance is deleted; with the instance children index enabled
+    // mod-search records that as a soft delete of its row (the storage record itself is gone)
+    var instanceId = UUID.randomUUID();
+    var instance = List.of(Map.<String, Object>of("id", instanceId, "title", "restored"));
+    when(tenantProvider.isCentralTenant(TENANT_ID)).thenReturn(true);
+    strategy.save(instanceRepository, TENANT_ID, instance);
+    instanceRepository.deleteEntities(List.of(instanceId.toString()), false);
+
+    assertThat(isDeleted(instanceId)).isTrue();
+    assertThat(uploadInstanceRepository.fetchByIds(List.of(instanceId.toString()))).isEmpty();
+
+    // act: the member tenant re-saves its local instance with the same id
+    strategy.save(instanceRepository, MEMBER_TENANT_ID, instance);
+
+    // assert: the row is live again and is returned by the query that feeds the index
+    assertThat(isDeleted(instanceId)).isFalse();
+    var actual = uploadInstanceRepository.fetchByIds(List.of(instanceId.toString()));
+    assertThat(actual).hasSize(1);
+    assertThat(actual.getFirst())
+      .containsEntry("id", instanceId.toString())
+      .containsEntry("tenantId", MEMBER_TENANT_ID)
+      .containsEntry("shared", false);
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("saveStrategies")
   @Sql("/sql/populate-instances.sql")
   @SuppressWarnings("checkstyle:MethodLength")
   void saveEntities_savesToStagingTables_whenInReindexModeWithMemberTenant(String label, SaveStrategy strategy) {
@@ -348,6 +375,11 @@ class MergeRangeRepositoriesIT {
     var lastUpdated = (Timestamp) instance.get(MergeRangeRepository.LAST_UPDATED_DATE_FIELD);
     var nextPage = instanceRepository.fetchByTimestamp(TENANT_ID, lastUpdated, fromId, 10);
     assertThat(nextPage.records()).isEmpty();
+  }
+
+  private Boolean isDeleted(UUID instanceId) {
+    return jdbcTemplate.queryForObject(
+      "SELECT is_deleted FROM instance WHERE id = ?::uuid", Boolean.class, instanceId.toString());
   }
 
   private Integer countById(String table, UUID id) {

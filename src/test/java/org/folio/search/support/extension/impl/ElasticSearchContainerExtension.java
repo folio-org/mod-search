@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.images.builder.ImageFromDockerfile;
 
 @Log4j2
@@ -14,6 +15,7 @@ public class ElasticSearchContainerExtension implements BeforeAllCallback, After
   private static final String SPRING_PROPERTY_NAME = "spring.opensearch.uris";
   private static final String IMAGE_NAME = "dev.folio/searchengine";
   private static final String DEFAULT_DOCKERFILE = "docker/opensearch/Dockerfile";
+  private static final String ELASTICSEARCH_STARTED_LOG_REGEX = ".*\"message\":\\s?\"started[\\s\"].*";
   private static final GenericContainer<?> CONTAINER = createContainer();
 
   @Override
@@ -44,7 +46,11 @@ public class ElasticSearchContainerExtension implements BeforeAllCallback, After
     if (dockerfile.contains("opensearch")) {
       container.withEnv("DISABLE_SECURITY_PLUGIN", "true");
     } else {  // elasticsearch
-      container.withEnv("xpack.security.enabled", "false");
+      // same heap size and readiness check as testcontainers ElasticsearchContainer
+      container.withEnv("xpack.security.enabled", "false")
+        .withEnv("_JAVA_OPTIONS", "-XX:-UseContainerSupport")
+        .withEnv("ES_JAVA_OPTS", "-Xms2g -Xmx2g")
+        .waitingFor(Wait.forLogMessage(ELASTICSEARCH_STARTED_LOG_REGEX, 1));
     }
     return container;
   }

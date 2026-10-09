@@ -38,7 +38,11 @@
     <folio-service-tools.version>5.0.0</folio-service-tools.version>
     <folio-isbn-utils.version>1.8.0</folio-isbn-utils.version>
     <folio-cql2pgjson.version>35.4.0</folio-cql2pgjson.version>
-    <opensearch.version>2.19.4</opensearch.version>
+    <opensearch.version>3.9.0</opensearch.version>
+    <!-- opensearch-rest-client 3.x relies on httpclient5 5.6 automatic gzip decompression.
+         Spring Boot 3.4.x manages older versions, so we pin them to what opensearch-rest-client requires. -->
+    <httpclient5.version>5.6.4</httpclient5.version>
+    <httpcore5.version>5.4.3</httpcore5.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <apache-commons-io.version>2.18.0</apache-commons-io.version>
     <apache-commons-collections.version>4.4</apache-commons-collections.version>

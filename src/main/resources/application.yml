@@ -20,6 +20,7 @@ spring:
     password: ${ELASTICSEARCH_PASSWORD:}
     uris: ${ELASTICSEARCH_URL:http://localhost:9200}
     compression-enabled: ${ELASTICSEARCH_COMPRESSION_ENABLED:true}
+    elasticsearch-server: ${ELASTICSEARCH_SERVER:false}
   kafka:
     bootstrap-servers: ${KAFKA_HOST:localhost}:${KAFKA_PORT:9092}
     consumer:

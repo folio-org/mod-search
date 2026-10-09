@@ -44,7 +44,8 @@ public class ElasticSearchContainerExtension implements BeforeAllCallback, After
     if (dockerfile.contains("opensearch")) {
       container.withEnv("DISABLE_SECURITY_PLUGIN", "true");
     } else {  // elasticsearch
-      container.withEnv("xpack.security.enabled", "false");
+      container.withEnv("xpack.security.enabled", "false")
+        .withEnv("_JAVA_OPTIONS", "-XX:-UseContainerSupport");
     }
     return container;
   }

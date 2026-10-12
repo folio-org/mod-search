@@ -1,3 +1,9 @@
+## v5.0.15 2026-10-12
+### Dependencies
+* Bump `opensearch` from `2.19.4` to `3.9.0` ([MSEARCH-1290](https://folio-org.atlassian.net/browse/MSEARCH-1290))
+
+---
+
 ## v5.0.14 2026-10-07
 ### Bug fixes
 * Fix indexing: Restore a soft-deleted instance when it is saved again ([MSEARCH-1280](https://folio-org.atlassian.net/browse/MSEARCH-1280))

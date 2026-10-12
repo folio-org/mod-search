@@ -1101,6 +1101,11 @@
         "description": "Specify if Elasticsearch request/response compression enabled"
       },
       {
+        "name": "ELASTICSEARCH_SERVER",
+        "value": "false",
+        "description": "Specify whether it is Elasticsearch(true) or Opensearch(false) "
+      },
+      {
         "name": "DB_HOST",
         "value": "postgres",
         "description": "Postgres hostname"

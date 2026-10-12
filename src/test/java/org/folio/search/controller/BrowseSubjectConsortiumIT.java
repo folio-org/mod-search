@@ -78,7 +78,7 @@ class BrowseSubjectConsortiumIT extends BaseConsortiumIntegrationTest {
         .source(searchSource().query(matchAllQuery()).trackTotalHits(true).from(0).size(100))
         .indices(getIndexName(INSTANCE_SUBJECT, CENTRAL_TENANT_ID));
       var searchResponse = elasticClient.search(searchRequest, RequestOptions.DEFAULT);
-      assertThat(searchResponse.getHits().getTotalHits().value).isEqualTo(28);
+      assertThat(searchResponse.getHits().getTotalHits().value()).isEqualTo(28);
     });
   }
 

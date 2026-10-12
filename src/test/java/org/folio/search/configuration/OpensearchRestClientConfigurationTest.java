@@ -61,8 +61,8 @@ class OpensearchRestClientConfigurationTest {
     when(properties.getUsername()).thenReturn("username");
     when(properties.getPassword()).thenReturn("password");
     when(customizers.orderedStream())
-      .thenReturn(Stream.of(restClientConfiguration.defaultRestClientBuilderCustomizer(properties)))
-      .thenReturn(Stream.of(restClientConfiguration.defaultRestClientBuilderCustomizer(properties)));
+      .thenReturn(Stream.of(restClientConfiguration.defaultRestClientBuilderCustomizer(properties, List.of())))
+      .thenReturn(Stream.of(restClientConfiguration.defaultRestClientBuilderCustomizer(properties, List.of())));
     var builder = restClientConfiguration.opensearchRestClientBuilder(customizers, properties);
     var restHighLevelClient = restClientConfiguration.opensearchRestHighLevelClient(builder);
     assertThat(restHighLevelClient).isNotNull();

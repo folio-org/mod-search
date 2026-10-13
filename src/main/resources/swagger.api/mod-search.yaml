@@ -46,6 +46,9 @@ paths:
   /search/instances:
     $ref: 'paths/search-instances/search-instances.yaml'
 
+  /search/inventory/items:
+    $ref: 'paths/search-inventory/search-items.yaml'
+
   /search/{recordType}/facets:
     $ref: 'paths/search-facets/search-record-type-facets.yaml'
 

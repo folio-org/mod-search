@@ -1,0 +1,189 @@
+{
+  "name": "item",
+  "eventBodyJavaClass": "org.folio.search.domain.dto.ItemSearchRecord",
+  "reindexSupported": false,
+  "fields": {
+    "id": {
+      "index": "keyword_lowercase",
+      "showInResponse": true
+    },
+    "tenantId": {
+      "index": "keyword",
+      "isTenant": true
+    },
+    "holdingsRecordId": {
+      "index": "keyword_lowercase",
+      "showInResponse": true
+    },
+    "instanceId": {
+      "index": "keyword_lowercase",
+      "showInResponse": true
+    },
+    "hrid": {
+      "index": "keyword_lowercase"
+    },
+    "accessionNumber": {
+      "index": "keyword_icu"
+    },
+    "formerIds": {
+      "index": "keyword_icu"
+    },
+    "itemIdentifier": {
+      "index": "source"
+    },
+    "barcode": {
+      "index": "keyword_icu",
+      "showInResponse": true
+    },
+    "effectiveLocationId": {
+      "searchTypes": [
+        "facet",
+        "filter"
+      ],
+      "index": "keyword_lowercase",
+      "showInResponse": true
+    },
+    "statisticalCodeIds": {
+      "searchTypes": [
+        "facet",
+        "filter"
+      ],
+      "index": "keyword_icu"
+    },
+    "statusName": {
+      "searchTypes": [
+        "facet",
+        "filter"
+      ],
+      "index": "keyword",
+      "showInResponse": true
+    },
+    "materialTypeId": {
+      "searchTypes": [
+        "facet",
+        "filter"
+      ],
+      "index": "keyword_lowercase",
+      "showInResponse": true
+    },
+    "permanentLoanTypeId": {
+      "index": "keyword_lowercase",
+      "showInResponse": true
+    },
+    "temporaryLoanTypeId": {
+      "index": "keyword_lowercase",
+      "showInResponse": true
+    },
+    "discoverySuppress": {
+      "searchTypes": [
+        "facet",
+        "filter"
+      ],
+      "index": "bool",
+      "default": false
+    },
+    "callNumber": {
+      "index": "source",
+      "showInResponse": true
+    },
+    "callNumberPrefix": {
+      "index": "source",
+      "showInResponse": true
+    },
+    "callNumberSuffix": {
+      "index": "source",
+      "showInResponse": true
+    },
+    "callNumberTypeId": {
+      "index": "keyword",
+      "showInResponse": true
+    },
+    "tags": {
+      "type": "object",
+      "properties": {
+        "tagList": {
+          "index": "standard"
+        }
+      }
+    },
+    "electronicAccess": {
+      "type": "object",
+      "properties": {
+        "uri": {
+          "searchAliases": [
+            "electronicAccess"
+          ],
+          "index": "keyword_icu"
+        },
+        "linkText": {
+          "searchAliases": [
+            "electronicAccess"
+          ],
+          "index": "standard"
+        },
+        "materialsSpecification": {
+          "index": "none"
+        },
+        "publicNote": {
+          "searchAliases": [
+            "electronicAccess"
+          ],
+          "index": "standard"
+        },
+        "relationshipId": {
+          "index": "keyword_lowercase"
+        }
+      }
+    },
+    "administrativeNotes": {
+      "index": "standard"
+    },
+    "notes": {
+      "type": "object",
+      "properties": {
+        "note": {
+          "index": "standard",
+          "searchAliases": [
+            "notes.note"
+          ]
+        },
+        "staffOnly": {
+          "index": "bool"
+        }
+      }
+    },
+    "circulationNotes": {
+      "type": "object",
+      "properties": {
+        "note": {
+          "index": "standard",
+          "searchAliases": [
+            "notes.note"
+          ]
+        },
+        "staffOnly": {
+          "index": "bool"
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "createdDate": {
+          "searchTypes": "filter",
+          "index": "date"
+        },
+        "createdByUserId": {
+          "index": "keyword_lowercase"
+        },
+        "updatedDate": {
+          "searchTypes": "filter",
+          "index": "date"
+        },
+        "updatedByUserId": {
+          "index": "keyword_lowercase"
+        }
+      }
+    }
+  }
+}

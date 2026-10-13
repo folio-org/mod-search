@@ -1,0 +1,206 @@
+name: query
+in: query
+required: true
+description: |
+  A CQL query string
+  <h5 id="item-search-options">Item search options</h5>
+    <table>
+    <thead>
+    <tr>
+        <th>Option</th>
+        <th>Type</th>
+        <th>Example</th>
+        <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>id</td>
+        <td>term</td>
+        <td>id==&quot;1234567&quot;</td>
+        <td>Matches item with the id</td>
+    </tr>
+    <tr>
+        <td>hrid</td>
+        <td>term</td>
+        <td>hrid==&quot;it1*0&quot;</td>
+        <td>Matches items with given HRID</td>
+    </tr>
+    <tr>
+        <td>instanceId</td>
+        <td>term</td>
+        <td>instanceId==&quot;81ae0f60-f2bc-450c-84c8-5a21096daed9&quot;</td>
+        <td>Matches items of the instance with the given id</td>
+    </tr>
+    <tr>
+        <td>holdingsRecordId</td>
+        <td>term</td>
+        <td>holdingsRecordId==&quot;81ae0f60-f2bc-450c-84c8-5a21096daed9&quot;</td>
+        <td>Matches items of the holdings record with the given id</td>
+    </tr>
+    <tr>
+        <td>accessionNumber</td>
+        <td>term</td>
+        <td>accessionNumber==&quot;an123*&quot;</td>
+        <td>Matches items with given accession number</td>
+    </tr>
+    <tr>
+        <td>formerIds</td>
+        <td>term</td>
+        <td>formerIds==&quot;id-1&quot;</td>
+        <td>Matches items with given former id</td>
+    </tr>
+    <tr>
+        <td>itemIdentifier</td>
+        <td>term</td>
+        <td>itemIdentifier==&quot;ii-1&quot;</td>
+        <td>Matches items with given item identifier</td>
+    </tr>
+    <tr>
+        <td>barcode</td>
+        <td>term</td>
+        <td>barcode==&quot;10011&quot;</td>
+        <td>Matches items with given barcode</td>
+    </tr>
+    <tr>
+        <td>effectiveLocationId</td>
+        <td>term</td>
+        <td>effectiveLocationId==&quot;fcd64ce1-6995-48f0-840e-89ffa2288371&quot;</td>
+        <td>Matches items with the effective location</td>
+    </tr>
+    <tr>
+        <td>statisticalCodeIds</td>
+        <td>term</td>
+        <td>statisticalCodeIds==&quot;1212&quot;</td>
+        <td>Matches items with given statistical code id</td>
+    </tr>
+    <tr>
+        <td>statusName</td>
+        <td>term</td>
+        <td>statusName==&quot;Available&quot;</td>
+        <td>Matches items with given status</td>
+    </tr>
+    <tr>
+        <td>materialTypeId</td>
+        <td>term</td>
+        <td>materialTypeId==&quot;23434&quot;</td>
+        <td>Matches items with given material type id</td>
+    </tr>
+    <tr>
+        <td>permanentLoanTypeId</td>
+        <td>term</td>
+        <td>permanentLoanTypeId==&quot;2b94c631-fca9-4892-a730-03ee529ffe27&quot;</td>
+        <td>Matches items with given permanent loan type id</td>
+    </tr>
+    <tr>
+        <td>temporaryLoanTypeId</td>
+        <td>term</td>
+        <td>temporaryLoanTypeId==&quot;2b94c631-fca9-4892-a730-03ee529ffe27&quot;</td>
+        <td>Matches items with given temporary loan type id</td>
+    </tr>
+    <tr>
+        <td>discoverySuppress</td>
+        <td>term</td>
+        <td>discoverySuppress==true</td>
+        <td>Matches items suppressed/not suppressed from discovery</td>
+    </tr>
+    <tr>
+        <td>itemLevelCallNumberTypeId</td>
+        <td>term</td>
+        <td>itemLevelCallNumberTypeId==&quot;95467209-6d7b-468b-94df-0f5d7ad2747d&quot;</td>
+        <td>Matches items with given item-level call number type id</td>
+    </tr>
+    <tr>
+        <td>callNumber</td>
+        <td>term</td>
+        <td>callNumber==&quot;cn*434&quot;</td>
+        <td>Matches items with given effective call number</td>
+    </tr>
+    <tr>
+        <td>callNumberPrefix</td>
+        <td>term</td>
+        <td>callNumberPrefix==&quot;pr&quot;</td>
+        <td>Matches items with given effective call number prefix</td>
+    </tr>
+    <tr>
+        <td>callNumberSuffix</td>
+        <td>term</td>
+        <td>callNumberSuffix==&quot;sf&quot;</td>
+        <td>Matches items with given effective call number suffix</td>
+    </tr>
+    <tr>
+        <td>callNumberTypeId</td>
+        <td>term</td>
+        <td>callNumberTypeId==&quot;95467209-6d7b-468b-94df-0f5d7ad2747d&quot;</td>
+        <td>Matches items with given effective call number type id</td>
+    </tr>
+    <tr>
+        <td>tags.tagList</td>
+        <td>full-text</td>
+        <td>tags.tagList=&quot;important&quot;</td>
+        <td>Matches items with given tag</td>
+    </tr>
+    <tr>
+        <td>electronicAccess</td>
+        <td>full-text</td>
+        <td>electronicAccess all &quot;folio&quot;</td>
+        <td>An alias for electronicAccess fields - uri, linkText, publicNote</td>
+    </tr>
+    <tr>
+        <td>electronicAccess.uri</td>
+        <td>term</td>
+        <td>electronicAccess.uri=&quot;http://folio.org*&quot;</td>
+        <td>Search by electronic access URI</td>
+    </tr>
+    <tr>
+        <td>electronicAccess.linkText</td>
+        <td>full-text</td>
+        <td>electronicAccess.linkText all &quot;link&quot;</td>
+        <td>Search by electronic access link text</td>
+    </tr>
+    <tr>
+        <td>electronicAccess.publicNote</td>
+        <td>full-text</td>
+        <td>electronicAccess.publicNote=&quot;a rare book&quot;</td>
+        <td>Search by electronic access public note</td>
+    </tr>
+    <tr>
+        <td>electronicAccess.relationshipId</td>
+        <td>term</td>
+        <td>electronicAccess.relationshipId==&quot;f50c90c9-bae0-4add-9cd0-db9092dbc9dd&quot;</td>
+        <td>Search by electronic access relationship type ID</td>
+    </tr>
+    <tr>
+        <td>administrativeNotes</td>
+        <td>full-text</td>
+        <td>administrativeNotes all &quot;librarian note&quot;</td>
+        <td>Search by item administrative notes</td>
+    </tr>
+    <tr>
+        <td>notes.note</td>
+        <td>full-text</td>
+        <td>notes.note all &quot;item note&quot;</td>
+        <td>Search by item notes and circulation notes</td>
+    </tr>
+    <tr>
+        <td>circulationNotes.note</td>
+        <td>full-text</td>
+        <td>circulationNotes.note all &quot;circulation note&quot;</td>
+        <td>Search by item circulation notes</td>
+    </tr>
+    <tr>
+        <td>metadata.createdDate</td>
+        <td>term</td>
+        <td>metadata.createdDate &gt; &quot;2020-12-12&quot;</td>
+        <td>Matches items that were created after 2020-12-12</td>
+    </tr>
+    <tr>
+        <td>metadata.updatedDate</td>
+        <td>term</td>
+        <td>metadata.updatedDate &gt; &quot;2020-12-12&quot;</td>
+        <td>Matches items that were updated after 2020-12-12</td>
+    </tr>
+    </tbody>
+    </table>
+schema:
+  type: string

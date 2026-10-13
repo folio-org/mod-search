@@ -124,7 +124,8 @@ class FacetsControllerTest {
       Arguments.arguments("instances", ResourceType.INSTANCE),
       Arguments.arguments("contributors", ResourceType.INSTANCE_CONTRIBUTOR),
       Arguments.arguments("subjects", ResourceType.INSTANCE_SUBJECT),
-      Arguments.arguments("classifications", ResourceType.INSTANCE_CLASSIFICATION)
+      Arguments.arguments("classifications", ResourceType.INSTANCE_CLASSIFICATION),
+      Arguments.arguments("items", ResourceType.ITEM)
     );
   }
 }

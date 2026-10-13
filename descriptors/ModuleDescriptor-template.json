@@ -128,7 +128,7 @@
     },
     {
       "id": "search-inventory",
-      "version": "1.0",
+      "version": "1.1",
       "handlers": [
         {
           "methods": [
@@ -137,6 +137,18 @@
           "pathPattern": "/search/instances",
           "permissionsRequired": [
             "search.instances.collection.get"
+          ],
+          "modulePermissions": [
+            "user-tenants.collection.get"
+          ]
+        },
+        {
+          "methods": [
+            "GET"
+          ],
+          "pathPattern": "/search/inventory/items",
+          "permissionsRequired": [
+            "search.inventory.items.collection.get"
           ],
           "modulePermissions": [
             "user-tenants.collection.get"
@@ -708,6 +720,11 @@
       "permissionName": "search.instances.collection.get",
       "displayName": "Search - searches instances by given query",
       "description": "Searches instances by given query"
+    },
+    {
+      "permissionName": "search.inventory.items.collection.get",
+      "displayName": "Search - searches items by given query",
+      "description": "Searches items by given query"
     },
     {
       "permissionName": "search.authorities.collection.get",

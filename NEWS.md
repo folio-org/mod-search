@@ -9,6 +9,8 @@
 ### Features
 * **General**
   * Honor spring.cache.type=noop for cache manager ([MSEARCH-1204](https://folio-org.atlassian.net/browse/MSEARCH-1204))
+* **Inventory Items**
+  * Add `GET /search/inventory/items` endpoint and `item` index mappings ([MSEARCH-1226](https://folio-org.atlassian.net/browse/MSEARCH-1226))
 * **Linked Data Authority**
   * Implement Linked Data Authority index and search API ([MSEARCH-1246](https://folio-org.atlassian.net/browse/MSEARCH-1246))
 * **Call Number Browse**

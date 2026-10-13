@@ -41,7 +41,7 @@ public record CqlSearchRequest<T>(
   public static final class Builder<T> {
 
     private final Class<T> resourceClass;
-    private final ResourceType resource;
+    private ResourceType resource;
     private String tenantId;
     private String query;
     private Integer limit;
@@ -54,6 +54,11 @@ public record CqlSearchRequest<T>(
     private Builder(Class<T> resourceClass) {
       this.resourceClass = resourceClass;
       this.resource = ResourceType.byName(SearchUtils.getResourceName(resourceClass));
+    }
+
+    public Builder<T> resource(ResourceType resource) {
+      this.resource = resource;
+      return this;
     }
 
     public Builder<T> tenantId(String tenantId) {

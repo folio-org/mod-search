@@ -16,16 +16,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.Instance;
+import org.folio.search.domain.dto.ItemSearchRecord;
 import org.folio.search.domain.dto.LinkedDataHub;
 import org.folio.search.domain.dto.LinkedDataWork;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.exception.SearchServiceException;
+import org.folio.search.model.service.CqlSearchRequest;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.SearchService;
 import org.folio.search.service.consortium.TenantProvider;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.testing.type.UnitTest;
 import org.folio.support.config.TestNoOpCacheConfig;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -80,6 +84,56 @@ class SearchControllerTest {
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.totalRecords", is(0)))
       .andExpect(jsonPath(jsonDataPath).exists());
+  }
+
+  @Test
+  void searchItems_positive() throws Exception {
+    var cqlQuery = "barcode==12345";
+    var expectedRequest = CqlSearchRequest.builder(ItemSearchRecord.class)
+      .resource(ResourceType.ITEM)
+      .tenantId(TENANT_ID)
+      .query(cqlQuery)
+      .limit(100)
+      .offset(0)
+      .expandAll(false)
+      .build();
+    when(searchService.search(expectedRequest)).thenReturn(searchResult());
+
+    var requestBuilder = get("/search/inventory/items")
+      .queryParam("query", cqlQuery)
+      .contentType(APPLICATION_JSON)
+      .header(XOkapiHeaders.TENANT, TENANT_ID);
+
+    mockMvc.perform(requestBuilder)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.totalRecords", is(0)))
+      .andExpect(jsonPath("$.items").exists());
+  }
+
+  @Test
+  void searchItems_positive_includeFields() throws Exception {
+    var cqlQuery = "barcode==12345";
+    var expectedRequest = CqlSearchRequest.builder(ItemSearchRecord.class)
+      .resource(ResourceType.ITEM)
+      .tenantId(TENANT_ID)
+      .query(cqlQuery)
+      .limit(100)
+      .offset(0)
+      .expandAll(false)
+      .includeFields("id,barcode")
+      .build();
+    when(searchService.search(expectedRequest)).thenReturn(searchResult());
+
+    var requestBuilder = get("/search/inventory/items")
+      .queryParam("query", cqlQuery)
+      .queryParam("include", "id,barcode")
+      .contentType(APPLICATION_JSON)
+      .header(XOkapiHeaders.TENANT, TENANT_ID);
+
+    mockMvc.perform(requestBuilder)
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.totalRecords", is(0)))
+      .andExpect(jsonPath("$.items").exists());
   }
 
   @ParameterizedTest

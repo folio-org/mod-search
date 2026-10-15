@@ -23,6 +23,10 @@ public class ApiEndpoints {
     return "/search/instances";
   }
 
+  public static String itemSearchPath() {
+    return "/search/inventory/items";
+  }
+
   public static String consortiumHoldingsSearchPath() {
     return "/search/consortium/holdings";
   }

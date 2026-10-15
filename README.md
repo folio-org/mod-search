@@ -445,6 +445,7 @@ Consortium feature on module enable is defined by 'centralTenantId' tenant param
 | METHOD | URL                             | DESCRIPTION                                                                          |
 |:-------|:--------------------------------|:-------------------------------------------------------------------------------------|
 | GET    | `/search/instances`             | Search by instances and to this instance items and holding-records                   |
+| GET    | `/search/inventory/items`       | Search items by CQL query                                                            |
 | GET    | `/search/authorities`           | Search by authority records                                                          |
 | GET    | `/search/linked-data/instances` | Search linked data graph instance resource descriptions                              |
 | GET    | `/search/linked-data/works`     | Search linked data graph work resource descriptions                                  |

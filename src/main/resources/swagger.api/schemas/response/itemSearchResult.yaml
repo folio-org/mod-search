@@ -1,0 +1,12 @@
+description: "Item search result response"
+type: "object"
+properties:
+  totalRecords:
+    type: "integer"
+    description: "Amount of items found"
+  items:
+    type: "array"
+    x-field-extra-annotation: "@com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)"
+    description: "List of items found"
+    items:
+      $ref: "../../schemas/entity/itemSearchRecord.yaml"

@@ -1,0 +1,23 @@
+get:
+  operationId: searchItems
+  summary: Search Items
+  description: Get a list of items for CQL query
+  tags:
+    - search
+  parameters:
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+    - $ref: '../../parameters/item-search-cql-query.yaml'
+    - $ref: '../../parameters/limit-param.yaml'
+    - $ref: '../../parameters/offset-param.yaml'
+    - $ref: '../../parameters/include-fields.yaml'
+  responses:
+    '200':
+      description: 'Item search result'
+      content:
+        application/json:
+          schema:
+            $ref: '../../schemas/response/itemSearchResult.yaml'
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

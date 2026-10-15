@@ -7,6 +7,8 @@ import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.AuthoritySearchResult;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.InstanceSearchResult;
+import org.folio.search.domain.dto.ItemSearchRecord;
+import org.folio.search.domain.dto.ItemSearchResult;
 import org.folio.search.domain.dto.LinkedDataAuthority;
 import org.folio.search.domain.dto.LinkedDataAuthoritySearchResult;
 import org.folio.search.domain.dto.LinkedDataHub;
@@ -14,6 +16,7 @@ import org.folio.search.domain.dto.LinkedDataHubSearchResult;
 import org.folio.search.domain.dto.LinkedDataWork;
 import org.folio.search.domain.dto.LinkedDataWorkSearchResult;
 import org.folio.search.model.service.CqlSearchRequest;
+import org.folio.search.model.types.ResourceType;
 import org.folio.search.rest.resource.SearchApi;
 import org.folio.search.service.SearchService;
 import org.folio.search.service.consortium.TenantProvider;
@@ -67,6 +70,25 @@ public class SearchController implements SearchApi {
     var result = searchService.search(searchRequest);
     return ResponseEntity.ok(new InstanceSearchResult()
       .instances(result.getRecords())
+      .totalRecords(result.getTotalRecords()));
+  }
+
+  @Override
+  public ResponseEntity<ItemSearchResult> searchItems(String tenant, String query, Integer limit, Integer offset,
+                                                      String include) {
+    tenant = tenantProvider.getTenant(tenant);
+    var searchRequest = CqlSearchRequest.builder(ItemSearchRecord.class)
+      .resource(ResourceType.ITEM)
+      .tenantId(tenant)
+      .query(query)
+      .limit(limit)
+      .offset(offset)
+      .expandAll(false)
+      .includeFields(include)
+      .build();
+    var result = searchService.search(searchRequest);
+    return ResponseEntity.ok(new ItemSearchResult()
+      .items(result.getRecords())
       .totalRecords(result.getTotalRecords()));
   }
 

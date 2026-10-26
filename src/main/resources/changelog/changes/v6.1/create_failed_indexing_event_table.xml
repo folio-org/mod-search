@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
+
+  <changeSet id="MSEARCH-1228@@create:failed_indexing_event" author="pavlo_smahin">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="failed_indexing_event"/>
+      </not>
+    </preConditions>
+
+    <comment>Create failed_indexing_event table to store resource events that failed to be indexed</comment>
+
+    <createTable tableName="failed_indexing_event">
+      <column name="id" type="UUID">
+        <constraints primaryKey="true" primaryKeyName="pk_failed_indexing_event"/>
+      </column>
+      <column name="resource_type" type="VARCHAR(100)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="resource_id" type="VARCHAR(255)"/>
+      <column name="event_type" type="VARCHAR(50)"/>
+      <column name="event" type="JSONB"/>
+      <column name="error_message" type="TEXT"/>
+      <column name="status" type="INTEGER"/>
+      <column name="error_type" type="VARCHAR(255)"/>
+      <column name="created_date" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet id="MSEARCH-1228@@create:failed_indexing_event:created_date_idx" author="pavlo_smahin">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <indexExists indexName="idx_failed_indexing_event_created_date"/>
+      </not>
+    </preConditions>
+
+    <comment>Create index on created_date for cleanup of old failed indexing events</comment>
+
+    <createIndex tableName="failed_indexing_event" indexName="idx_failed_indexing_event_created_date">
+      <column name="created_date"/>
+    </createIndex>
+  </changeSet>
+
+</databaseChangeLog>

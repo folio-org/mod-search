@@ -22,12 +22,14 @@ import org.folio.search.model.event.IndexInstanceEvent;
 import org.folio.search.model.event.InstanceSharingCompleteEvent;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.EgressExecutionContextService;
+import org.folio.search.service.ItemIndexService;
 import org.folio.search.service.ResourceService;
 import org.folio.search.service.config.ConfigSynchronizationService;
 import org.folio.search.service.consortium.ConsortiumTenantProvider;
 import org.folio.search.service.reindex.jdbc.CallNumberRepository;
 import org.folio.search.utils.KafkaConstants;
 import org.folio.search.utils.SearchConverterUtils;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -49,6 +51,7 @@ public class KafkaMessageListener {
   private final InstanceEventMapper instanceEventMapper;
   private final CallNumberRepository callNumberRepository;
   private final ConsortiumTenantProvider consortiumTenantProvider;
+  private final ObjectProvider<ItemIndexService> itemIndexServiceProvider;
 
   /**
    * Handles instance events and indexes them by id.
@@ -71,6 +74,11 @@ public class KafkaMessageListener {
           .forEach(instanceEventProducer::send);
         return null;
       }));
+
+    var itemIndexService = itemIndexServiceProvider.getIfAvailable();
+    if (itemIndexService != null) {
+      itemIndexService.indexItemEvents(consumerRecords.stream().map(ConsumerRecord::value).toList());
+    }
   }
 
   /**

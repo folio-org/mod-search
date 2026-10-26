@@ -105,12 +105,6 @@ description: |
         <td>Matches items suppressed/not suppressed from discovery</td>
     </tr>
     <tr>
-        <td>itemLevelCallNumberTypeId</td>
-        <td>term</td>
-        <td>itemLevelCallNumberTypeId==&quot;95467209-6d7b-468b-94df-0f5d7ad2747d&quot;</td>
-        <td>Matches items with given item-level call number type id</td>
-    </tr>
-    <tr>
         <td>callNumber</td>
         <td>term</td>
         <td>callNumber==&quot;cn*434&quot;</td>

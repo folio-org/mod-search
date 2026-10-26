@@ -1,8 +1,11 @@
 package org.folio.search.controller;
 
+import static org.folio.search.domain.dto.ResourceEventType.CREATE;
+import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessFolioCreateIndexResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.support.base.ApiEndpoints.createIndicesPath;
+import static org.folio.support.base.ApiEndpoints.indexRecordsPath;
 import static org.folio.support.base.ApiEndpoints.reindexFailedPath;
 import static org.folio.support.base.ApiEndpoints.reindexFullPath;
 import static org.folio.support.base.ApiEndpoints.reindexInstanceRecordsStatus;
@@ -16,6 +19,7 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -28,6 +32,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import org.folio.search.domain.dto.CreateIndexRequest;
@@ -42,8 +47,8 @@ import org.folio.search.domain.dto.UpdateMappingsRequest;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ResourceType;
-import org.folio.search.service.EgressExecutionContextService;
 import org.folio.search.service.IndexService;
+import org.folio.search.service.ItemIndexService;
 import org.folio.search.service.ResourceService;
 import org.folio.search.service.reindex.ReindexService;
 import org.folio.search.service.reindex.ReindexStatusService;
@@ -82,7 +87,33 @@ class IndexManagementControllerTest {
   @MockitoBean
   private ReindexStatusService reindexStatusService;
   @MockitoBean
-  private EgressExecutionContextService executionService;
+  private ItemIndexService itemIndexService;
+
+  @Test
+  void indexRecords_positive_itemEventsAreIndexedIntoItemIndex() throws Exception {
+    var events = List.of(resourceEvent(randomId(), ResourceType.ITEM, CREATE, Map.of("id", "item"), null));
+    when(resourceService.indexResources(events)).thenReturn(getSuccessIndexOperationResponse());
+    when(itemIndexService.indexItemEvents(events)).thenReturn(getSuccessIndexOperationResponse());
+
+    mockMvc.perform(preparePostRequest(indexRecordsPath(), asJsonString(events)))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.status", is("success")));
+
+    verify(itemIndexService).indexItemEvents(events);
+  }
+
+  @Test
+  void indexRecords_negative_itemIndexingErrorIsReturned() throws Exception {
+    var events = List.of(resourceEvent(randomId(), ResourceType.ITEM, CREATE, Map.of("id", "item"), null));
+    when(resourceService.indexResources(events)).thenReturn(getSuccessIndexOperationResponse());
+    when(itemIndexService.indexItemEvents(events))
+      .thenReturn(getErrorIndexOperationResponse("Failed to index 1 of 1 item events"));
+
+    mockMvc.perform(preparePostRequest(indexRecordsPath(), asJsonString(events)))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.status", is("error")))
+      .andExpect(jsonPath("$.errorMessage", is("Failed to index 1 of 1 item events")));
+  }
 
   @Test
   void submitReindexFull_positive() throws Exception {
@@ -229,10 +260,13 @@ class IndexManagementControllerTest {
     var resourceBody = resourceEvent(ResourceType.INSTANCE, mapOf("id", randomId()));
 
     when(resourceService.indexResources(List.of(resourceBody))).thenReturn(getSuccessIndexOperationResponse());
+    when(itemIndexService.indexItemEvents(List.of(resourceBody))).thenReturn(getSuccessIndexOperationResponse());
 
     mockMvc.perform(preparePostRequest("/search/index/records", asJsonString(resourceBody)))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.status", is("success")));
+
+    verify(resourceService).indexResources(List.of(resourceBody));
   }
 
   @Test

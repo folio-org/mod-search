@@ -11,6 +11,7 @@ import org.folio.search.configuration.properties.OpensearchProperties;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.configuration.properties.StreamIdsProperties;
 import org.folio.search.exception.FolioIntegrationException;
+import org.folio.search.utils.IndexingFailureUtils;
 import org.folio.spring.tools.kafka.FolioKafkaProperties;
 import org.jspecify.annotations.NonNull;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -28,6 +29,7 @@ import org.springframework.core.retry.Retryable;
 public class RetryTemplateConfiguration {
 
   public static final String KAFKA_RETRY_TEMPLATE_NAME = "kafkaMessageListenerRetryTemplate";
+  public static final String ITEM_INDEXING_RETRY_TEMPLATE_NAME = "itemIndexingRetryTemplate";
   public static final String STREAM_IDS_RETRY_TEMPLATE_NAME = "streamIdsRetryTemplate";
   public static final String SEARCH_RETRY_TEMPLATE_NAME = "searchRetryTemplate";
   public static final String REINDEX_PUBLISH_RANGE_RETRY_TEMPLATE_NAME = "reindexPublishRangeRetryTemplate";
@@ -46,6 +48,23 @@ public class RetryTemplateConfiguration {
     return new RetryTemplate(RetryPolicy.builder()
       .maxRetries(properties.getRetryDeliveryAttempts())
       .delay(Duration.ofMillis(properties.getRetryIntervalMs()))
+      .build());
+  }
+
+  /**
+   * Creates retry template for item indexing from kafka events. Same settings as
+   * {@link #kafkaMessageListenerRetryTemplate(FolioKafkaProperties)}, but client errors (4xx except 429) reported by
+   * OpenSearch are not retried, since they would fail the same way on every attempt.
+   *
+   * @return created {@link RetryTemplate} object
+   */
+  @ConditionalOnBean(FolioKafkaProperties.class)
+  @Bean(name = ITEM_INDEXING_RETRY_TEMPLATE_NAME)
+  public RetryTemplate itemIndexingRetryTemplate(FolioKafkaProperties properties) {
+    return new RetryTemplate(RetryPolicy.builder()
+      .maxRetries(properties.getRetryDeliveryAttempts())
+      .delay(Duration.ofMillis(properties.getRetryIntervalMs()))
+      .predicate(IndexingFailureUtils::isRetryable)
       .build());
   }
 

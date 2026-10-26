@@ -32,22 +32,27 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.folio.search.domain.dto.Authority;
 import org.folio.search.domain.dto.LinkedDataAuthority;
 import org.folio.search.domain.dto.LinkedDataHub;
 import org.folio.search.domain.dto.LinkedDataWork;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.integration.message.FolioMessageBatchProcessor;
+import org.folio.search.integration.message.InstanceEventMapper;
 import org.folio.search.integration.message.KafkaMessageListener;
 import org.folio.search.model.event.IndexInstanceEvent;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.EgressExecutionContextService;
+import org.folio.search.service.ItemIndexService;
 import org.folio.search.service.ResourceService;
 import org.folio.search.service.config.ConfigSynchronizationService;
 import org.folio.search.utils.JsonConverter;
@@ -62,7 +67,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.core.retry.RetryTemplate;
+import org.springframework.kafka.core.KafkaTemplate;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -82,11 +89,50 @@ class KafkaMessageListenerTest {
   private ConfigSynchronizationService configSynchronizationService;
   @Mock
   private EgressExecutionContextService executionService;
+  @Mock
+  private InstanceEventMapper instanceEventMapper;
+  @Mock
+  private KafkaTemplate<String, IndexInstanceEvent> instanceEventProducer;
+  @Mock
+  private ObjectProvider<ItemIndexService> itemIndexServiceProvider;
+  @Mock
+  private ItemIndexService itemIndexService;
 
   @BeforeEach
   void setUp() {
     lenient().doAnswer(invocation -> invocation.<Callable<?>>getArgument(1).call())
       .when(executionService).execute(any(), any(Callable.class));
+  }
+
+  @Test
+  void handleInstanceEvents_positive_itemIndexEnabled() {
+    enableItemIndex(true);
+    var item = resourceEvent(RESOURCE_ID, ResourceType.ITEM, CREATE, Map.of("id", RESOURCE_ID), null);
+    var instance = resourceEvent(randomId(), ResourceType.INSTANCE, CREATE, Map.of("id", randomId()), null);
+    var producerRecord = new ProducerRecord<>("topic", "key", new IndexInstanceEvent(TENANT_ID, randomId()));
+    when(instanceEventMapper.mapToProducerRecords(any())).thenReturn(List.of(producerRecord));
+
+    messageListener.handleInstanceEvents(List.of(
+      new ConsumerRecord<>("topic", 0, 0, RESOURCE_ID, item),
+      new ConsumerRecord<>("topic", 0, 1, "k2", instance)));
+
+    verify(instanceEventProducer, times(2)).send(producerRecord);
+    verify(itemIndexService).indexItemEvents(List.of(item, instance));
+  }
+
+  @Test
+  void handleInstanceEvents_positive_itemIndexDisabled() {
+    enableItemIndex(false);
+    var item = resourceEvent(RESOURCE_ID, ResourceType.ITEM, CREATE, Map.of("id", RESOURCE_ID), null);
+    when(instanceEventMapper.mapToProducerRecords(any())).thenReturn(List.of());
+
+    messageListener.handleInstanceEvents(List.of(new ConsumerRecord<>("topic", 0, 0, RESOURCE_ID, item)));
+
+    verifyNoInteractions(itemIndexService);
+  }
+
+  private void enableItemIndex(boolean enabled) {
+    when(itemIndexServiceProvider.getIfAvailable()).thenReturn(enabled ? itemIndexService : null);
   }
 
   @Test

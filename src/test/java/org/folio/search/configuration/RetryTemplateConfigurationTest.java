@@ -14,6 +14,7 @@ import org.folio.search.configuration.properties.OpensearchProperties;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.configuration.properties.StreamIdsProperties;
 import org.folio.search.exception.FolioIntegrationException;
+import org.folio.search.exception.IndexingFailureException;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.spring.testing.type.UnitTest;
 import org.folio.spring.tools.kafka.FolioKafkaProperties;
@@ -59,6 +60,36 @@ class RetryTemplateConfigurationTest {
     when(reindexConfigurationProperties.getMergeRangePublisherRetryIntervalMs()).thenReturn(200L);
     var actual = configuration.reindexPublishRangeRetryTemplate(reindexConfigurationProperties);
     assertThat(actual).isNotNull();
+  }
+
+  @Test
+  void itemIndexingRetryTemplate_clientError_doesNotRetry() {
+    when(folioKafkaProperties.getRetryDeliveryAttempts()).thenReturn(3L);
+    when(folioKafkaProperties.getRetryIntervalMs()).thenReturn(1L);
+    var retryTemplate = configuration.itemIndexingRetryTemplate(folioKafkaProperties);
+    var attempts = new AtomicInteger();
+
+    assertThatThrownBy(() -> retryTemplate.invoke(() -> {
+      attempts.incrementAndGet();
+      throw new IndexingFailureException("mapping error", 400, "mapper_parsing_exception");
+    })).isInstanceOf(IndexingFailureException.class);
+
+    assertThat(attempts.get()).isEqualTo(1);
+  }
+
+  @Test
+  void itemIndexingRetryTemplate_tooManyRequests_retries() {
+    when(folioKafkaProperties.getRetryDeliveryAttempts()).thenReturn(3L);
+    when(folioKafkaProperties.getRetryIntervalMs()).thenReturn(1L);
+    var retryTemplate = configuration.itemIndexingRetryTemplate(folioKafkaProperties);
+    var attempts = new AtomicInteger();
+
+    assertThatThrownBy(() -> retryTemplate.invoke(() -> {
+      attempts.incrementAndGet();
+      throw new IndexingFailureException("rejected", 429, "rejected_execution_exception");
+    })).isInstanceOf(IndexingFailureException.class);
+
+    assertThat(attempts.get()).isEqualTo(4);
   }
 
   @Test

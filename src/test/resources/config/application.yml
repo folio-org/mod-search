@@ -1,51 +1,17 @@
+# Test overrides on top of src/main/resources/application.yml (classpath:/config/ takes precedence over classpath:/)
 spring:
-  application:
-    name: mod-search
-  threads:
-    virtual:
-      enabled: true
   main:
-     banner-mode: off
-     allow-bean-definition-overriding: true
-  jackson:
-    default-property-inclusion: non_null
-    deserialization:
-      fail-on-unknown-properties: false
-      accept-single-value-as-array: true
+    banner-mode: off
   opensearch:
     username: elastic
     password: s3cret
     compression-enabled: false
-    elasticsearch-server: ${ELASTICSEARCH_SERVER:false}
   datasource:
-    hikari:
-      data-source-properties:
-        reWriteBatchedInserts: true
     username: folio_admin
     password: password
-  liquibase:
-    change-log: classpath:changelog/changelog-master.xml
-  cache:
-    cache-names:
-      - es-indices
-      - reference-data-cache
-      - tenant-languages
-      - tenant-features
-      - search-preference
-      - user-tenants
-      - consortium-tenants-cache
-    caffeine:
-      spec: maximumSize=500,expireAfterWrite=3600s
-
-server.port: 8081
 
 folio:
   environment: folio-test
-  exchange:
-    enabled: true
-  system:
-    schemaName: mod_search__system
-    change-log: classpath:changelog/changelog-system.xml
   search-config:
     initial-languages: eng,fre,ita,spa,ger
     max-search-batch-request-ids-count: 500
@@ -58,21 +24,12 @@ folio:
     indexing:
       data-format: json
       instance-children-index-enabled: false
+      item-index-enabled: false
       instance-children-index-delay-ms: 1000
       sub-resource-batch-size: 40
   reindex:
     reindex-type: PUBLISH
     location-batch-size: 2
-  query:
-    properties:
-      request-timeout: 25s
-  stream-ids:
-    scroll-query-size: 1000
-    retry-interval-ms: 1000
-    retry-attempts: 3
-    core-pool-size: 2
-    max-pool-size: 2
-    queue-capacity: 500
   kafka:
     retry-interval-ms: 100
     retry-delivery-attempts: 2
@@ -137,69 +94,39 @@ folio:
     listener:
       events:
         concurrency: 1
-        topic-pattern: (${folio.environment}\.)(.*\.)inventory\.(instance|holdings-record|item|bound-with)
-        group-id: ${folio.environment}-mod-search-events-group
         max-poll-records: 5
         max-poll-interval-ms: 6000
       instances:
         concurrency: 1
-        topic-pattern: (${folio.environment}\.)(.*\.)inventory\.instance
-        group-id: ${folio.environment}-mod-search-inventory-group
       authorities:
         concurrency: 1
-        topic-pattern: (${folio.environment}\.)(.*\.)authorities\.authority
-        group-id: ${folio.environment}-mod-search-authorities-group
       browse-config-data:
         concurrency: 1
-        topic-pattern: (${folio.environment}\.)(.*\.)inventory\.(classification-type|call-number-type)
-        group-id: ${folio.environment}-mod-search-browse-config-data-group
-        shared-group: false
       location:
         concurrency: 1
-        topic-pattern: (${folio.environment}\.)(.*\.)inventory\.(location|campus|institution|library)
-        group-id: ${folio.environment}-mod-search-location-type-group
       linked-data:
         concurrency: 1
-        topic-pattern: (${folio.environment}\.)(.*\.)linked-data\.(authority|work|hub)
-        group-id: ${folio.environment}-mod-search-linked-data-group
       instance-sharing-complete:
         concurrency: 1
         topic-pattern: (${folio.environment}\.)(.*\.)CONSORTIUM_INSTANCE_SHARING_COMPLETE
-        group-id: ${folio.environment}-mod-search-consortium-instance-sharing-complete-group
       reindex-range-index:
         concurrency: 1
-        topic-pattern: (${folio.environment}\.)(.*\.)search\.reindex\.range-index
-        group-id: ${folio.environment}-mod-search-reindex-range-index-group
       reindex-records:
         concurrency: 1
-        topic-pattern: (${folio.environment}\.)(.*\.)inventory\.reindex-records
-        group-id: ${folio.environment}-mod-search-reindex-records-group
       reindex-file-ready:
         concurrency: 1
-        topic-pattern: (${folio.environment}\.)(.*\.)inventory\.reindex\.file-ready
-        group-id: ${folio.environment}-mod-search-reindex-file-ready-group
       index-instance:
         concurrency: 1
-        topic-pattern: (${folio.environment}\.)(.*\.)search\.index.instance
-        group-id: ${folio.environment}-mod-search-index-instance-group
         max-poll-records: 5
         max-poll-interval-ms: 6000
   okapiUrl: ${okapi.url}
   logging:
-    request:
-      enabled: true
     exchange:
       enabled: true
 
 logging:
   level:
-    org.apache.kafka.clients.consumer: warn
-    org.apache.kafka.common.config.AbstractConfig: warn
-    org.apache.kafka.common.metrics: warn
-    org.apache.kafka.common.utils.AppInfoParser: warn
-    org.apache.kafka.common.telemetry: warn
     org.folio.spring.config.*: debug
-    org.folio.spring.filter.IncomingRequestLoggingFilter: debug
     org.folio.spring.client.ExchangeLoggingInterceptor: debug
     org.opensearch.client: trace
     tracer: trace

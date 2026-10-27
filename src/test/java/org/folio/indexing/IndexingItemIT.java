@@ -1,12 +1,15 @@
 package org.folio.indexing;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.model.types.ResourceType.ITEM;
 import static org.folio.support.TestConstants.TENANT_ID;
+import static org.folio.support.base.ApiEndpoints.indexRecordsPath;
 import static org.folio.support.base.ApiEndpoints.itemSearchPath;
 import static org.folio.support.utils.TestUtils.mapOf;
 import static org.folio.support.utils.TestUtils.randomId;
 import static org.folio.support.utils.TestUtils.resourceEvent;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -20,11 +23,18 @@ import org.folio.support.base.BaseIntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.TestPropertySource;
 
 @IntegrationTest
 @TestPropertySource(properties = "folio.search-config.indexing.item-index-enabled=true")
 class IndexingItemIT extends BaseIntegrationTest {
+
+  private static final String FAILED_EVENTS_TABLE = TENANT_ID + "_mod_search.failed_indexing_event";
+
+  @Autowired
+  private JdbcTemplate jdbcTemplate;
 
   @BeforeAll
   static void prepare() {
@@ -80,6 +90,31 @@ class IndexingItemIT extends BaseIntegrationTest {
       .andExpect(jsonPath("$.totalRecords", is(1)))
       .andExpect(jsonPath("$.items[0].barcode", is("rest-" + itemId)))
       .andExpect(jsonPath("$.items[0].statusName", is("Available"))));
+  }
+
+  @Test
+  void shouldStoreFailedIndexingEventInTenantSchema() throws Exception {
+    var itemId = randomId();
+    var itemEvent = resourceEvent(itemId, ITEM, CREATE,
+      mapOf("id", itemId, "instanceId", randomId(), "holdingsRecordId", randomId(),
+        "metadata", mapOf("updatedDate", "not-a-date")), null)
+      .tenant(TENANT_ID);
+
+    doPost(indexRecordsPath(), TENANT_ID, List.of(itemEvent))
+      .andExpect(jsonPath("$.status", is("error")))
+      .andExpect(jsonPath("$.errorMessage", containsString("Failed to index 1 of 1 item events")));
+
+    var stored = jdbcTemplate.queryForMap(
+      "SELECT resource_type, event_type, status, error_type, error_message FROM " + FAILED_EVENTS_TABLE
+      + " WHERE resource_id = ?", itemId);
+    assertThat(stored)
+      .containsEntry("resource_type", "item")
+      .containsEntry("event_type", "CREATE")
+      .containsEntry("status", 400)
+      .containsEntry("error_type", "mapper_parsing_exception");
+    assertThat((String) stored.get("error_message")).contains("updatedDate");
+    awaitAssertion(() -> doSearch(itemSearchPath(), "id==" + itemId, TENANT_ID)
+      .andExpect(jsonPath("$.totalRecords", is(0))));
   }
 
   private void assertUpdateAndDelete(String instanceId, String itemId, Item item) {

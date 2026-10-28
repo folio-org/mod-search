@@ -43,12 +43,21 @@ public abstract class AbstractResourceRepository implements ResourceRepository {
       return getSuccessIndexOperationResponse();
     }
 
-    var bulkRequest = prepareBulkRequest(documents);
-    var bulkApiResponse = executeBulkRequest(bulkRequest);
+    var bulkApiResponse = executeBulk(documents);
 
     return bulkApiResponse.hasFailures()
            ? getErrorIndexOperationResponse(bulkApiResponse.buildFailureMessage())
            : getSuccessIndexOperationResponse();
+  }
+
+  /**
+   * Executes bulk request for the given documents and returns raw bulk response with per-document results.
+   *
+   * @param documents documents to index or delete
+   * @return {@link BulkResponse} object
+   */
+  public BulkResponse executeBulk(List<SearchDocumentBody> documents) {
+    return executeBulkRequest(prepareBulkRequest(documents));
   }
 
   @Override

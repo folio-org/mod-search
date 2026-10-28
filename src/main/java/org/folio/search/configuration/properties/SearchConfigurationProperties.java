@@ -73,6 +73,16 @@ public class SearchConfigurationProperties {
     private Boolean instanceChildrenIndexEnabled;
 
     /**
+     * Defines if inventory item events should be indexed as standalone documents into the item index.
+     */
+    private Boolean itemIndexEnabled;
+
+    /**
+     * Number of days after which stored failed indexing events are deleted by the cleanup scheduler.
+     */
+    private int failedEventsRetentionDays = 30;
+
+    /**
      * Scheduler delay for indexing subjects/contributors/classifications.
      * */
     private long instanceChildrenIndexDelayMs;

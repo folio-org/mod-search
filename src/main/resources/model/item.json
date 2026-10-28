@@ -2,6 +2,9 @@
   "name": "item",
   "eventBodyJavaClass": "org.folio.search.domain.dto.ItemSearchRecord",
   "reindexSupported": false,
+  "indexingConfiguration": {
+    "eventPreProcessor": "itemEventPreProcessor"
+  },
   "fields": {
     "id": {
       "index": "keyword_lowercase",
@@ -29,7 +32,7 @@
       "index": "keyword_icu"
     },
     "itemIdentifier": {
-      "index": "source"
+      "index": "keyword_icu"
     },
     "barcode": {
       "index": "keyword_icu",
@@ -83,19 +86,19 @@
       "default": false
     },
     "callNumber": {
-      "index": "source",
+      "index": "keyword_icu",
       "showInResponse": true
     },
     "callNumberPrefix": {
-      "index": "source",
+      "index": "keyword_icu",
       "showInResponse": true
     },
     "callNumberSuffix": {
-      "index": "source",
+      "index": "keyword_icu",
       "showInResponse": true
     },
     "callNumberTypeId": {
-      "index": "keyword",
+      "index": "keyword_lowercase",
       "showInResponse": true
     },
     "tags": {

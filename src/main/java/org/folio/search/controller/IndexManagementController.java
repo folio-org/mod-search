@@ -1,8 +1,13 @@
 package org.folio.search.controller;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
+import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.CreateIndexRequest;
@@ -18,11 +23,12 @@ import org.folio.search.domain.dto.UpdateIndexDynamicSettingsRequest;
 import org.folio.search.domain.dto.UpdateMappingsRequest;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.rest.resource.IndexManagementApi;
-import org.folio.search.service.EgressExecutionContextService;
 import org.folio.search.service.IndexService;
+import org.folio.search.service.ItemIndexService;
 import org.folio.search.service.ResourceService;
 import org.folio.search.service.reindex.ReindexService;
 import org.folio.search.service.reindex.ReindexStatusService;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,7 +48,7 @@ public class IndexManagementController implements IndexManagementApi {
   private final ResourceService resourceService;
   private final ReindexService reindexService;
   private final ReindexStatusService reindexStatusService;
-  private final EgressExecutionContextService executionService;
+  private final ObjectProvider<ItemIndexService> itemIndexServiceProvider;
 
   @Override
   public ResponseEntity<FolioCreateIndexResponse> createIndices(String tenantId, CreateIndexRequest request) {
@@ -51,8 +57,12 @@ public class IndexManagementController implements IndexManagementApi {
 
   @Override
   public ResponseEntity<FolioIndexOperationResponse> indexRecords(String tenantId, List<ResourceEvent> events) {
-    executionService.execute(tenantId, () -> resourceService.indexResources(events));
-    return ResponseEntity.ok(resourceService.indexResources(events));
+    var response = resourceService.indexResources(events);
+    var itemIndexService = itemIndexServiceProvider.getIfAvailable();
+    if (itemIndexService == null) {
+      return ResponseEntity.ok(response);
+    }
+    return ResponseEntity.ok(mergeResponses(response, itemIndexService.indexItemEvents(events)));
   }
 
   @Override
@@ -102,5 +112,14 @@ public class IndexManagementController implements IndexManagementApi {
   @Override
   public ResponseEntity<List<ReindexStatusItem>> getReindexStatus(String tenantId) {
     return ResponseEntity.ok(reindexStatusService.getReindexStatuses(tenantId));
+  }
+
+  private static FolioIndexOperationResponse mergeResponses(FolioIndexOperationResponse first,
+                                                            FolioIndexOperationResponse second) {
+    var errors = Stream.of(first, second)
+      .map(FolioIndexOperationResponse::getErrorMessage)
+      .filter(Objects::nonNull)
+      .collect(Collectors.joining(", "));
+    return errors.isEmpty() ? getSuccessIndexOperationResponse() : getErrorIndexOperationResponse(errors);
   }
 }

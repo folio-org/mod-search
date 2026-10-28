@@ -11,12 +11,14 @@ import static org.folio.search.model.types.ResourceType.INSTANCE_CALL_NUMBER;
 import static org.folio.search.model.types.ResourceType.INSTANCE_CLASSIFICATION;
 import static org.folio.search.model.types.ResourceType.INSTANCE_CONTRIBUTOR;
 import static org.folio.search.model.types.ResourceType.INSTANCE_SUBJECT;
+import static org.folio.search.model.types.ResourceType.ITEM;
 import static org.folio.search.model.types.ResourceType.LINKED_DATA_AUTHORITY;
 import static org.folio.search.model.types.ResourceType.LINKED_DATA_HUB;
 import static org.folio.search.model.types.ResourceType.LINKED_DATA_WORK;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.testdata.SharedTestDataManager.LockManager;
 import static org.folio.support.testdata.SharedTestDataManager.instancesCount;
+import static org.folio.support.testdata.SharedTestDataManager.itemsCount;
 import static org.folio.support.testdata.SharedTestDataManager.linkedDataAuthoritiesCount;
 import static org.folio.support.testdata.SharedTestDataManager.linkedDataHubsCount;
 import static org.folio.support.testdata.SharedTestDataManager.linkedDataWorksCount;
@@ -37,6 +39,7 @@ import org.folio.api.search.SearchAuthorityIT;
 import org.folio.api.search.SearchByEmptyValuesIT;
 import org.folio.api.search.SearchHoldingsIT;
 import org.folio.api.search.SearchInstanceIT;
+import org.folio.api.search.SearchInventoryItemIT;
 import org.folio.api.search.SearchItemIT;
 import org.folio.api.search.SearchLinkedDataAuthorityIT;
 import org.folio.api.search.SearchLinkedDataHubIT;
@@ -69,7 +72,10 @@ import org.springframework.test.context.TestPropertySource;
  * {@code src/test/resources/test-data/manage/README.md} for the management guide.
  */
 @IntegrationTest
-@TestPropertySource(properties = "folio.search-config.indexing.instance-children-index-enabled=true")
+@TestPropertySource(properties = {
+  "folio.search-config.indexing.instance-children-index-enabled=true",
+  "folio.search-config.indexing.item-index-enabled=true"
+})
 class SearchBrowseSuiteIT extends BaseIntegrationTest {
 
   private static final int EXPECTED_AUTHORITY_COUNT = 132;
@@ -106,6 +112,7 @@ class SearchBrowseSuiteIT extends BaseIntegrationTest {
 
   private static void awaitSubResourceIndexing() {
     awaitIndexedResourceCounts(INSTANCE, TENANT_ID, instancesCount());
+    awaitIndexedResourceCounts(ITEM, TENANT_ID, itemsCount());
     awaitIndexedResourceCounts(AUTHORITY, TENANT_ID, EXPECTED_AUTHORITY_COUNT);
     awaitIndexedResourceCounts(INSTANCE_CALL_NUMBER, TENANT_ID, EXPECTED_CALL_NUMBER_COUNT);
     awaitIndexedResourceCounts(INSTANCE_CLASSIFICATION, TENANT_ID, EXPECTED_CLASSIFICATION_COUNT);
@@ -160,6 +167,9 @@ class SearchBrowseSuiteIT extends BaseIntegrationTest {
 
   @Nested
   class SearchItem extends SearchItemIT { }
+
+  @Nested
+  class SearchInventoryItem extends SearchInventoryItemIT { }
 
   @Nested
   class SearchLinkedDataAuthority extends SearchLinkedDataAuthorityIT { }

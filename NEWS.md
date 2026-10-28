@@ -11,6 +11,8 @@
   * Honor spring.cache.type=noop for cache manager ([MSEARCH-1204](https://folio-org.atlassian.net/browse/MSEARCH-1204))
 * **Inventory Items**
   * Add `GET /search/inventory/items` endpoint and `item` index mappings ([MSEARCH-1226](https://folio-org.atlassian.net/browse/MSEARCH-1226))
+  * Index inventory item events into the `item` index behind the `ITEM_INDEX_ENABLED` flag ([MSEARCH-1228](https://folio-org.atlassian.net/browse/MSEARCH-1228))
+  * Store failed item indexing events in `failed_indexing_event` table with daily cleanup of records older than `FAILED_INDEXING_EVENTS_RETENTION_DAYS` ([MSEARCH-1228](https://folio-org.atlassian.net/browse/MSEARCH-1228))
 * **Linked Data Authority**
   * Implement Linked Data Authority index and search API ([MSEARCH-1246](https://folio-org.atlassian.net/browse/MSEARCH-1246))
 * **Call Number Browse**

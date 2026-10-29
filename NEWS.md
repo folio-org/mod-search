@@ -1,3 +1,9 @@
+## v6.0.11 2026-10-29
+### Dependencies
+* Bump `spring-boot` from `4.0.2` to `4.1.1`
+* Bump `folio-spring-support` from `10.0.0` to `10.0.1`
+* Bump `liquibase` from `5.0.x` to `4.33.0`
+
 ## v6.0.10 2026-10-07
 ### Bug fixes
 * Fix indexing: Restore a soft-deleted instance when it is saved again ([MSEARCH-1279](https://folio-org.atlassian.net/browse/MSEARCH-1279))

@@ -54,6 +54,9 @@ Search results are only as current as the index. This feature provides the real-
 - `ItemIndexService` indexes copies of the events, so the instance flow is not affected by item-specific changes to the events.
 - The document id is `<itemId>|<tenant>`, so the same item from different consortium tenants (e.g. after an ownership move) can coexist in the central index; the `id` field stays the plain item UUID.
 - Nested item properties are flattened by `ItemEventPreProcessor` (`status.name` -> `statusName`, `effectiveCallNumberComponents.*` -> `callNumber`, `callNumberPrefix`, `callNumberSuffix`, `callNumberTypeId`); the remaining fields are copied according to `model/item.json`.
+- In a consortium the internal `shared` field of an item document holds whether its instance is shared; the search uses it for affiliation filtering, and it is not returned in responses or available as a facet:
+  - it is resolved by `SharedInstanceResolver` on indexing: items of the central tenant are always shared, items of a member tenant are checked against the central `instance` table;
+  - an instance create event in the central tenant sets `shared=true` on the existing documents of that instance (update-by-query), which covers a local instance becoming shared and an instance event arriving after its items.
 - Reindex (full/upload) does not populate the item index yet: only events received while the flag is enabled are indexed.
 
 ### Delivery guarantees

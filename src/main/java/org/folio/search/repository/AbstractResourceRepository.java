@@ -26,8 +26,11 @@ import org.opensearch.action.delete.DeleteRequest;
 import org.opensearch.action.index.IndexRequest;
 import org.opensearch.client.RestHighLevelClient;
 import org.opensearch.common.unit.TimeValue;
+import org.opensearch.index.query.QueryBuilder;
 import org.opensearch.index.reindex.BulkByScrollResponse;
 import org.opensearch.index.reindex.DeleteByQueryRequest;
+import org.opensearch.index.reindex.UpdateByQueryRequest;
+import org.opensearch.script.Script;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Log4j2
@@ -50,16 +53,6 @@ public abstract class AbstractResourceRepository implements ResourceRepository {
            : getSuccessIndexOperationResponse();
   }
 
-  /**
-   * Executes bulk request for the given documents and returns raw bulk response with per-document results.
-   *
-   * @param documents documents to index or delete
-   * @return {@link BulkResponse} object
-   */
-  public BulkResponse executeBulk(List<SearchDocumentBody> documents) {
-    return executeBulkRequest(prepareBulkRequest(documents));
-  }
-
   @Override
   public FolioIndexOperationResponse deleteResourceByTenantId(ResourceType resource, String tenantId) {
     var indexName = indexNameProvider.getIndexName(resource, tenantId);
@@ -74,12 +67,47 @@ public abstract class AbstractResourceRepository implements ResourceRepository {
   }
 
   /**
+   * Executes bulk request for the given documents and returns raw bulk response with per-document results.
+   *
+   * @param documents documents to index or delete
+   * @return {@link BulkResponse} object
+   */
+  public BulkResponse executeBulk(List<SearchDocumentBody> documents) {
+    return executeBulkRequest(prepareBulkRequest(documents));
+  }
+
+  /**
+   * Updates documents matching the given query with the given script. Documents that were not refreshed yet are not
+   * matched, and version conflicts are skipped so a concurrent write doesn't abort the update, which leaves such
+   * documents without the change until they are written again.
+   *
+   * @param query    query selecting the documents to update
+   * @param resource resource type of the target index
+   * @param script   script applied to the selected documents
+   * @param tenantId tenant id used to resolve the target index
+   * @return {@link FolioIndexOperationResponse} object indicating success or failure
+   */
+  public FolioIndexOperationResponse updateByQuery(QueryBuilder query, ResourceType resource,
+                                                   Script script, String tenantId) {
+    var indexName = indexNameProvider.getIndexName(resource, tenantId);
+    var request = new UpdateByQueryRequest(indexName);
+    request.setQuery(query);
+    request.setScript(script);
+    request.setAbortOnVersionConflict(false);
+    var bulkByScrollResponse = performExceptionalOperation(
+      () -> elasticsearchClient.updateByQuery(request, DEFAULT), indexName, "updateByQueryApi");
+    return bulkByScrollResponse.getBulkFailures().isEmpty()
+           ? getSuccessIndexOperationResponse()
+           : getErrorIndexOperationResponse(getBulkByScrollResponseErrorMessage(bulkByScrollResponse));
+  }
+
+  /**
    * Deletes documents from an index by tenant ID, preserving shared documents.
    * This method uses OpenSearch delete-by-query to remove tenant-specific documents without
    * dropping the entire index, enabling preservation of shared consortium data.
    *
    * @param resourceType resource type as {@link ResourceType} object
-   * @param tenantId tenant id as {@link String} object
+   * @param tenantId     tenant id as {@link String} object
    * @return {@link FolioIndexOperationResponse} object indicating success or failure
    */
   public FolioIndexOperationResponse deleteConsortiumDocumentsByTenantId(ResourceType resourceType, String tenantId) {
@@ -94,7 +122,7 @@ public abstract class AbstractResourceRepository implements ResourceRepository {
       .mustNot(termQuery(SHARED_FIELD_NAME, true));
     deleteByQueryRequest.setQuery(query);
     log.info("deleteDocumentsByTenantId:: deleting tenant documents preserving shared "
-      + "[index: {}, tenantId: {}]", indexName, tenantId);
+             + "[index: {}, tenantId: {}]", indexName, tenantId);
 
     var bulkByScrollResponse = performExceptionalOperation(
       () -> elasticsearchClient.deleteByQuery(deleteByQueryRequest, DEFAULT),
@@ -105,22 +133,8 @@ public abstract class AbstractResourceRepository implements ResourceRepository {
       indexName, tenantId, deletedCount);
 
     return bulkByScrollResponse.getBulkFailures().isEmpty()
-      ? getSuccessIndexOperationResponse()
-      : getErrorIndexOperationResponse(getBulkByScrollResponseErrorMessage(bulkByScrollResponse));
-  }
-
-  private DeleteByQueryRequest buildDeleteByQueryRequest(String indexName) {
-    var deleteByQueryRequest = new DeleteByQueryRequest(indexName);
-
-    // Configure performance settings
-    deleteByQueryRequest.setBatchSize(indexManagementConfig.getDeleteQueryBatchSize());
-    deleteByQueryRequest.setScroll(
-      TimeValue.timeValueMinutes(indexManagementConfig.getDeleteQueryScrollTimeoutMinutes()));
-    deleteByQueryRequest.setTimeout(
-      TimeValue.timeValueMinutes(indexManagementConfig.getDeleteQueryRequestTimeoutMinutes()));
-    deleteByQueryRequest.setRefresh(indexManagementConfig.getDeleteQueryRefresh());
-
-    return deleteByQueryRequest;
+           ? getSuccessIndexOperationResponse()
+           : getErrorIndexOperationResponse(getBulkByScrollResponseErrorMessage(bulkByScrollResponse));
   }
 
   @Autowired
@@ -171,6 +185,20 @@ public abstract class AbstractResourceRepository implements ResourceRepository {
    */
   protected DeleteRequest prepareDeleteRequest(SearchDocumentBody doc) {
     return new DeleteRequest(indexNameProvider.getIndexName(doc)).id(doc.getId());
+  }
+
+  private DeleteByQueryRequest buildDeleteByQueryRequest(String indexName) {
+    var deleteByQueryRequest = new DeleteByQueryRequest(indexName);
+
+    // Configure performance settings
+    deleteByQueryRequest.setBatchSize(indexManagementConfig.getDeleteQueryBatchSize());
+    deleteByQueryRequest.setScroll(
+      TimeValue.timeValueMinutes(indexManagementConfig.getDeleteQueryScrollTimeoutMinutes()));
+    deleteByQueryRequest.setTimeout(
+      TimeValue.timeValueMinutes(indexManagementConfig.getDeleteQueryRequestTimeoutMinutes()));
+    deleteByQueryRequest.setRefresh(indexManagementConfig.getDeleteQueryRefresh());
+
+    return deleteByQueryRequest;
   }
 
   private static String getBulkByScrollResponseErrorMessage(BulkByScrollResponse bulkByScrollResponse) {

@@ -140,6 +140,13 @@ public abstract class SearchInventoryItemIT extends BaseSharedTest {
       .andExpect(jsonPath("$.errors[0].parameters[0].value", is("unknownFacet")));
   }
 
+  @Test
+  void getFacetsForItems_negative_sharedIsNotFacet() throws Exception {
+    attemptGet(recordFacetsPath(ITEMS, ALL_RECORDS_QUERY, "shared"), TENANT_ID)
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.errors[0].parameters[0].value", is("shared")));
+  }
+
   private static Stream<Arguments> facetQueriesProvider() {
     var allFacets = array(STATUS_NAME_FACET, EFFECTIVE_LOCATION_ID_FACET, MATERIAL_TYPE_ID_FACET,
       STATISTICAL_CODE_IDS_FACET, DISCOVERY_SUPPRESS_FACET);
@@ -153,17 +160,21 @@ public abstract class SearchInventoryItemIT extends BaseSharedTest {
       arguments(ALL_RECORDS_QUERY, array(STATUS_NAME_FACET + ":2"), mapOf(
         STATUS_NAME_FACET, facet(facetItem("Available", 67), facetItem("Checked out", 25)))),
       arguments("statusName==\"Checked out\"", array(EFFECTIVE_LOCATION_ID_FACET), mapOf(
-        EFFECTIVE_LOCATION_ID_FACET, facet(
-          facetItem("65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7", 11),
-          facetItem("0d106980-1789-42ac-b355-a6c7a74ddea3", 5),
-          facetItem("b777f3a4-4372-4792-a87d-8e8f177eab10", 5),
-          facetItem("f1a49577-5096-4771-a8a0-d07d642241eb", 1),
-          facetItem("ce23dfa1-17e8-4a1f-ad6b-34ce6ab352c2", 1),
-          facetItem("53cf956f-c1df-410b-8bea-27f712cca7c0", 1),
-          facetItem("fcd64ce1-6995-48f0-840e-89ffa2288371", 1)))),
+        EFFECTIVE_LOCATION_ID_FACET, composeCheckedOutLocationFacet())),
       arguments("discoverySuppress==true", array(DISCOVERY_SUPPRESS_FACET), mapOf(
         DISCOVERY_SUPPRESS_FACET, facet(facetItem("true", 2), facetItem("false", 141))))
     );
+  }
+
+  private static Facet composeCheckedOutLocationFacet() {
+    return facet(
+      facetItem("65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7", 11),
+      facetItem("0d106980-1789-42ac-b355-a6c7a74ddea3", 5),
+      facetItem("b777f3a4-4372-4792-a87d-8e8f177eab10", 5),
+      facetItem("f1a49577-5096-4771-a8a0-d07d642241eb", 1),
+      facetItem("ce23dfa1-17e8-4a1f-ad6b-34ce6ab352c2", 1),
+      facetItem("53cf956f-c1df-410b-8bea-27f712cca7c0", 1),
+      facetItem("fcd64ce1-6995-48f0-840e-89ffa2288371", 1));
   }
 
   private static Facet composeStatusNameFacet() {

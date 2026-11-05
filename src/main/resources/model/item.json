@@ -85,6 +85,10 @@
       "index": "bool",
       "default": false
     },
+    "shared": {
+      "index": "bool",
+      "default": false
+    },
     "callNumber": {
       "index": "keyword_icu",
       "showInResponse": true

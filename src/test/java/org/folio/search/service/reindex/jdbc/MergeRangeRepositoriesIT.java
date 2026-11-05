@@ -338,6 +338,22 @@ class MergeRangeRepositoriesIT {
   }
 
   @Test
+  void findSharedInstanceIds_returnsOnlySharedNotDeletedInstances() {
+    var sharedId = UUID.randomUUID().toString();
+    var localId = UUID.randomUUID().toString();
+    var deletedId = UUID.randomUUID().toString();
+    var insertSql = "INSERT INTO instance (id, tenant_id, shared, is_bound_with, json, is_deleted) "
+      + "VALUES (?::uuid, ?, ?, false, '{}'::jsonb, ?)";
+    jdbcTemplate.update(insertSql, sharedId, TENANT_ID, true, false);
+    jdbcTemplate.update(insertSql, localId, TENANT_ID, false, false);
+    jdbcTemplate.update(insertSql, deletedId, TENANT_ID, true, true);
+
+    var actual = instanceRepository.findSharedInstanceIds(List.of(sharedId, localId, deletedId));
+
+    assertThat(actual).containsExactly(sharedId);
+  }
+
+  @Test
   @Sql("/sql/populate-instances.sql")
   void updateBoundWith_updatesInstance() {
     var instanceId = "9f8febd1-e96c-46c4-a5f4-84a45cc499a2";

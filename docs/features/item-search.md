@@ -27,7 +27,8 @@ Integrations need to look up items (e.g. by barcode, effective location or statu
 - Default fields: `id`, `instanceId`, `holdingsRecordId`, `barcode`, `callNumber`, `callNumberPrefix`, `callNumberSuffix`, `callNumberTypeId`, `statusName`, `permanentLoanTypeId`, `temporaryLoanTypeId`, `effectiveLocationId`, `materialTypeId` (marked `showInResponse` in `model/item.json`).
 - `instanceTitle` is added to every returned item by `ItemSearchResponsePostProcessor`, which looks up the `plain_title` of the instances (by `instanceId`) in the instance index. It is not stored in the item index.
 - Responses have the shape `{ "totalRecords": <int>, "items": [ ... ] }`, where `items` are full item objects.
-- The `x-okapi-tenant` header is required; the search runs against the tenant's own `item` index.
+- The `x-okapi-tenant` header is required; the search runs against the tenant's `item` index (the central tenant's index in a consortium).
+- In a consortium a member tenant gets items of shared instances from all tenants and its own items of local instances; the central tenant gets items of shared instances only. `tenantId` is returned with `include`.
 - Access requires the `search.inventory.items.collection.get` permission (interface `search-inventory`).
 
 ### Facets
@@ -38,7 +39,6 @@ Integrations need to look up items (e.g. by barcode, effective location or statu
 ### Index
 - Field mappings are defined in `src/main/resources/model/item.json`; index settings and analyzers in `src/main/resources/elasticsearch/index/item.json` (same as the instance index).
 - The index is created empty on tenant initialization and populated from inventory item events when item indexing is enabled. How documents are produced, retried and how failures are stored is described in [Indexing and Messaging](indexing-and-messaging.md#standalone-item-indexing).
-- Known follow-up: consortium affiliation filtering on item search (a member tenant seeing other members' items) is not implemented.
 
 ## Error behavior
 - `400 Bad Request` — invalid CQL syntax or missing required parameters.

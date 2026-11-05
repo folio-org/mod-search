@@ -9,6 +9,7 @@ import static org.folio.search.model.types.ResourceType.INSTANCE;
 import static org.folio.search.model.types.ResourceType.ITEM;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
+import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.support.TestConstants.RESOURCE_ID;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.utils.TestUtils.mapOf;
@@ -25,6 +26,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.opensearch.index.query.QueryBuilders.boolQuery;
+import static org.opensearch.index.query.QueryBuilders.termQuery;
+import static org.opensearch.index.query.QueryBuilders.termsQuery;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -32,11 +36,15 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
+import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.exception.IndexingFailureException;
 import org.folio.search.integration.message.FolioMessageBatchProcessor;
 import org.folio.search.repository.PrimaryResourceRepository;
+import org.folio.search.service.consortium.ConsortiumTenantProvider;
+import org.folio.search.service.consortium.SharedInstanceResolver;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.search.utils.IndexingFailureUtils;
 import org.folio.spring.testing.type.UnitTest;
@@ -56,6 +64,7 @@ import org.opensearch.action.bulk.BulkItemResponse;
 import org.opensearch.action.bulk.BulkItemResponse.Failure;
 import org.opensearch.action.bulk.BulkResponse;
 import org.opensearch.core.rest.RestStatus;
+import org.opensearch.index.query.QueryBuilder;
 import org.springframework.core.retry.RetryPolicy;
 import org.springframework.core.retry.RetryTemplate;
 
@@ -87,12 +96,18 @@ class ItemIndexServiceTest {
   private EgressExecutionContextService executionService;
   @Mock
   private FailedIndexingEventService failedIndexingEventService;
+  @Mock
+  private SharedInstanceResolver sharedInstanceResolver;
+  @Mock
+  private ConsortiumTenantProvider consortiumTenantProvider;
   @InjectMocks
   private ItemIndexService itemIndexService;
   @Captor
   private ArgumentCaptor<Collection<ResourceEvent>> eventsCaptor;
   @Captor
   private ArgumentCaptor<Exception> exceptionCaptor;
+  @Captor
+  private ArgumentCaptor<QueryBuilder> queryCaptor;
 
   @BeforeEach
   void setUp() {
@@ -144,8 +159,84 @@ class ItemIndexServiceTest {
 
     itemIndexService.indexItemEvents(List.of(instanceEvent));
 
-    verifyNoInteractions(executionService, searchDocumentConverter, primaryResourceRepository,
-      failedIndexingEventService);
+    verifyNoInteractions(searchDocumentConverter, primaryResourceRepository, failedIndexingEventService);
+  }
+
+  @Test
+  void indexItemEvents_positive_noSharedInstancesLeavesFlagUnset() {
+    var itemEvent = resourceEvent(RESOURCE_ID, ITEM, CREATE, mapOf("id", RESOURCE_ID, "instanceId", randomId()), null);
+    mockSuccessfulIndexing();
+
+    itemIndexService.indexItemEvents(List.of(itemEvent));
+
+    assertThat(eventsCaptor.getValue()).singleElement()
+      .satisfies(event -> assertThat(((Map<?, ?>) event.getNew()).containsKey("shared")).isFalse());
+  }
+
+  @Test
+  void indexItemEvents_positive_setsSharedFlagOnlyForItemsOfSharedInstances() {
+    var sharedInstanceId = randomId();
+    var localInstanceId = randomId();
+    when(sharedInstanceResolver.findSharedInstanceIds(TENANT_ID, Set.of(sharedInstanceId, localInstanceId)))
+      .thenReturn(Set.of(sharedInstanceId));
+    mockSuccessfulIndexing();
+    var sharedItem = resourceEvent(randomId(), ITEM, CREATE, mapOf("instanceId", sharedInstanceId), null);
+    var localItem = resourceEvent(randomId(), ITEM, CREATE, mapOf("instanceId", localInstanceId), null);
+
+    itemIndexService.indexItemEvents(List.of(sharedItem, localItem));
+
+    assertThat(eventsCaptor.getValue()).extracting(event -> (Object) ((Map<?, ?>) event.getNew()).get("shared"))
+      .containsExactly(true, null);
+    assertThat(((Map<?, ?>) sharedItem.getNew()).containsKey("shared")).isFalse();
+  }
+
+  @Test
+  void indexItemEvents_positive_centralInstanceCreateMarksItemsShared() {
+    var instanceId = randomId();
+    var instanceEvent = resourceEvent(instanceId, INSTANCE, CREATE, mapOf("id", instanceId), null)
+      .tenant(CENTRAL_TENANT_ID);
+    when(consortiumTenantProvider.isCentralTenant(CENTRAL_TENANT_ID)).thenReturn(true);
+    when(primaryResourceRepository.updateByQuery(queryCaptor.capture(), eq(ITEM), any(), eq(CENTRAL_TENANT_ID)))
+      .thenReturn(getSuccessIndexOperationResponse());
+
+    var response = itemIndexService.indexItemEvents(List.of(instanceEvent));
+
+    assertThat(response).isEqualTo(getSuccessIndexOperationResponse());
+    assertThat(queryCaptor.getValue()).isEqualTo(boolQuery()
+      .filter(termsQuery("instanceId", List.of(instanceId)))
+      .mustNot(termQuery("shared", true)));
+  }
+
+  @Test
+  void indexItemEvents_positive_memberInstanceCreateDoesNotMarkItemsShared() {
+    var instanceEvent = resourceEvent(randomId(), INSTANCE, CREATE, mapOf("id", randomId()), null);
+    when(consortiumTenantProvider.isCentralTenant(TENANT_ID)).thenReturn(false);
+
+    itemIndexService.indexItemEvents(List.of(instanceEvent));
+
+    verifyNoInteractions(primaryResourceRepository);
+  }
+
+  @Test
+  void indexItemEvents_negative_markItemsSharedFailureIsStored() {
+    var instanceEvent = resourceEvent(randomId(), INSTANCE, CREATE, mapOf("id", randomId()), null)
+      .tenant(CENTRAL_TENANT_ID);
+    when(consortiumTenantProvider.isCentralTenant(CENTRAL_TENANT_ID)).thenReturn(true);
+    when(primaryResourceRepository.updateByQuery(any(), eq(ITEM), any(), eq(CENTRAL_TENANT_ID)))
+      .thenReturn(getErrorIndexOperationResponse("update failed"));
+
+    var response = itemIndexService.indexItemEvents(List.of(instanceEvent));
+
+    assertThat(response.getStatus()).isEqualTo(FolioIndexOperationResponse.StatusEnum.ERROR);
+    verify(failedIndexingEventService).save(any(), exceptionCaptor.capture());
+    assertThat(exceptionCaptor.getValue()).hasMessageContaining("update failed");
+  }
+
+  private void mockSuccessfulIndexing() {
+    var searchBody = searchDocumentBody();
+    when(searchDocumentConverter.convert(eventsCaptor.capture()))
+      .thenReturn(mapOf(ITEM.getName(), List.of(searchBody)));
+    when(primaryResourceRepository.executeBulk(List.of(searchBody))).thenReturn(bulkResponse());
   }
 
   @Test

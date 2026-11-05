@@ -4,6 +4,11 @@ import static org.folio.search.configuration.RetryTemplateConfiguration.ITEM_IND
 import static org.folio.search.utils.LogUtils.collectionToLogMsg;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
+import static org.folio.search.utils.SearchUtils.INSTANCE_ID_FIELD;
+import static org.folio.search.utils.SearchUtils.SHARED_FIELD_NAME;
+import static org.opensearch.index.query.QueryBuilders.boolQuery;
+import static org.opensearch.index.query.QueryBuilders.termQuery;
+import static org.opensearch.index.query.QueryBuilders.termsQuery;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,6 +16,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -23,10 +29,13 @@ import org.folio.search.integration.message.FolioMessageBatchProcessor;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.repository.PrimaryResourceRepository;
+import org.folio.search.service.consortium.ConsortiumTenantProvider;
+import org.folio.search.service.consortium.SharedInstanceResolver;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.search.utils.IndexingFailureUtils;
 import org.opensearch.action.bulk.BulkItemResponse;
 import org.opensearch.action.bulk.BulkResponse;
+import org.opensearch.script.Script;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
@@ -37,6 +46,11 @@ import org.springframework.stereotype.Service;
  * persisted to the merge-range DB here and parent instances are not re-indexed — that is handled by the instance
  * indexing flow. Batches are retried with {@code itemIndexingRetryTemplate} (client errors are not retried) and then
  * processed one by one; events that still fail are stored via {@link FailedIndexingEventService}.</p>
+ *
+ * <p>In a consortium item documents carry the {@code shared} flag of their instance, which the search uses to return
+ * items of shared instances from all tenants and items of local instances only to their tenant. The flag is resolved
+ * from the central instance table on indexing and set on existing documents when an instance is created in the central
+ * tenant (a local instance became shared, or the instance event arrived after its items).</p>
  */
 @Log4j2
 @Service
@@ -44,11 +58,15 @@ import org.springframework.stereotype.Service;
 @ConditionalOnProperty(name = "folio.search-config.indexing.item-index-enabled", havingValue = "true")
 public class ItemIndexService {
 
+  private static final Script MARK_SHARED_SCRIPT = new Script("ctx._source.shared = true");
+
   private final PrimaryResourceRepository primaryResourceRepository;
   private final MultiTenantSearchDocumentConverter searchDocumentConverter;
   private final FolioMessageBatchProcessor folioMessageBatchProcessor;
   private final EgressExecutionContextService executionService;
   private final FailedIndexingEventService failedIndexingEventService;
+  private final SharedInstanceResolver sharedInstanceResolver;
+  private final ConsortiumTenantProvider consortiumTenantProvider;
 
   /**
    * Indexes item events from the given inventory events as standalone documents into the item index. Non-item events
@@ -59,28 +77,49 @@ public class ItemIndexService {
    * @return success response, or error response with the number of item events that failed and were stored
    */
   public FolioIndexOperationResponse indexItemEvents(List<ResourceEvent> events) {
-    var itemEvents = events.stream()
-      .filter(event -> ResourceType.ITEM.getName().equals(event.getResourceName()))
+    var candidateEvents = events.stream()
+      .filter(event -> isItemEvent(event) || isInstanceCreate(event))
       .map(ItemIndexService::copyOf)
       .toList();
-    if (itemEvents.isEmpty()) {
+    if (candidateEvents.isEmpty()) {
       return getSuccessIndexOperationResponse();
     }
 
-    log.debug("indexItemEvents:: by [itemEvents.size: {}]", collectionToLogMsg(itemEvents, true));
+    log.debug("indexItemEvents:: by [events.size: {}]", collectionToLogMsg(candidateEvents, true));
     var failedEvents = new ArrayList<ResourceEvent>();
-    itemEvents.stream()
+    var processedEvents = new ArrayList<ResourceEvent>();
+    candidateEvents.stream()
       .collect(Collectors.groupingBy(ResourceEvent::getTenant))
       .forEach((tenant, tenantEvents) -> executionService.execute(tenant, () -> {
-        folioMessageBatchProcessor.consumeBatchWithFallback(tenantEvents, ITEM_INDEXING_RETRY_TEMPLATE_NAME,
-          this::indexBatch, (event, exception) -> {
-            handleFailedEvent(event, exception);
-            failedEvents.add(event);
-          });
+        var batch = selectTenantBatch(tenant, tenantEvents);
+        processedEvents.addAll(batch);
+        processBatch(batch, failedEvents);
         return null;
       }));
 
-    return toResponse(failedEvents, itemEvents.size());
+    return toResponse(failedEvents, processedEvents.size());
+  }
+
+  private void processBatch(List<ResourceEvent> batch, List<ResourceEvent> failedEvents) {
+    if (batch.isEmpty()) {
+      return;
+    }
+    folioMessageBatchProcessor.consumeBatchWithFallback(batch, ITEM_INDEXING_RETRY_TEMPLATE_NAME,
+      this::indexBatch, (event, exception) -> {
+        handleFailedEvent(event, exception);
+        failedEvents.add(event);
+      });
+  }
+
+  /**
+   * Instance create events are relevant only for the central tenant, where they make the instance shared.
+   */
+  private List<ResourceEvent> selectTenantBatch(String tenant, List<ResourceEvent> tenantEvents) {
+    var hasInstanceEvents = tenantEvents.stream().anyMatch(ItemIndexService::isInstanceCreate);
+    if (hasInstanceEvents && consortiumTenantProvider.isCentralTenant(tenant)) {
+      return tenantEvents;
+    }
+    return tenantEvents.stream().filter(ItemIndexService::isItemEvent).toList();
   }
 
   private static FolioIndexOperationResponse toResponse(List<ResourceEvent> failedEvents, int totalEvents) {
@@ -101,9 +140,47 @@ public class ItemIndexService {
    * @throws IndexingFailureException if OpenSearch rejected documents or the delete-all request failed
    */
   private void indexBatch(List<ResourceEvent> itemEvents) {
-    var eventsByDeleteAll = itemEvents.stream().collect(Collectors.partitioningBy(ItemIndexService::isDeleteAll));
+    var eventsByItem = itemEvents.stream().collect(Collectors.partitioningBy(ItemIndexService::isItemEvent));
+    var eventsByDeleteAll = eventsByItem.get(true).stream()
+      .collect(Collectors.partitioningBy(ItemIndexService::isDeleteAll));
     deleteAllForTenants(eventsByDeleteAll.get(true));
     indexDocuments(eventsByDeleteAll.get(false));
+    markItemsOfInstancesShared(eventsByItem.get(false));
+  }
+
+  private void markItemsOfInstancesShared(List<ResourceEvent> instanceEvents) {
+    if (instanceEvents.isEmpty()) {
+      return;
+    }
+
+    var instanceIds = instanceEvents.stream().map(ResourceEvent::getId).toList();
+    var tenant = instanceEvents.getFirst().getTenant();
+    var query = boolQuery()
+      .filter(termsQuery(INSTANCE_ID_FIELD, instanceIds))
+      .mustNot(termQuery(SHARED_FIELD_NAME, true));
+    var response = primaryResourceRepository.updateByQuery(query, ResourceType.ITEM, MARK_SHARED_SCRIPT, tenant);
+    if (response.getStatus() == FolioIndexOperationResponse.StatusEnum.ERROR) {
+      throw new IndexingFailureException(
+        "Failed to mark items of shared instances [ids: %s, errors: [%s]]"
+          .formatted(instanceIds, response.getErrorMessage()), null, null);
+    }
+  }
+
+  private void populateSharedFlag(List<ResourceEvent> events) {
+    var instanceIds = events.stream()
+      .map(ItemIndexService::getInstanceId)
+      .filter(Objects::nonNull)
+      .collect(Collectors.toSet());
+    if (instanceIds.isEmpty()) {
+      return;
+    }
+
+    var sharedIds = sharedInstanceResolver.findSharedInstanceIds(events.getFirst().getTenant(), instanceIds);
+    events.forEach(event -> {
+      if (sharedIds.contains(getInstanceId(event))) {
+        newPartAsMap(event).put(SHARED_FIELD_NAME, true);
+      }
+    });
   }
 
   private void handleFailedEvent(ResourceEvent event, Exception exception) {
@@ -134,6 +211,7 @@ public class ItemIndexService {
       return;
     }
 
+    populateSharedFlag(events);
     var documents = convertToDocuments(events.stream().map(ItemIndexService::withTenantScopedId).toList());
     var bulkResponse = primaryResourceRepository.executeBulk(documents);
     if (bulkResponse.hasFailures()) {
@@ -195,6 +273,24 @@ public class ItemIndexService {
       .resourceName(event.getResourceName())
       ._new(newPart)
       .old(event.getOld());
+  }
+
+  private static boolean isItemEvent(ResourceEvent event) {
+    return ResourceType.ITEM.getName().equals(event.getResourceName());
+  }
+
+  private static boolean isInstanceCreate(ResourceEvent event) {
+    return ResourceType.INSTANCE.getName().equals(event.getResourceName())
+           && event.getType() == ResourceEventType.CREATE;
+  }
+
+  private static String getInstanceId(ResourceEvent event) {
+    return event.getNew() instanceof Map<?, ?> map && map.get(INSTANCE_ID_FIELD) instanceof String id ? id : null;
+  }
+
+  @SuppressWarnings("unchecked")
+  private static Map<String, Object> newPartAsMap(ResourceEvent event) {
+    return (Map<String, Object>) event.getNew();
   }
 
   private static boolean isDeleteAll(ResourceEvent event) {

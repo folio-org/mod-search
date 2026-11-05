@@ -1,11 +1,15 @@
 package org.folio.search.service.reindex.jdbc;
 
 import static org.folio.search.utils.JdbcUtils.getFullTableName;
+import static org.folio.search.utils.JdbcUtils.getUuidArrayParam;
 
 import java.sql.Timestamp;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.model.types.ReindexEntityType;
@@ -51,6 +55,10 @@ public class MergeInstanceRepository extends MergeRangeRepository {
     %s
     """;
 
+  private static final String SELECT_SHARED_IDS_SQL =
+    "SELECT id FROM instance WHERE shared = true AND is_deleted = false AND id = ANY(?)";
+  private static final String IS_BOUND_WITH_KEY = "isBoundWith";
+
   private final ConsortiumTenantProvider consortiumTenantProvider;
 
   public MergeInstanceRepository(JdbcTemplate jdbcTemplate, JsonConverter jsonConverter, FolioExecutionContext context,
@@ -87,14 +95,14 @@ public class MergeInstanceRepository extends MergeRangeRepository {
           statement.setObject(1, entity.data().get("id"));
           statement.setString(2, tenantId);
           statement.setObject(3, shared);
-          statement.setObject(4, entity.data().getOrDefault("isBoundWith", false));
+          statement.setObject(4, entity.data().getOrDefault(IS_BOUND_WITH_KEY, false));
           statement.setString(5, entity.rawJson());
         });
     } catch (DataAccessException e) {
       log.warn("saveEntitiesToMainRaw::Failed to save batch. Starting processing one-by-one", e);
       for (RawLine entity : entities) {
         jdbcTemplate.update(sql, entity.data().get("id"), tenantId, shared,
-          entity.data().getOrDefault("isBoundWith", false), entity.rawJson());
+          entity.data().getOrDefault(IS_BOUND_WITH_KEY, false), entity.rawJson());
       }
     }
   }
@@ -110,7 +118,7 @@ public class MergeInstanceRepository extends MergeRangeRepository {
         statement.setObject(1, entity.data().get("id"));
         statement.setString(2, tenantId);
         statement.setObject(3, shared);
-        statement.setObject(4, entity.data().getOrDefault("isBoundWith", false));
+        statement.setObject(4, entity.data().getOrDefault(IS_BOUND_WITH_KEY, false));
         statement.setString(5, entity.rawJson());
       });
     log.debug("Saved {} entities to staging table {}", entities.size(), ReindexConstants.STAGING_INSTANCE_TABLE);
@@ -129,7 +137,7 @@ public class MergeInstanceRepository extends MergeRangeRepository {
           statement.setObject(1, entity.get("id"));
           statement.setString(2, tenantId);
           statement.setObject(3, shared);
-          statement.setObject(4, entity.getOrDefault("isBoundWith", false));
+          statement.setObject(4, entity.getOrDefault(IS_BOUND_WITH_KEY, false));
           statement.setString(5, jsonConverter.toJson(entity));
         });
     } catch (DataAccessException e) {
@@ -138,7 +146,7 @@ public class MergeInstanceRepository extends MergeRangeRepository {
         jdbcTemplate.update(sql, entity.get("id"),
           tenantId,
           shared,
-          entity.getOrDefault("isBoundWith", false),
+          entity.getOrDefault(IS_BOUND_WITH_KEY, false),
           jsonConverter.toJson(entity));
       }
     }
@@ -156,7 +164,7 @@ public class MergeInstanceRepository extends MergeRangeRepository {
         statement.setObject(1, entity.get("id"));
         statement.setString(2, tenantId);
         statement.setObject(3, shared);
-        statement.setObject(4, entity.getOrDefault("isBoundWith", false));
+        statement.setObject(4, entity.getOrDefault(IS_BOUND_WITH_KEY, false));
         statement.setString(5, jsonConverter.toJson(entity));
       });
 
@@ -181,13 +189,26 @@ public class MergeInstanceRepository extends MergeRangeRepository {
     return fetchByTimestamp(SELECT_BY_UPDATED_QUERY, instanceRowMapper(), timestamp, fromId, limit, tenant);
   }
 
+  /**
+   * Finds which of the given instances are shared. Must be called in the central tenant context, the table is resolved
+   * through the {@code search_path} of the tenant connection.
+   *
+   * @param instanceIds instance ids to check
+   * @return ids of shared instances
+   */
+  public Set<String> findSharedInstanceIds(Collection<String> instanceIds) {
+    return new HashSet<>(jdbcTemplate.query(SELECT_SHARED_IDS_SQL,
+      statement -> statement.setArray(1, getUuidArrayParam(List.copyOf(instanceIds), statement)),
+      (rs, rowNum) -> rs.getString("id")));
+  }
+
   private RowMapper<Map<String, Object>> instanceRowMapper() {
     return (rs, rowNum) -> {
       var instance = jsonConverter.fromJsonToMap(rs.getString("json"));
       instance.put("id", rs.getString("id"));
       instance.put("tenantId", rs.getString("tenant_id"));
       instance.put("shared", rs.getBoolean("shared"));
-      instance.put("isBoundWith", rs.getBoolean("is_bound_with"));
+      instance.put(IS_BOUND_WITH_KEY, rs.getBoolean("is_bound_with"));
       instance.put("isDeleted", rs.getBoolean("is_deleted"));
       instance.put(LAST_UPDATED_DATE_FIELD, rs.getTimestamp("last_updated_date"));
 

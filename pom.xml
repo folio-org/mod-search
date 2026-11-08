@@ -52,14 +52,14 @@
 
     <!-- Plugins versions -->
     <folio-module-descriptor-validator.version>1.0.1</folio-module-descriptor-validator.version>
-    <maven-openapi-generator-plugin.version>7.26.0</maven-openapi-generator-plugin.version>
+    <maven-openapi-generator-plugin.version>7.27.0</maven-openapi-generator-plugin.version>
     <maven-copy-rename-plugin.version>1.0.1</maven-copy-rename-plugin.version>
     <maven-build-helper-plugin.version>3.6.2</maven-build-helper-plugin.version>
     <maven-clean-plugin.version>3.5.0</maven-clean-plugin.version>
     <maven-resources-plugin.version>3.5.0</maven-resources-plugin.version>
     <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
     <folio-java-checkstyle.version>1.2.0</folio-java-checkstyle.version>
-    <checkstyle.version>14.3.0</checkstyle.version>
+    <checkstyle.version>14.4.0</checkstyle.version>
     <maven-compiler-plugin.version>3.16.0</maven-compiler-plugin.version>
     <maven-surefire-plugin.version>3.6.1</maven-surefire-plugin.version>
     <maven-failsafe-plugin.version>3.6.1</maven-failsafe-plugin.version>

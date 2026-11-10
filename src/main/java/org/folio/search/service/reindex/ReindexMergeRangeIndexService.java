@@ -21,8 +21,10 @@ import org.folio.search.model.types.InventoryRecordType;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexRangeStatus;
 import org.folio.search.service.InstanceChildrenResourceService;
+import org.folio.search.service.ItemIndexService;
 import org.folio.search.service.reindex.jdbc.MergeRangeRepository;
 import org.folio.search.service.reindex.jdbc.RawLine;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,18 +36,24 @@ public class ReindexMergeRangeIndexService {
   private final InventoryService inventoryService;
   private final ReindexConfigurationProperties reindexConfig;
   private final StagingMigrationService migrationService;
+  private final ReindexStatusService statusService;
+  private final ObjectProvider<ItemIndexService> itemIndexServiceProvider;
 
   private InstanceChildrenResourceService instanceChildrenResourceService;
 
   public ReindexMergeRangeIndexService(List<MergeRangeRepository> repositories,
                                        InventoryService inventoryService,
                                        ReindexConfigurationProperties reindexConfig,
-                                       StagingMigrationService migrationService) {
+                                       StagingMigrationService migrationService,
+                                       ReindexStatusService statusService,
+                                       ObjectProvider<ItemIndexService> itemIndexServiceProvider) {
     this.repositories = repositories.stream()
       .collect(Collectors.toMap(MergeRangeRepository::entityType, Function.identity()));
     this.inventoryService = inventoryService;
     this.reindexConfig = reindexConfig;
     this.migrationService = migrationService;
+    this.statusService = statusService;
+    this.itemIndexServiceProvider = itemIndexServiceProvider;
     this.instanceChildrenResourceService = null;
   }
 
@@ -62,10 +70,21 @@ public class ReindexMergeRangeIndexService {
     repositories.values().iterator().next().truncateMergeRanges();
   }
 
+  /**
+   * Deletes merge ranges of the given entity type only, ranges of other entity types are kept.
+   */
+  public void deleteMergeRanges(ReindexEntityType entityType) {
+    repositories.get(entityType).deleteMergeRanges();
+  }
+
   public List<MergeRangeEntity> createMergeRanges(String tenantId) {
+    return createMergeRanges(tenantId, List.of(InventoryRecordType.values()));
+  }
+
+  private List<MergeRangeEntity> createMergeRanges(String tenantId, List<InventoryRecordType> recordTypes) {
     List<MergeRangeEntity> mergeRangeEntities = new ArrayList<>();
     var rangeSize = reindexConfig.getMergeRangeSize();
-    for (var recordType : InventoryRecordType.values()) {
+    for (var recordType : recordTypes) {
       var recordsCount = inventoryService.fetchInventoryRecordsCount(recordType);
       var ranges = constructMergeRangeRecords(recordsCount, rangeSize, recordType, tenantId);
       if (CollectionUtils.isNotEmpty(ranges)) {
@@ -77,12 +96,34 @@ public class ReindexMergeRangeIndexService {
     return mergeRangeEntities;
   }
 
+  /**
+   * Creates merge ranges for item records only, used by the items-only reindex.
+   */
+  public List<MergeRangeEntity> createItemMergeRanges(String tenantId) {
+    return createMergeRanges(tenantId, List.of(InventoryRecordType.ITEM));
+  }
+
   public List<MergeRangeEntity> fetchMergeRanges(ReindexEntityType entityType) {
     return repositories.get(entityType).getMergeRanges();
   }
 
   public List<MergeRangeEntity> fetchFailedMergeRanges() {
     return repositories.values().iterator().next().getFailedMergeRanges();
+  }
+
+  public List<MergeRangeEntity> fetchFailedMergeRanges(ReindexEntityType entityType) {
+    return repositories.get(entityType).getFailedMergeRangesOfEntityType();
+  }
+
+  /**
+   * Checks if merge ranges of the given entity type are still being processed.
+   *
+   * @param entityType  entity type of the ranges
+   * @param activeSince ranges with no activity after this time are considered abandoned
+   * @return true if the ranges are still being processed
+   */
+  public boolean hasActiveMergeRanges(ReindexEntityType entityType, Timestamp activeSince) {
+    return repositories.get(entityType).hasActiveMergeRanges(activeSince);
   }
 
   public void updateStatus(ReindexEntityType entityType, String rangeId, ReindexRangeStatus status, String failCause) {
@@ -95,6 +136,10 @@ public class ReindexMergeRangeIndexService {
     var entities = event.getRecords().stream()
       .map(entity -> (Map<String, Object>) entity)
       .toList();
+
+    if (indexItemsOnly(event.getRecordType(), event.getTenant(), entities)) {
+      return;
+    }
 
     try {
       // Set reindex mode for context-aware repositories
@@ -116,6 +161,10 @@ public class ReindexMergeRangeIndexService {
 
   public void saveEntitiesRaw(String tenant, ReindexRecordType recordType, List<RawLine> entities) {
     var maps = entities.stream().map(RawLine::data).toList();
+    if (indexItemsOnly(recordType, tenant, maps)) {
+      return;
+    }
+
     try {
       ReindexContext.setReindexMode(true);
       repositories.get(recordType.getEntityType()).saveEntitiesRaw(tenant, entities);
@@ -126,6 +175,24 @@ public class ReindexMergeRangeIndexService {
     } finally {
       ReindexContext.setReindexMode(false);
     }
+  }
+
+  /**
+   * Writes item records straight to the item index when an items-only reindex is running. Neither the item table nor
+   * the instance children are touched in that case.
+   *
+   * @return true if the records were indexed and the regular save must be skipped
+   */
+  private boolean indexItemsOnly(ReindexRecordType recordType, String tenant, List<Map<String, Object>> records) {
+    if (recordType != ReindexRecordType.ITEM || !statusService.isItemOnlyReindex()) {
+      return false;
+    }
+    var itemIndexService = itemIndexServiceProvider.getIfAvailable();
+    if (itemIndexService == null) {
+      throw new IllegalStateException("Items-only reindex requires ITEM_INDEX_ENABLED=true");
+    }
+    itemIndexService.reindexItems(tenant, records);
+    return true;
   }
 
   private List<MergeRangeEntity> constructMergeRangeRecords(int recordsCount,

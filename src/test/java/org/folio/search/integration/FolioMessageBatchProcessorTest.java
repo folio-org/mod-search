@@ -2,6 +2,7 @@ package org.folio.search.integration;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.support.utils.TestUtils.mapOf;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -44,6 +45,33 @@ class FolioMessageBatchProcessorTest {
     assertThat(failedMessages).isEmpty();
     verify(customRetryTemplate).invoke(any(Runnable.class));
     verify(retryTemplate, never()).invoke(any(Runnable.class));
+  }
+
+  @Test
+  void executeWithRetry_positive_retriesWithNamedTemplate() {
+    var attempts = new AtomicInteger();
+
+    folioMessageBatchProcessor.executeWithRetry("custom", () -> {
+      if (attempts.incrementAndGet() < 3) {
+        throw new IllegalStateException("error");
+      }
+    });
+
+    assertThat(attempts).hasValue(3);
+    verify(customRetryTemplate).invoke(any(Runnable.class));
+    verify(retryTemplate, never()).invoke(any(Runnable.class));
+  }
+
+  @Test
+  void executeWithRetry_negative_rethrowsOriginalFailureWithoutFallback() {
+    var attempts = new AtomicInteger();
+
+    assertThatThrownBy(() -> folioMessageBatchProcessor.executeWithRetry("custom", () -> {
+      attempts.incrementAndGet();
+      throw new IllegalStateException("error");
+    })).isInstanceOf(IllegalStateException.class).hasMessage("error");
+
+    assertThat(attempts).hasValue(6);
   }
 
   @Test

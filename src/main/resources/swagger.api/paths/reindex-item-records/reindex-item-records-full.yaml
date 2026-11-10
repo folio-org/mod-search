@@ -1,0 +1,27 @@
+post:
+  operationId: reindexItemRecords
+  summary: Item Records Re-Index
+  description: >
+    Initiates the full reindex of the item index only. Item records are pulled from inventory and written straight
+    to the item index; other indexes and the reindex data of instances, holdings and call numbers are not changed.
+    Available only when item indexing is enabled (ITEM_INDEX_ENABLED=true). Progress is available in the reindex
+    status of the `item` entity type.
+  tags:
+    - index-management
+  requestBody:
+    content:
+      application/json:
+        examples:
+          reindexItemRequest:
+            $ref: '../../examples/request/reindexItemRequest.yaml'
+        schema:
+          $ref: '../../schemas/request/reindexItemRequest.yaml'
+  parameters:
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+  responses:
+    '200':
+      description: Item records reindex operation has been started
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

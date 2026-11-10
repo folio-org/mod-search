@@ -55,6 +55,17 @@ public class FolioMessageBatchProcessor {
     }
   }
 
+  /**
+   * Executes the action with the specified retry policy, without one-by-one fallback. The failure of the last attempt
+   * is rethrown as is, so callers can classify it.
+   *
+   * @param retryBeanName retry bean name, if it's not specified - default retry policy will be used.
+   * @param action        action to execute
+   */
+  public void executeWithRetry(String retryBeanName, Runnable action) {
+    retryTemplateBeans.getOrDefault(retryBeanName, defaultRetryTemplate).invoke(action);
+  }
+
   private <T> void processMessagesOneByOne(List<T> batch, RetryTemplate retryTemplate,
                                            Consumer<List<T>> batchConsumer,
                                            BiConsumer<T, Exception> failedValueConsumer) {

@@ -1,5 +1,6 @@
 package org.folio.search.service;
 
+import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 import static org.folio.search.configuration.RetryTemplateConfiguration.ITEM_INDEXING_RETRY_TEMPLATE_NAME;
 import static org.folio.search.utils.LogUtils.collectionToLogMsg;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
@@ -33,8 +34,10 @@ import org.folio.search.service.consortium.ConsortiumTenantProvider;
 import org.folio.search.service.consortium.SharedInstanceResolver;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.search.utils.IndexingFailureUtils;
+import org.folio.spring.exception.FolioContextExecutionException;
 import org.opensearch.action.bulk.BulkItemResponse;
 import org.opensearch.action.bulk.BulkResponse;
+import org.opensearch.core.rest.RestStatus;
 import org.opensearch.script.Script;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
@@ -98,6 +101,66 @@ public class ItemIndexService {
       }));
 
     return toResponse(failedEvents, processedEvents.size());
+  }
+
+  /**
+   * Indexes item records pulled from inventory by an items-only reindex as standalone documents into the item index.
+   * Documents are built exactly like the ones of item events (tenant scoped id, {@code tenantId}, {@code shared} flag,
+   * flattened fields), so a reindexed item is indistinguishable from an event-indexed one.
+   *
+   * <p>Documents are only created: an item index is recreated before the run, so an existing document was written by
+   * an event that is newer than the reindex record and must not be overwritten. Such conflicts are not failures. The
+   * batch is retried with {@code itemIndexingRetryTemplate} and the failure is rethrown, so the caller can mark the
+   * merge range as failed. There is no one-by-one fallback and nothing is stored as failed indexing event.</p>
+   *
+   * @param tenant  tenant the records belong to
+   * @param records item records as received from inventory
+   * @throws IndexingFailureException if OpenSearch rejected documents
+   */
+  public void reindexItems(String tenant, List<Map<String, Object>> records) {
+    var events = records.stream()
+      .filter(record -> isNotEmpty(record.get("id")))
+      .map(record -> new ResourceEvent()
+        .id(String.valueOf(record.get("id")))
+        .type(ResourceEventType.REINDEX)
+        .tenant(tenant)
+        .resourceName(ResourceType.ITEM.getName())
+        ._new(new LinkedHashMap<>(record)))
+      .toList();
+    if (events.size() != records.size()) {
+      log.warn("reindexItems:: skipped records without id [tenant: {}, skipped: {}]",
+        tenant, records.size() - events.size());
+    }
+    if (events.isEmpty()) {
+      return;
+    }
+
+    try {
+      executionService.execute(tenant, () -> createDocumentsWithRetry(events));
+    } catch (FolioContextExecutionException e) {
+      // keep the failure itself, its message is stored as the failure cause of the merge range
+      throw e.getCause() instanceof RuntimeException cause ? cause : e;
+    }
+  }
+
+  private Void createDocumentsWithRetry(List<ResourceEvent> events) {
+    folioMessageBatchProcessor.executeWithRetry(ITEM_INDEXING_RETRY_TEMPLATE_NAME, () -> createDocuments(events));
+    return null;
+  }
+
+  private void createDocuments(List<ResourceEvent> events) {
+    populateSharedFlag(events);
+    var documents = convertToDocuments(events.stream().map(ItemIndexService::withTenantScopedId).toList());
+    var bulkResponse = primaryResourceRepository.executeBulkCreate(documents);
+    var failures = failedItems(bulkResponse, true);
+    if (!failures.isEmpty()) {
+      var failure = toIndexingFailure(failures);
+      log.warn("reindexItems:: failed to index documents [indexRequests: {}, status: {}, errorType: {}]",
+        documents.size(), failure.getStatus(), failure.getErrorType());
+      throw failure;
+    }
+    log.info("reindexItems:: indexed to elasticsearch [indexRequests: {}, existing: {}]", documents.size(),
+      Arrays.stream(bulkResponse.getItems()).filter(BulkItemResponse::isFailed).count());
   }
 
   private void processBatch(List<ResourceEvent> batch, List<ResourceEvent> failedEvents) {
@@ -215,7 +278,7 @@ public class ItemIndexService {
     var documents = convertToDocuments(events.stream().map(ItemIndexService::withTenantScopedId).toList());
     var bulkResponse = primaryResourceRepository.executeBulk(documents);
     if (bulkResponse.hasFailures()) {
-      var failure = toIndexingFailure(bulkResponse);
+      var failure = toIndexingFailure(failedItems(bulkResponse, false));
       log.warn("indexItemEvents:: failed to index documents [indexRequests: {}, status: {}, errorType: {}]",
         documents.size(), failure.getStatus(), failure.getErrorType());
       throw failure;
@@ -227,11 +290,15 @@ public class ItemIndexService {
    * Builds failure from failed bulk items. Status and error type are taken from the first failed item; the failure is
    * marked with a retryable status if any failed item is retryable, so a mixed batch is still retried.
    */
-  private static IndexingFailureException toIndexingFailure(BulkResponse bulkResponse) {
-    var failures = Arrays.stream(bulkResponse.getItems())
+  private static List<BulkItemResponse.Failure> failedItems(BulkResponse bulkResponse, boolean ignoreConflicts) {
+    return Arrays.stream(bulkResponse.getItems())
       .filter(BulkItemResponse::isFailed)
       .map(BulkItemResponse::getFailure)
+      .filter(failure -> !ignoreConflicts || failure.getStatus() != RestStatus.CONFLICT)
       .toList();
+  }
+
+  private static IndexingFailureException toIndexingFailure(List<BulkItemResponse.Failure> failures) {
     var message = failures.stream()
       .map(failure -> "index [%s], id [%s], status [%s], message [%s]".formatted(failure.getIndex(), failure.getId(),
         failure.getStatus().getStatus(), IndexingFailureUtils.getCauseChainMessage(failure.getCause())))

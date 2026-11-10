@@ -9,6 +9,7 @@ import static org.folio.search.model.types.ReindexEntityType.INSTANCE;
 import static org.folio.search.model.types.ReindexEntityType.ITEM;
 import static org.folio.search.model.types.ReindexEntityType.SUBJECT;
 import static org.folio.search.model.types.ReindexStatus.MERGE_COMPLETED;
+import static org.folio.search.model.types.ReindexStatus.MERGE_FAILED;
 import static org.folio.search.model.types.ReindexStatus.MERGE_IN_PROGRESS;
 import static org.folio.search.model.types.ReindexStatus.UPLOAD_COMPLETED;
 import static org.folio.search.model.types.ReindexStatus.UPLOAD_FAILED;
@@ -458,5 +459,90 @@ class ReindexStatusRepositoryIT {
         assertThat(s.getEndTimeUpload()).isNull();
         assertThat(s.getTargetTenantId()).isEqualTo(MEMBER_TENANT_ID);
       });
+  }
+
+  @Test
+  @Sql("/sql/populate-reindex-status.sql")
+  void resetItemOnlyStatusRecord_shouldInsertItemRowAndLeaveOtherRowsUntouched() {
+    var before = repository.getReindexStatuses();
+
+    repository.resetItemOnlyStatusRecord();
+
+    var after = repository.getReindexStatuses();
+    assertThat(after).hasSize(before.size() + 1);
+    assertThat(after).filteredOn(s -> s.getEntityType() != ITEM)
+      .containsExactlyInAnyOrderElementsOf(before)
+      .allMatch(s -> !s.isItemOnly());
+    assertThat(after).filteredOn(s -> s.getEntityType() == ITEM).singleElement().satisfies(s -> {
+      assertThat(s.getStatus()).isEqualTo(MERGE_IN_PROGRESS);
+      assertThat(s.isItemOnly()).isTrue();
+      assertThat(s.getTotalMergeRanges()).isZero();
+      assertThat(s.getProcessedMergeRanges()).isZero();
+      assertThat(s.getTotalUploadRanges()).isZero();
+      assertThat(s.getProcessedUploadRanges()).isZero();
+      assertThat(s.getStartTimeMerge()).isNull();
+      assertThat(s.getEndTimeMerge()).isNull();
+      assertThat(s.getTargetTenantId()).isNull();
+    });
+  }
+
+  @Test
+  void resetItemOnlyStatusRecord_shouldResetFailedRowWithoutCompletingIt() {
+    repository.recreateReindexStatusTrigger(true);
+    var failed = new ReindexStatusEntity(ITEM, MERGE_FAILED);
+    failed.setTotalMergeRanges(4);
+    failed.setProcessedMergeRanges(2);
+    failed.setTargetTenantId(MEMBER_TENANT_ID);
+    failed.setEndTimeMerge(Timestamp.valueOf("2024-04-01 01:37:35.15755"));
+    repository.saveReindexStatusRecords(java.util.List.of(failed));
+
+    repository.resetItemOnlyStatusRecord();
+
+    assertThat(repository.getReindexStatuses()).singleElement().satisfies(s -> {
+      assertThat(s.getStatus()).isEqualTo(MERGE_IN_PROGRESS);
+      assertThat(s.isItemOnly()).isTrue();
+      assertThat(s.getTotalMergeRanges()).isZero();
+      assertThat(s.getEndTimeMerge()).isNull();
+      assertThat(s.getTargetTenantId()).isNull();
+    });
+  }
+
+  @Test
+  void getTargetTenantId_shouldIgnoreItemOnlyRow() {
+    repository.resetItemOnlyStatusRecord();
+    var instance = new ReindexStatusEntity(INSTANCE, UPLOAD_COMPLETED);
+    instance.setTargetTenantId(MEMBER_TENANT_ID);
+    repository.saveReindexStatusRecords(java.util.List.of(instance));
+
+    assertThat(repository.getTargetTenantId()).isEqualTo(MEMBER_TENANT_ID);
+  }
+
+  @Test
+  void isItemOnlyReindex_shouldReflectItemRowFlag() {
+    assertThat(repository.isItemOnlyReindex()).isFalse();
+
+    repository.saveReindexStatusRecords(java.util.List.of(new ReindexStatusEntity(ITEM, MERGE_IN_PROGRESS)));
+    assertThat(repository.isItemOnlyReindex()).isFalse();
+
+    repository.resetItemOnlyStatusRecord();
+    assertThat(repository.isItemOnlyReindex()).isTrue();
+  }
+
+  @Test
+  void itemOnlyStatus_shouldCompleteWithMemberTriggerWhenAllRangesAreProcessed() {
+    repository.recreateReindexStatusTrigger(true);
+    repository.resetItemOnlyStatusRecord();
+    repository.setMergeReindexStarted(ITEM, 2);
+
+    repository.addReindexCounts(ITEM, 1, 0);
+    assertThat(repository.getReindexStatuses()).singleElement()
+      .satisfies(s -> assertThat(s.getStatus()).isEqualTo(MERGE_IN_PROGRESS));
+
+    repository.addReindexCounts(ITEM, 1, 0);
+    assertThat(repository.getReindexStatuses()).singleElement().satisfies(s -> {
+      assertThat(s.getStatus()).isEqualTo(MERGE_COMPLETED);
+      assertThat(s.getEndTimeMerge()).isNotNull();
+      assertThat(s.isItemOnly()).isTrue();
+    });
   }
 }

@@ -1,0 +1,5 @@
+description: Items-only reindex request
+type: object
+properties:
+  indexSettings:
+    $ref: '../entity/indexSettings.yaml'

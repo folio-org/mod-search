@@ -9,6 +9,9 @@ import static org.folio.support.base.ApiEndpoints.indexRecordsPath;
 import static org.folio.support.base.ApiEndpoints.reindexFailedPath;
 import static org.folio.support.base.ApiEndpoints.reindexFullPath;
 import static org.folio.support.base.ApiEndpoints.reindexInstanceRecordsStatus;
+import static org.folio.support.base.ApiEndpoints.reindexItemRecordsFailedPath;
+import static org.folio.support.base.ApiEndpoints.reindexItemRecordsFullPath;
+import static org.folio.support.base.ApiEndpoints.reindexItemRecordsStatus;
 import static org.folio.support.base.ApiEndpoints.reindexUploadPath;
 import static org.folio.support.utils.JsonTestUtils.asJsonString;
 import static org.folio.support.utils.TestUtils.mapOf;
@@ -38,12 +41,14 @@ import java.util.concurrent.CompletableFuture;
 import org.folio.search.domain.dto.CreateIndexRequest;
 import org.folio.search.domain.dto.IndexDynamicSettings;
 import org.folio.search.domain.dto.IndexSettings;
+import org.folio.search.domain.dto.ReindexItemRequest;
 import org.folio.search.domain.dto.ReindexJob;
 import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.domain.dto.ReindexStatusItem;
 import org.folio.search.domain.dto.ReindexUploadDto;
 import org.folio.search.domain.dto.UpdateIndexDynamicSettingsRequest;
 import org.folio.search.domain.dto.UpdateMappingsRequest;
+import org.folio.search.exception.RequestValidationException;
 import org.folio.search.exception.SearchOperationException;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ResourceType;
@@ -163,6 +168,51 @@ class IndexManagementControllerTest {
     mockMvc.perform(post(reindexFailedPath())
         .header(XOkapiHeaders.TENANT, TENANT_ID))
       .andExpect(status().isOk());
+  }
+
+  @Test
+  void submitItemRecordsReindex_positive() throws Exception {
+    when(reindexService.submitItemReindex(TENANT_ID, null)).thenReturn(new CompletableFuture<>());
+
+    mockMvc.perform(post(reindexItemRecordsFullPath())
+        .contentType(APPLICATION_JSON).header(XOkapiHeaders.TENANT, TENANT_ID))
+      .andExpect(status().isOk());
+
+    verify(reindexService).submitItemReindex(TENANT_ID, null);
+  }
+
+  @Test
+  void submitItemRecordsReindex_positive_withSettings() throws Exception {
+    var indexSettings = new IndexSettings().numberOfShards(1).refreshInterval(2).numberOfReplicas(3);
+    var requestBody = new ReindexItemRequest().indexSettings(indexSettings);
+    when(reindexService.submitItemReindex(TENANT_ID, indexSettings)).thenReturn(new CompletableFuture<>());
+
+    mockMvc.perform(preparePostRequest(reindexItemRecordsFullPath(), asJsonString(requestBody)))
+      .andExpect(status().isOk());
+
+    verify(reindexService).submitItemReindex(TENANT_ID, indexSettings);
+  }
+
+  @Test
+  void submitItemRecordsReindex_negative_validationFailure() throws Exception {
+    when(reindexService.submitItemReindex(TENANT_ID, null))
+      .thenThrow(new RequestValidationException("Item index is not enabled", "itemIndexEnabled", "false"));
+
+    mockMvc.perform(post(reindexItemRecordsFullPath())
+        .contentType(APPLICATION_JSON).header(XOkapiHeaders.TENANT, TENANT_ID))
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.errors[0].message", is("Item index is not enabled")));
+  }
+
+  @Test
+  void submitItemRecordsReindexMergeFailed_positive() throws Exception {
+    when(reindexService.submitFailedItemRangesReindex(TENANT_ID)).thenReturn(new CompletableFuture<>());
+
+    mockMvc.perform(post(reindexItemRecordsFailedPath())
+        .header(XOkapiHeaders.TENANT, TENANT_ID))
+      .andExpect(status().isOk());
+
+    verify(reindexService).submitFailedItemRangesReindex(TENANT_ID);
   }
 
   @Test
@@ -376,6 +426,17 @@ class IndexManagementControllerTest {
     when(reindexStatusService.getReindexStatuses(TENANT_ID)).thenReturn(List.of(reindexStatus));
 
     mockMvc.perform(get(reindexInstanceRecordsStatus())
+        .header(XOkapiHeaders.TENANT, TENANT_ID))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("[0].entityType", is(reindexStatus.getEntityType())));
+  }
+
+  @Test
+  void getItemReindexStatus_positive() throws Exception {
+    var reindexStatus = new ReindexStatusItem().entityType(ReindexEntityType.ITEM.name());
+    when(reindexStatusService.getItemReindexStatuses(TENANT_ID)).thenReturn(List.of(reindexStatus));
+
+    mockMvc.perform(get(reindexItemRecordsStatus())
         .header(XOkapiHeaders.TENANT, TENANT_ID))
       .andExpect(status().isOk())
       .andExpect(jsonPath("[0].entityType", is(reindexStatus.getEntityType())));

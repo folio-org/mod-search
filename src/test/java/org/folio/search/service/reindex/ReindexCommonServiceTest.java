@@ -9,6 +9,7 @@ import static org.folio.search.model.types.ReindexEntityType.ITEM;
 import static org.folio.search.model.types.ReindexEntityType.SUBJECT;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -21,6 +22,7 @@ import java.util.List;
 import org.folio.search.domain.dto.FolioCreateIndexResponse;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.IndexSettings;
+import org.folio.search.exception.ReindexException;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.repository.PrimaryResourceRepository;
 import org.folio.search.service.IndexService;
@@ -228,6 +230,32 @@ class ReindexCommonServiceTest {
 
     // Assert
     verify(indexService).createIndexIfNotExist(ResourceType.INSTANCE, TENANT_ID);
+  }
+
+  @Test
+  void recreateIndexOrThrow_positive() {
+    var indexSettings = new IndexSettings();
+    when(indexService.createIndex(any(), any(), any())).thenReturn(new FolioCreateIndexResponse());
+
+    service.recreateIndexOrThrow(ITEM, TENANT_ID, indexSettings);
+
+    verify(indexService).dropIndex(ResourceType.ITEM, TENANT_ID);
+    verify(indexService).createIndex(ResourceType.ITEM, TENANT_ID, indexSettings);
+  }
+
+  @Test
+  void recreateIndexOrThrow_negative_dropFails() {
+    doThrow(new RuntimeException("Test exception")).when(indexService).dropIndex(any(ResourceType.class), any());
+
+    assertThrows(ReindexException.class, () -> service.recreateIndexOrThrow(ITEM, TENANT_ID, null));
+  }
+
+  @Test
+  void recreateIndexOrThrow_negative_createNotAcknowledged() {
+    when(indexService.createIndex(any(), any(), any()))
+      .thenReturn(new FolioCreateIndexResponse().status(FolioCreateIndexResponse.StatusEnum.ERROR));
+
+    assertThrows(ReindexException.class, () -> service.recreateIndexOrThrow(ITEM, TENANT_ID, null));
   }
 
   @Test

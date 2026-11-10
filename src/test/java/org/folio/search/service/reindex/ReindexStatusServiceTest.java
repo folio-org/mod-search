@@ -7,9 +7,12 @@ import static org.folio.search.model.types.ReindexEntityType.HOLDINGS;
 import static org.folio.search.model.types.ReindexEntityType.INSTANCE;
 import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.support.TestConstants.TENANT_ID;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -89,6 +92,33 @@ class ReindexStatusServiceTest {
   }
 
   @Test
+  void getReindexStatuses_hidesItemOnlyRow() {
+    var itemOnlyStatus = new ReindexStatusEntity(ReindexEntityType.ITEM, ReindexStatus.MERGE_COMPLETED);
+    itemOnlyStatus.setItemOnly(true);
+    var instanceStatus = new ReindexStatusEntity(ReindexEntityType.INSTANCE, ReindexStatus.UPLOAD_COMPLETED);
+    var expected = new ReindexStatusItem();
+    when(statusRepository.getReindexStatuses()).thenReturn(List.of(instanceStatus, itemOnlyStatus));
+    when(reindexStatusMapper.convert(instanceStatus)).thenReturn(expected);
+
+    var actual = service.getReindexStatuses(TENANT_ID);
+
+    assertThat(actual).containsExactly(expected);
+    verify(reindexStatusMapper, never()).convert(itemOnlyStatus);
+  }
+
+  @Test
+  void getReindexStatuses_keepsItemRowOfRegularReindex() {
+    var itemStatus = new ReindexStatusEntity(ReindexEntityType.ITEM, ReindexStatus.MERGE_COMPLETED);
+    var expected = new ReindexStatusItem();
+    when(statusRepository.getReindexStatuses()).thenReturn(List.of(itemStatus));
+    when(reindexStatusMapper.convert(itemStatus)).thenReturn(expected);
+
+    var actual = service.getReindexStatuses(TENANT_ID);
+
+    assertThat(actual).containsExactly(expected);
+  }
+
+  @Test
   void getReindexStatuses_negative_consortiumMemberTenant() {
     when(consortiumTenantProvider.isMemberTenant(TENANT_ID)).thenReturn(true);
 
@@ -99,6 +129,42 @@ class ReindexStatusServiceTest {
     assertThat(ex.getValue()).isEqualTo(TENANT_ID);
     verifyNoInteractions(statusRepository);
     verifyNoInteractions(reindexStatusMapper);
+  }
+
+  @Test
+  void getItemReindexStatuses_returnsOnlyItemOnlyRow() {
+    var itemOnlyStatus = new ReindexStatusEntity(ReindexEntityType.ITEM, ReindexStatus.MERGE_IN_PROGRESS);
+    itemOnlyStatus.setItemOnly(true);
+    var instanceStatus = new ReindexStatusEntity(ReindexEntityType.INSTANCE, ReindexStatus.UPLOAD_COMPLETED);
+    var expected = new ReindexStatusItem();
+    when(statusRepository.getReindexStatuses()).thenReturn(List.of(instanceStatus, itemOnlyStatus));
+    when(reindexStatusMapper.convert(itemOnlyStatus)).thenReturn(expected);
+
+    var actual = service.getItemReindexStatuses(TENANT_ID);
+
+    assertThat(actual).containsExactly(expected);
+  }
+
+  @Test
+  void getItemReindexStatuses_returnsEmpty_whenItemRowBelongsToRegularReindex() {
+    var itemStatus = new ReindexStatusEntity(ReindexEntityType.ITEM, ReindexStatus.MERGE_COMPLETED);
+    when(statusRepository.getReindexStatuses()).thenReturn(List.of(itemStatus));
+
+    var actual = service.getItemReindexStatuses(TENANT_ID);
+
+    assertThat(actual).isEmpty();
+    verifyNoInteractions(reindexStatusMapper);
+  }
+
+  @Test
+  void getItemReindexStatuses_negative_consortiumMemberTenant() {
+    when(consortiumTenantProvider.isMemberTenant(TENANT_ID)).thenReturn(true);
+
+    var ex = Assertions.assertThrows(RequestValidationException.class,
+      () -> service.getItemReindexStatuses(TENANT_ID));
+
+    assertThat(ex.getMessage()).isEqualTo(REQUEST_NOT_ALLOWED_FOR_CONSORTIUM_MEMBER_MSG);
+    verifyNoInteractions(statusRepository);
   }
 
   @Test
@@ -452,5 +518,58 @@ class ReindexStatusServiceTest {
 
     // assert: ITEM and HOLDINGS don't support upload so MERGE_COMPLETED is terminal for them
     assertThat(actual).isFalse();
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = ReindexStatus.class, names = {"MERGE_IN_PROGRESS", "MERGE_FAILED"})
+  void isReindexInProgressOrFailedNotForConsortiumMember_false_whenOnlyItemOnlyRowIsInProgressOrFailed(
+    ReindexStatus status) {
+    var itemEntity = new ReindexStatusEntity(ReindexEntityType.ITEM, status);
+    itemEntity.setItemOnly(true);
+    when(statusRepository.getReindexStatuses()).thenReturn(List.of(
+      new ReindexStatusEntity(ReindexEntityType.INSTANCE, ReindexStatus.UPLOAD_COMPLETED),
+      itemEntity));
+
+    var actual = service.isReindexInProgressOrFailedNotForConsortiumMember();
+
+    assertThat(actual).isFalse();
+  }
+
+  @Test
+  void isReindexInProgressOrFailedNotForConsortiumMember_true_whenItemOnlyRowIsAccompaniedByFailedOtherRow() {
+    var itemEntity = new ReindexStatusEntity(ReindexEntityType.ITEM, ReindexStatus.MERGE_IN_PROGRESS);
+    itemEntity.setItemOnly(true);
+    when(statusRepository.getReindexStatuses()).thenReturn(List.of(
+      new ReindexStatusEntity(ReindexEntityType.HOLDINGS, ReindexStatus.MERGE_FAILED),
+      itemEntity));
+
+    var actual = service.isReindexInProgressOrFailedNotForConsortiumMember();
+
+    assertThat(actual).isTrue();
+  }
+
+  @Test
+  void startItemOnlyReindex_positive_bindsMemberTriggerAndResetsOnlyItemRow() {
+    service.startItemOnlyReindex();
+
+    var inOrder = inOrder(statusRepository);
+    inOrder.verify(statusRepository).recreateReindexStatusTrigger(true);
+    inOrder.verify(statusRepository).resetItemOnlyStatusRecord();
+    verifyNoMoreInteractions(statusRepository);
+    verifyNoInteractions(subResourcesLockRepository);
+  }
+
+  @Test
+  void isItemOnlyReindex_positive_returnsRepositoryResult() {
+    when(statusRepository.isItemOnlyReindex()).thenReturn(true);
+
+    assertThat(service.isItemOnlyReindex()).isTrue();
+  }
+
+  @Test
+  void updateReindexMergeFailed_positive_itemOverloadMarksOnlyItem() {
+    service.updateReindexMergeFailed(ReindexEntityType.ITEM);
+
+    verify(statusRepository).setMergeReindexFailed(singletonList(ReindexEntityType.ITEM));
   }
 }

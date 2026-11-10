@@ -44,6 +44,7 @@ public class TestConstants {
   public static final String LIBRARY_TOPIC = "inventory.library";
   public static final String REINDEX_RANGE_INDEX_TOPIC = "search.reindex.range-index";
   public static final String REINDEX_RECORDS_TOPIC = "inventory.reindex-records";
+  public static final String REINDEX_FILE_READY_TOPIC = "inventory.reindex.file-ready";
 
   public static final String LCCN_IDENTIFIER_TYPE_ID = randomId();
   public static final String ISSN_IDENTIFIER_TYPE_ID = randomId();
@@ -69,6 +70,10 @@ public class TestConstants {
 
   public static String reindexRecordsTopic(String tenantId) {
     return getTopicName(tenantId, REINDEX_RECORDS_TOPIC);
+  }
+
+  public static String reindexFileReadyTopic(String tenantId) {
+    return getTopicName(tenantId, REINDEX_FILE_READY_TOPIC);
   }
 
   public static String inventoryItemTopic() {

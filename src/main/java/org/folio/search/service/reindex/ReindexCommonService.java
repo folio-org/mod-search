@@ -7,7 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
+import org.folio.search.domain.dto.FolioCreateIndexResponse;
 import org.folio.search.domain.dto.IndexSettings;
+import org.folio.search.exception.ReindexException;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.repository.PrimaryResourceRepository;
@@ -108,6 +110,25 @@ public class ReindexCommonService {
     } catch (Exception e) {
       log.warn("recreateIndex:: Index cannot be recreated for resource={}, message={}",
         reindexEntityType, e.getMessage());
+    }
+  }
+
+  /**
+   * Drops and creates the index of the given entity type, failing if either operation doesn't succeed.
+   *
+   * @throws ReindexException if the index can't be dropped or created
+   */
+  public void recreateIndexOrThrow(ReindexEntityType reindexEntityType, String tenantId, IndexSettings indexSettings) {
+    var resourceType = RESOURCE_NAME_MAP.get(reindexEntityType);
+    FolioCreateIndexResponse response;
+    try {
+      indexService.dropIndex(resourceType, tenantId);
+      response = indexService.createIndex(resourceType, tenantId, indexSettings);
+    } catch (Exception e) {
+      throw new ReindexException("Index cannot be recreated for resource: " + reindexEntityType, e);
+    }
+    if (response.getStatus() == FolioCreateIndexResponse.StatusEnum.ERROR) {
+      throw new ReindexException("Index cannot be created for resource: " + reindexEntityType);
     }
   }
 

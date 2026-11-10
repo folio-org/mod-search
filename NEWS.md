@@ -3,6 +3,7 @@
 * Description ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))
 
 ### New APIs versions
+* Provides `indices v1.3`
 * Provides `API_NAME vX.Y`
 * Requires `API_NAME vX.Y`
 
@@ -12,6 +13,7 @@
 * **Inventory Items**
   * Add `GET /search/inventory/items` endpoint and `item` index mappings ([MSEARCH-1226](https://folio-org.atlassian.net/browse/MSEARCH-1226))
   * Index inventory item events into the `item` index behind the `ITEM_INDEX_ENABLED` flag ([MSEARCH-1228](https://folio-org.atlassian.net/browse/MSEARCH-1228))
+  * Add items-only reindex that rebuilds the `item` index from inventory: `POST /search/index/item-records/reindex/full`, `POST /search/index/item-records/reindex/merge/failed` and `GET /search/index/item-records/reindex/status`, with new permissions `search.index.item-records.reindex.full.post`, `search.index.item-records.reindex.merge.failed.post` and `search.index.item-records.reindex.status.get` ([MSEARCH-1293](https://folio-org.atlassian.net/browse/MSEARCH-1293))
   * Store failed item indexing events in `failed_indexing_event` table with daily cleanup of records older than `FAILED_INDEXING_EVENTS_RETENTION_DAYS` ([MSEARCH-1228](https://folio-org.atlassian.net/browse/MSEARCH-1228))
 * **Linked Data Authority**
   * Implement Linked Data Authority index and search API ([MSEARCH-1246](https://folio-org.atlassian.net/browse/MSEARCH-1246))

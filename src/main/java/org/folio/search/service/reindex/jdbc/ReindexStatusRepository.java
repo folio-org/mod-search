@@ -3,6 +3,7 @@ package org.folio.search.service.reindex.jdbc;
 import static org.folio.search.model.reindex.ReindexStatusEntity.END_TIME_MERGE_COLUMN;
 import static org.folio.search.model.reindex.ReindexStatusEntity.END_TIME_STAGING_COLUMN;
 import static org.folio.search.model.reindex.ReindexStatusEntity.END_TIME_UPLOAD_COLUMN;
+import static org.folio.search.model.reindex.ReindexStatusEntity.ITEM_ONLY_COLUMN;
 import static org.folio.search.model.reindex.ReindexStatusEntity.PROCESSED_MERGE_RANGES_COLUMN;
 import static org.folio.search.model.reindex.ReindexStatusEntity.PROCESSED_UPLOAD_RANGES_COLUMN;
 import static org.folio.search.model.reindex.ReindexStatusEntity.START_TIME_MERGE_COLUMN;
@@ -29,6 +30,7 @@ import org.folio.spring.FolioExecutionContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @RequiredArgsConstructor
@@ -55,6 +57,21 @@ public class ReindexStatusRepository {
         target_tenant_id = EXCLUDED.target_tenant_id;
     """;
 
+  /**
+   * The ITEM row is deleted and inserted instead of updated, because an update of the processed ranges columns fires
+   * the status trigger, which would see equal zero counters on a failed row and flip it straight to
+   * {@code MERGE_COMPLETED}.
+   */
+  private static final String INSERT_ITEM_ONLY_STATUS_SQL = """
+      INSERT INTO %s (entity_type, status, total_merge_ranges, processed_merge_ranges, total_upload_ranges,
+      processed_upload_ranges, start_time_merge, end_time_merge, start_time_upload, end_time_upload,
+      start_time_staging, end_time_staging, target_tenant_id, item_only)
+      VALUES (?, ?, 0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, TRUE);
+    """;
+
+  private static final String SELECT_ITEM_ONLY_SQL =
+    "SELECT EXISTS (SELECT 1 FROM %s WHERE entity_type = ? AND item_only)";
+
   private static final String UPDATE_SQL = """
     UPDATE %s
     SET %s
@@ -80,7 +97,8 @@ public class ReindexStatusRepository {
 
   private static final String SELECT_MERGE_STATUS_SQL = "SELECT check_merge_completed_status()";
 
-  private static final String SELECT_TARGET_TENANT_ID_SQL = "SELECT target_tenant_id FROM %s LIMIT 1";
+  private static final String SELECT_TARGET_TENANT_ID_SQL =
+    "SELECT target_tenant_id FROM %s WHERE NOT item_only LIMIT 1";
 
   private static final String RECREATE_REINDEX_STATUS_TRIGGER_SQL = """
     DROP TRIGGER IF EXISTS reindex_status_updated_trigger ON %s CASCADE;
@@ -146,6 +164,30 @@ public class ReindexStatusRepository {
     var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
     var sql = UPSERT_UPLOAD_STATUS_SQL.formatted(fullTableName);
     jdbcTemplate.update(sql, entityType.name(), ReindexStatus.UPLOAD_IN_PROGRESS.name(), targetTenantId);
+  }
+
+  /**
+   * Resets the ITEM status row for an items-only reindex: merge in progress, zero counters, no times, no target
+   * tenant and the {@code item_only} flag set. Rows of other entity types are not touched.
+   */
+  @Transactional
+  @SuppressWarnings("java:S2077")
+  public void resetItemOnlyStatusRecord() {
+    var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
+    delete(ReindexEntityType.ITEM);
+    jdbcTemplate.update(INSERT_ITEM_ONLY_STATUS_SQL.formatted(fullTableName), ReindexEntityType.ITEM.name(),
+      ReindexStatus.MERGE_IN_PROGRESS.name());
+  }
+
+  /**
+   * Checks if the ITEM status row belongs to an items-only reindex. Deliberately not cached: it is read once per
+   * consumed batch and a stale value would send records to the wrong storage.
+   */
+  @SuppressWarnings("java:S2077")
+  public boolean isItemOnlyReindex() {
+    var fullTableName = getFullTableName(context, REINDEX_STATUS_TABLE);
+    var sql = SELECT_ITEM_ONLY_SQL.formatted(fullTableName);
+    return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sql, Boolean.class, ReindexEntityType.ITEM.name()));
   }
 
   public void setMergeReindexStarted(ReindexEntityType entityType, int totalMergeRanges) {
@@ -280,6 +322,7 @@ public class ReindexStatusRepository {
       reindexStatus.setStartTimeStaging(rs.getTimestamp(START_TIME_STAGING_COLUMN));
       reindexStatus.setEndTimeStaging(rs.getTimestamp(END_TIME_STAGING_COLUMN));
       reindexStatus.setTargetTenantId(rs.getString(TARGET_TENANT_ID_COLUMN));
+      reindexStatus.setItemOnly(rs.getBoolean(ITEM_ONLY_COLUMN));
       return reindexStatus;
     };
   }

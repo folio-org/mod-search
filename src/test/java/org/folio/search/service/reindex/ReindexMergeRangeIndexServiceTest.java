@@ -1,6 +1,7 @@
 package org.folio.search.service.reindex;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.folio.search.model.types.ReindexEntityType.HOLDINGS;
 import static org.folio.search.model.types.ReindexEntityType.INSTANCE;
@@ -12,6 +13,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.sql.Timestamp;
@@ -32,6 +34,7 @@ import org.folio.search.model.types.InventoryRecordType;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexRangeStatus;
 import org.folio.search.service.InstanceChildrenResourceService;
+import org.folio.search.service.ItemIndexService;
 import org.folio.search.service.reindex.jdbc.HoldingRepository;
 import org.folio.search.service.reindex.jdbc.ItemRepository;
 import org.folio.search.service.reindex.jdbc.MergeInstanceRepository;
@@ -48,6 +51,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.ObjectProvider;
 
 @UnitTest
 @ExtendWith(MockitoExtension.class)
@@ -60,6 +64,9 @@ class ReindexMergeRangeIndexServiceTest {
   private @Mock ReindexConfigurationProperties config;
   private @Mock InstanceChildrenResourceService instanceChildrenResourceService;
   private @Mock StagingMigrationService stagingMigrationService;
+  private @Mock ReindexStatusService statusService;
+  private @Mock ObjectProvider<ItemIndexService> itemIndexServiceProvider;
+  private @Mock ItemIndexService itemIndexService;
 
   private ReindexMergeRangeIndexService service;
   private Map<ReindexEntityType, MergeRangeRepository> repositoryMap;
@@ -69,7 +76,8 @@ class ReindexMergeRangeIndexServiceTest {
     var repositories = List.of(instanceRepository, itemRepository, holdingRepository);
     repositories.forEach(repository -> when(repository.entityType()).thenCallRealMethod());
     // Create service with unified repositories
-    service = new ReindexMergeRangeIndexService(repositories, inventoryService, config, stagingMigrationService);
+    service = new ReindexMergeRangeIndexService(repositories, inventoryService, config, stagingMigrationService,
+      statusService, itemIndexServiceProvider);
     service.setInstanceChildrenResourceService(instanceChildrenResourceService);
     repositoryMap = repositories.stream()
       .collect(Collectors.toMap(ReindexJdbcRepository::entityType, Function.identity()));
@@ -196,7 +204,8 @@ class ReindexMergeRangeIndexServiceTest {
     // service with no InstanceChildrenResourceService wired
     var serviceWithoutChildren = new ReindexMergeRangeIndexService(
       List.of(instanceRepository, itemRepository, holdingRepository),
-      inventoryService, config, stagingMigrationService);
+      inventoryService, config, stagingMigrationService, statusService,
+      itemIndexServiceProvider);
 
     serviceWithoutChildren.saveEntities(event);
 
@@ -227,12 +236,117 @@ class ReindexMergeRangeIndexServiceTest {
     var rawLine = new RawLine(rawJson, data);
     var serviceWithoutChildren = new ReindexMergeRangeIndexService(
       List.of(instanceRepository, itemRepository, holdingRepository),
-      inventoryService, config, stagingMigrationService);
+      inventoryService, config, stagingMigrationService, statusService,
+      itemIndexServiceProvider);
 
     serviceWithoutChildren.saveEntitiesRaw(TENANT_ID, recordType, List.of(rawLine));
 
     verify(repositoryMap.get(recordType.getEntityType())).saveEntitiesRaw(TENANT_ID, List.of(rawLine));
     verify(instanceChildrenResourceService, never()).persistChildrenOnReindex(any(), any(), any());
+  }
+
+  @Test
+  void createItemMergeRanges_positive_onlyItemRangesAreCreated() {
+    when(config.getMergeRangeSize()).thenReturn(3);
+    when(inventoryService.fetchInventoryRecordsCount(InventoryRecordType.ITEM)).thenReturn(6);
+
+    var ranges = service.createItemMergeRanges(TENANT_ID);
+
+    assertThat(ranges).hasSize(2)
+      .extracting(MergeRangeEntity::getEntityType, MergeRangeEntity::getTenantId)
+      .containsOnly(tuple(ITEM, TENANT_ID));
+    verify(inventoryService).fetchInventoryRecordsCount(InventoryRecordType.ITEM);
+    verify(inventoryService, never()).fetchInventoryRecordsCount(InventoryRecordType.INSTANCE);
+    verify(inventoryService, never()).fetchInventoryRecordsCount(InventoryRecordType.HOLDING);
+  }
+
+  @Test
+  void deleteMergeRanges_positive_scopedToEntityType() {
+    service.deleteMergeRanges(ITEM);
+
+    verify(itemRepository).deleteMergeRanges();
+    verify(instanceRepository, never()).deleteMergeRanges();
+    verify(holdingRepository, never()).deleteMergeRanges();
+    verify(itemRepository, never()).truncateMergeRanges();
+  }
+
+  @Test
+  void fetchFailedMergeRanges_positive_filteredByEntityType() {
+    var itemRange = new MergeRangeEntity(UUID.randomUUID(), UUID.randomUUID(), ITEM, TENANT_ID, "00", "ff",
+      Timestamp.from(Instant.now()), ReindexRangeStatus.FAIL, "error");
+    when(itemRepository.getFailedMergeRangesOfEntityType()).thenReturn(List.of(itemRange));
+
+    var result = service.fetchFailedMergeRanges(ITEM);
+
+    assertThat(result).containsExactly(itemRange);
+    verify(itemRepository, never()).getFailedMergeRanges();
+  }
+
+  @Test
+  void hasActiveMergeRanges_positive_delegatesToEntityTypeRepository() {
+    var activeSince = Timestamp.from(Instant.now());
+    when(itemRepository.hasActiveMergeRanges(activeSince)).thenReturn(true);
+
+    assertThat(service.hasActiveMergeRanges(ITEM, activeSince)).isTrue();
+  }
+
+  @Test
+  void saveEntities_positive_itemOnlyReindexIndexesItemsWithoutPersisting() {
+    var item = Map.<String, Object>of("id", UUID.randomUUID().toString());
+    var event = new ReindexRecordsEvent();
+    event.setTenant(TENANT_ID);
+    event.setRecordType(ReindexRecordType.ITEM);
+    event.setRecords(List.of(item));
+    when(statusService.isItemOnlyReindex()).thenReturn(true);
+    when(itemIndexServiceProvider.getIfAvailable()).thenReturn(itemIndexService);
+
+    service.saveEntities(event);
+
+    verify(itemIndexService).reindexItems(TENANT_ID, List.of(item));
+    verify(itemRepository, never()).saveEntities(any(), any());
+    verifyNoInteractions(instanceChildrenResourceService);
+  }
+
+  @Test
+  void saveEntities_positive_itemOnlyReindexDoesNotAffectOtherRecordTypes() {
+    var entities = Map.<String, Object>of("id", UUID.randomUUID().toString());
+    var event = new ReindexRecordsEvent();
+    event.setTenant(TENANT_ID);
+    event.setRecordType(ReindexRecordType.HOLDINGS);
+    event.setRecords(List.of(entities));
+
+    service.saveEntities(event);
+
+    verify(holdingRepository).saveEntities(TENANT_ID, List.of(entities));
+    verifyNoInteractions(statusService, itemIndexServiceProvider);
+  }
+
+  @Test
+  void saveEntities_negative_itemOnlyReindexWithoutItemIndexService() {
+    var event = new ReindexRecordsEvent();
+    event.setTenant(TENANT_ID);
+    event.setRecordType(ReindexRecordType.ITEM);
+    event.setRecords(List.of(Map.of("id", "1")));
+    when(statusService.isItemOnlyReindex()).thenReturn(true);
+    when(itemIndexServiceProvider.getIfAvailable()).thenReturn(null);
+
+    assertThatThrownBy(() -> service.saveEntities(event)).isInstanceOf(IllegalStateException.class);
+
+    verify(itemRepository, never()).saveEntities(any(), any());
+  }
+
+  @Test
+  void saveEntitiesRaw_positive_itemOnlyReindexIndexesItemsWithoutPersisting() {
+    var data = Map.<String, Object>of("id", UUID.randomUUID().toString());
+    var rawLine = new RawLine("{}", data);
+    when(statusService.isItemOnlyReindex()).thenReturn(true);
+    when(itemIndexServiceProvider.getIfAvailable()).thenReturn(itemIndexService);
+
+    service.saveEntitiesRaw(TENANT_ID, ReindexRecordType.ITEM, List.of(rawLine));
+
+    verify(itemIndexService).reindexItems(TENANT_ID, List.of(data));
+    verify(itemRepository, never()).saveEntitiesRaw(any(), any());
+    verifyNoInteractions(instanceChildrenResourceService);
   }
 
   @Test

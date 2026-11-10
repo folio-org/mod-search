@@ -184,6 +184,10 @@ public class ApiEndpoints {
     return "/search/index/instance-records/reindex/status";
   }
 
+  public static String reindexItemRecordsStatus() {
+    return "/search/index/item-records/reindex/status";
+  }
+
   public static String reindexFullPath() {
     return "/search/index/instance-records/reindex/full";
   }
@@ -194,6 +198,14 @@ public class ApiEndpoints {
 
   public static String reindexFailedPath() {
     return "/search/index/instance-records/reindex/merge/failed";
+  }
+
+  public static String reindexItemRecordsFullPath() {
+    return "/search/index/item-records/reindex/full";
+  }
+
+  public static String reindexItemRecordsFailedPath() {
+    return "/search/index/item-records/reindex/merge/failed";
   }
 
   public static String allRecordsSortedBy(String sort, CqlSort order) {

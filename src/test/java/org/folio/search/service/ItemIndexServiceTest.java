@@ -1,10 +1,12 @@
 package org.folio.search.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.folio.search.configuration.RetryTemplateConfiguration.ITEM_INDEXING_RETRY_TEMPLATE_NAME;
 import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.domain.dto.ResourceEventType.DELETE;
 import static org.folio.search.domain.dto.ResourceEventType.DELETE_ALL;
+import static org.folio.search.domain.dto.ResourceEventType.REINDEX;
 import static org.folio.search.model.types.ResourceType.INSTANCE;
 import static org.folio.search.model.types.ResourceType.ITEM;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
@@ -22,6 +24,7 @@ import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -47,6 +50,7 @@ import org.folio.search.service.consortium.ConsortiumTenantProvider;
 import org.folio.search.service.consortium.SharedInstanceResolver;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
 import org.folio.search.utils.IndexingFailureUtils;
+import org.folio.spring.exception.FolioContextExecutionException;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -321,6 +325,116 @@ class ItemIndexServiceTest {
     verify(primaryResourceRepository, times(MAX_RETRIES + 1)).deleteResourceByTenantId(ITEM, TENANT_ID);
     verify(failedIndexingEventService).save(eq(itemEvent), exceptionCaptor.capture());
     assertThat(exceptionCaptor.getValue()).hasMessageContaining("version conflict");
+  }
+
+  @Test
+  void reindexItems_positive_createsDocumentsWithTenantScopedIdAndSharedFlag() {
+    var searchBody = searchDocumentBody();
+    when(sharedInstanceResolver.findSharedInstanceIds(TENANT_ID, Set.of("shared-instance", "local-instance")))
+      .thenReturn(Set.of("shared-instance"));
+    when(searchDocumentConverter.convert(eventsCaptor.capture()))
+      .thenReturn(mapOf(ITEM.getName(), List.of(searchBody)));
+    when(primaryResourceRepository.executeBulkCreate(List.of(searchBody))).thenReturn(bulkResponse());
+    var sharedItem = new LinkedHashMap<String, Object>(mapOf("id", RESOURCE_ID, "instanceId", "shared-instance"));
+    var localItem = new LinkedHashMap<String, Object>(mapOf("id", randomId(), "instanceId", "local-instance"));
+
+    itemIndexService.reindexItems(TENANT_ID, List.of(sharedItem, localItem));
+
+    assertThat(eventsCaptor.getValue()).hasSize(2).satisfies(events -> {
+      var byId = events.stream().collect(java.util.stream.Collectors.toMap(ResourceEvent::getId, e -> e));
+      var shared = byId.get(RESOURCE_ID + "|" + TENANT_ID);
+      assertThat(shared.getTenant()).isEqualTo(TENANT_ID);
+      assertThat(shared.getResourceName()).isEqualTo(ITEM.getName());
+      assertThat(shared.getType()).isEqualTo(REINDEX);
+      assertThat(shared.getNew()).isEqualTo(Map.of("id", RESOURCE_ID, "instanceId", "shared-instance",
+        "shared", true));
+      var local = byId.get(localItem.get("id") + "|" + TENANT_ID);
+      assertThat(local.getNew()).isEqualTo(Map.of("id", localItem.get("id"), "instanceId", "local-instance"));
+    });
+    verify(primaryResourceRepository, never()).executeBulk(any());
+    verify(executionService).execute(eq(TENANT_ID), any(Callable.class));
+    verifyNoInteractions(failedIndexingEventService);
+  }
+
+  @Test
+  void reindexItems_positive_versionConflictsAreNotFailures() {
+    var searchBody = searchDocumentBody();
+    var conflict = new BulkItemResponse(0, OpType.CREATE,
+      new Failure("item-index", "doc-0", new OpenSearchException("version conflict"), RestStatus.CONFLICT));
+    when(searchDocumentConverter.convert(anyCollection())).thenReturn(mapOf(ITEM.getName(), List.of(searchBody)));
+    when(primaryResourceRepository.executeBulkCreate(List.of(searchBody))).thenReturn(bulkResponse(conflict));
+
+    itemIndexService.reindexItems(TENANT_ID, List.of(mapOf("id", RESOURCE_ID)));
+
+    verify(primaryResourceRepository).executeBulkCreate(List.of(searchBody));
+  }
+
+  @Test
+  void reindexItems_negative_otherFailuresAreRethrownWithoutConflicts() {
+    var searchBody = searchDocumentBody();
+    var conflict = new BulkItemResponse(0, OpType.CREATE,
+      new Failure("item-index", "doc-0", new OpenSearchException("version conflict"), RestStatus.CONFLICT));
+    var mappingFailure = new BulkItemResponse(1, OpType.CREATE, new Failure("item-index", "doc-1",
+      new OpenSearchStatusException(MAPPING_ERROR, RestStatus.BAD_REQUEST), RestStatus.BAD_REQUEST));
+    when(searchDocumentConverter.convert(anyCollection())).thenReturn(mapOf(ITEM.getName(), List.of(searchBody)));
+    when(primaryResourceRepository.executeBulkCreate(List.of(searchBody)))
+      .thenReturn(bulkResponse(conflict, mappingFailure));
+    var records = List.<Map<String, Object>>of(mapOf("id", RESOURCE_ID));
+
+    assertThatThrownBy(() -> itemIndexService.reindexItems(TENANT_ID, records))
+      .isInstanceOfSatisfying(IndexingFailureException.class, failure -> {
+        assertThat(failure.getStatus()).isEqualTo(400);
+        assertThat(failure.getErrorType()).isEqualTo("mapper_parsing_exception");
+        assertThat(failure.getMessage()).contains("id [doc-1]").doesNotContain("id [doc-0]");
+      });
+
+    verify(primaryResourceRepository).executeBulkCreate(any());
+    verifyNoInteractions(failedIndexingEventService);
+  }
+
+  @Test
+  void reindexItems_negative_retryableFailureIsRetriedThenRethrown() {
+    var searchBody = searchDocumentBody();
+    var rejected = new BulkItemResponse(0, OpType.CREATE, new Failure("item-index", "doc-0",
+      new OpenSearchStatusException(REJECTED_ERROR, RestStatus.TOO_MANY_REQUESTS), RestStatus.TOO_MANY_REQUESTS));
+    when(searchDocumentConverter.convert(anyCollection())).thenReturn(mapOf(ITEM.getName(), List.of(searchBody)));
+    when(primaryResourceRepository.executeBulkCreate(List.of(searchBody))).thenReturn(bulkResponse(rejected));
+    var records = List.<Map<String, Object>>of(mapOf("id", RESOURCE_ID));
+
+    assertThatThrownBy(() -> itemIndexService.reindexItems(TENANT_ID, records))
+      .isInstanceOf(IndexingFailureException.class);
+
+    verify(primaryResourceRepository, times(MAX_RETRIES + 1)).executeBulkCreate(any());
+    verifyNoInteractions(failedIndexingEventService);
+  }
+
+  @Test
+  void reindexItems_negative_executionContextWrapperIsUnwrapped() {
+    var searchBody = searchDocumentBody();
+    var mappingFailure = new BulkItemResponse(0, OpType.CREATE, new Failure("item-index", "doc-0",
+      new OpenSearchStatusException(MAPPING_ERROR, RestStatus.BAD_REQUEST), RestStatus.BAD_REQUEST));
+    when(searchDocumentConverter.convert(anyCollection())).thenReturn(mapOf(ITEM.getName(), List.of(searchBody)));
+    when(primaryResourceRepository.executeBulkCreate(List.of(searchBody))).thenReturn(bulkResponse(mappingFailure));
+    when(executionService.execute(anyString(), any(Callable.class))).thenAnswer(invocation -> {
+      try {
+        return invocation.<Callable<?>>getArgument(1).call();
+      } catch (Exception e) {
+        throw new FolioContextExecutionException("Execution for tenant = test_tenant failed.", e);
+      }
+    });
+    var records = List.<Map<String, Object>>of(mapOf("id", RESOURCE_ID));
+
+    assertThatThrownBy(() -> itemIndexService.reindexItems(TENANT_ID, records))
+      .isInstanceOf(IndexingFailureException.class)
+      .hasMessageContaining(MAPPING_ERROR);
+  }
+
+  @Test
+  void reindexItems_positive_emptyRecordsAreIgnored() {
+    itemIndexService.reindexItems(TENANT_ID, List.of());
+    itemIndexService.reindexItems(TENANT_ID, List.of(mapOf("name", "no id")));
+
+    verifyNoInteractions(primaryResourceRepository, searchDocumentConverter, executionService);
   }
 
   private void mockBulkResponse(BulkResponse bulkResponse) {

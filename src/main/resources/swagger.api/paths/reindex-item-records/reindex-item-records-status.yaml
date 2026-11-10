@@ -1,0 +1,21 @@
+get:
+  operationId: getItemReindexStatus
+  summary: Get Item Records Reindex Status
+  description: Get the status of the latest item records reindex. The list is empty if no such reindex has been run since the last full reindex.
+  tags:
+    - index-management
+  parameters:
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+  responses:
+    '200':
+      description: 'Status of the item records reindex'
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../../schemas/response/reindexStatusItem.yaml'
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

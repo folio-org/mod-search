@@ -19,6 +19,7 @@ import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.types.ResourceType;
 import org.opensearch.action.DocWriteRequest;
+import org.opensearch.action.DocWriteRequest.OpType;
 import org.opensearch.action.bulk.BulkItemResponse;
 import org.opensearch.action.bulk.BulkRequest;
 import org.opensearch.action.bulk.BulkResponse;
@@ -74,6 +75,21 @@ public abstract class AbstractResourceRepository implements ResourceRepository {
    */
   public BulkResponse executeBulk(List<SearchDocumentBody> documents) {
     return executeBulkRequest(prepareBulkRequest(documents));
+  }
+
+  /**
+   * Executes bulk request that creates the given documents only if they don't exist yet. Documents that already exist
+   * are reported as failed items with the {@code 409 Conflict} status, other documents are written.
+   *
+   * @param documents documents to create
+   * @return {@link BulkResponse} object
+   */
+  public BulkResponse executeBulkCreate(List<SearchDocumentBody> documents) {
+    var request = new BulkRequest();
+    for (var document : documents) {
+      request.add(prepareIndexRequest(document).opType(OpType.CREATE));
+    }
+    return executeBulkRequest(request);
   }
 
   /**

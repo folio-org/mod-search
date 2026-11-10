@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
+
+  <changeSet id="MSEARCH-1293@@add-item-only-to-reindex-status" author="pavlo_smahin">
+    <preConditions onFail="MARK_RAN">
+      <tableExists tableName="reindex_status"/>
+      <not>
+        <columnExists tableName="reindex_status" columnName="item_only"/>
+      </not>
+    </preConditions>
+
+    <comment>
+      Add item_only flag to reindex_status. It marks the ITEM row of an items-only reindex, where item records
+      are written straight to the item index instead of the PostgreSQL item table.
+    </comment>
+
+    <addColumn tableName="reindex_status">
+      <column name="item_only" type="BOOLEAN" defaultValueBoolean="false">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+  </changeSet>
+
+</databaseChangeLog>

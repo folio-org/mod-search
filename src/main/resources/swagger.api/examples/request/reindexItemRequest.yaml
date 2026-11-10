@@ -1,0 +1,5 @@
+value:
+  indexSettings:
+    numberOfShards: 1
+    numberOfReplicas: 1
+    refreshInterval: 1

@@ -14,6 +14,7 @@ import org.folio.search.domain.dto.CreateIndexRequest;
 import org.folio.search.domain.dto.FolioCreateIndexResponse;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ReindexFullRequest;
+import org.folio.search.domain.dto.ReindexItemRequest;
 import org.folio.search.domain.dto.ReindexJob;
 import org.folio.search.domain.dto.ReindexRequest;
 import org.folio.search.domain.dto.ReindexStatusItem;
@@ -92,6 +93,20 @@ public class IndexManagementController implements IndexManagementApi {
   }
 
   @Override
+  public ResponseEntity<Void> reindexItemRecords(String tenantId, ReindexItemRequest reindexItemRequest) {
+    log.info("Attempting to run reindex for item records [requestingTenant: {}]", tenantId);
+    var indexSettings = reindexItemRequest != null ? reindexItemRequest.getIndexSettings() : null;
+    reindexService.submitItemReindex(tenantId, indexSettings);
+    return ResponseEntity.ok().build();
+  }
+
+  @Override
+  public ResponseEntity<Void> reindexFailedItemMergeRanges(String tenantId) {
+    reindexService.submitFailedItemRangesReindex(tenantId);
+    return ResponseEntity.ok().build();
+  }
+
+  @Override
   public ResponseEntity<ReindexJob> reindexInventoryRecords(String tenantId, ReindexRequest request) {
     log.info("Attempting to start reindex for inventory [tenant: {}]", tenantId);
     return ResponseEntity.ok(indexService.reindexInventory(tenantId, request));
@@ -112,6 +127,11 @@ public class IndexManagementController implements IndexManagementApi {
   @Override
   public ResponseEntity<List<ReindexStatusItem>> getReindexStatus(String tenantId) {
     return ResponseEntity.ok(reindexStatusService.getReindexStatuses(tenantId));
+  }
+
+  @Override
+  public ResponseEntity<List<ReindexStatusItem>> getItemReindexStatus(String tenantId) {
+    return ResponseEntity.ok(reindexStatusService.getItemReindexStatuses(tenantId));
   }
 
   private static FolioIndexOperationResponse mergeResponses(FolioIndexOperationResponse first,

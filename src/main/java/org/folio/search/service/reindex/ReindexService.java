@@ -6,8 +6,12 @@ import static org.folio.search.configuration.SearchCacheNames.USER_TENANTS_CACHE
 import static org.folio.search.model.types.ReindexStatus.MERGE_FAILED;
 import static org.folio.search.model.types.ReindexStatus.MERGE_IN_PROGRESS;
 
+import java.sql.Timestamp;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.function.BiFunction;
@@ -26,7 +30,9 @@ import org.folio.search.model.reindex.MergeRangeEntity;
 import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ReindexStatus;
 import org.folio.search.service.EgressExecutionContextService;
+import org.folio.search.service.ItemIndexService;
 import org.folio.search.service.consortium.ConsortiumTenantService;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
@@ -36,6 +42,7 @@ import org.springframework.stereotype.Service;
 public class ReindexService {
 
   private static final int RANGE_PUBLISH_PARTITION_SIZE = 2000;
+  private static final Duration ITEM_RANGES_ACTIVITY_WINDOW = Duration.ofMinutes(10);
 
   private final ConsortiumTenantService consortiumService;
   private final EgressExecutionContextService executionService;
@@ -48,6 +55,7 @@ public class ReindexService {
   private final ExecutorService reindexPublisherExecutor;
   private final ReindexEntityTypeMapper entityTypeMapper;
   private final ReindexCommonService reindexCommonService;
+  private final ObjectProvider<ItemIndexService> itemIndexServiceProvider;
 
   public ReindexService(ConsortiumTenantService consortiumService, EgressExecutionContextService executionService,
                         ReindexMergeRangeIndexService mergeRangeService,
@@ -56,7 +64,8 @@ public class ReindexService {
                         @Qualifier("reindexFullExecutor") ExecutorService reindexFullExecutor,
                         @Qualifier("reindexUploadExecutor") ExecutorService reindexUploadExecutor,
                         @Qualifier("reindexPublisherExecutor") ExecutorService reindexPublisherExecutor,
-                        ReindexEntityTypeMapper entityTypeMapper, ReindexCommonService reindexCommonService) {
+                        ReindexEntityTypeMapper entityTypeMapper, ReindexCommonService reindexCommonService,
+                        ObjectProvider<ItemIndexService> itemIndexServiceProvider) {
     this.consortiumService = consortiumService;
     this.executionService = executionService;
     this.mergeRangeService = mergeRangeService;
@@ -68,6 +77,7 @@ public class ReindexService {
     this.reindexPublisherExecutor = reindexPublisherExecutor;
     this.entityTypeMapper = entityTypeMapper;
     this.reindexCommonService = reindexCommonService;
+    this.itemIndexServiceProvider = itemIndexServiceProvider;
   }
 
   @CacheEvict(cacheNames = USER_TENANTS_CACHE, allEntries = true, beforeInvocation = true)
@@ -100,6 +110,150 @@ public class ReindexService {
     log.info("submitFullReindex:: submitted [requestingTenant: {}, targetTenant: {}]", tenantId,
       targetTenantId != null ? targetTenantId : "all consortium members");
     return future;
+  }
+
+  /**
+   * Starts an items-only reindex: item records are pulled from inventory and written straight to the item index.
+   * Neither the PostgreSQL tables, nor other indexes, nor the status rows of other entity types are touched.
+   *
+   * @param tenantId      the requesting tenant ID
+   * @param indexSettings settings of the recreated item index, optional
+   * @return future that completes when merge ranges are published to inventory
+   * @throws ReindexException if the item index can't be recreated
+   */
+  @CacheEvict(cacheNames = USER_TENANTS_CACHE, allEntries = true, beforeInvocation = true)
+  public CompletableFuture<Void> submitItemReindex(String tenantId, IndexSettings indexSettings) {
+    log.info("submitItemReindex:: for [requestingTenant: {}]", tenantId);
+
+    validateTenant("submitItemReindex", tenantId);
+    if (itemIndexServiceProvider.getIfAvailable() == null) {
+      throw new RequestValidationException("Item index is not enabled, items-only reindex is not available",
+        "itemIndexEnabled", "false");
+    }
+    validateItemReindexAllowed();
+
+    statusService.startItemOnlyReindex();
+    recreateItemIndex(tenantId, indexSettings);
+
+    var future = CompletableFuture.runAsync(() -> recreateItemMergeRanges(tenantId), reindexFullExecutor)
+      .thenRun(() -> publishItemRecordsRange(tenantId))
+      .handle(handleItemReindexingFailure(tenantId));
+
+    log.info("submitItemReindex:: submitted [requestingTenant: {}]", tenantId);
+    return future;
+  }
+
+  /**
+   * Republishes failed ITEM merge ranges of an items-only reindex. Failed ranges of other entity types are ignored.
+   */
+  public CompletableFuture<Void> submitFailedItemRangesReindex(String tenantId) {
+    log.info("submitFailedItemRangesReindex:: for [tenantId: {}]", tenantId);
+
+    validateTenant("submitFailedItemRangesReindex", tenantId);
+
+    var failedRanges = mergeRangeService.fetchFailedMergeRanges(ReindexEntityType.ITEM);
+    if (CollectionUtils.isEmpty(failedRanges)) {
+      log.info("submitFailedItemRangesReindex:: no failed ranges found");
+      return CompletableFuture.completedFuture(null);
+    }
+
+    log.info("submitFailedItemRangesReindex:: for [tenantId: {}, count: {}]", tenantId, failedRanges.size());
+    statusService.updateReindexMergeInProgress(Set.of(ReindexEntityType.ITEM));
+
+    var futures = failedRanges.stream()
+      .map(rangeEntity -> CompletableFuture.runAsync(() -> executionService.execute(rangeEntity.getTenantId(), () -> {
+        inventoryService.publishReindexRecordsRange(rangeEntity);
+        return null;
+      }), reindexPublisherExecutor))
+      .toArray(CompletableFuture[]::new);
+
+    return CompletableFuture.allOf(futures);
+  }
+
+  /**
+   * Records are only created in the item index, so a run over an index that wasn't recreated would skip every existing
+   * document and still report success. The run has to fail instead.
+   */
+  private void recreateItemIndex(String tenantId, IndexSettings indexSettings) {
+    try {
+      reindexCommonService.recreateIndexOrThrow(ReindexEntityType.ITEM, tenantId, indexSettings);
+    } catch (ReindexException e) {
+      statusService.updateReindexMergeFailed(ReindexEntityType.ITEM);
+      throw e;
+    }
+  }
+
+  private void recreateItemMergeRanges(String tenantId) {
+    mergeRangeService.deleteMergeRanges(ReindexEntityType.ITEM);
+
+    var ranges = new ArrayList<>(mergeRangeService.createItemMergeRanges(tenantId));
+    for (var memberTenant : consortiumService.getConsortiumTenants(tenantId)) {
+      log.info("recreateItemMergeRanges:: processing member tenant [{}]", memberTenant);
+      ranges.addAll(executionService.execute(memberTenant,
+        () -> mergeRangeService.createItemMergeRanges(memberTenant)));
+    }
+    mergeRangeService.saveMergeRanges(ranges);
+  }
+
+  private void publishItemRecordsRange(String tenantId) {
+    CompletableFuture
+      .supplyAsync(() -> fetchAndPreparePartitions(tenantId, null, ReindexEntityType.ITEM), reindexPublisherExecutor)
+      .thenCompose(partitions -> publishPartitionsInParallel(partitions, null))
+      .join();
+  }
+
+  private BiFunction<Void, Throwable, Void> handleItemReindexingFailure(String tenantId) {
+    return (unused, throwable) -> {
+      if (throwable != null) {
+        log.error("submitItemReindex:: process failed [tenantId: {}, error: {}]", tenantId, throwable);
+        // only the ITEM row: the no-arg overload would mark every merge type failed
+        statusService.updateReindexMergeFailed(ReindexEntityType.ITEM);
+      }
+      return unused;
+    };
+  }
+
+  private void validateItemReindexAllowed() {
+    var statusesByType = statusService.getStatusesByType();
+    var itemOnlyRun = statusService.isItemOnlyReindex();
+    for (var entry : statusesByType.entrySet()) {
+      var type = entry.getKey();
+      var status = entry.getValue();
+      var previousItemOnlyFailure = type == ReindexEntityType.ITEM && status == MERGE_FAILED && itemOnlyRun;
+      if (previousItemOnlyFailure) {
+        validateNoActiveItemRanges();
+      } else if (blocksItemReindex(type, status)) {
+        throw new RequestValidationException(
+          "Items-only reindex can't be started, reindex is in progress or failed for: %s".formatted(type),
+          "reindexStatus", status.getValue());
+      }
+    }
+  }
+
+  /**
+   * MERGE_COMPLETED and STAGING_COMPLETED are transient only for entity types with an upload phase. For merge-only
+   * types they are final and must not block.
+   */
+  private static boolean blocksItemReindex(ReindexEntityType type, ReindexStatus status) {
+    return switch (status) {
+      case MERGE_IN_PROGRESS, UPLOAD_IN_PROGRESS, STAGING_IN_PROGRESS, MERGE_FAILED, UPLOAD_FAILED, STAGING_FAILED ->
+        true;
+      case MERGE_COMPLETED, STAGING_COMPLETED -> type.isSupportsUpload();
+      default -> false;
+    };
+  }
+
+  /**
+   * A range fails the ITEM row while other ranges of the run are still in flight. Restarting then would let their older
+   * records into the new index, so a restart waits until the previous run has gone quiet.
+   */
+  private void validateNoActiveItemRanges() {
+    var activeSince = Timestamp.from(Instant.now().minus(ITEM_RANGES_ACTIVITY_WINDOW));
+    if (mergeRangeService.hasActiveMergeRanges(ReindexEntityType.ITEM, activeSince)) {
+      throw new RequestValidationException(
+        "Items-only reindex can't be restarted, ranges of the previous run are still being processed",
+        "reindexStatus", MERGE_FAILED.getValue());
+    }
   }
 
   private void recreateMergeRanges(String tenantId, String memberTenantIdContext) {
@@ -403,9 +557,12 @@ public class ReindexService {
     validateTenant("submitUploadReindex", tenantId);
 
     var statusesByType = statusService.getStatusesByType();
+    // call numbers are derived from items, the other entity types are independent of an items-only run
+    var ignoreItemRow = !entityTypes.contains(ReindexEntityType.CALL_NUMBER) && statusService.isItemOnlyReindex();
 
     var mergeNotComplete = statusesByType.entrySet().stream()
       .filter(status -> ReindexEntityType.supportMergeTypes().contains(status.getKey()))
+      .filter(status -> !(ignoreItemRow && status.getKey() == ReindexEntityType.ITEM))
       .filter(status -> status.getValue().equals(MERGE_IN_PROGRESS) || status.getValue().equals(MERGE_FAILED))
       .findFirst();
     if (mergeNotComplete.isPresent()) {

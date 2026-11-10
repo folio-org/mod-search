@@ -1,7 +1,7 @@
 ---
 feature_id: reindex
 title: Reindex
-updated: 2026-07-06
+updated: 2026-11-10
 ---
 
 # Reindex
@@ -23,6 +23,7 @@ Each reindex type has its own guide with complete run instructions, request form
 | Reindex a specific consortium member tenant in an ECS deployment            | Full Reindex — ECS Member Tenant | [reindex-full-ecs-member.md](reindex/reindex-full-ecs-member.md) |
 | OpenSearch deleted or upgraded; inventory data is current in PostgreSQL     | Upload-Phase Reindex             | [reindex-upload.md](reindex/reindex-upload.md)                   |
 | Previous full reindex left ranges in `MERGE_FAILED`                         | Failed Merge Reindex             | [reindex-failed-merge.md](reindex/reindex-failed-merge.md)       |
+| Rebuild only the `item` index from inventory (`ITEM_INDEX_ENABLED=true`)    | Item Records Reindex             | [reindex-item-records.md](reindex/reindex-item-records.md)       |
 | Reindex `authority` or `location` records                                   | Legacy Reindex                   | [reindex-legacy.md](reindex/reindex-legacy.md)                   |
 
 The remainder of this page covers concepts and reference material shared by **all** reindex types: phases, progress monitoring, index-settings restore, the consolidated configuration reference, and FAQ. Each guide links back here rather than repeating it.
@@ -57,11 +58,11 @@ A reindex progresses through up to three phases:
 - **Staging phase** *(ECS member tenant reindex only)* — an intermediary stage between merge and upload that promotes a member tenant's merged records into the central tenant's index data. It is tracked separately via the `STAGING_IN_PROGRESS` / `STAGING_COMPLETED` / `STAGING_FAILED` status values and driven by the `REINDEX_MIGRATION_*` settings. Standalone (non-consortium) and full-consortium reindexes skip this phase. See [Full Reindex — ECS Member Tenant](reindex/reindex-full-ecs-member.md).
 - **Upload phase** — staged records are read from the local DB in ranges and pushed to OpenSearch. Applies to: `instance`, `subject`, `contributor`, `classification`, `call-number`.
 
-All entity type tables are truncated before a full reindex starts.
+All entity type tables are truncated before a full reindex starts. The items-only reindex ([Item Records Reindex](reindex/reindex-item-records.md)) is the exception: it has a merge phase only, writes records straight to the `item` index and does not truncate or change any table other than its own `ITEM` status row and `item` merge ranges.
 
 ## Monitoring Progress
 
-Use `GET /search/index/instance-records/reindex/status` to track progress. Each item in the response represents one entity type:
+Use `GET /search/index/instance-records/reindex/status` to track progress. Each item in the response represents one entity type. The row of an items-only reindex is not included here, use `GET /search/index/item-records/reindex/status` for it (see [Item Records Reindex](reindex/reindex-item-records.md)):
 
 ```json
 [
@@ -99,7 +100,7 @@ Use `GET /search/index/instance-records/reindex/status` to track progress. Each 
 | `UPLOAD_COMPLETED`    | All records indexed — this entity type is done                 |
 | `UPLOAD_FAILED`       | One or more upload ranges failed                               |
 
-Reindex is complete when all upload-phase entity types (`instance`, `subject`, `contributor`, `classification`, `call-number`) show `UPLOAD_COMPLETED`, and all merge-only entity types (`holdings`, `item`) show `MERGE_COMPLETED`.
+Reindex is complete when all upload-phase entity types (`instance`, `subject`, `contributor`, `classification`, `call-number`) show `UPLOAD_COMPLETED`, and all merge-only entity types (`holdings`, `item`) show `MERGE_COMPLETED`. In an items-only reindex only the `item` row is reset and updated, and it is complete when it shows `MERGE_COMPLETED`.
 
 ## Restoring Index Settings After Reindex
 

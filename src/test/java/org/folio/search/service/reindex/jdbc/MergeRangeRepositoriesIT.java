@@ -169,6 +169,45 @@ class MergeRangeRepositoriesIT {
                          && "Some error".equals(range.getFailCause()));
   }
 
+  @Test
+  @Sql("/sql/populate-merge-ranges.sql")
+  void getFailedMergeRangesOfEntityType_returnsOnlyRangesOfRepositoryEntityType() {
+    assertThat(holdingRepository.getFailedMergeRangesOfEntityType())
+      .hasSize(2)
+      .allMatch(range -> range.getEntityType() == ReindexEntityType.HOLDINGS);
+    assertThat(itemRepository.getFailedMergeRangesOfEntityType()).isEmpty();
+  }
+
+  @Test
+  void hasActiveMergeRanges_trueOnlyForUnfinishedRangesWithRecentActivity() {
+    var id = UUID.randomUUID();
+    var bound = id.toString().replace("-", "");
+    final var now = Instant.now();
+    itemRepository.saveMergeRanges(List.of(new MergeRangeEntity(id, UUID.randomUUID(), ReindexEntityType.ITEM,
+      TENANT_ID, bound, bound, Timestamp.from(now), null, null)));
+
+    assertThat(itemRepository.hasActiveMergeRanges(Timestamp.from(now.minusSeconds(60)))).isTrue();
+    assertThat(itemRepository.hasActiveMergeRanges(Timestamp.from(now.plusSeconds(60)))).isFalse();
+    assertThat(holdingRepository.hasActiveMergeRanges(Timestamp.from(now.minusSeconds(60)))).isFalse();
+
+    itemRepository.updateRangeStatus(id, Timestamp.from(now), ReindexRangeStatus.SUCCESS, null);
+
+    assertThat(itemRepository.hasActiveMergeRanges(Timestamp.from(now.minusSeconds(60)))).isFalse();
+  }
+
+  @Test
+  @Sql("/sql/populate-merge-ranges.sql")
+  void deleteMergeRanges_deletesOnlyRangesOfRepositoryEntityType() {
+    // act
+    itemRepository.deleteMergeRanges();
+
+    // assert
+    assertThat(itemRepository.getMergeRanges()).isEmpty();
+    assertThat(holdingRepository.getMergeRanges()).hasSize(2);
+    assertThat(instanceRepository.getMergeRanges()).hasSize(1);
+    assertThat(instanceRepository.getFailedMergeRanges()).hasSize(3);
+  }
+
   @ParameterizedTest(name = "{0}")
   @MethodSource("saveStrategies")
   @SuppressWarnings("checkstyle:MethodLength")

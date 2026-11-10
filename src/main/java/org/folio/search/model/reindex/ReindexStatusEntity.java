@@ -21,10 +21,12 @@ public class ReindexStatusEntity {
   public static final String START_TIME_STAGING_COLUMN = "start_time_staging";
   public static final String END_TIME_STAGING_COLUMN = "end_time_staging";
   public static final String TARGET_TENANT_ID_COLUMN = "target_tenant_id";
+  public static final String ITEM_ONLY_COLUMN = "item_only";
 
   private final ReindexEntityType entityType;
   private final ReindexStatus status;
   private String targetTenantId;
+  private boolean itemOnly;
   private int totalMergeRanges;
   private int processedMergeRanges;
   private int totalUploadRanges;

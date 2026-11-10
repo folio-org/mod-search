@@ -38,13 +38,33 @@ public class ReindexStatusService {
   private final FolioExecutionContext folioExecutionContext;
 
   public List<ReindexStatusItem> getReindexStatuses(String tenantId) {
+    validateNotMemberTenant(tenantId);
+
+    return statusRepository.getReindexStatuses().stream()
+      .filter(status -> !status.isItemOnly())
+      .map(reindexStatusMapper::convert)
+      .toList();
+  }
+
+  /**
+   * Returns the status of the latest items-only reindex.
+   *
+   * @param tenantId the requesting tenant
+   * @return a list with the item status, or an empty list if the item status row doesn't belong to an items-only run
+   */
+  public List<ReindexStatusItem> getItemReindexStatuses(String tenantId) {
+    validateNotMemberTenant(tenantId);
+
+    return statusRepository.getReindexStatuses().stream()
+      .filter(ReindexStatusEntity::isItemOnly)
+      .map(reindexStatusMapper::convert)
+      .toList();
+  }
+
+  private void validateNotMemberTenant(String tenantId) {
     if (consortiumTenantProvider.isMemberTenant(tenantId)) {
       throw RequestValidationException.memberTenantNotAllowedException(tenantId);
     }
-
-    var statuses = statusRepository.getReindexStatuses();
-
-    return statuses.stream().map(reindexStatusMapper::convert).toList();
   }
 
   public Map<ReindexEntityType, ReindexStatus> getStatusesByType() {
@@ -71,6 +91,24 @@ public class ReindexStatusService {
         folioExecutionContext.getTenantId());
       subResourcesLockRepository.forceLockAllForReindex(folioExecutionContext.getTenantId());
     }
+  }
+
+  /**
+   * Starts the status of an items-only reindex: resets only the ITEM row and binds the consortium member status
+   * trigger. It has the same status transitions as the default one, but does not touch {@code sub_resources_lock}, so
+   * finishing an items-only run neither advances the item watermark nor releases a lock held by the scheduler. The next
+   * full reindex binds the trigger again.
+   */
+  @Transactional
+  @CacheEvict(cacheNames = REINDEX_TARGET_TENANT_CACHE, allEntries = true)
+  public void startItemOnlyReindex() {
+    log.info("startItemOnlyReindex:: resetting ITEM status record for items-only reindex");
+    statusRepository.recreateReindexStatusTrigger(true);
+    statusRepository.resetItemOnlyStatusRecord();
+  }
+
+  public boolean isItemOnlyReindex() {
+    return statusRepository.isItemOnlyReindex();
   }
 
   @Transactional
@@ -155,10 +193,13 @@ public class ReindexStatusService {
    * For entity types without an upload phase (e.g. {@code ITEM}, {@code HOLDINGS}),
    * {@code MERGE_COMPLETED} is a genuine terminal status and must not block stale-lock release.
    *
+   * <p>The ITEM row of an items-only reindex is ignored: it never takes part in the sub-resource locking.</p>
+   *
    * @return true if any entity type has a non-terminal, non-consortium-member-scoped status
    */
   public boolean isReindexInProgressOrFailedNotForConsortiumMember() {
     return statusRepository.getReindexStatuses().stream()
+      .filter(status -> !status.isItemOnly())
       .anyMatch(status -> status.getTargetTenantId() == null
         && (status.getStatus() == ReindexStatus.MERGE_IN_PROGRESS
         || status.getStatus() == ReindexStatus.UPLOAD_IN_PROGRESS

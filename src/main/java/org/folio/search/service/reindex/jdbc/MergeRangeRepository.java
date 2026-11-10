@@ -4,6 +4,7 @@ import static org.folio.search.service.reindex.ReindexConstants.MERGE_RANGE_TABL
 import static org.folio.search.utils.JdbcUtils.getFullTableName;
 import static org.folio.search.utils.JdbcUtils.getUuidArrayParam;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -47,6 +48,16 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
 
   private static final String SELECT_FAILED_MERGE_RANGES = "SELECT * FROM %s WHERE status = 'FAIL';";
 
+  private static final String SELECT_FAILED_MERGE_RANGES_BY_ENTITY_TYPE =
+    "SELECT * FROM %s WHERE status = 'FAIL' AND entity_type = ?;";
+
+  private static final String SELECT_HAS_ACTIVE_MERGE_RANGES = """
+    SELECT EXISTS (SELECT 1 FROM %1$s WHERE entity_type = ? AND status IS NULL)
+      AND (SELECT max(COALESCE(finished_at, created_at)) FROM %1$s WHERE entity_type = ?) > ?;
+    """;
+
+  private static final String DELETE_MERGE_RANGES_BY_ENTITY_TYPE = "DELETE FROM %s WHERE entity_type = ?;";
+
   private final boolean instanceChildrenIndexEnabled;
 
   protected MergeRangeRepository(JdbcTemplate jdbcTemplate,
@@ -88,6 +99,40 @@ public abstract class MergeRangeRepository extends ReindexJdbcRepository {
     var fullTableName = getFullTableName(context, MERGE_RANGE_TABLE);
     var sql = SELECT_FAILED_MERGE_RANGES.formatted(fullTableName);
     return jdbcTemplate.query(sql, mergeRangeEntityRowMapper());
+  }
+
+  /**
+   * Returns failed merge ranges of the entity type of this repository only.
+   */
+  @SuppressWarnings("java:S2077")
+  public List<MergeRangeEntity> getFailedMergeRangesOfEntityType() {
+    var fullTableName = getFullTableName(context, MERGE_RANGE_TABLE);
+    var sql = SELECT_FAILED_MERGE_RANGES_BY_ENTITY_TYPE.formatted(fullTableName);
+    return jdbcTemplate.query(sql, mergeRangeEntityRowMapper(), entityType().getType());
+  }
+
+  /**
+   * Checks if ranges of the entity type of this repository are still being processed: some of them have no final status
+   * and at least one of them was created or finished after the given time.
+   *
+   * @param activeSince ranges with no activity after this time are considered abandoned
+   * @return true if the ranges are still being processed
+   */
+  @SuppressWarnings("java:S2077")
+  public boolean hasActiveMergeRanges(Timestamp activeSince) {
+    var fullTableName = getFullTableName(context, MERGE_RANGE_TABLE);
+    var type = entityType().getType();
+    return Boolean.TRUE.equals(jdbcTemplate.queryForObject(SELECT_HAS_ACTIVE_MERGE_RANGES.formatted(fullTableName),
+      Boolean.class, type, type, activeSince));
+  }
+
+  /**
+   * Deletes merge ranges of the entity type of this repository only, leaving ranges of other entity types intact.
+   */
+  @SuppressWarnings("java:S2077")
+  public void deleteMergeRanges() {
+    var fullTableName = getFullTableName(context, MERGE_RANGE_TABLE);
+    jdbcTemplate.update(DELETE_MERGE_RANGES_BY_ENTITY_TYPE.formatted(fullTableName), entityType().getType());
   }
 
   public void truncateMergeRanges() {

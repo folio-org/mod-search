@@ -38,7 +38,7 @@ Integrations need to look up items (e.g. by barcode, effective location or statu
 
 ### Index
 - Field mappings are defined in `src/main/resources/model/item.json`; index settings and analyzers in `src/main/resources/elasticsearch/index/item.json` (same as the instance index).
-- The index is created empty on tenant initialization and populated from inventory item events when item indexing is enabled. How documents are produced, retried and how failures are stored is described in [Indexing and Messaging](indexing-and-messaging.md#standalone-item-indexing).
+- The index is created empty on tenant initialization and populated from inventory item events when item indexing is enabled, and can be rebuilt from inventory with the [items-only reindex](reindex/reindex-item-records.md). How documents are produced, retried and how failures are stored is described in [Indexing and Messaging](indexing-and-messaging.md#standalone-item-indexing).
 
 ## Error behavior
 - `400 Bad Request` — invalid CQL syntax or missing required parameters.
@@ -51,5 +51,5 @@ Integrations need to look up items (e.g. by barcode, effective location or statu
 
 ## Dependencies and interactions
 - Depends on Elasticsearch/OpenSearch for query execution (`ELASTICSEARCH_URL`).
-- The `item` index is populated by [Indexing and Messaging](indexing-and-messaging.md#standalone-item-indexing).
+- The `item` index is populated by [Indexing and Messaging](indexing-and-messaging.md#standalone-item-indexing) and rebuilt by [Item Records Reindex](reindex/reindex-item-records.md).
 - Shares the CQL parsing and search pipeline with [Instance Search](instance-search.md); see also [CQL Query](cql-query.md).

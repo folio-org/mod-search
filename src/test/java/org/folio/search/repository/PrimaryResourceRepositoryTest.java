@@ -31,6 +31,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.opensearch.action.DocWriteRequest;
 import org.opensearch.action.bulk.BulkRequest;
 import org.opensearch.action.bulk.BulkResponse;
 import org.opensearch.action.delete.DeleteRequest;
@@ -75,6 +76,22 @@ class PrimaryResourceRepositoryTest {
       assertThat(requests.get(0)).isInstanceOf(IndexRequest.class);
       assertThat(requests.get(1)).isInstanceOf(DeleteRequest.class);
     });
+  }
+
+  @Test
+  void executeBulkCreate_positive_usesCreateOpTypeAndReturnsRawResponse() throws IOException {
+    var bulkResponse = mock(BulkResponse.class);
+    var bulkRequestCaptor = ArgumentCaptor.forClass(BulkRequest.class);
+    when(restHighLevelClient.bulk(bulkRequestCaptor.capture(), eq(DEFAULT))).thenReturn(bulkResponse);
+
+    var response = resourceRepository.executeBulkCreate(List.of(searchDocumentBody(), searchDocumentBody()));
+
+    assertThat(response).isSameAs(bulkResponse);
+    assertThat(bulkRequestCaptor.getValue().requests()).hasSize(2)
+      .allSatisfy(request -> {
+        assertThat(request).isInstanceOf(IndexRequest.class);
+        assertThat(request.opType()).isEqualTo(DocWriteRequest.OpType.CREATE);
+      });
   }
 
   @Test

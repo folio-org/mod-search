@@ -57,7 +57,7 @@ Search results are only as current as the index. This feature provides the real-
 - In a consortium the internal `shared` field of an item document holds whether its instance is shared; the search uses it for affiliation filtering, and it is not returned in responses or available as a facet:
   - it is resolved by `SharedInstanceResolver` on indexing: items of the central tenant are always shared, items of a member tenant are checked against the central `instance` table;
   - an instance create event in the central tenant sets `shared=true` on the existing documents of that instance (update-by-query), which covers a local instance becoming shared and an instance event arriving after its items.
-- Reindex (full/upload) does not populate the item index yet: only events received while the flag is enabled are indexed.
+- A regular full or upload reindex does not populate the item index; it is rebuilt from inventory by the items-only reindex ([Item Records Reindex](reindex/reindex-item-records.md)), which writes the same documents through `ItemIndexService.reindexItems`. Reindex records are only created in the index (`op_type=create`), so a document written by an event during the run is never overwritten, and `409` conflicts are not failures.
 
 ### Delivery guarantees
 - Producer is configured with `acks=all`, idempotence enabled, and up to 5 retries to ensure at-least-once delivery.

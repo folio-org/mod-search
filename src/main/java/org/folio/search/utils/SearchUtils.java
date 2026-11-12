@@ -27,6 +27,7 @@ import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.metadata.PlainFieldDescription;
 import org.folio.search.model.service.MultilangValue;
 import org.folio.search.model.types.ResourceType;
+import org.folio.search.model.types.SearchOperationType;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SearchUtils {
@@ -34,6 +35,7 @@ public class SearchUtils {
   public static final String ID_FIELD = "id";
   public static final String SOURCE_FIELD = "source";
   public static final String INSTANCE_ID_FIELD = "instanceId";
+  public static final String HOLDINGS_RECORD_ID_FIELD = "holdingsRecordId";
   public static final String INSTANCE_ITEM_FIELD_NAME = "items";
   public static final String INSTANCE_HOLDING_FIELD_NAME = "holdings";
   public static final String SHARED_FIELD_NAME = "shared";
@@ -44,6 +46,8 @@ public class SearchUtils {
   public static final String CALL_NUMBER_PREFIX_FIELD = "callNumberPrefix";
   public static final String CALL_NUMBER_SUFFIX_FIELD = "callNumberSuffix";
   public static final String CALL_NUMBER_FIELD = "callNumber";
+  public static final String CALL_NUMBER_ID_FIELD = "callNumberId";
+  public static final String EFFECTIVE_LOCATION_ID_FIELD = "effectiveLocationId";
   public static final String CLASSIFICATION_NUMBER_BROWSING_FIELD = "number";
   public static final String CLASSIFICATION_TYPE_ID_FIELD = "typeId";
   public static final String DEFAULT_SHELVING_ORDER_BROWSING_FIELD = "defaultShelvingOrder";
@@ -102,13 +106,13 @@ public class SearchUtils {
    * @param type  operation type for error message.
    * @throws SearchOperationException if function call throws an exception during execution.
    */
-  public static <T> T performExceptionalOperation(Callable<T> func, String index, String type) {
+  public static <T> T performExceptionalOperation(Callable<T> func, String index, SearchOperationType type) {
     try {
       return func.call();
     } catch (Exception e) {
       throw new SearchOperationException(String.format(
         "Failed to perform elasticsearch request [index=%s, type=%s, message: %s]",
-        index, type, e.getMessage()), e);
+        index, type.getValue(), e.getMessage()), e);
     }
   }
 

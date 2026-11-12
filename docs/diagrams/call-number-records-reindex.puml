@@ -1,0 +1,78 @@
+@startuml
+!theme plain
+title Call Number Records Reindex (call-number index rebuilt from the item index)
+
+actor "Client" as client
+box "FOLIO Backend" #LightBlue
+  participant "mod-search" as modSearch
+  participant "Kafka\n(search.reindex.index-rebuild-range)" as kafka
+  database "Postgres\n(index_rebuild_state,\nindex_rebuild_range)" as postgres
+  database "OpenSearch\n(item and call-number indexes)" as opensearch
+end box
+
+autonumber
+
+== Start ==
+client -> modSearch: POST /search/index/call-number-records/reindex/full\n{tenantId?, indexSettings?}
+modSearch -> modSearch: Check the browse call numbers feature
+modSearch -> modSearch: Resolve tenants\n(central + members, or the single tenantId)
+modSearch -> postgres: Validate: the item index of every tenant is COMPLETED\non the current version; a single-tenant run needs\nthe call-number index on the current version
+
+group One transaction (start, WHOLE_INDEX mode)
+  modSearch -> postgres: Fail if any call-number run is active
+  loop for each tenant
+    modSearch -> postgres: Claim state -> IN_PROGRESS
+  end
+  modSearch -> postgres: Delete all call-number ranges
+end
+
+modSearch -> opensearch: Refresh the item index
+alt Whole index
+  modSearch -> opensearch: Drop and recreate the call-number index
+end
+client <-- modSearch: HTTP 200 OK (async run started)
+
+== Create ranges (async) ==
+modSearch -> modSearch: Split the callNumberId space into 16^REINDEX_UPLOAD_RANGE_LEVEL hex ranges\n(single tenant: limited to that tenant)
+modSearch -> postgres: Save ranges (PENDING)
+modSearch -> kafka: One event per range (range id, resource)
+
+== Process ranges ==
+kafka -> modSearch: Consume range event
+modSearch -> postgres: Find range
+alt Unknown or already SUCCESS
+  modSearch -> modSearch: Ignore
+else Pending or failed range
+  group With retry
+    modSearch -> opensearch: Scroll callNumberIds of items in the range
+    opt Single-tenant run
+      modSearch -> opensearch: Also scroll call-number documents\nreferencing the tenant, filtered by the range of id
+    end
+    loop for each batch of call numbers
+      modSearch -> opensearch: Read item documents with these callNumberIds
+      modSearch -> modSearch: Build one document per call number\n(instances grouped by tenant, shared flag and location)
+      modSearch -> opensearch: Bulk index documents,\ndelete call numbers no item has anymore
+    end
+  end
+  alt Success
+    modSearch -> postgres: Range -> SUCCESS
+    modSearch -> postgres: If all ranges SUCCESS: IN_PROGRESS -> FINALIZING (one caller wins)
+    modSearch -> opensearch: Refresh the call-number index
+    modSearch -> postgres: COMPLETED with the current fingerprint for all tenants
+  else Retries exhausted
+    modSearch -> postgres: Range -> FAILED, all tenant states -> FAILED
+  end
+end
+
+== Retry failed run ==
+client -> modSearch: POST /search/index/call-number-records/reindex/failed
+modSearch -> postgres: Validate: item index ready, no dependent run active
+modSearch -> postgres: FAILED or interrupted -> IN_PROGRESS,\nFAILED ranges -> PENDING
+alt No unfinished ranges
+  modSearch -> postgres: Finalize
+else
+  modSearch -> kafka: Send unfinished ranges again
+end
+client <-- modSearch: HTTP 200 OK
+
+@enduml

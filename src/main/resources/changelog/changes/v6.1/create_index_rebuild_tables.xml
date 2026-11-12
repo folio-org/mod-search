@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
+
+  <changeSet id="MSEARCH-1293@@create:index_rebuild_state" author="pavlo_smahin">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="index_rebuild_state"/>
+      </not>
+    </preConditions>
+
+    <comment>Create index_rebuild_state table with the latest rebuild state of an index per tenant</comment>
+
+    <createTable tableName="index_rebuild_state">
+      <column name="resource" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="tenant_id" type="VARCHAR(100)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="status" type="VARCHAR(30)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="fingerprint" type="VARCHAR(100)"/>
+      <column name="started_at" type="TIMESTAMP"/>
+      <column name="finished_at" type="TIMESTAMP"/>
+      <column name="fail_cause" type="TEXT"/>
+    </createTable>
+
+    <addPrimaryKey tableName="index_rebuild_state" columnNames="resource, tenant_id"
+                   constraintName="pk_index_rebuild_state"/>
+  </changeSet>
+
+  <changeSet id="MSEARCH-1293@@create:index_rebuild_range" author="pavlo_smahin">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="index_rebuild_range"/>
+      </not>
+    </preConditions>
+
+    <comment>Create index_rebuild_range table with ranges of records of the latest rebuild</comment>
+
+    <createTable tableName="index_rebuild_range">
+      <column name="id" type="UUID">
+        <constraints primaryKey="true" primaryKeyName="pk_index_rebuild_range"/>
+      </column>
+      <column name="trace_id" type="UUID">
+        <constraints nullable="false"/>
+      </column>
+      <column name="resource" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="tenant_id" type="VARCHAR(100)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="lower" type="VARCHAR(40)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="upper" type="VARCHAR(40)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="status" type="VARCHAR(30)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="fail_cause" type="TEXT"/>
+      <column name="created_at" type="TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="finished_at" type="TIMESTAMP"/>
+      <column name="scope_tenant_id" type="VARCHAR(100)"/>
+    </createTable>
+
+    <createIndex tableName="index_rebuild_range" indexName="idx_index_rebuild_range_resource_tenant">
+      <column name="resource"/>
+      <column name="tenant_id"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet id="MSEARCH-1293@@create:index_rebuild_deleted_record" author="pavlo_smahin">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="index_rebuild_deleted_record"/>
+      </not>
+    </preConditions>
+
+    <comment>Create index_rebuild_deleted_record table with records deleted while their index is being rebuilt</comment>
+
+    <createTable tableName="index_rebuild_deleted_record">
+      <column name="resource" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="tenant_id" type="VARCHAR(100)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="id" type="UUID">
+        <constraints nullable="false"/>
+      </column>
+      <column name="deleted_at" type="TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <addPrimaryKey tableName="index_rebuild_deleted_record" columnNames="resource, tenant_id, id"
+                   constraintName="pk_index_rebuild_deleted_record"/>
+  </changeSet>
+
+  <changeSet id="MSEARCH-1293@@create:index_rebuild_dirty_key" author="pavlo_smahin">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="index_rebuild_dirty_key"/>
+      </not>
+    </preConditions>
+
+    <comment>Create index_rebuild_dirty_key table with keys of derived indexes whose documents have to be rebuilt</comment>
+
+    <createTable tableName="index_rebuild_dirty_key">
+      <column name="resource" type="VARCHAR(50)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="tenant_id" type="VARCHAR(100)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="id" type="VARCHAR(40)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="enqueued_at" type="TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+
+    <addPrimaryKey tableName="index_rebuild_dirty_key" columnNames="resource, tenant_id, id"
+                   constraintName="pk_index_rebuild_dirty_key"/>
+  </changeSet>
+
+</databaseChangeLog>

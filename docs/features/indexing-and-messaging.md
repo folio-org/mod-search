@@ -55,9 +55,10 @@ Search results are only as current as the index. This feature provides the real-
 - The document id is `<itemId>|<tenant>`, so the same item from different consortium tenants (e.g. after an ownership move) can coexist in the central index; the `id` field stays the plain item UUID.
 - Nested item properties are flattened by `ItemEventPreProcessor` (`status.name` -> `statusName`, `effectiveCallNumberComponents.*` -> `callNumber`, `callNumberPrefix`, `callNumberSuffix`, `callNumberTypeId`); the remaining fields are copied according to `model/item.json`.
 - In a consortium the internal `shared` field of an item document holds whether its instance is shared; the search uses it for affiliation filtering, and it is not returned in responses or available as a facet:
-  - it is resolved by `SharedInstanceResolver` on indexing: items of the central tenant are always shared, items of a member tenant are checked against the central `instance` table;
+  - it is derived by `ItemSharedFlagResolver` on indexing: items of the central tenant are always shared, items of a member tenant are shared when their `instanceSource`, provided by inventory, starts with `CONSORTIUM-`;
   - an instance create event in the central tenant sets `shared=true` on the existing documents of that instance (update-by-query), which covers a local instance becoming shared and an instance event arriving after its items.
-- Reindex (full/upload) does not populate the item index yet: only events received while the flag is enabled are indexed.
+- With `CALL_NUMBER_INDEX_FROM_ITEMS_ENABLED=true`, call numbers of changed items are queued and their documents are rebuilt from the item index, see [call number records reindex](reindex/reindex-call-number-records.md).
+- The regular reindex (full/upload) does not populate the item index. It is rebuilt by the separate [item records reindex](reindex/reindex-item-records.md).
 
 ### Delivery guarantees
 - Producer is configured with `acks=all`, idempotence enabled, and up to 5 retries to ensure at-least-once delivery.

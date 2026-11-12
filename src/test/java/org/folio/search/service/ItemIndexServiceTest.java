@@ -19,6 +19,7 @@ import static org.folio.support.utils.TestUtils.searchDocumentBody;
 import static org.folio.support.utils.TestUtils.searchDocumentBodyToDelete;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
@@ -36,7 +37,6 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.folio.search.domain.dto.ResourceEvent;
@@ -44,8 +44,11 @@ import org.folio.search.exception.IndexingFailureException;
 import org.folio.search.integration.message.FolioMessageBatchProcessor;
 import org.folio.search.repository.PrimaryResourceRepository;
 import org.folio.search.service.consortium.ConsortiumTenantProvider;
-import org.folio.search.service.consortium.SharedInstanceResolver;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
+import org.folio.search.service.indexrebuild.IndexRebuildTarget;
+import org.folio.search.service.indexrebuild.derived.DerivedChangeTracker;
+import org.folio.search.service.indexrebuild.item.ItemSharedFlagResolver;
+import org.folio.search.service.indexrebuild.records.RecordsDeleteTracker;
 import org.folio.search.utils.IndexingFailureUtils;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -97,7 +100,11 @@ class ItemIndexServiceTest {
   @Mock
   private FailedIndexingEventService failedIndexingEventService;
   @Mock
-  private SharedInstanceResolver sharedInstanceResolver;
+  private ItemSharedFlagResolver sharedFlagResolver;
+  @Mock
+  private RecordsDeleteTracker deleteTracker;
+  @Mock
+  private DerivedChangeTracker derivedChangeTracker;
   @Mock
   private ConsortiumTenantProvider consortiumTenantProvider;
   @InjectMocks
@@ -175,19 +182,30 @@ class ItemIndexServiceTest {
 
   @Test
   void indexItemEvents_positive_setsSharedFlagOnlyForItemsOfSharedInstances() {
-    var sharedInstanceId = randomId();
-    var localInstanceId = randomId();
-    when(sharedInstanceResolver.findSharedInstanceIds(TENANT_ID, Set.of(sharedInstanceId, localInstanceId)))
-      .thenReturn(Set.of(sharedInstanceId));
+    Map<String, Object> sharedNew = mapOf("instanceSource", "CONSORTIUM-MARC");
+    Map<String, Object> localNew = mapOf("instanceSource", "MARC");
+    when(sharedFlagResolver.isShared(TENANT_ID, sharedNew)).thenReturn(true);
+    when(sharedFlagResolver.isShared(TENANT_ID, localNew)).thenReturn(false);
     mockSuccessfulIndexing();
-    var sharedItem = resourceEvent(randomId(), ITEM, CREATE, mapOf("instanceId", sharedInstanceId), null);
-    var localItem = resourceEvent(randomId(), ITEM, CREATE, mapOf("instanceId", localInstanceId), null);
+    var sharedItem = resourceEvent(randomId(), ITEM, CREATE, sharedNew, null);
+    var localItem = resourceEvent(randomId(), ITEM, CREATE, localNew, null);
 
     itemIndexService.indexItemEvents(List.of(sharedItem, localItem));
 
     assertThat(eventsCaptor.getValue()).extracting(event -> (Object) ((Map<?, ?>) event.getNew()).get("shared"))
       .containsExactly(true, null);
     assertThat(((Map<?, ?>) sharedItem.getNew()).containsKey("shared")).isFalse();
+  }
+
+  @Test
+  void indexItemEvents_positive_tracksEventsBeforeIndexing() {
+    var itemEvent = resourceEvent(RESOURCE_ID, ITEM, DELETE, null, mapOf("id", RESOURCE_ID));
+    mockSuccessfulIndexing();
+
+    itemIndexService.indexItemEvents(List.of(itemEvent));
+
+    verify(deleteTracker).track(eq(IndexRebuildTarget.ITEM), eq(TENANT_ID), anyList());
+    verify(derivedChangeTracker).track(eq(IndexRebuildTarget.ITEM), eq(TENANT_ID), anyList());
   }
 
   @Test

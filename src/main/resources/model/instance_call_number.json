@@ -3,6 +3,9 @@
   "eventBodyJavaClass": "org.folio.search.model.index.CallNumberResource",
   "parent": "instance",
   "fields": {
+    "id": {
+      "index": "keyword"
+    },
     "fullCallNumber" : {
       "index": "keyword_icu",
       "showInResponse": true

@@ -1,0 +1,15 @@
+post:
+  operationId: retryFailedCallNumberRecordsReindex
+  summary: Retry Failed Call Number Records Reindex
+  description: Resumes a failed or interrupted call number records reindex
+  tags:
+    - index-rebuild
+  parameters:
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+  responses:
+    '200':
+      description: Failed call number records reindex has been resumed
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

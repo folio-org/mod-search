@@ -264,6 +264,17 @@ public abstract class BaseSharedTest {
     return elasticClient.search(searchRequest, DEFAULT).getHits().getHits();
   }
 
+  /**
+   * Fetches up to {@code size} documents of an index, {@link #fetchAllDocuments} returns only the first page.
+   */
+  @SneakyThrows
+  protected static SearchHit[] fetchDocuments(ResourceType resourceType, String tenantId, int size) {
+    var searchRequest = new SearchRequest()
+      .source(searchSource().query(matchAllQuery()).size(size))
+      .indices(getIndexName(resourceType, tenantId));
+    return elasticClient.search(searchRequest, DEFAULT).getHits().getHits();
+  }
+
   @SneakyThrows
   protected static void deleteAllDocuments(ResourceType resourceType, String tenantId) {
     var request = new DeleteByQueryRequest(getIndexName(resourceType, tenantId));

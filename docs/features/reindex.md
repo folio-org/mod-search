@@ -23,6 +23,8 @@ Each reindex type has its own guide with complete run instructions, request form
 | Reindex a specific consortium member tenant in an ECS deployment            | Full Reindex — ECS Member Tenant | [reindex-full-ecs-member.md](reindex/reindex-full-ecs-member.md) |
 | OpenSearch deleted or upgraded; inventory data is current in PostgreSQL     | Upload-Phase Reindex             | [reindex-upload.md](reindex/reindex-upload.md)                   |
 | Previous full reindex left ranges in `MERGE_FAILED`                         | Failed Merge Reindex             | [reindex-failed-merge.md](reindex/reindex-failed-merge.md)       |
+| Rebuild only the `item` index from inventory (`ITEM_INDEX_ENABLED=true`)    | Item Records Reindex             | [reindex-item-records.md](reindex/reindex-item-records.md)       |
+| Rebuild only the call number index from the item index                     | Call Number Records Reindex      | [reindex-call-number-records.md](reindex/reindex-call-number-records.md) |
 | Reindex `authority` or `location` records                                   | Legacy Reindex                   | [reindex-legacy.md](reindex/reindex-legacy.md)                   |
 
 The remainder of this page covers concepts and reference material shared by **all** reindex types: phases, progress monitoring, index-settings restore, the consolidated configuration reference, and FAQ. Each guide links back here rather than repeating it.
@@ -46,6 +48,35 @@ Sequence diagrams for the reindex flow are in [`docs/diagrams/`](../diagrams/):
 | [member-reindex.png](../diagrams/member-reindex.png) | [member-reindex.puml](../diagrams/member-reindex.puml) | ECS member tenant reindex — merge (member only) → staging migration → upload with member document cleanup |
 | [failed-merge.png](../diagrams/failed-merge.png)     | [failed-merge.puml](../diagrams/failed-merge.puml)     | Failed merge reindex — retries only `MERGE_FAILED` ranges, then auto-continues to upload                  |
 | [legacy-reindex.png](../diagrams/legacy-reindex.png) | [legacy-reindex.puml](../diagrams/legacy-reindex.puml) | Legacy reindex — synchronous `location` indexing vs. asynchronous `authority` delegation                  |
+| [item-records-reindex.png](../diagrams/item-records-reindex.png) | [item-records-reindex.puml](../diagrams/item-records-reindex.puml) | Item records reindex — item index rebuilt from inventory, deletes tracked during the run, retry |
+| [call-number-records-reindex.png](../diagrams/call-number-records-reindex.png) | [call-number-records-reindex.puml](../diagrams/call-number-records-reindex.puml) | Call number records reindex — call-number index rebuilt from the item index by ranges, retry |
+| [call-number-refresh.png](../diagrams/call-number-refresh.png) | [call-number-refresh.puml](../diagrams/call-number-refresh.puml) | Call number refresh — runtime rebuild of changed call numbers from the item index |
+
+States of the item and call number records reindex are described in [Index Rebuild States](#index-rebuild-states).
+
+## Index Rebuild States
+
+The item records reindex and the call number records reindex keep a state per index and tenant in
+`index_rebuild_state`:
+
+- Indexes built from inventory records (item) have a state per tenant, and tenants run independently. Records deleted
+  while a run is `IN_PROGRESS`, `FINALIZING` or `FAILED` are tracked and removed at finalization.
+- Indexes derived from another index (call number) cover all tenants, whose states change together.
+
+| From                        | Trigger                                                                              | To            | Effect                                                                                         |
+|-----------------------------|--------------------------------------------------------------------------------------|---------------|------------------------------------------------------------------------------------------------|
+| none, `COMPLETED`, `FAILED` | Start, rejected while a conflicting run is active                                    | `IN_PROGRESS` | Ranges and tracked deletes of the previous run are removed, the index is recreated or cleaned  |
+| `IN_PROGRESS`               | All ranges succeeded, only one caller wins                                           | `FINALIZING`  |                                                                                                |
+| `IN_PROGRESS`               | A range failed after its retries, or preparing the index or requesting ranges failed | `FAILED`      | `failCause` is stored                                                                          |
+| `FINALIZING`                | Finalization succeeded                                                               | `COMPLETED`   | Tracked deletes are removed (records), the index is refreshed, the index fingerprint is stored |
+| `FINALIZING`                | Finalization failed                                                                  | `FAILED`      | `failCause` is stored, tracked deletes are kept for the retry                                  |
+| `FINALIZING`                | Retry of an interrupted finalization                                                 | `IN_PROGRESS` | Finalized again if no ranges are left                                                          |
+| `FAILED`                    | Retry                                                                                | `IN_PROGRESS` | Failed ranges become pending and are requested again, finalized if none are left               |
+
+A state is ready when it is `COMPLETED` and its fingerprint matches the current one, calculated from the index
+mappings, analysis settings and data version. Documents of a `COMPLETED` run are searchable. A derived index run, its
+retry and its runtime refresh need the source index of every tenant to be ready, and a run of a source index is
+rejected while a run of a derived index is active.
 
 ---
 

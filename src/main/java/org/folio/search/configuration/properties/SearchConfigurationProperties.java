@@ -78,6 +78,17 @@ public class SearchConfigurationProperties {
     private Boolean itemIndexEnabled;
 
     /**
+     * Defines if documents of the call number index are kept up to date from the item index on item changes, instead
+     * of being published from the call number tables.
+     */
+    private Boolean callNumberIndexFromItemsEnabled;
+
+    /**
+     * Delay between runs of the job rebuilding call number documents of changed items.
+     */
+    private long callNumberRefreshDelayMs = 60_000L;
+
+    /**
      * Number of days after which stored failed indexing events are deleted by the cleanup scheduler.
      */
     private int failedEventsRetentionDays = 30;

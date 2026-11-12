@@ -1,0 +1,113 @@
+@startuml
+!theme plain
+title Item Records Reindex (item index rebuilt from inventory)
+
+actor "Client" as client
+box "FOLIO Backend" #LightBlue
+  participant "mod-search" as modSearch
+  participant "mod-inventory-storage" as inventoryStorage
+  participant "Kafka" as kafka
+  database "Postgres\n(index_rebuild_state,\nindex_rebuild_range,\nindex_rebuild_deleted_record)" as postgres
+  database "OpenSearch\n(item index)" as opensearch
+end box
+
+autonumber
+
+== Start ==
+client -> modSearch: POST /search/index/item-records/reindex/full\n{tenantId?, indexSettings?}
+modSearch -> modSearch: Check ITEM_INDEX_ENABLED
+modSearch -> modSearch: Resolve tenants\n(central + members, or the single tenantId)
+modSearch -> postgres: Validate: no call-number run active;\na single-tenant reload needs the index on the current version
+
+group One transaction (start, PER_TENANT mode)
+  loop for each tenant
+    modSearch -> postgres: Claim state -> IN_PROGRESS\n(fails if the tenant already has an active run)
+    modSearch -> postgres: Delete ranges of the tenant's previous run
+    modSearch -> postgres: Clear tracked deleted items of the tenant
+  end
+end
+
+alt Whole index
+  modSearch -> opensearch: Drop and recreate the item index
+else Single tenant reload
+  modSearch -> opensearch: Delete documents of the tenant
+end
+client <-- modSearch: HTTP 200 OK (async run started)
+
+== Request records (async) ==
+loop for each tenant
+  modSearch -> inventoryStorage: Count items
+  modSearch -> modSearch: Split into UUID ranges\n(name-based v3 range ids mark rebuild ranges)
+end
+modSearch -> postgres: Save ranges (PENDING)
+loop for each range (parallel, with retry)
+  alt PUBLISH mode
+    modSearch -> inventoryStorage: POST reindex-records/publish (range)
+  else EXPORT mode
+    modSearch -> inventoryStorage: POST reindex-records/export (range, traceId)
+  end
+end
+
+== Process records ==
+alt PUBLISH mode
+  inventoryStorage -> kafka: inventory.reindex-records\n(item records with instanceSource)
+else EXPORT mode
+  inventoryStorage -> kafka: inventory.reindex.file-ready (S3 object key)
+end
+kafka -> modSearch: Consume event
+modSearch -> modSearch: Item record type and v3 range id?\nyes: item rebuild, no: regular reindex
+modSearch -> postgres: Find range
+alt Unknown range (abandoned run) or already SUCCESS (redelivery)
+  modSearch -> modSearch: Ignore
+else Pending or failed range
+  opt EXPORT mode
+    modSearch -> modSearch: Read the S3 file in batches
+  end
+  modSearch -> modSearch: Convert records to documents\n(shared flag from instanceSource, id = itemId|tenant)
+  modSearch -> opensearch: Bulk index with opType CREATE (with retry)
+  note right of opensearch
+  409 conflicts are ignored: the document was
+  written by a newer item event during the run.
+  end note
+  alt Success
+    modSearch -> postgres: Range -> SUCCESS
+    modSearch -> modSearch: Try to finalize the tenant
+  else Failure
+    modSearch -> postgres: Range -> FAILED, tenant state -> FAILED
+  end
+end
+
+== Item events during the run ==
+kafka -> modSearch: Item event (create, update, delete)
+modSearch -> postgres: Run tracked for the tenant?\n(IN_PROGRESS, FINALIZING or FAILED)
+opt Tracked
+  alt DELETE
+    modSearch -> postgres: Add the item id to the deleted items
+  else CREATE
+    modSearch -> postgres: Remove the item id from the deleted items
+  end
+end
+modSearch -> opensearch: Index the event (overwrites documents)
+
+== Finalize the tenant ==
+modSearch -> postgres: IN_PROGRESS -> FINALIZING\nonly if all ranges of the tenant are SUCCESS (one caller wins)
+modSearch -> postgres: Read tracked deleted item ids
+modSearch -> opensearch: Delete those documents\n(removes items recreated by late records)
+modSearch -> opensearch: Refresh the item index\n(documents of a COMPLETED run are searchable)
+modSearch -> postgres: State -> COMPLETED with the current index fingerprint
+modSearch -> postgres: Clear tracked deleted items
+
+== Retry failed runs ==
+client -> modSearch: POST /search/index/item-records/reindex/failed
+modSearch -> postgres: Validate: no call-number run active
+loop for each tenant with a FAILED or interrupted run
+  modSearch -> postgres: State -> IN_PROGRESS, FAILED ranges -> PENDING
+  alt No unfinished ranges
+    modSearch -> modSearch: Finalize the tenant
+  else
+    modSearch -> inventoryStorage: Request unfinished ranges again
+  end
+end
+client <-- modSearch: HTTP 200 OK
+
+@enduml

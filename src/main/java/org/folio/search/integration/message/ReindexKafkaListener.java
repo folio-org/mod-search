@@ -8,6 +8,7 @@ import org.folio.search.model.event.ReindexRangeIndexEvent;
 import org.folio.search.model.event.ReindexRecordsEvent;
 import org.folio.search.service.EgressExecutionContextService;
 import org.folio.search.service.consortium.ConsortiumTenantExecutor;
+import org.folio.search.service.indexrebuild.records.RecordsRangeProcessor;
 import org.folio.search.service.reindex.ReindexOrchestrationService;
 import org.folio.search.utils.KafkaConstants;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -21,6 +22,7 @@ public class ReindexKafkaListener {
   private final ReindexOrchestrationService reindexService;
   private final ConsortiumTenantExecutor executionService;
   private final EgressExecutionContextService scopedExecutionService;
+  private final RecordsRangeProcessor recordsRangeProcessor;
 
   @KafkaListener(
     id = KafkaConstants.REINDEX_RANGE_INDEX_LISTENER_ID,
@@ -44,8 +46,7 @@ public class ReindexKafkaListener {
     log.debug("handleReindexRecordsEvent::received reindex event [id={}]", consumerRecord.key());
     var event = consumerRecord.value();
     event.setRangeId(consumerRecord.key());
-    scopedExecutionService.execute(event.getTenant(),
-      () -> executionService.execute(() -> reindexService.process(event)));
+    scopedExecutionService.execute(event.getTenant(), () -> executionService.execute(() -> process(event)));
   }
 
   @KafkaListener(
@@ -57,7 +58,22 @@ public class ReindexKafkaListener {
   public void handleReindexFileReadyEvent(ConsumerRecord<String, ReindexFileReadyEvent> consumerRecord) {
     log.debug("handleReindexFileReadyEvent::received reindex event [id={}]", consumerRecord.key());
     var event = consumerRecord.value();
-    scopedExecutionService.execute(event.getTenantId(),
-      () -> executionService.execute(() -> reindexService.process(event)));
+    scopedExecutionService.execute(event.getTenantId(), () -> executionService.execute(() -> process(event)));
+  }
+
+  private boolean process(ReindexRecordsEvent event) {
+    if (recordsRangeProcessor.handles(event.getRecordType(), event.getRangeId())) {
+      recordsRangeProcessor.process(event);
+      return true;
+    }
+    return reindexService.process(event);
+  }
+
+  private boolean process(ReindexFileReadyEvent event) {
+    if (recordsRangeProcessor.handles(event.getRecordType(), event.getRangeId())) {
+      recordsRangeProcessor.process(event);
+      return true;
+    }
+    return reindexService.process(event);
   }
 }

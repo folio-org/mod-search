@@ -1,0 +1,15 @@
+post:
+  operationId: retryFailedItemRecordsReindex
+  summary: Retry Failed Item Records Reindex
+  description: Resumes failed and interrupted item records reindex runs
+  tags:
+    - index-rebuild
+  parameters:
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+  responses:
+    '200':
+      description: Failed item records reindex runs have been resumed
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

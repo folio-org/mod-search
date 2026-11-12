@@ -9,6 +9,7 @@ import static org.folio.support.utils.TestUtils.mapOf;
 import static org.folio.support.utils.TestUtils.resourceEvent;
 
 import java.util.Map;
+import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 
@@ -74,7 +75,7 @@ class ItemEventPreProcessorTest {
   }
 
   @SuppressWarnings("unchecked")
-  private static Map<String, Object> newMap(org.folio.search.domain.dto.ResourceEvent event) {
+  private static Map<String, Object> newMap(ResourceEvent event) {
     return (Map<String, Object>) event.getNew();
   }
 }

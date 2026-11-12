@@ -10,6 +10,7 @@ import static org.folio.support.utils.TestUtils.resourceEvent;
 import static org.mockito.Mockito.when;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Optional;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.internals.RecordHeaders;
@@ -183,7 +184,7 @@ class InstanceEventMapperTest {
     var result = mapper.mapToProducerRecords(consumerRecord);
 
     assertThat(result.getFirst().headers()).isNotNull();
-    var headerKeys = new java.util.ArrayList<String>();
+    var headerKeys = new ArrayList<String>();
     result.getFirst().headers().forEach(header -> headerKeys.add(header.key()));
     assertThat(headerKeys).contains(XOkapiHeaders.URL);
   }

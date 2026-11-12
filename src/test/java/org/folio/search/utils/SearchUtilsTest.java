@@ -35,6 +35,7 @@ import org.folio.search.exception.SearchOperationException;
 import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.service.MultilangValue;
 import org.folio.search.model.types.ResourceType;
+import org.folio.search.model.types.SearchOperationType;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -48,7 +49,7 @@ class SearchUtilsTest {
 
   @Test
   void performExceptionalOperation_positive() {
-    var actual = performExceptionalOperation(() -> 0, INDEX_NAME, "op");
+    var actual = performExceptionalOperation(() -> 0, INDEX_NAME, SearchOperationType.SEARCH);
     assertThat(actual).isZero();
   }
 
@@ -56,10 +57,10 @@ class SearchUtilsTest {
   void performExceptionalOperation_negative() {
     assertThatThrownBy(() -> performExceptionalOperation(() -> {
       throw new IOException("err");
-    }, INDEX_NAME, "op"))
+    }, INDEX_NAME, SearchOperationType.SEARCH))
       .isInstanceOf(SearchOperationException.class)
       .hasMessage(String.format(
-        "Failed to perform elasticsearch request [index=%s, type=%s, message: %s]", INDEX_NAME, "op", "err"));
+        "Failed to perform elasticsearch request [index=%s, type=%s, message: %s]", INDEX_NAME, "searchApi", "err"));
   }
 
   @Test

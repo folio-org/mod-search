@@ -12,6 +12,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
@@ -46,8 +47,8 @@ class IndexingItemConsortiumIT extends BaseIntegrationTest {
   void shouldReturnItemsOfSharedInstanceFromAllTenants() {
     var instanceId = createInstance(CENTRAL_TENANT_ID);
     createItem(CENTRAL_TENANT_ID, instanceId);
-    createItem(MEMBER_TENANT_ID, instanceId);
-    createItem(MEMBER2_TENANT_ID, instanceId);
+    createSharedInstanceItem(MEMBER_TENANT_ID, instanceId);
+    createSharedInstanceItem(MEMBER2_TENANT_ID, instanceId);
 
     assertItemsVisible(CENTRAL_TENANT_ID, instanceId, 3);
     assertItemsVisible(MEMBER_TENANT_ID, instanceId, 3);
@@ -104,6 +105,14 @@ class IndexingItemConsortiumIT extends BaseIntegrationTest {
     awaitAssertion(() -> doSearchInstances("id==" + instanceId, tenantId)
       .andExpect(jsonPath("$.totalRecords", is(1))));
     return instanceId;
+  }
+
+  private void createSharedInstanceItem(String tenantId, String instanceId) {
+    var item = new LinkedHashMap<String, Object>();
+    item.put("id", randomId());
+    item.put("holdingsRecordId", randomId());
+    item.put("instanceSource", "CONSORTIUM-MARC");
+    inventoryApi.createItem(tenantId, instanceId, item);
   }
 
   private void createItem(String tenantId, String instanceId) {

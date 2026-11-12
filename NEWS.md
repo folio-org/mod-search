@@ -11,6 +11,8 @@
   * Honor spring.cache.type=noop for cache manager ([MSEARCH-1204](https://folio-org.atlassian.net/browse/MSEARCH-1204))
 * **Inventory Items**
   * Add `GET /search/inventory/items` endpoint and `item` index mappings ([MSEARCH-1226](https://folio-org.atlassian.net/browse/MSEARCH-1226))
+  * Add item records reindex that rebuilds the `item` index from inventory: `POST /search/index/item-records/reindex/full`, `POST /search/index/item-records/reindex/failed` and `GET /search/index/item-records/reindex/status`, with permissions `search.index.item-records.reindex.full.post`, `search.index.item-records.reindex.failed.post` and `search.index.item-records.reindex.status.get`. Requires `inventory-reindex-records` 1.2 ([MSEARCH-1293](https://folio-org.atlassian.net/browse/MSEARCH-1293))
+  * Add call number records reindex that rebuilds the call number index from the item index: `POST /search/index/call-number-records/reindex/full`, `POST /search/index/call-number-records/reindex/failed` and `GET /search/index/call-number-records/reindex/status`, with permissions `search.index.call-number-records.reindex.full.post`, `search.index.call-number-records.reindex.failed.post` and `search.index.call-number-records.reindex.status.get` ([MSEARCH-1293](https://folio-org.atlassian.net/browse/MSEARCH-1293))
   * Index inventory item events into the `item` index behind the `ITEM_INDEX_ENABLED` flag ([MSEARCH-1228](https://folio-org.atlassian.net/browse/MSEARCH-1228))
   * Store failed item indexing events in `failed_indexing_event` table with daily cleanup of records older than `FAILED_INDEXING_EVENTS_RETENTION_DAYS` ([MSEARCH-1228](https://folio-org.atlassian.net/browse/MSEARCH-1228))
 * **Linked Data Authority**

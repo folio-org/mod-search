@@ -1,0 +1,32 @@
+description: Latest rebuild state of an index for a tenant
+type: object
+properties:
+  tenantId:
+    type: string
+    description: Tenant id
+  status:
+    type: string
+    description: One of NOT_STARTED, IN_PROGRESS, FINALIZING, COMPLETED, FAILED
+  reindexRequired:
+    type: boolean
+    description: Whether the index has to be rebuilt for the tenant in the running version of the module
+  blockedBy:
+    type: array
+    description: Indexes that have to be rebuilt for the tenant first
+    items:
+      type: string
+  totalRanges:
+    type: integer
+    description: Total number of ranges of the latest run
+  processedRanges:
+    type: integer
+    description: Number of successfully processed ranges of the latest run
+  startedAt:
+    type: string
+    description: Start time of the latest run
+  finishedAt:
+    type: string
+    description: End time of the latest run
+  failCause:
+    type: string
+    description: Failure cause of the latest run

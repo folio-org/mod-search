@@ -101,6 +101,9 @@
       "index": "keyword_icu",
       "showInResponse": true
     },
+    "callNumberId": {
+      "index": "keyword"
+    },
     "callNumberTypeId": {
       "index": "keyword_lowercase",
       "showInResponse": true

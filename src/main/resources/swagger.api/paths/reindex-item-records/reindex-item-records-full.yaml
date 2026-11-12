@@ -1,0 +1,21 @@
+post:
+  operationId: reindexItemRecords
+  summary: Item Records Reindex
+  description: Rebuilds the item index from inventory, or reloads documents of a single consortium tenant
+  tags:
+    - index-rebuild
+  parameters:
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+  requestBody:
+    required: false
+    content:
+      application/json:
+        schema:
+          $ref: '../../schemas/request/indexRebuildRequest.yaml'
+  responses:
+    '200':
+      description: Item records reindex has been started
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

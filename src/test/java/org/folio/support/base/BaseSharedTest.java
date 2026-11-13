@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
 import static org.awaitility.Durations.ONE_MINUTE;
+import static org.awaitility.Durations.TEN_SECONDS;
 import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.model.client.CqlQuery.exactMatchAny;
 import static org.folio.search.utils.SearchUtils.getIndexName;
@@ -37,23 +38,30 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.github.tomakehurst.wiremock.client.MappingBuilder;
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import lombok.SneakyThrows;
+import org.awaitility.core.ConditionTimeoutException;
 import org.awaitility.core.ThrowingRunnable;
 import org.folio.search.domain.dto.BrowseConfig;
 import org.folio.search.domain.dto.BrowseOptionType;
 import org.folio.search.domain.dto.BrowseType;
 import org.folio.search.domain.dto.FeatureConfig;
+import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.domain.dto.ShelvingOrderAlgorithmType;
 import org.folio.search.domain.dto.TenantConfiguredFeature;
 import org.folio.search.model.client.CqlQueryParam;
+import org.folio.search.model.types.ReindexEntityType;
 import org.folio.search.model.types.ResourceType;
+import org.folio.search.service.reindex.jdbc.SubResourcesLockRepository;
 import org.folio.search.utils.SearchUtils;
 import org.folio.spring.integration.XOkapiHeaders;
 import org.folio.spring.testing.extension.impl.OkapiConfiguration;
@@ -269,6 +277,59 @@ public abstract class BaseSharedTest {
     var request = new DeleteByQueryRequest(getIndexName(resourceType, tenantId));
     request.setQuery(matchAllQuery());
     elasticClient.deleteByQuery(request, DEFAULT);
+  }
+
+  /**
+   * Locks a sub-resource for test setup purposes, retrying for a short while if the lock is
+   * currently held. In tests, {@code ScheduledInstanceSubResourcesService} runs on a very short
+   * fixed delay and can briefly hold the same lock right after a tenant is enabled, so a single
+   * lock attempt right after {@code enableTenant} is inherently racy.
+   *
+   * @return the fencing timestamp for the acquired lock
+   * @throws IllegalStateException if the lock could not be acquired within the retry window,
+   *     which points to a genuine problem (e.g. a stuck/preempted lock) rather than transient
+   *     contention with the scheduler
+   */
+  protected static Timestamp lockSubResourceWithRetry(SubResourcesLockRepository lockRepository,
+                                                       ReindexEntityType entityType, String tenantId) {
+    var lockResult = new AtomicReference<>(Optional.<Timestamp>empty());
+    try {
+      await("lock sub-resource [%s] for tenant [%s]".formatted(entityType, tenantId))
+        .atMost(TEN_SECONDS)
+        .pollInterval(ONE_HUNDRED_MILLISECONDS)
+        .until(() -> {
+          lockResult.set(lockRepository.lockSubResource(entityType, tenantId));
+          return lockResult.get().isPresent();
+        });
+    } catch (ConditionTimeoutException e) {
+      throw new IllegalStateException(
+        "Unexpected state of database: unable to lock required resource [%s] for tenant [%s]"
+          .formatted(entityType, tenantId), e);
+    }
+    return lockResult.get().orElseThrow();
+  }
+
+  /**
+   * Runs {@code action} while holding the lock for the given sub-resource, acquired via
+   * {@link #lockSubResourceWithRetry}, and releases it afterward even if {@code action} throws.
+   */
+  protected static void withLockedSubResource(SubResourcesLockRepository lockRepository,
+                                              ReindexEntityType entityType, String tenantId, Runnable action) {
+    var timestamp = lockSubResourceWithRetry(lockRepository, entityType, tenantId);
+    try {
+      action.run();
+    } finally {
+      lockRepository.unlockSubResourceFenced(entityType, timestamp, tenantId, timestamp);
+    }
+  }
+
+  /**
+   * Creates the instances in the given tenant and waits until all of them are visible for that tenant.
+   */
+  protected static void createInstances(String tenantId, List<Instance> instances) {
+    var ids = instances.stream().map(Instance::getId).toList();
+    instances.forEach(instance -> inventoryApi.createInstance(tenantId, instance));
+    assertSearchByIdsCount(instanceSearchPath(), ids, ids.size(), tenantId);
   }
 
   protected static void assertSearchByIdsCount(String path, List<String> ids, int expected, String tenantId) {

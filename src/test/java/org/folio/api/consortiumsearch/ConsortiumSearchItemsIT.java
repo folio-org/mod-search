@@ -9,10 +9,8 @@ import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.consortiumBatchItemsSearchPath;
 import static org.folio.support.base.ApiEndpoints.consortiumItemSearchPath;
 import static org.folio.support.base.ApiEndpoints.consortiumItemsSearchPath;
-import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.support.sample.SampleInstances.getSemanticWeb;
 import static org.folio.support.sample.SampleInstances.getSemanticWebId;
-import static org.folio.support.sample.SampleInstances.getSemanticWebMatchers;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,31 +28,14 @@ import org.folio.search.domain.dto.ConsortiumItem;
 import org.folio.search.domain.dto.ConsortiumItemCollection;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.model.Pair;
-import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.BaseConsortiumIntegrationTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
-@IntegrationTest
-class ConsortiumSearchItemsIT extends BaseConsortiumIntegrationTest {
+public abstract class ConsortiumSearchItemsIT extends BaseConsortiumIntegrationTest {
 
   static final String WRONG_SIZE_MSG_TEMPLATE = "IDs array size exceeds the maximum allowed limit %s";
-
-  @BeforeAll
-  static void prepare() {
-    enableTenant(CENTRAL_TENANT_ID);
-    enableTenant(MEMBER_TENANT_ID);
-    saveRecords(MEMBER_TENANT_ID, instanceSearchPath(), List.of(getSemanticWeb()), 1, getSemanticWebMatchers(),
-      instance -> inventoryApi.createInstance(MEMBER_TENANT_ID, instance));
-  }
-
-  @AfterAll
-  static void cleanUp() {
-    removeTenant();
-  }
 
   @Test
   void doGetConsortiumItems_returns200AndRecords() {

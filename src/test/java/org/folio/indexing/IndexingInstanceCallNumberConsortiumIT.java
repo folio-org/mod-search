@@ -6,11 +6,6 @@ import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.ONE_MINUTE;
 import static org.folio.search.model.types.ResourceType.INSTANCE;
 import static org.folio.search.model.types.ResourceType.INSTANCE_CALL_NUMBER;
-import static org.folio.search.service.reindex.ReindexConstants.CALL_NUMBER_TABLE;
-import static org.folio.search.service.reindex.ReindexConstants.HOLDING_TABLE;
-import static org.folio.search.service.reindex.ReindexConstants.INSTANCE_CALL_NUMBER_TABLE;
-import static org.folio.search.service.reindex.ReindexConstants.INSTANCE_TABLE;
-import static org.folio.search.service.reindex.ReindexConstants.ITEM_TABLE;
 import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
@@ -25,55 +20,27 @@ import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
-import org.folio.search.domain.dto.TenantConfiguredFeature;
 import org.folio.search.model.event.InstanceSharingCompleteEvent;
-import org.folio.search.model.types.ResourceType;
-import org.folio.spring.testing.extension.DatabaseCleanup;
-import org.folio.spring.testing.type.IntegrationTest;
-import org.folio.support.base.BaseIntegrationTest;
-import org.junit.jupiter.api.AfterAll;
+import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.test.context.TestPropertySource;
 
-@IntegrationTest
-@TestPropertySource(properties = {
-  "folio.search-config.indexing.instance-children-index-enabled=true",
-  "folio.system-user.enabled=false"
-})
-@DatabaseCleanup(tenants = CENTRAL_TENANT_ID,
-  tables = {CALL_NUMBER_TABLE, INSTANCE_CALL_NUMBER_TABLE, ITEM_TABLE, HOLDING_TABLE, INSTANCE_TABLE})
-class IndexingInstanceCallNumberConsortiumIT extends BaseIntegrationTest {
+public abstract class IndexingInstanceCallNumberConsortiumIT extends BaseSharedTest {
 
   private static final String INSTANCE_ID = randomId();
   private static final String LOCATION_ID = randomId();
   private static final String INSTANCE_TITLE = "title";
   private static final String CALL_NUMBER = "test";
 
-  @BeforeAll
-  static void prepare() {
-    enableTenant(CENTRAL_TENANT_ID);
-    enableTenant(MEMBER_TENANT_ID);
-
-    enableFeature(CENTRAL_TENANT_ID, TenantConfiguredFeature.BROWSE_CALL_NUMBERS);
-  }
-
-  @AfterAll
-  static void cleanUp() {
-    removeTenant(MEMBER_TENANT_ID);
-    removeTenant(CENTRAL_TENANT_ID);
-  }
-
   @AfterEach
   void tearDown() {
     deleteAllDocuments(INSTANCE_CALL_NUMBER, CENTRAL_TENANT_ID);
-    awaitAssertion(() -> assertDocumentsEmpty(INSTANCE_CALL_NUMBER));
     deleteAllDocuments(INSTANCE, CENTRAL_TENANT_ID);
-    awaitAssertion(() -> assertDocumentsEmpty(INSTANCE));
+    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE_CALL_NUMBER, CENTRAL_TENANT_ID)).isEmpty());
+    awaitAssertion(() -> assertThat(fetchAllDocuments(INSTANCE, CENTRAL_TENANT_ID)).isEmpty());
   }
 
   @Test
@@ -157,11 +124,6 @@ class IndexingInstanceCallNumberConsortiumIT extends BaseIntegrationTest {
       .allSatisfy(map -> assertThat(map)
         .containsEntry("tenantId", MEMBER_TENANT_ID)
         .containsEntry("shared", shared));
-  }
-
-  private static void assertDocumentsEmpty(ResourceType resourceType) {
-    var hits = fetchAllDocuments(resourceType, CENTRAL_TENANT_ID);
-    assertThat(hits).isEmpty();
   }
 
   private static void createInstanceInMemberTenant(String instanceId, String instanceTitle,

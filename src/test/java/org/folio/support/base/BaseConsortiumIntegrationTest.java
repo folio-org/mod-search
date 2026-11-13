@@ -1,8 +1,6 @@
 package org.folio.support.base;
 
-import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
-import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.support.utils.JsonTestUtils.asJsonString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -12,11 +10,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.Map;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.AfterAll;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
-public abstract class BaseConsortiumIntegrationTest extends BaseIntegrationTest {
+public abstract class BaseConsortiumIntegrationTest extends BaseSharedTest {
 
   @SneakyThrows
   public static ResultActions tryGet(String uri, Object... args) {
@@ -88,18 +85,7 @@ public abstract class BaseConsortiumIntegrationTest extends BaseIntegrationTest 
   }
 
   @SneakyThrows
-  protected static void removeTenant() {
-    removeTenant(TENANT_ID);
-    removeTenant(CENTRAL_TENANT_ID);
-  }
-
-  @SneakyThrows
   protected static ResultActions doSearchByInstances(String query) {
     return doSearch(instanceSearchPath(), MEMBER_TENANT_ID, Map.of(QUERY_PARAM, query));
-  }
-
-  @AfterAll
-  static void cleanUp() {
-    removeTenant();
   }
 }

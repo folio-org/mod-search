@@ -12,6 +12,14 @@ and used by the following integration test suites:
   subjects, holdings, items, and linked-data resources.
 - **`SearchBrowseConsortiumSuiteIT`** — loads records into a central tenant and a member tenant and runs
   consortium search/browse tests for linked-data, locations, libraries, institutions, and campuses.
+  It also runs the ECS inventory tests (call number, classification, contributor and subject browse,
+  consortium holdings/items search) in the same Spring context. Tenants, browse features and the ECS
+  inventory data set are set up once in `SearchBrowseConsortiumSuiteIT#setUp`, so new ECS test classes need no
+  tenant or data setup of their own and their expectations must account for the whole data set. The ECS data set
+  is defined in `org.folio.support.testdata.ConsortiumTestDataManager` (see its Javadoc for the per-tenant
+  layout): add new ECS fixtures there, not in test classes, and update the expected sub-resource counts it exposes.
+- **`ConsortiumIndexingSuiteIT`** — runs the ECS indexing tests, which create and wipe their own data, so they
+  are kept apart from the shared read-only data set.
 
 Both test classes share the same Elasticsearch index for the duration of their test run, so any
 change to these JSON files affects all nested test classes inside them.

@@ -2,7 +2,7 @@
 spring:
   main:
     banner-mode: off
-  opensearch:
+  search-engine:
     username: elastic
     password: s3cret
     compression-enabled: false
@@ -96,8 +96,6 @@ folio:
         concurrency: 1
         max-poll-records: 5
         max-poll-interval-ms: 6000
-      instances:
-        concurrency: 1
       authorities:
         concurrency: 1
       browse-config-data:

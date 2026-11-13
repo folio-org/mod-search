@@ -24,7 +24,7 @@ import org.springframework.test.context.TestPropertySource;
  * raw bytes and JSON parsing fails.
  */
 @IntegrationTest
-@TestPropertySource(properties = "spring.opensearch.compression-enabled=true")
+@TestPropertySource(properties = "spring.search-engine.compression-enabled=true")
 class OpensearchCompressionIT extends BaseIntegrationTest {
 
   @BeforeAll

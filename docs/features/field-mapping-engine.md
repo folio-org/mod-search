@@ -38,10 +38,10 @@ Search correctness and performance depend entirely on how records are mapped to 
 ## Configuration
 | Variable | Purpose |
 |----------|---------|
-| `ELASTICSEARCH_URL` | Elasticsearch/OpenSearch cluster URL |
-| `ELASTICSEARCH_USERNAME` / `ELASTICSEARCH_PASSWORD` | Cluster credentials |
-| `ELASTICSEARCH_COMPRESSION_ENABLED` | Enable HTTP compression for Elasticsearch requests |
-| `ELASTICSEARCH_SERVER` | Set to `true` when connecting to a native Elasticsearch server instead of OpenSearch |
+| `SEARCH_ENGINE_URL` | Elasticsearch/OpenSearch cluster URL |
+| `SEARCH_ENGINE_USERNAME` / `SEARCH_ENGINE_PASSWORD` | Cluster credentials |
+| `SEARCH_ENGINE_COMPRESSION_ENABLED` | Enable HTTP compression for search engine requests |
+| `SEARCH_ENGINE_IS_ELASTICSEARCH` | Set to `true` when connecting to a native Elasticsearch server instead of OpenSearch |
 
 ## Dependencies and interactions
 - Depends on Elasticsearch/OpenSearch for mapping and settings operations.

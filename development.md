@@ -41,7 +41,7 @@ The project now uses a **two-file Docker Compose setup** for better flexibility:
    mvn clean package -DskipTests
    KAFKA_HOST=localhost KAFKA_PORT=29092 \
    DB_HOST=localhost DB_PORT=5432 DB_DATABASE=okapi_modules DB_USERNAME=folio_admin DB_PASSWORD=folio_admin \
-   ELASTICSEARCH_URL=http://localhost:9200 \
+   SEARCH_ENGINE_URL=http://localhost:9200 \
    java -jar target/mod-search-fat.jar
    ```
 

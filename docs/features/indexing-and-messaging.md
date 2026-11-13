@@ -91,7 +91,6 @@ Search results are only as current as the index. This feature provides the real-
 | `KAFKA_HOST` / `KAFKA_PORT` | Kafka broker address |
 | `KAFKA_CONSUMER_MAX_POLL_RECORDS` | Maximum records per Kafka consumer poll |
 | `KAFKA_EVENTS_CONCURRENCY` | Concurrency for inventory events consumer |
-| `KAFKA_EVENTS_CONSUMER_PATTERN` | Topic pattern for inventory change events |
 | `KAFKA_AUTHORITIES_CONCURRENCY` | Concurrency for authority events consumer |
 | `KAFKA_LINKED_DATA_CONCURRENCY` | Concurrency for linked data events consumer |
 | `KAFKA_INDEX_INSTANCE_CONCURRENCY` | Concurrency for index-instance internal topic consumer |

@@ -33,7 +33,7 @@ Configuration is managed via the `.env` file in this directory.
 | `KAFKA_HOST` | Kafka hostname | `kafka` |
 | `KAFKA_PORT` | Kafka port (Docker network) | `9093` |
 | `KAFKA_TOPIC_PARTITIONS` | Default topic partitions | `2` |
-| `ELASTICSEARCH_URL` | OpenSearch URL | `http://opensearch:9200` |
+| `SEARCH_ENGINE_URL` | OpenSearch URL | `http://opensearch:9200` |
 | `ELASTICSEARCH_PORT` | OpenSearch port | `9200` |
 
 ## 🚀 Services

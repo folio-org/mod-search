@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConditionalOnProperty(name = "spring.opensearch.elasticsearch-server", havingValue = "true")
+@ConditionalOnProperty(name = "spring.search-engine.is-elasticsearch", havingValue = "true")
 public class ElasticsearchRequestInterceptor implements HttpRequestInterceptor {
 
   private static final String CLUSTER_MANAGER_TIMEOUT_PARAM = "cluster_manager_timeout";

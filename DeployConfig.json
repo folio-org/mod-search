@@ -1,0 +1,1799 @@
+{
+  "_disclaimer": "Default values are calibrated against a defined reference baseline of bugfest environment (currently 3 standalone tenants, and 11 consortia tenants). See ADR-0013 (Module configuration management) for the governance model behind this file.",
+  "description": "mod-search configuration template",
+  "moduleDefaults": {
+    "resources": [
+      {
+        "name": "cpu",
+        "value": "64",
+        "description": "CPU request/limit for container"
+      },
+      {
+        "name": "memory",
+        "value": "2592",
+        "description": "Memory hard limit for container (MiB)"
+      },
+      {
+        "name": "memoryReservation",
+        "value": "2480",
+        "description": "Memory reservation / soft limit (MiB)"
+      }
+    ],
+    "java": [
+      {
+        "name": "xmx",
+        "value": "1440m",
+        "description": "Maximum Java heap size"
+      },
+      {
+        "name": "MaxMetaspaceSize",
+        "value": "1024m",
+        "description": "Maximum Java metaspace size"
+      },
+      {
+        "name": "MetaspaceSize",
+        "value": "512m",
+        "description": "Initial Java metaspace size"
+      }
+    ],
+    "deployment": {
+      "isHaSupported": true,
+      "replicasRecommendedCount": 2,
+      "description": "Stateless HTTP and Kafka consumer module."
+    },
+    "kong": {
+      "timeouts": {
+        "connect": "60s",
+        "send": "60s",
+        "read": "120s"
+      },
+      "description": "Custom Kong proxy timeouts. Read timeout is raised above the 60s default because synchronous index-management operations on the search cluster (for example index creation and tenant data removal) can take longer than a regular search, whose query timeout is 25s."
+    },
+    "EnvVars": [
+      {
+        "name": "ENV",
+        "value": null,
+        "description": "Logical deployment name used as the Kafka topic and consumer-group prefix; must be unique across environments sharing the same Kafka and OpenSearch clusters.",
+        "type": "CONFIG",
+        "essential": true
+      },
+      {
+        "name": "FOLIO_EXCHANGE_HTTP_CLIENT_AUTOMATIC_RETRIES_ENABLED",
+        "value": true,
+        "description": "Enables automatic retries of outbound requests on I/O errors.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "FOLIO_EXCHANGE_HTTP_CLIENT_CONNECTION_REQUEST_TIMEOUT",
+        "value": null,
+        "description": "Maximum time to wait for a connection to be leased from the outbound pool; unset keeps the HTTP client default of 3 minutes.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "FOLIO_EXCHANGE_HTTP_CLIENT_CONNECTION_TIME_TO_LIVE",
+        "value": null,
+        "description": "Maximum total lifetime of a pooled connection for outbound module-to-module HTTP clients; unset means connections live as long as they are usable.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "FOLIO_EXCHANGE_HTTP_CLIENT_CONNECT_TIMEOUT",
+        "value": "10s",
+        "description": "TCP connect timeout for outbound module-to-module HTTP clients; it does not limit request duration.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "FOLIO_EXCHANGE_HTTP_CLIENT_EVICT_IDLE_CONNECTIONS_AFTER",
+        "value": null,
+        "description": "Idle time after which a background evictor closes pooled outbound connections; unset disables idle eviction.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "FOLIO_EXCHANGE_HTTP_CLIENT_MAX_CONNECTIONS_PER_ROUTE",
+        "value": "50",
+        "description": "Maximum persistent connections per route for outbound module-to-module HTTP clients; keep it at or above the reindex merge range publisher max pool size.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "FOLIO_EXCHANGE_HTTP_CLIENT_MAX_CONNECTIONS_TOTAL",
+        "value": "100",
+        "description": "Maximum total persistent connections across all routes for outbound module-to-module HTTP clients; keep it at or above the per-route maximum.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "FOLIO_EXCHANGE_HTTP_CLIENT_POOL_CONCURRENCY_POLICY",
+        "value": "STRICT",
+        "description": "Pool concurrency policy of outbound module-to-module HTTP clients: STRICT enforces connection limits exactly, LAX allows better concurrency but may exceed them.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "FOLIO_EXCHANGE_HTTP_CLIENT_POOL_REUSE_POLICY",
+        "value": "LIFO",
+        "description": "Connection reuse policy of outbound module-to-module HTTP clients: LIFO reuses the most recently released connection, FIFO the oldest.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "FOLIO_EXCHANGE_HTTP_CLIENT_RESPONSE_TIMEOUT",
+        "value": null,
+        "description": "Maximum time to wait for a response after an outbound request was sent; unset means no limit, which long-running reindex requests rely on.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "FOLIO_EXCHANGE_HTTP_CLIENT_SOCKET_TIMEOUT",
+        "value": null,
+        "description": "Maximum inactivity between two data packets for outbound module-to-module HTTP clients; unset means no limit.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "FOLIO_EXCHANGE_HTTP_CLIENT_VALIDATE_AFTER_INACTIVITY",
+        "value": null,
+        "description": "Inactivity period after which a pooled outbound connection is validated before reuse; unset keeps the HTTP client default.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "FOLIO_LOGGING_EXCHANGE_ENABLED",
+        "value": false,
+        "description": "Enables logging of outbound module-to-module HTTP client requests.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "FOLIO_LOGGING_EXCHANGE_LEVEL",
+        "value": "BASIC",
+        "description": "Detail level of outbound request logging, one of NONE, BASIC, HEADERS or FULL; applies only when outbound request logging is enabled.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "FOLIO_LOGGING_REQUEST_ENABLED",
+        "value": true,
+        "description": "Enables the incoming request logging filter.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "FOLIO_LOGGING_REQUEST_LEVEL",
+        "value": "BASIC",
+        "description": "Detail level of incoming request logging, one of NONE, BASIC, HEADERS or FULL; requests are only logged when DEBUG logging is enabled for the request logging filter.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "OKAPI_URL",
+        "value": null,
+        "description": "Base URL of the gateway used for module-to-module requests.",
+        "type": "CONFIG",
+        "essential": true
+      },
+      {
+        "name": "SEARCH_ENGINE_COMPRESSION_ENABLED",
+        "value": true,
+        "description": "Enables request and response compression for search engine calls.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SEARCH_ENGINE_CONNECTION_TIME_TO_LIVE",
+        "value": "5m",
+        "description": "Maximum lifetime of a pooled search engine connection before it is evicted and recreated.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SEARCH_ENGINE_IS_ELASTICSEARCH",
+        "value": false,
+        "description": "Set to true when the search engine is Elasticsearch and to false when it is OpenSearch.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SEARCH_ENGINE_MAX_CONN_PER_ROUTE",
+        "value": "25",
+        "description": "Maximum number of persistent connections per route in the search engine HTTP connection pool.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SEARCH_ENGINE_MAX_CONN_TOTAL",
+        "value": "100",
+        "description": "Maximum total number of persistent connections across all routes in the search engine HTTP connection pool.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SEARCH_ENGINE_MAX_IDLE_TIME",
+        "value": "60s",
+        "description": "Idle time after which a pooled search engine connection is closed; keep it below any firewall or load balancer idle timeout.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SEARCH_ENGINE_PASSWORD",
+        "value": null,
+        "description": "Password for the search engine; not required when the cluster has no authentication.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SEARCH_ENGINE_SEARCH_RETRY_ATTEMPTS",
+        "value": "3",
+        "description": "Number of retries for a failed search request to the search engine.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SEARCH_ENGINE_SEARCH_RETRY_INTERVAL_MS",
+        "value": "500",
+        "description": "Time in milliseconds to wait between search request retries.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SEARCH_ENGINE_URL",
+        "value": null,
+        "description": "URL of the OpenSearch or Elasticsearch cluster; the code falls back to localhost, which is only suitable for local development.",
+        "type": "CONFIG",
+        "essential": true
+      },
+      {
+        "name": "SEARCH_ENGINE_USERNAME",
+        "value": null,
+        "description": "Username for the search engine; not required when the cluster has no authentication.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SEARCH_ENGINE_VALIDATE_AFTER_INACTIVITY",
+        "value": null,
+        "description": "Inactivity period after which a pooled connection is validated before reuse; unset disables the check.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "DB_CHARSET",
+        "value": "UTF-8",
+        "description": "PostgreSQL connection character encoding applied to Hikari connections by folio-spring-base.",
+        "type": "DB",
+        "essential": false
+      },
+      {
+        "name": "DB_CONNECTIONRELEASEDELAY",
+        "value": "60000",
+        "description": "Time in milliseconds after which an idle database connection is closed; 0 keeps idle connections open indefinitely.",
+        "type": "DB",
+        "essential": false
+      },
+      {
+        "name": "DB_DATABASE",
+        "value": null,
+        "description": "PostgreSQL database name used by the module datasource.",
+        "type": "DB",
+        "essential": true
+      },
+      {
+        "name": "DB_HOST",
+        "value": null,
+        "description": "PostgreSQL host used by the datasource JDBC URL.",
+        "type": "DB",
+        "essential": true
+      },
+      {
+        "name": "DB_MAXSHAREDPOOLSIZE",
+        "value": "20",
+        "description": "Maximum number of Hikari database connections opened by one module instance; unset keeps the Hikari default.",
+        "type": "DB",
+        "essential": false
+      },
+      {
+        "name": "DB_MAX_LIFETIME",
+        "value": "1800000",
+        "description": "Maximum lifetime in milliseconds of a database connection, idle or not, before it is closed; 0 means unlimited.",
+        "type": "DB",
+        "essential": false
+      },
+      {
+        "name": "DB_MINSHAREDPOOLSIZE",
+        "value": "0",
+        "description": "Minimum number of idle Hikari database connections maintained in the pool by folio-spring-base.",
+        "type": "DB",
+        "essential": false
+      },
+      {
+        "name": "DB_PASSWORD",
+        "value": null,
+        "description": "Password of the PostgreSQL user used by the module datasource.",
+        "type": "DB",
+        "essential": true
+      },
+      {
+        "name": "DB_PORT",
+        "value": null,
+        "description": "PostgreSQL port used by the datasource JDBC URL.",
+        "type": "DB",
+        "essential": true
+      },
+      {
+        "name": "DB_QUERYTIMEOUT",
+        "value": "60000",
+        "description": "PostgreSQL statement timeout in milliseconds applied to Hikari connections by folio-spring-base; unset means no timeout.",
+        "type": "DB",
+        "essential": false
+      },
+      {
+        "name": "DB_USERNAME",
+        "value": null,
+        "description": "PostgreSQL username used by the module datasource.",
+        "type": "DB",
+        "essential": true
+      },
+      {
+        "name": "BROWSE_CALL_NUMBERS_ENABLED",
+        "value": true,
+        "description": "Enables the call-number browse feature globally.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "BROWSE_CLASSIFICATIONS_ENABLED",
+        "value": true,
+        "description": "Enables the classification browse feature globally.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "BROWSE_CONTRIBUTORS_ENABLED",
+        "value": true,
+        "description": "Enables the contributor browse feature globally.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "BROWSE_SUBJECTS_ENABLED",
+        "value": true,
+        "description": "Enables the subject browse feature globally.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "DELETE_QUERY_BATCH_SIZE",
+        "value": "1000",
+        "description": "Number of documents processed per batch by delete-by-query operations on the search cluster.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "DELETE_QUERY_REFRESH",
+        "value": false,
+        "description": "Refreshes affected indices after a delete-by-query operation completes.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "DELETE_QUERY_REQUEST_TIMEOUT_MINUTES",
+        "value": "30",
+        "description": "Request timeout in minutes for delete-by-query operations.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "DELETE_QUERY_SCROLL_TIMEOUT_MINUTES",
+        "value": "5",
+        "description": "Scroll context keep-alive in minutes for delete-by-query operations.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "FAILED_INDEXING_EVENTS_RETENTION_DAYS",
+        "value": "30",
+        "description": "Number of days failed indexing events are kept before the daily cleanup deletes them.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "INDEXING_DATA_FORMAT",
+        "value": "json",
+        "description": "Serialisation format of documents sent to the search cluster, json or smile.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "INITIAL_LANGUAGES",
+        "value": "eng",
+        "description": "Comma-separated list of language codes configured for multi-language fields on tenant initialisation.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "INSTANCE_CHILDREN_INDEX_DELAY_MS",
+        "value": "60000",
+        "description": "Delay in milliseconds of the scheduler that indexes subjects, contributors, classifications and call numbers in the background.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "INSTANCE_CHILDREN_INDEX_ENABLED",
+        "value": true,
+        "description": "Enables background processing of subjects, contributors, classifications and call numbers.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "ITEM_INDEX_ENABLED",
+        "value": false,
+        "description": "Enables indexing of inventory item events into the standalone item index used by the item search endpoint.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "MAX_BROWSE_REQUEST_OFFSET",
+        "value": "5000",
+        "description": "Maximum search query offset allowed for additional requests when browsing around a value.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "MAX_SEARCH_BATCH_REQUEST_IDS_COUNT",
+        "value": "20000",
+        "description": "Maximum number of record IDs allowed in a batch request when searching consolidated holdings and items in a consortium.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "MAX_SUPPORTED_LANGUAGES",
+        "value": "5",
+        "description": "Maximum number of languages a tenant can have configured.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "REINDEX_LOCATION_BATCH_SIZE",
+        "value": "1000",
+        "description": "Number of locations retrieved per inventory HTTP request during location reindex.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "REINDEX_MERGE_EXPORT_BATCH_SIZE",
+        "value": "500",
+        "description": "Number of entities exported per batch during the merge phase of reindex in EXPORT mode.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "REINDEX_MERGE_RANGE_PUBLISHER_CORE_POOL_SIZE",
+        "value": "30",
+        "description": "Number of threads kept in the pool that publishes merge ranges, even when idle.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "REINDEX_MERGE_RANGE_PUBLISHER_MAX_POOL_SIZE",
+        "value": "30",
+        "description": "Maximum number of threads in the pool that publishes merge ranges.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "REINDEX_MERGE_RANGE_PUBLISHER_RETRY_ATTEMPTS",
+        "value": "5",
+        "description": "Maximum number of retries for publishing a reindex merge range request.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "REINDEX_MERGE_RANGE_PUBLISHER_RETRY_INTERVAL_MS",
+        "value": "1000",
+        "description": "Retry interval in milliseconds for publishing a reindex merge range request.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "REINDEX_MERGE_RANGE_SIZE",
+        "value": "500",
+        "description": "Number of entities in one merge range during the merge phase of reindex.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "REINDEX_MIGRATION_STATEMENT_TIMEOUT",
+        "value": "0",
+        "description": "PostgreSQL statement_timeout for migration operations on staging tables, in milliseconds when a plain number; 0 disables it.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "REINDEX_MIGRATION_WORK_MEM",
+        "value": "64MB",
+        "description": "PostgreSQL work_mem applied to migration operations on staging tables before data spills to temporary disk files.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "REINDEX_S3_RETRY_ATTEMPTS",
+        "value": "3",
+        "description": "Maximum number of retries for remote storage file reads during EXPORT-mode reindex.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "REINDEX_S3_RETRY_INTERVAL_MS",
+        "value": "1000",
+        "description": "Retry interval in milliseconds between remote storage file read attempts during EXPORT-mode reindex.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "REINDEX_TYPE",
+        "value": "PUBLISH",
+        "description": "Reindex data ingestion strategy: PUBLISH for Kafka payload events or EXPORT for file-ready events from remote storage.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "REINDEX_UPLOAD_RANGE_LEVEL",
+        "value": "3",
+        "description": "Depth of the upload range generator, which determines how many ranges are generated.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "REINDEX_UPLOAD_RANGE_SIZE",
+        "value": "1000",
+        "description": "Number of entities in one upload range during the upload phase of reindex.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "SEARCH_BY_ALL_FIELDS_ENABLED",
+        "value": true,
+        "description": "Enables searching by all field values globally; tenants can override it.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "SEARCH_CONSORTIUM_RECORDS_PAGE_SIZE",
+        "value": "5000",
+        "description": "Number of records requested from the search cluster per page for consortium searches.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "SEARCH_QUERY_TIMEOUT",
+        "value": "25s",
+        "description": "Maximum time to wait for a search cluster response to a search query.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "STALE_LOCK_THRESHOLD_MS",
+        "value": "600000",
+        "description": "Age in milliseconds after which a sub-resource lock is considered stale and eligible for release.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "STREAM_ID_CORE_POOL_SIZE",
+        "value": "2",
+        "description": "Number of threads kept in the stream-IDs pool, even when idle.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "STREAM_ID_JOB_EXPIRATION_DAYS",
+        "value": "7",
+        "description": "Number of days after which a stream-IDs job is considered expired and cleaned up.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "STREAM_ID_MAX_POOL_SIZE",
+        "value": "2",
+        "description": "Maximum number of threads in the stream-IDs pool.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "STREAM_ID_QUEUE_CAPACITY",
+        "value": "500",
+        "description": "Capacity of the stream-IDs task queue.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "STREAM_ID_RETRY_ATTEMPTS",
+        "value": "50",
+        "description": "Number of retries for a stream-IDs query after the first attempt failed.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "STREAM_ID_RETRY_INTERVAL_MS",
+        "value": "3000",
+        "description": "Time in milliseconds to wait before retrying a failed stream-IDs query.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "STREAM_ID_SCROLL_QUERY_SIZE",
+        "value": "1000",
+        "description": "Number of records loaded by each scroll query when streaming IDs; 10000 is the maximum.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "SUB_RESOURCE_BATCH_SIZE",
+        "value": "100",
+        "description": "Number of sub-resources processed at a time during background indexing.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "KAFKA_AUTHORITIES_CONCURRENCY",
+        "value": "1",
+        "description": "Number of concurrent consumer threads for authority events.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "KAFKA_BROWSE_CONFIG_DATA_CONCURRENCY",
+        "value": "1",
+        "description": "Number of concurrent consumer threads for classification-type and call-number-type events.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "KAFKA_CONSORTIUM_INSTANCE_SHARING_COMPLETE_CONCURRENCY",
+        "value": "1",
+        "description": "Number of concurrent consumer threads for consortium instance sharing complete events.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "KAFKA_CONSUMER_EVENTS_MAX_POLL_INTERVAL_MS",
+        "value": "600000",
+        "description": "Maximum processing time in milliseconds allowed between polls for the inventory events consumer.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "KAFKA_CONSUMER_EVENTS_MAX_POLL_RECORDS",
+        "value": "200",
+        "description": "Maximum number of records returned in a single poll by the inventory events consumer.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "KAFKA_CONSUMER_INSTANCE_MAX_POLL_INTERVAL_MS",
+        "value": "600000",
+        "description": "Maximum processing time in milliseconds allowed between polls for the index-instance consumer.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "KAFKA_CONSUMER_INSTANCE_MAX_POLL_RECORDS",
+        "value": "200",
+        "description": "Maximum number of records returned in a single poll by the index-instance consumer.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "KAFKA_CONSUMER_MAX_POLL_RECORDS",
+        "value": "200",
+        "description": "Default maximum number of records returned in a single Kafka consumer poll.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "KAFKA_EVENTS_CONCURRENCY",
+        "value": "4",
+        "description": "Number of concurrent consumer threads for inventory instance, holdings, item and bound-with events.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "KAFKA_HOST",
+        "value": null,
+        "description": "Kafka broker host used to build the bootstrap servers address.",
+        "type": "KAFKA",
+        "essential": true
+      },
+      {
+        "name": "KAFKA_INDEX_INSTANCE_CONCURRENCY",
+        "value": "2",
+        "description": "Number of concurrent consumer threads for the index-instance topic.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "KAFKA_INDEX_INSTANCE_TOPIC_PARTITIONS",
+        "value": "16",
+        "description": "Number of partitions of the index-instance topic.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "KAFKA_LINKED_DATA_CONCURRENCY",
+        "value": "1",
+        "description": "Number of concurrent consumer threads for linked-data authority, work and hub events.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "KAFKA_LOCATION_CONCURRENCY",
+        "value": "1",
+        "description": "Number of concurrent consumer threads for location, campus, institution and library events.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "KAFKA_PORT",
+        "value": null,
+        "description": "Kafka broker port used to build the bootstrap servers address.",
+        "type": "KAFKA",
+        "essential": true
+      },
+      {
+        "name": "KAFKA_PRODUCER_TENANT_COLLECTION",
+        "value": null,
+        "description": "Qualifier that replaces the tenant ID in the names of Kafka topics the module produces to, so events of all tenants share one topic per type; must match [A-Z][A-Z0-9]{0,30} or startup fails, and unset keeps per-tenant topics.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "KAFKA_REINDEX_FILE_READY_CONCURRENCY",
+        "value": "4",
+        "description": "Number of concurrent consumer threads for the inventory reindex file-ready topic.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "KAFKA_REINDEX_RANGE_INDEX_CONCURRENCY",
+        "value": "8",
+        "description": "Number of concurrent consumer threads for the reindex range-index topic.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "KAFKA_REINDEX_RANGE_INDEX_TOPIC_PARTITIONS",
+        "value": "16",
+        "description": "Number of partitions of the reindex range-index topic.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "KAFKA_REINDEX_RANGE_INDEX_TOPIC_REPLICATION_FACTOR",
+        "value": null,
+        "description": "Replication factor of the reindex range-index and index-instance topics; unset uses the broker default.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "KAFKA_REINDEX_RECORDS_CONCURRENCY",
+        "value": "4",
+        "description": "Number of concurrent consumer threads for the inventory reindex-records topic.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "KAFKA_RETRY_DELIVERY_ATTEMPTS",
+        "value": "6",
+        "description": "Number of delivery attempts for a Kafka message after the first one failed.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "KAFKA_RETRY_INTERVAL_MS",
+        "value": "2000",
+        "description": "Time in milliseconds to wait before retrying a failed Kafka message delivery.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "KAFKA_SECURITY_PROTOCOL",
+        "value": "PLAINTEXT",
+        "description": "Security protocol used to communicate with Kafka brokers (PLAINTEXT or SSL).",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "KAFKA_SSL_KEYSTORE_LOCATION",
+        "value": null,
+        "description": "Path of the Kafka key store file, used for two-way TLS authentication when the security protocol is SSL.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "KAFKA_SSL_KEYSTORE_PASSWORD",
+        "value": null,
+        "description": "Password of the Kafka key store file; only needed when the key store location is set.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "KAFKA_SSL_TRUSTSTORE_LOCATION",
+        "value": null,
+        "description": "Path of the Kafka trust store file, used when the security protocol is SSL.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "KAFKA_SSL_TRUSTSTORE_PASSWORD",
+        "value": null,
+        "description": "Password of the Kafka trust store file; without it the trust store is still used but integrity checking is disabled.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "S3_REINDEX_ACCESS_KEY_ID",
+        "value": null,
+        "description": "Access key ID for object storage in EXPORT-mode reindex; required only when the reindex type is EXPORT.",
+        "type": "S3",
+        "essential": false
+      },
+      {
+        "name": "S3_REINDEX_BUCKET",
+        "value": null,
+        "description": "Object storage bucket used for reindex in EXPORT mode; required only when the reindex type is EXPORT.",
+        "type": "S3",
+        "essential": false
+      },
+      {
+        "name": "S3_REINDEX_IDLE_KEEP_ALIVE_SECONDS",
+        "value": null,
+        "description": "Keep-alive time in seconds for idle object storage connections; unset keeps the client default.",
+        "type": "S3",
+        "essential": false
+      },
+      {
+        "name": "S3_REINDEX_IS_AWS",
+        "value": true,
+        "description": "Selects AWS SDK behaviour (true) or generic S3-compatible behaviour (false) for reindex remote storage.",
+        "type": "S3",
+        "essential": false
+      },
+      {
+        "name": "S3_REINDEX_MAX_IDLE_CONNECTIONS",
+        "value": null,
+        "description": "Maximum number of idle object storage connections kept in the pool; unset keeps the client default.",
+        "type": "S3",
+        "essential": false
+      },
+      {
+        "name": "S3_REINDEX_MAX_REQUESTS_PER_HOST",
+        "value": null,
+        "description": "Maximum number of concurrent object storage requests per host; unset keeps the client default.",
+        "type": "S3",
+        "essential": false
+      },
+      {
+        "name": "S3_REINDEX_REGION",
+        "value": null,
+        "description": "Object storage region used for reindex in EXPORT mode; the code falls back to an AWS region when unset.",
+        "type": "S3",
+        "essential": false
+      },
+      {
+        "name": "S3_REINDEX_SECRET_ACCESS_KEY",
+        "value": null,
+        "description": "Secret access key for object storage in EXPORT-mode reindex; required only when the reindex type is EXPORT.",
+        "type": "S3",
+        "essential": false
+      },
+      {
+        "name": "S3_REINDEX_URL",
+        "value": "https://s3.amazonaws.com",
+        "description": "Object storage endpoint used for reindex in EXPORT mode.",
+        "type": "S3",
+        "essential": false
+      }
+    ]
+  },
+  "sidecarDefaults": {
+    "resources": [
+      {
+        "name": "cpu",
+        "value": "128",
+        "description": "CPU request/limit for the sidecar container (shares a task/pod with mod-search)"
+      },
+      {
+        "name": "memory",
+        "value": "1024",
+        "description": "Memory hard limit for the sidecar container in MiB"
+      },
+      {
+        "name": "memoryReservation",
+        "value": "512",
+        "description": "Memory reservation (soft limit) for the sidecar container in MiB"
+      }
+    ],
+    "java": [
+      {
+        "name": "xmx",
+        "value": "256m",
+        "description": "Maximum Java heap size; the sidecar is proxy-bound rather than data-processing-bound, so a smaller heap than a typical module is appropriate"
+      },
+      {
+        "name": "xms",
+        "value": "128m",
+        "description": "Initial Java heap size; set to half of xmx to reduce startup GC pressure"
+      },
+      {
+        "name": "MaxMetaspaceSize",
+        "value": "256m",
+        "description": "Maximum Java metaspace size"
+      },
+      {
+        "name": "UseZGC",
+        "value": "true",
+        "description": "Use ZGC low-pause collector; preferred for a proxy-shaped workload where tail latency matters more than throughput"
+      }
+    ],
+    "EnvVars": [
+      {
+        "name": "MOD_USERS_KEYCLOAK_CACHE_EXPIRATION_SECONDS",
+        "value": "300",
+        "description": "TTL in seconds for user-keycloak mapping cache entries.",
+        "type": "CACHE",
+        "essential": false
+      },
+      {
+        "name": "MOD_USERS_KEYCLOAK_CACHE_INITIAL_CAPACITY",
+        "value": "50",
+        "description": "Initial capacity of the user-keycloak mapping cache used by the impersonation filter.",
+        "type": "CACHE",
+        "essential": false
+      },
+      {
+        "name": "MOD_USERS_KEYCLOAK_CACHE_MAX_CAPACITY",
+        "value": "1000",
+        "description": "Maximum number of cached user-keycloak mappings used by the impersonation filter.",
+        "type": "CACHE",
+        "essential": false
+      },
+      {
+        "name": "TENANT_MODULE_BINDING_CACHE_EXPIRATION_MINUTES",
+        "value": "30",
+        "description": "TTL in minutes for tenant-module binding cache entries. Entries are also evicted eagerly via entitlement Kafka events; this expiry is the safety net for missed events.",
+        "type": "CACHE",
+        "essential": false
+      },
+      {
+        "name": "TENANT_MODULE_BINDING_CACHE_MAX_SIZE",
+        "value": "200",
+        "description": "Maximum number of tenant-to-module-version bindings held in the Caffeine cache. Raise proportionally to the number of entitled tenants.",
+        "type": "CACHE",
+        "essential": false
+      },
+      {
+        "name": "TOKEN_CACHE_INITIAL_CAPACITY",
+        "value": "10",
+        "description": "Initial capacity of the token cache.",
+        "type": "CACHE",
+        "essential": false
+      },
+      {
+        "name": "TOKEN_CACHE_MAX_CAPACITY",
+        "value": "5000",
+        "description": "Maximum number of cached service/system-user tokens in the Caffeine token cache. Raise for deployments with many active tenants.",
+        "type": "CACHE",
+        "essential": false
+      },
+      {
+        "name": "TOKEN_CACHE_REFRESH_PRIOR_EXPIRATION",
+        "value": "60",
+        "description": "Seconds before a cached token's expiry at which the sidecar proactively refreshes it to avoid serving an expired token under load.",
+        "type": "CACHE",
+        "essential": false
+      },
+      {
+        "name": "TOKEN_CACHE_RETRIEVAL_TIMEOUT",
+        "value": "30",
+        "description": "Timeout in seconds for a token-cache population request to Keycloak before the cache entry is considered failed.",
+        "type": "CACHE",
+        "essential": false
+      },
+      {
+        "name": "AM_CLIENT_URL",
+        "value": null,
+        "description": "Base URL of mgr-applications. The sidecar fetches its module bootstrap (routing entries, required modules) from this service on startup.",
+        "type": "CONFIG",
+        "essential": true
+      },
+      {
+        "name": "ENV",
+        "value": null,
+        "description": "Logical FOLIO deployment name (e.g. folio). Used as the Kafka topic prefix for the discovery and entitlement consumers.",
+        "type": "CONFIG",
+        "essential": true
+      },
+      {
+        "name": "MODULE_HEALTH_PATH",
+        "value": "/admin/health",
+        "description": "Path appended to MODULE_URL for the module health-check probe used by the sidecar startup readiness check.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "MODULE_NAME",
+        "value": "mod-search",
+        "description": "Logical FOLIO module name (e.g. mod-users). Used to fetch the module descriptor from mgr-applications and build the composite MODULE_ID.",
+        "type": "CONFIG",
+        "essential": true
+      },
+      {
+        "name": "MODULE_URL",
+        "value": null,
+        "description": "Base URL of the co-located module container. In a task/pod deployment this is the sibling container's address and port (e.g. http://mod-users:8082).",
+        "type": "CONFIG",
+        "essential": true
+      },
+      {
+        "name": "MODULE_VERSION",
+        "value": null,
+        "description": "Semantic version of the accompanied module (e.g. 19.5.4). Combined with MODULE_NAME to form MODULE_ID used for descriptor lookup and Kafka routing.",
+        "type": "CONFIG",
+        "essential": true
+      },
+      {
+        "name": "SECRET_STORE_AWS_SSM_ECS_CREDENTIALS_ENDPOINT",
+        "value": null,
+        "description": "ECS container metadata endpoint used as the credentials provider when SECRET_STORE_AWS_SSM_USE_IAM is false.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SECRET_STORE_AWS_SSM_ECS_CREDENTIALS_PATH",
+        "value": null,
+        "description": "Path appended to SECRET_STORE_AWS_SSM_ECS_CREDENTIALS_ENDPOINT to form the full credentials URL.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SECRET_STORE_AWS_SSM_FIPS_ENABLED",
+        "value": false,
+        "description": "Enables FIPS-compliant endpoints for the AWS SSM client.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SECRET_STORE_AWS_SSM_REGION",
+        "value": null,
+        "description": "AWS region for the SSM parameter store backend. Required when SECRET_STORE_TYPE=AWS_SSM.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SECRET_STORE_AWS_SSM_TRUSTSTORE_FILE_TYPE",
+        "value": null,
+        "description": "Trust store file type for the AWS SSM client (e.g. JKS, BCFKS).",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SECRET_STORE_AWS_SSM_TRUSTSTORE_PASSWORD",
+        "value": null,
+        "description": "Password for the AWS SSM trust store.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SECRET_STORE_AWS_SSM_TRUSTSTORE_PATH",
+        "value": null,
+        "description": "Filesystem path to the trust store used by the AWS SSM TLS client. Required when SECRET_STORE_AWS_SSM_FIPS_ENABLED is true.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SECRET_STORE_AWS_SSM_USE_IAM",
+        "value": true,
+        "description": "Use the attached IAM role for AWS SSM authentication instead of explicit access keys. Set to false only when running outside EC2/ECS without an instance profile.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SECRET_STORE_FSSP_ADDRESS",
+        "value": null,
+        "description": "Base URL of the Folio Secure Store Proxy (FSSP). Required when SECRET_STORE_TYPE=FSSP.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SECRET_STORE_FSSP_KEYSTORE_FILE_TYPE",
+        "value": null,
+        "description": "Key store file type for the FSSP client (e.g. JKS, BCFKS).",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SECRET_STORE_FSSP_KEYSTORE_PASSWORD",
+        "value": null,
+        "description": "Password for the FSSP key store.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SECRET_STORE_FSSP_KEYSTORE_PATH",
+        "value": null,
+        "description": "Filesystem path to the FSSP mutual TLS key store.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SECRET_STORE_FSSP_SECRET_PATH",
+        "value": "secure-store/entries",
+        "description": "Path within FSSP used to look up module credentials.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SECRET_STORE_FSSP_TRUSTSTORE_FILE_TYPE",
+        "value": null,
+        "description": "Trust store file type for the FSSP client (e.g. JKS, BCFKS).",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SECRET_STORE_FSSP_TRUSTSTORE_PASSWORD",
+        "value": null,
+        "description": "Password for the FSSP trust store.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SECRET_STORE_FSSP_TRUSTSTORE_PATH",
+        "value": null,
+        "description": "Filesystem path to the FSSP trust store.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SECRET_STORE_TYPE",
+        "value": null,
+        "description": "Secret store backend used to retrieve Keycloak client credentials. One of: EPHEMERAL (in-memory, dev only), AWS_SSM, VAULT, FSSP. Must be set explicitly in all non-development deployments.",
+        "type": "CONFIG",
+        "essential": true
+      },
+      {
+        "name": "SECRET_STORE_VAULT_ADDRESS",
+        "value": null,
+        "description": "Address of the HashiCorp Vault instance. Required when SECRET_STORE_TYPE=VAULT.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SECRET_STORE_VAULT_ENABLE_SSL",
+        "value": false,
+        "description": "Enables SSL for the Vault connection when SECRET_STORE_TYPE=VAULT.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SECRET_STORE_VAULT_KEYSTORE_FILE_PATH",
+        "value": null,
+        "description": "Filesystem path to the Vault SSL key store for mutual TLS authentication.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SECRET_STORE_VAULT_KEYSTORE_PASSWORD",
+        "value": null,
+        "description": "Password for the Vault SSL key store.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SECRET_STORE_VAULT_PEM_FILE_PATH",
+        "value": null,
+        "description": "Filesystem path to the PEM certificate file for Vault SSL verification.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SECRET_STORE_VAULT_TOKEN",
+        "value": null,
+        "description": "Root or service token for Vault authentication. Required when SECRET_STORE_TYPE=VAULT.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SECRET_STORE_VAULT_TRUSTSTORE_FILE_PATH",
+        "value": null,
+        "description": "Filesystem path to the Vault SSL trust store.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SIDECAR_NAME",
+        "value": null,
+        "description": "Logical sidecar name; defaults to sc-{MODULE_NAME} and is used as the Kafka consumer group prefix. Override only when multiple sidecar instances for the same module must use distinct consumer groups.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "SIDECAR_URL",
+        "value": null,
+        "description": "Externally reachable URL of this sidecar instance. Used by other sidecars for module-to-module egress routing; must be resolvable from within the cluster.",
+        "type": "CONFIG",
+        "essential": true
+      },
+      {
+        "name": "TE_CLIENT_BATCH_SIZE",
+        "value": "500",
+        "description": "Page size for paginated tenant-entitlement queries against mgr-tenant-entitlements.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "TE_CLIENT_URL",
+        "value": null,
+        "description": "Base URL of mgr-tenant-entitlements. Used to load the initial tenant-to-module entitlement list on startup.",
+        "type": "CONFIG",
+        "essential": true
+      },
+      {
+        "name": "TM_BATCH_SIZE",
+        "value": "50",
+        "description": "Page size for paginated tenant queries against mgr-tenants.",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "TM_CLIENT_URL",
+        "value": null,
+        "description": "Base URL of mgr-tenants. Used to resolve tenant metadata during ingress authorization.",
+        "type": "CONFIG",
+        "essential": true
+      },
+      {
+        "name": "ALLOW_CROSS_TENANT_REQUESTS",
+        "value": true,
+        "description": "Allows ingress requests that carry a tenant header different from the token's tenant claim. Enable in consortia deployments where cross-tenant API access is intentional.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "RETRY_ATTEMPTS",
+        "value": "10",
+        "description": "Maximum retry attempts for startup-time calls to mgr-applications and mgr-tenant-entitlements.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "RETRY_BACKOFF_FACTOR",
+        "value": "2",
+        "description": "Exponential backoff multiplier applied to the retry delay between startup-time attempts.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "RETRY_MAX_DELAY",
+        "value": "2m",
+        "description": "Maximum backoff delay between startup-time retries.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "RETRY_MIN_DELAY",
+        "value": "5s",
+        "description": "Minimum backoff delay between startup-time retries.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "SIDECAR_FORWARD_UNKNOWN_REQUESTS",
+        "value": true,
+        "description": "Forwards requests that do not match any known route to the gateway specified by SIDECAR_FORWARD_UNKNOWN_REQUESTS_DESTINATION instead of returning 404.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "SIDECAR_FORWARD_UNKNOWN_REQUESTS_DESTINATION",
+        "value": null,
+        "description": "Gateway URL to which unrecognized requests are forwarded when SIDECAR_FORWARD_UNKNOWN_REQUESTS is true.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "SIDECAR_MODULE_PATH_PREFIX_ENABLED",
+        "value": false,
+        "description": "Enables a module-name path prefix on ingress routes (e.g. /mod-users/...). Required when Kong routes all modules through a single sidecar port distinguished by path prefix.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "SIDECAR_MODULE_PATH_PREFIX_STRATEGY",
+        "value": "STRIP",
+        "description": "Path-prefix handling strategy when SIDECAR_MODULE_PATH_PREFIX_ENABLED is true. NONE leaves the path unchanged; STRIP removes the module prefix before forwarding to MODULE_URL.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "SIDECAR_TENANT_SCOPED_ROUTING_ENABLED",
+        "value": false,
+        "description": "Restricts ingress routing to routes explicitly entitled for the request tenant. When true, unrecognized routes return 404 instead of being forwarded.",
+        "type": "FUNCTIONAL",
+        "essential": false
+      },
+      {
+        "name": "DISCOVERY_SECURITY_PROTOCOL",
+        "value": "PLAINTEXT",
+        "description": "Kafka security protocol for the discovery topic consumer. Set to SSL or SASL_SSL in TLS-secured clusters.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "DISCOVERY_TLS_KEYSTORE_PASSWORD",
+        "value": null,
+        "description": "Password for the discovery consumer key store.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "DISCOVERY_TLS_KEYSTORE_PATH",
+        "value": null,
+        "description": "Filesystem path to the key store for the discovery consumer SSL client authentication.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "DISCOVERY_TLS_KEY_PASSWORD",
+        "value": null,
+        "description": "Password for the private key inside the discovery consumer key store when SSL client authentication is configured.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "DISCOVERY_TLS_TRUSTSTORE_CERTIFICATES",
+        "value": null,
+        "description": "PEM-encoded CA certificates inlined as an alternative to DISCOVERY_TLS_TRUSTSTORE_PATH for the discovery consumer.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "DISCOVERY_TLS_TRUSTSTORE_PASSWORD",
+        "value": null,
+        "description": "Password for the discovery consumer trust store.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "DISCOVERY_TLS_TRUSTSTORE_PATH",
+        "value": null,
+        "description": "Filesystem path to the trust store for the discovery Kafka consumer SSL connection. Required when DISCOVERY_SECURITY_PROTOCOL is SSL.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "DISCOVERY_TLS_TRUSTSTORE_TYPE",
+        "value": null,
+        "description": "Trust store file type for the discovery consumer (e.g. JKS, BCFKS).",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "ENTITLEMENT_SECURITY_PROTOCOL",
+        "value": "PLAINTEXT",
+        "description": "Kafka security protocol for the entitlement topic consumer. Set to SSL or SASL_SSL in TLS-secured clusters.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "ENTITLEMENT_TLS_KEYSTORE_PASSWORD",
+        "value": null,
+        "description": "Password for the entitlement consumer key store.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "ENTITLEMENT_TLS_KEYSTORE_PATH",
+        "value": null,
+        "description": "Filesystem path to the key store for the entitlement consumer SSL client authentication.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "ENTITLEMENT_TLS_KEY_PASSWORD",
+        "value": null,
+        "description": "Password for the private key inside the entitlement consumer key store when SSL client authentication is configured.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "ENTITLEMENT_TLS_TRUSTSTORE_CERTIFICATES",
+        "value": null,
+        "description": "PEM-encoded CA certificates inlined as an alternative to ENTITLEMENT_TLS_TRUSTSTORE_PATH for the entitlement consumer.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "ENTITLEMENT_TLS_TRUSTSTORE_PASSWORD",
+        "value": null,
+        "description": "Password for the entitlement consumer trust store.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "ENTITLEMENT_TLS_TRUSTSTORE_PATH",
+        "value": null,
+        "description": "Filesystem path to the trust store for the entitlement Kafka consumer SSL connection. Required when ENTITLEMENT_SECURITY_PROTOCOL is SSL.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "ENTITLEMENT_TLS_TRUSTSTORE_TYPE",
+        "value": null,
+        "description": "Trust store file type for the entitlement consumer (e.g. JKS, BCFKS).",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "KAFKA_HOST",
+        "value": null,
+        "description": "Kafka broker hostname used to build the bootstrap-servers address for the discovery, entitlement, and logout consumers.",
+        "type": "KAFKA",
+        "essential": true
+      },
+      {
+        "name": "KAFKA_PORT",
+        "value": null,
+        "description": "Kafka broker port used to build the bootstrap-servers address.",
+        "type": "KAFKA",
+        "essential": true
+      },
+      {
+        "name": "LOGOUT_SECURITY_PROTOCOL",
+        "value": "PLAINTEXT",
+        "description": "Kafka security protocol for the logout topic consumer. Set to SSL or SASL_SSL in TLS-secured clusters.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "LOGOUT_TLS_KEYSTORE_PASSWORD",
+        "value": null,
+        "description": "Password for the logout consumer key store.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "LOGOUT_TLS_KEYSTORE_PATH",
+        "value": null,
+        "description": "Filesystem path to the key store for the logout consumer SSL client authentication.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "LOGOUT_TLS_KEY_PASSWORD",
+        "value": null,
+        "description": "Password for the private key inside the logout consumer key store when SSL client authentication is configured.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "LOGOUT_TLS_TRUSTSTORE_CERTIFICATES",
+        "value": null,
+        "description": "PEM-encoded CA certificates inlined as an alternative to LOGOUT_TLS_TRUSTSTORE_PATH for the logout consumer.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "LOGOUT_TLS_TRUSTSTORE_PASSWORD",
+        "value": null,
+        "description": "Password for the logout consumer trust store.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "LOGOUT_TLS_TRUSTSTORE_PATH",
+        "value": null,
+        "description": "Filesystem path to the trust store for the logout Kafka consumer SSL connection. Required when LOGOUT_SECURITY_PROTOCOL is SSL.",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "LOGOUT_TLS_TRUSTSTORE_TYPE",
+        "value": null,
+        "description": "Trust store file type for the logout consumer (e.g. JKS, BCFKS).",
+        "type": "KAFKA",
+        "essential": false
+      },
+      {
+        "name": "KC_ADMIN_CLIENT_ID",
+        "value": "folio-backend-admin-client",
+        "description": "Keycloak client ID used to obtain a realm admin token for RPT authorization requests.",
+        "type": "KC",
+        "essential": false
+      },
+      {
+        "name": "KC_AUTHORIZATION_CACHE_MAX_SIZE",
+        "value": "5000",
+        "description": "Maximum number of RPT authorization results held in the Caffeine cache. Raise for deployments with many active users or high-cardinality permission sets.",
+        "type": "KC",
+        "essential": false
+      },
+      {
+        "name": "KC_AUTHORIZATION_CACHE_TTL_OFFSET",
+        "value": "5000",
+        "description": "Offset in milliseconds subtracted from the RPT token expiry to pre-emptively evict authorization cache entries before they expire.",
+        "type": "KC",
+        "essential": false
+      },
+      {
+        "name": "KC_FORCED_JWKS_REFRESH_INTERVAL",
+        "value": "60",
+        "description": "Minimum interval in seconds between forced JWKS refreshes triggered by a failed JWT validation.",
+        "type": "KC",
+        "essential": false
+      },
+      {
+        "name": "KC_INTROSPECTION_CACHE_TTL_OFFSET",
+        "value": "5000",
+        "description": "Offset in milliseconds subtracted from the introspected token expiry to pre-emptively evict introspection cache entries.",
+        "type": "KC",
+        "essential": false
+      },
+      {
+        "name": "KC_INTROSPECTION_INACTIVE_TOKEN_TTL_IN_SEC",
+        "value": "60",
+        "description": "TTL in seconds for negative (inactive) token introspection results to avoid hammering Keycloak on repeated invalid tokens.",
+        "type": "KC",
+        "essential": false
+      },
+      {
+        "name": "KC_INTROSPECTION_TOKEN_CACHE_MAX_SIZE",
+        "value": "250",
+        "description": "Maximum number of introspection results held in the Caffeine cache.",
+        "type": "KC",
+        "essential": false
+      },
+      {
+        "name": "KC_JWKS_BASE_URL",
+        "value": null,
+        "description": "Override base URL for JWKS retrieval. When empty the sidecar derives the JWKS URL from KC_URL. Set explicitly only when the Keycloak JWKS endpoint is hosted at a different address than the main KC_URL.",
+        "type": "KC",
+        "essential": false
+      },
+      {
+        "name": "KC_JWKS_REFRESH_INTERVAL",
+        "value": "60",
+        "description": "Interval in seconds between scheduled JWKS cache refreshes.",
+        "type": "KC",
+        "essential": false
+      },
+      {
+        "name": "KC_LOGIN_CLIENT_SUFFIX",
+        "value": "-application",
+        "description": "Suffix appended to the tenant name to derive the Keycloak login client ID (e.g. diku-login-application).",
+        "type": "KC",
+        "essential": false
+      },
+      {
+        "name": "KC_SERVICE_CLIENT_ID",
+        "value": "sidecar-module-access-client",
+        "description": "Keycloak client ID used by the sidecar to obtain a service-account token for module-to-module egress calls.",
+        "type": "KC",
+        "essential": false
+      },
+      {
+        "name": "KC_URI_VALIDATION_ENABLED",
+        "value": false,
+        "description": "Enables Keycloak-side URI validation during token introspection. Set to false only in environments where Keycloak is not configured with per-resource URI policies.",
+        "type": "KC",
+        "essential": false
+      },
+      {
+        "name": "KC_URL",
+        "value": null,
+        "description": "Base URL of the Keycloak instance. Used for JWKS retrieval, JWT validation, and token introspection.",
+        "type": "KC",
+        "essential": true
+      },
+      {
+        "name": "SIDECAR_IMPERSONATION_CLIENT_NAME",
+        "value": "impersonation-client",
+        "description": "Keycloak client ID used for impersonation token exchange in the impersonation filter.",
+        "type": "KC",
+        "essential": false
+      },
+      {
+        "name": "GW_CLIENT_TLS_ENABLED",
+        "value": false,
+        "description": "Enables TLS on the gateway web client used when SIDECAR_FORWARD_UNKNOWN_REQUESTS is true (fips profile only).",
+        "type": "QUARKUS",
+        "essential": false
+      },
+      {
+        "name": "GW_CLIENT_TLS_TRUSTSTORE_FILE_TYPE",
+        "value": null,
+        "description": "Trust store file type for the gateway TLS client (e.g. JKS, BCFKS).",
+        "type": "QUARKUS",
+        "essential": false
+      },
+      {
+        "name": "GW_CLIENT_TLS_TRUSTSTORE_PASSWORD",
+        "value": null,
+        "description": "Password for the gateway TLS trust store.",
+        "type": "QUARKUS",
+        "essential": false
+      },
+      {
+        "name": "GW_CLIENT_TLS_TRUSTSTORE_PATH",
+        "value": null,
+        "description": "Filesystem path to the trust store for the gateway TLS client. Required when GW_CLIENT_TLS_ENABLED is true.",
+        "type": "QUARKUS",
+        "essential": false
+      },
+      {
+        "name": "GW_CLIENT_TLS_TRUSTSTORE_PROVIDER",
+        "value": null,
+        "description": "Security provider for the gateway TLS trust store (e.g. BCFIPS).",
+        "type": "QUARKUS",
+        "essential": false
+      },
+      {
+        "name": "KC_CLIENT_TLS_ENABLED",
+        "value": false,
+        "description": "Enables TLS on the Keycloak web client (fips profile only).",
+        "type": "QUARKUS",
+        "essential": false
+      },
+      {
+        "name": "KC_CLIENT_TLS_TRUSTSTORE_FILE_TYPE",
+        "value": null,
+        "description": "Trust store file type for the Keycloak TLS client (e.g. JKS, BCFKS).",
+        "type": "QUARKUS",
+        "essential": false
+      },
+      {
+        "name": "KC_CLIENT_TLS_TRUSTSTORE_PASSWORD",
+        "value": null,
+        "description": "Password for the Keycloak TLS trust store.",
+        "type": "QUARKUS",
+        "essential": false
+      },
+      {
+        "name": "KC_CLIENT_TLS_TRUSTSTORE_PATH",
+        "value": null,
+        "description": "Filesystem path to the trust store for the Keycloak TLS client. Required when KC_CLIENT_TLS_ENABLED is true.",
+        "type": "QUARKUS",
+        "essential": false
+      },
+      {
+        "name": "KC_CLIENT_TLS_TRUSTSTORE_PROVIDER",
+        "value": null,
+        "description": "Security provider for the Keycloak TLS trust store (e.g. BCFIPS).",
+        "type": "QUARKUS",
+        "essential": false
+      },
+      {
+        "name": "QUARKUS_THREAD_POOL_MAX_THREADS",
+        "value": "8",
+        "description": "Maximum Quarkus worker thread pool size for blocking operations (e.g. secret store retrieval, JWKS parsing). Most proxy work is non-blocking; this pool is used sparingly.",
+        "type": "QUARKUS",
+        "essential": false
+      },
+      {
+        "name": "REQUEST_TIMEOUT",
+        "value": "604800000",
+        "description": "HTTP client read timeout in milliseconds applied to all proxied requests. Raise for accompanied modules with legitimately long-running endpoints.",
+        "type": "QUARKUS",
+        "essential": false
+      },
+      {
+        "name": "ROOT_LOG_LEVEL",
+        "value": "INFO",
+        "description": "Root log level for the Quarkus logging framework.",
+        "type": "QUARKUS",
+        "essential": false
+      },
+      {
+        "name": "SC_ACCESS_LOG_FORMAT",
+        "value": null,
+        "description": "Access log format pattern for the transaction logger. When unset, the sidecar uses the built-in default pattern that includes remote IP, tenant, user ID, request ID, method, path, status, and timing fields.",
+        "type": "QUARKUS",
+        "essential": false
+      },
+      {
+        "name": "SC_CLIENT_TLS_ENABLED",
+        "value": false,
+        "description": "Enables mutual TLS on the egress web client. Active only under the fips Quarkus profile.",
+        "type": "QUARKUS",
+        "essential": false
+      },
+      {
+        "name": "SC_CLIENT_TLS_TRUSTSTORE_FILE_TYPE",
+        "value": null,
+        "description": "Trust store file type for the egress TLS client (e.g. JKS, BCFKS).",
+        "type": "QUARKUS",
+        "essential": false
+      },
+      {
+        "name": "SC_CLIENT_TLS_TRUSTSTORE_PASSWORD",
+        "value": null,
+        "description": "Password for the egress TLS trust store.",
+        "type": "QUARKUS",
+        "essential": false
+      },
+      {
+        "name": "SC_CLIENT_TLS_TRUSTSTORE_PATH",
+        "value": null,
+        "description": "Filesystem path to the trust store for the egress TLS client (fips profile only). Required when SC_CLIENT_TLS_ENABLED is true.",
+        "type": "QUARKUS",
+        "essential": false
+      },
+      {
+        "name": "SC_CLIENT_TLS_TRUSTSTORE_PROVIDER",
+        "value": null,
+        "description": "Security provider for the egress TLS trust store (e.g. BCFIPS in FIPS-compliant deployments).",
+        "type": "QUARKUS",
+        "essential": false
+      },
+      {
+        "name": "SC_LOG_LEVEL",
+        "value": "INFO",
+        "description": "Log level for the org.folio.sidecar package. Set to DEBUG or TRACE to diagnose routing and filter decisions.",
+        "type": "QUARKUS",
+        "essential": false
+      },
+      {
+        "name": "SC_TLS_KEYSTORE_KEY_PASSWORD",
+        "value": null,
+        "description": "Password for the private key entry inside the sidecar HTTPS key store, when different from SC_TLS_KEYSTORE_PASSWORD.",
+        "type": "QUARKUS",
+        "essential": false
+      },
+      {
+        "name": "SC_TLS_KEYSTORE_PASSWORD",
+        "value": null,
+        "description": "Password for the sidecar HTTPS key store.",
+        "type": "QUARKUS",
+        "essential": false
+      },
+      {
+        "name": "SC_TLS_KEYSTORE_PATH",
+        "value": null,
+        "description": "Filesystem path to the key store used to serve the sidecar's own HTTPS port (8443). Required in fips profile when TLS terminates at the sidecar.",
+        "type": "QUARKUS",
+        "essential": false
+      },
+      {
+        "name": "SC_TLS_KEY_STORE_FILE_TYPE",
+        "value": null,
+        "description": "Key store file type for the sidecar HTTPS server (e.g. JKS, BCFKS).",
+        "type": "QUARKUS",
+        "essential": false
+      },
+      {
+        "name": "SC_TLS_KEY_STORE_PROVIDER",
+        "value": null,
+        "description": "Security provider for the sidecar HTTPS key store (e.g. BCFIPS).",
+        "type": "QUARKUS",
+        "essential": false
+      },
+      {
+        "name": "TENANT_SERVICE_RESET_TASK_CRON_DEFINITION",
+        "value": "0 */5 * * * ?",
+        "description": "Quartz cron expression for the periodic tenant-entitlement reload flag reset.",
+        "type": "QUARKUS",
+        "essential": false
+      },
+      {
+        "name": "WEB_CLIENT_TLS_VERIFY_HOSTNAME",
+        "value": false,
+        "description": "Enables hostname verification on the egress, Keycloak, and gateway TLS web clients (fips profile only). Disable with caution — only in environments using self-signed certificates.",
+        "type": "QUARKUS",
+        "essential": false
+      }
+    ]
+  }
+}

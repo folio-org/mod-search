@@ -50,6 +50,6 @@ Integrations need to look up items (e.g. by barcode, effective location or statu
 | `SEARCH_QUERY_TIMEOUT` | Elasticsearch query timeout |
 
 ## Dependencies and interactions
-- Depends on Elasticsearch/OpenSearch for query execution (`ELASTICSEARCH_URL`).
+- Depends on Elasticsearch/OpenSearch for query execution (`SEARCH_ENGINE_URL`).
 - The `item` index is populated by [Indexing and Messaging](indexing-and-messaging.md#standalone-item-indexing).
 - Shares the CQL parsing and search pipeline with [Instance Search](instance-search.md); see also [CQL Query](cql-query.md).

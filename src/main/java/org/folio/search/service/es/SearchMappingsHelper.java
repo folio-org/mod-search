@@ -7,6 +7,7 @@ import static org.folio.search.model.metadata.PlainFieldDescription.FULLTEXT_FIE
 import static org.folio.search.utils.SearchUtils.MULTILANG_SOURCE_SUBFIELD;
 import static org.folio.search.utils.SearchUtils.PLAIN_FULLTEXT_PREFIX;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -127,8 +128,7 @@ public class SearchMappingsHelper {
     var mappingProps = new LinkedHashMap<String, JsonNode>();
 
     fieldDescription.getProperties().forEach((name, desc) -> mappingProps.putAll(getMappingForField(name, desc)));
-    Map<String, Object> objectNodeMappings =
-      new java.util.HashMap<>(singletonMap(MAPPING_PROPERTIES_FIELD, mappingProps));
+    Map<String, Object> objectNodeMappings = new HashMap<>(singletonMap(MAPPING_PROPERTIES_FIELD, mappingProps));
     objectNodeMappings.put("type", "nested");
     objectNodeMappings.put("include_in_parent", true);
     objectNodeMappings.put(MAPPING_PROPERTIES_FIELD, mappingProps);

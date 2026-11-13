@@ -16,7 +16,6 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -30,8 +29,12 @@ import org.folio.search.model.index.SearchDocumentBody;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.repository.PrimaryResourceRepository;
 import org.folio.search.service.consortium.ConsortiumTenantProvider;
-import org.folio.search.service.consortium.SharedInstanceResolver;
 import org.folio.search.service.converter.MultiTenantSearchDocumentConverter;
+import org.folio.search.service.indexrebuild.IndexRebuildTarget;
+import org.folio.search.service.indexrebuild.derived.DerivedChangeTracker;
+import org.folio.search.service.indexrebuild.item.ItemDocumentIds;
+import org.folio.search.service.indexrebuild.item.ItemSharedFlagResolver;
+import org.folio.search.service.indexrebuild.records.RecordsDeleteTracker;
 import org.folio.search.utils.IndexingFailureUtils;
 import org.opensearch.action.bulk.BulkItemResponse;
 import org.opensearch.action.bulk.BulkResponse;
@@ -48,9 +51,9 @@ import org.springframework.stereotype.Service;
  * processed one by one; events that still fail are stored via {@link FailedIndexingEventService}.</p>
  *
  * <p>In a consortium item documents carry the {@code shared} flag of their instance, which the search uses to return
- * items of shared instances from all tenants and items of local instances only to their tenant. The flag is resolved
- * from the central instance table on indexing and set on existing documents when an instance is created in the central
- * tenant (a local instance became shared, or the instance event arrived after its items).</p>
+ * items of shared instances from all tenants and items of local instances only to their tenant. The flag is derived
+ * from the {@code instanceSource} of the item on indexing and set on existing documents when an instance is created in
+ * the central tenant (a local instance became shared, or the instance event arrived after its items).</p>
  */
 @Log4j2
 @Service
@@ -65,7 +68,9 @@ public class ItemIndexService {
   private final FolioMessageBatchProcessor folioMessageBatchProcessor;
   private final EgressExecutionContextService executionService;
   private final FailedIndexingEventService failedIndexingEventService;
-  private final SharedInstanceResolver sharedInstanceResolver;
+  private final ItemSharedFlagResolver sharedFlagResolver;
+  private final RecordsDeleteTracker deleteTracker;
+  private final DerivedChangeTracker derivedChangeTracker;
   private final ConsortiumTenantProvider consortiumTenantProvider;
 
   /**
@@ -164,23 +169,14 @@ public class ItemIndexService {
         "Failed to mark items of shared instances [ids: %s, errors: [%s]]"
           .formatted(instanceIds, response.getErrorMessage()), null, null);
     }
+    derivedChangeTracker.trackMatching(IndexRebuildTarget.ITEM, tenant, termsQuery(INSTANCE_ID_FIELD, instanceIds));
   }
 
   private void populateSharedFlag(List<ResourceEvent> events) {
-    var instanceIds = events.stream()
-      .map(ItemIndexService::getInstanceId)
-      .filter(Objects::nonNull)
-      .collect(Collectors.toSet());
-    if (instanceIds.isEmpty()) {
-      return;
-    }
-
-    var sharedIds = sharedInstanceResolver.findSharedInstanceIds(events.getFirst().getTenant(), instanceIds);
-    events.forEach(event -> {
-      if (sharedIds.contains(getInstanceId(event))) {
-        newPartAsMap(event).put(SHARED_FIELD_NAME, true);
-      }
-    });
+    events.stream()
+      .filter(event -> event.getNew() instanceof Map<?, ?>)
+      .filter(event -> sharedFlagResolver.isShared(event.getTenant(), (Map<?, ?>) event.getNew()))
+      .forEach(event -> newPartAsMap(event).put(SHARED_FIELD_NAME, true));
   }
 
   private void handleFailedEvent(ResourceEvent event, Exception exception) {
@@ -211,6 +207,7 @@ public class ItemIndexService {
       return;
     }
 
+    deleteTracker.track(IndexRebuildTarget.ITEM, events.getFirst().getTenant(), events);
     populateSharedFlag(events);
     var documents = convertToDocuments(events.stream().map(ItemIndexService::withTenantScopedId).toList());
     var bulkResponse = primaryResourceRepository.executeBulk(documents);
@@ -220,6 +217,7 @@ public class ItemIndexService {
         documents.size(), failure.getStatus(), failure.getErrorType());
       throw failure;
     }
+    derivedChangeTracker.track(IndexRebuildTarget.ITEM, events.getFirst().getTenant(), events);
     log.info("indexItemEvents:: indexed to elasticsearch [indexRequests: {}]", documents.size());
   }
 
@@ -254,7 +252,7 @@ public class ItemIndexService {
 
   private static ResourceEvent withTenantScopedId(ResourceEvent event) {
     return new ResourceEvent()
-      .id(event.getId() + "|" + event.getTenant())
+      .id(ItemDocumentIds.of(event.getId(), event.getTenant()))
       .type(event.getType())
       .deleteEventSubType(event.getDeleteEventSubType())
       .tenant(event.getTenant())
@@ -282,10 +280,6 @@ public class ItemIndexService {
   private static boolean isInstanceCreate(ResourceEvent event) {
     return ResourceType.INSTANCE.getName().equals(event.getResourceName())
            && event.getType() == ResourceEventType.CREATE;
-  }
-
-  private static String getInstanceId(ResourceEvent event) {
-    return event.getNew() instanceof Map<?, ?> map && map.get(INSTANCE_ID_FIELD) instanceof String id ? id : null;
   }
 
   @SuppressWarnings("unchecked")

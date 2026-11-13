@@ -1,9 +1,11 @@
 package org.folio.search.repository;
 
 import static org.folio.search.model.types.ResourceType.INSTITUTION;
+import static org.folio.search.model.types.SearchOperationType.SEARCH;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
 import static org.folio.search.utils.SearchUtils.TENANT_ID_FIELD_NAME;
 import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
+import static org.opensearch.client.RequestOptions.DEFAULT;
 import static org.opensearch.search.sort.SortOrder.ASC;
 import static org.opensearch.search.sort.SortOrder.DESC;
 
@@ -17,7 +19,6 @@ import org.folio.search.service.converter.ElasticsearchDocumentConverter;
 import org.jspecify.annotations.NonNull;
 import org.opensearch.action.search.SearchRequest;
 import org.opensearch.action.search.SearchResponse;
-import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestHighLevelClient;
 import org.opensearch.index.query.QueryBuilders;
 import org.opensearch.search.builder.SearchSourceBuilder;
@@ -28,8 +29,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 @RequiredArgsConstructor
 public class ConsortiumInstitutionRepository {
-
-  private static final String OPERATION_TYPE = "searchApi";
 
   private final IndexNameProvider indexNameProvider;
   private final ElasticsearchDocumentConverter documentConverter;
@@ -84,7 +83,6 @@ public class ConsortiumInstitutionRepository {
 
     searchRequest.source(sourceBuilder);
 
-    return performExceptionalOperation(() -> client.search(searchRequest,
-      RequestOptions.DEFAULT), index, OPERATION_TYPE);
+    return performExceptionalOperation(() -> client.search(searchRequest, DEFAULT), index, SEARCH);
   }
 }

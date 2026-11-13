@@ -1,0 +1,337 @@
+package org.folio.api.browse;
+
+import static java.util.function.Function.identity;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
+import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
+import static org.awaitility.Durations.ONE_MINUTE;
+import static org.folio.search.domain.dto.RecordType.CALL_NUMBERS;
+import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CALL_NUMBERS;
+import static org.folio.search.utils.SearchUtils.ALL_RECORDS_QUERY;
+import static org.folio.search.utils.SearchUtils.SOURCE_CONSORTIUM_PREFIX;
+import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
+import static org.folio.support.TestConstants.MEMBER2_TENANT_ID;
+import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
+import static org.folio.support.base.ApiEndpoints.browseConfigPath;
+import static org.folio.support.base.ApiEndpoints.instanceCallNumberBrowsePath;
+import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
+import static org.folio.support.base.ApiEndpoints.recordFacetsPath;
+import static org.folio.support.utils.CallNumberTestData.CallNumberTestDataRecord;
+import static org.folio.support.utils.CallNumberTestData.CallNumberTypeId.LC;
+import static org.folio.support.utils.CallNumberTestData.callNumbers;
+import static org.folio.support.utils.CallNumberTestData.cnEmptyBrowseItem;
+import static org.folio.support.utils.CallNumberTestData.instance;
+import static org.folio.support.utils.CallNumberTestData.instances;
+import static org.folio.support.utils.CallNumberTestData.locations;
+import static org.folio.support.utils.JsonTestUtils.parseResponse;
+import static org.folio.support.utils.TestUtils.array;
+import static org.folio.support.utils.TestUtils.facet;
+import static org.folio.support.utils.TestUtils.facetItem;
+import static org.folio.support.utils.TestUtils.mapOf;
+import static org.folio.support.utils.TestUtils.mockCallNumberTypes;
+import static org.hamcrest.Matchers.everyItem;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.folio.search.domain.dto.BrowseConfig;
+import org.folio.search.domain.dto.BrowseOptionType;
+import org.folio.search.domain.dto.BrowseType;
+import org.folio.search.domain.dto.CallNumberBrowseItem;
+import org.folio.search.domain.dto.CallNumberBrowseResult;
+import org.folio.search.domain.dto.Facet;
+import org.folio.search.domain.dto.FacetResult;
+import org.folio.search.domain.dto.IndexRebuildRequest;
+import org.folio.search.domain.dto.Instance;
+import org.folio.search.domain.dto.ShelvingOrderAlgorithmType;
+import org.folio.search.model.index.CallNumberResource;
+import org.folio.search.model.types.ResourceType;
+import org.folio.search.service.indexrebuild.IndexFingerprintService;
+import org.folio.search.service.indexrebuild.IndexRebuildTarget;
+import org.folio.spring.testing.type.IntegrationTest;
+import org.folio.support.base.BaseConsortiumIntegrationTest;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.opensearch.search.SearchHit;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.TestPropertySource;
+
+/**
+ * The same checks as {@link BrowseCallNumberConsortiumIT}, with call number documents built from the item index: at
+ * runtime by the call number refresh, and by the call number records reindex.
+ */
+@IntegrationTest
+@TestPropertySource(properties = {
+  "folio.search-config.indexing.instance-children-index-enabled=true",
+  "folio.search-config.indexing.item-index-enabled=true",
+  "folio.search-config.indexing.call-number-index-from-items-enabled=true",
+  "folio.search-config.indexing.call-number-refresh-delay-ms=500",
+  "folio.system-user.enabled=false"
+})
+class BrowseCallNumberFromItemsConsortiumIT extends BaseConsortiumIntegrationTest {
+
+  private static final String CALL_NUMBER_REINDEX_PATH = "/search/index/call-number-records/reindex/full";
+  private static final String CALL_NUMBER_REINDEX_STATUS_PATH = "/search/index/call-number-records/reindex/status";
+
+  private static final String LOCATION_FACET = "instances.locationId";
+  private static final String TENANT_FACET = "instances.tenantId";
+  private static final String SHARED_FACET = "instances.shared";
+  private static final List<Instance> INSTANCES = instances();
+  private static final String MEMBER2_LOCATION = UUID.randomUUID().toString();
+
+  @BeforeAll
+  static void prepare(@Autowired JdbcTemplate jdbcTemplate, @Autowired IndexFingerprintService fingerprintService) {
+    enableTenant(CENTRAL_TENANT_ID);
+    enableTenant(MEMBER_TENANT_ID);
+    enableTenant(MEMBER2_TENANT_ID);
+
+    enableFeature(CENTRAL_TENANT_ID, BROWSE_CALL_NUMBERS);
+    // item documents come from item events below, mark the item index of every tenant as up to date, so the call
+    // number refresh doesn't wait for an item records reindex
+    markItemIndexReady(jdbcTemplate, fingerprintService.current(IndexRebuildTarget.ITEM));
+
+    saveTestRecords();
+
+    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() -> {
+      var counted = countIndexDocument(ResourceType.INSTANCE_CALL_NUMBER, CENTRAL_TENANT_ID);
+      assertThat(counted).isEqualTo(100);
+    });
+  }
+
+  @BeforeEach
+  void setUp() {
+    updateLcConfig(List.of(UUID.fromString(LC.getId())));
+  }
+
+  @MethodSource("callNumberBrowsingDataProvider")
+  @DisplayName("browseByCallNumber_parameterized")
+  @ParameterizedTest(name = "[{index}] query={0} tenant={1}, option={2}, value=''{3}'', limit={4}")
+  void browseByCallNumber_parameterized(String query, String tenant, BrowseOptionType optionType, String input,
+                                        Integer limit, CallNumberBrowseResult expected) {
+    var request = get(instanceCallNumberBrowsePath(optionType))
+      .param("expandAll", "true")
+      .param(QUERY_PARAM, prepareQuery(query, '"' + input + '"'))
+      .param(LIMIT_PARAM, String.valueOf(limit));
+    var actual = parseResponse(doGet(request, tenant), CallNumberBrowseResult.class);
+    assertThat(actual).isEqualTo(expected);
+  }
+
+  @Test
+  void browseByCallNumber_withLocationFilter() {
+    var request = get(instanceCallNumberBrowsePath(BrowseOptionType.ALL))
+      .param("expandAll", "true")
+      .param(QUERY_PARAM, "(fullCallNumber>=\"a\" or fullCallNumber<\"a\") "
+                          + "and instances.locationId==(\"%s\")".formatted(MEMBER2_LOCATION))
+      .param(LIMIT_PARAM, String.valueOf(10));
+    var actual = parseResponse(doGet(request, MEMBER_TENANT_ID), CallNumberBrowseResult.class);
+    assertThat(actual).isEqualTo(cnBrowseResult(null, null, 0, List.of(cnEmptyBrowseItem("a"))));
+  }
+
+  @Test
+  void browseByCallNumber_fromCentralTenant_withTenantIdFacet_sameCallNumberInMemberTenantOfSharedInstance() {
+    var request = get(instanceCallNumberBrowsePath(BrowseOptionType.ALL))
+      .param("expandAll", "true")
+      .param(QUERY_PARAM, "(fullCallNumber>=\"TA357 .A78 2010\" or fullCallNumber<\"TA357 .A78 2010\") "
+                          + "and instances.tenantId==(\"%s\")".formatted(MEMBER2_TENANT_ID))
+      .param(LIMIT_PARAM, String.valueOf(10));
+    var actual = parseResponse(doGet(request, CENTRAL_TENANT_ID), CallNumberBrowseResult.class);
+    assertThat(actual).isEqualTo(cnBrowseResult(null, null, 2,
+      List.of(cnBrowseItem(callNumbers().get(1).callNumber(), 0),
+        cnBrowseItem(callNumbers().getFirst().callNumber(), 0, 1, true))));
+  }
+
+  @MethodSource("facetQueriesProvider")
+  @ParameterizedTest(name = "[{index}] tenant={0} query={1}, facets={2}")
+  @DisplayName("getFacetsForCallNumbers_ecs_parameterized")
+  void getFacetsForCallNumbers_positive(String tenantId, String query, String[] facets, Map<String, Facet> expected) {
+    var actual = parseResponse(doGet(recordFacetsPath(CALL_NUMBERS, query, facets), tenantId), FacetResult.class);
+
+    expected.forEach((facetName, expectedFacet) -> {
+      assertNotNull(actual.getFacets());
+      var actualFacet = actual.getFacets().get(facetName);
+
+      assertThat(actualFacet).isNotNull();
+      assertThat(actualFacet.getValues())
+        .containsExactlyInAnyOrderElementsOf(expectedFacet.getValues());
+    });
+  }
+
+  @Test
+  void callNumberRecordsReindex_producesSameDocumentsAsRuntimeRefresh() {
+    var refreshed = callNumberDocuments();
+
+    doPost(CALL_NUMBER_REINDEX_PATH, CENTRAL_TENANT_ID, new IndexRebuildRequest());
+    awaitAssertion(() -> doGet(CALL_NUMBER_REINDEX_STATUS_PATH, CENTRAL_TENANT_ID)
+      .andExpect(jsonPath("$[*].status", everyItem(is("COMPLETED")))));
+
+    assertThat(callNumberDocuments()).containsExactlyInAnyOrderElementsOf(refreshed);
+  }
+
+  private static List<String> callNumberDocuments() {
+    return Arrays.stream(fetchDocuments(ResourceType.INSTANCE_CALL_NUMBER, CENTRAL_TENANT_ID, 1000))
+      .map(SearchHit::getSourceAsMap)
+      .map(String::valueOf)
+      .sorted()
+      .toList();
+  }
+
+  private static void markItemIndexReady(JdbcTemplate jdbcTemplate, String fingerprint) {
+    for (var tenant : List.of(CENTRAL_TENANT_ID, MEMBER_TENANT_ID, MEMBER2_TENANT_ID)) {
+      jdbcTemplate.update("INSERT INTO " + CENTRAL_TENANT_ID + "_mod_search.index_rebuild_state "
+                          + "(resource, tenant_id, status, fingerprint) VALUES (?, ?, 'COMPLETED', ?)",
+        IndexRebuildTarget.ITEM.getResource(), tenant, fingerprint);
+    }
+  }
+
+  /**
+   * Creates an instance with its holdings and items. Items carry {@code instanceSource}, as item events of inventory
+   * do, so items of shared instances in member tenants are marked shared.
+   */
+  @SuppressWarnings("unchecked")
+  private static void createInstance(String tenant, Instance instance) {
+    var instanceMap = objectMapper.convertValue(instance, Map.class);
+    var items = (List<Map<String, Object>>) instanceMap.get("items");
+    if (items != null) {
+      items.forEach(item -> item.put("instanceSource", instance.getSource()));
+    }
+    inventoryApi.createInstance(tenant, (Map<String, Object>) instanceMap);
+  }
+
+  private static void saveTestRecords() {
+    var centralInstances = INSTANCES.subList(0, 30);
+    saveRecords(CENTRAL_TENANT_ID, instanceSearchPath(), centralInstances, centralInstances.size(),
+      instance -> createInstance(CENTRAL_TENANT_ID, instance));
+
+    var memberInstances = INSTANCES.subList(30, INSTANCES.size());
+    saveRecords(MEMBER_TENANT_ID, instanceSearchPath(), memberInstances, INSTANCES.size(),
+      instance -> createInstance(MEMBER_TENANT_ID, instance));
+
+    var instance1 = centralInstances.getFirst();
+    instance1.setSource(SOURCE_CONSORTIUM_PREFIX + "FOLIO");
+    instance1.getItems().forEach(item -> item.setId(UUID.randomUUID().toString()));
+    saveRecords(MEMBER_TENANT_ID, instanceSearchPath(), List.of(instance1), INSTANCES.size(),
+      instance -> createInstance(MEMBER_TENANT_ID, instance));
+
+    var dataRecord = new CallNumberTestDataRecord(callNumbers().getLast().callNumber(), MEMBER2_LOCATION);
+    var member2Instance = instance("51", List.of(dataRecord));
+    instance1.getItems().forEach(item -> item.setId(UUID.randomUUID().toString()));
+    saveRecords(MEMBER2_TENANT_ID, instanceSearchPath(), List.of(member2Instance, instance1),
+      centralInstances.size() + 1,
+      instance -> createInstance(MEMBER2_TENANT_ID, instance));
+  }
+
+  private static Stream<Arguments> callNumberBrowsingDataProvider() {
+    var aroundQuery = "fullCallNumber >= {value} or fullCallNumber < {value}";
+
+    var callNumbers = callNumbers().stream()
+      .map(CallNumberTestDataRecord::callNumber)
+      .collect(Collectors.toMap(callNumberResource -> Integer.parseInt(callNumberResource.id()), identity()));
+
+    return Stream.of(
+      arguments(aroundQuery, CENTRAL_TENANT_ID, BrowseOptionType.ALL, callNumbers.get(1).fullCallNumber(), 5,
+        cnBrowseResult(callNumbers.get(35).fullCallNumber(), callNumbers.get(43).fullCallNumber(), 60, List.of(
+          cnBrowseItem(callNumbers.get(35), 18),
+          cnBrowseItem(callNumbers.get(25), 15),
+          cnBrowseItem(callNumbers.get(1), 0, 3, true),
+          cnBrowseItem(callNumbers.get(33), 17),
+          cnBrowseItem(callNumbers.get(43), 23)
+        ))),
+
+      arguments(aroundQuery, MEMBER_TENANT_ID, BrowseOptionType.ALL, callNumbers.get(1).fullCallNumber(), 5,
+        cnBrowseResult(callNumbers.get(91).fullCallNumber(), callNumbers.get(68).fullCallNumber(), 100, List.of(
+          cnBrowseItem(callNumbers.get(91), 45),
+          cnBrowseItem(callNumbers.get(25), 15),
+          cnBrowseItem(callNumbers.get(1), 0, 3, true),
+          cnBrowseItem(callNumbers.get(70), 34),
+          cnBrowseItem(callNumbers.get(68), 34)
+        )))
+    );
+  }
+
+  private static CallNumberBrowseResult cnBrowseResult(String prev, String next, int total,
+                                                       List<CallNumberBrowseItem> items) {
+    return new CallNumberBrowseResult().prev(prev).next(next).items(items).totalRecords(total);
+  }
+
+  private static CallNumberBrowseItem cnBrowseItem(CallNumberResource resource, int instanceIndex) {
+    return cnBrowseItem(resource, instanceIndex, 1, null);
+  }
+
+  private static CallNumberBrowseItem cnBrowseItem(CallNumberResource resource, int instanceIndex, int count,
+                                                   Boolean isAnchor) {
+    return new CallNumberBrowseItem()
+      .fullCallNumber(resource.fullCallNumber())
+      .callNumber(resource.callNumber())
+      .callNumberPrefix(resource.callNumberPrefix())
+      .callNumberSuffix(resource.callNumberSuffix())
+      .callNumberTypeId(resource.callNumberTypeId())
+      .instanceTitle(count == 1 ? INSTANCES.get(instanceIndex).getTitle() : null)
+      .totalRecords(count)
+      .isAnchor(isAnchor);
+  }
+
+  private static Stream<Arguments> facetQueriesProvider() {
+    var locations = locations();
+    return Stream.of(
+      arguments(CENTRAL_TENANT_ID, ALL_RECORDS_QUERY, array(LOCATION_FACET),
+        expectedLocationFacet(locations, 27, 20, 13, false)),
+      arguments(CENTRAL_TENANT_ID, ALL_RECORDS_QUERY, array(TENANT_FACET), mapOf(TENANT_FACET,
+        facet(facetItem(CENTRAL_TENANT_ID, 60), facetItem(MEMBER_TENANT_ID, 2), facetItem(MEMBER2_TENANT_ID, 2)))),
+      arguments(CENTRAL_TENANT_ID, "instances.tenantId==" + MEMBER2_TENANT_ID, array(TENANT_FACET), mapOf(TENANT_FACET,
+        facet(facetItem(CENTRAL_TENANT_ID, 60), facetItem(MEMBER_TENANT_ID, 2), facetItem(MEMBER2_TENANT_ID, 2)))),
+      arguments(CENTRAL_TENANT_ID, "callNumberTypeId=\"" + LC.getId() + "\"", array(LOCATION_FACET),
+        expectedLocationFacet(locations, 6, 4, 2, false)),
+      arguments(MEMBER_TENANT_ID, ALL_RECORDS_QUERY, array(LOCATION_FACET),
+        expectedLocationFacet(locations, 42, 34, 24, true)),
+      arguments(MEMBER_TENANT_ID, ALL_RECORDS_QUERY, array(TENANT_FACET), mapOf(TENANT_FACET,
+        facet(facetItem(CENTRAL_TENANT_ID, 60), facetItem(MEMBER_TENANT_ID, 42),
+          facetItem(MEMBER2_TENANT_ID, 3)))),
+      arguments(MEMBER_TENANT_ID, "instances.shared==false", array(LOCATION_FACET),
+        expectedLocationFacet(locations, 15, 14, 11, true)),
+      arguments(MEMBER_TENANT_ID, "instances.shared==false", array(TENANT_FACET), mapOf(TENANT_FACET,
+        facet(facetItem(MEMBER_TENANT_ID, 40), facetItem(MEMBER2_TENANT_ID, 1)))),
+      arguments(MEMBER_TENANT_ID, "instances.locationId==" + MEMBER2_LOCATION, array(SHARED_FACET, LOCATION_FACET),
+        mapOf(SHARED_FACET, facet(facetItem("false", 1))),
+        mapOf(LOCATION_FACET, expectedLocationFacet(locations, 42, 34, 24, true)))
+    );
+  }
+
+  private static Map<String, Facet> expectedLocationFacet(Map<Integer, String> locations,
+                                                          int totalRecords1, int totalRecords2, int totalRecords3,
+                                                          boolean includeMember2) {
+    var facet = facet(
+      facetItem(locations.get(1), totalRecords1),
+      facetItem(locations.get(2), totalRecords2),
+      facetItem(locations.get(3), totalRecords3)
+    );
+    if (includeMember2) {
+      facet.addValuesItem(facetItem(MEMBER2_LOCATION, 1));
+    }
+    return mapOf(LOCATION_FACET, facet);
+  }
+
+  private static void updateLcConfig(List<UUID> typeIds) {
+    var config = new BrowseConfig()
+      .id(BrowseOptionType.LC)
+      .shelvingAlgorithm(ShelvingOrderAlgorithmType.LC)
+      .typeIds(typeIds);
+
+    var stub = mockCallNumberTypes(okapi.wireMockServer(), typeIds.toArray(new UUID[0]));
+    doPut(browseConfigPath(BrowseType.INSTANCE_CALL_NUMBER, BrowseOptionType.LC), CENTRAL_TENANT_ID, config);
+    okapi.wireMockServer().removeStub(stub);
+  }
+}

@@ -4,6 +4,7 @@ import static org.apache.commons.collections4.MapUtils.getMap;
 import static org.apache.commons.collections4.MapUtils.getString;
 import static org.apache.commons.lang3.StringUtils.truncate;
 import static org.folio.search.utils.SearchConverterUtils.getNewAsMap;
+import static org.folio.search.utils.SearchUtils.EFFECTIVE_LOCATION_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.prepareForExpectedFormat;
 
 import java.util.Collections;
@@ -61,7 +62,7 @@ public class CallNumberResourceExtractor extends ChildResourceExtractor {
         "callNumberId", getString(entity, "id"),
         "itemId", getString(resourceMap, "id"),
         "instanceId", getString(resourceMap, "instanceId"),
-        "locationId", getString(resourceMap, "effectiveLocationId"),
+        "locationId", getString(resourceMap, EFFECTIVE_LOCATION_ID_FIELD),
         "tenantId", event.getTenant()))
       .toList();
   }
@@ -84,7 +85,7 @@ public class CallNumberResourceExtractor extends ChildResourceExtractor {
 
     var entity = new HashMap<String, Object>();
     entity.put("id", id);
-    entity.put("callNumber", callNumber);
+    entity.put(CALL_NUMBER_FIELD, callNumber);
     entity.put("callNumberPrefix", callNumberPrefix);
     entity.put("callNumberSuffix", callNumberSuffix);
     entity.put("callNumberTypeId", callNumberTypeId);

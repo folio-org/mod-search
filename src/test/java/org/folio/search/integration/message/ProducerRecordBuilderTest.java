@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.spring.tools.kafka.FolioKafkaProperties.TENANT_ID;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.internals.RecordHeaders;
@@ -134,8 +136,8 @@ class ProducerRecordBuilderTest {
     assertThat(resultHeaders).containsEntry(TENANT_ID, TARGET_TENANT);
   }
 
-  private java.util.Map<String, String> getHeadersAsMap(ProducerRecord<?, ?> producerRecord) {
-    var map = new java.util.HashMap<String, String>();
+  private Map<String, String> getHeadersAsMap(ProducerRecord<?, ?> producerRecord) {
+    var map = new HashMap<String, String>();
     producerRecord.headers().forEach(header -> {
       if (header.value() != null) {
         map.put(header.key(), new String(header.value(), StandardCharsets.UTF_8));

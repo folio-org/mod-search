@@ -1,0 +1,21 @@
+get:
+  operationId: getCallNumberRecordsReindexStatus
+  summary: Get Call Number Records Reindex Status
+  description: Gets the latest call number index rebuild state per tenant and whether a reindex is required
+  tags:
+    - index-rebuild
+  parameters:
+    - $ref: '../../parameters/x-okapi-tenant-header.yaml'
+  responses:
+    '200':
+      description: Call number index rebuild state per tenant
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../../schemas/response/indexRebuildStatusItem.yaml'
+    '400':
+      $ref: '../../responses/badRequestResponse.yaml'
+    '500':
+      $ref: '../../responses/internalServerErrorResponse.yaml'

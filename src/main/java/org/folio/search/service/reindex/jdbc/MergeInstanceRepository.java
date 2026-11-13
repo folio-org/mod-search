@@ -1,15 +1,11 @@
 package org.folio.search.service.reindex.jdbc;
 
 import static org.folio.search.utils.JdbcUtils.getFullTableName;
-import static org.folio.search.utils.JdbcUtils.getUuidArrayParam;
 
 import java.sql.Timestamp;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.model.types.ReindexEntityType;
@@ -55,8 +51,6 @@ public class MergeInstanceRepository extends MergeRangeRepository {
     %s
     """;
 
-  private static final String SELECT_SHARED_IDS_SQL =
-    "SELECT id FROM instance WHERE shared = true AND is_deleted = false AND id = ANY(?)";
   private static final String IS_BOUND_WITH_KEY = "isBoundWith";
 
   private final ConsortiumTenantProvider consortiumTenantProvider;
@@ -187,19 +181,6 @@ public class MergeInstanceRepository extends MergeRangeRepository {
   @Override
   public SubResourceResult fetchByTimestamp(String tenant, Timestamp timestamp, String fromId, int limit) {
     return fetchByTimestamp(SELECT_BY_UPDATED_QUERY, instanceRowMapper(), timestamp, fromId, limit, tenant);
-  }
-
-  /**
-   * Finds which of the given instances are shared. Must be called in the central tenant context, the table is resolved
-   * through the {@code search_path} of the tenant connection.
-   *
-   * @param instanceIds instance ids to check
-   * @return ids of shared instances
-   */
-  public Set<String> findSharedInstanceIds(Collection<String> instanceIds) {
-    return new HashSet<>(jdbcTemplate.query(SELECT_SHARED_IDS_SQL,
-      statement -> statement.setArray(1, getUuidArrayParam(List.copyOf(instanceIds), statement)),
-      (rs, rowNum) -> rs.getString("id")));
   }
 
   private RowMapper<Map<String, Object>> instanceRowMapper() {

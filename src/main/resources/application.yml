@@ -89,6 +89,8 @@ folio:
       data-format: ${INDEXING_DATA_FORMAT:smile}
       instance-children-index-enabled: ${INSTANCE_CHILDREN_INDEX_ENABLED:true}
       item-index-enabled: ${ITEM_INDEX_ENABLED:true}
+      call-number-index-from-items-enabled: ${CALL_NUMBER_INDEX_FROM_ITEMS_ENABLED:false}
+      call-number-refresh-delay-ms: ${CALL_NUMBER_REFRESH_DELAY_MS:60000}
       failed-events-retention-days: ${FAILED_INDEXING_EVENTS_RETENTION_DAYS:30}
       instance-children-index-delay-ms: ${INSTANCE_CHILDREN_INDEX_DELAY_MS:60000}
       sub-resource-batch-size: ${SUB_RESOURCE_BATCH_SIZE:100}
@@ -131,6 +133,9 @@ folio:
       - name: search.reindex.range-index
         numPartitions: ${KAFKA_REINDEX_RANGE_INDEX_TOPIC_PARTITIONS:16}
         replicationFactor: ${KAFKA_REINDEX_RANGE_INDEX_TOPIC_REPLICATION_FACTOR:}
+      - name: search.reindex.index-rebuild-range
+        numPartitions: ${KAFKA_INDEX_REBUILD_RANGE_TOPIC_PARTITIONS:16}
+        replicationFactor: ${KAFKA_INDEX_REBUILD_RANGE_TOPIC_REPLICATION_FACTOR:}
       - name: search.index.instance
         numPartitions: ${KAFKA_INDEX_INSTANCE_TOPIC_PARTITIONS:16}
         replicationFactor: ${KAFKA_REINDEX_RANGE_INDEX_TOPIC_REPLICATION_FACTOR:}
@@ -170,6 +175,10 @@ folio:
         concurrency: ${KAFKA_REINDEX_RANGE_INDEX_CONCURRENCY:8}
         topic-pattern: (${folio.environment}\.)(.*\.)search\.reindex\.range-index
         group-id: ${folio.environment}-mod-search-reindex-range-index-group
+      index-rebuild-range:
+        concurrency: ${KAFKA_INDEX_REBUILD_RANGE_CONCURRENCY:8}
+        topic-pattern: (${folio.environment}\.)(.*\.)search\.reindex\.index-rebuild-range
+        group-id: ${folio.environment}-mod-search-index-rebuild-range-group
       reindex-records:
         concurrency: ${KAFKA_REINDEX_RECORDS_CONCURRENCY:4}
         topic-pattern: (${folio.environment}\.)(.*\.)inventory\.reindex-records

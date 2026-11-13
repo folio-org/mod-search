@@ -38,7 +38,6 @@ Cataloguers and authority control workflows need to locate and verify authority 
 |----------|---------|
 | `SEARCH_QUERY_TIMEOUT` | Elasticsearch query timeout |
 | `KAFKA_AUTHORITIES_CONCURRENCY` | Kafka consumer concurrency for authority change events |
-| `KAFKA_AUTHORITIES_CONSUMER_PATTERN` | Topic pattern for authority change events |
 
 ## Dependencies and interactions
 - Depends on Elasticsearch/OpenSearch for query execution.

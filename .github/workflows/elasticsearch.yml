@@ -9,7 +9,7 @@ jobs:
   elasticsearch8:
     runs-on: ubuntu-latest
     env:
-      ELASTICSEARCH_SERVER: true
+      SEARCH_ENGINE_IS_ELASTICSEARCH: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4

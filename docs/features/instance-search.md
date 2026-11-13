@@ -41,12 +41,12 @@ Libraries need full-text and fielded search over their bibliographic catalogue. 
 | Variable | Purpose |
 |----------|---------|
 | `MAX_SEARCH_BATCH_REQUEST_IDS_COUNT` | Maximum number of IDs returned in a single streaming job |
-| `SCROLL_QUERY_SIZE` | Page size used when scrolling IDs from Elasticsearch |
+| `STREAM_ID_SCROLL_QUERY_SIZE` | Page size used when scrolling IDs from Elasticsearch |
 | `STREAM_ID_RETRY_INTERVAL_MS` | Retry interval for ID scroll failures |
 | `STREAM_ID_RETRY_ATTEMPTS` | Number of retry attempts for ID scroll failures |
 | `STREAM_ID_JOB_EXPIRATION_DAYS` | Days before an inactive streaming job is deleted |
 | `SEARCH_QUERY_TIMEOUT` | Elasticsearch query timeout |
 
 ## Dependencies and interactions
-- Depends on Elasticsearch/OpenSearch for query execution (`ELASTICSEARCH_URL`).
+- Depends on Elasticsearch/OpenSearch for query execution (`SEARCH_ENGINE_URL`).
 - Scheduled job (`0 0 0 * * *`) purges expired resource ID jobs daily.

@@ -14,7 +14,7 @@ import org.testcontainers.utility.DockerImageName;
 @Log4j2
 public class ElasticSearchContainerExtension implements BeforeAllCallback, AfterAllCallback {
 
-  private static final String SPRING_PROPERTY_NAME = "spring.opensearch.uris";
+  private static final String SPRING_PROPERTY_NAME = "spring.search-engine.uris";
   private static final String IMAGE_NAME = "dev.folio/searchengine";
   private static final String DEFAULT_DOCKERFILE = "docker/opensearch/Dockerfile";
   private static final GenericContainer<?> CONTAINER = createContainer();

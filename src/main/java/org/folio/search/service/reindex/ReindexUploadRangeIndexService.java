@@ -9,7 +9,9 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.folio.search.domain.dto.ResourceEvent;
 import org.folio.search.model.event.ReindexRangeIndexEvent;
@@ -36,13 +38,13 @@ public class ReindexUploadRangeIndexService {
     this.statusService = statusService;
   }
 
-  public void prepareAndSendIndexRanges(ReindexEntityType entityType) {
+  public void prepareAndSendIndexRanges(ReindexEntityType entityType, UUID reindexJobId) {
     var repository = Optional.ofNullable(repositories.get(entityType))
       .orElseThrow(() -> new UnsupportedOperationException("No repository found for entity type: " + entityType));
 
     var uploadRanges = repository.createUploadRanges();
     statusService.updateReindexUploadStarted(entityType, uploadRanges.size());
-    indexRangeEventProducer.sendMessages(prepareEvents(uploadRanges));
+    indexRangeEventProducer.sendMessages(prepareEvents(uploadRanges, reindexJobId));
   }
 
   public Collection<ResourceEvent> fetchRecordRange(ReindexRangeIndexEvent rangeIndexEvent) {
@@ -62,7 +64,7 @@ public class ReindexUploadRangeIndexService {
     repository.updateRangeStatus(event.getId(), Timestamp.from(Instant.now()), status, failCause);
   }
 
-  private List<ReindexRangeIndexEvent> prepareEvents(List<UploadRangeEntity> uploadRanges) {
+  private List<ReindexRangeIndexEvent> prepareEvents(List<UploadRangeEntity> uploadRanges, UUID reindexJobId) {
     return uploadRanges.stream()
       .map(range -> {
         var event = new ReindexRangeIndexEvent();
@@ -70,6 +72,7 @@ public class ReindexUploadRangeIndexService {
         event.setEntityType(range.getEntityType());
         event.setLower(range.getLower());
         event.setUpper(range.getUpper());
+        event.setReindexJobId(Objects.toString(reindexJobId, null));
         return event;
       })
       .toList();

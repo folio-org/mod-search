@@ -49,7 +49,8 @@ class ReindexUploadRangeIndexServiceTest {
     when(repository.createUploadRanges()).thenReturn(List.of(uploadRange));
 
     // act
-    service.prepareAndSendIndexRanges(ReindexEntityType.INSTANCE);
+    var reindexJobId = UUID.randomUUID();
+    service.prepareAndSendIndexRanges(ReindexEntityType.INSTANCE, reindexJobId);
 
     // assert
     verify(statusService).updateReindexUploadStarted(ReindexEntityType.INSTANCE, 1);
@@ -60,15 +61,17 @@ class ReindexUploadRangeIndexServiceTest {
       .hasSize(1)
       .extracting(ReindexRangeIndexEvent::getEntityType,
         ReindexRangeIndexEvent::getLower,
-        ReindexRangeIndexEvent::getUpper)
-      .containsExactly(Tuple.tuple(uploadRange.getEntityType(), uploadRange.getLower(), uploadRange.getUpper()));
+        ReindexRangeIndexEvent::getUpper,
+        ReindexRangeIndexEvent::getReindexJobId)
+      .containsExactly(Tuple.tuple(uploadRange.getEntityType(), uploadRange.getLower(), uploadRange.getUpper(),
+        reindexJobId.toString()));
   }
 
   @Test
   void prepareAndSendIndexRanges_negative_shouldThrowExceptionForUnknownEntity() {
     // assert
     assertThrows(UnsupportedOperationException.class,
-      () -> service.prepareAndSendIndexRanges(ReindexEntityType.SUBJECT));
+      () -> service.prepareAndSendIndexRanges(ReindexEntityType.SUBJECT, UUID.randomUUID()));
   }
 
   @Test

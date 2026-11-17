@@ -2,6 +2,8 @@ package org.folio.search.integration.folio;
 
 import static org.folio.search.configuration.RetryTemplateConfiguration.REINDEX_PUBLISH_RANGE_RETRY_TEMPLATE_NAME;
 
+import java.util.Objects;
+import java.util.UUID;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.logging.log4j.message.FormattedMessage;
@@ -55,7 +57,11 @@ public class InventoryService {
     }
   }
 
-  public void publishReindexRecordsRange(MergeRangeEntity rangeEntity) {
+  /**
+   * Requests mod-inventory-storage to publish the records of the given merge range. The reindex job id is sent as a
+   * header so that the resulting Kafka events can be attributed to the job.
+   */
+  public void publishReindexRecordsRange(MergeRangeEntity rangeEntity, UUID reindexJobId) {
     if (rangeEntity == null
         || ObjectUtils.anyNull(rangeEntity.getId(), rangeEntity.getLowerId(), rangeEntity.getUpperId())) {
       log.warn("Invalid Range Entity: [rangeEntity: {}]", rangeEntity);
@@ -69,7 +75,7 @@ public class InventoryService {
       rangeEntity.getUpperId());
 
     retryTemplate.execute(context -> {
-      reindexRecordsClient.publishReindexRecords(recordsRange);
+      reindexRecordsClient.publishReindexRecords(Objects.toString(reindexJobId, null), recordsRange);
       return null;
     }, context -> {
       var lastThrowable = context.getLastThrowable();

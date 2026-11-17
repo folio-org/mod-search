@@ -6,6 +6,7 @@ import static org.folio.search.model.types.ReindexStatus.MERGE_IN_PROGRESS;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
@@ -41,6 +42,7 @@ public class ReindexService {
   private final ExecutorService reindexPublisherExecutor;
   private final ReindexEntityTypeMapper entityTypeMapper;
   private final ReindexCommonService reindexCommonService;
+  private final ReindexJobService reindexJobService;
 
   public ReindexService(ConsortiumTenantService consortiumService,
                         SystemUserScopedExecutionService executionService,
@@ -52,7 +54,8 @@ public class ReindexService {
                         @Qualifier("reindexUploadExecutor") ExecutorService reindexUploadExecutor,
                         @Qualifier("reindexPublisherExecutor") ExecutorService reindexPublisherExecutor,
                         ReindexEntityTypeMapper entityTypeMapper,
-                        ReindexCommonService reindexCommonService) {
+                        ReindexCommonService reindexCommonService,
+                        ReindexJobService reindexJobService) {
     this.consortiumService = consortiumService;
     this.executionService = executionService;
     this.mergeRangeService = mergeRangeService;
@@ -64,6 +67,7 @@ public class ReindexService {
     this.reindexPublisherExecutor = reindexPublisherExecutor;
     this.entityTypeMapper = entityTypeMapper;
     this.reindexCommonService = reindexCommonService;
+    this.reindexJobService = reindexJobService;
   }
 
   @CacheEvict(cacheNames = USER_TENANTS_CACHE, allEntries = true, beforeInvocation = true)
@@ -71,6 +75,9 @@ public class ReindexService {
     log.info("submitFullReindex:: for [tenantId: {}]", tenantId);
 
     validateTenant("submitFullReindex", tenantId);
+
+    // From here on, reindex events of any previous job (or of another mod-search instance) are ignored
+    final var reindexJobId = reindexJobService.startNewJob();
 
     reindexCommonService.deleteAllRecords();
     statusService.recreateMergeStatusRecords();
@@ -86,7 +93,7 @@ public class ReindexService {
         .toList();
       mergeRangeService.saveMergeRanges(rangesForAllTenants);
     }, reindexFullExecutor)
-      .thenRun(() -> publishRecordsRange(tenantId))
+      .thenRun(() -> publishRecordsRange(tenantId, reindexJobId))
       .handle((unused, throwable) -> {
         if (throwable != null) {
           log.error("initFullReindex:: process failed [tenantId: {}, error: {}]", tenantId, throwable);
@@ -95,7 +102,7 @@ public class ReindexService {
         return unused;
       });
 
-    log.info("submitFullReindex:: submitted [tenantId: {}]", tenantId);
+    log.info("submitFullReindex:: submitted [tenantId: {}, reindexJobId: {}]", tenantId, reindexJobId);
     return future;
   }
 
@@ -119,6 +126,8 @@ public class ReindexService {
 
     validateUploadReindex(tenantId, entityTypes);
 
+    // Upload after a full reindex continues its job; a standalone upload reuses the active job or registers one
+    final var reindexJobId = reindexJobService.getOrStartJob();
     for (var reindexEntityType : entityTypes) {
       statusService.recreateUploadStatusRecord(reindexEntityType);
       if (recreateIndex) {
@@ -129,7 +138,7 @@ public class ReindexService {
     var futures = new ArrayList<>();
     for (var entityType : entityTypes) {
       var future = CompletableFuture.runAsync(() ->
-           uploadRangeService.prepareAndSendIndexRanges(entityType), reindexUploadExecutor)
+           uploadRangeService.prepareAndSendIndexRanges(entityType, reindexJobId), reindexUploadExecutor)
         .handle((unused, throwable) -> {
           if (throwable != null) {
             log.error("reindex upload process failed: {}", throwable.getMessage());
@@ -140,7 +149,7 @@ public class ReindexService {
       futures.add(future);
     }
 
-    log.info("submitUploadReindex:: submitted [tenantId: {}]", tenantId);
+    log.info("submitUploadReindex:: submitted [tenantId: {}, reindexJobId: {}]", tenantId, reindexJobId);
     return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
   }
 
@@ -161,11 +170,13 @@ public class ReindexService {
       .collect(Collectors.toSet());
     statusService.updateReindexMergeInProgress(entityTypes);
 
+    // Retried ranges belong to the active job, so their events are accepted by the job filter
+    var reindexJobId = reindexJobService.getOrStartJob();
     var futures = new ArrayList<>();
     for (var rangeEntity : failedRanges) {
       var future = CompletableFuture.runAsync(() ->
         executionService.executeSystemUserScoped(rangeEntity.getTenantId(), () -> {
-          inventoryService.publishReindexRecordsRange(rangeEntity);
+          inventoryService.publishReindexRecordsRange(rangeEntity, reindexJobId);
           return null;
         }), reindexPublisherExecutor);
       futures.add(future);
@@ -191,7 +202,7 @@ public class ReindexService {
     return mergeRangeEntities;
   }
 
-  private void publishRecordsRange(String tenantId) {
+  private void publishRecordsRange(String tenantId, UUID reindexJobId) {
     var futures = new ArrayList<>();
     for (var entityType : ReindexEntityType.supportMergeTypes()) {
       var rangeEntities = mergeRangeService.fetchMergeRanges(entityType);
@@ -203,7 +214,7 @@ public class ReindexService {
         for (var rangeEntity : rangeEntities) {
           var publishFuture = CompletableFuture.runAsync(() ->
             executionService.executeSystemUserScoped(rangeEntity.getTenantId(), () -> {
-              inventoryService.publishReindexRecordsRange(rangeEntity);
+              inventoryService.publishReindexRecordsRange(rangeEntity, reindexJobId);
               return null;
             }), reindexPublisherExecutor);
           futures.add(publishFuture);

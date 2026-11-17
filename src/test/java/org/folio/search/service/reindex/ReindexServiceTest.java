@@ -13,6 +13,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -43,6 +44,7 @@ import org.folio.search.model.types.ReindexStatus;
 import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.spring.service.SystemUserScopedExecutionService;
 import org.folio.spring.testing.type.UnitTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -53,6 +55,8 @@ import org.mockito.stubbing.Answer;
 @UnitTest
 @ExtendWith(MockitoExtension.class)
 class ReindexServiceTest {
+
+  private static final UUID REINDEX_JOB_ID = UUID.randomUUID();
 
   @Mock
   private ConsortiumTenantService consortiumService;
@@ -72,8 +76,16 @@ class ReindexServiceTest {
   private ReindexEntityTypeMapper entityTypeMapper;
   @Mock
   private ReindexCommonService reindexCommonService;
+  @Mock
+  private ReindexJobService reindexJobService;
   @InjectMocks
   private ReindexService reindexService;
+
+  @BeforeEach
+  void setUpReindexJob() {
+    lenient().when(reindexJobService.startNewJob()).thenReturn(REINDEX_JOB_ID);
+    lenient().when(reindexJobService.getOrStartJob()).thenReturn(REINDEX_JOB_ID);
+  }
 
   @Test
   void submitFullReindex_negative_shouldFailForEcsMemberTenant() {
@@ -104,6 +116,7 @@ class ReindexServiceTest {
     reindexService.submitFullReindex(tenant, indexSettings);
     ThreadUtils.sleep(Duration.ofSeconds(1));
 
+    verify(reindexJobService).startNewJob();
     verify(reindexCommonService).deleteAllRecords();
     verify(statusService).recreateMergeStatusRecords();
     verify(reindexCommonService, times(ReindexEntityType.supportUploadTypes().size()))
@@ -201,7 +214,7 @@ class ReindexServiceTest {
     reindexService.submitUploadReindex(TENANT_ID, List.of(ReindexEntityType.INSTANCE));
 
     verify(statusService).recreateUploadStatusRecord(INSTANCE);
-    verify(uploadRangeService).prepareAndSendIndexRanges(INSTANCE);
+    verify(uploadRangeService).prepareAndSendIndexRanges(INSTANCE, REINDEX_JOB_ID);
   }
 
   @Test
@@ -214,13 +227,13 @@ class ReindexServiceTest {
     reindexService.submitUploadReindex(TENANT_ID, uploadDto);
 
     verify(statusService).recreateUploadStatusRecord(INSTANCE);
-    verify(uploadRangeService).prepareAndSendIndexRanges(INSTANCE);
+    verify(uploadRangeService).prepareAndSendIndexRanges(INSTANCE, REINDEX_JOB_ID);
   }
 
   @Test
   void submitUploadReindex_negative_failedToPrepareUploadRangesAndSendThem() {
     when(consortiumService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(TENANT_ID));
-    doThrow(RuntimeException.class).when(uploadRangeService).prepareAndSendIndexRanges(INSTANCE);
+    doThrow(RuntimeException.class).when(uploadRangeService).prepareAndSendIndexRanges(INSTANCE, REINDEX_JOB_ID);
 
     doAnswer(executeRunnable()).when(reindexExecutor).execute(any());
 
@@ -271,7 +284,7 @@ class ReindexServiceTest {
     verify(statusService).updateReindexMergeInProgress(
       Set.of(ReindexEntityType.ITEM, ReindexEntityType.HOLDINGS, ReindexEntityType.INSTANCE));
     failedRanges.forEach(range ->
-      verify(inventoryService).publishReindexRecordsRange(range));
+      verify(inventoryService).publishReindexRecordsRange(range, REINDEX_JOB_ID));
   }
 
   private MergeRangeEntity createMergeRangeEntity(ReindexEntityType entityType) {

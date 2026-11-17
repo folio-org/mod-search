@@ -72,8 +72,8 @@ class InventoryServiceTest {
 
   @Test
   void publishReindexRecordsRange_ShouldIgnoreInvalidInput() {
-    inventoryService.publishReindexRecordsRange(null);
-    verify(reindexRecordsClient, never()).publishReindexRecords(any());
+    inventoryService.publishReindexRecordsRange(null, UUID.randomUUID());
+    verify(reindexRecordsClient, never()).publishReindexRecords(any(), any());
   }
 
   @Test
@@ -82,10 +82,11 @@ class InventoryServiceTest {
     var validRange = new MergeRangeEntity(id, INSTANCE, TENANT_ID, "low", "high", Timestamp.from(
       Instant.now()), null, null);
     var request = constructRequest(id.toString(), INSTANCE.getType(), "low", "high");
-    doNothing().when(reindexRecordsClient).publishReindexRecords(request);
+    var reindexJobId = UUID.randomUUID();
+    doNothing().when(reindexRecordsClient).publishReindexRecords(reindexJobId.toString(), request);
 
-    inventoryService.publishReindexRecordsRange(validRange);
-    verify(reindexRecordsClient).publishReindexRecords(request);
+    inventoryService.publishReindexRecordsRange(validRange, reindexJobId);
+    verify(reindexRecordsClient).publishReindexRecords(reindexJobId.toString(), request);
   }
 
   @Test
@@ -94,10 +95,11 @@ class InventoryServiceTest {
     var validRange = new MergeRangeEntity(id, INSTANCE, TENANT_ID, "low", "high", Timestamp.from(
       Instant.now()), null, null);
     var request = constructRequest(id.toString(), INSTANCE.getType(), "low", "high");
-    doThrow(new RuntimeException("API failure")).when(reindexRecordsClient).publishReindexRecords(request);
+    doThrow(new RuntimeException("API failure")).when(reindexRecordsClient).publishReindexRecords(null, request);
 
-    assertThrows(FolioIntegrationException.class, () -> inventoryService.publishReindexRecordsRange(validRange));
+    assertThrows(FolioIntegrationException.class,
+      () -> inventoryService.publishReindexRecordsRange(validRange, null));
 
-    verify(reindexRecordsClient, times(5)).publishReindexRecords(request);
+    verify(reindexRecordsClient, times(5)).publishReindexRecords(null, request);
   }
 }

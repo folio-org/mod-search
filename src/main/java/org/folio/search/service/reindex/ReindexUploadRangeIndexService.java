@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.ResourceEvent;
@@ -39,7 +40,7 @@ public class ReindexUploadRangeIndexService {
     this.statusService = statusService;
   }
 
-  public void prepareAndSendIndexRanges(ReindexEntityType entityType) {
+  public void prepareAndSendIndexRanges(ReindexEntityType entityType, UUID reindexJobId) {
     var repository = Optional.ofNullable(repositories.get(entityType))
       .orElseThrow(() -> new UnsupportedOperationException("No repository found for entity type: " + entityType));
 
@@ -48,9 +49,9 @@ public class ReindexUploadRangeIndexService {
     // For member tenant reindex of instances, add member tenant ID to the events
     if (ReindexContext.isMemberTenantReindex()) {
       var memberTenantId = ReindexContext.getMemberTenantId();
-      updateStatusAndSendEvents(entityType, uploadRanges.size(), memberTenantId, uploadRanges);
+      updateStatusAndSendEvents(entityType, uploadRanges.size(), memberTenantId, reindexJobId, uploadRanges);
     } else {
-      updateStatusAndSendEvents(entityType, uploadRanges.size(), uploadRanges);
+      updateStatusAndSendEvents(entityType, uploadRanges.size(), null, reindexJobId, uploadRanges);
     }
   }
 
@@ -88,19 +89,15 @@ public class ReindexUploadRangeIndexService {
     repository.updateRangeStatus(event.getId(), Timestamp.from(Instant.now()), status, failCause);
   }
 
-  private void updateStatusAndSendEvents(ReindexEntityType entityType, int rangeCount,
-                                         List<UploadRangeEntity> rangeEntities) {
-    updateStatusAndSendEvents(entityType, rangeCount, null, rangeEntities);
-  }
-
   private void updateStatusAndSendEvents(ReindexEntityType entityType, int rangeCount, String memberTenantId,
-                                         List<UploadRangeEntity> rangeEntities) {
+                                         UUID reindexJobId, List<UploadRangeEntity> rangeEntities) {
     statusService.updateReindexUploadStarted(entityType, rangeCount);
-    var events = prepareEvents(memberTenantId, rangeEntities);
+    var events = prepareEvents(memberTenantId, reindexJobId, rangeEntities);
     indexRangeEventProducer.sendMessages(events);
   }
 
-  private List<ReindexRangeIndexEvent> prepareEvents(String memberTenantId, List<UploadRangeEntity> uploadRanges) {
+  private List<ReindexRangeIndexEvent> prepareEvents(String memberTenantId, UUID reindexJobId,
+                                                     List<UploadRangeEntity> uploadRanges) {
     return uploadRanges.stream()
       .map(range -> {
         var event = new ReindexRangeIndexEvent();
@@ -109,6 +106,7 @@ public class ReindexUploadRangeIndexService {
         event.setLower(range.getLower());
         event.setUpper(range.getUpper());
         event.setMemberTenantId(memberTenantId);
+        event.setReindexJobId(reindexJobId == null ? null : reindexJobId.toString());
         return event;
       })
       .toList();

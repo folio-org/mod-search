@@ -1,13 +1,16 @@
 package org.folio.search.integration;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
 import static org.awaitility.Durations.ONE_MINUTE;
 import static org.folio.search.integration.ReindexKafkaListenerIT.KafkaListenerTestConfiguration;
+import static org.folio.search.service.reindex.ReindexConstants.REINDEX_JOB_ID_HEADER;
 import static org.folio.spring.integration.XOkapiHeaders.TENANT;
 import static org.folio.support.TestConstants.TENANT_ID;
 import static org.folio.support.TestConstants.reindexRangeIndexTopic;
 import static org.folio.support.TestConstants.reindexRecordsTopic;
+import static org.folio.support.utils.JsonTestUtils.asJsonString;
 import static org.folio.support.utils.KafkaTestUtils.FOLIO_ENV;
 import static org.folio.support.utils.KafkaTestUtils.FOLIO_ENV_VAL;
 import static org.folio.support.utils.KafkaTestUtils.sendMessage;
@@ -15,11 +18,14 @@ import static org.folio.support.utils.TestUtils.removeEnvProperty;
 import static org.folio.support.utils.TestUtils.setEnvProperty;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.after;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -27,6 +33,7 @@ import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.folio.search.configuration.kafka.ReindexKafkaConfiguration;
 import org.folio.search.integration.message.ReindexKafkaListener;
@@ -36,6 +43,8 @@ import org.folio.search.model.event.ReindexRecordType;
 import org.folio.search.model.event.ReindexRecordsEvent;
 import org.folio.search.service.EgressExecutionContextService;
 import org.folio.search.service.consortium.ConsortiumTenantExecutor;
+import org.folio.search.service.reindex.ReindexJobEventFilter;
+import org.folio.search.service.reindex.ReindexJobEventFilter.ReindexEventInfo;
 import org.folio.search.service.reindex.ReindexOrchestrationService;
 import org.folio.spring.DefaultFolioExecutionContext;
 import org.folio.spring.FolioExecutionContext;
@@ -45,6 +54,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.kafka.autoconfigure.KafkaAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -78,6 +88,8 @@ class ReindexKafkaListenerIT {
   private EgressExecutionContextService scopedExecutionService;
   @MockitoBean
   private ReindexOrchestrationService reindexService;
+  @MockitoBean
+  private ReindexJobEventFilter jobEventFilter;
 
   @Autowired
   @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
@@ -101,6 +113,7 @@ class ReindexKafkaListenerIT {
       .thenAnswer(invocation -> invocation.<Callable<?>>getArgument(1).call());
     lenient().when(executionService.execute(any()))
       .thenAnswer(invocation -> invocation.<Supplier<?>>getArgument(0).get());
+    lenient().when(jobEventFilter.shouldProcess(any())).thenReturn(true);
 
     var configs = KafkaTestUtils.producerProps(embeddedKafka);
     configs.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -171,6 +184,101 @@ class ReindexKafkaListenerIT {
 
     await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
       verify(reindexService, times(3)).process(indexEvent));
+  }
+
+  @Test
+  void handleReindexRecordsEvent_positive_passesJobIdFromHeaderToFilter() {
+    var indexEvent = new ReindexRecordsEvent();
+    indexEvent.setTenant(TENANT_ID);
+    indexEvent.setRecordType(ReindexRecordType.INSTANCE);
+    indexEvent.setRecords(List.of(reindexRecord()));
+    var mergeRangeId = UUID.randomUUID().toString();
+    var reindexJobId = UUID.randomUUID().toString();
+
+    sendMessageWithJobId(mergeRangeId, indexEvent, reindexRecordsTopic(TENANT_ID), reindexJobId);
+
+    indexEvent.setRangeId(mergeRangeId);
+    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
+      verify(reindexService).process(indexEvent));
+    assertThat(capturedEventInfo(mergeRangeId)).isEqualTo(
+      new ReindexEventInfo("reindex-records", TENANT_ID, mergeRangeId, reindexJobId, "header"));
+  }
+
+  @Test
+  void handleReindexRecordsEvent_negative_skipsEventRejectedByFilter() {
+    var indexEvent = new ReindexRecordsEvent();
+    indexEvent.setTenant(TENANT_ID);
+    indexEvent.setRecordType(ReindexRecordType.INSTANCE);
+    indexEvent.setRecords(List.of(reindexRecord()));
+    var mergeRangeId = UUID.randomUUID().toString();
+    when(jobEventFilter.shouldProcess(any())).thenReturn(false);
+
+    sendMessageWithJobId(mergeRangeId, indexEvent, reindexRecordsTopic(TENANT_ID), UUID.randomUUID().toString());
+
+    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
+      assertThat(capturedEventInfo(mergeRangeId)).isNotNull());
+    verify(reindexService, after(500).never()).process(any(ReindexRecordsEvent.class));
+  }
+
+  @Test
+  void handleReindexFileReadyEvent_positive_fallsBackToTraceIdWithoutHeader() {
+    var rangeId = UUID.randomUUID().toString();
+    var traceId = UUID.randomUUID().toString();
+    var indexEvent = new ReindexFileReadyEvent(TENANT_ID, ReindexRecordType.INSTANCE, rangeId, traceId,
+      "s3-bucket", "s3/path/object", "2026-01-01T00:00:00Z");
+
+    sendMessage(rangeId, indexEvent, REINDEX_FILE_READY_TOPIC, kafkaProducer);
+
+    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
+      verify(reindexService).process(indexEvent));
+    assertThat(capturedEventInfo(rangeId)).isEqualTo(
+      new ReindexEventInfo("reindex-file-ready", TENANT_ID, rangeId, traceId, "payload.traceId"));
+  }
+
+  @Test
+  void handleReindexFileReadyEvent_positive_prefersHeaderOverTraceId() {
+    var rangeId = UUID.randomUUID().toString();
+    var reindexJobId = UUID.randomUUID().toString();
+    var indexEvent = new ReindexFileReadyEvent(TENANT_ID, ReindexRecordType.INSTANCE, rangeId,
+      UUID.randomUUID().toString(), "s3-bucket", "s3/path/object", "2026-01-01T00:00:00Z");
+
+    sendMessageWithJobId(rangeId, indexEvent, REINDEX_FILE_READY_TOPIC, reindexJobId);
+
+    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
+      verify(reindexService).process(indexEvent));
+    assertThat(capturedEventInfo(rangeId)).isEqualTo(
+      new ReindexEventInfo("reindex-file-ready", TENANT_ID, rangeId, reindexJobId, "header"));
+  }
+
+  @Test
+  void handleReindexRangeEvents_positive_passesJobIdFromPayloadToFilter() {
+    var indexEvent = new ReindexRangeIndexEvent();
+    indexEvent.setTenant(TENANT_ID);
+    indexEvent.setId(UUID.randomUUID());
+    indexEvent.setReindexJobId(UUID.randomUUID().toString());
+
+    sendMessage(indexEvent, reindexRangeIndexTopic(TENANT_ID), kafkaProducer);
+
+    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() ->
+      verify(reindexService).process(indexEvent));
+    assertThat(capturedEventInfo(indexEvent.getId().toString())).isEqualTo(
+      new ReindexEventInfo("reindex-range-index", TENANT_ID, indexEvent.getId().toString(),
+        indexEvent.getReindexJobId(), "payload.reindexJobId"));
+  }
+
+  private ReindexEventInfo capturedEventInfo(String rangeId) {
+    var captor = ArgumentCaptor.forClass(ReindexEventInfo.class);
+    verify(jobEventFilter, atLeastOnce()).shouldProcess(captor.capture());
+    return captor.getAllValues().stream()
+      .filter(info -> rangeId.equals(info.rangeId()))
+      .findFirst()
+      .orElse(null);
+  }
+
+  private void sendMessageWithJobId(String key, Object value, String topic, String reindexJobId) {
+    var producerRecord = new ProducerRecord<>(topic, key, asJsonString(value));
+    producerRecord.headers().add(REINDEX_JOB_ID_HEADER, reindexJobId.getBytes(StandardCharsets.UTF_8));
+    kafkaProducer.send(producerRecord);
   }
 
   private Map<String, Object> reindexRecord() {

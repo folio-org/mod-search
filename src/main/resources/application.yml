@@ -110,6 +110,9 @@ folio:
       stale-lock-threshold-ms: ${STALE_LOCK_THRESHOLD_MS:600000}
   reindex:
     reindex-type: ${REINDEX_TYPE:PUBLISH}
+    job-filter:
+      enabled: ${REINDEX_JOB_FILTER_ENABLED:true}
+      missing-job-id-policy: ${REINDEX_JOB_MISSING_ID_POLICY:PROCESS}
     location-batch-size: ${REINDEX_LOCATION_BATCH_SIZE:1000}
     upload-range-size: ${REINDEX_UPLOAD_RANGE_SIZE:1000}
     upload-range-level: ${REINDEX_UPLOAD_RANGE_LEVEL:3}

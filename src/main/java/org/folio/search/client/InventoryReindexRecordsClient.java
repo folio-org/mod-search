@@ -1,8 +1,10 @@
 package org.folio.search.client;
 
+import static org.folio.search.service.reindex.ReindexConstants.REINDEX_JOB_ID_HEADER;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.service.annotation.HttpExchange;
 import org.springframework.web.service.annotation.PostExchange;
 
@@ -19,10 +21,12 @@ public interface InventoryReindexRecordsClient {
   }
 
   @PostExchange(value = "/publish", accept = APPLICATION_JSON_VALUE)
-  void publishReindexRecords(@RequestBody PublishReindexRecordsRequest publishReindexRecordsRequest);
+  void publishReindexRecords(@RequestHeader(name = REINDEX_JOB_ID_HEADER, required = false) String reindexJobId,
+                             @RequestBody PublishReindexRecordsRequest publishReindexRecordsRequest);
 
   @PostExchange(value = "/export", accept = APPLICATION_JSON_VALUE)
-  void exportReindexRecords(@RequestBody ExportReindexRecordsRequest publishReindexRecordsRequest);
+  void exportReindexRecords(@RequestHeader(name = REINDEX_JOB_ID_HEADER, required = false) String reindexJobId,
+                            @RequestBody ExportReindexRecordsRequest publishReindexRecordsRequest);
 
   record PublishReindexRecordsRequest(
     String id,

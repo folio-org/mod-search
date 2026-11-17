@@ -79,6 +79,11 @@ public class ReindexConfigurationProperties {
   private String migrationStatementTimeout = "0";
 
   /**
+   * Controls filtering of reindex Kafka events by the reindex job identifier of this instance.
+   */
+  private JobFilter jobFilter = new JobFilter();
+
+  /**
    * Validates the configuration properties at startup.
    * This ensures that any invalid configuration fails fast during application startup.
    */
@@ -105,6 +110,35 @@ public class ReindexConfigurationProperties {
 
     log.info("Reindex configuration validated successfully. Migration work_mem: {}, statement_timeout: {}",
       migrationWorkMem, migrationStatementTimeout);
+  }
+
+  @Data
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class JobFilter {
+
+    /**
+     * Enables comparison of the reindex job identifier carried by reindex events with the active job of the tenant.
+     * When disabled every event is processed, as before job tracking was introduced.
+     */
+    private boolean enabled = true;
+
+    /**
+     * Defines what to do with reindex events that carry no job identifier,
+     * e.g. events published by a mod-inventory-storage version that does not propagate it.
+     */
+    private MissingJobIdPolicy missingJobIdPolicy = MissingJobIdPolicy.PROCESS;
+  }
+
+  public enum MissingJobIdPolicy {
+    /**
+     * Process events without a job identifier (legacy-compatible behavior for standard instances).
+     */
+    PROCESS,
+    /**
+     * Ignore events without a job identifier (strict mode for background reindex instances).
+     */
+    IGNORE
   }
 
   public enum ReindexType {

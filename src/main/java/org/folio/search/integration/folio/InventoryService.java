@@ -2,6 +2,7 @@ package org.folio.search.integration.folio;
 
 import static org.folio.search.configuration.RetryTemplateConfiguration.REINDEX_PUBLISH_RANGE_RETRY_TEMPLATE_NAME;
 
+import java.util.Objects;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.logging.log4j.message.FormattedMessage;
@@ -59,28 +60,32 @@ public class InventoryService {
     }
   }
 
+  /**
+   * Requests mod-inventory-storage to publish/export the records of the given merge range. The range traceId holds
+   * the reindex job id (see {@code ReindexMergeRangeIndexService#createMergeRanges}), which is sent as a header so
+   * that the resulting Kafka events can be attributed to the job.
+   */
   public void publishReindexRecordsRange(MergeRangeEntity rangeEntity) {
     if (rangeEntity == null
         || ObjectUtils.anyNull(rangeEntity.getId(), rangeEntity.getLowerId(), rangeEntity.getUpperId())) {
       log.warn("Invalid Range Entity: [rangeEntity: {}]", rangeEntity);
       return;
     }
+    var reindexJobId = Objects.toString(rangeEntity.getTraceId(), null);
     retryTemplate.invoke(() -> {
       if (reindexConfig.getReindexType() == ReindexConfigurationProperties.ReindexType.PUBLISH) {
-        var recordsRange = InventoryReindexRecordsClient.constructRequest(
+        reindexRecordsClient.publishReindexRecords(reindexJobId, InventoryReindexRecordsClient.constructRequest(
           rangeEntity.getId().toString(),
           rangeEntity.getEntityType().getType(),
           rangeEntity.getLowerId(),
-          rangeEntity.getUpperId());
-        reindexRecordsClient.publishReindexRecords(recordsRange);
+          rangeEntity.getUpperId()));
       } else {
-        var recordsRange = InventoryReindexRecordsClient.constructRequest(
+        reindexRecordsClient.exportReindexRecords(reindexJobId, InventoryReindexRecordsClient.constructRequest(
           rangeEntity.getId().toString(),
-          rangeEntity.getTraceId() == null ? null : rangeEntity.getTraceId().toString(),
+          reindexJobId,
           rangeEntity.getEntityType().getType(),
           rangeEntity.getLowerId(),
-          rangeEntity.getUpperId());
-        reindexRecordsClient.exportReindexRecords(recordsRange);
+          rangeEntity.getUpperId()));
       }
     });
   }

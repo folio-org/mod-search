@@ -14,6 +14,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -46,6 +47,7 @@ import org.folio.search.model.types.ReindexStatus;
 import org.folio.search.service.EgressExecutionContextService;
 import org.folio.search.service.consortium.ConsortiumTenantService;
 import org.folio.spring.testing.type.UnitTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -56,6 +58,8 @@ import org.mockito.stubbing.Answer;
 @UnitTest
 @ExtendWith(MockitoExtension.class)
 class ReindexServiceTest {
+
+  private static final UUID REINDEX_JOB_ID = UUID.randomUUID();
 
   @Mock
   private ConsortiumTenantService consortiumService;
@@ -75,8 +79,16 @@ class ReindexServiceTest {
   private ReindexEntityTypeMapper entityTypeMapper;
   @Mock
   private ReindexCommonService reindexCommonService;
+  @Mock
+  private ReindexJobService reindexJobService;
   @InjectMocks
   private ReindexService reindexService;
+
+  @BeforeEach
+  void setUpReindexJob() {
+    lenient().when(reindexJobService.startNewJob()).thenReturn(REINDEX_JOB_ID);
+    lenient().when(reindexJobService.getOrStartJob()).thenReturn(REINDEX_JOB_ID);
+  }
 
   @Test
   void submitFullReindex_negative_shouldFailForEcsMemberTenant() {
@@ -93,7 +105,7 @@ class ReindexServiceTest {
     var rangeEntity = buildMergeRangeEntity(UUID.randomUUID(), tenant);
 
     when(consortiumService.getCentralTenant(tenant)).thenReturn(Optional.of(tenant));
-    when(mergeRangeService.createMergeRanges(tenant)).thenReturn(List.of(rangeEntity));
+    when(mergeRangeService.createMergeRanges(tenant, REINDEX_JOB_ID)).thenReturn(List.of(rangeEntity));
     when(executionService.execute(anyString(), any(Callable.class))).thenReturn(List.of());
     when(consortiumService.getConsortiumTenants(tenant)).thenReturn(List.of(member));
     when(mergeRangeService.fetchMergeRanges(any(ReindexEntityType.class))).thenReturn(List.of(rangeEntity));
@@ -125,7 +137,7 @@ class ReindexServiceTest {
 
     when(consortiumService.getCentralTenant(tenant)).thenReturn(Optional.of(tenant));
     when(consortiumService.getConsortiumTenants(tenant)).thenReturn(List.of(member));
-    when(mergeRangeService.createMergeRanges(tenant)).thenReturn(List.of(rangeEntity));
+    when(mergeRangeService.createMergeRanges(eq(tenant), any())).thenReturn(List.of(rangeEntity));
     when(executionService.execute(anyString(), any(Callable.class)))
       .thenReturn(List.of())                       // createMergeRanges for member tenant
       .thenThrow(FolioIntegrationException.class); // publishing phase — all entity types fail
@@ -195,7 +207,7 @@ class ReindexServiceTest {
     verify(statusService).getTargetTenantId();
     verify(statusService).upsertUploadStatusRecord(eq(INSTANCE), any());
     verify(reindexCommonService).enableAutoVacuumEntityTables();
-    verify(uploadRangeService).prepareAndSendIndexRanges(INSTANCE);
+    verify(uploadRangeService).prepareAndSendIndexRanges(INSTANCE, REINDEX_JOB_ID);
     verify(reindexCommonService, never()).recreateIndex(any(), any(), any());
   }
 
@@ -212,7 +224,7 @@ class ReindexServiceTest {
     verify(statusService).upsertUploadStatusRecord(eq(INSTANCE), any());
     verify(reindexCommonService).recreateIndex(eq(INSTANCE), eq(TENANT_ID), any());
     verify(reindexCommonService).enableAutoVacuumEntityTables();
-    verify(uploadRangeService).prepareAndSendIndexRanges(INSTANCE);
+    verify(uploadRangeService).prepareAndSendIndexRanges(INSTANCE, REINDEX_JOB_ID);
   }
 
   @Test
@@ -226,14 +238,14 @@ class ReindexServiceTest {
 
     reindexService.submitUploadReindex(TENANT_ID, uploadDto);
 
-    verify(uploadRangeService).prepareAndSendIndexRanges(INSTANCE);
-    verify(uploadRangeService, never()).prepareAndSendIndexRanges(HOLDINGS);
+    verify(uploadRangeService).prepareAndSendIndexRanges(INSTANCE, REINDEX_JOB_ID);
+    verify(uploadRangeService, never()).prepareAndSendIndexRanges(eq(HOLDINGS), any());
   }
 
   @Test
   void submitUploadReindex_negative_failedToPrepareUploadRangesAndSendThem() {
     when(consortiumService.getCentralTenant(TENANT_ID)).thenReturn(Optional.of(TENANT_ID));
-    doThrow(RuntimeException.class).when(uploadRangeService).prepareAndSendIndexRanges(INSTANCE);
+    doThrow(RuntimeException.class).when(uploadRangeService).prepareAndSendIndexRanges(INSTANCE, REINDEX_JOB_ID);
 
     doAnswer(executeRunnable()).when(reindexExecutor).execute(any());
 
@@ -393,7 +405,7 @@ class ReindexServiceTest {
 
     verify(reindexCommonService).deleteInstanceDocumentsByTenantId("member");
     verify(statusService).upsertUploadStatusRecord(eq(INSTANCE), any());
-    verify(uploadRangeService).prepareAndSendIndexRanges(INSTANCE);
+    verify(uploadRangeService).prepareAndSendIndexRanges(INSTANCE, REINDEX_JOB_ID);
     verifyNoInteractions(mergeRangeService);
   }
 
@@ -406,7 +418,7 @@ class ReindexServiceTest {
 
     verify(reindexCommonService, never()).deleteInstanceDocumentsByTenantId(any());
     verify(statusService).upsertUploadStatusRecord(eq(INSTANCE), any());
-    verify(uploadRangeService).prepareAndSendIndexRanges(INSTANCE);
+    verify(uploadRangeService).prepareAndSendIndexRanges(INSTANCE, REINDEX_JOB_ID);
     verify(reindexCommonService).enableAutoVacuumEntityTables();
   }
 

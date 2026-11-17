@@ -62,12 +62,16 @@ public class ReindexMergeRangeIndexService {
     repositories.values().iterator().next().truncateMergeRanges();
   }
 
-  public List<MergeRangeEntity> createMergeRanges(String tenantId) {
+  /**
+   * Creates merge ranges of the given tenant for the given reindex job. The job id is stored as the traceId of
+   * every range, so it is sent to mod-inventory-storage with each range request and echoed back in the events.
+   */
+  public List<MergeRangeEntity> createMergeRanges(String tenantId, UUID reindexJobId) {
     List<MergeRangeEntity> mergeRangeEntities = new ArrayList<>();
     var rangeSize = reindexConfig.getMergeRangeSize();
     for (var recordType : InventoryRecordType.values()) {
       var recordsCount = inventoryService.fetchInventoryRecordsCount(recordType);
-      var ranges = constructMergeRangeRecords(recordsCount, rangeSize, recordType, tenantId);
+      var ranges = constructMergeRangeRecords(recordsCount, rangeSize, recordType, tenantId, reindexJobId);
       if (CollectionUtils.isNotEmpty(ranges)) {
         log.info("createMergeRanges:: constructed [tenantId: {}, entityType: {}, count: {}]",
           tenantId, recordType, ranges.size());
@@ -131,8 +135,8 @@ public class ReindexMergeRangeIndexService {
   private List<MergeRangeEntity> constructMergeRangeRecords(int recordsCount,
                                                             int rangeSize,
                                                             InventoryRecordType recordType,
-                                                            String tenantId) {
-    var traceId = UUID.randomUUID();
+                                                            String tenantId,
+                                                            UUID traceId) {
     log.info("constructMergeRangeRecords:: [tenantId: {}, traceId: {}, "
              + "recordType: {}, recordsCount: {}, rangeSize: {}]",
       tenantId, traceId, recordType, recordsCount, rangeSize);

@@ -16,4 +16,5 @@ public class ReindexRangeIndexEvent implements BaseKafkaMessage {
   private String tenant;
   private String ts;
   private String memberTenantId;
+  private String reindexJobId;
 }

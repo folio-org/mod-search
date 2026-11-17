@@ -53,6 +53,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class ReindexMergeRangeIndexServiceTest {
 
+  private static final UUID REINDEX_JOB_ID = UUID.randomUUID();
+
   private @Mock MergeInstanceRepository instanceRepository;
   private @Mock ItemRepository itemRepository;
   private @Mock HoldingRepository holdingRepository;
@@ -91,7 +93,7 @@ class ReindexMergeRangeIndexServiceTest {
     when(inventoryService.fetchInventoryRecordsCount(any(InventoryRecordType.class))).thenReturn(3);
 
     // act
-    var ranges = service.createMergeRanges(TENANT_ID);
+    var ranges = service.createMergeRanges(TENANT_ID, REINDEX_JOB_ID);
 
     // assert
     verify(inventoryService, times(InventoryRecordType.values().length))
@@ -101,8 +103,9 @@ class ReindexMergeRangeIndexServiceTest {
       .hasSize(3)
       .are(new Condition<>(range -> range.getLowerId() != null, "lower id"))
       .are(new Condition<>(range -> range.getUpperId() != null, "upper id"))
-      .extracting(MergeRangeEntity::getEntityType, MergeRangeEntity::getTenantId)
-      .containsExactlyInAnyOrder(tuple(INSTANCE, TENANT_ID), tuple(HOLDINGS, TENANT_ID), tuple(ITEM, TENANT_ID));
+      .extracting(MergeRangeEntity::getEntityType, MergeRangeEntity::getTenantId, MergeRangeEntity::getTraceId)
+      .containsExactlyInAnyOrder(tuple(INSTANCE, TENANT_ID, REINDEX_JOB_ID), tuple(HOLDINGS, TENANT_ID, REINDEX_JOB_ID),
+        tuple(ITEM, TENANT_ID, REINDEX_JOB_ID));
   }
 
   @Test
@@ -112,7 +115,7 @@ class ReindexMergeRangeIndexServiceTest {
     when(inventoryService.fetchInventoryRecordsCount(any(InventoryRecordType.class))).thenReturn(0);
 
     // act
-    var ranges = service.createMergeRanges(TENANT_ID);
+    var ranges = service.createMergeRanges(TENANT_ID, REINDEX_JOB_ID);
 
     // assert – one empty range per InventoryRecordType, bounds span the full UUID space
     assertThat(ranges)
@@ -130,7 +133,7 @@ class ReindexMergeRangeIndexServiceTest {
     when(inventoryService.fetchInventoryRecordsCount(any(InventoryRecordType.class))).thenReturn(9);
 
     // act
-    var ranges = service.createMergeRanges(TENANT_ID);
+    var ranges = service.createMergeRanges(TENANT_ID, REINDEX_JOB_ID);
 
     // assert – 3 types × 3 ranges = 9 total
     assertThat(ranges).hasSize(9);

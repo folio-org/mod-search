@@ -83,7 +83,7 @@ class InventoryServiceTest {
   @Test
   void publishReindexRecordsRange_ShouldIgnoreInvalidInput() {
     inventoryService.publishReindexRecordsRange(null);
-    verify(reindexRecordsClient, never()).publishReindexRecords(any());
+    verify(reindexRecordsClient, never()).publishReindexRecords(any(), any());
   }
 
   @Test
@@ -92,10 +92,10 @@ class InventoryServiceTest {
     var validRange = new MergeRangeEntity(id, id, INSTANCE, TENANT_ID, "low", "high", Timestamp.from(
       Instant.now()), null, null);
     var request = constructRequest(id.toString(), id.toString(), INSTANCE.getType(), "low", "high");
-    doNothing().when(reindexRecordsClient).exportReindexRecords(request);
+    doNothing().when(reindexRecordsClient).exportReindexRecords(id.toString(), request);
 
     inventoryService.publishReindexRecordsRange(validRange);
-    verify(reindexRecordsClient).exportReindexRecords(request);
+    verify(reindexRecordsClient).exportReindexRecords(id.toString(), request);
   }
 
   @Test
@@ -104,10 +104,11 @@ class InventoryServiceTest {
     var validRange = new MergeRangeEntity(id, id, INSTANCE, TENANT_ID, "low", "high", Timestamp.from(
       Instant.now()), null, null);
     var request = constructRequest(id.toString(), id.toString(), INSTANCE.getType(), "low", "high");
-    doThrow(new RuntimeException("API failure")).when(reindexRecordsClient).exportReindexRecords(request);
+    doThrow(new RuntimeException("API failure"))
+      .when(reindexRecordsClient).exportReindexRecords(id.toString(), request);
 
     assertThrows(FolioIntegrationException.class, () -> inventoryService.publishReindexRecordsRange(validRange));
 
-    verify(reindexRecordsClient, times(6)).exportReindexRecords(request);
+    verify(reindexRecordsClient, times(6)).exportReindexRecords(id.toString(), request);
   }
 }

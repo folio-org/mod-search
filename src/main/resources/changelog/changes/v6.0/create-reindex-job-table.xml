@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
+
+  <changeSet id="MSEARCH-1192@@create:reindex_job" author="vgema">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="reindex_job"/>
+      </not>
+    </preConditions>
+
+    <comment>Create reindex_job table holding the identifier of the active full reindex job</comment>
+
+    <createTable tableName="reindex_job">
+      <column name="id" type="UUID">
+        <constraints primaryKey="true" primaryKeyName="pk_reindex_job"/>
+      </column>
+      <column name="created_at" type="timestamp">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+</databaseChangeLog>

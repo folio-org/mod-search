@@ -8,6 +8,7 @@ import static org.folio.search.model.types.ReindexStatus.MERGE_IN_PROGRESS;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.function.BiFunction;
@@ -48,6 +49,7 @@ public class ReindexService {
   private final ExecutorService reindexPublisherExecutor;
   private final ReindexEntityTypeMapper entityTypeMapper;
   private final ReindexCommonService reindexCommonService;
+  private final ReindexJobService reindexJobService;
 
   public ReindexService(ConsortiumTenantService consortiumService, EgressExecutionContextService executionService,
                         ReindexMergeRangeIndexService mergeRangeService,
@@ -56,7 +58,8 @@ public class ReindexService {
                         @Qualifier("reindexFullExecutor") ExecutorService reindexFullExecutor,
                         @Qualifier("reindexUploadExecutor") ExecutorService reindexUploadExecutor,
                         @Qualifier("reindexPublisherExecutor") ExecutorService reindexPublisherExecutor,
-                        ReindexEntityTypeMapper entityTypeMapper, ReindexCommonService reindexCommonService) {
+                        ReindexEntityTypeMapper entityTypeMapper, ReindexCommonService reindexCommonService,
+                        ReindexJobService reindexJobService) {
     this.consortiumService = consortiumService;
     this.executionService = executionService;
     this.mergeRangeService = mergeRangeService;
@@ -68,6 +71,7 @@ public class ReindexService {
     this.reindexPublisherExecutor = reindexPublisherExecutor;
     this.entityTypeMapper = entityTypeMapper;
     this.reindexCommonService = reindexCommonService;
+    this.reindexJobService = reindexJobService;
   }
 
   @CacheEvict(cacheNames = USER_TENANTS_CACHE, allEntries = true, beforeInvocation = true)
@@ -84,6 +88,9 @@ public class ReindexService {
     validateTenant("submitFullReindex", tenantId, targetTenantId);
     validateReindexNotInProgress();
 
+    // From here on, reindex events of any previous job (or of another mod-search instance) are ignored
+    final var reindexJobId = reindexJobService.startNewJob();
+
     reindexCommonService.deleteAllRecords(targetTenantId);
     reindexCommonService.disableAutoVacuumEntityTables();
     statusService.recreateMergeStatusRecords(targetTenantId);
@@ -93,16 +100,17 @@ public class ReindexService {
     // Capture context before async execution
     final var memberTenantIdContext = targetTenantId;
 
-    var future = CompletableFuture.runAsync(() -> recreateMergeRanges(tenantId, targetTenantId), reindexFullExecutor)
+    var future = CompletableFuture.runAsync(() -> recreateMergeRanges(tenantId, targetTenantId, reindexJobId),
+        reindexFullExecutor)
       .thenRun(() -> publishRecordsRange(tenantId, memberTenantIdContext))
       .handle(handleReindexingFailure(tenantId, targetTenantId));
 
-    log.info("submitFullReindex:: submitted [requestingTenant: {}, targetTenant: {}]", tenantId,
-      targetTenantId != null ? targetTenantId : "all consortium members");
+    log.info("submitFullReindex:: submitted [requestingTenant: {}, targetTenant: {}, reindexJobId: {}]", tenantId,
+      targetTenantId != null ? targetTenantId : "all consortium members", reindexJobId);
     return future;
   }
 
-  private void recreateMergeRanges(String tenantId, String memberTenantIdContext) {
+  private void recreateMergeRanges(String tenantId, String memberTenantIdContext, UUID reindexJobId) {
     try {
       // Restore context in executor thread
       if (memberTenantIdContext != null) {
@@ -115,11 +123,11 @@ public class ReindexService {
       List<MergeRangeEntity> rangesForAllTenants;
       if (memberTenantIdContext != null) {
         // Only process the member tenant (no central tenant in merge)
-        rangesForAllTenants = processForConsortium(tenantId, memberTenantIdContext);
+        rangesForAllTenants = processForConsortium(tenantId, memberTenantIdContext, reindexJobId);
       } else {
         // Full consortium reindex: Process central + all members (no staging)
-        rangesForAllTenants = Stream.of(mergeRangeService.createMergeRanges(tenantId),  // Central
-          processForConsortium(tenantId, null)             // Members
+        rangesForAllTenants = Stream.of(mergeRangeService.createMergeRanges(tenantId, reindexJobId),  // Central
+          processForConsortium(tenantId, null, reindexJobId)             // Members
         ).flatMap(List::stream).toList();
       }
 
@@ -150,6 +158,8 @@ public class ReindexService {
 
     validateUploadReindex(tenantId, entityTypes);
 
+    // Upload after a full reindex continues its job; a standalone upload reuses the active job or registers one
+    final var reindexJobId = reindexJobService.getOrStartJob();
     // Capture context before async execution
     final var memberTenantIdContext = ReindexContext.getMemberTenantId();
     prepareForUploadReindex(tenantId, memberTenantIdContext, entityTypes, recreateIndex, indexSettings);
@@ -157,7 +167,7 @@ public class ReindexService {
     var futures = new ArrayList<>();
     for (var entityType : entityTypes) {
       var future = CompletableFuture.runAsync(() ->
-          sendIndexRanges(memberTenantIdContext, entityType), reindexUploadExecutor)
+          sendIndexRanges(memberTenantIdContext, entityType, reindexJobId), reindexUploadExecutor)
         .handle((unused, throwable) -> {
           if (throwable != null) {
             log.error("submitUploadReindex:: reindex upload process failed: {}", throwable.getMessage());
@@ -168,7 +178,7 @@ public class ReindexService {
       futures.add(future);
     }
 
-    log.info("submitUploadReindex:: submitted [tenantId: {}]", tenantId);
+    log.info("submitUploadReindex:: submitted [tenantId: {}, reindexJobId: {}]", tenantId, reindexJobId);
     return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
   }
 
@@ -188,13 +198,13 @@ public class ReindexService {
     }
   }
 
-  private void sendIndexRanges(String memberTenantIdContext, ReindexEntityType entityType) {
+  private void sendIndexRanges(String memberTenantIdContext, ReindexEntityType entityType, UUID reindexJobId) {
     // Restore context in executor thread
     if (memberTenantIdContext != null) {
       ReindexContext.setMemberTenantId(memberTenantIdContext);
     }
     try {
-      uploadRangeService.prepareAndSendIndexRanges(entityType);
+      uploadRangeService.prepareAndSendIndexRanges(entityType, reindexJobId);
     } finally {
       // Clean up context in executor thread
       if (memberTenantIdContext != null) {
@@ -309,7 +319,7 @@ public class ReindexService {
     }
   }
 
-  private List<MergeRangeEntity> processForConsortium(String tenantId, String targetTenantId) {
+  private List<MergeRangeEntity> processForConsortium(String tenantId, String targetTenantId, UUID reindexJobId) {
     var mergeRangeEntities = new ArrayList<MergeRangeEntity>();
 
     if (targetTenantId != null) {
@@ -322,7 +332,7 @@ public class ReindexService {
 
       // Process ONLY the target member tenant
       mergeRangeEntities.addAll(executionService.execute(targetTenantId,
-        () -> mergeRangeService.createMergeRanges(targetTenantId)));
+        () -> mergeRangeService.createMergeRanges(targetTenantId, reindexJobId)));
 
       // DO NOT process central tenant here - it will be handled in upload phase
     } else {
@@ -331,7 +341,7 @@ public class ReindexService {
       for (var memberTenant : memberTenants) {
         log.info("processForConsortium:: processing member tenant [{}]", memberTenant);
         mergeRangeEntities.addAll(executionService.execute(memberTenant,
-          () -> mergeRangeService.createMergeRanges(memberTenant)));
+          () -> mergeRangeService.createMergeRanges(memberTenant, reindexJobId)));
       }
     }
 

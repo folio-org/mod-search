@@ -1,0 +1,53 @@
+@startuml
+!theme plain
+title Call Number Refresh (runtime, CALL_NUMBER_INDEX_FROM_ITEMS_ENABLED=true)
+
+participant "Kafka\n(inventory.item)" as kafka
+box "mod-search" #LightBlue
+  participant "Item indexing" as itemIndexing
+  participant "Call number refresh job\n(every CALL_NUMBER_REFRESH_DELAY_MS)" as refreshJob
+end box
+database "Postgres\n(index_rebuild_dirty_key,\nindex_rebuild_state)" as postgres
+database "OpenSearch\n(item and call-number indexes)" as opensearch
+
+autonumber
+
+== Item change ==
+kafka -> itemIndexing: Item event batch
+itemIndexing -> itemIndexing: Set callNumberId on item documents\n(SHA of normalized call number, prefix, suffix, type)
+itemIndexing -> opensearch: Bulk index item documents
+itemIndexing -> postgres: Enqueue callNumberIds of old and new items\n(enqueued_at = database clock)
+note right of postgres
+When an instance becomes shared, the callNumberIds
+of its items are read from the item index and enqueued.
+end note
+
+== Refresh (per tenant) ==
+refreshJob -> refreshJob: Skip if browse call numbers is disabled
+refreshJob -> postgres: Read item and call-number rebuild states
+alt Item index of any tenant not COMPLETED on the current version,\nor a call-number run active
+  refreshJob -> refreshJob: Skip, keys stay queued
+else Ready
+  loop while a full batch was processed
+    group One transaction
+      refreshJob -> postgres: pg_try_advisory_xact_lock(queue of call_number)
+      alt Locked by another module instance
+        refreshJob -> refreshJob: Skip this cycle
+      else Lock acquired
+        refreshJob -> postgres: startedAt = clock_timestamp()
+        refreshJob -> postgres: Read a batch of queued keys
+        refreshJob -> opensearch: Refresh the item index
+        refreshJob -> opensearch: Read item documents with these callNumberIds
+        refreshJob -> refreshJob: Build call number documents
+        refreshJob -> opensearch: Bulk index documents,\ndelete call numbers no item has anymore
+        refreshJob -> postgres: Delete keys enqueued at or before startedAt
+        note right of postgres
+        Keys enqueued again during the batch
+        stay queued for the next batch.
+        end note
+      end
+    end
+  end
+end
+
+@enduml

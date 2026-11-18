@@ -1,6 +1,12 @@
 package org.folio.search.repository;
 
 import static org.folio.search.configuration.SearchCacheNames.ES_INDICES_CACHE;
+import static org.folio.search.model.types.SearchOperationType.CREATE_INDEX;
+import static org.folio.search.model.types.SearchOperationType.DROP_INDEX;
+import static org.folio.search.model.types.SearchOperationType.INDEX_EXISTS;
+import static org.folio.search.model.types.SearchOperationType.PUT_INDEX_SETTINGS;
+import static org.folio.search.model.types.SearchOperationType.PUT_MAPPINGS;
+import static org.folio.search.model.types.SearchOperationType.REFRESH;
 import static org.folio.search.utils.SearchResponseHelper.getErrorFolioCreateIndexResponse;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessFolioCreateIndexResponse;
@@ -16,7 +22,6 @@ import org.folio.search.domain.dto.FolioIndexOperationResponse;
 import org.opensearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.opensearch.action.admin.indices.refresh.RefreshRequest;
 import org.opensearch.action.admin.indices.settings.put.UpdateSettingsRequest;
-import org.opensearch.client.RequestOptions;
 import org.opensearch.client.RestHighLevelClient;
 import org.opensearch.client.indices.CreateIndexRequest;
 import org.opensearch.client.indices.GetIndexRequest;
@@ -49,12 +54,11 @@ public class IndexRepository {
       .mapping(mappings, JSON);
 
     var createIndexResponse = performExceptionalOperation(
-      () -> elasticsearchClient.indices().create(createIndexRequest, RequestOptions.DEFAULT),
-      index, "createIndexApi");
+      () -> elasticsearchClient.indices().create(createIndexRequest, DEFAULT), index, CREATE_INDEX);
 
     return createIndexResponse.isAcknowledged()
-      ? getSuccessFolioCreateIndexResponse(List.of(index))
-      : getErrorFolioCreateIndexResponse(List.of(index));
+           ? getSuccessFolioCreateIndexResponse(List.of(index))
+           : getErrorFolioCreateIndexResponse(List.of(index));
   }
 
   /**
@@ -69,12 +73,11 @@ public class IndexRepository {
       .settings(settings, JSON);
 
     var updateIndexSettingsResponse = performExceptionalOperation(
-      () -> elasticsearchClient.indices().putSettings(updateSettingsRequest, RequestOptions.DEFAULT),
-      index, "putIndexSettingsApi");
+      () -> elasticsearchClient.indices().putSettings(updateSettingsRequest, DEFAULT), index, PUT_INDEX_SETTINGS);
 
     return updateIndexSettingsResponse.isAcknowledged()
-      ? getSuccessIndexOperationResponse()
-      : getErrorIndexOperationResponse("Failed to put settings");
+           ? getSuccessIndexOperationResponse()
+           : getErrorIndexOperationResponse("Failed to put settings");
   }
 
   /**
@@ -87,12 +90,11 @@ public class IndexRepository {
   public FolioIndexOperationResponse updateMappings(String index, String mappings) {
     var putMappingRequest = new PutMappingRequest(index).source(mappings, JSON);
     var putMappingsResponse = performExceptionalOperation(
-      () -> elasticsearchClient.indices().putMapping(putMappingRequest, RequestOptions.DEFAULT),
-      index, "putMappingsApi");
+      () -> elasticsearchClient.indices().putMapping(putMappingRequest, DEFAULT), index, PUT_MAPPINGS);
 
     return putMappingsResponse.isAcknowledged()
-      ? getSuccessIndexOperationResponse()
-      : getErrorIndexOperationResponse("Failed to put mappings");
+           ? getSuccessIndexOperationResponse()
+           : getErrorIndexOperationResponse("Failed to put mappings");
   }
 
   /**
@@ -105,8 +107,7 @@ public class IndexRepository {
   public boolean indexExists(String index) {
     var request = new GetIndexRequest(index);
     return performExceptionalOperation(
-      () -> elasticsearchClient.indices().exists(request, RequestOptions.DEFAULT),
-      index, "indexExists");
+      () -> elasticsearchClient.indices().exists(request, DEFAULT), index, INDEX_EXISTS);
   }
 
   /**
@@ -115,9 +116,8 @@ public class IndexRepository {
    * @param indices - Elasticsearch index names as array of {@link String} objects.
    */
   public void refreshIndices(String... indices) {
-    performExceptionalOperation(
-      () -> elasticsearchClient.indices().refresh(new RefreshRequest(indices), DEFAULT),
-      String.join(",", indices), "refreshApi");
+    performExceptionalOperation(() -> elasticsearchClient.indices()
+      .refresh(new RefreshRequest(indices), DEFAULT), String.join(",", indices), REFRESH);
   }
 
   /**
@@ -129,7 +129,6 @@ public class IndexRepository {
   public void dropIndex(String index) {
     var request = new DeleteIndexRequest(index);
 
-    performExceptionalOperation(() -> elasticsearchClient.indices()
-      .delete(request, RequestOptions.DEFAULT), index, "dropIndex");
+    performExceptionalOperation(() -> elasticsearchClient.indices().delete(request, DEFAULT), index, DROP_INDEX);
   }
 }

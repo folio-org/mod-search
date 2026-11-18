@@ -52,6 +52,7 @@ public abstract class KafkaConfiguration {
 
   public enum SearchTopic implements FolioKafkaTopic {
     REINDEX_RANGE_INDEX("search.reindex.range-index"),
+    INDEX_REBUILD_RANGE("search.reindex.index-rebuild-range"),
     INDEX_SUB_RESOURCE("search.index.sub-resource"),
     INDEX_INSTANCE("search.index.instance");
 

@@ -1,12 +1,14 @@
 package org.folio.search.configuration.kafka;
 
 import static org.apache.kafka.clients.consumer.ConsumerConfig.MAX_POLL_RECORDS_CONFIG;
+import static org.folio.search.configuration.kafka.KafkaConfiguration.SearchTopic.INDEX_REBUILD_RANGE;
 import static org.folio.search.configuration.kafka.KafkaConfiguration.SearchTopic.REINDEX_RANGE_INDEX;
 
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.message.ParameterizedMessage;
+import org.folio.search.model.event.IndexRebuildRangeEvent;
 import org.folio.search.model.event.ReindexFileReadyEvent;
 import org.folio.search.model.event.ReindexRangeIndexEvent;
 import org.folio.search.model.event.ReindexRecordsEvent;
@@ -50,6 +52,12 @@ public class ReindexKafkaConfiguration extends KafkaConfiguration {
   }
 
   @Bean
+  public ConcurrentKafkaListenerContainerFactory<String, IndexRebuildRangeEvent>
+    indexRebuildRangeListenerContainerFactory(CommonErrorHandler commonErrorHandler) {
+    return listenerContainerFactory(IndexRebuildRangeEvent.class, commonErrorHandler);
+  }
+
+  @Bean
   public CommonErrorHandler errorHandler(FolioKafkaProperties kafkaProperties) {
     var backOff = new FixedBackOff(kafkaProperties.getRetryIntervalMs(), kafkaProperties.getRetryDeliveryAttempts());
     return new DefaultErrorHandler((consumerRecord, exception) -> {
@@ -67,6 +75,16 @@ public class ReindexKafkaConfiguration extends KafkaConfiguration {
   @Bean
   public FolioMessageProducer<ReindexRangeIndexEvent> rangeIndexMessageProducer() {
     return new FolioMessageProducer<>(rangeIndexKafkaTemplate(), REINDEX_RANGE_INDEX);
+  }
+
+  @Bean
+  public KafkaTemplate<String, IndexRebuildRangeEvent> indexRebuildRangeKafkaTemplate() {
+    return new KafkaTemplate<>(getProducerFactory(kafkaProperties));
+  }
+
+  @Bean
+  public FolioMessageProducer<IndexRebuildRangeEvent> indexRebuildRangeMessageProducer() {
+    return new FolioMessageProducer<>(indexRebuildRangeKafkaTemplate(), INDEX_REBUILD_RANGE);
   }
 
   private <T> ConcurrentKafkaListenerContainerFactory<String, T> listenerContainerFactory(

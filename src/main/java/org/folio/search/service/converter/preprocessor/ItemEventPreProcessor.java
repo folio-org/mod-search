@@ -1,10 +1,18 @@
 package org.folio.search.service.converter.preprocessor;
 
+import static org.folio.search.service.converter.preprocessor.extractor.impl.CallNumberResourceExtractor.EFFECTIVE_CALL_NUMBER_COMPONENTS_FIELD;
+import static org.folio.search.service.converter.preprocessor.extractor.impl.CallNumberResourceExtractor.PREFIX_FIELD;
+import static org.folio.search.service.converter.preprocessor.extractor.impl.CallNumberResourceExtractor.SUFFIX_FIELD;
+import static org.folio.search.service.converter.preprocessor.extractor.impl.CallNumberResourceExtractor.TYPE_ID_FIELD;
+import static org.folio.search.utils.SearchUtils.CALL_NUMBER_FIELD;
+import static org.folio.search.utils.SearchUtils.CALL_NUMBER_ID_FIELD;
+
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.log4j.Log4j2;
 import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.service.indexrebuild.callnumber.CallNumberKey;
 import org.springframework.stereotype.Component;
 
 /**
@@ -15,7 +23,6 @@ import org.springframework.stereotype.Component;
 public class ItemEventPreProcessor implements EventPreProcessor {
 
   private static final String STATUS = "status";
-  private static final String EFFECTIVE_CALL_NUMBER_COMPONENTS = "effectiveCallNumberComponents";
 
   @Override
   public List<ResourceEvent> preProcess(ResourceEvent event) {
@@ -31,11 +38,12 @@ public class ItemEventPreProcessor implements EventPreProcessor {
     var status = nested(source, STATUS);
     putIfPresent(result, "statusName", status.get("name"));
 
-    var components = nested(source, EFFECTIVE_CALL_NUMBER_COMPONENTS);
-    putIfPresent(result, "callNumber", components.get("callNumber"));
-    putIfPresent(result, "callNumberPrefix", components.get("prefix"));
-    putIfPresent(result, "callNumberSuffix", components.get("suffix"));
-    putIfPresent(result, "callNumberTypeId", components.get("typeId"));
+    var components = nested(source, EFFECTIVE_CALL_NUMBER_COMPONENTS_FIELD);
+    putIfPresent(result, "callNumber", components.get(CALL_NUMBER_FIELD));
+    putIfPresent(result, "callNumberPrefix", components.get(PREFIX_FIELD));
+    putIfPresent(result, "callNumberSuffix", components.get(SUFFIX_FIELD));
+    putIfPresent(result, "callNumberTypeId", components.get(TYPE_ID_FIELD));
+    CallNumberKey.fromItem(source).ifPresent(key -> result.put(CALL_NUMBER_ID_FIELD, key.id()));
 
     var processed = new ResourceEvent()
       .id(event.getId())

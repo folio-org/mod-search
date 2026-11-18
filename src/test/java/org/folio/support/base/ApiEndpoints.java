@@ -180,6 +180,18 @@ public class ApiEndpoints {
     return "/search/index/settings";
   }
 
+  public static String itemRecordsReindexFullPath() {
+    return "/search/index/item-records/reindex/full";
+  }
+
+  public static String itemRecordsReindexFailedPath() {
+    return "/search/index/item-records/reindex/failed";
+  }
+
+  public static String itemRecordsReindexStatusPath() {
+    return "/search/index/item-records/reindex/status";
+  }
+
   public static String reindexInstanceRecordsStatus() {
     return "/search/index/instance-records/reindex/status";
   }

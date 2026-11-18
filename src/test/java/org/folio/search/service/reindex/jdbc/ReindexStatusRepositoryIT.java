@@ -9,7 +9,9 @@ import static org.folio.search.model.types.ReindexEntityType.INSTANCE;
 import static org.folio.search.model.types.ReindexEntityType.ITEM;
 import static org.folio.search.model.types.ReindexEntityType.SUBJECT;
 import static org.folio.search.model.types.ReindexStatus.MERGE_COMPLETED;
+import static org.folio.search.model.types.ReindexStatus.MERGE_FAILED;
 import static org.folio.search.model.types.ReindexStatus.MERGE_IN_PROGRESS;
+import static org.folio.search.model.types.ReindexStatus.STAGING_FAILED;
 import static org.folio.search.model.types.ReindexStatus.UPLOAD_COMPLETED;
 import static org.folio.search.model.types.ReindexStatus.UPLOAD_FAILED;
 import static org.folio.search.model.types.ReindexStatus.UPLOAD_IN_PROGRESS;
@@ -19,6 +21,7 @@ import static org.folio.support.TestConstants.TENANT_ID;
 import static org.mockito.Mockito.when;
 
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Set;
 import org.assertj.core.api.Condition;
 import org.folio.search.model.reindex.ReindexStatusEntity;
@@ -86,8 +89,9 @@ class ReindexStatusRepositoryIT {
     assertThat(statuses)
       .hasSize(4)
       .are(new Condition<>(status -> status.getTotalMergeRanges() == 3
-        && "2024-04-01 01:37:34.15755".equals(status.getStartTimeMerge().toString())
-        && "2024-04-01 01:37:35.15755".equals(status.getEndTimeMerge().toString()), "common properties match"))
+                                     && "2024-04-01 01:37:34.15755".equals(status.getStartTimeMerge().toString())
+                                     && "2024-04-01 01:37:35.15755".equals(status.getEndTimeMerge().toString()),
+        "common properties match"))
       .extracting(ReindexStatusEntity::getEntityType, ReindexStatusEntity::getStatus,
         ReindexStatusEntity::getProcessedMergeRanges, ReindexStatusEntity::getTotalUploadRanges,
         ReindexStatusEntity::getProcessedUploadRanges, ReindexStatusEntity::getStartTimeUpload,
@@ -113,7 +117,7 @@ class ReindexStatusRepositoryIT {
       .hasSize(4)
       .filteredOn(reindexStatus -> SUBJECT.equals(reindexStatus.getEntityType()))
       .anyMatch(reindexStatus -> UPLOAD_FAILED.equals(reindexStatus.getStatus())
-        && reindexStatus.getEndTimeUpload() != null);
+                                 && reindexStatus.getEndTimeUpload() != null);
   }
 
   @Test
@@ -128,7 +132,7 @@ class ReindexStatusRepositoryIT {
       .hasSize(4)
       .filteredOn(reindexStatus -> SUBJECT.equals(reindexStatus.getEntityType()))
       .anyMatch(reindexStatus -> UPLOAD_COMPLETED.equals(reindexStatus.getStatus())
-        && reindexStatus.getEndTimeUpload() != null);
+                                 && reindexStatus.getEndTimeUpload() != null);
   }
 
   @Test
@@ -216,7 +220,7 @@ class ReindexStatusRepositoryIT {
   @Sql("/sql/populate-reindex-status.sql")
   void setMergeReindexFailed_shouldUpdateStatusAndEndTimeForMultipleEntities() {
     // given
-    var entityTypes = java.util.List.of(INSTANCE, CONTRIBUTOR);
+    var entityTypes = List.of(INSTANCE, CONTRIBUTOR);
 
     // act
     repository.setMergeReindexFailed(entityTypes);
@@ -226,7 +230,7 @@ class ReindexStatusRepositoryIT {
     assertThat(statuses)
       .filteredOn(status -> entityTypes.contains(status.getEntityType()))
       .hasSize(2)
-      .allMatch(status -> status.getStatus() == org.folio.search.model.types.ReindexStatus.MERGE_FAILED)
+      .allMatch(status -> status.getStatus() == MERGE_FAILED)
       .allMatch(status -> status.getEndTimeMerge() != null);
   }
 
@@ -234,7 +238,7 @@ class ReindexStatusRepositoryIT {
   @Sql("/sql/populate-reindex-status.sql")
   void setStagingStarted_shouldSetStartTimeForMultipleEntities() {
     // given
-    var entityTypes = java.util.List.of(INSTANCE, CONTRIBUTOR);
+    var entityTypes = List.of(INSTANCE, CONTRIBUTOR);
 
     // act
     repository.setStagingStarted(entityTypes);
@@ -251,7 +255,7 @@ class ReindexStatusRepositoryIT {
   @Sql("/sql/populate-reindex-status.sql")
   void setStagingCompleted_shouldSetEndTimeForMultipleEntities() {
     // given
-    var entityTypes = java.util.List.of(INSTANCE, SUBJECT);
+    var entityTypes = List.of(INSTANCE, SUBJECT);
 
     // act
     repository.setStagingCompleted(entityTypes);
@@ -268,7 +272,7 @@ class ReindexStatusRepositoryIT {
   @Sql("/sql/populate-reindex-status.sql")
   void setStagingFailed_shouldSetStatusAndEndTimeForMultipleEntities() {
     // given
-    var entityTypes = java.util.List.of(INSTANCE, CONTRIBUTOR, CLASSIFICATION);
+    var entityTypes = List.of(INSTANCE, CONTRIBUTOR, CLASSIFICATION);
 
     // act
     repository.setStagingFailed(entityTypes);
@@ -278,7 +282,7 @@ class ReindexStatusRepositoryIT {
     assertThat(statuses)
       .filteredOn(s -> entityTypes.contains(s.getEntityType()))
       .hasSize(3)
-      .allMatch(s -> s.getStatus() == org.folio.search.model.types.ReindexStatus.STAGING_FAILED)
+      .allMatch(s -> s.getStatus() == STAGING_FAILED)
       .allMatch(s -> s.getEndTimeStaging() != null);
   }
 
@@ -293,7 +297,7 @@ class ReindexStatusRepositoryIT {
     entity2.setTotalMergeRanges(50);
     entity2.setProcessedMergeRanges(50);
 
-    var statusRecords = java.util.List.of(entity1, entity2);
+    var statusRecords = List.of(entity1, entity2);
 
     // act
     repository.saveReindexStatusRecords(statusRecords);
@@ -341,7 +345,7 @@ class ReindexStatusRepositoryIT {
     holdings.setTotalMergeRanges(10);
     holdings.setProcessedMergeRanges(10);
 
-    repository.saveReindexStatusRecords(java.util.List.of(item, instance, holdings));
+    repository.saveReindexStatusRecords(List.of(item, instance, holdings));
 
     // act
     var result = repository.isMergeCompleted();
@@ -354,7 +358,7 @@ class ReindexStatusRepositoryIT {
   void getTargetTenantId_shouldReturnNullWhenNotSet() {
     // given - insert record without target tenant
     var entity = new ReindexStatusEntity(INSTANCE, MERGE_IN_PROGRESS);
-    repository.saveReindexStatusRecords(java.util.List.of(entity));
+    repository.saveReindexStatusRecords(List.of(entity));
 
     // act
     var result = repository.getTargetTenantId();
@@ -369,7 +373,7 @@ class ReindexStatusRepositoryIT {
     var targetTenantId = MEMBER_TENANT_ID;
     var entity = new ReindexStatusEntity(INSTANCE, MERGE_IN_PROGRESS);
     entity.setTargetTenantId(targetTenantId);
-    repository.saveReindexStatusRecords(java.util.List.of(entity));
+    repository.saveReindexStatusRecords(List.of(entity));
 
     // act
     var result = repository.getTargetTenantId();
@@ -385,7 +389,7 @@ class ReindexStatusRepositoryIT {
 
     // assert - verify trigger exists by checking if we can use the table normally
     var entity = new ReindexStatusEntity(INSTANCE, MERGE_IN_PROGRESS);
-    repository.saveReindexStatusRecords(java.util.List.of(entity));
+    repository.saveReindexStatusRecords(List.of(entity));
     assertThat(repository.getReindexStatuses()).hasSize(1);
   }
 
@@ -397,7 +401,7 @@ class ReindexStatusRepositoryIT {
     // assert - verify trigger exists by checking if we can use the table normally
     var entity = new ReindexStatusEntity(CONTRIBUTOR, MERGE_IN_PROGRESS);
     entity.setTargetTenantId("consortium_member");
-    repository.saveReindexStatusRecords(java.util.List.of(entity));
+    repository.saveReindexStatusRecords(List.of(entity));
     assertThat(repository.getReindexStatuses()).hasSize(1);
   }
 

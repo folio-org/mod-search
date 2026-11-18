@@ -2,6 +2,9 @@ package org.folio.search.repository;
 
 import static java.util.stream.Collectors.joining;
 import static org.folio.search.model.types.IndexActionType.INDEX;
+import static org.folio.search.model.types.SearchOperationType.BULK;
+import static org.folio.search.model.types.SearchOperationType.DELETE_BY_QUERY;
+import static org.folio.search.model.types.SearchOperationType.UPDATE_BY_QUERY;
 import static org.folio.search.utils.SearchResponseHelper.getErrorIndexOperationResponse;
 import static org.folio.search.utils.SearchResponseHelper.getSuccessIndexOperationResponse;
 import static org.folio.search.utils.SearchUtils.SHARED_FIELD_NAME;
@@ -58,9 +61,8 @@ public abstract class AbstractResourceRepository implements ResourceRepository {
     var indexName = indexNameProvider.getIndexName(resource, tenantId);
     var request = new DeleteByQueryRequest(indexName);
     request.setQuery(termQuery(TENANT_ID_FIELD_NAME, tenantId));
-    var bulkByScrollResponse =
-      performExceptionalOperation(() -> elasticsearchClient.deleteByQuery(request, DEFAULT), indexName,
-        "deleteByQueryApi");
+    var bulkByScrollResponse = performExceptionalOperation(
+      () -> elasticsearchClient.deleteByQuery(request, DEFAULT), indexName, DELETE_BY_QUERY);
     return bulkByScrollResponse.getBulkFailures().isEmpty()
            ? getSuccessIndexOperationResponse()
            : getErrorIndexOperationResponse(getBulkByScrollResponseErrorMessage(bulkByScrollResponse));
@@ -95,7 +97,7 @@ public abstract class AbstractResourceRepository implements ResourceRepository {
     request.setScript(script);
     request.setAbortOnVersionConflict(false);
     var bulkByScrollResponse = performExceptionalOperation(
-      () -> elasticsearchClient.updateByQuery(request, DEFAULT), indexName, "updateByQueryApi");
+      () -> elasticsearchClient.updateByQuery(request, DEFAULT), indexName, UPDATE_BY_QUERY);
     return bulkByScrollResponse.getBulkFailures().isEmpty()
            ? getSuccessIndexOperationResponse()
            : getErrorIndexOperationResponse(getBulkByScrollResponseErrorMessage(bulkByScrollResponse));
@@ -125,8 +127,7 @@ public abstract class AbstractResourceRepository implements ResourceRepository {
              + "[index: {}, tenantId: {}]", indexName, tenantId);
 
     var bulkByScrollResponse = performExceptionalOperation(
-      () -> elasticsearchClient.deleteByQuery(deleteByQueryRequest, DEFAULT),
-      indexName, "deleteByQueryApi");
+      () -> elasticsearchClient.deleteByQuery(deleteByQueryRequest, DEFAULT), indexName, DELETE_BY_QUERY);
 
     var deletedCount = bulkByScrollResponse.getDeleted();
     log.info("deleteDocumentsByTenantId:: completed [index: {}, tenantId: {}, deleted: {}]",
@@ -154,7 +155,7 @@ public abstract class AbstractResourceRepository implements ResourceRepository {
 
   protected BulkResponse executeBulkRequest(BulkRequest bulkRequest) {
     var indicesString = bulkRequest.requests().stream().map(DocWriteRequest::index).collect(joining(","));
-    return performExceptionalOperation(() -> elasticsearchClient.bulk(bulkRequest, DEFAULT), indicesString, "bulkApi");
+    return performExceptionalOperation(() -> elasticsearchClient.bulk(bulkRequest, DEFAULT), indicesString, BULK);
   }
 
   protected BulkRequest prepareBulkRequest(List<SearchDocumentBody> documents) {

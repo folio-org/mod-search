@@ -61,7 +61,8 @@ public class ScheduledInstanceSubResourcesService {
                                               SearchConfigurationProperties searchConfigurationProperties) {
     this.resourceService = resourceService;
     this.tenantRepository = tenantRepository;
-    this.repositories = buildRepositoriesMap(repositories, instanceRepository, itemRepository);
+    this.repositories = buildRepositoriesMap(repositories, instanceRepository, itemRepository,
+      Boolean.TRUE.equals(searchConfigurationProperties.getIndexing().getCallNumberIndexFromItemsEnabled()));
     this.subResourcesLockRepository = subResourcesLockRepository;
     this.reindexStatusService = reindexStatusService;
     this.executionService = executionService;
@@ -101,12 +102,14 @@ public class ScheduledInstanceSubResourcesService {
   private Map<ReindexEntityType, ReindexJdbcRepository> buildRepositoriesMap(
     List<ReindexJdbcRepository> repositories,
     MergeInstanceRepository instanceRepository,
-    ItemRepository itemRepository) {
+    ItemRepository itemRepository,
+    boolean callNumbersFromItems) {
     var repositoriesMap = new LinkedHashMap<ReindexEntityType, ReindexJdbcRepository>();
     repositoriesMap.put(ReindexEntityType.INSTANCE, instanceRepository);
     repositoriesMap.put(ReindexEntityType.ITEM, itemRepository);
     repositoriesMap.putAll(repositories.stream()
       .filter(InstanceChildResourceRepository.class::isInstance)
+      .filter(repository -> !callNumbersFromItems || repository.entityType() != ReindexEntityType.CALL_NUMBER)
       .collect(toMap(ReindexJdbcRepository::entityType, identity())));
     return repositoriesMap;
   }

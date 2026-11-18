@@ -20,6 +20,7 @@ import java.util.List;
 import org.folio.search.configuration.properties.ReindexConfigurationProperties;
 import org.folio.search.exception.ReindexException;
 import org.folio.spring.FolioExecutionContext;
+import org.folio.spring.FolioModuleMetadata;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,7 +52,7 @@ class StagingMigrationServiceTest {
   @Mock
   private ReindexConfigurationProperties reindexConfigurationProperties;
   @Mock
-  private org.folio.spring.FolioModuleMetadata folioModuleMetadata;
+  private FolioModuleMetadata folioModuleMetadata;
 
   @BeforeEach
   void setUp() {
@@ -131,7 +132,7 @@ class StagingMigrationServiceTest {
   @Test
   void migrateAllStagingTables_whenDatabaseError_shouldThrowReindexException() {
     // Arrange
-    doThrow(new DataAccessException("Database error") {}).when(jdbcTemplate).execute(anyString());
+    doThrow(new DataAccessException("Database error") { }).when(jdbcTemplate).execute(anyString());
 
     // Act & Assert
     assertThatThrownBy(() -> stagingMigrationService.migrateAllStagingTables(null))
@@ -148,7 +149,7 @@ class StagingMigrationServiceTest {
     // Arrange
     doNothing().when(jdbcTemplate).execute(anyString());
     when(jdbcTemplate.update(anyString(), any(Timestamp.class)))
-      .thenThrow(new DataAccessException("SQL error") {});
+      .thenThrow(new DataAccessException("SQL error") { });
 
     // Act & Assert
     assertThatThrownBy(() -> stagingMigrationService.migrateAllStagingTables(null))
@@ -208,7 +209,7 @@ class StagingMigrationServiceTest {
     // Arrange
     when(reindexConfigurationProperties.getMigrationWorkMem()).thenReturn("64MB");
     when(reindexConfigurationProperties.getMigrationStatementTimeout()).thenReturn("0");
-    doThrow(new DataAccessException("Cannot set work_mem") {})
+    doThrow(new DataAccessException("Cannot set work_mem") { })
       .when(jdbcTemplate).execute(contains("SET LOCAL work_mem"));
 
     // Act & Assert

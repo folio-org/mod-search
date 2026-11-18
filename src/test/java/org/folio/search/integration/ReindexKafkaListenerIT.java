@@ -36,6 +36,7 @@ import org.folio.search.model.event.ReindexRecordType;
 import org.folio.search.model.event.ReindexRecordsEvent;
 import org.folio.search.service.EgressExecutionContextService;
 import org.folio.search.service.consortium.ConsortiumTenantExecutor;
+import org.folio.search.service.indexrebuild.records.RecordsRangeProcessor;
 import org.folio.search.service.reindex.ReindexOrchestrationService;
 import org.folio.spring.DefaultFolioExecutionContext;
 import org.folio.spring.FolioExecutionContext;
@@ -78,6 +79,8 @@ class ReindexKafkaListenerIT {
   private EgressExecutionContextService scopedExecutionService;
   @MockitoBean
   private ReindexOrchestrationService reindexService;
+  @MockitoBean
+  private RecordsRangeProcessor recordsRangeProcessor;
 
   @Autowired
   @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")

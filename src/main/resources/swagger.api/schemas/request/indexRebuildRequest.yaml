@@ -1,0 +1,9 @@
+description: Index rebuild request
+type: object
+properties:
+  tenantId:
+    type: string
+    description: Consortium tenant to rerun. The whole index is rebuilt if not provided.
+    pattern: '^[a-zA-Z0-9_.-]+$'
+  indexSettings:
+    $ref: '../entity/indexSettings.yaml'

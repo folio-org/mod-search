@@ -20,6 +20,7 @@ import org.folio.search.domain.dto.Holding;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.domain.dto.ResourceEvent;
+import org.folio.search.domain.dto.ResourceEventType;
 import org.folio.search.model.event.IndexInstanceEvent;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.reindex.InstanceFetchService;
@@ -99,8 +100,7 @@ class InstanceFetchServiceTest {
     assertThat(cleanUp(actual)).containsExactlyInAnyOrder(
       resourceEvent(instanceId1, ResourceType.INSTANCE, CREATE,
         mapOf("id", instanceId1, "title", "inst1"), null),
-      resourceEvent(instanceId2, ResourceType.INSTANCE, 
-        org.folio.search.domain.dto.ResourceEventType.DELETE, null, null)
+      resourceEvent(instanceId2, ResourceType.INSTANCE, ResourceEventType.DELETE, null, null)
     );
   }
 
@@ -118,7 +118,7 @@ class InstanceFetchServiceTest {
     assertThat(cleanUp(actual)).containsExactlyInAnyOrder(
       resourceEvent(invalidId, ResourceType.INSTANCE, CREATE,
         mapOf("id", invalidId, "title", "inst1"), null),
-      resourceEvent(id, ResourceType.INSTANCE, org.folio.search.domain.dto.ResourceEventType.DELETE, null, null)
+      resourceEvent(id, ResourceType.INSTANCE, ResourceEventType.DELETE, null, null)
     );
   }
 

@@ -4,6 +4,10 @@ import static java.util.Arrays.stream;
 import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
 import static org.folio.search.configuration.RetryTemplateConfiguration.SEARCH_RETRY_TEMPLATE_NAME;
 import static org.folio.search.configuration.RetryTemplateConfiguration.STREAM_IDS_RETRY_TEMPLATE_NAME;
+import static org.folio.search.model.types.SearchOperationType.ANALYZE;
+import static org.folio.search.model.types.SearchOperationType.MULTI_SEARCH;
+import static org.folio.search.model.types.SearchOperationType.SCROLL;
+import static org.folio.search.model.types.SearchOperationType.SEARCH;
 import static org.folio.search.utils.CollectionUtils.anyMatch;
 import static org.folio.search.utils.CollectionUtils.getValuesByPath;
 import static org.folio.search.utils.SearchUtils.performExceptionalOperation;
@@ -45,8 +49,6 @@ import org.springframework.stereotype.Repository;
 public class SearchRepository {
 
   private static final TimeValue KEEP_ALIVE_INTERVAL = TimeValue.timeValueMinutes(1L);
-  private static final String SEARCH_OPERATION_TYPE = "searchApi";
-  private static final String ANALYZE_OPERATION_TYPE = "analyzeApi";
   private final RestHighLevelClient client;
   @Qualifier(value = STREAM_IDS_RETRY_TEMPLATE_NAME)
   private final RetryTemplate retryTemplate;
@@ -57,8 +59,8 @@ public class SearchRepository {
   public String analyze(String text, String field, ResourceType resource, String tenantId) {
     var index = indexNameProvider.getIndexName(resource, tenantId);
     var analyzeRequest = AnalyzeRequest.withField(index, field, text);
-    var analyzeResponse = performExceptionalOperation(() -> client.indices().analyze(analyzeRequest, DEFAULT), index,
-      ANALYZE_OPERATION_TYPE);
+    var analyzeResponse = performExceptionalOperation(() -> client.indices()
+      .analyze(analyzeRequest, DEFAULT), index, ANALYZE);
     return analyzeResponse.getTokens().stream()
       .map(AnalyzeResponse.AnalyzeToken::getTerm)
       .filter(Objects::nonNull)
@@ -75,8 +77,8 @@ public class SearchRepository {
   public SearchResponse search(ResourceRequest resourceRequest, SearchSourceBuilder searchSource) {
     var index = indexNameProvider.getIndexName(resourceRequest);
     var searchRequest = buildSearchRequest(index, searchSource);
-    return searchRetryTemplate.invoke(
-      () -> performExceptionalOperation(() -> client.search(searchRequest, DEFAULT), index, SEARCH_OPERATION_TYPE));
+    return searchRetryTemplate.invoke(() -> performExceptionalOperation(() -> client
+      .search(searchRequest, DEFAULT), index, SEARCH));
   }
 
   /**
@@ -90,8 +92,8 @@ public class SearchRepository {
   public SearchResponse search(ResourceRequest resourceRequest, SearchSourceBuilder searchSource, String preference) {
     var index = indexNameProvider.getIndexName(resourceRequest);
     var searchRequest = buildSearchRequest(index, searchSource, preference);
-    return searchRetryTemplate.invoke(
-      () -> performExceptionalOperation(() -> client.search(searchRequest, DEFAULT), index, SEARCH_OPERATION_TYPE));
+    return searchRetryTemplate.invoke(() -> performExceptionalOperation(() -> client
+      .search(searchRequest, DEFAULT), index, SEARCH));
   }
 
   /**
@@ -105,8 +107,8 @@ public class SearchRepository {
     var index = indexNameProvider.getIndexName(resourceRequest);
     var request = new MultiSearchRequest();
     searchSources.forEach(source -> request.add(buildSearchRequest(index, source)));
-    var response = searchRetryTemplate.invoke(
-      () -> performExceptionalOperation(() -> client.msearch(request, DEFAULT), index, "multiSearchApi"));
+    var response = searchRetryTemplate.invoke(() -> performExceptionalOperation(() -> client
+      .msearch(request, DEFAULT), index, MULTI_SEARCH));
 
     if (isFailedMultiSearchRequest(response.getResponses(), searchSources.size())) {
       var failureMessages = stream(response.getResponses())
@@ -134,16 +136,15 @@ public class SearchRepository {
       .source(src)
       .indices(index);
 
-    var searchResponse = performExceptionalOperation(
-      () -> client.search(searchRequest, DEFAULT), index, SEARCH_OPERATION_TYPE);
+    var searchResponse = performExceptionalOperation(() -> client.search(searchRequest, DEFAULT), index, SEARCH);
     var scrollId = searchResponse.getScrollId();
     var searchHits = searchResponse.getHits().getHits();
 
     while (isNotEmpty(searchHits)) {
       consumer.accept(getResourceIds(searchHits, req.sourceFieldPath()));
       var scrollRequest = new SearchScrollRequest(scrollId).scroll(KEEP_ALIVE_INTERVAL);
-      var scrollResponse = retryTemplate.invoke(() -> performExceptionalOperation(
-        () -> client.scroll(scrollRequest, DEFAULT), index, "scrollApi"));
+      var scrollResponse = retryTemplate.invoke(() -> performExceptionalOperation(() -> client
+        .scroll(scrollRequest, DEFAULT), index, SCROLL));
       scrollId = scrollResponse.getScrollId();
       searchHits = scrollResponse.getHits().getHits();
     }
@@ -162,8 +163,7 @@ public class SearchRepository {
   private void clearScrollAfterStreaming(String index, String scrollId) {
     var clearScrollRequest = new ClearScrollRequest();
     clearScrollRequest.addScrollId(scrollId);
-    performExceptionalOperation(() ->
-      client.clearScroll(clearScrollRequest, DEFAULT), index, "scrollApi"
+    performExceptionalOperation(() -> client.clearScroll(clearScrollRequest, DEFAULT), index, SCROLL
     );
   }
 

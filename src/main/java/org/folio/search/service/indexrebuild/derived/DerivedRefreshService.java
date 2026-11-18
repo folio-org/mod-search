@@ -79,6 +79,8 @@ public class DerivedRefreshService {
         tenantId);
       return 0;
     }
+    // the cutoff is taken before the source index is refreshed: a key queued after the refresh was changed after it,
+    // so it has to stay queued for the next batch
     var startedAt = dirtyKeyRepository.currentTime();
     var keys = dirtyKeyRepository.findBatch(target, tenants, batchSize);
     if (!keys.isEmpty()) {

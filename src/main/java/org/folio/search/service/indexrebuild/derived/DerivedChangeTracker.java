@@ -44,13 +44,16 @@ public class DerivedChangeTracker {
 
   /**
    * Queues keys of source documents matching the query, for changes made by a bulk update of the source index.
+   *
+   * <p>The index isn't refreshed first: the bulk update must not change the queried fields or the keys, so the last
+   * refreshed version of a document has the same keys. Documents not refreshed yet had their keys queued by their own
+   * events, and the refresh of queued keys refreshes the source index before reading it.
    */
   public void trackMatching(IndexRebuildTarget source, String tenantId, QueryBuilder query) {
     var tracking = trackingStrategies(source);
     if (tracking.isEmpty()) {
       return;
     }
-    reader.refresh(source, tenantId);
     tracking.forEach(strategy -> enqueue(strategy.target(), tenantId, reader.findKeys(strategy, tenantId, query)));
   }
 

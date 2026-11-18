@@ -6,6 +6,7 @@ import static org.folio.support.TestConstants.TENANT_ID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -88,13 +89,13 @@ class DerivedChangeTrackerTest {
   }
 
   @Test
-  void trackMatching_positive_enqueuesKeysOfMatchingSourceDocuments() {
+  void trackMatching_positive_enqueuesKeysOfMatchingSourceDocumentsWithoutRefresh() {
     var query = termsQuery("instanceId", List.of("instance"));
     when(reader.findKeys(strategy, TENANT_ID, query)).thenReturn(Set.of("key"));
 
     tracker.trackMatching(ITEM, TENANT_ID, query);
 
-    verify(reader).refresh(ITEM, TENANT_ID);
+    verify(reader, never()).refresh(any(), any());
     verify(dirtyKeyRepository).add(CALL_NUMBER, TENANT_ID, Set.of("key"));
   }
 

@@ -1,6 +1,7 @@
 package org.folio.search.service.indexrebuild.records;
 
 import static org.folio.search.configuration.SearchCacheNames.USER_TENANTS_CACHE;
+import static org.folio.search.utils.SearchUtils.TENANT_ID_FIELD_NAME;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,6 +92,7 @@ public class RecordsReindexService {
     strategy.validateEnabled();
     var tenants = scopeResolver.resolve(tenantId, null).tenants();
     readinessService.validateCanResume(target, tenants);
+    validateRangesCreated(target, tenants);
     var retried = new ArrayList<String>();
     var ranges = new ArrayList<IndexRebuildRange>();
     for (var tenant : tenants) {
@@ -108,6 +110,21 @@ public class RecordsReindexService {
 
   public List<IndexRebuildStatusItem> getStatus(IndexRebuildTarget target, String tenantId) {
     return statusReporter.getStatus(target, scopeResolver.resolve(tenantId, null).tenants());
+  }
+
+  /**
+   * Rejects the retry if a run in scope failed before its ranges were created: the index may be missing, old or partly
+   * deleted, so only a new run can rebuild it.
+   */
+  private void validateRangesCreated(IndexRebuildTarget target, List<String> tenants) {
+    var withoutRanges = stateRepository.findRetryableWithoutRanges(target).stream().filter(tenants::contains).toList();
+    if (!withoutRanges.isEmpty()) {
+      log.warn("validateRangesCreated:: rejected, runs failed before their ranges were created [resource: {}, "
+               + "tenants: {}]", target.getResource(), withoutRanges);
+      throw new RequestValidationException(
+        "Reindex of %s failed before its ranges were created, start a new reindex for: %s"
+          .formatted(target.getResource(), withoutRanges), TENANT_ID_FIELD_NAME, withoutRanges.getFirst());
+    }
   }
 
   /**

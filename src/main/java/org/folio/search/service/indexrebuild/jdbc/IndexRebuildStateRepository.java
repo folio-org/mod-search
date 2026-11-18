@@ -40,7 +40,8 @@ public class IndexRebuildStateRepository {
 
   private static final String PREPARE_RETRY_SQL = """
     UPDATE %s SET status = 'IN_PROGRESS', finished_at = NULL, fail_cause = NULL
-    WHERE resource = ? AND tenant_id = ? AND status IN ('FAILED', 'FINALIZING');
+    WHERE resource = ? AND tenant_id = ? AND status IN ('FAILED', 'FINALIZING')
+      AND EXISTS (SELECT 1 FROM %s WHERE resource = ? AND tenant_id = ?);
     """;
 
   private static final String START_FINALIZING_SQL = """
@@ -61,7 +62,8 @@ public class IndexRebuildStateRepository {
 
   private static final String PREPARE_ALL_RETRY_SQL = """
     UPDATE %s SET status = 'IN_PROGRESS', finished_at = NULL, fail_cause = NULL
-    WHERE resource = ? AND status IN ('FAILED', 'FINALIZING');
+    WHERE resource = ? AND status IN ('FAILED', 'FINALIZING')
+      AND EXISTS (SELECT 1 FROM %s WHERE resource = ?);
     """;
 
   private static final String START_ALL_FINALIZING_SQL = """
@@ -73,6 +75,16 @@ public class IndexRebuildStateRepository {
   private static final String COMPLETE_ALL_SQL = """
     UPDATE %s SET status = 'COMPLETED', fingerprint = ?, finished_at = ?
     WHERE resource = ? AND status = 'FINALIZING';
+    """;
+
+  private static final String SELECT_RETRYABLE_WITHOUT_RANGES_SQL = """
+    SELECT s.tenant_id FROM %s s WHERE s.resource = ? AND s.status IN ('FAILED', 'FINALIZING')
+      AND NOT EXISTS (SELECT 1 FROM %s r WHERE r.resource = s.resource AND r.tenant_id = s.tenant_id);
+    """;
+
+  private static final String IS_ANY_RETRYABLE_WITHOUT_RANGES_SQL = """
+    SELECT EXISTS (SELECT 1 FROM %s WHERE resource = ? AND status IN ('FAILED', 'FINALIZING'))
+      AND NOT EXISTS (SELECT 1 FROM %s WHERE resource = ?);
     """;
 
   private static final String IS_ANY_ACTIVE_SQL = """
@@ -109,8 +121,32 @@ public class IndexRebuildStateRepository {
    *
    * @return false if the tenant has no run to retry
    */
+  /**
+   * Moves a failed or interrupted run of a tenant back to in progress. A run without ranges failed before they were
+   * created, so it can't be resumed and is left as it is.
+   *
+   * @return false if there is no such run, or it has no ranges
+   */
   public boolean prepareRetry(IndexRebuildTarget target, String tenantId) {
-    return jdbcTemplate.update(PREPARE_RETRY_SQL.formatted(table()), target.getResource(), tenantId) == 1;
+    var sql = PREPARE_RETRY_SQL.formatted(table(), rangeTable());
+    return jdbcTemplate.update(sql, target.getResource(), tenantId, target.getResource(), tenantId) == 1;
+  }
+
+  /**
+   * Finds tenants with a failed or interrupted run that has no ranges, which failed before its ranges were created.
+   */
+  public List<String> findRetryableWithoutRanges(IndexRebuildTarget target) {
+    return jdbcTemplate.queryForList(SELECT_RETRYABLE_WITHOUT_RANGES_SQL.formatted(table(), rangeTable()),
+      String.class, target.getResource());
+  }
+
+  /**
+   * Checks whether a failed or interrupted run of the whole index has no ranges, so it failed before they were created.
+   */
+  public boolean isAnyRetryableWithoutRanges(IndexRebuildTarget target) {
+    var sql = IS_ANY_RETRYABLE_WITHOUT_RANGES_SQL.formatted(table(), rangeTable());
+    return Boolean.TRUE.equals(
+      jdbcTemplate.queryForObject(sql, Boolean.class, target.getResource(), target.getResource()));
   }
 
   /**
@@ -119,7 +155,7 @@ public class IndexRebuildStateRepository {
    * @return true if the caller has to finalize the run
    */
   public boolean tryStartFinalizing(IndexRebuildTarget target, String tenantId) {
-    var sql = START_FINALIZING_SQL.formatted(table(), getFullTableName(context, RANGE_TABLE));
+    var sql = START_FINALIZING_SQL.formatted(table(), rangeTable());
     return jdbcTemplate.update(sql, target.getResource(), tenantId, target.getResource(), tenantId) == 1;
   }
 
@@ -139,8 +175,14 @@ public class IndexRebuildStateRepository {
    *
    * @return false if there is no run to retry
    */
+  /**
+   * Moves failed or interrupted runs of all tenants back to in progress, unless the run has no ranges.
+   *
+   * @return false if there is no such run, or it has no ranges
+   */
   public boolean prepareAllRetry(IndexRebuildTarget target) {
-    return jdbcTemplate.update(PREPARE_ALL_RETRY_SQL.formatted(table()), target.getResource()) > 0;
+    var sql = PREPARE_ALL_RETRY_SQL.formatted(table(), rangeTable());
+    return jdbcTemplate.update(sql, target.getResource(), target.getResource()) > 0;
   }
 
   /**
@@ -149,7 +191,7 @@ public class IndexRebuildStateRepository {
    * @return true if the caller has to finalize the runs
    */
   public boolean tryStartAllFinalizing(IndexRebuildTarget target) {
-    var sql = START_ALL_FINALIZING_SQL.formatted(table(), getFullTableName(context, RANGE_TABLE));
+    var sql = START_ALL_FINALIZING_SQL.formatted(table(), rangeTable());
     return jdbcTemplate.update(sql, target.getResource(), target.getResource()) > 0;
   }
 
@@ -172,6 +214,10 @@ public class IndexRebuildStateRepository {
 
   private String table() {
     return getFullTableName(context, STATE_TABLE);
+  }
+
+  private String rangeTable() {
+    return getFullTableName(context, RANGE_TABLE);
   }
 
   private static Timestamp now() {

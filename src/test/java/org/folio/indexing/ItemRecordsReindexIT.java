@@ -172,6 +172,21 @@ class ItemRecordsReindexIT extends BaseIntegrationTest {
   }
 
   @Test
+  void shouldRejectRetryOfRunThatFailedBeforeRangesWereCreated() throws Exception {
+    inventory.itemCount(1);
+    inventory.failCount();
+    startReindex();
+    awaitStatus("FAILED");
+
+    attemptPost(itemRecordsReindexFailedPath(), TENANT_ID, Map.of())
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.errors[0].message", containsString("start a new reindex")));
+    doGet(itemRecordsReindexStatusPath(), TENANT_ID)
+      .andExpect(jsonPath("[0].status", is("FAILED")))
+      .andExpect(jsonPath("[0].reindexRequired", is(true)));
+  }
+
+  @Test
   void shouldIgnoreRecordsOfAbandonedRunAfterRestart() {
     var staleItem = rawItem(randomId(), "Available");
     startWithHeldRanges(List.of(staleItem));

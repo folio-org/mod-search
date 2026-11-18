@@ -202,6 +202,18 @@ class RecordsReindexServiceTest {
   }
 
   @Test
+  void retryFailed_negative_runFailedBeforeRangesWereCreated() {
+    when(scopeResolver.resolve(TENANT_ID, null)).thenReturn(WHOLE);
+    when(stateRepository.findRetryableWithoutRanges(ITEM)).thenReturn(List.of(TENANT_ID, "other-consortium"));
+
+    assertThatThrownBy(() -> service.retryFailed(ITEM, TENANT_ID))
+      .isInstanceOf(RequestValidationException.class)
+      .hasMessageContaining("start a new reindex for: [" + TENANT_ID + "]");
+    verify(stateRepository, never()).prepareRetry(any(), any());
+    verifyNoInteractions(finalizer, rangePublisher);
+  }
+
+  @Test
   void retryFailed_negative_dependentRunActive() {
     when(scopeResolver.resolve(TENANT_ID, null)).thenReturn(WHOLE);
     doThrow(new RequestValidationException("active", "resource", "call_number"))

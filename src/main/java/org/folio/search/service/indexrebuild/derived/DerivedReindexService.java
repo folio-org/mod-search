@@ -96,6 +96,7 @@ public class DerivedReindexService {
       tenantId);
     strategies.get(target);
     readinessService.validateCanResume(target, scopeResolver.resolve(tenantId, null).tenants());
+    validateRangesCreated(target);
     if (!stateRepository.prepareAllRetry(target)) {
       log.info("retryFailed:: no failed or interrupted run [resource: {}]", target.getResource());
       return CompletableFuture.completedFuture(null);
@@ -110,6 +111,20 @@ public class DerivedReindexService {
     log.info("retryFailed:: sending unfinished ranges again [resource: {}, ranges: {}]", target.getResource(),
       ranges.size());
     return CompletableFuture.runAsync(() -> send(ranges), reindexExecutor).handle(failOnError(target));
+  }
+
+  /**
+   * Rejects the retry if the run failed before its ranges were created: the index may be missing or old, so only a new
+   * run can rebuild it.
+   */
+  private void validateRangesCreated(IndexRebuildTarget target) {
+    if (stateRepository.isAnyRetryableWithoutRanges(target)) {
+      log.warn("validateRangesCreated:: rejected, the run failed before its ranges were created [resource: {}]",
+        target.getResource());
+      throw new RequestValidationException(
+        "Reindex of %s failed before its ranges were created, start a new reindex".formatted(target.getResource()),
+        "resource", target.getResource());
+    }
   }
 
   public List<IndexRebuildStatusItem> getStatus(IndexRebuildTarget target, String tenantId) {

@@ -201,6 +201,18 @@ class DerivedReindexServiceTest {
   }
 
   @Test
+  void retryFailed_negative_runFailedBeforeRangesWereCreated() {
+    when(scopeResolver.resolve(TENANT_ID, null)).thenReturn(WHOLE);
+    when(stateRepository.isAnyRetryableWithoutRanges(CALL_NUMBER)).thenReturn(true);
+
+    assertThatThrownBy(() -> service.retryFailed(CALL_NUMBER, TENANT_ID))
+      .isInstanceOf(RequestValidationException.class)
+      .hasMessageContaining("start a new reindex");
+    verify(stateRepository, never()).prepareAllRetry(any());
+    verifyNoInteractions(finalizer, producer);
+  }
+
+  @Test
   void retryFailed_positive_nothingToRetry() {
     when(scopeResolver.resolve(TENANT_ID, null)).thenReturn(WHOLE);
     when(stateRepository.prepareAllRetry(CALL_NUMBER)).thenReturn(false);

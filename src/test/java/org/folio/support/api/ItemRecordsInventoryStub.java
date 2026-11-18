@@ -4,6 +4,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.serverError;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static org.folio.support.TestConstants.reindexFileReadyTopic;
 import static org.folio.support.TestConstants.reindexRecordsTopic;
@@ -73,6 +74,16 @@ public class ItemRecordsInventoryStub implements RequestListener {
     } else {
       wireMock.editStub(stub);
     }
+  }
+
+  /**
+   * Makes the item count request fail, so a run fails before its ranges are created.
+   */
+  public void failCount() {
+    wireMock.editStub(get(urlPathEqualTo("/item-storage/items"))
+      .withQueryParam("limit", equalTo("0"))
+      .withId(UUID.fromString(COUNT_STUB_ID))
+      .willReturn(serverError()));
   }
 
   /**

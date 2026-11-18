@@ -43,7 +43,7 @@ An item records reindex is rejected while a call number run is active.
 
 ## Monitor and retry
 
-`GET /search/index/call-number-records/reindex/status` returns one entry per tenant, with `reindexRequired` and `blockedBy`. `POST /search/index/call-number-records/reindex/failed` resumes a failed run. A new run can also be started at any time after a failure.
+`GET /search/index/call-number-records/reindex/status` returns one entry per tenant, with `reindexRequired` and `blockedBy`. `POST /search/index/call-number-records/reindex/failed` resumes a failed run. A run that failed before its ranges were created, for example while recreating the index, can't be resumed: the retry is rejected with `400 Bad Request`, so start a new run. A new run can also be started at any time after a failure.
 
 ## Keeping documents up to date
 

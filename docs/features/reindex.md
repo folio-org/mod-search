@@ -71,7 +71,8 @@ The item records reindex and the call number records reindex keep a state per in
 | `FINALIZING`                | Finalization succeeded                                                               | `COMPLETED`   | Tracked deletes are removed (records), the index is refreshed, the index fingerprint is stored |
 | `FINALIZING`                | Finalization failed                                                                  | `FAILED`      | `failCause` is stored, tracked deletes are kept for the retry                                  |
 | `FINALIZING`                | Retry of an interrupted finalization                                                 | `IN_PROGRESS` | Finalized again if no ranges are left                                                          |
-| `FAILED`                    | Retry                                                                                | `IN_PROGRESS` | Failed ranges become pending and are requested again, finalized if none are left               |
+| `FAILED`                    | Retry, if the run has ranges                                                         | `IN_PROGRESS` | Failed ranges become pending and are requested again, finalized if none are left               |
+| `FAILED`                    | Retry of a run that failed before its ranges were created                            | `FAILED`      | Rejected with `400`, only a new start rebuilds the index                                       |
 
 A state is ready when it is `COMPLETED` and its fingerprint matches the current one, calculated from the index
 mappings, analysis settings and data version. Documents of a `COMPLETED` run are searchable. A derived index run, its

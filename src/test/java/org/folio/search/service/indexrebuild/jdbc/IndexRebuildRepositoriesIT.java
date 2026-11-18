@@ -129,9 +129,23 @@ class IndexRebuildRepositoriesIT {
     assertThat(stateRepository.prepareRetry(ITEM, TENANT_ID)).isFalse();
 
     stateRepository.markFailed(ITEM, TENANT_ID, "error");
+    saveRange(TENANT_ID);
 
     assertThat(stateRepository.prepareRetry(ITEM, TENANT_ID)).isTrue();
     assertThat(state().status()).isEqualTo(IndexRebuildStatus.IN_PROGRESS);
+  }
+
+  @Test
+  void prepareRetry_negative_runWithoutRangesStaysFailed() {
+    stateRepository.claim(ITEM, TENANT_ID);
+    stateRepository.claim(ITEM, MEMBER_TENANT_ID);
+    stateRepository.markFailed(ITEM, TENANT_ID, "error");
+    stateRepository.markFailed(ITEM, MEMBER_TENANT_ID, "error");
+    saveRange(MEMBER_TENANT_ID);
+
+    assertThat(stateRepository.findRetryableWithoutRanges(ITEM)).containsExactly(TENANT_ID);
+    assertThat(stateRepository.prepareRetry(ITEM, TENANT_ID)).isFalse();
+    assertThat(state().status()).isEqualTo(IndexRebuildStatus.FAILED);
   }
 
   @Test
@@ -216,7 +230,11 @@ class IndexRebuildRepositoriesIT {
 
     stateRepository.markAllFailed(CALL_NUMBER, "error");
     assertThat(stateRepository.isAnyActive(CALL_NUMBER)).isFalse();
+    assertThat(stateRepository.isAnyRetryableWithoutRanges(CALL_NUMBER)).isTrue();
+    assertThat(stateRepository.prepareAllRetry(CALL_NUMBER)).isFalse();
 
+    saveRange(CALL_NUMBER, TENANT_ID);
+    assertThat(stateRepository.isAnyRetryableWithoutRanges(CALL_NUMBER)).isFalse();
     assertThat(stateRepository.prepareAllRetry(CALL_NUMBER)).isTrue();
     assertThat(stateRepository.isAnyActive(CALL_NUMBER)).isTrue();
   }

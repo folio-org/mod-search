@@ -47,7 +47,7 @@ The request is rejected with `400 Bad Request` when `ITEM_INDEX_ENABLED` is `fal
 
 ## Retry
 
-`POST /search/index/item-records/reindex/failed` requests all unfinished ranges of failed runs again, and completes runs that stopped during finalization. A new run can also be started at any time after a failure: records of the previous run are ignored.
+`POST /search/index/item-records/reindex/failed` requests all unfinished ranges of failed runs again, and completes runs that stopped during finalization. A run that failed before its ranges were created, for example because preparing the index or counting records in inventory failed, can't be resumed: the retry is rejected with `400 Bad Request` and the tenant stays `FAILED`, so start a new run. A new run can also be started at any time after a failure: records of the previous run are ignored.
 
 ## Consistency
 

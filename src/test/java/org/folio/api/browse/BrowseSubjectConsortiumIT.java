@@ -47,7 +47,7 @@ public abstract class BrowseSubjectConsortiumIT extends BaseConsortiumIntegratio
       .param(PRECEDING_RECORDS_COUNT_PARAM, "2");
     var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
     assertThat(actual).isEqualTo(new SubjectBrowseResult()
-      .totalRecords(11).prev("Music").next(null)
+      .totalRecords(13).prev("Music").next(null)
       .items(List.of(
         subjectBrowseItem(1, "Music", MUSIC_AUTHORITY_ID_1, MUSIC_SOURCE_ID_1, MUSIC_TYPE_ID_1),
         subjectBrowseItem(1, "Music", null, null, MUSIC_TYPE_ID_1),
@@ -66,7 +66,7 @@ public abstract class BrowseSubjectConsortiumIT extends BaseConsortiumIntegratio
       .param(PRECEDING_RECORDS_COUNT_PARAM, "2");
     var actual = parseResponse(doGet(request), SubjectBrowseResult.class);
     assertThat(actual).isEqualTo(new SubjectBrowseResult()
-      .totalRecords(22).prev("Philosophy").next("Science--Philosophy")
+      .totalRecords(23).prev("Philosophy").next("Science--Philosophy")
       .items(List.of(
         subjectBrowseItem(1, "Philosophy"),
         subjectBrowseItem(1, "Religion"),
@@ -95,10 +95,10 @@ public abstract class BrowseSubjectConsortiumIT extends BaseConsortiumIntegratio
   private static Stream<Arguments> facetQueriesProvider() {
     return Stream.of(
       arguments(ALL_RECORDS_QUERY, array("instances.shared"), mapOf("instances.shared",
-        facet(facetItem("false", 22), facetItem("true", 11)))),
+        facet(facetItem("false", 23), facetItem("true", 13)))),
       arguments(ALL_RECORDS_QUERY, array("instances.tenantId"),
-        mapOf("instances.tenantId", facet(facetItem(MEMBER_TENANT_ID, 22),
-          facetItem(CENTRAL_TENANT_ID, 11)))),
+        mapOf("instances.tenantId", facet(facetItem(MEMBER_TENANT_ID, 23),
+          facetItem(CENTRAL_TENANT_ID, 13)))),
       arguments(ALL_RECORDS_QUERY, array("sourceId"), mapOf("sourceId",
         facet(facetItem(MUSIC_SOURCE_ID_1, 4), facetItem(MUSIC_SOURCE_ID_2, 2)))),
       arguments(ALL_RECORDS_QUERY, array("typeId"), mapOf("typeId",

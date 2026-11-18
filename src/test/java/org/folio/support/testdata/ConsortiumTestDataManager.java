@@ -1,49 +1,61 @@
 package org.folio.support.testdata;
 
-import static java.util.Collections.emptyList;
-import static org.folio.search.model.Pair.pair;
-import static org.folio.search.utils.SearchUtils.SOURCE_CONSORTIUM_PREFIX;
+import static java.util.Collections.unmodifiableMap;
+import static org.folio.search.utils.SearchUtils.ID_FIELD;
+import static org.folio.search.utils.SearchUtils.INSTANCE_ID_FIELD;
 import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.support.TestConstants.MEMBER2_TENANT_ID;
 import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.support.sample.SampleInstances.getSemanticWeb;
-import static org.folio.support.utils.CallNumberTestData.CallNumberTestDataRecord;
-import static org.folio.support.utils.CallNumberTestData.callNumbers;
-import static org.folio.support.utils.CallNumberTestData.instance;
-import static org.folio.support.utils.CallNumberTestData.instances;
+import static org.folio.support.utils.JsonTestUtils.readJsonFromFile;
 import static org.folio.support.utils.TestUtils.array;
-import static org.folio.support.utils.TestUtils.randomId;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
-import org.folio.search.domain.dto.Classification;
-import org.folio.search.domain.dto.Contributor;
-import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.Subject;
-import org.folio.search.model.Pair;
+import java.util.Map;
+import org.apache.commons.collections4.MapUtils;
+import org.folio.support.api.InventoryApi;
 import org.folio.support.testdata.SharedTestDataManager.LockManager;
+import org.folio.support.testdata.SharedTestDataManager.RecordsChildrenIndexer;
+import tools.jackson.core.type.TypeReference;
 
 /**
- * Shared ECS (consortium) inventory data set used by the consortium suite. The data is defined here, not in the
- * test classes, so that every consortium test class reads the same fixtures.
+ * Shared ECS (consortium) inventory data set used by {@code SearchBrowseConsortiumSuiteIT}.
  *
- * <p>Data set by tenant:
+ * <p>The records live in {@code src/test/resources/test-data/ecs/<tenant>/} as {@code instances.json},
+ * {@code holdings.json} and {@code items.json} (one folder per tenant: {@code central}, {@code member},
+ * {@code member2}), in the same flat format as the non-consortium data set, so they are managed with the same
+ * toolchain: {@code manage/import.py --data-dir ecs/<tenant>}. Holdings and items of a shared instance that belong
+ * to a member tenant are in that tenant's folder, next to the member's shadow copy of the instance
+ * (source {@code CONSORTIUM-MARC} / {@code CONSORTIUM-FOLIO}), as in a real consortium. The semantic-web sample
+ * instance ({@code SampleInstances#getSemanticWeb()}) is added as a local record of the member tenant.
+ *
+ * <p>Data set:
  * <ul>
- *   <li>central: 30 call number instances, 3 contributor instances (shared), 5 classification instances
- *       and 5 subject instances;</li>
- *   <li>member: the remaining 33 call number instances, 4 contributor instances, 5 classification instances,
- *       10 subject instances, the shared call number instance 0 as a local copy and the semantic-web instance
- *       (with its holdings and items);</li>
- *   <li>member2: one call number instance with {@link #MEMBER2_LOCATION} and a copy of the shared call number
- *       instance 0.</li>
+ *   <li>browse fixtures: call number instances ("Instance 1".."Instance 50", 30 shared and 20 local), classification,
+ *       contributor and subject instances ("instance #NN"), a member2 call number instance with
+ *       {@link #MEMBER2_LOCATION}, and member/member2 copies of "Instance 1";</li>
+ *   <li>consortium search slice: the shared instance {@link #SHARED_INSTANCE_ID} with holdings and items in the
+ *       central, member and member2 tenants, and the member-local instance {@link #LOCAL_INSTANCE_ID} with its
+ *       holdings and items.</li>
  * </ul>
+ *
+ * <p>New tests should scope their assertions to their own fixtures (by id or by distinct values) so that adding
+ * records does not change them; only the browse/facet tests that cover the whole data set use the counts below.
+ *
+ * <p>Unlike {@link SharedTestDataManager}, which indexes records through the {@code /search-index/records} endpoint,
+ * this data set is sent through Kafka ({@link InventoryApi}). Only the Kafka path is consortium-aware: it stores
+ * member-tenant records under the central tenant and indexes them into the central tenant index. The endpoint
+ * keeps them in the member tenant, so shared and local records would not be combined.
  */
 public final class ConsortiumTestDataManager {
 
+  // consortium search slice
+  public static final String SHARED_INSTANCE_ID = "4b9c1f3e-7d2a-4e8b-9c61-2f5a8d7e3b10";
+  public static final String LOCAL_INSTANCE_ID = "9e2d7a41-3c5b-4f86-a1d9-6b0e8c4f2a75";
   // call number data
-  public static final String MEMBER2_LOCATION = UUID.randomUUID().toString();
+  public static final String MEMBER2_LOCATION = "b6bb6323-9db6-3df8-8fa8-271994a7afca";
   // classification data
   public static final String LC_TYPE_ID = "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a";
   public static final String LC2_TYPE_ID = "308c950f-8209-4f2e-9702-0c004a9f21bc";
@@ -65,256 +77,133 @@ public final class ConsortiumTestDataManager {
   public static final String MUSIC_TYPE_ID_1 = "e62bbefe-adf5-4b1e-b3e7-43d877b0c91c";
   public static final String MUSIC_TYPE_ID_2 = "308c950f-8209-4f2e-9702-0c004a9f21be";
 
-  // expected sub-resource document counts in the central tenant index for the whole data set
-  public static final int CALL_NUMBER_COUNT = 103;
-  public static final int CONTRIBUTOR_COUNT = 18;
-  public static final int CLASSIFICATION_COUNT = 19;
-  public static final int SUBJECT_COUNT = 30;
+  // expected document counts in the central tenant index for the whole data set
+  // instances: unique instance ids of all tenants (shadow copies of a shared instance are the same document)
+  // plus the semantic-web instance
+  public static final int INSTANCE_COUNT = 86;
+  // holdings: every holdings record of every tenant plus the 3 semantic-web holdings
+  public static final int HOLDINGS_COUNT = 60;
+  public static final int CALL_NUMBER_COUNT = 105;
+  public static final int CONTRIBUTOR_COUNT = 20;
+  public static final int CLASSIFICATION_COUNT = 21;
+  public static final int SUBJECT_COUNT = 33;
 
-  private static final List<Instance> CALL_NUMBER_INSTANCES = instances();
-  private static final List<Instance> CLASSIFICATION_INSTANCES_CENTRAL = classificationInstances(0, 5);
-  private static final List<Instance> CLASSIFICATION_INSTANCES_MEMBER = classificationInstances(5, 10);
-  private static final List<Instance> CONTRIBUTOR_INSTANCES_CENTRAL = contributorInstances(0, 3);
-  private static final List<Instance> CONTRIBUTOR_INSTANCES_MEMBER = contributorInstances(3, 7);
-  private static final List<Instance> SUBJECT_INSTANCES_CENTRAL = subjectInstances(0, 5);
-  private static final List<Instance> SUBJECT_INSTANCES_MEMBER = subjectInstances(5, 15);
+  /**
+   * Central instance ("instance #00") whose contributors are removed after it is created, to test that a contributor
+   * is deleted when it is no longer linked to any instance.
+   */
+  private static final String UNLINKED_CONTRIBUTOR_INSTANCE_ID = "6db30ff9-f99a-3de7-be2a-0a4fb6077554";
+  private static final String BASE = "/test-data/ecs/";
+  private static final Map<String, String> TENANT_FOLDERS = Map.of(
+    CENTRAL_TENANT_ID, "central",
+    MEMBER_TENANT_ID, "member",
+    MEMBER2_TENANT_ID, "member2");
+  private static final Map<String, TenantRecords> RECORDS = new LinkedHashMap<>();
+
+  static {
+    TENANT_FOLDERS.forEach((tenantId, folder) -> RECORDS.put(tenantId, new TenantRecords(
+      loadRecords(folder, "instances.json"), loadRecords(folder, "holdings.json"), loadRecords(folder, "items.json"))));
+  }
 
   private ConsortiumTestDataManager() { }
 
   /**
-   * Returns the call number instances in creation order: the first 30 are central, the rest are member ones.
+   * Returns the instance records of a tenant as stored in its JSON file (read-only).
    */
-  public static List<Instance> callNumberInstances() {
-    return CALL_NUMBER_INSTANCES;
+  public static List<Map<String, Object>> instances(String tenantId) {
+    return RECORDS.get(tenantId).instances();
+  }
+
+  /**
+   * Returns the holdings records of a tenant as stored in its JSON file (read-only).
+   */
+  public static List<Map<String, Object>> holdings(String tenantId) {
+    return RECORDS.get(tenantId).holdings();
+  }
+
+  /**
+   * Returns the item records of a tenant as stored in its JSON file (read-only).
+   */
+  public static List<Map<String, Object>> items(String tenantId) {
+    return RECORDS.get(tenantId).items();
   }
 
   /**
    * Creates the whole ECS inventory data set while holding all sub-resource locks, so that scheduled
-   * sub-resource processing does not race with the data load.
+   * sub-resource processing does not race with the data load. After the locks are released, sub-resources are
+   * processed synchronously via {@code childrenIndexer}, as in {@link SharedTestDataManager#loadInventory}.
+   *
+   * <p>Central records are created and awaited first, because the member records include shadow copies of the shared
+   * instances and holdings/items that belong to them; member and member2 records are then sent together.
+   *
+   * @param inventoryApi      sends the inventory events through Kafka
+   * @param visibilityAwaiter waits until the given instances are searchable in the given tenant
    */
-  public static void loadInventory(LockManager lockManager, InventoryWriter writer) {
+  public static void loadInventory(LockManager lockManager, InventoryApi inventoryApi,
+                                   InstancesVisibilityAwaiter visibilityAwaiter,
+                                   RecordsChildrenIndexer childrenIndexer) {
     lockManager.lockAll();
     try {
-      saveCallNumberData(writer);
-      writer.createInstances(CENTRAL_TENANT_ID, CLASSIFICATION_INSTANCES_CENTRAL);
-      writer.createInstances(MEMBER_TENANT_ID, CLASSIFICATION_INSTANCES_MEMBER);
-      saveContributorData(writer);
-      writer.createInstances(CENTRAL_TENANT_ID, SUBJECT_INSTANCES_CENTRAL);
-      writer.createInstances(MEMBER_TENANT_ID, SUBJECT_INSTANCES_MEMBER);
-      writer.createInstances(MEMBER_TENANT_ID, List.of(getSemanticWeb()));
+      createRecords(inventoryApi, CENTRAL_TENANT_ID);
+      visibilityAwaiter.await(CENTRAL_TENANT_ID, instanceIds(CENTRAL_TENANT_ID));
+      unlinkContributors(inventoryApi);
+
+      createRecords(inventoryApi, MEMBER_TENANT_ID);
+      inventoryApi.createInstance(MEMBER_TENANT_ID, getSemanticWeb());
+      createRecords(inventoryApi, MEMBER2_TENANT_ID);
+      var memberInstanceIds = new ArrayList<>(instanceIds(MEMBER_TENANT_ID));
+      memberInstanceIds.add(getSemanticWeb().getId());
+      visibilityAwaiter.await(MEMBER_TENANT_ID, memberInstanceIds);
+      visibilityAwaiter.await(MEMBER2_TENANT_ID, instanceIds(MEMBER2_TENANT_ID));
     } finally {
       lockManager.unlockAll();
     }
-  }
-
-  private static void saveCallNumberData(InventoryWriter writer) {
-    var centralInstances = CALL_NUMBER_INSTANCES.subList(0, 30);
-    writer.createInstances(CENTRAL_TENANT_ID, centralInstances);
-
-    var memberInstances = CALL_NUMBER_INSTANCES.subList(30, CALL_NUMBER_INSTANCES.size());
-    writer.createInstances(MEMBER_TENANT_ID, memberInstances);
-
-    var instance1 = centralInstances.getFirst();
-    instance1.setSource(SOURCE_CONSORTIUM_PREFIX + "FOLIO");
-    instance1.getItems().forEach(item -> item.setId(UUID.randomUUID().toString()));
-    writer.createInstance(MEMBER_TENANT_ID, instance1);
-
-    var dataRecord = new CallNumberTestDataRecord(callNumbers().getLast().callNumber(), MEMBER2_LOCATION);
-    var member2Instance = instance("51", List.of(dataRecord));
-    instance1.getItems().forEach(item -> item.setId(UUID.randomUUID().toString()));
-    writer.createInstances(MEMBER2_TENANT_ID, List.of(member2Instance, instance1));
-  }
-
-  private static void saveContributorData(InventoryWriter writer) {
-    writer.createInstances(CENTRAL_TENANT_ID, CONTRIBUTOR_INSTANCES_CENTRAL);
-    writer.createInstances(MEMBER_TENANT_ID, CONTRIBUTOR_INSTANCES_MEMBER);
-
-    // this is needed to test deleting contributors when all instances are unlinked from a contributor
-    var instanceToUpdate = CONTRIBUTOR_INSTANCES_CENTRAL.getFirst();
-    instanceToUpdate.setContributors(emptyList());
-    writer.updateInstance(CENTRAL_TENANT_ID, instanceToUpdate);
-  }
-
-  private static List<Instance> classificationInstances(int from, int to) {
-    return classificationBrowseInstanceData().subList(from, to).stream()
-      .map(ConsortiumTestDataManager::classificationInstance)
-      .toList();
-  }
-
-  @SuppressWarnings("unchecked")
-  private static Instance classificationInstance(List<Object> data) {
-    var pairs = (List<Pair<String, String>>) data.get(1);
-    var instance = new Instance()
-      .id(randomId())
-      .title((String) data.get(0))
-      .classifications(pairs.stream()
-        .map(pair -> new Classification()
-          .classificationNumber(String.valueOf(pair.getFirst()))
-          .classificationTypeId(String.valueOf(pair.getSecond())))
-        .toList())
-      .staffSuppress(false)
-      .discoverySuppress(false)
-      .holdings(emptyList());
-
-    if (data.size() > 2) {
-      var contributors = (List<String>) data.get(2);
-      instance.setContributors(contributors.stream()
-        .map(name -> new Contributor().name(name))
-        .toList());
-    }
-
-    return instance;
-  }
-
-  private static List<List<Object>> classificationBrowseInstanceData() {
-    return List.of(
-      List.of("instance #01", List.of(pair("BJ1453 .I49 1983", LC_TYPE_ID), pair("HD1691 .I5 1967", LC_TYPE_ID))),
-      List.of("instance #02", List.of(pair("BJ1453 .I49 1983", LC2_TYPE_ID))),
-      List.of("instance #03", List.of(pair("HQ536 .A565 2018", LC2_TYPE_ID), pair("N6679.R64 G88 2010", LC_TYPE_ID))),
-      List.of("instance #04", List.of(pair("QD33 .O87", LC_TYPE_ID)), List.of("Contributor 1", "Contributor 2")),
-      List.of("instance #05", List.of(pair("QD453 .M8 1961", LC_TYPE_ID), pair("146.4", DEWEY_TYPE_ID))),
-      List.of("instance #06", List.of(pair("SF433 .D47 2004", LC_TYPE_ID), pair("TX545 .M45", LC_TYPE_ID))),
-      List.of("instance #07", List.of(pair("221.609", DEWEY_TYPE_ID), pair("SF991 .M94", LC2_TYPE_ID))),
-      List.of("instance #08", List.of(pair("TN800 .F4613", LC_TYPE_ID))),
-      List.of("instance #09", List.of(pair("292.07", DEWEY_TYPE_ID), pair("333.91", DEWEY_TYPE_ID),
-        pair("372.4", DEWEY_TYPE_ID))),
-      List.of("instance #10", List.of(pair("146.4", DEWEY_TYPE_ID), pair("QD33 .O87", LC_TYPE_ID),
-        pair("SF991 .M94", null)), List.of("Contributor #3", "Contributor #4"))
-    );
-  }
-
-  private static List<Instance> contributorInstances(int from, int to) {
-    return contributorBrowseInstanceData().subList(from, to).stream()
-      .map(ConsortiumTestDataManager::contributorInstance)
-      .toList();
-  }
-
-  @SuppressWarnings("unchecked")
-  private static Instance contributorInstance(List<Object> data) {
-    return new Instance().id(randomId()).title((String) data.get(0)).contributors((List<Contributor>) data.get(1))
-      .staffSuppress(false).discoverySuppress(false).holdings(emptyList());
-  }
-
-  @SuppressWarnings("checkstyle:MethodLength")
-  private static List<List<Object>> contributorBrowseInstanceData() {
-    var nameTypes = CONTRIBUTOR_NAME_TYPE_IDS;
-    var authorities = CONTRIBUTOR_AUTHORITY_IDS;
-    var types = CONTRIBUTOR_TYPE_IDS;
-    return List.of(
-      List.of("instance #00", List.of(
-        contributor("Darth Vader", nameTypes[0], authorities[0], types[0])
-      )),
-      List.of("instance #01", List.of(
-        contributor("Bon Jovi", nameTypes[0], authorities[0], types[0]),
-        contributor("Klaus Meine", nameTypes[0], authorities[1], types[0]),
-        contributor("Anthony Kiedis", nameTypes[0], authorities[1], types[0])
-      )),
-      List.of("instance #02", List.of(
-        contributor("Bon Jovi", nameTypes[1], authorities[1], types[0]),
-        contributor("Klaus Meine", nameTypes[0], authorities[1], types[1]),
-        contributor("Anthony Kiedis", nameTypes[1], authorities[1], types[2])
-      )),
-      List.of("instance #03", List.of(
-        contributor("Bon Jovi", nameTypes[0], authorities[0], types[1]),
-        contributor("Bon Jovi", nameTypes[0], authorities[0], types[2]),
-        contributor("Klaus Meine", nameTypes[1], authorities[0], null)
-      )),
-      List.of("instance #04", List.of(
-        contributor("John Lennon", nameTypes[2], authorities[1], types[0]),
-        contributor("Paul McCartney", nameTypes[0], authorities[0], types[0]),
-        contributor("George Harrison", nameTypes[1], authorities[0], types[2]),
-        contributor("Ringo Starr", nameTypes[1], authorities[1], types[0])
-      )),
-      List.of("instance #05", List.of(
-        contributor("John Lennon", nameTypes[2], authorities[1], types[0]),
-        contributor("Paul McCartney", nameTypes[0], authorities[0], types[1]),
-        contributor("George Harrison", nameTypes[1], authorities[0], types[2]),
-        contributor("Ringo Starr", nameTypes[1], authorities[1], types[1])
-      )),
-      List.of("instance #06", List.of(
-        contributor("Paul McCartney", nameTypes[0], authorities[1], types[2]),
-        contributor("John Lennon", nameTypes[2], null, types[0])
-      )));
-  }
-
-  private static Contributor contributor(String name, String nameTypeId, String authorityId, String typeId) {
-    return new Contributor()
-      .name(name)
-      .contributorNameTypeId(nameTypeId)
-      .contributorTypeId(typeId)
-      .authorityId(authorityId);
-  }
-
-  private static List<Instance> subjectInstances(int from, int to) {
-    return subjectBrowseInstanceData().subList(from, to).stream()
-      .map(ConsortiumTestDataManager::subjectInstance)
-      .toList();
-  }
-
-  @SuppressWarnings("unchecked")
-  private static Instance subjectInstance(List<Object> data) {
-    return new Instance()
-      .id(randomId())
-      .title((String) data.get(0))
-      .subjects(((List<Object>) data.get(1)).stream()
-        .map(val -> {
-          if (val instanceof List<?> list) {
-            var subject = new Subject().value(String.valueOf(list.get(0)));
-            if (list.size() == 4) {
-              subject.setAuthorityId(Objects.toString(list.get(1), null));
-              subject.setSourceId(Objects.toString(list.get(2), null));
-              subject.setTypeId(Objects.toString(list.get(3), null));
-            }
-            return subject;
-          } else {
-            return new Subject().value(String.valueOf(val));
-          }
-        }).toList())
-      .staffSuppress(false)
-      .discoverySuppress(false)
-      .holdings(emptyList());
-  }
-
-  @SuppressWarnings("checkstyle:MethodLength")
-  private static List<List<Object>> subjectBrowseInstanceData() {
-    return List.of(
-      List.of("instance #01", List.of("History",
-        List.of("Music", MUSIC_AUTHORITY_ID_1, MUSIC_SOURCE_ID_1, MUSIC_TYPE_ID_1),
-        List.of("Music", MUSIC_AUTHORITY_ID_2, MUSIC_SOURCE_ID_2, MUSIC_TYPE_ID_2), "Biography")),
-      List.of("instance #02", List.of("Fantasy",
-        List.of("Music", MUSIC_AUTHORITY_ID_2, MUSIC_SOURCE_ID_2, MUSIC_TYPE_ID_2))),
-      List.of("instance #03", List.of(Arrays.asList("United States", null, MUSIC_SOURCE_ID_1, MUSIC_TYPE_ID_2),
-        "History", "Rules")),
-      List.of("instance #04", List.of("Europe",
-        Arrays.asList("Music", null, null, MUSIC_TYPE_ID_1))),
-      List.of("instance #05", List.of("Book", "Text", "Biography")),
-      List.of("instance #06", List.of("Religion", "History", "Philosophy")),
-      List.of("instance #07", List.of("Science", "Science--Methodology", "Science--Philosophy")),
-      List.of("instance #08", List.of("Water", "Water-supply")),
-      List.of("instance #09", List.of("Water--Analysis", "Water--Purification", "Water--Microbiology")),
-      List.of("instance #10", List.of("Database design", "Database management", "Textbooks")),
-      List.of("instance #11", List.of("History",
-        Arrays.asList("Music", null, null, MUSIC_TYPE_ID_1), "Biography")),
-      List.of("instance #12", List.of("History",
-        Arrays.asList("Music", MUSIC_AUTHORITY_ID_1, null, MUSIC_TYPE_ID_2), "Biography")),
-      List.of("instance #13", List.of("History",
-        Arrays.asList("Music", null, MUSIC_SOURCE_ID_1, null), "Biography")),
-      List.of("instance #14", List.of("History",
-        Arrays.asList("Music", MUSIC_AUTHORITY_ID_2, MUSIC_SOURCE_ID_1, null), "Biography")),
-      List.of("instance #15", List.of("History",
-        Arrays.asList("Music", null, MUSIC_SOURCE_ID_2, MUSIC_TYPE_ID_1), "Biography"))
-    );
+    childrenIndexer.indexChildren();
   }
 
   /**
-   * Writes inventory records to a tenant; creation waits until the records are visible for that tenant.
+   * Sends the instances, holdings and items of a tenant. {@link InventoryApi} modifies the maps it gets, so it is
+   * given copies and the loaded records stay unchanged.
    */
-  public interface InventoryWriter {
-
-    void createInstances(String tenantId, List<Instance> instances);
-
-    void createInstance(String tenantId, Instance instance);
-
-    void updateInstance(String tenantId, Instance instance);
+  private static void createRecords(InventoryApi inventoryApi, String tenantId) {
+    instances(tenantId).forEach(instance -> inventoryApi.createInstance(tenantId, new LinkedHashMap<>(instance)));
+    holdings(tenantId).forEach(holding ->
+      inventoryApi.createHolding(tenantId, instanceId(holding), new LinkedHashMap<>(holding)));
+    items(tenantId).forEach(item -> inventoryApi.createItem(tenantId, instanceId(item), new LinkedHashMap<>(item)));
   }
+
+  private static void unlinkContributors(InventoryApi inventoryApi) {
+    var instance = instances(CENTRAL_TENANT_ID).stream()
+      .filter(record -> UNLINKED_CONTRIBUTOR_INSTANCE_ID.equals(record.get(ID_FIELD)))
+      .findFirst()
+      .orElseThrow();
+    var updated = new LinkedHashMap<>(instance);
+    updated.put("contributors", List.of());
+    inventoryApi.updateInstance(CENTRAL_TENANT_ID, updated);
+  }
+
+  private static List<String> instanceIds(String tenantId) {
+    return instances(tenantId).stream().map(record -> MapUtils.getString(record, ID_FIELD)).distinct().toList();
+  }
+
+  private static String instanceId(Map<String, Object> record) {
+    return MapUtils.getString(record, INSTANCE_ID_FIELD);
+  }
+
+  private static List<Map<String, Object>> loadRecords(String folder, String fileName) {
+    List<Map<String, Object>> records = readJsonFromFile(BASE + folder + "/" + fileName, new TypeReference<>() { });
+    return records.stream().map(record -> unmodifiableMap(new LinkedHashMap<>(record))).toList();
+  }
+
+  /**
+   * Waits until the instances with the given ids are searchable in the given tenant.
+   */
+  @FunctionalInterface
+  public interface InstancesVisibilityAwaiter {
+
+    void await(String tenantId, List<String> instanceIds);
+  }
+
+  private record TenantRecords(List<Map<String, Object>> instances, List<Map<String, Object>> holdings,
+                               List<Map<String, Object>> items) { }
 }

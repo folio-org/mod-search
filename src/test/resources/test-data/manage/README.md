@@ -13,11 +13,9 @@ and used by the following integration test suites:
 - **`SearchBrowseConsortiumSuiteIT`** — loads records into a central tenant and a member tenant and runs
   consortium search/browse tests for linked-data, locations, libraries, institutions, and campuses.
   It also runs the ECS inventory tests (call number, classification, contributor and subject browse,
-  consortium holdings/items search) in the same Spring context. Tenants, browse features and the ECS
-  inventory data set are set up once in `SearchBrowseConsortiumSuiteIT#setUp`, so new ECS test classes need no
-  tenant or data setup of their own and their expectations must account for the whole data set. The ECS data set
-  is defined in `org.folio.support.testdata.ConsortiumTestDataManager` (see its Javadoc for the per-tenant
-  layout): add new ECS fixtures there, not in test classes, and update the expected sub-resource counts it exposes.
+  consortium holdings/items search) in the same Spring context, on the ECS data set in `ecs/` (see
+  [ECS data set](#ecs-data-set-ecs)). Tenants, browse features and the ECS data set are set up once in
+  `SearchBrowseConsortiumSuiteIT#setUp`, so new ECS test classes need no tenant or data setup of their own.
 - **`ConsortiumIndexingSuiteIT`** — runs the ECS indexing tests, which create and wipe their own data, so they
   are kept apart from the shared read-only data set.
 
@@ -121,6 +119,42 @@ private static final int EXPECTED_SUBJECT_COUNT         = 52;
 
 If you change the data and the test fails on `verifyIndexedResourceCounts`, update these constants
 to match the new counts reported in the assertion error message.
+
+## ECS data set (`ecs/`)
+
+The consortium (ECS) inventory data set used by `SearchBrowseConsortiumSuiteIT` has one folder per tenant, each
+with `instances.json`, `holdings.json` and `items.json` in the same format as the files above:
+
+| Folder         | Tenant          | Content                                                                         |
+|----------------|-----------------|---------------------------------------------------------------------------------|
+| `ecs/central`  | central tenant  | shared instances, and holdings/items owned by the central tenant                |
+| `ecs/member`   | member tenant   | local instances, shadow copies of shared instances, holdings/items they own     |
+| `ecs/member2`  | member2 tenant  | the same for the second member tenant                                          |
+
+Holdings and items that a member tenant owns for a **shared** instance are in that member's folder, next to its
+shadow copy of the instance (same id, source `CONSORTIUM-MARC` or `CONSORTIUM-FOLIO`), as in a real consortium.
+`ConsortiumTestDataManager` loads the folders and sends the records through Kafka (`InventoryApi`), not through
+`/search-index/records`, because only the Kafka path routes member-tenant records to the central tenant. It exposes
+the records (`instances/holdings/items(tenantId)`), the slice ids (`SHARED_INSTANCE_ID`, `LOCAL_INSTANCE_ID`) and
+the expected index document counts.
+
+Each folder is managed with the same toolchain; every folder gets its own database
+(`manage/test-data-ecs-<tenant>.db`, gitignored):
+
+```bash
+python manage/import.py --data-dir ecs/member
+# edit manage/test-data-ecs-member.db
+python manage/export.py --data-dir ecs/member
+```
+
+When adding ECS data:
+
+- Prefer **scoping new assertions to your own fixtures** (filter by instance id, or use distinct values), as the
+  `*_sharedInstance_*` / `*_localInstance_*` tests in `ConsortiumSearchHoldingsIT` and `ConsortiumSearchItemsIT` do,
+  so that later data changes do not affect them.
+- The browse and facet tests in `org.folio.api.browse.*ConsortiumIT` cover the whole data set; new contributors,
+  subjects, classifications or call numbers change their totals, so re-baseline them and update the counts in
+  `ConsortiumTestDataManager`.
 
 ## Useful queries
 

@@ -63,7 +63,7 @@ public abstract class BrowseContributorConsortiumIT extends BaseConsortiumIntegr
       + "and instances.shared==true").param(LIMIT_PARAM, "5");
 
     var actual = parseResponse(doGet(request), ContributorBrowseResult.class);
-    var expected = new ContributorBrowseResult().totalRecords(7).prev(null).next("Contributor 1").items(
+    var expected = new ContributorBrowseResult().totalRecords(8).prev(null).next("Contributor 1").items(
       List.of(
         contributorBrowseItem(1, "Anthony Kiedis", NAME_TYPE_IDS[1], AUTHORITY_IDS[1], TYPE_IDS[2]),
         contributorBrowseItem(1, "Anthony Kiedis", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[0]),
@@ -97,7 +97,7 @@ public abstract class BrowseContributorConsortiumIT extends BaseConsortiumIntegr
 
     var actual = parseResponse(doGet(request), ContributorBrowseResult.class);
     var semanticWebContributor = getSemanticWeb().getContributors().getFirst();
-    var expected = new ContributorBrowseResult().totalRecords(12).prev(null).next("Contributor #4").items(
+    var expected = new ContributorBrowseResult().totalRecords(13).prev(null).next("Contributor #4").items(
       List.of(
         contributorBrowseItem(1, semanticWebContributor.getName(), semanticWebContributor.getContributorNameTypeId(),
           semanticWebContributor.getAuthorityId(), semanticWebContributor.getContributorTypeId()),
@@ -131,10 +131,10 @@ public abstract class BrowseContributorConsortiumIT extends BaseConsortiumIntegr
   private static Stream<Arguments> facetQueriesProvider() {
     return Stream.of(
       arguments(ALL_RECORDS_QUERY, array("instances.shared"), mapOf("instances.shared",
-        facet(facetItem("false", 12), facetItem("true", 7)))),
+        facet(facetItem("false", 13), facetItem("true", 8)))),
       arguments(ALL_RECORDS_QUERY, array("instances.tenantId"),
-        mapOf("instances.tenantId", facet(facetItem(MEMBER_TENANT_ID, 12),
-          facetItem(CENTRAL_TENANT_ID, 7))))
+        mapOf("instances.tenantId", facet(facetItem(MEMBER_TENANT_ID, 13),
+          facetItem(CENTRAL_TENANT_ID, 8))))
     );
   }
 }

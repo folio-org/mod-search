@@ -51,7 +51,7 @@ public abstract class BrowseClassificationConsortiumIT extends BaseConsortiumInt
     assertThat(actual)
       .as("Shared browse result should match expected classification entries")
       .usingRecursiveComparison().ignoringFields(COLLECTION_IGNORING_FIELDS)
-      .isEqualTo(classificationBrowseResult("HQ536 .A565 2018", null, 8, List.of(
+      .isEqualTo(classificationBrowseResult("HQ536 .A565 2018", "QD453 .M8 1961", 9, List.of(
         classificationBrowseItem("HQ536 .A565 2018", LC2_TYPE_ID, 1, "instance #03"),
         classificationBrowseItem("N6679.R64 G88 2010", LC_TYPE_ID, 1, "instance #03"),
         classificationBrowseItem("QD33 .O87", LC_TYPE_ID, 1, "instance #04", true,
@@ -73,7 +73,7 @@ public abstract class BrowseClassificationConsortiumIT extends BaseConsortiumInt
     assertThat(actual)
       .as("Local browse result should match expected classification entries")
       .usingRecursiveComparison().ignoringFields(COLLECTION_IGNORING_FIELDS)
-      .isEqualTo(classificationBrowseResult("372.4", "SF433 .D47 2004", 13, List.of(
+      .isEqualTo(classificationBrowseResult("372.4", "SF433 .D47 2004", 14, List.of(
         classificationBrowseItem("372.4", DEWEY_TYPE_ID, 1, "instance #09"),
         classificationBrowseItem("HD1691 .I5 1967", SEMANTIC_WEB_LC_TYPE_ID, 1, semanticWeb.getTitle(),
           semanticWeb.getContributors().stream().map(Contributor::getName).toArray(String[]::new)),
@@ -81,6 +81,17 @@ public abstract class BrowseClassificationConsortiumIT extends BaseConsortiumInt
           "Contributor #3", "Contributor #4"),
         classificationBrowseItem("SF433 .D47 2004", LC_TYPE_ID, 1, "instance #06")
       )));
+  }
+
+  @Test
+  void browseByClassification_local_forward() {
+    var request = get(instanceClassificationBrowsePath(BrowseOptionType.ALL))
+      .param(QUERY_PARAM, "number >= \"333.91\" and instances.shared==false")
+      .param(LIMIT_PARAM, "1");
+    var actual = parseResponse(doGet(request), ClassificationNumberBrowseResult.class);
+    assertThat(actual.getItems())
+      .usingRecursiveFieldByFieldElementComparatorIgnoringFields(ENTRY_IGNORING_FIELDS)
+      .containsExactly(classificationBrowseItem("333.91", DEWEY_TYPE_ID, 1, "instance #09"));
   }
 
   @MethodSource("facetQueriesProvider")
@@ -104,10 +115,10 @@ public abstract class BrowseClassificationConsortiumIT extends BaseConsortiumInt
   private static Stream<Arguments> facetQueriesProvider() {
     return Stream.of(
       arguments(ALL_RECORDS_QUERY, array("instances.shared"), mapOf("instances.shared",
-        facet(facetItem("false", 13), facetItem("true", 8)))),
+        facet(facetItem("false", 14), facetItem("true", 9)))),
       arguments(ALL_RECORDS_QUERY, array("instances.tenantId"),
-        mapOf("instances.tenantId", facet(facetItem(MEMBER_TENANT_ID, 13),
-          facetItem(CENTRAL_TENANT_ID, 8))))
+        mapOf("instances.tenantId", facet(facetItem(MEMBER_TENANT_ID, 14),
+          facetItem(CENTRAL_TENANT_ID, 9))))
     );
   }
 }

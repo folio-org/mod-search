@@ -1,16 +1,21 @@
 package org.folio.api.consortiumsearch;
 
 import static java.lang.String.format;
+import static org.apache.commons.collections4.MapUtils.getString;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.model.Pair.pair;
 import static org.folio.search.utils.SearchResponseHelper.REQUEST_NOT_ALLOWED_MSG;
 import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
+import static org.folio.support.TestConstants.MEMBER2_TENANT_ID;
 import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.consortiumBatchItemsSearchPath;
 import static org.folio.support.base.ApiEndpoints.consortiumItemSearchPath;
 import static org.folio.support.base.ApiEndpoints.consortiumItemsSearchPath;
 import static org.folio.support.sample.SampleInstances.getSemanticWeb;
 import static org.folio.support.sample.SampleInstances.getSemanticWebId;
+import static org.folio.support.testdata.ConsortiumTestDataManager.LOCAL_INSTANCE_ID;
+import static org.folio.support.testdata.ConsortiumTestDataManager.SHARED_INSTANCE_ID;
+import static org.folio.support.testdata.ConsortiumTestDataManager.items;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -47,6 +52,29 @@ public abstract class ConsortiumSearchItemsIT extends BaseConsortiumIntegrationT
 
     assertThat(actual.getTotalRecords()).isEqualTo(3);
     assertThat(actual.getItems()).containsExactlyInAnyOrder(getExpectedItems());
+  }
+
+  @Test
+  void doGetConsortiumItems_sharedInstance_returnsItemsOfAllTenants() {
+    var result = doGet(consortiumItemsSearchPath(List.of(pair("instanceId", SHARED_INSTANCE_ID))), CENTRAL_TENANT_ID);
+    var actual = parseResponse(result, ConsortiumItemCollection.class);
+
+    var expected = fixtureItems(SHARED_INSTANCE_ID);
+    assertThat(expected).extracting(ConsortiumItem::getTenantId)
+      .contains(CENTRAL_TENANT_ID, MEMBER_TENANT_ID, MEMBER2_TENANT_ID);
+    assertThat(actual.getTotalRecords()).isEqualTo(expected.size());
+    assertThat(actual.getItems()).containsExactlyInAnyOrderElementsOf(expected);
+  }
+
+  @Test
+  void doGetConsortiumItems_localInstance_returnsItemsOfOwningTenantOnly() {
+    var result = doGet(consortiumItemsSearchPath(List.of(pair("instanceId", LOCAL_INSTANCE_ID))), CENTRAL_TENANT_ID);
+    var actual = parseResponse(result, ConsortiumItemCollection.class);
+
+    var expected = fixtureItems(LOCAL_INSTANCE_ID);
+    assertThat(expected).isNotEmpty().extracting(ConsortiumItem::getTenantId).containsOnly(MEMBER_TENANT_ID);
+    assertThat(actual.getTotalRecords()).isEqualTo(expected.size());
+    assertThat(actual.getItems()).containsExactlyInAnyOrderElementsOf(expected);
   }
 
   @Test
@@ -186,6 +214,23 @@ public abstract class ConsortiumSearchItemsIT extends BaseConsortiumIntegrationT
         .barcode(item.getBarcode())
       )
       .toArray(ConsortiumItem[]::new);
+  }
+
+  /**
+   * Expected consortium items of a fixture instance, built from the item records of all tenants.
+   */
+  private static List<ConsortiumItem> fixtureItems(String instanceId) {
+    return Stream.of(CENTRAL_TENANT_ID, MEMBER_TENANT_ID, MEMBER2_TENANT_ID)
+      .flatMap(tenantId -> items(tenantId).stream()
+        .filter(item -> instanceId.equals(getString(item, "instanceId")))
+        .map(item -> new ConsortiumItem()
+          .id(getString(item, "id"))
+          .hrid(getString(item, "hrid"))
+          .tenantId(tenantId)
+          .instanceId(instanceId)
+          .holdingsRecordId(getString(item, "holdingsRecordId"))
+          .barcode(getString(item, "barcode"))))
+      .toList();
   }
 
   private String getConsortiumItemIdentifierValue(BatchIdsDto.IdentifierTypeEnum identifierName, Item item) {

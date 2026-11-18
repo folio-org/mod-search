@@ -1,0 +1,716 @@
+[
+  {
+    "id": "01fd62ac-4087-34ea-852e-1ecbbcdd92e0",
+    "source": null,
+    "title": "Instance 33",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "03f1f8ba-1934-30a8-a20b-cf61e26e38b1",
+    "source": null,
+    "title": "instance #06",
+    "indexTitle": null,
+    "subjects": [
+      {
+        "value": "Religion"
+      },
+      {
+        "value": "History"
+      },
+      {
+        "value": "Philosophy"
+      }
+    ],
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "1caa453f-c10b-3639-ade5-5ef5307b8ad2",
+    "source": null,
+    "title": "instance #14",
+    "indexTitle": null,
+    "subjects": [
+      {
+        "value": "History"
+      },
+      {
+        "value": "Music",
+        "authorityId": "308c950f-8209-4f2e-9702-0c004a9f21bc",
+        "sourceId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91b"
+      },
+      {
+        "value": "Biography"
+      }
+    ],
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "258137cc-d92c-3ee3-8fd5-b74f1d6ec5a9",
+    "source": null,
+    "title": "instance #10",
+    "indexTitle": null,
+    "subjects": [
+      {
+        "value": "Database design"
+      },
+      {
+        "value": "Database management"
+      },
+      {
+        "value": "Textbooks"
+      }
+    ],
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "2635ca67-5ffc-3d57-8179-05d56a45d052",
+    "source": null,
+    "title": "instance #15",
+    "indexTitle": null,
+    "subjects": [
+      {
+        "value": "History"
+      },
+      {
+        "value": "Music",
+        "sourceId": "308c950f-8209-4f2e-9702-0c004a9f21bd",
+        "typeId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91c"
+      },
+      {
+        "value": "Biography"
+      }
+    ],
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "2bbc3487-196a-3ef4-8556-8097c4970bea",
+    "source": null,
+    "title": "instance #06",
+    "indexTitle": null,
+    "contributors": [
+      {
+        "name": "Paul McCartney",
+        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
+        "contributorTypeId": "653ffe66-aa3f-4f1c-a090-c42c4011ef40",
+        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d"
+      },
+      {
+        "name": "John Lennon",
+        "contributorNameTypeId": "1f857623-89ca-4f0b-ab56-5c30f706df3e",
+        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299"
+      }
+    ],
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "2d078c12-acd8-3b0b-b75f-d90c0367ec38",
+    "source": null,
+    "title": "Instance 31",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "3238eca1-08a0-3af5-8f12-d4b1392985aa",
+    "source": null,
+    "title": "Instance 34",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "42b20785-6514-37c7-ac81-bb05f5e61b96",
+    "source": null,
+    "title": "instance #11",
+    "indexTitle": null,
+    "subjects": [
+      {
+        "value": "History"
+      },
+      {
+        "value": "Music",
+        "typeId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91c"
+      },
+      {
+        "value": "Biography"
+      }
+    ],
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "484016df-8595-3fce-8926-4cf710e660a1",
+    "source": null,
+    "title": "Instance 32",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "4a2f08de-b436-3b4e-96f7-5703328bec08",
+    "source": null,
+    "title": "Instance 45",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "4b9c1f3e-7d2a-4e8b-9c61-2f5a8d7e3b10",
+    "source": "CONSORTIUM-MARC",
+    "title": "Sharing collections : a guide to consortial cataloging",
+    "indexTitle": null,
+    "hrid": "cin00000001",
+    "identifiers": [
+      {
+        "value": "9781555708856",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Varga, Elena",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Library consortia"
+      },
+      {
+        "value": "Interlibrary loans"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "Z665.2.U6 V37 2023",
+        "classificationTypeId": "ce176ace-a53e-4b4d-aa89-725ed7b2edac"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Consortium Press",
+        "place": "Chicago",
+        "dateOfPublication": "2023"
+      }
+    ],
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "533294ef-fc1e-3936-8614-ce0154022f99",
+    "source": null,
+    "title": "Instance 42",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "564f4834-f61e-3a30-b167-66327e454128",
+    "source": null,
+    "title": "instance #10",
+    "indexTitle": null,
+    "contributors": [
+      {
+        "name": "Contributor #3"
+      },
+      {
+        "name": "Contributor #4"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "146.4",
+        "classificationTypeId": "50524585-046b-49a1-8ca7-8d46f2a8dc19"
+      },
+      {
+        "classificationNumber": "QD33 .O87",
+        "classificationTypeId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a"
+      },
+      {
+        "classificationNumber": "SF991 .M94",
+        "classificationTypeId": "null"
+      }
+    ],
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "5a3d4687-44ef-39f5-9a0b-4d3853211a99",
+    "source": "CONSORTIUM-FOLIO",
+    "title": "Instance 1",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "604b32b4-aecb-336c-9332-6a4c4e200356",
+    "source": null,
+    "title": "instance #12",
+    "indexTitle": null,
+    "subjects": [
+      {
+        "value": "History"
+      },
+      {
+        "value": "Music",
+        "authorityId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a",
+        "typeId": "308c950f-8209-4f2e-9702-0c004a9f21be"
+      },
+      {
+        "value": "Biography"
+      }
+    ],
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "6f7574a6-2e88-3304-aac9-dc8062562c79",
+    "source": null,
+    "title": "instance #03",
+    "indexTitle": null,
+    "contributors": [
+      {
+        "name": "Bon Jovi",
+        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
+        "contributorTypeId": "3ae36e29-e38f-457c-8fcf-1974a6cb63d3",
+        "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9"
+      },
+      {
+        "name": "Bon Jovi",
+        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
+        "contributorTypeId": "653ffe66-aa3f-4f1c-a090-c42c4011ef40",
+        "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9"
+      },
+      {
+        "name": "Klaus Meine",
+        "contributorNameTypeId": "0ad0a89a-741d-4f1a-85a6-ada214751013",
+        "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9"
+      }
+    ],
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "774516a0-d8f5-3098-8c84-12f1a2804343",
+    "source": null,
+    "title": "Instance 44",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "78356515-2d41-3cb2-8a07-d6f55fe67ba0",
+    "source": null,
+    "title": "instance #07",
+    "indexTitle": null,
+    "subjects": [
+      {
+        "value": "Science"
+      },
+      {
+        "value": "Science--Methodology"
+      },
+      {
+        "value": "Science--Philosophy"
+      }
+    ],
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "8509aa93-eb04-3993-bb4a-5ab9fd35e4e4",
+    "source": null,
+    "title": "instance #13",
+    "indexTitle": null,
+    "subjects": [
+      {
+        "value": "History"
+      },
+      {
+        "value": "Music",
+        "sourceId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91b"
+      },
+      {
+        "value": "Biography"
+      }
+    ],
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "930d1fac-2db9-3cda-9962-b50a2dfb888a",
+    "source": null,
+    "title": "Instance 47",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "96b3e017-c310-3a7a-abbe-3e49898bc147",
+    "source": null,
+    "title": "instance #09",
+    "indexTitle": null,
+    "subjects": [
+      {
+        "value": "Water--Analysis"
+      },
+      {
+        "value": "Water--Purification"
+      },
+      {
+        "value": "Water--Microbiology"
+      }
+    ],
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "9e2d7a41-3c5b-4f86-a1d9-6b0e8c4f2a75",
+    "source": "FOLIO",
+    "title": "Willow Creek Public Library : a local history",
+    "indexTitle": null,
+    "hrid": "min00000001",
+    "identifiers": [
+      {
+        "value": "9780838919453",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Whitfield, Thomas",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Local history"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "Z733.W55 W45 2021",
+        "classificationTypeId": "ce176ace-a53e-4b4d-aa89-725ed7b2edac"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Willow Creek Historical Society",
+        "place": "Willow Creek",
+        "dateOfPublication": "2021"
+      }
+    ],
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "9e57f5a0-2219-3f4e-9556-1e5c2ab66ac2",
+    "source": null,
+    "title": "instance #09",
+    "indexTitle": null,
+    "classifications": [
+      {
+        "classificationNumber": "292.07",
+        "classificationTypeId": "50524585-046b-49a1-8ca7-8d46f2a8dc19"
+      },
+      {
+        "classificationNumber": "333.91",
+        "classificationTypeId": "50524585-046b-49a1-8ca7-8d46f2a8dc19"
+      },
+      {
+        "classificationNumber": "372.4",
+        "classificationTypeId": "50524585-046b-49a1-8ca7-8d46f2a8dc19"
+      }
+    ],
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "a90b6673-89e8-3ad0-a7b9-ef9c3a63a8ef",
+    "source": null,
+    "title": "Instance 46",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "a921c848-2d24-328b-ab14-0267e772f630",
+    "source": null,
+    "title": "instance #07",
+    "indexTitle": null,
+    "classifications": [
+      {
+        "classificationNumber": "221.609",
+        "classificationTypeId": "50524585-046b-49a1-8ca7-8d46f2a8dc19"
+      },
+      {
+        "classificationNumber": "SF991 .M94",
+        "classificationTypeId": "308c950f-8209-4f2e-9702-0c004a9f21bc"
+      }
+    ],
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "af1703bb-a677-3ee1-a108-747eee85eb17",
+    "source": null,
+    "title": "Instance 39",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "b1c89f03-fc8c-3614-b8b6-37e30c53f59c",
+    "source": null,
+    "title": "Instance 35",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "bc1aa1e4-7fde-3327-8542-839cd3a1fe60",
+    "source": null,
+    "title": "instance #05",
+    "indexTitle": null,
+    "contributors": [
+      {
+        "name": "John Lennon",
+        "contributorNameTypeId": "1f857623-89ca-4f0b-ab56-5c30f706df3e",
+        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299",
+        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d"
+      },
+      {
+        "name": "Paul McCartney",
+        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
+        "contributorTypeId": "3ae36e29-e38f-457c-8fcf-1974a6cb63d3",
+        "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9"
+      },
+      {
+        "name": "George Harrison",
+        "contributorNameTypeId": "0ad0a89a-741d-4f1a-85a6-ada214751013",
+        "contributorTypeId": "653ffe66-aa3f-4f1c-a090-c42c4011ef40",
+        "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9"
+      },
+      {
+        "name": "Ringo Starr",
+        "contributorNameTypeId": "0ad0a89a-741d-4f1a-85a6-ada214751013",
+        "contributorTypeId": "3ae36e29-e38f-457c-8fcf-1974a6cb63d3",
+        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d"
+      }
+    ],
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "bda241eb-158d-38e5-b839-af92c48fa449",
+    "source": null,
+    "title": "Instance 50",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "bf256634-20cf-3be5-abfb-d25c804449c6",
+    "source": null,
+    "title": "Instance 37",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "c36829e5-b898-3b71-97e7-ef8a1f6fc4e6",
+    "source": null,
+    "title": "Instance 38",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "d381b0d1-2927-3d11-9800-8899ca6365f1",
+    "source": null,
+    "title": "Instance 36",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "d8350c94-9ea7-30cf-8768-ebcabee18696",
+    "source": null,
+    "title": "Instance 48",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "ddbb4296-fd65-371c-9435-c13681186475",
+    "source": null,
+    "title": "instance #08",
+    "indexTitle": null,
+    "classifications": [
+      {
+        "classificationNumber": "TN800 .F4613",
+        "classificationTypeId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a"
+      }
+    ],
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "e2ae1a67-2ab5-3a3c-9fb0-dbd85d251b3d",
+    "source": null,
+    "title": "instance #08",
+    "indexTitle": null,
+    "subjects": [
+      {
+        "value": "Water"
+      },
+      {
+        "value": "Water-supply"
+      }
+    ],
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "eb3bb050-985b-3c17-a819-b05a6a359b13",
+    "source": null,
+    "title": "Instance 49",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "ec93fccb-ae39-37a4-ad5e-4d4cbaeda7c0",
+    "source": null,
+    "title": "instance #06",
+    "indexTitle": null,
+    "classifications": [
+      {
+        "classificationNumber": "SF433 .D47 2004",
+        "classificationTypeId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a"
+      },
+      {
+        "classificationNumber": "TX545 .M45",
+        "classificationTypeId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a"
+      }
+    ],
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "f08c9a03-b920-3ddb-8805-f1e73c61cd00",
+    "source": null,
+    "title": "instance #04",
+    "indexTitle": null,
+    "contributors": [
+      {
+        "name": "John Lennon",
+        "contributorNameTypeId": "1f857623-89ca-4f0b-ab56-5c30f706df3e",
+        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299",
+        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d"
+      },
+      {
+        "name": "Paul McCartney",
+        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
+        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299",
+        "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9"
+      },
+      {
+        "name": "George Harrison",
+        "contributorNameTypeId": "0ad0a89a-741d-4f1a-85a6-ada214751013",
+        "contributorTypeId": "653ffe66-aa3f-4f1c-a090-c42c4011ef40",
+        "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9"
+      },
+      {
+        "name": "Ringo Starr",
+        "contributorNameTypeId": "0ad0a89a-741d-4f1a-85a6-ada214751013",
+        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299",
+        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d"
+      }
+    ],
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "f180ebf6-350c-376b-adb7-889662cf2ddf",
+    "source": null,
+    "title": "Instance 40",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "fab1cb8b-7ca7-346b-a1e2-7ae48c09215a",
+    "source": null,
+    "title": "Instance 43",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "fb6b4262-9558-37a6-977d-657bebcc400f",
+    "source": null,
+    "title": "Instance 41",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  }
+]

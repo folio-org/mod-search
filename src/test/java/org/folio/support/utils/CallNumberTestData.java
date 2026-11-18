@@ -2,12 +2,9 @@ package org.folio.support.utils;
 
 import static java.util.Objects.requireNonNull;
 import static org.folio.search.utils.CallNumberUtils.calculateFullCallNumber;
-import static org.folio.support.utils.TestUtils.randomId;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.Getter;
@@ -16,10 +13,6 @@ import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.CallNumberBrowseResult;
-import org.folio.search.domain.dto.Holding;
-import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.Item;
-import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
 import org.folio.search.model.index.CallNumberResource;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.params.shadow.de.siegmar.fastcsv.reader.CsvReader;
@@ -40,39 +33,6 @@ public class CallNumberTestData {
       Integer.parseInt(csvRecord.getField(0)),
       csvRecord.getField(1)
     )).stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-  }
-
-  public static List<Instance> instances() {
-    var instancesPath = "/samples/cn-browse/instances-with-call-numbers.csv";
-    var callNumbers = callNumbers();
-    return readCsvEntities(instancesPath, instanceMapper(callNumbers));
-  }
-
-  public static Instance instance(String instanceNum, List<CallNumberTestDataRecord> callNumbers) {
-    var holdingId = randomId();
-    var holding = new Holding().id(holdingId);
-
-    var items = callNumbers.stream()
-      .map(callNumberResource -> {
-        var callNumber = callNumberResource.callNumber();
-        var locationId = callNumberResource.locationId();
-        return new Item()
-          .id(randomId())
-          .holdingsRecordId(holdingId)
-          .effectiveLocationId(locationId)
-          .effectiveCallNumberComponents(new ItemEffectiveCallNumberComponents()
-            .callNumber(callNumber.callNumber())
-            .typeId(callNumber.callNumberTypeId())
-            .prefix(callNumber.callNumberPrefix())
-            .suffix(callNumber.callNumberSuffix())
-          );
-      }).toList();
-
-    return new Instance()
-      .id(randomId())
-      .title("Instance " + instanceNum)
-      .items(items)
-      .holdings(List.of(holding));
   }
 
   public static CallNumberBrowseResult cnBrowseResult(String prev, String next, int total,
@@ -101,20 +61,6 @@ public class CallNumberTestData {
       .isAnchor(isAnchor);
   }
 
-  private static Function<NamedCsvRecord, Instance> instanceMapper(List<CallNumberTestDataRecord> callNumbers) {
-    return csvRecord -> {
-      var id = getField(csvRecord, InstanceCsvHeader.ID.getHeader());
-      var callNumberList = Arrays.stream(getField(csvRecord, InstanceCsvHeader.CALL_NUMBER_NUMS.getHeader()).split(";"))
-        .map(callNumberId -> callNumbers.stream()
-          .filter(cn -> cn.callNumber().id().equals(callNumberId))
-          .findFirst())
-        .filter(Optional::isPresent)
-        .map(Optional::get)
-        .toList();
-      return instance(id, callNumberList);
-    };
-  }
-
   private static Function<NamedCsvRecord, CallNumberTestDataRecord> callNumberMapper(Map<Integer, String> locations) {
     return csvRecord -> {
       var id = getField(csvRecord, CallNumberCsvHeader.ID.getHeader());
@@ -140,18 +86,6 @@ public class CallNumberTestData {
     try (var inputStream = CallNumberTestData.class.getResourceAsStream(filePath)) {
       return CsvReader.builder()
         .ofNamedCsvRecord(requireNonNull(inputStream)).stream().map(mapper).toList();
-    }
-  }
-
-  @Getter
-  private enum InstanceCsvHeader {
-    ID("Num"),
-    CALL_NUMBER_NUMS("Call Number Nums");
-
-    private final String header;
-
-    InstanceCsvHeader(String header) {
-      this.header = header;
     }
   }
 

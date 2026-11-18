@@ -1,6 +1,7 @@
 package org.folio.api.browse;
 
 import static java.util.function.Function.identity;
+import static org.apache.commons.collections4.MapUtils.getString;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.domain.dto.RecordType.CALL_NUMBERS;
 import static org.folio.search.utils.SearchUtils.ALL_RECORDS_QUERY;
@@ -10,8 +11,11 @@ import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.instanceCallNumberBrowsePath;
 import static org.folio.support.base.ApiEndpoints.recordFacetsPath;
 import static org.folio.support.sample.SampleInstances.getSemanticWeb;
+import static org.folio.support.testdata.ConsortiumTestDataManager.LOCAL_INSTANCE_ID;
 import static org.folio.support.testdata.ConsortiumTestDataManager.MEMBER2_LOCATION;
-import static org.folio.support.testdata.ConsortiumTestDataManager.callNumberInstances;
+import static org.folio.support.testdata.ConsortiumTestDataManager.SHARED_INSTANCE_ID;
+import static org.folio.support.testdata.ConsortiumTestDataManager.instances;
+import static org.folio.support.testdata.ConsortiumTestDataManager.items;
 import static org.folio.support.utils.CallNumberTestData.CallNumberTestDataRecord;
 import static org.folio.support.utils.CallNumberTestData.CallNumberTypeId.LC;
 import static org.folio.support.utils.CallNumberTestData.callNumbers;
@@ -26,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -34,9 +39,8 @@ import org.folio.search.domain.dto.BrowseOptionType;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.CallNumberBrowseResult;
 import org.folio.search.domain.dto.Facet;
+import org.folio.search.domain.dto.FacetItem;
 import org.folio.search.domain.dto.FacetResult;
-import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.Item;
 import org.folio.search.model.index.CallNumberResource;
 import org.folio.support.base.BaseConsortiumIntegrationTest;
 import org.junit.jupiter.api.DisplayName;
@@ -50,7 +54,6 @@ public abstract class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegra
   private static final String LOCATION_FACET = "instances.locationId";
   private static final String TENANT_FACET = "instances.tenantId";
   private static final String SHARED_FACET = "instances.shared";
-  private static final List<Instance> INSTANCES = callNumberInstances();
   private static final String SEMANTIC_WEB_CALL_NUMBER_TYPE_ID = "512173a7-bd09-490e-b773-17d83f2b63fe";
 
   @MethodSource("callNumberBrowsingDataProvider")
@@ -64,6 +67,19 @@ public abstract class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegra
       .param(LIMIT_PARAM, String.valueOf(limit));
     var actual = parseResponse(doGet(request, tenant), CallNumberBrowseResult.class);
     assertThat(actual).isEqualTo(expected);
+  }
+
+  @Test
+  void browseByCallNumber_forward_fromMemberTenant_returnsSharedAndLocalCallNumbers() {
+    var callNumbers = callNumbersById();
+    var request = get(instanceCallNumberBrowsePath(BrowseOptionType.ALL))
+      .param("expandAll", "true")
+      .param(QUERY_PARAM, prepareQuery("fullCallNumber >= {value}", '"' + callNumbers.get(70).fullCallNumber() + '"'))
+      .param(LIMIT_PARAM, "2");
+    var actual = parseResponse(doGet(request, MEMBER_TENANT_ID), CallNumberBrowseResult.class);
+    assertThat(actual.getItems()).containsExactly(
+      cnBrowseItem(callNumbers.get(70), 34),
+      cnBrowseItem(callNumbers.get(68), 34));
   }
 
   @Test
@@ -85,9 +101,11 @@ public abstract class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegra
                           + "and instances.tenantId==(\"%s\")".formatted(MEMBER2_TENANT_ID))
       .param(LIMIT_PARAM, String.valueOf(10));
     var actual = parseResponse(doGet(request, CENTRAL_TENANT_ID), CallNumberBrowseResult.class);
-    assertThat(actual).isEqualTo(cnBrowseResult(null, null, 2,
+    // member2 also owns an item of the shared slice instance, so its call number is listed as well
+    assertThat(actual).isEqualTo(cnBrowseResult(null, null, 3,
       List.of(cnBrowseItem(callNumbers().get(1).callNumber(), 0),
-        cnBrowseItem(callNumbers().getFirst().callNumber(), 0, 1, true))));
+        cnBrowseItem(callNumbers().getFirst().callNumber(), 0, 1, true),
+        fixtureCnBrowseItem(SHARED_INSTANCE_ID))));
   }
 
   @MethodSource("facetQueriesProvider")
@@ -109,13 +127,11 @@ public abstract class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegra
   private static Stream<Arguments> callNumberBrowsingDataProvider() {
     var aroundQuery = "fullCallNumber >= {value} or fullCallNumber < {value}";
 
-    var callNumbers = callNumbers().stream()
-      .map(CallNumberTestDataRecord::callNumber)
-      .collect(Collectors.toMap(callNumberResource -> Integer.parseInt(callNumberResource.id()), identity()));
+    var callNumbers = callNumbersById();
 
     return Stream.of(
       arguments(aroundQuery, CENTRAL_TENANT_ID, BrowseOptionType.ALL, callNumbers.get(1).fullCallNumber(), 5,
-        cnBrowseResult(callNumbers.get(35).fullCallNumber(), callNumbers.get(43).fullCallNumber(), 60, List.of(
+        cnBrowseResult(callNumbers.get(35).fullCallNumber(), callNumbers.get(43).fullCallNumber(), 61, List.of(
           cnBrowseItem(callNumbers.get(35), 18),
           cnBrowseItem(callNumbers.get(25), 15),
           cnBrowseItem(callNumbers.get(1), 0, 3, true),
@@ -124,7 +140,7 @@ public abstract class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegra
         ))),
 
       arguments(aroundQuery, MEMBER_TENANT_ID, BrowseOptionType.ALL, callNumbers.get(1).fullCallNumber(), 5,
-        cnBrowseResult(callNumbers.get(91).fullCallNumber(), semanticWebCallNumber(90000), 103, List.of(
+        cnBrowseResult(callNumbers.get(91).fullCallNumber(), semanticWebCallNumber(90000), 105, List.of(
           cnBrowseItem(callNumbers.get(91), 45),
           cnBrowseItem(callNumbers.get(25), 15),
           cnBrowseItem(callNumbers.get(1), 0, 3, true),
@@ -132,6 +148,19 @@ public abstract class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegra
           semanticWebCnBrowseItem(90000)
         )))
     );
+  }
+
+  /**
+   * Title of the call number fixture instance at the given index; the fixtures are "Instance 1".."Instance 50".
+   */
+  private static String callNumberInstanceTitle(int instanceIndex) {
+    return "Instance " + (instanceIndex + 1);
+  }
+
+  private static Map<Integer, CallNumberResource> callNumbersById() {
+    return callNumbers().stream()
+      .map(CallNumberTestDataRecord::callNumber)
+      .collect(Collectors.toMap(callNumberResource -> Integer.parseInt(callNumberResource.id()), identity()));
   }
 
   private static CallNumberBrowseResult cnBrowseResult(String prev, String next, int total,
@@ -151,64 +180,59 @@ public abstract class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegra
       .callNumberPrefix(resource.callNumberPrefix())
       .callNumberSuffix(resource.callNumberSuffix())
       .callNumberTypeId(resource.callNumberTypeId())
-      .instanceTitle(count == 1 ? INSTANCES.get(instanceIndex).getTitle() : null)
+      .instanceTitle(count == 1 ? callNumberInstanceTitle(instanceIndex) : null)
       .totalRecords(count)
       .isAnchor(isAnchor);
   }
 
   private static Stream<Arguments> facetQueriesProvider() {
-    var locations = locations();
     return Stream.of(
       arguments(CENTRAL_TENANT_ID, ALL_RECORDS_QUERY, array(LOCATION_FACET),
-        expectedLocationFacet(locations, 27, 20, 13)),
+        new ExpectedLocations(27, 20, 13).fixtureCallNumber(SHARED_INSTANCE_ID).toFacets()),
       arguments(CENTRAL_TENANT_ID, ALL_RECORDS_QUERY, array(TENANT_FACET), mapOf(TENANT_FACET,
-        facet(facetItem(CENTRAL_TENANT_ID, 60), facetItem(MEMBER_TENANT_ID, 2), facetItem(MEMBER2_TENANT_ID, 2)))),
+        facet(facetItem(CENTRAL_TENANT_ID, 61), facetItem(MEMBER_TENANT_ID, 3), facetItem(MEMBER2_TENANT_ID, 3)))),
       arguments(CENTRAL_TENANT_ID, "instances.tenantId==" + MEMBER2_TENANT_ID, array(TENANT_FACET), mapOf(TENANT_FACET,
-        facet(facetItem(CENTRAL_TENANT_ID, 60), facetItem(MEMBER_TENANT_ID, 2), facetItem(MEMBER2_TENANT_ID, 2)))),
+        facet(facetItem(CENTRAL_TENANT_ID, 61), facetItem(MEMBER_TENANT_ID, 3), facetItem(MEMBER2_TENANT_ID, 3)))),
       arguments(CENTRAL_TENANT_ID, "callNumberTypeId=\"" + LC.getId() + "\"", array(LOCATION_FACET),
-        expectedLocationFacet(locations, 6, 4, 2)),
+        new ExpectedLocations(6, 4, 2).toFacets()),
       arguments(MEMBER_TENANT_ID, ALL_RECORDS_QUERY, array(LOCATION_FACET),
-        expectedMemberLocationFacet(locations, 42, 34, 24)),
+        new ExpectedLocations(42, 34, 24).memberLocalRecords()
+          .fixtureCallNumber(SHARED_INSTANCE_ID).fixtureCallNumber(LOCAL_INSTANCE_ID).toFacets()),
       arguments(MEMBER_TENANT_ID, ALL_RECORDS_QUERY, array(TENANT_FACET), mapOf(TENANT_FACET,
-        facet(facetItem(CENTRAL_TENANT_ID, 60), facetItem(MEMBER_TENANT_ID, 45),
-          facetItem(MEMBER2_TENANT_ID, 3)))),
+        facet(facetItem(CENTRAL_TENANT_ID, 61), facetItem(MEMBER_TENANT_ID, 47),
+          facetItem(MEMBER2_TENANT_ID, 4)))),
       arguments(MEMBER_TENANT_ID, "instances.shared==false", array(LOCATION_FACET),
-        expectedMemberLocationFacet(locations, 15, 14, 11)),
+        new ExpectedLocations(15, 14, 11).memberLocalRecords().fixtureCallNumber(LOCAL_INSTANCE_ID).toFacets()),
       arguments(MEMBER_TENANT_ID, "instances.shared==false", array(TENANT_FACET), mapOf(TENANT_FACET,
-        facet(facetItem(MEMBER_TENANT_ID, 43), facetItem(MEMBER2_TENANT_ID, 1)))),
+        facet(facetItem(MEMBER_TENANT_ID, 44), facetItem(MEMBER2_TENANT_ID, 1)))),
       arguments(MEMBER_TENANT_ID, "instances.locationId==" + MEMBER2_LOCATION, array(SHARED_FACET, LOCATION_FACET),
         mapOf(SHARED_FACET, facet(facetItem("false", 1))),
-        mapOf(LOCATION_FACET, expectedMemberLocationFacet(locations, 42, 34, 24)))
+        new ExpectedLocations(42, 34, 24).memberLocalRecords().toFacets())
     );
-  }
-
-  private static Map<String, Facet> expectedLocationFacet(Map<Integer, String> locations,
-                                                          int totalRecords1, int totalRecords2, int totalRecords3) {
-    return mapOf(LOCATION_FACET, locationFacet(locations, totalRecords1, totalRecords2, totalRecords3));
   }
 
   /**
-   * Location facet as seen from the member tenant: besides the common locations it contains the member2 location
-   * and the item locations of the semantic web instance, which is local to the member tenant.
+   * Browse item of the single call number of a consortium search slice instance, built from its fixture records.
    */
-  private static Map<String, Facet> expectedMemberLocationFacet(Map<Integer, String> locations,
-                                                                int totalRecords1, int totalRecords2,
-                                                                int totalRecords3) {
-    var facet = locationFacet(locations, totalRecords1, totalRecords2, totalRecords3);
-    facet.addValuesItem(facetItem(MEMBER2_LOCATION, 1));
-    getSemanticWeb().getItems().stream()
-      .collect(Collectors.groupingBy(Item::getEffectiveLocationId, Collectors.counting()))
-      .forEach((locationId, count) -> facet.addValuesItem(facetItem(locationId, count.intValue())));
-    return mapOf(LOCATION_FACET, facet);
+  private static CallNumberBrowseItem fixtureCnBrowseItem(String instanceId) {
+    var callNumber = fixtureItems(instanceId).map(item -> (Map<?, ?>) item.get("effectiveCallNumberComponents"))
+      .findFirst().orElseThrow();
+    var title = instances(CENTRAL_TENANT_ID).stream()
+      .filter(instance -> instanceId.equals(getString(instance, "id")))
+      .map(instance -> getString(instance, "title"))
+      .findFirst().orElseThrow();
+    return new CallNumberBrowseItem()
+      .fullCallNumber((String) callNumber.get("callNumber"))
+      .callNumber((String) callNumber.get("callNumber"))
+      .callNumberTypeId((String) callNumber.get("typeId"))
+      .instanceTitle(title)
+      .totalRecords(1);
   }
 
-  private static Facet locationFacet(Map<Integer, String> locations,
-                                     int totalRecords1, int totalRecords2, int totalRecords3) {
-    return facet(
-      facetItem(locations.get(1), totalRecords1),
-      facetItem(locations.get(2), totalRecords2),
-      facetItem(locations.get(3), totalRecords3)
-    );
+  private static Stream<Map<String, Object>> fixtureItems(String instanceId) {
+    return Stream.of(CENTRAL_TENANT_ID, MEMBER_TENANT_ID, MEMBER2_TENANT_ID)
+      .flatMap(tenantId -> items(tenantId).stream())
+      .filter(item -> instanceId.equals(getString(item, "instanceId")));
   }
 
   private static String semanticWebCallNumber(int number) {
@@ -224,5 +248,53 @@ public abstract class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegra
       .callNumberTypeId(SEMANTIC_WEB_CALL_NUMBER_TYPE_ID)
       .instanceTitle(getSemanticWeb().getTitle())
       .totalRecords(1);
+  }
+
+  /**
+   * Expected values of the call number location facet: number of call number records per location.
+   */
+  private static final class ExpectedLocations {
+
+    private final Map<String, Integer> counts = new LinkedHashMap<>();
+
+    /**
+     * Starts with the three locations of the call number browse fixtures.
+     */
+    private ExpectedLocations(int totalRecords1, int totalRecords2, int totalRecords3) {
+      var locations = locations();
+      add(locations.get(1), totalRecords1);
+      add(locations.get(2), totalRecords2);
+      add(locations.get(3), totalRecords3);
+    }
+
+    /**
+     * Adds the records only visible from the member tenant: the member2 location and the item locations of the
+     * semantic web instance, which is local to the member tenant.
+     */
+    private ExpectedLocations memberLocalRecords() {
+      add(MEMBER2_LOCATION, 1);
+      getSemanticWeb().getItems().forEach(item -> add(item.getEffectiveLocationId(), 1));
+      return this;
+    }
+
+    /**
+     * Adds the call number of a consortium search slice instance: all its items share one call number, so it is one
+     * record, counted once for every location that holds its items.
+     */
+    private ExpectedLocations fixtureCallNumber(String instanceId) {
+      fixtureItems(instanceId).map(item -> getString(item, "effectiveLocationId")).distinct()
+        .forEach(locationId -> add(locationId, 1));
+      return this;
+    }
+
+    private void add(String locationId, int count) {
+      counts.merge(locationId, count, Integer::sum);
+    }
+
+    private Map<String, Facet> toFacets() {
+      return mapOf(LOCATION_FACET, facet(counts.entrySet().stream()
+        .map(entry -> facetItem(entry.getKey(), entry.getValue()))
+        .toArray(FacetItem[]::new)));
+    }
   }
 }

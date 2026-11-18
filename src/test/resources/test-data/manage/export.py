@@ -4,9 +4,13 @@ export.py — Regenerate instances.json, holdings.json, items.json, authorities.
 Run from any directory. Overwrites the four JSON files.
 
 Usage:
-    python manage/export.py
+    python manage/export.py                        # manage/test-data.db            -> test-data/*.json
+    python manage/export.py --data-dir ecs/member  # manage/test-data-ecs-member.db -> test-data/ecs/member/*.json
+
+authorities.json is written only when the DB contains authorities (the ECS tenant folders have none).
 """
 
+import argparse
 import json
 import sqlite3
 from pathlib import Path
@@ -462,12 +466,25 @@ def export_authorities(cur):
     return result
 
 
+def resolve_paths(data_dir_arg):
+    """Returns the JSON folder and its DB file; each data folder gets its own DB next to this script."""
+    data_dir = (DATA_DIR / data_dir_arg).resolve()
+    name = data_dir.relative_to(DATA_DIR.resolve()).as_posix()
+    db_path = DB_PATH if name == "." else MANAGE_DIR / f"test-data-{name.replace('/', '-')}.db"
+    return data_dir, db_path
+
+
 def main():
-    if not DB_PATH.exists():
-        print(f"ERROR: {DB_PATH} not found. Run import.py first.")
+    parser = argparse.ArgumentParser(description="Regenerate the test-data JSON files from a SQLite DB.")
+    parser.add_argument("--data-dir", default=".",
+                        help="folder with the JSON files, relative to test-data/ (default: test-data/ itself)")
+    data_dir, db_path = resolve_paths(parser.parse_args().data_dir)
+
+    if not db_path.exists():
+        print(f"ERROR: {db_path} not found. Run import.py first.")
         raise SystemExit(1)
 
-    con = sqlite3.connect(DB_PATH)
+    con = sqlite3.connect(db_path)
     cur = con.cursor()
 
     instances   = export_instances(cur)
@@ -477,10 +494,11 @@ def main():
 
     con.close()
 
-    (DATA_DIR / "instances.json").write_text(json.dumps(instances,    indent=2, ensure_ascii=False) + "\n")
-    (DATA_DIR / "holdings.json").write_text(json.dumps(holdings,      indent=2, ensure_ascii=False) + "\n")
-    (DATA_DIR / "items.json").write_text(json.dumps(items,            indent=2, ensure_ascii=False) + "\n")
-    (DATA_DIR / "authorities.json").write_text(json.dumps(authorities, indent=2, ensure_ascii=False) + "\n")
+    (data_dir / "instances.json").write_text(json.dumps(instances,    indent=2, ensure_ascii=False) + "\n")
+    (data_dir / "holdings.json").write_text(json.dumps(holdings,      indent=2, ensure_ascii=False) + "\n")
+    (data_dir / "items.json").write_text(json.dumps(items,            indent=2, ensure_ascii=False) + "\n")
+    if authorities:
+        (data_dir / "authorities.json").write_text(json.dumps(authorities, indent=2, ensure_ascii=False) + "\n")
 
     print(f"Exported {len(instances)} instances, {len(holdings)} holdings, "
           f"{len(items)} items, {len(authorities)} authorities")

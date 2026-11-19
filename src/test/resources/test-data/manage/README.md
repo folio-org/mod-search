@@ -135,8 +135,9 @@ Holdings and items that a member tenant owns for a **shared** instance are in th
 shadow copy of the instance (same id, source `CONSORTIUM-MARC` or `CONSORTIUM-FOLIO`), as in a real consortium.
 `ConsortiumTestDataManager` loads the folders and sends the records through Kafka (`InventoryApi`), not through
 `/search-index/records`, because only the Kafka path routes member-tenant records to the central tenant. It exposes
-the records (`instances/holdings/items(tenantId)`), the slice ids (`SHARED_INSTANCE_ID`, `LOCAL_INSTANCE_ID`) and
-the expected index document counts.
+the records (`instances/holdings/items(tenantId)`), the slice ids (`SHARED_INSTANCE_ID`, `LOCAL_INSTANCE_ID`),
+the instance/holdings/item counts derived from the records (`instancesCount()`, `holdingsCount()`, `itemIds()`) and
+the expected sub-resource document counts (`*_COUNT` constants), which are hardcoded and must be kept in sync.
 
 Each folder is managed with the same toolchain; every folder gets its own database
 (`manage/test-data-ecs-<tenant>.db`, gitignored):
@@ -153,8 +154,8 @@ When adding ECS data:
   `*_sharedInstance_*` / `*_localInstance_*` tests in `ConsortiumSearchHoldingsIT` and `ConsortiumSearchItemsIT` do,
   so that later data changes do not affect them.
 - The browse and facet tests in `org.folio.api.browse.*ConsortiumIT` cover the whole data set; new contributors,
-  subjects, classifications or call numbers change their totals, so re-baseline them and update the counts in
-  `ConsortiumTestDataManager`.
+  subjects, classifications or call numbers change their totals, so re-baseline them and update the `*_COUNT`
+  constants in `ConsortiumTestDataManager`.
 
 ## Useful queries
 

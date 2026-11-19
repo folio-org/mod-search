@@ -11,9 +11,11 @@ import static org.folio.support.utils.JsonTestUtils.readJsonFromFile;
 import static org.folio.support.utils.TestUtils.array;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.collections4.MapUtils;
 import org.folio.support.api.InventoryApi;
 import org.folio.support.testdata.SharedTestDataManager.LockManager;
@@ -77,12 +79,8 @@ public final class ConsortiumTestDataManager {
   public static final String MUSIC_TYPE_ID_1 = "e62bbefe-adf5-4b1e-b3e7-43d877b0c91c";
   public static final String MUSIC_TYPE_ID_2 = "308c950f-8209-4f2e-9702-0c004a9f21be";
 
-  // expected document counts in the central tenant index for the whole data set
-  // instances: unique instance ids of all tenants (shadow copies of a shared instance are the same document)
-  // plus the semantic-web instance
-  public static final int INSTANCE_COUNT = 86;
-  // holdings: every holdings record of every tenant plus the 3 semantic-web holdings
-  public static final int HOLDINGS_COUNT = 60;
+  // expected sub-resource document counts in the central tenant index for the whole data set
+  // (instance, holdings and item counts are derived from the records, see instancesCount() etc.)
   public static final int CALL_NUMBER_COUNT = 105;
   public static final int CONTRIBUTOR_COUNT = 20;
   public static final int CLASSIFICATION_COUNT = 21;
@@ -126,6 +124,39 @@ public final class ConsortiumTestDataManager {
    */
   public static List<Map<String, Object>> items(String tenantId) {
     return RECORDS.get(tenantId).items();
+  }
+
+  /**
+   * Returns the number of instance documents of the whole data set in the central tenant index: unique instance ids
+   * of all tenants (shadow copies of a shared instance are the same document) plus the semantic-web instance.
+   */
+  public static int instancesCount() {
+    var ids = RECORDS.keySet().stream()
+      .flatMap(tenantId -> instanceIds(tenantId).stream())
+      .collect(Collectors.toCollection(HashSet::new));
+    ids.add(getSemanticWeb().getId());
+    return ids.size();
+  }
+
+  /**
+   * Returns the number of holdings of the whole data set: every holdings record of every tenant plus the semantic-web
+   * holdings.
+   */
+  public static int holdingsCount() {
+    return RECORDS.values().stream().mapToInt(records -> records.holdings().size()).sum()
+      + getSemanticWeb().getHoldings().size();
+  }
+
+  /**
+   * Returns the ids of all items of the whole data set: every item record of every tenant plus the semantic-web items.
+   */
+  public static List<String> itemIds() {
+    var ids = RECORDS.values().stream()
+      .flatMap(records -> records.items().stream())
+      .map(item -> MapUtils.getString(item, ID_FIELD))
+      .collect(Collectors.toCollection(ArrayList::new));
+    getSemanticWeb().getItems().forEach(item -> ids.add(item.getId()));
+    return ids;
   }
 
   /**

@@ -24,7 +24,6 @@ import static org.folio.support.testdata.SharedTestDataManager.linkedDataHubsCou
 import static org.folio.support.testdata.SharedTestDataManager.linkedDataWorksCount;
 import static org.folio.support.testdata.SharedTestDataManager.loadAll;
 
-import java.sql.Timestamp;
 import org.folio.api.browse.BrowseAuthorityIT;
 import org.folio.api.browse.BrowseCallNumberIT;
 import org.folio.api.browse.BrowseClassificationIT;
@@ -54,6 +53,7 @@ import org.folio.search.service.scheduled.ScheduledInstanceSubResourcesService;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.BaseIntegrationTest;
 import org.folio.support.base.BaseSharedTest;
+import org.folio.support.base.SubResourceLockManager;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
@@ -107,7 +107,8 @@ class SearchBrowseSuiteIT extends BaseIntegrationTest {
   }
 
   private static LockManager createLockManager(SubResourcesLockRepository lockRepo) {
-    return new SubResourceLockManager(lockRepo);
+    return new SubResourceLockManager(lockRepo, TENANT_ID, ReindexEntityType.CALL_NUMBER,
+      ReindexEntityType.CONTRIBUTOR, ReindexEntityType.CLASSIFICATION, ReindexEntityType.SUBJECT);
   }
 
   private static void awaitSubResourceIndexing() {
@@ -191,37 +192,4 @@ class SearchBrowseSuiteIT extends BaseIntegrationTest {
 
   @Nested
   class StreamResourceIds extends StreamResourceIdsIT { }
-
-  private static final class SubResourceLockManager implements LockManager {
-
-    private final SubResourcesLockRepository lockRepo;
-    private Timestamp subjLock;
-    private Timestamp classifLock;
-    private Timestamp contribLock;
-    private Timestamp cnLock;
-
-    private SubResourceLockManager(SubResourcesLockRepository lockRepo) {
-      this.lockRepo = lockRepo;
-    }
-
-    @Override
-    public void lockAll() {
-      cnLock = lockOrFail(ReindexEntityType.CALL_NUMBER);
-      contribLock = lockOrFail(ReindexEntityType.CONTRIBUTOR);
-      classifLock = lockOrFail(ReindexEntityType.CLASSIFICATION);
-      subjLock = lockOrFail(ReindexEntityType.SUBJECT);
-    }
-
-    @Override
-    public void unlockAll() {
-      lockRepo.unlockSubResourceFenced(ReindexEntityType.CALL_NUMBER, cnLock, TENANT_ID, cnLock);
-      lockRepo.unlockSubResourceFenced(ReindexEntityType.CONTRIBUTOR, contribLock, TENANT_ID, contribLock);
-      lockRepo.unlockSubResourceFenced(ReindexEntityType.CLASSIFICATION, classifLock, TENANT_ID, classifLock);
-      lockRepo.unlockSubResourceFenced(ReindexEntityType.SUBJECT, subjLock, TENANT_ID, subjLock);
-    }
-
-    private Timestamp lockOrFail(ReindexEntityType entityType) {
-      return lockSubResourceWithRetry(lockRepo, entityType, TENANT_ID);
-    }
-  }
 }

@@ -26,6 +26,7 @@ import java.util.stream.Stream;
 import org.folio.search.domain.dto.ContributorBrowseResult;
 import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetResult;
+import org.folio.search.domain.dto.InstanceContributorBrowseItem;
 import org.folio.search.domain.dto.RecordType;
 import org.folio.support.base.BaseConsortiumIntegrationTest;
 import org.junit.jupiter.api.DisplayName;
@@ -86,6 +87,21 @@ public abstract class BrowseContributorConsortiumIT extends BaseConsortiumIntegr
 
     assertThat(actual.getItems()).containsExactly(
       contributorBrowseItem(2, "Klaus Meine", NAME_TYPE_IDS[0], AUTHORITY_IDS[1], TYPE_IDS[0], TYPE_IDS[1]));
+  }
+
+  @Test
+  void browseByContributor_shared_contributorUnlinkedFromAllInstances_isRemoved() {
+    // "Darth Vader" was linked only to the central instance "instance #00", whose contributors are removed during
+    // the data set load (see ConsortiumTestDataManager)
+    var request = get(instanceContributorBrowsePath())
+      .param(QUERY_PARAM, "name >= \"Darth Vader\" and instances.shared==true")
+      .param(LIMIT_PARAM, "1");
+
+    var actual = parseResponse(doGet(request), ContributorBrowseResult.class);
+
+    assertThat(actual.getItems()).isNotEmpty()
+      .extracting(InstanceContributorBrowseItem::getName)
+      .doesNotContain("Darth Vader");
   }
 
   @Test

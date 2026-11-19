@@ -16,32 +16,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Item;
-import org.folio.spring.testing.type.IntegrationTest;
-import org.folio.support.base.BaseIntegrationTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.context.TestPropertySource;
 
-@IntegrationTest
-@TestPropertySource(properties = {
-  "folio.search-config.indexing.item-index-enabled=true"
-})
-class IndexingItemConsortiumIT extends BaseIntegrationTest {
-
-  @BeforeAll
-  static void prepare() {
-    enableTenant(CENTRAL_TENANT_ID);
-    enableTenant(MEMBER_TENANT_ID);
-    enableTenant(MEMBER2_TENANT_ID);
-  }
-
-  @AfterAll
-  static void cleanUp() {
-    removeTenant(MEMBER2_TENANT_ID);
-    removeTenant(MEMBER_TENANT_ID);
-    removeTenant(CENTRAL_TENANT_ID);
-  }
+public abstract class IndexingItemConsortiumIT extends BaseSharedTest {
 
   @Test
   void shouldReturnItemsOfSharedInstanceFromAllTenants() {

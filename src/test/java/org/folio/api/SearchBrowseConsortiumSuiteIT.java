@@ -18,6 +18,8 @@ import static org.folio.search.model.types.ResourceType.LOCATION;
 import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.support.TestConstants.MEMBER2_TENANT_ID;
 import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
+import static org.folio.support.base.ApiEndpoints.consortiumBatchItemsSearchPath;
+import static org.folio.support.base.ApiEndpoints.consortiumHoldingsSearchPath;
 import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.support.sample.SampleInstances.getSemanticWebId;
 import static org.folio.support.sample.SampleInstances.getSemanticWebMatchers;
@@ -25,10 +27,11 @@ import static org.folio.support.testdata.ConsortiumTestDataManager.CALL_NUMBER_C
 import static org.folio.support.testdata.ConsortiumTestDataManager.CALL_NUMBER_LC_TYPE_ID;
 import static org.folio.support.testdata.ConsortiumTestDataManager.CLASSIFICATION_COUNT;
 import static org.folio.support.testdata.ConsortiumTestDataManager.CONTRIBUTOR_COUNT;
-import static org.folio.support.testdata.ConsortiumTestDataManager.INSTANCE_COUNT;
 import static org.folio.support.testdata.ConsortiumTestDataManager.SUBJECT_COUNT;
+import static org.folio.support.testdata.ConsortiumTestDataManager.holdingsCount;
+import static org.folio.support.testdata.ConsortiumTestDataManager.instancesCount;
+import static org.folio.support.testdata.ConsortiumTestDataManager.itemIds;
 import static org.folio.support.testdata.ConsortiumTestDataManager.loadInventory;
-import static org.folio.support.testdata.SharedTestDataManager.LockManager;
 import static org.folio.support.testdata.SharedTestDataManager.campusesCount;
 import static org.folio.support.testdata.SharedTestDataManager.institutionsCount;
 import static org.folio.support.testdata.SharedTestDataManager.librariesCount;
@@ -41,9 +44,9 @@ import static org.folio.support.testdata.SharedTestDataManager.loadLinkedDataAut
 import static org.folio.support.testdata.SharedTestDataManager.loadLinkedDataWorks;
 import static org.folio.support.testdata.SharedTestDataManager.loadLocations;
 import static org.folio.support.testdata.SharedTestDataManager.locationsCount;
+import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-import java.sql.Timestamp;
-import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -59,6 +62,7 @@ import org.folio.api.consortiumsearch.ConsortiumSearchLibrariesIT;
 import org.folio.api.consortiumsearch.ConsortiumSearchLocationsIT;
 import org.folio.api.search.SearchInstanceConsortiumIT;
 import org.folio.api.search.SearchLinkedDataWorkConsortiumIT;
+import org.folio.search.domain.dto.BatchIdsDto;
 import org.folio.search.domain.dto.BrowseOptionType;
 import org.folio.search.domain.dto.ShelvingOrderAlgorithmType;
 import org.folio.search.model.types.ReindexEntityType;
@@ -67,6 +71,7 @@ import org.folio.search.service.scheduled.ScheduledInstanceSubResourcesService;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.BaseIntegrationTest;
 import org.folio.support.base.BaseSharedTest;
+import org.folio.support.base.SubResourceLockManager;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
@@ -150,10 +155,14 @@ public class SearchBrowseConsortiumSuiteIT extends BaseIntegrationTest {
    */
   private static void setUpInventory(SubResourcesLockRepository lockRepository,
                                      ScheduledInstanceSubResourcesService scheduledSubResourcesService) {
-    loadInventory(new SubResourceLockManager(lockRepository), inventoryApi,
+    var lockManager = new SubResourceLockManager(lockRepository, CENTRAL_TENANT_ID, ReindexEntityType.CALL_NUMBER,
+      ReindexEntityType.CONTRIBUTOR, ReindexEntityType.CLASSIFICATION, ReindexEntityType.SUBJECT,
+      ReindexEntityType.ITEM, ReindexEntityType.INSTANCE);
+    loadInventory(lockManager, inventoryApi,
       SearchBrowseConsortiumSuiteIT::awaitInstancesVisible, scheduledSubResourcesService::persistChildren);
     awaitSemanticWebInstance();
-    awaitIndexedResourceCounts(INSTANCE, CENTRAL_TENANT_ID, INSTANCE_COUNT);
+    awaitIndexedResourceCounts(INSTANCE, CENTRAL_TENANT_ID, instancesCount());
+    awaitHoldingsAndItemsIndexed();
     awaitIndexedResourceCounts(INSTANCE_CALL_NUMBER, CENTRAL_TENANT_ID, CALL_NUMBER_COUNT);
     awaitIndexedResourceCounts(INSTANCE_CONTRIBUTOR, CENTRAL_TENANT_ID, CONTRIBUTOR_COUNT);
     awaitIndexedResourceCounts(INSTANCE_CLASSIFICATION, CENTRAL_TENANT_ID, CLASSIFICATION_COUNT);
@@ -170,6 +179,19 @@ public class SearchBrowseConsortiumSuiteIT extends BaseIntegrationTest {
     awaitAssertion(() -> doSearch(instanceSearchPath(), MEMBER_TENANT_ID,
       Map.of(QUERY_PARAM, "id==" + getSemanticWebId(), EXPAND_ALL_PARAM, "true"))
       .andExpectAll(getSemanticWebMatchers().toArray(new ResultMatcher[0])));
+  }
+
+  /**
+   * Holdings and items are sent through their own Kafka topics, so the instance documents can be searchable before
+   * their holdings and items are added to them; the consortium holdings/items endpoints read them from there.
+   */
+  private static void awaitHoldingsAndItemsIndexed() {
+    awaitAssertion(() -> doGet(consortiumHoldingsSearchPath(), CENTRAL_TENANT_ID)
+      .andExpect(jsonPath("$.totalRecords", is(holdingsCount()))));
+    var itemIds = itemIds();
+    var itemsRequest = new BatchIdsDto().identifierType(BatchIdsDto.IdentifierTypeEnum.ID).identifierValues(itemIds);
+    awaitAssertion(() -> doPost(consortiumBatchItemsSearchPath(), CENTRAL_TENANT_ID, itemsRequest)
+      .andExpect(jsonPath("$.totalRecords", is(itemIds.size()))));
   }
 
   @Nested
@@ -208,29 +230,4 @@ public class SearchBrowseConsortiumSuiteIT extends BaseIntegrationTest {
 
   @Nested
   class ConsortiumSearchCampuses extends ConsortiumSearchCampusesIT { }
-
-  private static final class SubResourceLockManager implements LockManager {
-
-    private static final List<ReindexEntityType> ENTITY_TYPES = List.of(ReindexEntityType.CALL_NUMBER,
-      ReindexEntityType.CONTRIBUTOR, ReindexEntityType.CLASSIFICATION, ReindexEntityType.SUBJECT,
-      ReindexEntityType.ITEM, ReindexEntityType.INSTANCE);
-
-    private final SubResourcesLockRepository lockRepo;
-    private final Map<ReindexEntityType, Timestamp> locks = new EnumMap<>(ReindexEntityType.class);
-
-    private SubResourceLockManager(SubResourcesLockRepository lockRepo) {
-      this.lockRepo = lockRepo;
-    }
-
-    @Override
-    public void lockAll() {
-      ENTITY_TYPES.forEach(type -> locks.put(type, lockSubResourceWithRetry(lockRepo, type, CENTRAL_TENANT_ID)));
-    }
-
-    @Override
-    public void unlockAll() {
-      locks.forEach((type, lock) -> lockRepo.unlockSubResourceFenced(type, lock, CENTRAL_TENANT_ID, lock));
-      locks.clear();
-    }
-  }
 }

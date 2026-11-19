@@ -1,9 +1,5 @@
 package org.folio.indexing;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.await;
-import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
-import static org.awaitility.Durations.ONE_MINUTE;
 import static org.folio.search.domain.dto.ResourceEventType.CREATE;
 import static org.folio.search.domain.dto.ResourceEventType.DELETE;
 import static org.folio.search.domain.dto.ResourceEventType.DELETE_ALL;
@@ -18,55 +14,31 @@ import static org.folio.support.utils.JsonTestUtils.toMap;
 import static org.folio.support.utils.TestUtils.randomId;
 import static org.folio.support.utils.TestUtils.resourceEvent;
 import static org.junit.jupiter.params.provider.Arguments.argumentSet;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.reset;
 import static org.opensearch.index.query.QueryBuilders.boolQuery;
+import static org.opensearch.index.query.QueryBuilders.matchQuery;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.Metadata;
 import org.folio.search.domain.dto.ResourceEvent;
-import org.folio.search.integration.message.KafkaMessageListener;
 import org.folio.search.model.dto.location.BaseLocationDto;
 import org.folio.search.model.dto.location.CampusDto;
 import org.folio.search.model.dto.location.InstitutionDto;
 import org.folio.search.model.dto.location.LibraryDto;
 import org.folio.search.model.dto.location.LocationDto;
 import org.folio.search.model.types.ResourceType;
-import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.TestConstants;
-import org.folio.support.base.BaseIntegrationTest;
-import org.junit.jupiter.api.AfterAll;
+import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.opensearch.index.query.QueryBuilders;
-import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
-@IntegrationTest
-class IndexingLocationsConsortiumIT extends BaseIntegrationTest {
-
-  @MockitoSpyBean
-  private KafkaMessageListener kafkaMessageListener;
-
-  @BeforeAll
-  static void prepare() {
-    enableTenant(CENTRAL_TENANT_ID);
-    enableTenant(MEMBER_TENANT_ID);
-  }
-
-  @AfterAll
-  static void cleanUp() {
-    removeTenant(CENTRAL_TENANT_ID);
-    removeTenant(MEMBER_TENANT_ID);
-  }
+public abstract class IndexingLocationsConsortiumIT extends BaseSharedTest {
 
   @AfterEach
   void tearDown() throws IOException {
@@ -74,7 +46,6 @@ class IndexingLocationsConsortiumIT extends BaseIntegrationTest {
     deleteAllDocuments(CAMPUS, CENTRAL_TENANT_ID);
     deleteAllDocuments(INSTITUTION, CENTRAL_TENANT_ID);
     deleteAllDocuments(LIBRARY, CENTRAL_TENANT_ID);
-    reset(kafkaMessageListener);
   }
 
   @MethodSource("testData")
@@ -120,23 +91,19 @@ class IndexingLocationsConsortiumIT extends BaseIntegrationTest {
   @ParameterizedTest
   void shouldIgnoreShadowLocation(ResourceType resourceType, BaseLocationDto dto,
                                   UnaryOperator<String> topicNameFunction) {
-    var locationMap = toMap(dto);
-    locationMap.put("isShadow", true);
-    var visited = new AtomicBoolean(false);
+    var shadowMap = toMap(dto);
+    shadowMap.put("isShadow", true);
+    var sentinel = dto.toBuilder().id(randomId()).build();
 
-    doAnswer(inv -> {
-      visited.set(true);
-      return inv.callRealMethod();
-    }).when(kafkaMessageListener).handleLocationEvents(anyList());
+    // the shadow and the sentinel event share the message key, so they land in the same partition and the shadow
+    // event is consumed before (or in the same batch as) the sentinel event
+    var topic = topicNameFunction.apply(MEMBER_TENANT_ID);
+    var messageKey = randomId();
+    kafkaTemplate.send(topic, messageKey, resourceEvent(CENTRAL_TENANT_ID, CREATE, shadowMap, null));
+    kafkaTemplate.send(topic, messageKey, resourceEvent(CENTRAL_TENANT_ID, CREATE, toMap(sentinel), null));
 
-    var locationEvent = resourceEvent(CENTRAL_TENANT_ID, CREATE, locationMap, null);
-    kafkaTemplate.send(topicNameFunction.apply(MEMBER_TENANT_ID), locationEvent);
-
-    await().atMost(ONE_MINUTE)
-      .pollInterval(ONE_HUNDRED_MILLISECONDS)
-      .untilAsserted(() -> assertThat(visited.get()).isTrue());
-
-    awaitIndexedResourceCounts(resourceType, CENTRAL_TENANT_ID, 0);
+    awaitIndexedResourceCounts(matchQuery("id", sentinel.getId()), resourceType, CENTRAL_TENANT_ID, 1);
+    awaitIndexedResourceCounts(resourceType, CENTRAL_TENANT_ID, 1);
   }
 
   @MethodSource("testData")

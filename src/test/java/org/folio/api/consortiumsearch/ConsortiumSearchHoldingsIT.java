@@ -15,9 +15,9 @@ import static org.folio.support.base.ApiEndpoints.consortiumHoldingSearchPath;
 import static org.folio.support.base.ApiEndpoints.consortiumHoldingsSearchPath;
 import static org.folio.support.sample.SampleInstances.getSemanticWeb;
 import static org.folio.support.sample.SampleInstances.getSemanticWebId;
-import static org.folio.support.testdata.ConsortiumTestDataManager.HOLDINGS_COUNT;
 import static org.folio.support.testdata.ConsortiumTestDataManager.SHARED_INSTANCE_ID;
 import static org.folio.support.testdata.ConsortiumTestDataManager.holdings;
+import static org.folio.support.testdata.ConsortiumTestDataManager.holdingsCount;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -41,14 +41,23 @@ import org.junit.jupiter.params.provider.EnumSource;
 
 public abstract class ConsortiumSearchHoldingsIT extends BaseConsortiumIntegrationTest {
 
+  /**
+   * Default page size of the consortium holdings endpoint.
+   */
+  private static final int DEFAULT_LIMIT = 100;
+
   @Test
   void doGetConsortiumHoldings_returns200AndRecords() {
     var result = doGet(consortiumHoldingsSearchPath(), CENTRAL_TENANT_ID);
     var actual = parseResponse(result, ConsortiumHoldingCollection.class);
 
-    // the shared data set contains holdings of other instances too
-    assertThat(actual.getTotalRecords()).isEqualTo(HOLDINGS_COUNT);
-    assertThat(actual.getHoldings()).hasSize(HOLDINGS_COUNT).doesNotHaveDuplicates().contains(getExpectedHoldings());
+    // the shared data set contains holdings of other instances too; the response is limited to one page
+    var allHoldings = Stream.concat(fixtureHoldings(), Stream.of(getExpectedHoldings())).toList();
+    assertThat(actual.getTotalRecords()).isEqualTo(holdingsCount());
+    assertThat(actual.getHoldings())
+      .hasSize(Math.min(holdingsCount(), DEFAULT_LIMIT))
+      .doesNotHaveDuplicates()
+      .isSubsetOf(allHoldings);
   }
 
   @Test
@@ -274,21 +283,26 @@ public abstract class ConsortiumSearchHoldingsIT extends BaseConsortiumIntegrati
    * Expected consortium holdings of a fixture instance, built from the holdings records of all tenants.
    */
   private static List<ConsortiumHolding> fixtureHoldings(String instanceId) {
+    return fixtureHoldings().filter(holding -> instanceId.equals(holding.getInstanceId())).toList();
+  }
+
+  /**
+   * Expected consortium holdings of the whole JSON data set, built from the holdings records of all tenants.
+   */
+  private static Stream<ConsortiumHolding> fixtureHoldings() {
     return Stream.of(CENTRAL_TENANT_ID, MEMBER_TENANT_ID, MEMBER2_TENANT_ID)
       .flatMap(tenantId -> holdings(tenantId).stream()
-        .filter(holding -> instanceId.equals(getString(holding, "instanceId")))
         .map(holding -> new ConsortiumHolding()
           .id(getString(holding, "id"))
           .hrid(getString(holding, "hrid"))
           .tenantId(tenantId)
-          .instanceId(instanceId)
+          .instanceId(getString(holding, "instanceId"))
           .callNumberPrefix(getString(holding, "callNumberPrefix"))
           .callNumber(getString(holding, "callNumber"))
           .callNumberSuffix(getString(holding, "callNumberSuffix"))
           .copyNumber(getString(holding, "copyNumber"))
           .permanentLocationId(getString(holding, "permanentLocationId"))
-          .discoverySuppress(getBooleanValue(holding, "discoverySuppress"))))
-      .toList();
+          .discoverySuppress(getBooleanValue(holding, "discoverySuppress"))));
   }
 
   private ConsortiumHolding[] getExpectedConsolidatedHoldings() {

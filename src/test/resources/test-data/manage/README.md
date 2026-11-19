@@ -13,10 +13,11 @@ and used by the following integration test suites:
 - **`SearchBrowseConsortiumSuiteIT`** — loads records into a central tenant and a member tenant and runs
   consortium search/browse tests for linked-data, locations, libraries, institutions, and campuses.
   It also runs the ECS inventory tests (call number, classification, contributor and subject browse,
-  consortium holdings/items search) in the same Spring context, on the ECS data set in `ecs/` (see
-  [ECS data set](#ecs-data-set-ecs)). Tenants, browse features and the ECS data set are set up once in
-  `SearchBrowseConsortiumSuiteIT#setUp` (the data set via `BaseConsortiumIntegrationTest#setUpEcsInventory`), so new
-  ECS test classes need no tenant or data setup of their own.
+  consortium holdings/items search, item search over the item index) in the same Spring context, on the ECS data
+  set in `ecs/` (see [ECS data set](#ecs-data-set-ecs)). Tenants, browse features and the ECS data set are set up
+  once in `SearchBrowseConsortiumSuiteIT#setUp` (the data set via `BaseConsortiumIntegrationTest#setUpEcsInventory`),
+  so new ECS test classes need no tenant or data setup of their own. Like `SearchBrowseSuiteIT`, it enables the item
+  index (`item-index-enabled=true`), so both suites have the same properties and share one Spring context.
 - **`BrowseCallNumberFromItemsConsortiumIT`** — runs the ECS call number browse tests with call numbers built from
   the item index. Its properties change how the module indexes call numbers, so it has its own Spring context and
   tenants, but it loads the same ECS data set with `setUpEcsInventory`, so the expectations are the same.
@@ -25,8 +26,9 @@ Each of these classes loads the data once and shares it (in the same indexes) wi
 for the duration of its run, so any change to these JSON files affects all of them.
 
 `ConsortiumIndexingSuiteIT` (ECS indexing tests) and the item indexing/reindex tests (`IndexingItemIT`,
-`IndexingItemConsortiumIT`, `*RecordsReindex*IT`) do not use this data: they create their own records and scope
-their assertions to them, and set up their own tenants.
+`IndexingItemConsortiumIT`, `*RecordsReindex*IT`) do not use this data: they create and change their own records,
+scope their assertions to them, and set up their own tenants. Read-only item search checks belong in the suites
+(`SearchInventoryItemIT`, `SearchInventoryItemConsortiumIT`), not in these classes.
 
 The full set of JSON files consumed by `SearchBrowseSuiteIT` and `SearchBrowseConsortiumSuiteIT`:
 
@@ -160,7 +162,8 @@ python manage/export.py --data-dir ecs/member
 When adding ECS data:
 
 - Prefer **scoping new assertions to your own fixtures** (filter by instance id, or use distinct values), as the
-  `*_sharedInstance_*` / `*_localInstance_*` tests in `ConsortiumSearchHoldingsIT` and `ConsortiumSearchItemsIT` do,
+  `*_sharedInstance_*` / `*_localInstance_*` tests in `ConsortiumSearchHoldingsIT`, `ConsortiumSearchItemsIT` and
+  `SearchInventoryItemConsortiumIT` do,
   so that later data changes do not affect them.
 - The browse and facet tests in `org.folio.api.browse.*ConsortiumIT` cover the whole data set; new contributors,
   subjects, classifications or call numbers change their totals, so re-baseline them and update the `*_COUNT`

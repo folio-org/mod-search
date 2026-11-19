@@ -9,6 +9,7 @@ import static org.folio.search.model.types.ResourceType.INSTANCE_CALL_NUMBER;
 import static org.folio.search.model.types.ResourceType.INSTANCE_CLASSIFICATION;
 import static org.folio.search.model.types.ResourceType.INSTANCE_CONTRIBUTOR;
 import static org.folio.search.model.types.ResourceType.INSTANCE_SUBJECT;
+import static org.folio.search.model.types.ResourceType.ITEM;
 import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.consortiumBatchItemsSearchPath;
@@ -52,12 +53,13 @@ public abstract class BaseConsortiumIntegrationTest extends BaseSharedTest {
   /**
    * Creates the shared ECS inventory data set ({@link org.folio.support.testdata.ConsortiumTestDataManager}) and waits
    * until it is indexed: shared instances in the central tenant, local instances in the member and member2 tenants,
-   * with holdings, items, call numbers, contributors, classifications and subjects. Enables the browse features of the
-   * central tenant and the LC call number browse configuration the data set is checked with.
+   * with holdings, items, item index documents, call numbers, contributors, classifications and subjects. Enables the
+   * browse features of the central tenant and the LC call number browse configuration the data set is checked with.
    *
    * <p>Used by the suites that run the consortium browse/search tests on this data set; the central, member and
-   * member2 tenants must be enabled before. Sub-resources are locked so that their scheduled processing does not race
-   * with the data load.
+   * member2 tenants must be enabled before, and the item index must be enabled
+   * ({@code folio.search-config.indexing.item-index-enabled=true}). Sub-resources are locked so that their scheduled
+   * processing does not race with the data load.
    */
   public static void setUpEcsInventory(SubResourcesLockRepository lockRepository,
                                        ScheduledInstanceSubResourcesService scheduledSubResourcesService) {
@@ -74,6 +76,8 @@ public abstract class BaseConsortiumIntegrationTest extends BaseSharedTest {
     awaitSemanticWebInstance();
     awaitIndexedResourceCounts(INSTANCE, CENTRAL_TENANT_ID, instancesCount());
     awaitHoldingsAndItemsIndexed();
+    // the item index holds the items of all tenants in the central tenant index
+    awaitIndexedResourceCounts(ITEM, CENTRAL_TENANT_ID, itemIds().size());
     awaitIndexedResourceCounts(INSTANCE_CALL_NUMBER, CENTRAL_TENANT_ID, CALL_NUMBER_COUNT);
     awaitIndexedResourceCounts(INSTANCE_CONTRIBUTOR, CENTRAL_TENANT_ID, CONTRIBUTOR_COUNT);
     awaitIndexedResourceCounts(INSTANCE_CLASSIFICATION, CENTRAL_TENANT_ID, CLASSIFICATION_COUNT);

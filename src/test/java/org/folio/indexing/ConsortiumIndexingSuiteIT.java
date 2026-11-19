@@ -19,7 +19,8 @@ import org.springframework.test.context.TestPropertySource;
  *
  * <p>Item indexing tests ({@code IndexingItemConsortiumIT}, like the non-consortium {@code IndexingItemIT}) do not
  * run here: they need {@code item-index-enabled}, which changes how the module indexes item events, so they run in
- * their own Spring context together with the item reindex tests.
+ * their own Spring context together with the item reindex tests. Read-only item search checks run in
+ * {@code SearchBrowseConsortiumSuiteIT} ({@code SearchInventoryItemConsortiumIT}).
  */
 @IntegrationTest
 @TestPropertySource(properties = {

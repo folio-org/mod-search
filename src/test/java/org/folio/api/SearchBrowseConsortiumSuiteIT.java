@@ -34,6 +34,7 @@ import org.folio.api.consortiumsearch.ConsortiumSearchItemsIT;
 import org.folio.api.consortiumsearch.ConsortiumSearchLibrariesIT;
 import org.folio.api.consortiumsearch.ConsortiumSearchLocationsIT;
 import org.folio.api.search.SearchInstanceConsortiumIT;
+import org.folio.api.search.SearchInventoryItemConsortiumIT;
 import org.folio.api.search.SearchLinkedDataWorkConsortiumIT;
 import org.folio.search.service.reindex.jdbc.SubResourcesLockRepository;
 import org.folio.search.service.scheduled.ScheduledInstanceSubResourcesService;
@@ -55,13 +56,17 @@ import org.springframework.test.context.TestPropertySource;
  * class for the lifetime of the suite. Records are indexed into central, member and member2
  * tenants to exercise consortium-specific behaviour.
  *
+ * <p>The properties are the same as in {@code SearchBrowseSuiteIT}: the item index is enabled, so item search tests
+ * run on the shared data set too, and the Spring context is shared with that suite.
+ *
  * <p>Test data is maintained in
  * {@code src/test/resources/test-data/} — see
  * {@code src/test/resources/test-data/manage/README.md} for the management guide.
  */
 @IntegrationTest
 @TestPropertySource(properties = {
-  "folio.search-config.indexing.instance-children-index-enabled=true"
+  "folio.search-config.indexing.instance-children-index-enabled=true",
+  "folio.search-config.indexing.item-index-enabled=true"
 })
 public class SearchBrowseConsortiumSuiteIT extends BaseIntegrationTest {
 
@@ -130,6 +135,9 @@ public class SearchBrowseConsortiumSuiteIT extends BaseIntegrationTest {
 
   @Nested
   class SearchInstance extends SearchInstanceConsortiumIT { }
+
+  @Nested
+  class SearchInventoryItem extends SearchInventoryItemConsortiumIT { }
 
   @Nested
   class SearchLinkedDataWork extends SearchLinkedDataWorkConsortiumIT { }

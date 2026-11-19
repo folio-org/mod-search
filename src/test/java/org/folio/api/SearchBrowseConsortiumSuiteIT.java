@@ -9,7 +9,6 @@ import static org.folio.search.model.types.ResourceType.LOCATION;
 import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.support.TestConstants.MEMBER2_TENANT_ID;
 import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
-import static org.folio.support.base.BaseConsortiumIntegrationTest.setUpEcsInventory;
 import static org.folio.support.testdata.SharedTestDataManager.campusesCount;
 import static org.folio.support.testdata.SharedTestDataManager.institutionsCount;
 import static org.folio.support.testdata.SharedTestDataManager.librariesCount;
@@ -36,11 +35,13 @@ import org.folio.api.consortiumsearch.ConsortiumSearchLocationsIT;
 import org.folio.api.search.SearchInstanceConsortiumIT;
 import org.folio.api.search.SearchInventoryItemConsortiumIT;
 import org.folio.api.search.SearchLinkedDataWorkConsortiumIT;
+import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.service.reindex.jdbc.SubResourcesLockRepository;
 import org.folio.search.service.scheduled.ScheduledInstanceSubResourcesService;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.BaseIntegrationTest;
 import org.folio.support.base.BaseSharedTest;
+import org.folio.support.base.EcsInventorySetup;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
@@ -52,7 +53,8 @@ import org.springframework.test.context.TestPropertySource;
  *
  * <p>All test data is loaded once in {@link #setUp} via
  * {@link org.folio.support.testdata.SharedTestDataManager} and
- * {@link org.folio.support.testdata.ConsortiumTestDataManager} and shared across every nested test
+ * {@link EcsInventorySetup} (which uses {@link org.folio.support.testdata.ConsortiumTestDataManager}) and shared
+ * across every nested test
  * class for the lifetime of the suite. Records are indexed into central, member and member2
  * tenants to exercise consortium-specific behaviour.
  *
@@ -72,11 +74,13 @@ public class SearchBrowseConsortiumSuiteIT extends BaseIntegrationTest {
 
   @BeforeAll
   static void setUp(@Autowired SubResourcesLockRepository lockRepository,
-                    @Autowired ScheduledInstanceSubResourcesService scheduledSubResourcesService) {
+                    @Autowired ScheduledInstanceSubResourcesService scheduledSubResourcesService,
+                    @Autowired SearchConfigurationProperties properties) {
     setUpCentralTenant();
     setUpMemberTenant();
     enableTenant(MEMBER2_TENANT_ID);
-    setUpEcsInventory(lockRepository, scheduledSubResourcesService);
+    EcsInventorySetup.setUp(lockRepository, scheduledSubResourcesService,
+      (int) properties.getMaxSearchBatchRequestIdsCount());
   }
 
   @AfterAll

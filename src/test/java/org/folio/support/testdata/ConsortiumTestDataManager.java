@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.MapUtils;
 import org.folio.support.api.InventoryApi;
@@ -25,7 +26,7 @@ import tools.jackson.core.type.TypeReference;
 
 /**
  * Shared ECS (consortium) inventory data set used by {@code SearchBrowseConsortiumSuiteIT} and
- * {@code BrowseCallNumberFromItemsConsortiumIT} (loaded via {@code BaseConsortiumIntegrationTest#setUpEcsInventory}).
+ * {@code BrowseCallNumberFromItemsConsortiumIT} (loaded by {@code EcsInventorySetup}).
  *
  * <p>The records live in {@code src/test/resources/test-data/ecs/<tenant>/} as {@code instances.json},
  * {@code holdings.json} and {@code items.json} (one folder per tenant: {@code central}, {@code member},
@@ -131,6 +132,20 @@ public final class ConsortiumTestDataManager {
   }
 
   /**
+   * Returns the holdings records of the given instance across all tenants, each with the id of its tenant.
+   */
+  public static List<TenantRecord> holdingsOfInstance(String instanceId) {
+    return recordsOfInstance(instanceId, ConsortiumTestDataManager::holdings);
+  }
+
+  /**
+   * Returns the item records of the given instance across all tenants, each with the id of its tenant.
+   */
+  public static List<TenantRecord> itemsOfInstance(String instanceId) {
+    return recordsOfInstance(instanceId, ConsortiumTestDataManager::items);
+  }
+
+  /**
    * Returns the number of instance documents of the whole data set in the central tenant index: unique instance ids
    * of all tenants (shadow copies of a shared instance are the same document) plus the semantic-web instance.
    */
@@ -166,17 +181,21 @@ public final class ConsortiumTestDataManager {
   /**
    * Creates the whole ECS inventory data set while holding all sub-resource locks, so that scheduled
    * sub-resource processing does not race with the data load. After the locks are released, sub-resources are
-   * processed synchronously via {@code childrenIndexer}, as in {@link SharedTestDataManager#loadInventory}.
+   * processed synchronously via {@code childrenIndexer}, as in {@link SharedTestDataManager#loadAll}.
+   *
+   * <p>The central, member and member2 tenants must be enabled before, and the item index must be enabled
+   * ({@code folio.search-config.indexing.item-index-enabled=true}).
    *
    * <p>Central records are created and awaited first, because the member records include shadow copies of the shared
    * instances and holdings/items that belong to them; member and member2 records are then sent together.
    *
    * @param inventoryApi      sends the inventory events through Kafka
    * @param visibilityAwaiter waits until the given instances are searchable in the given tenant
+   * @param indexingAwaiter   waits until the whole data set is indexed, runs after sub-resources are processed
    */
-  public static void loadInventory(LockManager lockManager, InventoryApi inventoryApi,
-                                   InstancesVisibilityAwaiter visibilityAwaiter,
-                                   RecordsChildrenIndexer childrenIndexer) {
+  public static void loadAll(LockManager lockManager, InventoryApi inventoryApi,
+                             InstancesVisibilityAwaiter visibilityAwaiter,
+                             RecordsChildrenIndexer childrenIndexer, Runnable indexingAwaiter) {
     lockManager.lockAll();
     try {
       createRecords(inventoryApi, CENTRAL_TENANT_ID);
@@ -194,6 +213,7 @@ public final class ConsortiumTestDataManager {
       lockManager.unlockAll();
     }
     childrenIndexer.indexChildren();
+    indexingAwaiter.run();
   }
 
   /**
@@ -241,6 +261,15 @@ public final class ConsortiumTestDataManager {
     return MapUtils.getString(inventoryRecord, INSTANCE_ID_FIELD);
   }
 
+  private static List<TenantRecord> recordsOfInstance(String instanceId,
+                                                      Function<String, List<Map<String, Object>>> recordsOfTenant) {
+    return RECORDS.keySet().stream()
+      .flatMap(tenantId -> recordsOfTenant.apply(tenantId).stream()
+        .filter(inventoryRecord -> instanceId.equals(instanceId(inventoryRecord)))
+        .map(inventoryRecord -> new TenantRecord(tenantId, inventoryRecord)))
+      .toList();
+  }
+
   private static List<Map<String, Object>> loadRecords(String folder, String fileName) {
     List<Map<String, Object>> records = readJsonFromFile(BASE + folder + "/" + fileName, new TypeReference<>() { });
     return records.stream().map(jsonRecord -> unmodifiableMap(new LinkedHashMap<>(jsonRecord))).toList();
@@ -254,6 +283,11 @@ public final class ConsortiumTestDataManager {
 
     void await(String tenantId, List<String> instanceIds);
   }
+
+  /**
+   * An inventory record (holdings or item) as stored in its JSON file together with the id of its tenant.
+   */
+  public record TenantRecord(String tenantId, Map<String, Object> inventoryRecord) { }
 
   private record TenantRecords(List<Map<String, Object>> instances, List<Map<String, Object>> holdings,
                                List<Map<String, Object>> items) { }

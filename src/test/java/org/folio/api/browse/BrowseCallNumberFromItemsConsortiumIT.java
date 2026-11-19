@@ -4,13 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.support.TestConstants.MEMBER2_TENANT_ID;
 import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
-import static org.folio.support.base.BaseConsortiumIntegrationTest.setUpEcsInventory;
 import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import java.util.Arrays;
 import java.util.List;
+import org.folio.search.configuration.properties.SearchConfigurationProperties;
 import org.folio.search.domain.dto.IndexRebuildRequest;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.indexrebuild.IndexFingerprintService;
@@ -19,6 +19,7 @@ import org.folio.search.service.reindex.jdbc.SubResourcesLockRepository;
 import org.folio.search.service.scheduled.ScheduledInstanceSubResourcesService;
 import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.BaseIntegrationTest;
+import org.folio.support.base.EcsInventorySetup;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
@@ -34,15 +35,14 @@ import org.springframework.test.context.TestPropertySource;
  *
  * <p>The properties change how the module indexes call numbers, so this class does not run in
  * {@code SearchBrowseConsortiumSuiteIT} and has its own Spring context and tenants. It loads the same shared ECS data
- * set ({@link org.folio.support.testdata.ConsortiumTestDataManager}), so the expectations are the same.
+ * set (loaded by {@link EcsInventorySetup#setUp}), so the expectations are the same.
  */
 @IntegrationTest
 @TestPropertySource(properties = {
   "folio.search-config.indexing.instance-children-index-enabled=true",
   "folio.search-config.indexing.item-index-enabled=true",
   "folio.search-config.indexing.call-number-index-from-items-enabled=true",
-  "folio.search-config.indexing.call-number-refresh-delay-ms=500",
-  "folio.system-user.enabled=false"
+  "folio.search-config.indexing.call-number-refresh-delay-ms=500"
 })
 class BrowseCallNumberFromItemsConsortiumIT extends BaseIntegrationTest {
 
@@ -53,14 +53,16 @@ class BrowseCallNumberFromItemsConsortiumIT extends BaseIntegrationTest {
   @BeforeAll
   static void prepare(@Autowired JdbcTemplate jdbcTemplate, @Autowired IndexFingerprintService fingerprintService,
                       @Autowired SubResourcesLockRepository lockRepository,
-                      @Autowired ScheduledInstanceSubResourcesService scheduledSubResourcesService) {
+                      @Autowired ScheduledInstanceSubResourcesService scheduledSubResourcesService,
+                      @Autowired SearchConfigurationProperties properties) {
     enableTenant(CENTRAL_TENANT_ID);
     enableTenant(MEMBER_TENANT_ID);
     enableTenant(MEMBER2_TENANT_ID);
     // item documents come from the item events of the data set, mark the item index of every tenant as up to date,
     // so the call number refresh doesn't wait for an item records reindex
     markItemIndexReady(jdbcTemplate, fingerprintService.current(IndexRebuildTarget.ITEM));
-    setUpEcsInventory(lockRepository, scheduledSubResourcesService);
+    EcsInventorySetup.setUp(lockRepository, scheduledSubResourcesService,
+      (int) properties.getMaxSearchBatchRequestIdsCount());
   }
 
   @AfterAll

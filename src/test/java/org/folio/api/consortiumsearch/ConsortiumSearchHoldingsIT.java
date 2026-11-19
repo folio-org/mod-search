@@ -18,6 +18,7 @@ import static org.folio.support.sample.SampleInstances.getSemanticWebId;
 import static org.folio.support.testdata.ConsortiumTestDataManager.SHARED_INSTANCE_ID;
 import static org.folio.support.testdata.ConsortiumTestDataManager.holdings;
 import static org.folio.support.testdata.ConsortiumTestDataManager.holdingsCount;
+import static org.folio.support.testdata.ConsortiumTestDataManager.holdingsOfInstance;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -41,21 +43,19 @@ import org.junit.jupiter.params.provider.EnumSource;
 
 public abstract class ConsortiumSearchHoldingsIT extends BaseConsortiumIntegrationTest {
 
-  /**
-   * Default page size of the consortium holdings endpoint.
-   */
-  private static final int DEFAULT_LIMIT = 100;
+  private static final int PAGE_LIMIT = 100;
 
   @Test
   void doGetConsortiumHoldings_returns200AndRecords() {
-    var result = doGet(consortiumHoldingsSearchPath(), CENTRAL_TENANT_ID);
+    var result = doGet(consortiumHoldingsSearchPath(List.of(pair(LIMIT_PARAM, String.valueOf(PAGE_LIMIT)))),
+      CENTRAL_TENANT_ID);
     var actual = parseResponse(result, ConsortiumHoldingCollection.class);
 
     // the shared data set contains holdings of other instances too; the response is limited to one page
     var allHoldings = Stream.concat(fixtureHoldings(), Stream.of(getExpectedHoldings())).toList();
     assertThat(actual.getTotalRecords()).isEqualTo(holdingsCount());
     assertThat(actual.getHoldings())
-      .hasSize(Math.min(holdingsCount(), DEFAULT_LIMIT))
+      .hasSize(Math.min(holdingsCount(), PAGE_LIMIT))
       .doesNotHaveDuplicates()
       .isSubsetOf(allHoldings);
   }
@@ -283,7 +283,9 @@ public abstract class ConsortiumSearchHoldingsIT extends BaseConsortiumIntegrati
    * Expected consortium holdings of a fixture instance, built from the holdings records of all tenants.
    */
   private static List<ConsortiumHolding> fixtureHoldings(String instanceId) {
-    return fixtureHoldings().filter(holding -> instanceId.equals(holding.getInstanceId())).toList();
+    return holdingsOfInstance(instanceId).stream()
+      .map(holding -> toConsortiumHolding(holding.tenantId(), holding.inventoryRecord()))
+      .toList();
   }
 
   /**
@@ -291,18 +293,21 @@ public abstract class ConsortiumSearchHoldingsIT extends BaseConsortiumIntegrati
    */
   private static Stream<ConsortiumHolding> fixtureHoldings() {
     return Stream.of(CENTRAL_TENANT_ID, MEMBER_TENANT_ID, MEMBER2_TENANT_ID)
-      .flatMap(tenantId -> holdings(tenantId).stream()
-        .map(holding -> new ConsortiumHolding()
-          .id(getString(holding, "id"))
-          .hrid(getString(holding, "hrid"))
-          .tenantId(tenantId)
-          .instanceId(getString(holding, "instanceId"))
-          .callNumberPrefix(getString(holding, "callNumberPrefix"))
-          .callNumber(getString(holding, "callNumber"))
-          .callNumberSuffix(getString(holding, "callNumberSuffix"))
-          .copyNumber(getString(holding, "copyNumber"))
-          .permanentLocationId(getString(holding, "permanentLocationId"))
-          .discoverySuppress(getBooleanValue(holding, "discoverySuppress"))));
+      .flatMap(tenantId -> holdings(tenantId).stream().map(holding -> toConsortiumHolding(tenantId, holding)));
+  }
+
+  private static ConsortiumHolding toConsortiumHolding(String tenantId, Map<String, Object> holding) {
+    return new ConsortiumHolding()
+      .id(getString(holding, "id"))
+      .hrid(getString(holding, "hrid"))
+      .tenantId(tenantId)
+      .instanceId(getString(holding, "instanceId"))
+      .callNumberPrefix(getString(holding, "callNumberPrefix"))
+      .callNumber(getString(holding, "callNumber"))
+      .callNumberSuffix(getString(holding, "callNumberSuffix"))
+      .copyNumber(getString(holding, "copyNumber"))
+      .permanentLocationId(getString(holding, "permanentLocationId"))
+      .discoverySuppress(getBooleanValue(holding, "discoverySuppress"));
   }
 
   private ConsortiumHolding[] getExpectedConsolidatedHoldings() {

@@ -15,7 +15,7 @@ import static org.folio.support.sample.SampleInstances.getSemanticWeb;
 import static org.folio.support.sample.SampleInstances.getSemanticWebId;
 import static org.folio.support.testdata.ConsortiumTestDataManager.LOCAL_INSTANCE_ID;
 import static org.folio.support.testdata.ConsortiumTestDataManager.SHARED_INSTANCE_ID;
-import static org.folio.support.testdata.ConsortiumTestDataManager.items;
+import static org.folio.support.testdata.ConsortiumTestDataManager.itemsOfInstance;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -220,16 +220,14 @@ public abstract class ConsortiumSearchItemsIT extends BaseConsortiumIntegrationT
    * Expected consortium items of a fixture instance, built from the item records of all tenants.
    */
   private static List<ConsortiumItem> fixtureItems(String instanceId) {
-    return Stream.of(CENTRAL_TENANT_ID, MEMBER_TENANT_ID, MEMBER2_TENANT_ID)
-      .flatMap(tenantId -> items(tenantId).stream()
-        .filter(item -> instanceId.equals(getString(item, "instanceId")))
-        .map(item -> new ConsortiumItem()
-          .id(getString(item, "id"))
-          .hrid(getString(item, "hrid"))
-          .tenantId(tenantId)
-          .instanceId(instanceId)
-          .holdingsRecordId(getString(item, "holdingsRecordId"))
-          .barcode(getString(item, "barcode"))))
+    return itemsOfInstance(instanceId).stream()
+      .map(item -> new ConsortiumItem()
+        .id(getString(item.inventoryRecord(), "id"))
+        .hrid(getString(item.inventoryRecord(), "hrid"))
+        .tenantId(item.tenantId())
+        .instanceId(instanceId)
+        .holdingsRecordId(getString(item.inventoryRecord(), "holdingsRecordId"))
+        .barcode(getString(item.inventoryRecord(), "barcode")))
       .toList();
   }
 

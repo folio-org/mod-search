@@ -6,7 +6,6 @@ import static org.folio.search.domain.dto.RecordType.CALL_NUMBERS;
 import static org.folio.search.utils.CallNumberUtils.calculateFullCallNumber;
 import static org.folio.search.utils.SearchUtils.ALL_RECORDS_QUERY;
 import static org.folio.search.utils.SearchUtils.ID_FIELD;
-import static org.folio.search.utils.SearchUtils.INSTANCE_ID_FIELD;
 import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.support.TestConstants.MEMBER2_TENANT_ID;
 import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
@@ -18,7 +17,7 @@ import static org.folio.support.testdata.ConsortiumTestDataManager.LOCAL_INSTANC
 import static org.folio.support.testdata.ConsortiumTestDataManager.MEMBER2_LOCATION;
 import static org.folio.support.testdata.ConsortiumTestDataManager.SHARED_INSTANCE_ID;
 import static org.folio.support.testdata.ConsortiumTestDataManager.instances;
-import static org.folio.support.testdata.ConsortiumTestDataManager.items;
+import static org.folio.support.testdata.ConsortiumTestDataManager.itemsOfInstance;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
 import static org.folio.support.utils.TestUtils.array;
 import static org.folio.support.utils.TestUtils.cnBrowseItem;
@@ -169,9 +168,7 @@ public abstract class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegra
         facet(facetItem(CENTRAL_TENANT_ID, 61), facetItem(MEMBER_TENANT_ID, 3), facetItem(MEMBER2_TENANT_ID, 3)))),
       arguments(CENTRAL_TENANT_ID, "callNumberTypeId=\"" + CALL_NUMBER_LC_TYPE_ID + "\"", array(LOCATION_FACET),
         new ExpectedLocations(6, 4, 2).toFacets()),
-      arguments(MEMBER_TENANT_ID, ALL_RECORDS_QUERY, array(LOCATION_FACET),
-        new ExpectedLocations(42, 34, 24).memberLocalRecords()
-          .fixtureCallNumber(SHARED_INSTANCE_ID).fixtureCallNumber(LOCAL_INSTANCE_ID).toFacets()),
+      arguments(MEMBER_TENANT_ID, ALL_RECORDS_QUERY, array(LOCATION_FACET), allMemberLocationFacets()),
       arguments(MEMBER_TENANT_ID, ALL_RECORDS_QUERY, array(TENANT_FACET), mapOf(TENANT_FACET,
         facet(facetItem(CENTRAL_TENANT_ID, 61), facetItem(MEMBER_TENANT_ID, 47),
           facetItem(MEMBER2_TENANT_ID, 4)))),
@@ -180,16 +177,25 @@ public abstract class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegra
       arguments(MEMBER_TENANT_ID, "instances.shared==false", array(TENANT_FACET), mapOf(TENANT_FACET,
         facet(facetItem(MEMBER_TENANT_ID, 44), facetItem(MEMBER2_TENANT_ID, 1)))),
       arguments(MEMBER_TENANT_ID, "instances.locationId==" + MEMBER2_LOCATION, array(SHARED_FACET, LOCATION_FACET),
-        mapOf(SHARED_FACET, facet(facetItem("false", 1))),
-        new ExpectedLocations(42, 34, 24).memberLocalRecords().toFacets())
+        mapOf(SHARED_FACET, facet(facetItem("false", 1)), LOCATION_FACET,
+          allMemberLocationFacets().get(LOCATION_FACET)))
     );
+  }
+
+  /**
+   * Location facet of all call numbers visible from the member tenant (the facet ignores its own filter).
+   */
+  private static Map<String, Facet> allMemberLocationFacets() {
+    return new ExpectedLocations(42, 34, 24).memberLocalRecords()
+      .fixtureCallNumber(SHARED_INSTANCE_ID).fixtureCallNumber(LOCAL_INSTANCE_ID).toFacets();
   }
 
   /**
    * Browse item of the single call number of a consortium search slice instance, built from its fixture records.
    */
   private static CallNumberBrowseItem fixtureCnBrowseItem(String instanceId) {
-    var callNumber = fixtureItems(instanceId).map(item -> (Map<?, ?>) item.get("effectiveCallNumberComponents"))
+    var callNumber = itemsOfInstance(instanceId).stream()
+      .map(item -> (Map<?, ?>) item.inventoryRecord().get("effectiveCallNumberComponents"))
       .findFirst().orElseThrow();
     var title = instances(CENTRAL_TENANT_ID).stream()
       .filter(instance -> instanceId.equals(getString(instance, ID_FIELD)))
@@ -201,12 +207,6 @@ public abstract class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegra
       .callNumberTypeId((String) callNumber.get("typeId"))
       .instanceTitle(title)
       .totalRecords(1);
-  }
-
-  private static Stream<Map<String, Object>> fixtureItems(String instanceId) {
-    return Stream.of(CENTRAL_TENANT_ID, MEMBER_TENANT_ID, MEMBER2_TENANT_ID)
-      .flatMap(tenantId -> items(tenantId).stream())
-      .filter(item -> instanceId.equals(getString(item, INSTANCE_ID_FIELD)));
   }
 
   /**
@@ -263,8 +263,8 @@ public abstract class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegra
      * record, counted once for every location that holds its items.
      */
     private ExpectedLocations fixtureCallNumber(String instanceId) {
-      fixtureItems(instanceId).map(item -> getString(item, "effectiveLocationId")).distinct()
-        .forEach(locationId -> add(locationId, 1));
+      itemsOfInstance(instanceId).stream().map(item -> getString(item.inventoryRecord(), "effectiveLocationId"))
+        .distinct().forEach(locationId -> add(locationId, 1));
       return this;
     }
 

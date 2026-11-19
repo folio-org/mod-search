@@ -42,7 +42,6 @@ import org.folio.support.base.BaseIntegrationTest;
 import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.TestPropertySource;
@@ -129,7 +128,6 @@ public class SearchBrowseConsortiumSuiteIT extends BaseIntegrationTest {
   @Nested
   class ConsortiumSearchItems extends ConsortiumSearchItemsIT { }
 
-  @Disabled
   @Nested
   class SearchInstance extends SearchInstanceConsortiumIT { }
 

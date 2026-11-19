@@ -11,6 +11,7 @@ import static org.folio.support.utils.JsonTestUtils.readJsonFromFile;
 import static org.folio.support.utils.TestUtils.array;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -23,7 +24,8 @@ import org.folio.support.testdata.SharedTestDataManager.RecordsChildrenIndexer;
 import tools.jackson.core.type.TypeReference;
 
 /**
- * Shared ECS (consortium) inventory data set used by {@code SearchBrowseConsortiumSuiteIT}.
+ * Shared ECS (consortium) inventory data set used by {@code SearchBrowseConsortiumSuiteIT} and
+ * {@code BrowseCallNumberFromItemsConsortiumIT} (loaded via {@code BaseConsortiumIntegrationTest#setUpEcsInventory}).
  *
  * <p>The records live in {@code src/test/resources/test-data/ecs/<tenant>/} as {@code instances.json},
  * {@code holdings.json} and {@code items.json} (one folder per tenant: {@code central}, {@code member},
@@ -91,6 +93,8 @@ public final class ConsortiumTestDataManager {
    * is deleted when it is no longer linked to any instance.
    */
   private static final String UNLINKED_CONTRIBUTOR_INSTANCE_ID = "6db30ff9-f99a-3de7-be2a-0a4fb6077554";
+  private static final String INSTANCE_SOURCE_FIELD = "source";
+  private static final String ITEM_INSTANCE_SOURCE_FIELD = "instanceSource";
   private static final String BASE = "/test-data/ecs/";
   private static final Map<String, String> TENANT_FOLDERS = Map.of(
     CENTRAL_TENANT_ID, "central",
@@ -195,12 +199,25 @@ public final class ConsortiumTestDataManager {
   /**
    * Sends the instances, holdings and items of a tenant. {@link InventoryApi} modifies the maps it gets, so it is
    * given copies and the loaded records stay unchanged.
+   *
+   * <p>Item events carry the {@code instanceSource} of their instance in the same tenant, as inventory item events
+   * do: the item index derives the {@code shared} flag of member items of shared instances from it.
    */
   private static void createRecords(InventoryApi inventoryApi, String tenantId) {
     instances(tenantId).forEach(instance -> inventoryApi.createInstance(tenantId, new LinkedHashMap<>(instance)));
     holdings(tenantId).forEach(holding ->
       inventoryApi.createHolding(tenantId, instanceId(holding), new LinkedHashMap<>(holding)));
-    items(tenantId).forEach(item -> inventoryApi.createItem(tenantId, instanceId(item), new LinkedHashMap<>(item)));
+    var instanceSources = new HashMap<String, String>();
+    instances(tenantId).forEach(instance -> instanceSources.put(
+      MapUtils.getString(instance, ID_FIELD), MapUtils.getString(instance, INSTANCE_SOURCE_FIELD)));
+    items(tenantId).forEach(item -> {
+      var itemEvent = new LinkedHashMap<>(item);
+      var instanceSource = instanceSources.get(instanceId(item));
+      if (instanceSource != null) {
+        itemEvent.put(ITEM_INSTANCE_SOURCE_FIELD, instanceSource);
+      }
+      inventoryApi.createItem(tenantId, instanceId(item), itemEvent);
+    });
   }
 
   private static void unlinkContributors(InventoryApi inventoryApi) {

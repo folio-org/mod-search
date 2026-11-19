@@ -82,7 +82,7 @@ public abstract class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegra
   }
 
   @Test
-  void browseByCallNumber_forward_fromMemberTenant_returnsSharedAndLocalCallNumbers() {
+  void browseByCallNumber_forward_fromMemberTenant_returnsLocalInstanceCallNumbers() {
     var request = get(instanceCallNumberBrowsePath(BrowseOptionType.ALL))
       .param("expandAll", "true")
       .param(QUERY_PARAM, prepareQuery("fullCallNumber >= {value}", "\"Twilight Breaking pt. 1\""))

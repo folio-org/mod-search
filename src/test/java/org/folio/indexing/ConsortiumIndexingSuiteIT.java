@@ -15,13 +15,15 @@ import org.springframework.test.context.TestPropertySource;
 /**
  * Suite for consortium indexing tests. These tests create and change data on their own, so they are kept apart
  * from the read-only {@code SearchBrowseConsortiumSuiteIT}; each test scopes its assertions to its own records.
- * The properties are the same as in {@code SearchBrowseSuiteIT} (in the same order), so the Spring context is shared
- * with it.
+ * The properties are the same as in {@code IndexingSuiteIT}, so the Spring context is shared with it.
+ *
+ * <p>Item indexing tests ({@code IndexingItemConsortiumIT}, like the non-consortium {@code IndexingItemIT}) do not
+ * run here: they need {@code item-index-enabled}, which changes how the module indexes item events, so they run in
+ * their own Spring context together with the item reindex tests.
  */
 @IntegrationTest
 @TestPropertySource(properties = {
-  "folio.search-config.indexing.instance-children-index-enabled=true",
-  "folio.search-config.indexing.item-index-enabled=true"
+  "folio.search-config.indexing.instance-children-index-enabled=true"
 })
 class ConsortiumIndexingSuiteIT extends BaseIntegrationTest {
 
@@ -42,9 +44,6 @@ class ConsortiumIndexingSuiteIT extends BaseIntegrationTest {
 
   @Nested
   class IndexingInstanceCallNumber extends IndexingInstanceCallNumberConsortiumIT { }
-
-  @Nested
-  class IndexingItem extends IndexingItemConsortiumIT { }
 
   @Nested
   class IndexingLocations extends IndexingLocationsConsortiumIT { }

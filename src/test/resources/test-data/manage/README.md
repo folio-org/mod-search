@@ -15,14 +15,20 @@ and used by the following integration test suites:
   It also runs the ECS inventory tests (call number, classification, contributor and subject browse,
   consortium holdings/items search) in the same Spring context, on the ECS data set in `ecs/` (see
   [ECS data set](#ecs-data-set-ecs)). Tenants, browse features and the ECS data set are set up once in
-  `SearchBrowseConsortiumSuiteIT#setUp`, so new ECS test classes need no tenant or data setup of their own.
-- **`ConsortiumIndexingSuiteIT`** — runs the ECS indexing tests, which create and wipe their own data, so they
-  are kept apart from the shared read-only data set.
+  `SearchBrowseConsortiumSuiteIT#setUp` (the data set via `BaseConsortiumIntegrationTest#setUpEcsInventory`), so new
+  ECS test classes need no tenant or data setup of their own.
+- **`BrowseCallNumberFromItemsConsortiumIT`** — runs the ECS call number browse tests with call numbers built from
+  the item index. Its properties change how the module indexes call numbers, so it has its own Spring context and
+  tenants, but it loads the same ECS data set with `setUpEcsInventory`, so the expectations are the same.
 
-Both test classes share the same Elasticsearch index for the duration of their test run, so any
-change to these JSON files affects all nested test classes inside them.
+Each of these classes loads the data once and shares it (in the same indexes) with all its nested test classes
+for the duration of its run, so any change to these JSON files affects all of them.
 
-The full set of JSON files consumed by both suites:
+`ConsortiumIndexingSuiteIT` (ECS indexing tests) and the item indexing/reindex tests (`IndexingItemIT`,
+`IndexingItemConsortiumIT`, `*RecordsReindex*IT`) do not use this data: they create their own records and scope
+their assertions to them, and set up their own tenants.
+
+The full set of JSON files consumed by `SearchBrowseSuiteIT` and `SearchBrowseConsortiumSuiteIT`:
 
 | File                           | Resource type           |
 |--------------------------------|-------------------------|
@@ -122,7 +128,8 @@ to match the new counts reported in the assertion error message.
 
 ## ECS data set (`ecs/`)
 
-The consortium (ECS) inventory data set used by `SearchBrowseConsortiumSuiteIT` has one folder per tenant, each
+The consortium (ECS) inventory data set used by `SearchBrowseConsortiumSuiteIT` and
+`BrowseCallNumberFromItemsConsortiumIT` has one folder per tenant, each
 with `instances.json`, `holdings.json` and `items.json` in the same format as the files above:
 
 | Folder         | Tenant          | Content                                                                         |
@@ -134,7 +141,9 @@ with `instances.json`, `holdings.json` and `items.json` in the same format as th
 Holdings and items that a member tenant owns for a **shared** instance are in that member's folder, next to its
 shadow copy of the instance (same id, source `CONSORTIUM-MARC` or `CONSORTIUM-FOLIO`), as in a real consortium.
 `ConsortiumTestDataManager` loads the folders and sends the records through Kafka (`InventoryApi`), not through
-`/search-index/records`, because only the Kafka path routes member-tenant records to the central tenant. It exposes
+`/search-index/records`, because only the Kafka path routes member-tenant records to the central tenant. Item
+events carry the `instanceSource` of their instance (as inventory item events do), from which the item index derives
+the `shared` flag of member items of shared instances. It exposes
 the records (`instances/holdings/items(tenantId)`), the slice ids (`SHARED_INSTANCE_ID`, `LOCAL_INSTANCE_ID`),
 the instance/holdings/item counts derived from the records (`instancesCount()`, `holdingsCount()`, `itemIds()`) and
 the expected sub-resource document counts (`*_COUNT` constants), which are hardcoded and must be kept in sync.

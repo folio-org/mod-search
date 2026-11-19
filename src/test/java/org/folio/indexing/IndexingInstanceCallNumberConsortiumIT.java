@@ -1,18 +1,15 @@
 package org.folio.indexing;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.awaitility.Awaitility.await;
-import static org.awaitility.Durations.ONE_MINUTE;
 import static org.folio.search.model.types.ResourceType.INSTANCE_CALL_NUMBER;
 import static org.folio.search.utils.SearchUtils.getIndexName;
 import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.support.utils.TestUtils.randomId;
-import static org.opensearch.index.query.QueryBuilders.matchAllQuery;
+import static org.opensearch.index.query.QueryBuilders.termQuery;
 import static org.opensearch.search.builder.SearchSourceBuilder.searchSource;
 
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -43,24 +40,15 @@ public abstract class IndexingInstanceCallNumberConsortiumIT extends BaseSharedT
   private static final String LOCATION_ID = randomId();
   private static final String INSTANCE_TITLE = "title";
   private static final String CALL_NUMBER = "test";
-  private static final int MAX_FETCHED_DOCUMENTS = 1000;
+  private static final String FULL_CALL_NUMBER_FIELD = "fullCallNumber";
 
   @Test
   void shouldUpdateInstanceCallNumber_onInstanceSharing() {
-    // given
-    createInstanceInMemberTenant(INSTANCE_ID, INSTANCE_TITLE, LOCATION_ID, CALL_NUMBER);
-    awaitAssertion(() -> assertInstanceCallNumberSharedState(CALL_NUMBER, false));
-    // when - create instance in central tenant with the same instance id/title
-    var centralInstance = new Instance().id(INSTANCE_ID).title(INSTANCE_TITLE).source("FOLIO");
-    inventoryApi.createInstance(CENTRAL_TENANT_ID, centralInstance);
+    // given - member instance with a call number, the central instance with the same id/title and the member instance
+    // updated to a shadow copy
+    prepareInstanceSharing(INSTANCE_ID, INSTANCE_TITLE, LOCATION_ID, CALL_NUMBER);
 
-    // and - update member tenant instance to change source to have consortium prefix
-    var memberInstance = new Instance().id(INSTANCE_ID).title(INSTANCE_TITLE).source("CONSORTIUM-FOLIO");
-    inventoryApi.updateInstance(MEMBER_TENANT_ID, memberInstance);
-
-    // then - fetch call number documents for the instance and check if tenant field changed to member tenant id
-    awaitAssertion(() -> assertInstanceCallNumberSharedState(CALL_NUMBER, false));
-
+    // when
     inventoryApi.shareInstance(CENTRAL_TENANT_ID, INSTANCE_ID, InstanceSharingCompleteEvent.Status.COMPLETE, "",
       MEMBER_TENANT_ID, CENTRAL_TENANT_ID);
 
@@ -77,28 +65,21 @@ public abstract class IndexingInstanceCallNumberConsortiumIT extends BaseSharedT
     String instanceId, String title, String locationId, String callNumber
   ) {
     // given
-    createInstanceInMemberTenant(instanceId, title, locationId, callNumber);
-
-    awaitAssertion(() -> assertInstanceCallNumberSharedState(callNumber, false));
-
-    var centralInstance = new Instance().id(instanceId).title(title).source("FOLIO");
-    inventoryApi.createInstance(CENTRAL_TENANT_ID, centralInstance);
-
-    var memberInstance = new Instance().id(instanceId).title(title).source("CONSORTIUM-FOLIO");
-    inventoryApi.updateInstance(MEMBER_TENANT_ID, memberInstance);
-
-    awaitAssertion(() -> assertInstanceCallNumberSharedState(callNumber, false));
+    prepareInstanceSharing(instanceId, title, locationId, callNumber);
+    var sentinelInstanceId = randomId();
+    var sentinelCallNumber = callNumber + " sentinel";
+    prepareInstanceSharing(sentinelInstanceId, title + " sentinel", randomId(), sentinelCallNumber);
 
     // when
     inventoryApi.shareInstance(MEMBER_TENANT_ID, instanceId, status, errorMessage, MEMBER_TENANT_ID, targetTenantId);
+    // a valid sharing event of the sentinel instance is sent after the tested event to the same single-partition
+    // topic, so it is consumed after it: once the sentinel call number is shared, the tested event is processed too
+    inventoryApi.shareInstance(MEMBER_TENANT_ID, sentinelInstanceId, InstanceSharingCompleteEvent.Status.COMPLETE, "",
+      MEMBER_TENANT_ID, CENTRAL_TENANT_ID);
 
     // then check that the shared field is not updated and remains false
-    await()
-      .pollDelay(Duration.ofSeconds(30))
-      .atMost(ONE_MINUTE)
-      .untilAsserted(() ->
-        assertInstanceCallNumberSharedState(callNumber, false)
-      );
+    awaitAssertion(() -> assertInstanceCallNumberSharedState(sentinelCallNumber, true));
+    assertInstanceCallNumberSharedState(callNumber, false);
   }
 
   private static Stream<Arguments> negativeSharingScenarios() {
@@ -112,6 +93,24 @@ public abstract class IndexingInstanceCallNumberConsortiumIT extends BaseSharedT
       // target tenant is not central tenant
       Arguments.of(InstanceSharingCompleteEvent.Status.COMPLETE, "", MEMBER_TENANT_ID,
         UUID.randomUUID().toString(), "title3", UUID.randomUUID().toString(), "call number3"));
+  }
+
+  /**
+   * Creates a member instance with a call number, then the central instance with the same id/title, and updates the
+   * member instance to a shadow copy (consortium source), checking that the call number stays not shared until the
+   * sharing complete event.
+   */
+  private static void prepareInstanceSharing(String instanceId, String title, String locationId, String callNumber) {
+    createInstanceInMemberTenant(instanceId, title, locationId, callNumber);
+    awaitAssertion(() -> assertInstanceCallNumberSharedState(callNumber, false));
+
+    var centralInstance = new Instance().id(instanceId).title(title).source("FOLIO");
+    inventoryApi.createInstance(CENTRAL_TENANT_ID, centralInstance);
+
+    var memberInstance = new Instance().id(instanceId).title(title).source("CONSORTIUM-FOLIO");
+    inventoryApi.updateInstance(MEMBER_TENANT_ID, memberInstance);
+
+    awaitAssertion(() -> assertInstanceCallNumberSharedState(callNumber, false));
   }
 
   private static void assertInstanceCallNumberSharedState(String callNumber, boolean shared) {
@@ -134,10 +133,10 @@ public abstract class IndexingInstanceCallNumberConsortiumIT extends BaseSharedT
   @SneakyThrows
   private static List<SearchHit> fetchCallNumberDocuments(String callNumber) {
     var searchRequest = new SearchRequest()
-      .source(searchSource().query(matchAllQuery()).size(MAX_FETCHED_DOCUMENTS))
+      .source(searchSource().query(termQuery(FULL_CALL_NUMBER_FIELD, callNumber)))
       .indices(getIndexName(INSTANCE_CALL_NUMBER, CENTRAL_TENANT_ID));
     return Arrays.stream(elasticClient.search(searchRequest, RequestOptions.DEFAULT).getHits().getHits())
-      .filter(hit -> callNumber.equals(hit.getSourceAsMap().get("fullCallNumber")))
+      .filter(hit -> callNumber.equals(hit.getSourceAsMap().get(FULL_CALL_NUMBER_FIELD)))
       .toList();
   }
 

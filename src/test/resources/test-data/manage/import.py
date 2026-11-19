@@ -77,7 +77,7 @@ _REF_NAMES: dict[str, dict[str, str]] = {
         "eb003b9d-86f2-4bdf-9f8e-28851122617d": "Bound with",
     },
     "ref_call_number_types": {
-        # test-only call number types of CallNumberTestData.CallNumberTypeId, used by the ECS data set
+        # test-only call number types of the ECS call number browse fixtures (BrowseCallNumberConsortiumIT)
         "cbc422b0-b71a-4d2d-9a2a-9fcc56a57a3e": "LC (call number browse tests)",
         "0b5d15ad-1738-4e9e-a9c1-e972e95ce71c": "Dewey (call number browse tests)",
         "530b84ea-4965-4cda-9d9e-6a5ef91fd21e": "NLM (call number browse tests)",

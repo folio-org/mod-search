@@ -22,6 +22,7 @@ import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.support.sample.SampleInstances.getSemanticWebId;
 import static org.folio.support.sample.SampleInstances.getSemanticWebMatchers;
 import static org.folio.support.testdata.ConsortiumTestDataManager.CALL_NUMBER_COUNT;
+import static org.folio.support.testdata.ConsortiumTestDataManager.CALL_NUMBER_LC_TYPE_ID;
 import static org.folio.support.testdata.ConsortiumTestDataManager.CLASSIFICATION_COUNT;
 import static org.folio.support.testdata.ConsortiumTestDataManager.CONTRIBUTOR_COUNT;
 import static org.folio.support.testdata.ConsortiumTestDataManager.INSTANCE_COUNT;
@@ -40,7 +41,6 @@ import static org.folio.support.testdata.SharedTestDataManager.loadLinkedDataAut
 import static org.folio.support.testdata.SharedTestDataManager.loadLinkedDataWorks;
 import static org.folio.support.testdata.SharedTestDataManager.loadLocations;
 import static org.folio.support.testdata.SharedTestDataManager.locationsCount;
-import static org.folio.support.utils.CallNumberTestData.CallNumberTypeId.LC;
 
 import java.sql.Timestamp;
 import java.util.EnumMap;
@@ -158,7 +158,7 @@ public class SearchBrowseConsortiumSuiteIT extends BaseIntegrationTest {
     awaitIndexedResourceCounts(INSTANCE_CONTRIBUTOR, CENTRAL_TENANT_ID, CONTRIBUTOR_COUNT);
     awaitIndexedResourceCounts(INSTANCE_CLASSIFICATION, CENTRAL_TENANT_ID, CLASSIFICATION_COUNT);
     awaitIndexedResourceCounts(INSTANCE_SUBJECT, CENTRAL_TENANT_ID, SUBJECT_COUNT);
-    updateCnConfig(List.of(UUID.fromString(LC.getId())), BrowseOptionType.LC, ShelvingOrderAlgorithmType.LC,
+    updateCnConfig(List.of(UUID.fromString(CALL_NUMBER_LC_TYPE_ID)), BrowseOptionType.LC, ShelvingOrderAlgorithmType.LC,
       CENTRAL_TENANT_ID);
   }
 

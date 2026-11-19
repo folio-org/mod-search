@@ -56,6 +56,7 @@ public final class ConsortiumTestDataManager {
   public static final String LOCAL_INSTANCE_ID = "9e2d7a41-3c5b-4f86-a1d9-6b0e8c4f2a75";
   // call number data
   public static final String MEMBER2_LOCATION = "b6bb6323-9db6-3df8-8fa8-271994a7afca";
+  public static final String CALL_NUMBER_LC_TYPE_ID = "cbc422b0-b71a-4d2d-9a2a-9fcc56a57a3e";
   // classification data
   public static final String LC_TYPE_ID = "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a";
   public static final String LC2_TYPE_ID = "308c950f-8209-4f2e-9702-0c004a9f21bc";
@@ -71,7 +72,6 @@ public final class ConsortiumTestDataManager {
     array("0a4c6d10-2161-4f64-aace-9e919489b6c9", "7ff32633-cc49-4332-870a-b05e329d2a2d");
   // subject data
   public static final String MUSIC_AUTHORITY_ID_1 = "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a";
-  public static final String MUSIC_AUTHORITY_ID_2 = "308c950f-8209-4f2e-9702-0c004a9f21bc";
   public static final String MUSIC_SOURCE_ID_1 = "e62bbefe-adf5-4b1e-b3e7-43d877b0c91b";
   public static final String MUSIC_SOURCE_ID_2 = "308c950f-8209-4f2e-9702-0c004a9f21bd";
   public static final String MUSIC_TYPE_ID_1 = "e62bbefe-adf5-4b1e-b3e7-43d877b0c91c";
@@ -174,7 +174,7 @@ public final class ConsortiumTestDataManager {
 
   private static void unlinkContributors(InventoryApi inventoryApi) {
     var instance = instances(CENTRAL_TENANT_ID).stream()
-      .filter(record -> UNLINKED_CONTRIBUTOR_INSTANCE_ID.equals(record.get(ID_FIELD)))
+      .filter(instanceMap -> UNLINKED_CONTRIBUTOR_INSTANCE_ID.equals(instanceMap.get(ID_FIELD)))
       .findFirst()
       .orElseThrow();
     var updated = new LinkedHashMap<>(instance);
@@ -183,16 +183,19 @@ public final class ConsortiumTestDataManager {
   }
 
   private static List<String> instanceIds(String tenantId) {
-    return instances(tenantId).stream().map(record -> MapUtils.getString(record, ID_FIELD)).distinct().toList();
+    return instances(tenantId).stream()
+      .map(instanceMap -> MapUtils.getString(instanceMap, ID_FIELD))
+      .distinct()
+      .toList();
   }
 
-  private static String instanceId(Map<String, Object> record) {
-    return MapUtils.getString(record, INSTANCE_ID_FIELD);
+  private static String instanceId(Map<String, Object> inventoryRecord) {
+    return MapUtils.getString(inventoryRecord, INSTANCE_ID_FIELD);
   }
 
   private static List<Map<String, Object>> loadRecords(String folder, String fileName) {
     List<Map<String, Object>> records = readJsonFromFile(BASE + folder + "/" + fileName, new TypeReference<>() { });
-    return records.stream().map(record -> unmodifiableMap(new LinkedHashMap<>(record))).toList();
+    return records.stream().map(jsonRecord -> unmodifiableMap(new LinkedHashMap<>(jsonRecord))).toList();
   }
 
   /**

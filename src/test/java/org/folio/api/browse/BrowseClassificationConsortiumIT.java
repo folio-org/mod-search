@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.BrowseOptionType;
+import org.folio.search.domain.dto.Classification;
 import org.folio.search.domain.dto.ClassificationNumberBrowseResult;
 import org.folio.search.domain.dto.Contributor;
 import org.folio.search.domain.dto.Facet;
@@ -38,7 +39,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 public abstract class BrowseClassificationConsortiumIT extends BaseConsortiumIntegrationTest {
 
-  private static final String SEMANTIC_WEB_LC_TYPE_ID = "ce176ace-a53e-4b4d-aa89-725ed7b2edac";
+  private static final String SEMANTIC_WEB_CLASSIFICATION_NUMBER = "HD1691 .I5 1967";
 
   @Test
   void browseByClassification_shared() {
@@ -64,6 +65,10 @@ public abstract class BrowseClassificationConsortiumIT extends BaseConsortiumInt
   @Test
   void browseByClassification_local() {
     var semanticWeb = getSemanticWeb();
+    var semanticWebTypeId = semanticWeb.getClassifications().stream()
+      .filter(classification -> SEMANTIC_WEB_CLASSIFICATION_NUMBER.equals(classification.getClassificationNumber()))
+      .map(Classification::getClassificationTypeId)
+      .findFirst().orElseThrow();
     var request = get(instanceClassificationBrowsePath(BrowseOptionType.ALL))
       .param(QUERY_PARAM, prepareQuery("number < {value} or number >= {value} and instances.shared==false",
         "\"QD33 .O87\""))
@@ -75,7 +80,7 @@ public abstract class BrowseClassificationConsortiumIT extends BaseConsortiumInt
       .usingRecursiveComparison().ignoringFields(COLLECTION_IGNORING_FIELDS)
       .isEqualTo(classificationBrowseResult("372.4", "SF433 .D47 2004", 14, List.of(
         classificationBrowseItem("372.4", DEWEY_TYPE_ID, 1, "instance #09"),
-        classificationBrowseItem("HD1691 .I5 1967", SEMANTIC_WEB_LC_TYPE_ID, 1, semanticWeb.getTitle(),
+        classificationBrowseItem(SEMANTIC_WEB_CLASSIFICATION_NUMBER, semanticWebTypeId, 1, semanticWeb.getTitle(),
           semanticWeb.getContributors().stream().map(Contributor::getName).toArray(String[]::new)),
         classificationBrowseItem("QD33 .O87", LC_TYPE_ID, 1, "instance #10", true,
           "Contributor #3", "Contributor #4"),

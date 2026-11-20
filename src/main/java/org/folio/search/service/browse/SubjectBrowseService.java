@@ -90,6 +90,7 @@ public class SubjectBrowseService extends AbstractBrowseServiceBySearchAfter<Sub
                                                               boolean isAnchor) {
     return BrowseResult.of(res)
       .map(subjectResource -> new SubjectBrowseItem()
+        .id(subjectResource.id())
         .value(subjectResource.value())
         .authorityId(subjectResource.authorityId())
         .sourceId(subjectResource.sourceId())

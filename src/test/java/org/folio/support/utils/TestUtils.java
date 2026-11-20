@@ -80,6 +80,7 @@ import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.model.types.IndexingDataFormat;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.model.types.SearchType;
+import org.folio.search.utils.ShaUtils;
 import org.opensearch.action.search.SearchResponse;
 import org.opensearch.core.ParseField;
 import org.opensearch.core.common.bytes.BytesArray;
@@ -151,33 +152,36 @@ public class TestUtils {
   }
 
   public static SubjectBrowseItem subjectBrowseItem(Integer totalRecords, String subject) {
-    return new SubjectBrowseItem().value(subject).totalRecords(totalRecords);
+    return subjectBrowseItem(totalRecords, subject, null, null, null);
   }
 
   public static SubjectBrowseItem subjectBrowseItem(Integer totalRecords, String subject, String authorityId) {
-    return new SubjectBrowseItem().value(subject).authorityId(authorityId).totalRecords(totalRecords);
+    return subjectBrowseItem(totalRecords, subject, authorityId, null, null);
   }
 
   public static SubjectBrowseItem subjectBrowseItem(Integer totalRecords, String subject, boolean isAnchor) {
-    return new SubjectBrowseItem().value(subject).totalRecords(totalRecords).isAnchor(isAnchor);
+    return subjectBrowseItem(totalRecords, subject, null, null, null, isAnchor);
   }
 
   public static SubjectBrowseItem subjectBrowseItem(Integer totalRecords, String subject, String authorityId,
                                                     boolean isAnchor) {
-    return new SubjectBrowseItem().value(subject).authorityId(authorityId).totalRecords(totalRecords)
-      .isAnchor(isAnchor);
+    return subjectBrowseItem(totalRecords, subject, authorityId, null, null, isAnchor);
   }
 
+  /**
+   * Creates an expected subject browse item. Items with records get the id the module generates for a subject;
+   * items with zero records are anchor placeholders and have no id.
+   */
   public static SubjectBrowseItem subjectBrowseItem(Integer totalRecords, String subject, String authorityId,
                                                     String sourceId, String typeId) {
-    return new SubjectBrowseItem().value(subject).authorityId(authorityId).sourceId(sourceId).typeId(typeId)
+    var id = totalRecords != null && totalRecords > 0 ? ShaUtils.sha(subject, authorityId, sourceId, typeId) : null;
+    return new SubjectBrowseItem().id(id).value(subject).authorityId(authorityId).sourceId(sourceId).typeId(typeId)
       .totalRecords(totalRecords);
   }
 
   public static SubjectBrowseItem subjectBrowseItem(Integer totalRecords, String subject, String authorityId,
                                                     String sourceId, String typeId, boolean isAnchor) {
-    return new SubjectBrowseItem().value(subject).authorityId(authorityId).sourceId(sourceId).typeId(typeId)
-      .totalRecords(totalRecords).isAnchor(isAnchor);
+    return subjectBrowseItem(totalRecords, subject, authorityId, sourceId, typeId).isAnchor(isAnchor);
   }
 
   public static SubjectBrowseItem subjectBrowseItem(String subject) {

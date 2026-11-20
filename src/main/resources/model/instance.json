@@ -746,6 +746,11 @@
       "type": "search",
       "index": "keyword_lowercase",
       "processor": "classificationIdsProcessor"
+    },
+    "subjectId": {
+      "type": "search",
+      "index": "keyword_lowercase",
+      "processor": "subjectIdsProcessor"
     }
   },
   "indexMappings": { }

@@ -525,6 +525,7 @@ does not produce any values, so the following search options will return an empt
 | `normalizedClassificationNumber`       |    term     | `normalizedClassificationNumber == "LCCN"`                               | Matches instances with the given classification number (normalizes case, whitespaces, special characters, supports leading and trailing wildcard) |
 | `normalizedDate1`                      |    term     | `normalizedDate1>=1990`                                                  | Matches instances with the given Date1 (normalizes  alpha 'u' characters)                                                                         |
 | `classificationId`                     |    term     | `classificationId = "c4f60d7413158e9466856f4c0250d91d312f86cf"`          | Matches instances with the given classificationId                                                                                                 |
+| `subjectId`                            |    term     | `subjectId = "a94a8fe5ccb19ba61c4c0873d391e987982fbbd3"`                 | Matches instances with the given subjectId (id from the subject browse response)                                                                  |
 
 ##### Holdings search options
 

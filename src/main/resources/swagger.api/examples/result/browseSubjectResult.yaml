@@ -3,15 +3,18 @@ value:
   prev: "Biology"
   next: "Physics"
   items:
-    - value: "Biology"
+    - id: "a94a8fe5ccb19ba61c4c0873d391e987982fbbd3"
+      value: "Biology"
       isAnchor: true
       totalRecords: 5
       authorityId: "d20569a7-9bba-44dd-9ad5-6f8f1d24ee1f"
-    - value: "Chemistry"
+    - id: "a1b2c3d4e5f60718293a4b5c6d7e8f9012345678"
+      value: "Chemistry"
       isAnchor: false
       totalRecords: 5
       authorityId: "11110000-fcf6-45cc-b6da-4420a61ef72c"
-    - value: "Physics"
+    - id: "0f1e2d3c4b5a69788796a5b4c3d2e1f001234567"
+      value: "Physics"
       isAnchor: false
       totalRecords: 5
       authorityId: "5fab345a-30a4-4aee-8667-1e33d4627ce9"

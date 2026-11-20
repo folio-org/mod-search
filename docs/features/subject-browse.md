@@ -1,7 +1,7 @@
 ---
 feature_id: subject-browse
 title: Subject Browse
-updated: 2026-05-25
+updated: 2026-11-20
 ---
 
 # Browse Subjects
@@ -36,6 +36,7 @@ Subject browsing gives users a way to explore the catalogue by topic without nee
 
 ### Response semantics
 - `totalRecords` per item is the sum of instance counts across all sub-resources visible to the requesting tenant (consortium-aware).
+- `id` per item is a SHA-1 of `value|authorityId|sourceId|typeId` (stable across tenants). It can be passed as `subjectId` to `/search/instances` (`subjectId == "<id>"`) to find the instances behind a browse item. The anchor placeholder item has no `id`. A reindex is required to populate `id` and `subjectId` for existing data.
 
 ### Constraints and validation
 - The feature can be disabled via `BROWSE_SUBJECTS_ENABLED`.

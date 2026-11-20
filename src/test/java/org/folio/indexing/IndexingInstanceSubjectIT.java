@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Subject;
+import org.folio.search.utils.ShaUtils;
 import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.Test;
 
@@ -88,6 +89,7 @@ public abstract class IndexingInstanceSubjectIT extends BaseSharedTest {
     assertThat(sourceAsMap)
       .as("Subject document should contain expected indexed fields")
       .contains(
+        entry("id", ShaUtils.sha(value, authorityId, sourceId, typeId)),
         entry("value", value),
         entry("authorityId", authorityId),
         entry("sourceId", sourceId),

@@ -69,6 +69,7 @@ public abstract class SearchInstanceIT extends BaseSharedTest {
     "issn = {value}, 03178472",
     "oclc = {value}, 0262012103",
     "lccn = {value}, canceledlccn",
+    "subjectId == {value}, unknown-subject-id",
     "(keyword all {value}), 0747-0088"
   })
   @DisplayName("can search by instances (nothing found)")

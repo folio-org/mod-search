@@ -3,7 +3,7 @@
 * Description ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))
 
 ### New APIs versions
-* Provides `API_NAME vX.Y`
+* Provides `browse-inventory v1.1`
 * Requires `API_NAME vX.Y`
 
 ### Features
@@ -19,6 +19,8 @@
   * Implement Linked Data Authority index and search API ([MSEARCH-1246](https://folio-org.atlassian.net/browse/MSEARCH-1246))
 * **Call Number Browse**
   * Ignore spaces in SuDoc sorting algorithm ([MSEARCH-1005](https://folio-org.atlassian.net/browse/MSEARCH-1005))
+* **Subject Browse**
+  * Add subject id to subject browse response and support instance search by `subjectId` ([MSEARCH-872](https://folio-org.atlassian.net/browse/MSEARCH-872))
 
 ### Bug fixes
 * Add retry for search operations ([MSEARCH-1194](https://folio-org.atlassian.net/browse/MSEARCH-1194))

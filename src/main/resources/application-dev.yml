@@ -1,6 +1,6 @@
 # Overrides for local development on top of application.yml
 spring:
-  opensearch:
+  search-engine:
     compression-enabled: false
   docker:
     compose:

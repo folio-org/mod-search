@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component;
 
 @Data
 @Component
-@ConfigurationProperties("spring.opensearch")
+@ConfigurationProperties("spring.search-engine")
 public class OpensearchProperties {
 
   private List<String> uris = new ArrayList<>(Collections.singletonList("http://localhost:9200"));

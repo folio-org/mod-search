@@ -1,112 +1,71 @@
 package org.folio.api.browse;
 
-import static java.util.function.Function.identity;
+import static org.apache.commons.collections4.MapUtils.getString;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.await;
-import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
-import static org.awaitility.Durations.ONE_MINUTE;
 import static org.folio.search.domain.dto.RecordType.CALL_NUMBERS;
-import static org.folio.search.domain.dto.TenantConfiguredFeature.BROWSE_CALL_NUMBERS;
+import static org.folio.search.utils.CallNumberUtils.calculateFullCallNumber;
 import static org.folio.search.utils.SearchUtils.ALL_RECORDS_QUERY;
-import static org.folio.search.utils.SearchUtils.SOURCE_CONSORTIUM_PREFIX;
+import static org.folio.search.utils.SearchUtils.ID_FIELD;
 import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.support.TestConstants.MEMBER2_TENANT_ID;
 import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
-import static org.folio.support.base.ApiEndpoints.browseConfigPath;
 import static org.folio.support.base.ApiEndpoints.instanceCallNumberBrowsePath;
-import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.support.base.ApiEndpoints.recordFacetsPath;
-import static org.folio.support.utils.CallNumberTestData.CallNumberTestDataRecord;
-import static org.folio.support.utils.CallNumberTestData.CallNumberTypeId.LC;
-import static org.folio.support.utils.CallNumberTestData.callNumbers;
-import static org.folio.support.utils.CallNumberTestData.cnEmptyBrowseItem;
-import static org.folio.support.utils.CallNumberTestData.instance;
-import static org.folio.support.utils.CallNumberTestData.instances;
-import static org.folio.support.utils.CallNumberTestData.locations;
+import static org.folio.support.sample.SampleInstances.getSemanticWeb;
+import static org.folio.support.testdata.ConsortiumTestDataManager.CALL_NUMBER_LC_TYPE_ID;
+import static org.folio.support.testdata.ConsortiumTestDataManager.LOCAL_INSTANCE_ID;
+import static org.folio.support.testdata.ConsortiumTestDataManager.MEMBER2_LOCATION;
+import static org.folio.support.testdata.ConsortiumTestDataManager.SHARED_INSTANCE_ID;
+import static org.folio.support.testdata.ConsortiumTestDataManager.instances;
+import static org.folio.support.testdata.ConsortiumTestDataManager.itemsOfInstance;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
 import static org.folio.support.utils.TestUtils.array;
+import static org.folio.support.utils.TestUtils.cnBrowseItem;
+import static org.folio.support.utils.TestUtils.cnBrowseResult;
+import static org.folio.support.utils.TestUtils.cnEmptyBrowseItem;
 import static org.folio.support.utils.TestUtils.facet;
 import static org.folio.support.utils.TestUtils.facetItem;
 import static org.folio.support.utils.TestUtils.mapOf;
-import static org.folio.support.utils.TestUtils.mockCallNumberTypes;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.folio.search.domain.dto.BrowseConfig;
 import org.folio.search.domain.dto.BrowseOptionType;
-import org.folio.search.domain.dto.BrowseType;
 import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.CallNumberBrowseResult;
 import org.folio.search.domain.dto.Facet;
+import org.folio.search.domain.dto.FacetItem;
 import org.folio.search.domain.dto.FacetResult;
-import org.folio.search.domain.dto.Instance;
-import org.folio.search.domain.dto.ShelvingOrderAlgorithmType;
-import org.folio.search.model.index.CallNumberResource;
-import org.folio.search.model.types.ReindexEntityType;
-import org.folio.search.model.types.ResourceType;
-import org.folio.search.service.reindex.jdbc.SubResourcesLockRepository;
-import org.folio.spring.testing.type.IntegrationTest;
+import org.folio.search.domain.dto.Item;
+import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
 import org.folio.support.base.BaseConsortiumIntegrationTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.TestPropertySource;
 
-@IntegrationTest
-@TestPropertySource(properties = {
-  "folio.search-config.indexing.instance-children-index-enabled=true",
-  "folio.system-user.enabled=false"
-})
-class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
+public abstract class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
 
   private static final String LOCATION_FACET = "instances.locationId";
   private static final String TENANT_FACET = "instances.tenantId";
   private static final String SHARED_FACET = "instances.shared";
-  private static final List<Instance> INSTANCES = instances();
-  private static final String MEMBER2_LOCATION = UUID.randomUUID().toString();
 
-  @BeforeAll
-  static void prepare(@Autowired SubResourcesLockRepository lockRepository) {
-    enableTenant(CENTRAL_TENANT_ID);
-    enableTenant(MEMBER_TENANT_ID);
-    enableTenant(MEMBER2_TENANT_ID);
+  // call number types of the call number browse fixtures
+  private static final String DEWEY_TYPE_ID = "0b5d15ad-1738-4e9e-a9c1-e972e95ce71c";
+  private static final String NLM_TYPE_ID = "530b84ea-4965-4cda-9d9e-6a5ef91fd21e";
+  private static final String OTHER_TYPE_ID = "cf74a451-41ad-49aa-aa2b-21d2d2f2e235";
 
-    enableFeature(CENTRAL_TENANT_ID, BROWSE_CALL_NUMBERS);
+  // item locations of the call number browse fixtures
+  private static final String SPECIAL_COLLECTIONS_LOCATION = "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7";
+  private static final String RARE_BOOKS_LOCATION = "b777f3a4-4372-4792-a87d-8e8f177eab10";
+  private static final String ANNEX_STACKS_LOCATION = "0d106980-1789-42ac-b355-a6c7a74ddea3";
 
-    // Lock all required resources (call numbers, items, and instances) for the duration of the
-    // test data setup, so the scheduled sub-resources processing does not race with it.
-    withLockedSubResource(lockRepository, ReindexEntityType.CALL_NUMBER, CENTRAL_TENANT_ID, () ->
-      withLockedSubResource(lockRepository, ReindexEntityType.ITEM, CENTRAL_TENANT_ID, () ->
-        withLockedSubResource(lockRepository, ReindexEntityType.INSTANCE, CENTRAL_TENANT_ID,
-          BrowseCallNumberConsortiumIT::saveTestRecords)));
-
-    await().atMost(ONE_MINUTE).pollInterval(ONE_HUNDRED_MILLISECONDS).untilAsserted(() -> {
-      var counted = countIndexDocument(ResourceType.INSTANCE_CALL_NUMBER, CENTRAL_TENANT_ID);
-      assertThat(counted).isEqualTo(100);
-    });
-  }
-
-  @AfterAll
-  static void cleanUp() {
-    removeTenant();
-  }
-
-  @BeforeEach
-  void setUp() {
-    updateLcConfig(List.of(UUID.fromString(LC.getId())));
-  }
+  private static final String ANCHOR_CALL_NUMBER = "TA357 .A78 2010";
 
   @MethodSource("callNumberBrowsingDataProvider")
   @DisplayName("browseByCallNumber_parameterized")
@@ -119,6 +78,18 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
       .param(LIMIT_PARAM, String.valueOf(limit));
     var actual = parseResponse(doGet(request, tenant), CallNumberBrowseResult.class);
     assertThat(actual).isEqualTo(expected);
+  }
+
+  @Test
+  void browseByCallNumber_forward_fromMemberTenant_returnsLocalInstanceCallNumbers() {
+    var request = get(instanceCallNumberBrowsePath(BrowseOptionType.ALL))
+      .param("expandAll", "true")
+      .param(QUERY_PARAM, prepareQuery("fullCallNumber >= {value}", "\"Twilight Breaking pt. 1\""))
+      .param(LIMIT_PARAM, "2");
+    var actual = parseResponse(doGet(request, MEMBER_TENANT_ID), CallNumberBrowseResult.class);
+    assertThat(actual.getItems()).containsExactly(
+      cnBrowseItem("Twilight Breaking", "DVD", "pt. 1", OTHER_TYPE_ID, 1, "Instance 35"),
+      cnBrowseItem("WA 900.AA1 I55h 1996", NLM_TYPE_ID, 1, "Instance 35"));
   }
 
   @Test
@@ -136,13 +107,15 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
   void browseByCallNumber_fromCentralTenant_withTenantIdFacet_sameCallNumberInMemberTenantOfSharedInstance() {
     var request = get(instanceCallNumberBrowsePath(BrowseOptionType.ALL))
       .param("expandAll", "true")
-      .param(QUERY_PARAM, "(fullCallNumber>=\"TA357 .A78 2010\" or fullCallNumber<\"TA357 .A78 2010\") "
+      .param(QUERY_PARAM, "(fullCallNumber>=\"%1$s\" or fullCallNumber<\"%1$s\") ".formatted(ANCHOR_CALL_NUMBER)
                           + "and instances.tenantId==(\"%s\")".formatted(MEMBER2_TENANT_ID))
       .param(LIMIT_PARAM, String.valueOf(10));
     var actual = parseResponse(doGet(request, CENTRAL_TENANT_ID), CallNumberBrowseResult.class);
-    assertThat(actual).isEqualTo(cnBrowseResult(null, null, 2,
-      List.of(cnBrowseItem(callNumbers().get(1).callNumber(), 0),
-        cnBrowseItem(callNumbers().getFirst().callNumber(), 0, 1, true))));
+    // member2 also owns an item of the shared slice instance, so its call number is listed as well
+    assertThat(actual).isEqualTo(cnBrowseResult(null, null, 3, List.of(
+      cnBrowseItem("664.051 4", DEWEY_TYPE_ID, 1, "Instance 1"),
+      cnBrowseItem(ANCHOR_CALL_NUMBER, CALL_NUMBER_LC_TYPE_ID, 1, "Instance 1", true),
+      fixtureCnBrowseItem(SHARED_INSTANCE_ID))));
   }
 
   @MethodSource("facetQueriesProvider")
@@ -161,127 +134,148 @@ class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegrationTest {
     });
   }
 
-  private static void saveTestRecords() {
-    var centralInstances = INSTANCES.subList(0, 30);
-    saveRecords(CENTRAL_TENANT_ID, instanceSearchPath(), centralInstances, centralInstances.size(),
-      instance -> inventoryApi.createInstance(CENTRAL_TENANT_ID, instance));
-
-    var memberInstances = INSTANCES.subList(30, INSTANCES.size());
-    saveRecords(MEMBER_TENANT_ID, instanceSearchPath(), memberInstances, INSTANCES.size(),
-      instance -> inventoryApi.createInstance(MEMBER_TENANT_ID, instance));
-
-    var instance1 = centralInstances.getFirst();
-    instance1.setSource(SOURCE_CONSORTIUM_PREFIX + "FOLIO");
-    instance1.getItems().forEach(item -> item.setId(UUID.randomUUID().toString()));
-    saveRecords(MEMBER_TENANT_ID, instanceSearchPath(), List.of(instance1), INSTANCES.size(),
-      instance -> inventoryApi.createInstance(MEMBER_TENANT_ID, instance));
-
-    var dataRecord = new CallNumberTestDataRecord(callNumbers().getLast().callNumber(), MEMBER2_LOCATION);
-    var member2Instance = instance("51", List.of(dataRecord));
-    instance1.getItems().forEach(item -> item.setId(UUID.randomUUID().toString()));
-    saveRecords(MEMBER2_TENANT_ID, instanceSearchPath(), List.of(member2Instance, instance1),
-      centralInstances.size() + 1,
-      instance -> inventoryApi.createInstance(MEMBER2_TENANT_ID, instance));
-  }
-
   private static Stream<Arguments> callNumberBrowsingDataProvider() {
     var aroundQuery = "fullCallNumber >= {value} or fullCallNumber < {value}";
 
-    var callNumbers = callNumbers().stream()
-      .map(CallNumberTestDataRecord::callNumber)
-      .collect(Collectors.toMap(callNumberResource -> Integer.parseInt(callNumberResource.id()), identity()));
-
     return Stream.of(
-      arguments(aroundQuery, CENTRAL_TENANT_ID, BrowseOptionType.ALL, callNumbers.get(1).fullCallNumber(), 5,
-        cnBrowseResult(callNumbers.get(35).fullCallNumber(), callNumbers.get(43).fullCallNumber(), 60, List.of(
-          cnBrowseItem(callNumbers.get(35), 18),
-          cnBrowseItem(callNumbers.get(25), 15),
-          cnBrowseItem(callNumbers.get(1), 0, 3, true),
-          cnBrowseItem(callNumbers.get(33), 17),
-          cnBrowseItem(callNumbers.get(43), 23)
+      arguments(aroundQuery, CENTRAL_TENANT_ID, BrowseOptionType.ALL, ANCHOR_CALL_NUMBER, 5,
+        cnBrowseResult("Rowling", "WC 450 R47 2012", 61, List.of(
+          cnBrowseItem("Rowling", "jFICTION", null, OTHER_TYPE_ID, 1, "Instance 19"),
+          cnBrowseItem("SYLY-12", OTHER_TYPE_ID, 1, "Instance 16"),
+          cnBrowseItem(ANCHOR_CALL_NUMBER, CALL_NUMBER_LC_TYPE_ID, 3, null, true),
+          cnBrowseItem("WB 100 M4891", NLM_TYPE_ID, 1, "Instance 18"),
+          cnBrowseItem("WC 450 R47 2012", NLM_TYPE_ID, 1, "Instance 24")
         ))),
 
-      arguments(aroundQuery, MEMBER_TENANT_ID, BrowseOptionType.ALL, callNumbers.get(1).fullCallNumber(), 5,
-        cnBrowseResult(callNumbers.get(91).fullCallNumber(), callNumbers.get(68).fullCallNumber(), 100, List.of(
-          cnBrowseItem(callNumbers.get(91), 45),
-          cnBrowseItem(callNumbers.get(25), 15),
-          cnBrowseItem(callNumbers.get(1), 0, 3, true),
-          cnBrowseItem(callNumbers.get(70), 34),
-          cnBrowseItem(callNumbers.get(68), 34)
+      arguments(aroundQuery, MEMBER_TENANT_ID, BrowseOptionType.ALL, ANCHOR_CALL_NUMBER, 5,
+        cnBrowseResult("SDD 66727", semanticWebCnBrowseItem("90000").getFullCallNumber(), 105, List.of(
+          cnBrowseItem("SDD 66727", CALL_NUMBER_LC_TYPE_ID, 1, "Instance 46"),
+          cnBrowseItem("SYLY-12", OTHER_TYPE_ID, 1, "Instance 16"),
+          cnBrowseItem(ANCHOR_CALL_NUMBER, CALL_NUMBER_LC_TYPE_ID, 3, null, true),
+          semanticWebCnBrowseItem("10101"),
+          semanticWebCnBrowseItem("90000")
         )))
     );
   }
 
-  private static CallNumberBrowseResult cnBrowseResult(String prev, String next, int total,
-                                                       List<CallNumberBrowseItem> items) {
-    return new CallNumberBrowseResult().prev(prev).next(next).items(items).totalRecords(total);
-  }
-
-  private static CallNumberBrowseItem cnBrowseItem(CallNumberResource resource, int instanceIndex) {
-    return cnBrowseItem(resource, instanceIndex, 1, null);
-  }
-
-  private static CallNumberBrowseItem cnBrowseItem(CallNumberResource resource, int instanceIndex, int count,
-                                                   Boolean isAnchor) {
-    return new CallNumberBrowseItem()
-      .fullCallNumber(resource.fullCallNumber())
-      .callNumber(resource.callNumber())
-      .callNumberPrefix(resource.callNumberPrefix())
-      .callNumberSuffix(resource.callNumberSuffix())
-      .callNumberTypeId(resource.callNumberTypeId())
-      .instanceTitle(count == 1 ? INSTANCES.get(instanceIndex).getTitle() : null)
-      .totalRecords(count)
-      .isAnchor(isAnchor);
-  }
-
   private static Stream<Arguments> facetQueriesProvider() {
-    var locations = locations();
     return Stream.of(
       arguments(CENTRAL_TENANT_ID, ALL_RECORDS_QUERY, array(LOCATION_FACET),
-        expectedLocationFacet(locations, 27, 20, 13, false)),
+        new ExpectedLocations(27, 20, 13).fixtureCallNumber(SHARED_INSTANCE_ID).toFacets()),
       arguments(CENTRAL_TENANT_ID, ALL_RECORDS_QUERY, array(TENANT_FACET), mapOf(TENANT_FACET,
-        facet(facetItem(CENTRAL_TENANT_ID, 60), facetItem(MEMBER_TENANT_ID, 2), facetItem(MEMBER2_TENANT_ID, 2)))),
+        facet(facetItem(CENTRAL_TENANT_ID, 61), facetItem(MEMBER_TENANT_ID, 3), facetItem(MEMBER2_TENANT_ID, 3)))),
       arguments(CENTRAL_TENANT_ID, "instances.tenantId==" + MEMBER2_TENANT_ID, array(TENANT_FACET), mapOf(TENANT_FACET,
-        facet(facetItem(CENTRAL_TENANT_ID, 60), facetItem(MEMBER_TENANT_ID, 2), facetItem(MEMBER2_TENANT_ID, 2)))),
-      arguments(CENTRAL_TENANT_ID, "callNumberTypeId=\"" + LC.getId() + "\"", array(LOCATION_FACET),
-        expectedLocationFacet(locations, 6, 4, 2, false)),
-      arguments(MEMBER_TENANT_ID, ALL_RECORDS_QUERY, array(LOCATION_FACET),
-        expectedLocationFacet(locations, 42, 34, 24, true)),
+        facet(facetItem(CENTRAL_TENANT_ID, 61), facetItem(MEMBER_TENANT_ID, 3), facetItem(MEMBER2_TENANT_ID, 3)))),
+      arguments(CENTRAL_TENANT_ID, "callNumberTypeId=\"" + CALL_NUMBER_LC_TYPE_ID + "\"", array(LOCATION_FACET),
+        new ExpectedLocations(6, 4, 2).toFacets()),
+      arguments(MEMBER_TENANT_ID, ALL_RECORDS_QUERY, array(LOCATION_FACET), allMemberLocationFacets()),
       arguments(MEMBER_TENANT_ID, ALL_RECORDS_QUERY, array(TENANT_FACET), mapOf(TENANT_FACET,
-        facet(facetItem(CENTRAL_TENANT_ID, 60), facetItem(MEMBER_TENANT_ID, 42),
-          facetItem(MEMBER2_TENANT_ID, 3)))),
+        facet(facetItem(CENTRAL_TENANT_ID, 61), facetItem(MEMBER_TENANT_ID, 47),
+          facetItem(MEMBER2_TENANT_ID, 4)))),
       arguments(MEMBER_TENANT_ID, "instances.shared==false", array(LOCATION_FACET),
-        expectedLocationFacet(locations, 15, 14, 11, true)),
+        new ExpectedLocations(15, 14, 11).memberLocalRecords().fixtureCallNumber(LOCAL_INSTANCE_ID).toFacets()),
       arguments(MEMBER_TENANT_ID, "instances.shared==false", array(TENANT_FACET), mapOf(TENANT_FACET,
-        facet(facetItem(MEMBER_TENANT_ID, 40), facetItem(MEMBER2_TENANT_ID, 1)))),
+        facet(facetItem(MEMBER_TENANT_ID, 44), facetItem(MEMBER2_TENANT_ID, 1)))),
       arguments(MEMBER_TENANT_ID, "instances.locationId==" + MEMBER2_LOCATION, array(SHARED_FACET, LOCATION_FACET),
-        mapOf(SHARED_FACET, facet(facetItem("false", 1))),
-        mapOf(LOCATION_FACET, expectedLocationFacet(locations, 42, 34, 24, true)))
+        mapOf(SHARED_FACET, facet(facetItem("false", 1)), LOCATION_FACET,
+          allMemberLocationFacets().get(LOCATION_FACET)))
     );
   }
 
-  private static Map<String, Facet> expectedLocationFacet(Map<Integer, String> locations,
-                                                          int totalRecords1, int totalRecords2, int totalRecords3,
-                                                          boolean includeMember2) {
-    var facet = facet(
-      facetItem(locations.get(1), totalRecords1),
-      facetItem(locations.get(2), totalRecords2),
-      facetItem(locations.get(3), totalRecords3)
-    );
-    if (includeMember2) {
-      facet.addValuesItem(facetItem(MEMBER2_LOCATION, 1));
+  /**
+   * Location facet of all call numbers visible from the member tenant (the facet ignores its own filter).
+   */
+  private static Map<String, Facet> allMemberLocationFacets() {
+    return new ExpectedLocations(42, 34, 24).memberLocalRecords()
+      .fixtureCallNumber(SHARED_INSTANCE_ID).fixtureCallNumber(LOCAL_INSTANCE_ID).toFacets();
+  }
+
+  /**
+   * Browse item of the single call number of a consortium search slice instance, built from its fixture records.
+   */
+  private static CallNumberBrowseItem fixtureCnBrowseItem(String instanceId) {
+    var callNumber = itemsOfInstance(instanceId).stream()
+      .map(item -> (Map<?, ?>) item.inventoryRecord().get("effectiveCallNumberComponents"))
+      .findFirst().orElseThrow();
+    var title = instances(CENTRAL_TENANT_ID).stream()
+      .filter(instance -> instanceId.equals(getString(instance, ID_FIELD)))
+      .map(instance -> getString(instance, "title"))
+      .findFirst().orElseThrow();
+    return new CallNumberBrowseItem()
+      .fullCallNumber((String) callNumber.get("callNumber"))
+      .callNumber((String) callNumber.get("callNumber"))
+      .callNumberTypeId((String) callNumber.get("typeId"))
+      .instanceTitle(title)
+      .totalRecords(1);
+  }
+
+  /**
+   * Browse item of the call number of the semantic web sample item with the given barcode.
+   */
+  private static CallNumberBrowseItem semanticWebCnBrowseItem(String barcode) {
+    var semanticWeb = getSemanticWeb();
+    var components = semanticWeb.getItems().stream()
+      .filter(item -> barcode.equals(item.getBarcode()))
+      .map(Item::getEffectiveCallNumberComponents)
+      .findFirst().orElseThrow();
+    return new CallNumberBrowseItem()
+      .fullCallNumber(fullCallNumber(components))
+      .callNumber(components.getCallNumber())
+      .callNumberPrefix(components.getPrefix())
+      .callNumberSuffix(components.getSuffix())
+      .callNumberTypeId(components.getTypeId())
+      .instanceTitle(semanticWeb.getTitle())
+      .totalRecords(1);
+  }
+
+  private static String fullCallNumber(ItemEffectiveCallNumberComponents components) {
+    return calculateFullCallNumber(components.getCallNumber(), components.getSuffix());
+  }
+
+  /**
+   * Expected values of the call number location facet: number of call number records per location.
+   */
+  private static final class ExpectedLocations {
+
+    private final Map<String, Integer> counts = new LinkedHashMap<>();
+
+    /**
+     * Starts with the three locations of the call number browse fixtures.
+     */
+    private ExpectedLocations(int specialCollections, int rareBooks, int annexStacks) {
+      add(SPECIAL_COLLECTIONS_LOCATION, specialCollections);
+      add(RARE_BOOKS_LOCATION, rareBooks);
+      add(ANNEX_STACKS_LOCATION, annexStacks);
     }
-    return mapOf(LOCATION_FACET, facet);
-  }
 
-  private static void updateLcConfig(List<UUID> typeIds) {
-    var config = new BrowseConfig()
-      .id(BrowseOptionType.LC)
-      .shelvingAlgorithm(ShelvingOrderAlgorithmType.LC)
-      .typeIds(typeIds);
+    /**
+     * Adds the records only visible from the member tenant: the member2 location and the item locations of the
+     * semantic web instance, which is local to the member tenant.
+     */
+    private ExpectedLocations memberLocalRecords() {
+      add(MEMBER2_LOCATION, 1);
+      getSemanticWeb().getItems().forEach(item -> add(item.getEffectiveLocationId(), 1));
+      return this;
+    }
 
-    var stub = mockCallNumberTypes(okapi.wireMockServer(), typeIds.toArray(new UUID[0]));
-    doPut(browseConfigPath(BrowseType.INSTANCE_CALL_NUMBER, BrowseOptionType.LC), CENTRAL_TENANT_ID, config);
-    okapi.wireMockServer().removeStub(stub);
+    /**
+     * Adds the call number of a consortium search slice instance: all its items share one call number, so it is one
+     * record, counted once for every location that holds its items.
+     */
+    private ExpectedLocations fixtureCallNumber(String instanceId) {
+      itemsOfInstance(instanceId).stream().map(item -> getString(item.inventoryRecord(), "effectiveLocationId"))
+        .distinct().forEach(locationId -> add(locationId, 1));
+      return this;
+    }
+
+    private void add(String locationId, int count) {
+      counts.merge(locationId, count, Integer::sum);
+    }
+
+    private Map<String, Facet> toFacets() {
+      return mapOf(LOCATION_FACET, facet(counts.entrySet().stream()
+        .map(entry -> facetItem(entry.getKey(), entry.getValue()))
+        .toArray(FacetItem[]::new)));
+    }
   }
 }

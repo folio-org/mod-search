@@ -4,9 +4,13 @@ import.py — Seed test-data.db from instances.json, holdings.json, items.json, 
 Run from any directory. Always recreates DB from scratch.
 
 Usage:
-    python manage/import.py
+    python manage/import.py                        # test-data/*.json        -> manage/test-data.db
+    python manage/import.py --data-dir ecs/member  # test-data/ecs/member/*.json -> manage/test-data-ecs-member.db
+
+authorities.json is optional (the ECS tenant folders have none).
 """
 
+import argparse
 import json
 import sqlite3
 from pathlib import Path
@@ -73,6 +77,10 @@ _REF_NAMES: dict[str, dict[str, str]] = {
         "eb003b9d-86f2-4bdf-9f8e-28851122617d": "Bound with",
     },
     "ref_call_number_types": {
+        # test-only call number types of the ECS call number browse fixtures (BrowseCallNumberConsortiumIT)
+        "cbc422b0-b71a-4d2d-9a2a-9fcc56a57a3e": "LC (call number browse tests)",
+        "0b5d15ad-1738-4e9e-a9c1-e972e95ce71c": "Dewey (call number browse tests)",
+        "530b84ea-4965-4cda-9d9e-6a5ef91fd21e": "NLM (call number browse tests)",
         "03dd64d0-5626-4ecd-8ece-4531e0069f35": "Dewey Decimal classification",
         "054d460d-d6b9-4469-9e37-7a78a2266655": "National Library of Medicine classification",
         "0b5d15ad-7f08-45f1-8504-7bab31a2b4e5": "NLM",
@@ -153,6 +161,8 @@ _REF_NAMES: dict[str, dict[str, str]] = {
         "9d968396-0cce-4e9f-8867-c4d04c01f535": "Uniform Title",
     },
     "ref_locations": {
+        # ECS data set: location used only by the member2 tenant
+        "b6bb6323-9db6-3df8-8fa8-271994a7afca": "Member2 Main Stacks",
         "0d106980-1789-42ac-b355-a6c7a74ddea3": "Annex Stacks",
         "184aae84-a5bf-4c6a-85ba-4a7c73026cd5": "Online",
         "4fdca025-1629-4688-aeb7-9c5fe5c73549": "Reference Room",
@@ -652,9 +662,22 @@ def import_authorities(cur, records):
             )
 
 
+def resolve_paths(data_dir_arg):
+    """Returns the JSON folder and its DB file; each data folder gets its own DB next to this script."""
+    data_dir = (DATA_DIR / data_dir_arg).resolve()
+    name = data_dir.relative_to(DATA_DIR.resolve()).as_posix()
+    db_path = DB_PATH if name == "." else MANAGE_DIR / f"test-data-{name.replace('/', '-')}.db"
+    return data_dir, db_path
+
+
 def main():
-    DB_PATH.unlink(missing_ok=True)
-    con = sqlite3.connect(DB_PATH)
+    parser = argparse.ArgumentParser(description="Seed a SQLite DB from the test-data JSON files.")
+    parser.add_argument("--data-dir", default=".",
+                        help="folder with the JSON files, relative to test-data/ (default: test-data/ itself)")
+    data_dir, db_path = resolve_paths(parser.parse_args().data_dir)
+
+    db_path.unlink(missing_ok=True)
+    con = sqlite3.connect(db_path)
     con.execute("PRAGMA foreign_keys = ON")
 
     # Apply schema
@@ -692,10 +715,11 @@ def main():
 
     cur = con.cursor()
 
-    instances   = json.loads((DATA_DIR / "instances.json").read_text())
-    holdings    = json.loads((DATA_DIR / "holdings.json").read_text())
-    items       = json.loads((DATA_DIR / "items.json").read_text())
-    authorities = json.loads((DATA_DIR / "authorities.json").read_text())
+    instances   = json.loads((data_dir / "instances.json").read_text())
+    holdings    = json.loads((data_dir / "holdings.json").read_text())
+    items       = json.loads((data_dir / "items.json").read_text())
+    authorities_file = data_dir / "authorities.json"
+    authorities = json.loads(authorities_file.read_text()) if authorities_file.exists() else []
 
     import_instances(cur, instances)
     import_holdings(cur, holdings)
@@ -706,7 +730,7 @@ def main():
     con.close()
 
     print(f"Imported {len(instances)} instances, {len(holdings)} holdings, "
-          f"{len(items)} items, {len(authorities)} authorities")
+          f"{len(items)} items, {len(authorities)} authorities into {db_path.name}")
 
 
 if __name__ == "__main__":

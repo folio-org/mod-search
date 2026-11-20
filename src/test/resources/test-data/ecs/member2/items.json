@@ -1,0 +1,53 @@
+[
+  {
+    "id": "074b2771-9203-39ed-91b1-9056525c73af",
+    "holdingsRecordId": "a1aa7f7c-8f65-3669-9454-8af4649f2d1b",
+    "instanceId": "5a3d4687-44ef-39f5-9a0b-4d3853211a99",
+    "effectiveCallNumberComponents": {
+      "callNumber": "TA357 .A78 2010",
+      "typeId": "cbc422b0-b71a-4d2d-9a2a-9fcc56a57a3e"
+    },
+    "effectiveLocationId": "65b6c2e9-8a7b-4a10-9b5d-ba1cf0313cd7",
+    "discoverySuppress": false
+  },
+  {
+    "id": "26848e72-32d0-3f6f-97d8-46492c5ebc77",
+    "holdingsRecordId": "b5ebe1ee-019c-37ac-8cb0-81efba6b5e3d",
+    "instanceId": "d81fe9e0-bbc9-352e-bbc2-9df7e14fab83",
+    "effectiveCallNumberComponents": {
+      "callNumber": "15,747-12N-12P",
+      "prefix": "Microfilm ",
+      "typeId": "cf74a451-41ad-49aa-aa2b-21d2d2f2e235"
+    },
+    "effectiveLocationId": "b6bb6323-9db6-3df8-8fa8-271994a7afca",
+    "discoverySuppress": false
+  },
+  {
+    "id": "733953cb-2b2b-3fa6-b742-7412f35399fe",
+    "holdingsRecordId": "a1aa7f7c-8f65-3669-9454-8af4649f2d1b",
+    "instanceId": "5a3d4687-44ef-39f5-9a0b-4d3853211a99",
+    "effectiveCallNumberComponents": {
+      "callNumber": "664.051 4",
+      "typeId": "0b5d15ad-1738-4e9e-a9c1-e972e95ce71c"
+    },
+    "effectiveLocationId": "b777f3a4-4372-4792-a87d-8e8f177eab10",
+    "discoverySuppress": false
+  },
+  {
+    "id": "f2d6b8c0-6e7a-4b8c-9d9e-0f1a2b3c4d56",
+    "holdingsRecordId": "e5c3a7f4-ab69-4dbc-98a2-3f4b5c6d7e83",
+    "instanceId": "4b9c1f3e-7d2a-4e8b-9c61-2f5a8d7e3b10",
+    "hrid": "m2it0000001",
+    "barcode": "M2-0000001",
+    "effectiveCallNumberComponents": {
+      "callNumber": "Z665.2.U6 V37 2023",
+      "typeId": "95467209-6d7b-468b-94df-0f5d7ad2747d"
+    },
+    "status": {
+      "name": "Available"
+    },
+    "materialTypeId": "1a54b431-2e4f-452d-9cae-9cee66c9a892",
+    "effectiveLocationId": "b241764c-1466-4e1d-a028-1a3684a5da87",
+    "discoverySuppress": false
+  }
+]

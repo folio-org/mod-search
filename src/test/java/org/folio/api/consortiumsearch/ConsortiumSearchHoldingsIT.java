@@ -1,19 +1,24 @@
 package org.folio.api.consortiumsearch;
 
 import static java.lang.String.format;
+import static org.apache.commons.collections4.MapUtils.getBooleanValue;
+import static org.apache.commons.collections4.MapUtils.getString;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.api.consortiumsearch.ConsortiumSearchItemsIT.WRONG_SIZE_MSG_TEMPLATE;
 import static org.folio.search.model.Pair.pair;
 import static org.folio.search.utils.SearchResponseHelper.REQUEST_NOT_ALLOWED_MSG;
 import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
+import static org.folio.support.TestConstants.MEMBER2_TENANT_ID;
 import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.consortiumBatchHoldingsSearchPath;
 import static org.folio.support.base.ApiEndpoints.consortiumHoldingSearchPath;
 import static org.folio.support.base.ApiEndpoints.consortiumHoldingsSearchPath;
-import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.support.sample.SampleInstances.getSemanticWeb;
 import static org.folio.support.sample.SampleInstances.getSemanticWebId;
-import static org.folio.support.sample.SampleInstances.getSemanticWebMatchers;
+import static org.folio.support.testdata.ConsortiumTestDataManager.SHARED_INSTANCE_ID;
+import static org.folio.support.testdata.ConsortiumTestDataManager.holdings;
+import static org.folio.support.testdata.ConsortiumTestDataManager.holdingsCount;
+import static org.folio.support.testdata.ConsortiumTestDataManager.holdingsOfInstance;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -22,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -30,37 +36,64 @@ import org.folio.search.domain.dto.ConsortiumHolding;
 import org.folio.search.domain.dto.ConsortiumHoldingCollection;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.model.Pair;
-import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.BaseConsortiumIntegrationTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
-@IntegrationTest
-class ConsortiumSearchHoldingsIT extends BaseConsortiumIntegrationTest {
+public abstract class ConsortiumSearchHoldingsIT extends BaseConsortiumIntegrationTest {
 
-  @BeforeAll
-  static void prepare() {
-    enableTenant(CENTRAL_TENANT_ID);
-    enableTenant(MEMBER_TENANT_ID);
-    saveRecords(MEMBER_TENANT_ID, instanceSearchPath(), List.of(getSemanticWeb()), 1, getSemanticWebMatchers(),
-      instance -> inventoryApi.createInstance(MEMBER_TENANT_ID, instance));
-  }
-
-  @AfterAll
-  static void cleanUp() {
-    removeTenant();
-  }
+  private static final int PAGE_LIMIT = 100;
 
   @Test
   void doGetConsortiumHoldings_returns200AndRecords() {
-    var result = doGet(consortiumHoldingsSearchPath(), CENTRAL_TENANT_ID);
+    var result = doGet(consortiumHoldingsSearchPath(List.of(pair(LIMIT_PARAM, String.valueOf(PAGE_LIMIT)))),
+      CENTRAL_TENANT_ID);
+    var actual = parseResponse(result, ConsortiumHoldingCollection.class);
+
+    // the shared data set contains holdings of other instances too; the response is limited to one page
+    var allHoldings = Stream.concat(fixtureHoldings(), Stream.of(getExpectedHoldings())).toList();
+    assertThat(actual.getTotalRecords()).isEqualTo(holdingsCount());
+    assertThat(actual.getHoldings())
+      .hasSize(Math.min(holdingsCount(), PAGE_LIMIT))
+      .doesNotHaveDuplicates()
+      .isSubsetOf(allHoldings);
+  }
+
+  @Test
+  void doGetConsortiumHoldings_returns200AndRecords_filteredByInstanceId() {
+    var result = doGet(consortiumHoldingsSearchPath(List.of(pair("instanceId", getSemanticWebId()))),
+      CENTRAL_TENANT_ID);
     var actual = parseResponse(result, ConsortiumHoldingCollection.class);
 
     assertThat(actual.getTotalRecords()).isEqualTo(3);
     assertThat(actual.getHoldings()).containsExactlyInAnyOrder(getExpectedHoldings());
+  }
+
+  @Test
+  void doGetConsortiumHoldings_sharedInstance_returnsHoldingsOfAllTenants() {
+    var result = doGet(consortiumHoldingsSearchPath(List.of(pair("instanceId", SHARED_INSTANCE_ID))),
+      CENTRAL_TENANT_ID);
+    var actual = parseResponse(result, ConsortiumHoldingCollection.class);
+
+    var expected = fixtureHoldings(SHARED_INSTANCE_ID);
+    assertThat(expected).extracting(ConsortiumHolding::getTenantId)
+      .containsExactlyInAnyOrder(CENTRAL_TENANT_ID, MEMBER_TENANT_ID, MEMBER2_TENANT_ID);
+    assertThat(actual.getTotalRecords()).isEqualTo(expected.size());
+    assertThat(actual.getHoldings()).containsExactlyInAnyOrderElementsOf(expected);
+  }
+
+  @Test
+  void doGetConsortiumHoldings_sharedInstance_filteredByTenantId_returnsOnlyThatTenantHoldings() {
+    var queryParams = List.of(pair("instanceId", SHARED_INSTANCE_ID), pair("tenantId", MEMBER2_TENANT_ID));
+    var result = doGet(consortiumHoldingsSearchPath(queryParams), CENTRAL_TENANT_ID);
+    var actual = parseResponse(result, ConsortiumHoldingCollection.class);
+
+    var expected = fixtureHoldings(SHARED_INSTANCE_ID).stream()
+      .filter(holding -> MEMBER2_TENANT_ID.equals(holding.getTenantId()))
+      .toList();
+    assertThat(actual.getTotalRecords()).isEqualTo(1);
+    assertThat(actual.getHoldings()).containsExactlyInAnyOrderElementsOf(expected);
   }
 
   @Test
@@ -244,6 +277,37 @@ class ConsortiumSearchHoldingsIT extends BaseConsortiumIntegrationTest {
         .permanentLocationId(holding.getPermanentLocationId())
         .discoverySuppress(holding.getDiscoverySuppress() != null && holding.getDiscoverySuppress()))
       .toArray(ConsortiumHolding[]::new);
+  }
+
+  /**
+   * Expected consortium holdings of a fixture instance, built from the holdings records of all tenants.
+   */
+  private static List<ConsortiumHolding> fixtureHoldings(String instanceId) {
+    return holdingsOfInstance(instanceId).stream()
+      .map(holding -> toConsortiumHolding(holding.tenantId(), holding.inventoryRecord()))
+      .toList();
+  }
+
+  /**
+   * Expected consortium holdings of the whole JSON data set, built from the holdings records of all tenants.
+   */
+  private static Stream<ConsortiumHolding> fixtureHoldings() {
+    return Stream.of(CENTRAL_TENANT_ID, MEMBER_TENANT_ID, MEMBER2_TENANT_ID)
+      .flatMap(tenantId -> holdings(tenantId).stream().map(holding -> toConsortiumHolding(tenantId, holding)));
+  }
+
+  private static ConsortiumHolding toConsortiumHolding(String tenantId, Map<String, Object> holding) {
+    return new ConsortiumHolding()
+      .id(getString(holding, "id"))
+      .hrid(getString(holding, "hrid"))
+      .tenantId(tenantId)
+      .instanceId(getString(holding, "instanceId"))
+      .callNumberPrefix(getString(holding, "callNumberPrefix"))
+      .callNumber(getString(holding, "callNumber"))
+      .callNumberSuffix(getString(holding, "callNumberSuffix"))
+      .copyNumber(getString(holding, "copyNumber"))
+      .permanentLocationId(getString(holding, "permanentLocationId"))
+      .discoverySuppress(getBooleanValue(holding, "discoverySuppress"));
   }
 
   private ConsortiumHolding[] getExpectedConsolidatedHoldings() {

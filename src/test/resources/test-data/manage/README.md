@@ -4,19 +4,43 @@ SQLite-backed developer tool for managing shared integration-test data.
 
 ## Purpose
 
-All JSON files in the `test-data/` folder are shared test data loaded by `SharedTestDataManager`
-and used by the following integration test suites:
+The JSON files directly in the `test-data/` folder are shared test data loaded by `SharedTestDataManager`
+(into a single tenant by `SearchBrowseSuiteIT`, see below). The consortium (ECS) inventory data in the `ecs/`
+subfolders is loaded by `ConsortiumTestDataManager` (through `EcsInventorySetup#setUp`). They are used by the
+following integration test suites:
 
-- **`SearchBrowseSuiteIT`** — loads all records into a single tenant and runs browse, facet, search, sort,
-  and stream-IDs tests across instances, authorities, call numbers, classifications, contributors,
-  subjects, holdings, items, and linked-data resources.
-- **`SearchBrowseConsortiumSuiteIT`** — loads records into a central tenant and a member tenant and runs
-  consortium search/browse tests for linked-data, locations, libraries, institutions, and campuses.
+- **`SearchBrowseSuiteIT`** — loads the `test-data/*.json` records with `SharedTestDataManager` into a single tenant
+  and runs browse, facet, search, sort, and stream-IDs tests across instances, authorities, call numbers,
+  classifications, contributors, subjects, holdings, items, and linked-data resources.
+- **`SearchBrowseConsortiumSuiteIT`** — uses two data managers:
+  - `SharedTestDataManager` loads linked-data authorities and works, locations, libraries, institutions and campuses
+    (`test-data/*.json`) into the central tenant, and locations, libraries, institutions and campuses into the member
+    tenant (not member2); they back the consortium linked-data, locations, libraries, institutions and campuses
+    search tests.
+  - `ConsortiumTestDataManager` loads the ECS inventory data set from `ecs/` (see [ECS data set](#ecs-data-set-ecs))
+    into the central, member and member2 tenants, through `EcsInventorySetup#setUp`. It backs the ECS inventory tests
+    (call number, classification, contributor and subject browse, consortium holdings/items search, item search over
+    the item index), which run in the same Spring context.
 
-Both test classes share the same Elasticsearch index for the duration of their test run, so any
-change to these JSON files affects all nested test classes inside them.
+  Tenants, browse features and both data sets are set up once in `SearchBrowseConsortiumSuiteIT#setUp`, so new ECS
+  test classes need no tenant or data setup of their own. Like `SearchBrowseSuiteIT`, it enables the item
+  index (`item-index-enabled=true`), so both suites have the same properties and share one Spring context.
+- **`BrowseCallNumberFromItemsConsortiumIT`** — runs the ECS call number browse tests with call numbers built from
+  the item index. Its properties change how the module indexes call numbers, so it has its own Spring context and
+  tenants. It uses only `ConsortiumTestDataManager` and loads the same `ecs/` data set with
+  `EcsInventorySetup#setUp` (no `test-data/*.json` files), so the expectations are the same.
 
-The full set of JSON files consumed by both suites:
+Each of these classes loads the data once and shares it (in the same indexes) with all its nested test classes
+for the duration of its run, so any change to these JSON files affects all of them.
+
+The indexing suites (`IndexingSuiteIT`, `IndexingConsortiumSuiteIT`) and the item indexing/reindex tests
+(`IndexingItemIT`, `IndexingItemConsortiumIT`, `*RecordsReindex*IT`) do not use this data: they create and change
+their own records, scope their assertions to them, and set up their own tenants. Both indexing suites set up their
+tenants once and delete the indexed instance and sub-resource documents after each test. Read-only item search checks belong in the suites
+(`SearchInventoryItemIT`, `SearchInventoryItemConsortiumIT`), not in these classes.
+
+The full set of `test-data/` JSON files consumed through `SharedTestDataManager` by `SearchBrowseSuiteIT` and
+`SearchBrowseConsortiumSuiteIT` (the latter only the linked-data, location, library, institution and campus files):
 
 | File                           | Resource type           |
 |--------------------------------|-------------------------|
@@ -97,13 +121,14 @@ Then: `python manage/export.py` and commit the JSON files.
 
 ## ⚠️ Updating sub-resource counts after data changes
 
-`SearchBrowseIT` verifies the number of derived sub-resource documents that Elasticsearch contains
-after indexing. These counts are hardcoded constants in the test class and **must be kept in sync**
+`SearchBrowseSuiteIT` verifies the number of derived sub-resource documents that Elasticsearch contains
+after indexing. These counts are hardcoded constants in the suite class and **must be kept in sync**
 whenever instances (and their contributors, subjects, classifications, call numbers) or authorities
-are added, removed, or changed:
+are added, removed, or changed (for the ECS data set, see the `*_COUNT` constants in
+[ECS data set](#ecs-data-set-ecs)):
 
 ```java
-// SearchBrowseIT.java
+// SearchBrowseSuiteIT.java
 private static final int EXPECTED_AUTHORITY_COUNT       = 132;
 private static final int EXPECTED_CALL_NUMBER_COUNT     = 116;
 private static final int EXPECTED_CLASSIFICATION_COUNT  = 92;
@@ -111,8 +136,50 @@ private static final int EXPECTED_CONTRIBUTOR_COUNT     = 68;
 private static final int EXPECTED_SUBJECT_COUNT         = 52;
 ```
 
-If you change the data and the test fails on `verifyIndexedResourceCounts`, update these constants
+If you change the data and the suite setup fails in `awaitSubResourceIndexing`, update these constants
 to match the new counts reported in the assertion error message.
+
+## ECS data set (`ecs/`)
+
+The consortium (ECS) inventory data set used by `SearchBrowseConsortiumSuiteIT` and
+`BrowseCallNumberFromItemsConsortiumIT` has one folder per tenant, each
+with `instances.json`, `holdings.json` and `items.json` in the same format as the files above:
+
+| Folder         | Tenant          | Content                                                                         |
+|----------------|-----------------|---------------------------------------------------------------------------------|
+| `ecs/central`  | central tenant  | shared instances, and holdings/items owned by the central tenant                |
+| `ecs/member`   | member tenant   | local instances, shadow copies of shared instances, holdings/items they own     |
+| `ecs/member2`  | member2 tenant  | the same for the second member tenant                                          |
+
+Holdings and items that a member tenant owns for a **shared** instance are in that member's folder, next to its
+shadow copy of the instance (same id, source `CONSORTIUM-MARC` or `CONSORTIUM-FOLIO`), as in a real consortium.
+`ConsortiumTestDataManager` loads the folders and sends the records through Kafka (`InventoryApi`), not through
+`/search-index/records`, because only the Kafka path routes member-tenant records to the central tenant. Item
+events carry the `instanceSource` of their instance (as inventory item events do), from which the item index derives
+the `shared` flag of member items of shared instances. It exposes
+the records (`instances/holdings/items(tenantId)`, and `holdingsOfInstance/itemsOfInstance(instanceId)` across all
+tenants, tagged with their tenant id), the slice ids (`SHARED_INSTANCE_ID`, `LOCAL_INSTANCE_ID`),
+the instance/holdings/item counts derived from the records (`instancesCount()`, `holdingsCount()`, `itemIds()`) and
+the expected sub-resource document counts (`*_COUNT` constants), which are hardcoded and must be kept in sync.
+
+Each folder is managed with the same toolchain; every folder gets its own database
+(`manage/test-data-ecs-<tenant>.db`, gitignored):
+
+```bash
+python manage/import.py --data-dir ecs/member
+# edit manage/test-data-ecs-member.db
+python manage/export.py --data-dir ecs/member
+```
+
+When adding ECS data:
+
+- Prefer **scoping new assertions to your own fixtures** (filter by instance id, or use distinct values), as the
+  `*_sharedInstance_*` / `*_localInstance_*` tests in `ConsortiumSearchHoldingsIT`, `ConsortiumSearchItemsIT` and
+  `SearchInventoryItemConsortiumIT` do,
+  so that later data changes do not affect them.
+- The browse and facet tests in `org.folio.api.browse.*ConsortiumIT` cover the whole data set; new contributors,
+  subjects, classifications or call numbers change their totals, so re-baseline them and update the `*_COUNT`
+  constants in `ConsortiumTestDataManager`.
 
 ## Useful queries
 

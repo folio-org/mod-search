@@ -1,18 +1,21 @@
 package org.folio.api.consortiumsearch;
 
 import static java.lang.String.format;
+import static org.apache.commons.collections4.MapUtils.getString;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.model.Pair.pair;
 import static org.folio.search.utils.SearchResponseHelper.REQUEST_NOT_ALLOWED_MSG;
 import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
+import static org.folio.support.TestConstants.MEMBER2_TENANT_ID;
 import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
 import static org.folio.support.base.ApiEndpoints.consortiumBatchItemsSearchPath;
 import static org.folio.support.base.ApiEndpoints.consortiumItemSearchPath;
 import static org.folio.support.base.ApiEndpoints.consortiumItemsSearchPath;
-import static org.folio.support.base.ApiEndpoints.instanceSearchPath;
 import static org.folio.support.sample.SampleInstances.getSemanticWeb;
 import static org.folio.support.sample.SampleInstances.getSemanticWebId;
-import static org.folio.support.sample.SampleInstances.getSemanticWebMatchers;
+import static org.folio.support.testdata.ConsortiumTestDataManager.LOCAL_INSTANCE_ID;
+import static org.folio.support.testdata.ConsortiumTestDataManager.SHARED_INSTANCE_ID;
+import static org.folio.support.testdata.ConsortiumTestDataManager.itemsOfInstance;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,31 +33,14 @@ import org.folio.search.domain.dto.ConsortiumItem;
 import org.folio.search.domain.dto.ConsortiumItemCollection;
 import org.folio.search.domain.dto.Item;
 import org.folio.search.model.Pair;
-import org.folio.spring.testing.type.IntegrationTest;
 import org.folio.support.base.BaseConsortiumIntegrationTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
-@IntegrationTest
-class ConsortiumSearchItemsIT extends BaseConsortiumIntegrationTest {
+public abstract class ConsortiumSearchItemsIT extends BaseConsortiumIntegrationTest {
 
   static final String WRONG_SIZE_MSG_TEMPLATE = "IDs array size exceeds the maximum allowed limit %s";
-
-  @BeforeAll
-  static void prepare() {
-    enableTenant(CENTRAL_TENANT_ID);
-    enableTenant(MEMBER_TENANT_ID);
-    saveRecords(MEMBER_TENANT_ID, instanceSearchPath(), List.of(getSemanticWeb()), 1, getSemanticWebMatchers(),
-      instance -> inventoryApi.createInstance(MEMBER_TENANT_ID, instance));
-  }
-
-  @AfterAll
-  static void cleanUp() {
-    removeTenant();
-  }
 
   @Test
   void doGetConsortiumItems_returns200AndRecords() {
@@ -66,6 +52,29 @@ class ConsortiumSearchItemsIT extends BaseConsortiumIntegrationTest {
 
     assertThat(actual.getTotalRecords()).isEqualTo(3);
     assertThat(actual.getItems()).containsExactlyInAnyOrder(getExpectedItems());
+  }
+
+  @Test
+  void doGetConsortiumItems_sharedInstance_returnsItemsOfAllTenants() {
+    var result = doGet(consortiumItemsSearchPath(List.of(pair("instanceId", SHARED_INSTANCE_ID))), CENTRAL_TENANT_ID);
+    var actual = parseResponse(result, ConsortiumItemCollection.class);
+
+    var expected = fixtureItems(SHARED_INSTANCE_ID);
+    assertThat(expected).extracting(ConsortiumItem::getTenantId)
+      .contains(CENTRAL_TENANT_ID, MEMBER_TENANT_ID, MEMBER2_TENANT_ID);
+    assertThat(actual.getTotalRecords()).isEqualTo(expected.size());
+    assertThat(actual.getItems()).containsExactlyInAnyOrderElementsOf(expected);
+  }
+
+  @Test
+  void doGetConsortiumItems_localInstance_returnsItemsOfOwningTenantOnly() {
+    var result = doGet(consortiumItemsSearchPath(List.of(pair("instanceId", LOCAL_INSTANCE_ID))), CENTRAL_TENANT_ID);
+    var actual = parseResponse(result, ConsortiumItemCollection.class);
+
+    var expected = fixtureItems(LOCAL_INSTANCE_ID);
+    assertThat(expected).isNotEmpty().extracting(ConsortiumItem::getTenantId).containsOnly(MEMBER_TENANT_ID);
+    assertThat(actual.getTotalRecords()).isEqualTo(expected.size());
+    assertThat(actual.getItems()).containsExactlyInAnyOrderElementsOf(expected);
   }
 
   @Test
@@ -205,6 +214,21 @@ class ConsortiumSearchItemsIT extends BaseConsortiumIntegrationTest {
         .barcode(item.getBarcode())
       )
       .toArray(ConsortiumItem[]::new);
+  }
+
+  /**
+   * Expected consortium items of a fixture instance, built from the item records of all tenants.
+   */
+  private static List<ConsortiumItem> fixtureItems(String instanceId) {
+    return itemsOfInstance(instanceId).stream()
+      .map(item -> new ConsortiumItem()
+        .id(getString(item.inventoryRecord(), "id"))
+        .hrid(getString(item.inventoryRecord(), "hrid"))
+        .tenantId(item.tenantId())
+        .instanceId(instanceId)
+        .holdingsRecordId(getString(item.inventoryRecord(), "holdingsRecordId"))
+        .barcode(getString(item.inventoryRecord(), "barcode")))
+      .toList();
   }
 
   private String getConsortiumItemIdentifierValue(BatchIdsDto.IdentifierTypeEnum identifierName, Item item) {

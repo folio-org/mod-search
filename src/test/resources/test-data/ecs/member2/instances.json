@@ -1,0 +1,68 @@
+[
+  {
+    "id": "4b9c1f3e-7d2a-4e8b-9c61-2f5a8d7e3b10",
+    "source": "CONSORTIUM-MARC",
+    "title": "Sharing collections : a guide to consortial cataloging",
+    "indexTitle": null,
+    "hrid": "cin00000001",
+    "identifiers": [
+      {
+        "value": "9781555708856",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Varga, Elena",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Library consortia"
+      },
+      {
+        "value": "Interlibrary loans"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "Z665.2.U6 V37 2023",
+        "classificationTypeId": "ce176ace-a53e-4b4d-aa89-725ed7b2edac"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Consortium Press",
+        "place": "Chicago",
+        "dateOfPublication": "2023"
+      }
+    ],
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "5a3d4687-44ef-39f5-9a0b-4d3853211a99",
+    "source": "CONSORTIUM-FOLIO",
+    "title": "Instance 1",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "d81fe9e0-bbc9-352e-bbc2-9df7e14fab83",
+    "source": null,
+    "title": "Instance 51",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  }
+]

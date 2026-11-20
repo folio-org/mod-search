@@ -126,20 +126,6 @@ public abstract class BaseIntegrationTest extends BaseSharedTest {
     return lockResult.get().orElseThrow();
   }
 
-  /**
-   * Runs {@code action} while holding the lock for the given sub-resource, acquired via
-   * {@link #lockSubResourceWithRetry}, and releases it afterward even if {@code action} throws.
-   */
-  protected static void withLockedSubResource(SubResourcesLockRepository lockRepository,
-                                              ReindexEntityType entityType, String tenantId, Runnable action) {
-    var timestamp = lockSubResourceWithRetry(lockRepository, entityType, tenantId);
-    try {
-      action.run();
-    } finally {
-      lockRepository.unlockSubResourceFenced(entityType, timestamp, tenantId, timestamp);
-    }
-  }
-
   @TestConfiguration
   public static class KafkaTemplateTestConfiguration {
 

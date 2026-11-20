@@ -1,0 +1,21 @@
+[
+  {
+    "id": "a1aa7f7c-8f65-3669-9454-8af4649f2d1b",
+    "discoverySuppress": false,
+    "instanceId": "5a3d4687-44ef-39f5-9a0b-4d3853211a99"
+  },
+  {
+    "id": "b5ebe1ee-019c-37ac-8cb0-81efba6b5e3d",
+    "discoverySuppress": false,
+    "instanceId": "d81fe9e0-bbc9-352e-bbc2-9df7e14fab83"
+  },
+  {
+    "id": "e5c3a7f4-ab69-4dbc-98a2-3f4b5c6d7e83",
+    "discoverySuppress": false,
+    "instanceId": "4b9c1f3e-7d2a-4e8b-9c61-2f5a8d7e3b10",
+    "permanentLocationId": "b241764c-1466-4e1d-a028-1a3684a5da87",
+    "callNumberTypeId": "95467209-6d7b-468b-94df-0f5d7ad2747d",
+    "callNumber": "Z665.2.U6 V37 2023",
+    "hrid": "m2ho0000001"
+  }
+]

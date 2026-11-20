@@ -1,0 +1,599 @@
+[
+  {
+    "id": "008ff083-3854-35d5-bcbc-2c97477f5270",
+    "source": null,
+    "title": "Instance 18",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "0741b442-b997-356c-a1f3-b09212c399d2",
+    "source": null,
+    "title": "instance #02",
+    "indexTitle": null,
+    "classifications": [
+      {
+        "classificationNumber": "BJ1453 .I49 1983",
+        "classificationTypeId": "308c950f-8209-4f2e-9702-0c004a9f21bc"
+      }
+    ],
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "0b8572bc-e834-364d-ab28-0277fe766f17",
+    "source": null,
+    "title": "Instance 17",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "13519c0b-8005-3c21-b647-9182d35e2659",
+    "source": null,
+    "title": "Instance 24",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "1e46f890-ca40-3734-945b-ec4889267206",
+    "source": null,
+    "title": "Instance 29",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "237bb660-bff8-3cd7-abc4-8b7479e42d61",
+    "source": null,
+    "title": "Instance 19",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "3372b133-6f41-30a5-ada1-430623f24e31",
+    "source": null,
+    "title": "Instance 21",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "38d9aa52-e9b4-3f90-97a9-506487094686",
+    "source": null,
+    "title": "Instance 16",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "3b681b49-1023-32cc-9ea4-f1c39cf54f21",
+    "source": null,
+    "title": "instance #03",
+    "indexTitle": null,
+    "subjects": [
+      {
+        "value": "United States",
+        "sourceId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91b",
+        "typeId": "308c950f-8209-4f2e-9702-0c004a9f21be"
+      },
+      {
+        "value": "History"
+      },
+      {
+        "value": "Rules"
+      }
+    ],
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "427aa680-6157-31e3-9d1b-978595aa991e",
+    "source": null,
+    "title": "Instance 3",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "4b9c1f3e-7d2a-4e8b-9c61-2f5a8d7e3b10",
+    "source": "MARC",
+    "title": "Sharing collections : a guide to consortial cataloging",
+    "indexTitle": null,
+    "hrid": "cin00000001",
+    "identifiers": [
+      {
+        "value": "9781555708856",
+        "identifierTypeId": "8261054f-be78-422d-bd51-4ed9f33c3422"
+      }
+    ],
+    "contributors": [
+      {
+        "name": "Varga, Elena",
+        "contributorNameTypeId": "2b94c631-fca9-4892-a730-03ee529ffe2a",
+        "contributorTypeId": "6e09d47d-95e2-4d8a-831b-f777b8ef6d81",
+        "primary": true
+      }
+    ],
+    "subjects": [
+      {
+        "value": "Library consortia"
+      },
+      {
+        "value": "Interlibrary loans"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "Z665.2.U6 V37 2023",
+        "classificationTypeId": "ce176ace-a53e-4b4d-aa89-725ed7b2edac"
+      }
+    ],
+    "publication": [
+      {
+        "publisher": "Consortium Press",
+        "place": "Chicago",
+        "dateOfPublication": "2023"
+      }
+    ],
+    "instanceTypeId": "6312d172-f0cf-40f6-b27d-9fa8feaf332f",
+    "languages": [
+      "eng"
+    ],
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "4c5682c5-8eb6-3d48-848b-7acff1978f0a",
+    "source": null,
+    "title": "instance #05",
+    "indexTitle": null,
+    "subjects": [
+      {
+        "value": "Book"
+      },
+      {
+        "value": "Text"
+      },
+      {
+        "value": "Biography"
+      }
+    ],
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "5218bbb4-53f9-320b-9a75-ef08ca4710cd",
+    "source": null,
+    "title": "Instance 2",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "554629d9-bb4a-37ef-92b3-fe61aae5fd24",
+    "source": null,
+    "title": "instance #02",
+    "indexTitle": null,
+    "contributors": [
+      {
+        "name": "Bon Jovi",
+        "contributorNameTypeId": "0ad0a89a-741d-4f1a-85a6-ada214751013",
+        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299",
+        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d"
+      },
+      {
+        "name": "Klaus Meine",
+        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
+        "contributorTypeId": "3ae36e29-e38f-457c-8fcf-1974a6cb63d3",
+        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d"
+      },
+      {
+        "name": "Anthony Kiedis",
+        "contributorNameTypeId": "0ad0a89a-741d-4f1a-85a6-ada214751013",
+        "contributorTypeId": "653ffe66-aa3f-4f1c-a090-c42c4011ef40",
+        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d"
+      }
+    ],
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "55e893d5-3003-349e-8447-beae71729fc6",
+    "source": null,
+    "title": "Instance 7",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "5a3d4687-44ef-39f5-9a0b-4d3853211a99",
+    "source": null,
+    "title": "Instance 1",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "62866184-84b1-3916-9945-0ff708f0cdaa",
+    "source": null,
+    "title": "Instance 28",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "6db30ff9-f99a-3de7-be2a-0a4fb6077554",
+    "source": null,
+    "title": "instance #00",
+    "indexTitle": null,
+    "contributors": [
+      {
+        "name": "Darth Vader",
+        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
+        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299",
+        "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9"
+      }
+    ],
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "756bcaec-2ca5-3ecb-8315-1e42e2c652f8",
+    "source": null,
+    "title": "Instance 20",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "7ae35a82-5c36-3e76-af82-a42c1fe8c0c8",
+    "source": null,
+    "title": "Instance 27",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "7da52df8-3529-3c4f-8617-385e224359e6",
+    "source": null,
+    "title": "Instance 23",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "7fc91084-c877-38af-858d-93da86bc8d41",
+    "source": null,
+    "title": "Instance 11",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "818c9b36-1385-39e7-97f8-266ded9ebb90",
+    "source": null,
+    "title": "Instance 10",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "968acdb4-4864-3ad5-b671-55e9c72b861a",
+    "source": null,
+    "title": "instance #01",
+    "indexTitle": null,
+    "contributors": [
+      {
+        "name": "Bon Jovi",
+        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
+        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299",
+        "authorityId": "0a4c6d10-2161-4f64-aace-9e919489b6c9"
+      },
+      {
+        "name": "Klaus Meine",
+        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
+        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299",
+        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d"
+      },
+      {
+        "name": "Anthony Kiedis",
+        "contributorNameTypeId": "e2ef4075-310a-4447-a231-712bf10cc985",
+        "contributorTypeId": "2a165833-1673-493f-934b-f3d3c8fcb299",
+        "authorityId": "7ff32633-cc49-4332-870a-b05e329d2a2d"
+      }
+    ],
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "9ff40aff-9c9e-356d-95ef-d2d5e5fc2a2a",
+    "source": null,
+    "title": "Instance 15",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "a81d473d-758b-3d05-88bb-f75b6a8747ed",
+    "source": null,
+    "title": "Instance 25",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "a8664bd0-1b61-3b9d-93d9-343160852f5c",
+    "source": null,
+    "title": "instance #05",
+    "indexTitle": null,
+    "classifications": [
+      {
+        "classificationNumber": "QD453 .M8 1961",
+        "classificationTypeId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a"
+      },
+      {
+        "classificationNumber": "146.4",
+        "classificationTypeId": "50524585-046b-49a1-8ca7-8d46f2a8dc19"
+      }
+    ],
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "a97e0792-4ae7-3eff-9fb6-771b369ff9b1",
+    "source": null,
+    "title": "Instance 5",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "abca62b5-085c-3d56-a705-04edecb2e657",
+    "source": null,
+    "title": "Instance 8",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "b04208fc-876d-30b5-8712-bd396876df7c",
+    "source": null,
+    "title": "Instance 30",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "b0493fa0-28ef-3f9b-84e9-d3488067eef1",
+    "source": null,
+    "title": "Instance 14",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "b4700e22-6699-33d3-bffa-a8b3ff1974fb",
+    "source": null,
+    "title": "Instance 6",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "b8b9ef93-b0fe-3b48-879c-ffde5420b0c2",
+    "source": null,
+    "title": "instance #04",
+    "indexTitle": null,
+    "subjects": [
+      {
+        "value": "Europe"
+      },
+      {
+        "value": "Music",
+        "typeId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91c"
+      }
+    ],
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "ba085679-aedd-30df-ade5-e5dc2b007b3a",
+    "source": null,
+    "title": "Instance 13",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "bf1c4e2f-4840-3399-8a2a-228eef016784",
+    "source": null,
+    "title": "instance #01",
+    "indexTitle": null,
+    "subjects": [
+      {
+        "value": "History"
+      },
+      {
+        "value": "Music",
+        "authorityId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a",
+        "sourceId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91b",
+        "typeId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91c"
+      },
+      {
+        "value": "Music",
+        "authorityId": "308c950f-8209-4f2e-9702-0c004a9f21bc",
+        "sourceId": "308c950f-8209-4f2e-9702-0c004a9f21bd",
+        "typeId": "308c950f-8209-4f2e-9702-0c004a9f21be"
+      },
+      {
+        "value": "Biography"
+      }
+    ],
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "c5dd91c6-8a41-3aeb-90ee-a5401ea73cdf",
+    "source": null,
+    "title": "Instance 26",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "c89df617-71c6-3424-81c6-cde38a9f3da9",
+    "source": null,
+    "title": "instance #01",
+    "indexTitle": null,
+    "classifications": [
+      {
+        "classificationNumber": "BJ1453 .I49 1983",
+        "classificationTypeId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a"
+      },
+      {
+        "classificationNumber": "HD1691 .I5 1967",
+        "classificationTypeId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a"
+      }
+    ],
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "d1f5137a-6fce-3d80-8516-4e28098b7da7",
+    "source": null,
+    "title": "instance #04",
+    "indexTitle": null,
+    "contributors": [
+      {
+        "name": "Contributor 1"
+      },
+      {
+        "name": "Contributor 2"
+      }
+    ],
+    "classifications": [
+      {
+        "classificationNumber": "QD33 .O87",
+        "classificationTypeId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a"
+      }
+    ],
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "d559cb2c-83ee-353a-af7d-351acb128591",
+    "source": null,
+    "title": "instance #03",
+    "indexTitle": null,
+    "classifications": [
+      {
+        "classificationNumber": "HQ536 .A565 2018",
+        "classificationTypeId": "308c950f-8209-4f2e-9702-0c004a9f21bc"
+      },
+      {
+        "classificationNumber": "N6679.R64 G88 2010",
+        "classificationTypeId": "e62bbefe-adf5-4b1e-b3e7-43d877b0c91a"
+      }
+    ],
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "d9c18536-eaea-35d7-943f-1b2e5c17be33",
+    "source": null,
+    "title": "Instance 4",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "e00230e0-956f-3999-b532-8b05163747a1",
+    "source": null,
+    "title": "Instance 22",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "e0ae9ceb-e4e0-3410-b06b-3aa2ec61a6a2",
+    "source": null,
+    "title": "instance #02",
+    "indexTitle": null,
+    "subjects": [
+      {
+        "value": "Fantasy"
+      },
+      {
+        "value": "Music",
+        "authorityId": "308c950f-8209-4f2e-9702-0c004a9f21bc",
+        "sourceId": "308c950f-8209-4f2e-9702-0c004a9f21bd",
+        "typeId": "308c950f-8209-4f2e-9702-0c004a9f21be"
+      }
+    ],
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "ec02645b-7f53-3b95-a067-c81341658b7e",
+    "source": null,
+    "title": "Instance 12",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  },
+  {
+    "id": "fac92a66-8185-39eb-845c-d5520fb91185",
+    "source": null,
+    "title": "Instance 9",
+    "indexTitle": null,
+    "instanceTypeId": null,
+    "discoverySuppress": false,
+    "staffSuppress": false
+  }
+]

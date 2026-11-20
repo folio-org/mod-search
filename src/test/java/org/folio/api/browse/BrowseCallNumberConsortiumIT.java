@@ -65,6 +65,7 @@ public abstract class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegra
   private static final String RARE_BOOKS_LOCATION = "b777f3a4-4372-4792-a87d-8e8f177eab10";
   private static final String ANNEX_STACKS_LOCATION = "0d106980-1789-42ac-b355-a6c7a74ddea3";
 
+  private static final String[] ID_IGNORING_FIELDS = {"items.id"};
   private static final String ANCHOR_CALL_NUMBER = "TA357 .A78 2010";
 
   @MethodSource("callNumberBrowsingDataProvider")
@@ -77,7 +78,7 @@ public abstract class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegra
       .param(QUERY_PARAM, prepareQuery(query, '"' + input + '"'))
       .param(LIMIT_PARAM, String.valueOf(limit));
     var actual = parseResponse(doGet(request, tenant), CallNumberBrowseResult.class);
-    assertThat(actual).isEqualTo(expected);
+    assertThat(actual).usingRecursiveComparison().ignoringFields(ID_IGNORING_FIELDS).isEqualTo(expected);
   }
 
   @Test
@@ -87,9 +88,10 @@ public abstract class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegra
       .param(QUERY_PARAM, prepareQuery("fullCallNumber >= {value}", "\"Twilight Breaking pt. 1\""))
       .param(LIMIT_PARAM, "2");
     var actual = parseResponse(doGet(request, MEMBER_TENANT_ID), CallNumberBrowseResult.class);
-    assertThat(actual.getItems()).containsExactly(
-      cnBrowseItem("Twilight Breaking", "DVD", "pt. 1", OTHER_TYPE_ID, 1, "Instance 35"),
-      cnBrowseItem("WA 900.AA1 I55h 1996", NLM_TYPE_ID, 1, "Instance 35"));
+    assertThat(actual.getItems()).usingRecursiveFieldByFieldElementComparatorIgnoringFields("id")
+      .containsExactly(
+        cnBrowseItem("Twilight Breaking", "DVD", "pt. 1", OTHER_TYPE_ID, 1, "Instance 35"),
+        cnBrowseItem("WA 900.AA1 I55h 1996", NLM_TYPE_ID, 1, "Instance 35"));
   }
 
   @Test
@@ -100,7 +102,8 @@ public abstract class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegra
                           + "and instances.locationId==(\"%s\")".formatted(MEMBER2_LOCATION))
       .param(LIMIT_PARAM, String.valueOf(10));
     var actual = parseResponse(doGet(request, MEMBER_TENANT_ID), CallNumberBrowseResult.class);
-    assertThat(actual).isEqualTo(cnBrowseResult(null, null, 0, List.of(cnEmptyBrowseItem("a"))));
+    assertThat(actual).usingRecursiveComparison().ignoringFields(ID_IGNORING_FIELDS)
+      .isEqualTo(cnBrowseResult(null, null, 0, List.of(cnEmptyBrowseItem("a"))));
   }
 
   @Test
@@ -112,7 +115,8 @@ public abstract class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegra
       .param(LIMIT_PARAM, String.valueOf(10));
     var actual = parseResponse(doGet(request, CENTRAL_TENANT_ID), CallNumberBrowseResult.class);
     // member2 also owns an item of the shared slice instance, so its call number is listed as well
-    assertThat(actual).isEqualTo(cnBrowseResult(null, null, 3, List.of(
+    assertThat(actual).usingRecursiveComparison().ignoringFields(ID_IGNORING_FIELDS)
+      .isEqualTo(cnBrowseResult(null, null, 3, List.of(
       cnBrowseItem("664.051 4", DEWEY_TYPE_ID, 1, "Instance 1"),
       cnBrowseItem(ANCHOR_CALL_NUMBER, CALL_NUMBER_LC_TYPE_ID, 1, "Instance 1", true),
       fixtureCnBrowseItem(SHARED_INSTANCE_ID))));

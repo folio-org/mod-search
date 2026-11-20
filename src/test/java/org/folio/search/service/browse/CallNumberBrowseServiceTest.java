@@ -108,7 +108,8 @@ class CallNumberBrowseServiceTest {
   }
 
   private CallNumberBrowseItem callNumberBrowseItem(int totalRecords, String cn, String title) {
-    return new CallNumberBrowseItem().fullCallNumber(cn).callNumber(cn).instanceTitle(title).totalRecords(totalRecords);
+    return new CallNumberBrowseItem().id("id").fullCallNumber(cn).callNumber(cn).instanceTitle(title)
+      .totalRecords(totalRecords);
   }
 
   private CallNumberBrowseItem callNumberBrowseItem(int totalRecords, String cn) {

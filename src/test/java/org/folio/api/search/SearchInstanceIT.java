@@ -107,6 +107,13 @@ public abstract class SearchInstanceIT extends BaseSharedTest {
   }
 
   @Test
+  @DisplayName("search by instances by callNumberId (no instance found)")
+  void searchByInstances_byCallNumberId_noResult() throws Throwable {
+    doSearchInstances(prepareQuery("callNumberId == {value}", "\"unknown-call-number-id\""), TENANT_ID)
+      .andExpect(jsonPath("$.totalRecords", is(0)));
+  }
+
+  @Test
   void search_negative_unknownField() throws Exception {
     attemptSearchInstances("unknownField all book", TENANT_ID)
       .andExpect(status().isBadRequest())

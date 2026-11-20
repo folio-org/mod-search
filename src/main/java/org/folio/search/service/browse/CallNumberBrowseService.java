@@ -58,6 +58,7 @@ public class CallNumberBrowseService
       .map(resource -> {
         var totalRecords = getTotalRecords(ctx, resource, CallNumberResource::instances);
         return new CallNumberBrowseItem()
+          .id(resource.id())
           .fullCallNumber(resource.fullCallNumber())
           .callNumber(resource.callNumber())
           .callNumberPrefix(resource.callNumberPrefix())

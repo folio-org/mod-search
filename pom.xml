@@ -37,7 +37,7 @@
     <folio-s3-client.version>3.0.2</folio-s3-client.version>
     <folio-isbn-utils.version>1.9.0</folio-isbn-utils.version>
     <folio-cql2pgjson.version>36.0.1</folio-cql2pgjson.version>
-    <opensearch.version>3.9.0</opensearch.version>
+    <opensearch.version>3.10.0</opensearch.version>
     <httpclient5.version>5.6.1</httpclient5.version>
     <httpcore5.version>5.4.2</httpcore5.version>
     <mapstruct.version>1.6.3</mapstruct.version>
@@ -48,7 +48,7 @@
     <lombok.mapstruct-binding.version>0.2.0</lombok.mapstruct-binding.version>
     <streamex.version>0.9.0</streamex.version>
     <testcontainers-elasticsearch.version>2.0.5</testcontainers-elasticsearch.version>
-    <opensearch-testcontainers.version>4.1.0</opensearch-testcontainers.version>
+    <opensearch-testcontainers.version>4.1.1</opensearch-testcontainers.version>
 
     <!-- Plugins versions -->
     <folio-module-descriptor-validator.version>1.0.1</folio-module-descriptor-validator.version>

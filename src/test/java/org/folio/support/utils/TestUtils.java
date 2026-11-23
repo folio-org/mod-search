@@ -70,6 +70,7 @@ import org.folio.search.domain.dto.Tags;
 import org.folio.search.model.SearchResult;
 import org.folio.search.model.event.InstanceSharingCompleteEvent;
 import org.folio.search.model.index.SearchDocumentBody;
+import org.folio.search.model.index.SubjectKey;
 import org.folio.search.model.metadata.FieldDescription;
 import org.folio.search.model.metadata.ObjectFieldDescription;
 import org.folio.search.model.metadata.PlainFieldDescription;
@@ -81,7 +82,6 @@ import org.folio.search.model.types.IndexingDataFormat;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.model.types.SearchType;
 import org.folio.search.service.indexrebuild.callnumber.CallNumberKey;
-import org.folio.search.utils.ShaUtils;
 import org.junit.jupiter.api.Assertions;
 import org.opensearch.action.search.SearchResponse;
 import org.opensearch.core.ParseField;
@@ -176,7 +176,9 @@ public class TestUtils {
    */
   public static SubjectBrowseItem subjectBrowseItem(Integer totalRecords, String subject, String authorityId,
                                                     String sourceId, String typeId) {
-    var id = totalRecords != null && totalRecords > 0 ? ShaUtils.sha(subject, authorityId, sourceId, typeId) : null;
+    var id = totalRecords != null && totalRecords > 0
+      ? SubjectKey.of(subject, authorityId, sourceId, typeId).map(SubjectKey::id).orElse(null)
+      : null;
     return new SubjectBrowseItem().id(id).value(subject).authorityId(authorityId).sourceId(sourceId).typeId(typeId)
       .totalRecords(totalRecords);
   }

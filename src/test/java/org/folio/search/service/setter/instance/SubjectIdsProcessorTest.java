@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import org.folio.search.domain.dto.Instance;
 import org.folio.search.domain.dto.Subject;
-import org.folio.search.utils.ShaUtils;
+import org.folio.search.model.index.SubjectKey;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.Test;
 
@@ -25,20 +25,14 @@ class SubjectIdsProcessorTest {
   }
 
   @Test
-  void getFieldValue_positive_formulaMatchesSha() {
+  void getFieldValue_positive_idsMatchSubjectKey() {
     var instance = new Instance().subjects(List.of(
       new Subject().value("Music").authorityId("a").sourceId("s").typeId("t"),
       new Subject().value("Art")));
 
     assertThat(processor.getFieldValue(instance)).containsExactlyInAnyOrder(
-      ShaUtils.sha("Music", "a", "s", "t"), ShaUtils.sha("Art", "", "", ""));
-  }
-
-  @Test
-  void getFieldValue_positive_valueIsTrimmed() {
-    var instance = new Instance().subjects(List.of(new Subject().value("  Music ")));
-
-    assertThat(processor.getFieldValue(instance)).containsExactly(ShaUtils.sha("Music", "", "", ""));
+      SubjectKey.of("Music", "a", "s", "t").orElseThrow().id(),
+      SubjectKey.of("Art", null, null, null).orElseThrow().id());
   }
 
   @Test

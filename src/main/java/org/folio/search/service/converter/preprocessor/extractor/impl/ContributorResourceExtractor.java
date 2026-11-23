@@ -4,7 +4,6 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.folio.search.utils.SearchUtils.AUTHORITY_ID_FIELD;
 import static org.folio.search.utils.SearchUtils.CONTRIBUTORS_FIELD;
 import static org.folio.search.utils.SearchUtils.CONTRIBUTOR_TYPE_FIELD;
-import static org.folio.search.utils.SearchUtils.prepareForExpectedFormat;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,7 +18,7 @@ import org.folio.search.model.types.ResourceType;
 import org.folio.search.service.FeatureConfigService;
 import org.folio.search.service.converter.preprocessor.extractor.ChildResourceExtractor;
 import org.folio.search.service.reindex.jdbc.ContributorRepository;
-import org.folio.search.utils.ShaUtils;
+import org.folio.search.utils.ContributorUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
@@ -57,14 +56,14 @@ public class ContributorResourceExtractor extends ChildResourceExtractor {
     if (entityProperties == null || !featureConfigService.isEnabled(TenantConfiguredFeature.BROWSE_CONTRIBUTORS)) {
       return Collections.emptyMap();
     }
-    var contributorName = prepareForExpectedFormat(entityProperties.get("name"), 255);
+    var contributorName = ContributorUtils.prepareName(entityProperties.get("name"));
     if (StringUtils.isBlank(contributorName)) {
       return Collections.emptyMap();
     }
 
     var nameTypeId = entityProperties.get("contributorNameTypeId");
     var authorityId = entityProperties.get(AUTHORITY_ID_FIELD);
-    var id = ShaUtils.sha(contributorName, Objects.toString(nameTypeId, EMPTY), Objects.toString(authorityId, EMPTY));
+    var id = ContributorUtils.getContributorId(contributorName, nameTypeId, authorityId);
     var typeId = entityProperties.get(CONTRIBUTOR_TYPE_FIELD);
 
     var entity = new HashMap<String, Object>();

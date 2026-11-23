@@ -329,6 +329,12 @@ description: |
         <td>classificationId = &quot;c4f60d7413158e9466856f4c0250d91d312f86cf&quot;</td>
         <td>Matches instances with the given classificationId</td>
     </tr>
+    <tr>
+        <td>contributorId</td>
+        <td>term</td>
+        <td>contributorId = &quot;509906fb88c4f43f073f2390239c5314cd163d87&quot;</td>
+        <td>Matches instances with the given contributorId (the `id` of a contributor browse item)</td>
+    </tr>
     </tbody>
     </table>
     <h5 id="instance-sort-options">Instance sort options</h5>

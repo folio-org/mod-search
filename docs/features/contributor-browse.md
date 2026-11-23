@@ -1,7 +1,7 @@
 ---
 feature_id: contributor-browse
 title: Contributor Browse
-updated: 2026-05-25
+updated: 2026-11-23
 ---
 
 # Browse Contributors
@@ -44,6 +44,7 @@ Contributor browsing allows users to find all works by an author or other contri
 ### Index document fields
 | Field | Type | Description |
 |-------|------|-------------|
+| `id` | `keyword` (source only) | SHA-1 of `name\|contributorNameTypeId\|authorityId`; usable as `contributorId` in instance search |
 | `name` | `keyword_icu` | Contributor name as stored on the instance |
 | `contributorNameTypeId` | `keyword` | MARC-defined name type (e.g. personal, corporate) |
 | `authorityId` | `keyword` | ID of the controlling authority record (may be absent) |
@@ -56,6 +57,7 @@ Contributor browsing allows users to find all works by an author or other contri
 ### Response item fields
 | Field | Description |
 |-------|-------------|
+| `id` | Contributor ID, usable as `contributorId` in instance search |
 | `name` | Contributor name |
 | `contributorNameTypeId` | Name type UUID of this browse entry |
 | `authorityId` | Authority record UUID (absent when no authority link) |

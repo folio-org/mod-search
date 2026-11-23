@@ -3,6 +3,9 @@
   "parent": "instance",
   "eventBodyJavaClass": "org.folio.search.model.index.ContributorResource",
   "fields": {
+    "id": {
+      "index": "source"
+    },
     "name": {
       "index": "keyword_icu",
       "showInResponse": true

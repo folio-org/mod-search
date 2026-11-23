@@ -81,6 +81,7 @@ import org.folio.search.model.types.IndexingDataFormat;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.model.types.SearchType;
 import org.folio.search.service.indexrebuild.callnumber.CallNumberKey;
+import org.folio.search.utils.ShaUtils;
 import org.junit.jupiter.api.Assertions;
 import org.opensearch.action.search.SearchResponse;
 import org.opensearch.core.ParseField;
@@ -274,13 +275,15 @@ public class TestUtils {
 
   public static InstanceContributorBrowseItem contributorBrowseItem(Integer totalRecords, boolean isAnchor,
                                                                     String name) {
-    return new InstanceContributorBrowseItem().name(name).totalRecords(totalRecords).isAnchor(isAnchor);
+    var id = totalRecords != null && totalRecords > 0 ? ShaUtils.sha(name, null, null) : null;
+    return new InstanceContributorBrowseItem().id(id).name(name).totalRecords(totalRecords).isAnchor(isAnchor);
   }
 
   public static InstanceContributorBrowseItem contributorBrowseItem(Integer totalRecords, boolean isAnchor, String name,
                                                                     String nameTypeId, String authorityId,
                                                                     String... typeIds) {
-    return new InstanceContributorBrowseItem().name(name).contributorNameTypeId(nameTypeId).authorityId(authorityId)
+    return new InstanceContributorBrowseItem().id(ShaUtils.sha(name, nameTypeId, authorityId))
+      .name(name).contributorNameTypeId(nameTypeId).authorityId(authorityId)
       .contributorTypeId(typeIds == null || typeIds.length == 0 ? null : asList(typeIds))
       .totalRecords(totalRecords).isAnchor(isAnchor);
   }

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import org.folio.search.domain.dto.Contributor;
 import org.folio.search.domain.dto.Instance;
+import org.folio.search.utils.ShaUtils;
 import org.folio.support.base.BaseSharedTest;
 import org.junit.jupiter.api.Test;
 
@@ -96,6 +97,7 @@ public abstract class IndexingInstanceContributorIT extends BaseSharedTest {
     assertThat(sourceAsMap)
       .as("Contributor document should contain expected indexed fields")
       .contains(
+        entry("id", ShaUtils.sha(name, contributorNameTypeId, authorityId)),
         entry("name", name),
         entry("contributorNameTypeId", contributorNameTypeId),
         entry("authorityId", authorityId)

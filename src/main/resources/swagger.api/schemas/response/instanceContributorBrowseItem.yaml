@@ -1,6 +1,9 @@
 description: Instance contributor browse search result item
 type: object
 properties:
+  id:
+    type: string
+    description: Contributor ID
   name:
     type: string
     description: Personal name, corporate name, meeting name

@@ -3,7 +3,7 @@
 * Description ([ISSUE](https://folio-org.atlassian.net/browse/ISSUE))
 
 ### New APIs versions
-* Provides `API_NAME vX.Y`
+* Provides `browse-inventory v1.1`
 * Requires `API_NAME vX.Y`
 
 ### Features
@@ -17,6 +17,8 @@
   * Store failed item indexing events in `failed_indexing_event` table with daily cleanup of records older than `FAILED_INDEXING_EVENTS_RETENTION_DAYS` ([MSEARCH-1228](https://folio-org.atlassian.net/browse/MSEARCH-1228))
 * **Linked Data Authority**
   * Implement Linked Data Authority index and search API ([MSEARCH-1246](https://folio-org.atlassian.net/browse/MSEARCH-1246))
+* **Contributor Browse**
+  * Add `id` to the contributor browse item and index `contributorId` in the instance index to search instances by contributor id. Contributor and instance indexes must be reindexed to populate the new fields ([MSEARCH-1296](https://folio-org.atlassian.net/browse/MSEARCH-1296))
 * **Call Number Browse**
   * Ignore spaces in SuDoc sorting algorithm ([MSEARCH-1005](https://folio-org.atlassian.net/browse/MSEARCH-1005))
   * Add `id` to the call number browse item and index `callNumberId` in the instance index to search instances by call number id ([MSEARCH-1297](https://folio-org.atlassian.net/browse/MSEARCH-1297))

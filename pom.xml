@@ -49,6 +49,7 @@
     <streamex.version>0.9.0</streamex.version>
     <testcontainers-elasticsearch.version>2.0.5</testcontainers-elasticsearch.version>
     <opensearch-testcontainers.version>4.1.1</opensearch-testcontainers.version>
+    <bouncycastle.version>1.86</bouncycastle.version>
 
     <!-- Plugins versions -->
     <folio-module-descriptor-validator.version>1.0.1</folio-module-descriptor-validator.version>

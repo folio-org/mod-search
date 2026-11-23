@@ -66,6 +66,17 @@
     <maven-release-plugin.version>3.3.1</maven-release-plugin.version>
   </properties>
 
+  <dependencyManagement>
+    <dependencies>
+        <!-- minio brings bcprov 1.81, which is incompatible with bcpkix 1.86 from spring-kafka-test -->
+      <dependency>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcprov-jdk18on</artifactId>
+        <version>${bouncycastle.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <dependencies>
     <dependency>
       <groupId>org.folio</groupId>

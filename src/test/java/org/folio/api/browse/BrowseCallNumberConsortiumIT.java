@@ -3,9 +3,7 @@ package org.folio.api.browse;
 import static org.apache.commons.collections4.MapUtils.getString;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.folio.search.domain.dto.RecordType.CALL_NUMBERS;
-import static org.folio.search.utils.CallNumberUtils.calculateFullCallNumber;
 import static org.folio.search.utils.SearchUtils.ALL_RECORDS_QUERY;
-import static org.folio.search.utils.SearchUtils.ID_FIELD;
 import static org.folio.support.TestConstants.CENTRAL_TENANT_ID;
 import static org.folio.support.TestConstants.MEMBER2_TENANT_ID;
 import static org.folio.support.TestConstants.MEMBER_TENANT_ID;
@@ -16,7 +14,6 @@ import static org.folio.support.testdata.ConsortiumTestDataManager.CALL_NUMBER_L
 import static org.folio.support.testdata.ConsortiumTestDataManager.LOCAL_INSTANCE_ID;
 import static org.folio.support.testdata.ConsortiumTestDataManager.MEMBER2_LOCATION;
 import static org.folio.support.testdata.ConsortiumTestDataManager.SHARED_INSTANCE_ID;
-import static org.folio.support.testdata.ConsortiumTestDataManager.instances;
 import static org.folio.support.testdata.ConsortiumTestDataManager.itemsOfInstance;
 import static org.folio.support.utils.JsonTestUtils.parseResponse;
 import static org.folio.support.utils.TestUtils.array;
@@ -35,13 +32,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import org.folio.search.domain.dto.BrowseOptionType;
-import org.folio.search.domain.dto.CallNumberBrowseItem;
 import org.folio.search.domain.dto.CallNumberBrowseResult;
 import org.folio.search.domain.dto.Facet;
 import org.folio.search.domain.dto.FacetItem;
 import org.folio.search.domain.dto.FacetResult;
-import org.folio.search.domain.dto.Item;
-import org.folio.search.domain.dto.ItemEffectiveCallNumberComponents;
 import org.folio.support.base.BaseConsortiumIntegrationTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -65,7 +59,6 @@ public abstract class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegra
   private static final String RARE_BOOKS_LOCATION = "b777f3a4-4372-4792-a87d-8e8f177eab10";
   private static final String ANNEX_STACKS_LOCATION = "0d106980-1789-42ac-b355-a6c7a74ddea3";
 
-  private static final String[] ID_IGNORING_FIELDS = {"items.id"};
   private static final String ANCHOR_CALL_NUMBER = "TA357 .A78 2010";
 
   @MethodSource("callNumberBrowsingDataProvider")
@@ -78,7 +71,7 @@ public abstract class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegra
       .param(QUERY_PARAM, prepareQuery(query, '"' + input + '"'))
       .param(LIMIT_PARAM, String.valueOf(limit));
     var actual = parseResponse(doGet(request, tenant), CallNumberBrowseResult.class);
-    assertThat(actual).usingRecursiveComparison().ignoringFields(ID_IGNORING_FIELDS).isEqualTo(expected);
+    assertThat(actual).isEqualTo(expected);
   }
 
   @Test
@@ -88,7 +81,7 @@ public abstract class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegra
       .param(QUERY_PARAM, prepareQuery("fullCallNumber >= {value}", "\"Twilight Breaking pt. 1\""))
       .param(LIMIT_PARAM, "2");
     var actual = parseResponse(doGet(request, MEMBER_TENANT_ID), CallNumberBrowseResult.class);
-    assertThat(actual.getItems()).usingRecursiveFieldByFieldElementComparatorIgnoringFields("id")
+    assertThat(actual.getItems())
       .containsExactly(
         cnBrowseItem("Twilight Breaking", "DVD", "pt. 1", OTHER_TYPE_ID, 1, "Instance 35"),
         cnBrowseItem("WA 900.AA1 I55h 1996", NLM_TYPE_ID, 1, "Instance 35"));
@@ -102,7 +95,7 @@ public abstract class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegra
                           + "and instances.locationId==(\"%s\")".formatted(MEMBER2_LOCATION))
       .param(LIMIT_PARAM, String.valueOf(10));
     var actual = parseResponse(doGet(request, MEMBER_TENANT_ID), CallNumberBrowseResult.class);
-    assertThat(actual).usingRecursiveComparison().ignoringFields(ID_IGNORING_FIELDS)
+    assertThat(actual)
       .isEqualTo(cnBrowseResult(null, null, 0, List.of(cnEmptyBrowseItem("a"))));
   }
 
@@ -115,11 +108,11 @@ public abstract class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegra
       .param(LIMIT_PARAM, String.valueOf(10));
     var actual = parseResponse(doGet(request, CENTRAL_TENANT_ID), CallNumberBrowseResult.class);
     // member2 also owns an item of the shared slice instance, so its call number is listed as well
-    assertThat(actual).usingRecursiveComparison().ignoringFields(ID_IGNORING_FIELDS)
-      .isEqualTo(cnBrowseResult(null, null, 3, List.of(
+    assertThat(actual).isEqualTo(cnBrowseResult(null, null, 3, List.of(
       cnBrowseItem("664.051 4", DEWEY_TYPE_ID, 1, "Instance 1"),
       cnBrowseItem(ANCHOR_CALL_NUMBER, CALL_NUMBER_LC_TYPE_ID, 1, "Instance 1", true),
-      fixtureCnBrowseItem(SHARED_INSTANCE_ID))));
+      cnBrowseItem("Z665.2.U6 V37 2023", "95467209-6d7b-468b-94df-0f5d7ad2747d", 1,
+        "Sharing collections : a guide to consortial cataloging"))));
   }
 
   @MethodSource("facetQueriesProvider")
@@ -152,12 +145,14 @@ public abstract class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegra
         ))),
 
       arguments(aroundQuery, MEMBER_TENANT_ID, BrowseOptionType.ALL, ANCHOR_CALL_NUMBER, 5,
-        cnBrowseResult("SDD 66727", semanticWebCnBrowseItem("90000").getFullCallNumber(), 105, List.of(
+        cnBrowseResult("SDD 66727", "TK5105.88815 . A58 2004 FT MEADE suffix-90000", 105, List.of(
           cnBrowseItem("SDD 66727", CALL_NUMBER_LC_TYPE_ID, 1, "Instance 46"),
           cnBrowseItem("SYLY-12", OTHER_TYPE_ID, 1, "Instance 16"),
           cnBrowseItem(ANCHOR_CALL_NUMBER, CALL_NUMBER_LC_TYPE_ID, 3, null, true),
-          semanticWebCnBrowseItem("10101"),
-          semanticWebCnBrowseItem("90000")
+          cnBrowseItem("TK5105.88815 . A58 2004 FT MEADE", "prefix-10101", "suffix-10101",
+            "512173a7-bd09-490e-b773-17d83f2b63fe", 1, "A sem\\ntic web primer :0747-0850 & wolves"),
+          cnBrowseItem("TK5105.88815 . A58 2004 FT MEADE", "prefix-90000", "suffix-90000",
+            "512173a7-bd09-490e-b773-17d83f2b63fe", 1, "A sem\\ntic web primer :0747-0850 & wolves")
         )))
     );
   }
@@ -192,48 +187,6 @@ public abstract class BrowseCallNumberConsortiumIT extends BaseConsortiumIntegra
   private static Map<String, Facet> allMemberLocationFacets() {
     return new ExpectedLocations(42, 34, 24).memberLocalRecords()
       .fixtureCallNumber(SHARED_INSTANCE_ID).fixtureCallNumber(LOCAL_INSTANCE_ID).toFacets();
-  }
-
-  /**
-   * Browse item of the single call number of a consortium search slice instance, built from its fixture records.
-   */
-  private static CallNumberBrowseItem fixtureCnBrowseItem(String instanceId) {
-    var callNumber = itemsOfInstance(instanceId).stream()
-      .map(item -> (Map<?, ?>) item.inventoryRecord().get("effectiveCallNumberComponents"))
-      .findFirst().orElseThrow();
-    var title = instances(CENTRAL_TENANT_ID).stream()
-      .filter(instance -> instanceId.equals(getString(instance, ID_FIELD)))
-      .map(instance -> getString(instance, "title"))
-      .findFirst().orElseThrow();
-    return new CallNumberBrowseItem()
-      .fullCallNumber((String) callNumber.get("callNumber"))
-      .callNumber((String) callNumber.get("callNumber"))
-      .callNumberTypeId((String) callNumber.get("typeId"))
-      .instanceTitle(title)
-      .totalRecords(1);
-  }
-
-  /**
-   * Browse item of the call number of the semantic web sample item with the given barcode.
-   */
-  private static CallNumberBrowseItem semanticWebCnBrowseItem(String barcode) {
-    var semanticWeb = getSemanticWeb();
-    var components = semanticWeb.getItems().stream()
-      .filter(item -> barcode.equals(item.getBarcode()))
-      .map(Item::getEffectiveCallNumberComponents)
-      .findFirst().orElseThrow();
-    return new CallNumberBrowseItem()
-      .fullCallNumber(fullCallNumber(components))
-      .callNumber(components.getCallNumber())
-      .callNumberPrefix(components.getPrefix())
-      .callNumberSuffix(components.getSuffix())
-      .callNumberTypeId(components.getTypeId())
-      .instanceTitle(semanticWeb.getTitle())
-      .totalRecords(1);
-  }
-
-  private static String fullCallNumber(ItemEffectiveCallNumberComponents components) {
-    return calculateFullCallNumber(components.getCallNumber(), components.getSuffix());
   }
 
   /**

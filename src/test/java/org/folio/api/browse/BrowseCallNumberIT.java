@@ -62,8 +62,7 @@ public abstract class BrowseCallNumberIT extends BaseSharedTest {
       .param(QUERY_PARAM, searchQuery)
       .param(LIMIT_PARAM, String.valueOf(limit));
     var actual = parseResponse(doGet(request, TENANT_ID), CallNumberBrowseResult.class);
-    assertThat(actual).as("Expected browse result for query '%s'", searchQuery)
-      .usingRecursiveComparison().ignoringFields(COLLECTION_IGNORING_FIELDS).isEqualTo(expected);
+    assertThat(actual).as("Expected browse result for query '%s'", searchQuery).isEqualTo(expected);
   }
 
   /**
@@ -139,7 +138,7 @@ public abstract class BrowseCallNumberIT extends BaseSharedTest {
       cnBrowseItem("RC667 .N47 2010", LC_TYPE_ID, 1, "Migration, Identity, and Belonging"),
       cnBrowseItem("RJ421 .D3", LC_TYPE_ID, 1, "The Ethics of Artificial Intelligence")
     ));
-    assertThat(actual).usingRecursiveComparison().ignoringFields(COLLECTION_IGNORING_FIELDS).isEqualTo(expected);
+    assertThat(actual).isEqualTo(expected);
   }
 
   private static Stream<Arguments> onlyConfiguredTypesReturnExactMatchProvider() {

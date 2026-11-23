@@ -1,6 +1,9 @@
 description: Call number browse search result item
 type: object
 properties:
+  id:
+    type: string
+    description: Call number ID
   fullCallNumber:
     type: string
     description: Full call number (includes callNumber, callNumberSuffix)

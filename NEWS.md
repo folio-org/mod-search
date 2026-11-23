@@ -19,6 +19,7 @@
   * Implement Linked Data Authority index and search API ([MSEARCH-1246](https://folio-org.atlassian.net/browse/MSEARCH-1246))
 * **Call Number Browse**
   * Ignore spaces in SuDoc sorting algorithm ([MSEARCH-1005](https://folio-org.atlassian.net/browse/MSEARCH-1005))
+  * Add `id` to the call number browse item and index `callNumberId` in the instance index to search instances by call number id ([MSEARCH-1297](https://folio-org.atlassian.net/browse/MSEARCH-1297))
 * **Subject Browse**
   * Add subject id to subject browse response and support instance search by `subjectId` ([MSEARCH-872](https://folio-org.atlassian.net/browse/MSEARCH-872))
 

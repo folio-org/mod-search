@@ -80,6 +80,8 @@ import org.folio.search.model.service.CqlSearchRequest;
 import org.folio.search.model.types.IndexingDataFormat;
 import org.folio.search.model.types.ResourceType;
 import org.folio.search.model.types.SearchType;
+import org.folio.search.service.indexrebuild.callnumber.CallNumberKey;
+import org.junit.jupiter.api.Assertions;
 import org.folio.search.utils.ShaUtils;
 import org.opensearch.action.search.SearchResponse;
 import org.opensearch.core.ParseField;
@@ -251,8 +253,13 @@ public class TestUtils {
 
   private static CallNumberBrowseItem cnBrowseItemInternal(String callNumber, String prefix, String suffix,
                                                            String typeId, int count, String title, Boolean isAnchor) {
+    var callNumberKey = CallNumberKey.of(callNumber, prefix, suffix, typeId);
+    if (callNumberKey.isEmpty()) {
+      Assertions.fail("CallNumber id is empty");
+    }
     var fullCallNumber = suffix != null ? callNumber + " " + suffix : callNumber;
     return new CallNumberBrowseItem()
+      .id(callNumberKey.get().id())
       .fullCallNumber(fullCallNumber)
       .callNumber(callNumber)
       .callNumberPrefix(prefix)

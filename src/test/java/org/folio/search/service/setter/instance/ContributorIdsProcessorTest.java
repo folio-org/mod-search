@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import org.folio.search.domain.dto.Contributor;
 import org.folio.search.domain.dto.Instance;
-import org.folio.search.utils.ShaUtils;
+import org.folio.search.model.index.ContributorKey;
 import org.folio.spring.testing.type.UnitTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,14 +32,15 @@ class ContributorIdsProcessorTest {
   }
 
   @Test
-  @DisplayName("Computes id from trimmed name, name type and authority")
-  void getFieldValue_positive_idFormula() {
+  @DisplayName("Ids match contributor keys")
+  void getFieldValue_positive_idsMatchContributorKey() {
     var instance = new Instance().contributors(List.of(
-      new Contributor().name(" John ").contributorNameTypeId("type").authorityId("auth"),
+      new Contributor().name("John").contributorNameTypeId("type").authorityId("auth"),
       new Contributor().name("Jane")));
 
     assertThat(processor.getFieldValue(instance)).containsExactlyInAnyOrder(
-      ShaUtils.sha("John", "type", "auth"), ShaUtils.sha("Jane", "", ""));
+      ContributorKey.of("John", "type", "auth").orElseThrow().id(),
+      ContributorKey.of("Jane", null, null).orElseThrow().id());
   }
 
   @Test
@@ -52,8 +53,8 @@ class ContributorIdsProcessorTest {
       new Contributor().name("John").contributorNameTypeId("type1").authorityId("auth")));
 
     assertThat(processor.getFieldValue(instance)).containsExactlyInAnyOrder(
-      ShaUtils.sha("John", "type1", "auth"),
-      ShaUtils.sha("John", "type2", "auth"),
-      ShaUtils.sha("John", "type1", ""));
+      ContributorKey.of("John", "type1", "auth").orElseThrow().id(),
+      ContributorKey.of("John", "type2", "auth").orElseThrow().id(),
+      ContributorKey.of("John", "type1", null).orElseThrow().id());
   }
 }

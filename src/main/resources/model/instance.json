@@ -752,6 +752,11 @@
       "index": "keyword_lowercase",
       "processor": "callNumberIdsProcessor",
       "rawProcessing": true
+    },
+    "subjectId": {
+      "type": "search",
+      "index": "keyword_lowercase",
+      "processor": "subjectIdsProcessor"
     }
   },
   "indexMappings": { }

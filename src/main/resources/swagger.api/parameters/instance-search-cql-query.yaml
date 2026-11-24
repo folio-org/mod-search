@@ -329,6 +329,12 @@ description: |
         <td>classificationId = &quot;c4f60d7413158e9466856f4c0250d91d312f86cf&quot;</td>
         <td>Matches instances with the given classificationId</td>
     </tr>
+    <tr>
+        <td>subjectId</td>
+        <td>term</td>
+        <td>subjectId = &quot;a94a8fe5ccb19ba61c4c0873d391e987982fbbd3&quot;</td>
+        <td>Matches instances with the given subjectId (id from the subject browse response)</td>
+    </tr>
     </tbody>
     </table>
     <h5 id="instance-sort-options">Instance sort options</h5>

@@ -1,6 +1,9 @@
 description: Subject browse search result item
 type: object
 properties:
+  id:
+    type: string
+    description: Subject ID; can be used as subjectId in instance search
   value:
     type: string
     description: Subject value to be used for browsing

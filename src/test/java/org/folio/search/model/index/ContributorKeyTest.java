@@ -12,9 +12,11 @@ import org.junit.jupiter.api.Test;
 class ContributorKeyTest {
 
   @Test
-  void of_positive_idIsCompatibleWithContributorTables() {
+  void of_positive_trimsNameAndCalculatesId() {
     assertThat(ContributorKey.of("  John ", "nameType", "auth")).hasValueSatisfying(key -> {
       assertThat(key.name()).isEqualTo("John");
+      assertThat(key.nameTypeId()).isEqualTo("nameType");
+      assertThat(key.authorityId()).isEqualTo("auth");
       assertThat(key.id()).isEqualTo(ShaUtils.sha("John", "nameType", "auth"));
     });
   }
@@ -24,7 +26,7 @@ class ContributorKeyTest {
     var withNulls = ContributorKey.of("John", null, null).orElseThrow();
     var withEmpty = ContributorKey.of("John", "", "").orElseThrow();
 
-    assertThat(withNulls.id()).isEqualTo(withEmpty.id()).isEqualTo(ShaUtils.sha("John", "", ""));
+    assertThat(withNulls.id()).isEqualTo(withEmpty.id()).isEqualTo("117b408d8066f3321e239bcc9f45aa72ef01f000");
   }
 
   @Test

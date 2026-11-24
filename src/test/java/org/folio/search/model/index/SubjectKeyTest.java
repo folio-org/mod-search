@@ -12,9 +12,12 @@ import org.junit.jupiter.api.Test;
 class SubjectKeyTest {
 
   @Test
-  void of_positive_idIsCompatibleWithSubjectTables() {
+  void of_positive_trimsValueAndCalculatesId() {
     assertThat(SubjectKey.of("  Music ", "auth", "source", "type")).hasValueSatisfying(key -> {
       assertThat(key.value()).isEqualTo("Music");
+      assertThat(key.authorityId()).isEqualTo("auth");
+      assertThat(key.sourceId()).isEqualTo("source");
+      assertThat(key.typeId()).isEqualTo("type");
       assertThat(key.id()).isEqualTo(ShaUtils.sha("Music", "auth", "source", "type"));
     });
   }

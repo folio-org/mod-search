@@ -11,9 +11,12 @@ import org.junit.jupiter.api.Test;
 class CallNumberKeyTest {
 
   @Test
-  void of_positive_idIsCompatibleWithCallNumberTables() {
+  void of_positive_trimsCallNumberAndCalculatesId() {
     assertThat(CallNumberKey.of("  NS 1 .B5 ", "pre", "suf", "type")).hasValueSatisfying(key -> {
       assertThat(key.callNumber()).isEqualTo("NS 1 .B5");
+      assertThat(key.prefix()).isEqualTo("pre");
+      assertThat(key.suffix()).isEqualTo("suf");
+      assertThat(key.typeId()).isEqualTo("type");
       assertThat(key.id()).isEqualTo(ShaUtils.sha("NS 1 .B5", "pre", "suf", "type"));
     });
   }

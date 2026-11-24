@@ -62,20 +62,12 @@ class ContributorBrowseServiceTest {
       contributorSubResource("type1", "type2")
     );
 
-    var expected = new InstanceContributorBrowseItem()
-      .isAnchor(false)
-      .contributorTypeId(List.of("type1", "type2"))
-      .name("name")
-      .contributorNameTypeId("nameType")
-      .authorityId("auth")
-      .totalRecords(3);
-
     when(consortiumSearchHelper.filterSubResourcesForConsortium(any(), any(), any()))
       .thenReturn(contributorsSubResourcesMock);
 
     var browseResult = service.mapToBrowseResult(browseContext, searchResult, false);
 
-    assertThat(browseResult.getRecords().getFirst()).isEqualTo(expected);
+    assertThat(browseResult.getRecords().getFirst()).isEqualTo(expectedBrowseItem());
   }
 
   @ValueSource(booleans = {true, false})
@@ -108,6 +100,17 @@ class ContributorBrowseServiceTest {
     var result = service.getAnchorSearchQuery(browseRequest, browseContext);
 
     assertThat(result.query()).isEqualTo(queryMock);
+  }
+
+  private InstanceContributorBrowseItem expectedBrowseItem() {
+    return new InstanceContributorBrowseItem()
+      .id("id")
+      .isAnchor(false)
+      .contributorTypeId(List.of("type1", "type2"))
+      .name("name")
+      .contributorNameTypeId("nameType")
+      .authorityId("auth")
+      .totalRecords(3);
   }
 
   private List<ContributorResource> contributors() {

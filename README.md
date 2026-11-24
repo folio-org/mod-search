@@ -526,6 +526,7 @@ does not produce any values, so the following search options will return an empt
 | `normalizedDate1`                      |    term     | `normalizedDate1>=1990`                                                  | Matches instances with the given Date1 (normalizes  alpha 'u' characters)                                                                         |
 | `classificationId`                     |    term     | `classificationId = "c4f60d7413158e9466856f4c0250d91d312f86cf"`          | Matches instances with the given classificationId                                                                                                 |
 | `subjectId`                            |    term     | `subjectId = "a94a8fe5ccb19ba61c4c0873d391e987982fbbd3"`                 | Matches instances with the given subjectId (id from the subject browse response)                                                                  |
+| `contributorId`                        |    term     | `contributorId = "509906fb88c4f43f073f2390239c5314cd163d87"`             | Matches instances with the given contributorId (the `id` of a contributor browse item)                                                            |
 
 ##### Holdings search options
 

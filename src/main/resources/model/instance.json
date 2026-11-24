@@ -757,6 +757,11 @@
       "type": "search",
       "index": "keyword_lowercase",
       "processor": "subjectIdsProcessor"
+    },
+    "contributorId": {
+      "type": "search",
+      "index": "keyword_lowercase",
+      "processor": "contributorIdsProcessor"
     }
   },
   "indexMappings": { }

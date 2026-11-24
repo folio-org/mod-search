@@ -104,6 +104,7 @@ public class ContributorBrowseService extends
           .toList();
 
         return new InstanceContributorBrowseItem()
+          .id(item.id())
           .name(item.name())
           .contributorTypeId(typeIds)
           .contributorNameTypeId(item.contributorNameTypeId())

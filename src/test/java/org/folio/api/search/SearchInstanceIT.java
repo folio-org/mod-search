@@ -71,7 +71,8 @@ public abstract class SearchInstanceIT extends BaseSharedTest {
     "lccn = {value}, canceledlccn",
     "(keyword all {value}), 0747-0088",
     "callNumberId == {value}, unknown-call-number-id",
-    "subjectId == {value}, unknown-subject-id"
+    "subjectId == {value}, unknown-subject-id",
+    "contributorId == {value}, unknown-contributor-id"
   })
   @DisplayName("can search by instances (nothing found)")
   void searchByInstances_parameterized_zeroResults(String query, String value) throws Throwable {
